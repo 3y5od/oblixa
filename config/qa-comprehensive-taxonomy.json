@@ -6822,12 +6822,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-complete-closure"
+          "ref": "check:complete-closure"
         }
       ],
       "id": "bind-check-check-v10-complete-closure",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-complete-closure",
+      "title": "Claim npm script check:complete-closure",
       "priorityBand": "P2"
     },
     {
@@ -6837,12 +6837,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-inventory-lock"
+          "ref": "check:release-inventory-lock"
         }
       ],
       "id": "bind-check-check-v10-inventory-lock",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-inventory-lock",
+      "title": "Claim npm script check:release-inventory-lock",
       "priorityBand": "P2"
     },
     {
@@ -6852,12 +6852,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-migration-smoke"
+          "ref": "check:migration-smoke:current"
         }
       ],
       "id": "bind-check-check-v10-migration-smoke",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-migration-smoke",
+      "title": "Claim npm script check:migration-smoke:current",
       "priorityBand": "P2"
     },
     {
@@ -6867,12 +6867,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-migration-smoke:strict"
+          "ref": "check:migration-smoke:current:strict"
         }
       ],
       "id": "bind-check-check-v10-migration-smoke-strict",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-migration-smoke:strict",
+      "title": "Claim npm script check:migration-smoke:current:strict",
       "priorityBand": "P2"
     },
     {
@@ -6882,12 +6882,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-privacy-scan"
+          "ref": "check:release-privacy-scan"
         }
       ],
       "id": "bind-check-check-v10-privacy-scan",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-privacy-scan",
+      "title": "Claim npm script check:release-privacy-scan",
       "priorityBand": "P2"
     },
     {
@@ -6897,12 +6897,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-promotable"
+          "ref": "check:release-promotable"
         }
       ],
       "id": "bind-check-check-v10-promotable",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-promotable",
+      "title": "Claim npm script check:release-promotable",
       "priorityBand": "P2"
     },
     {
@@ -6912,12 +6912,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-promotable:report"
+          "ref": "check:release-promotable:report"
         }
       ],
       "id": "bind-check-check-v10-promotable-report",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-promotable:report",
+      "title": "Claim npm script check:release-promotable:report",
       "priorityBand": "P2"
     },
     {
@@ -6927,12 +6927,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-release-evidence"
+          "ref": "check:release-evidence"
         }
       ],
       "id": "bind-check-check-v10-release-evidence",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-release-evidence",
+      "title": "Claim npm script check:release-evidence",
       "priorityBand": "P2"
     },
     {
@@ -6942,12 +6942,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-runtime-evidence-plan"
+          "ref": "report:runtime-evidence-plan"
         }
       ],
       "id": "bind-check-check-v10-runtime-evidence-plan",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-runtime-evidence-plan",
+      "title": "Claim npm script report:runtime-evidence-plan",
       "priorityBand": "P2"
     },
     {
@@ -6957,12 +6957,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-suite"
+          "ref": "check:release-suite-current"
         }
       ],
       "id": "bind-check-check-v10-suite",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-suite",
+      "title": "Claim npm script check:release-suite-current",
       "priorityBand": "P2"
     },
     {
@@ -6972,12 +6972,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v10-zero-exclusion-report"
+          "ref": "check:zero-exclusion-report"
         }
       ],
       "id": "bind-check-check-v10-zero-exclusion-report",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v10-zero-exclusion-report",
+      "title": "Claim npm script check:zero-exclusion-report",
       "priorityBand": "P2"
     },
     {
@@ -6987,12 +6987,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v7-hrefs:strict"
+          "ref": "check:surface-hrefs:compatibility:strict"
         }
       ],
       "id": "bind-check-check-v7-hrefs-strict",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v7-hrefs:strict",
+      "title": "Claim npm script check:surface-hrefs:compatibility:strict",
       "priorityBand": "P2"
     },
     {
@@ -7002,12 +7002,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v7-suite"
+          "ref": "check:surface-suite:compatibility"
         }
       ],
       "id": "bind-check-check-v7-suite",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v7-suite",
+      "title": "Claim npm script check:surface-suite:compatibility",
       "priorityBand": "P2"
     },
     {
@@ -7017,12 +7017,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-acceptance-criteria"
+          "ref": "check:surface:acceptance-criteria"
         }
       ],
       "id": "bind-check-check-v8-acceptance-criteria",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-acceptance-criteria",
+      "title": "Claim npm script check:surface:acceptance-criteria",
       "priorityBand": "P2"
     },
     {
@@ -7032,12 +7032,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-acceptance-matrix"
+          "ref": "check:surface:acceptance-matrix"
         }
       ],
       "id": "bind-check-check-v8-acceptance-matrix",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-acceptance-matrix",
+      "title": "Claim npm script check:surface:acceptance-matrix",
       "priorityBand": "P2"
     },
     {
@@ -7047,12 +7047,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-action-eligibility"
+          "ref": "check:surface:action-eligibility"
         }
       ],
       "id": "bind-check-check-v8-action-eligibility",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-action-eligibility",
+      "title": "Claim npm script check:surface:action-eligibility",
       "priorityBand": "P2"
     },
     {
@@ -7062,12 +7062,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-action-inventory"
+          "ref": "check:surface:action-inventory"
         }
       ],
       "id": "bind-check-check-v8-action-inventory",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-action-inventory",
+      "title": "Claim npm script check:surface:action-inventory",
       "priorityBand": "P2"
     },
     {
@@ -7077,12 +7077,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-api-eligibility"
+          "ref": "check:surface:api-eligibility"
         }
       ],
       "id": "bind-check-check-v8-api-eligibility",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-api-eligibility",
+      "title": "Claim npm script check:surface:api-eligibility",
       "priorityBand": "P2"
     },
     {
@@ -7092,12 +7092,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-api-inventory"
+          "ref": "check:surface:api-inventory"
         }
       ],
       "id": "bind-check-check-v8-api-inventory",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-api-inventory",
+      "title": "Claim npm script check:surface:api-inventory",
       "priorityBand": "P2"
     },
     {
@@ -7107,12 +7107,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-denial-mapping"
+          "ref": "check:surface:denial-mapping"
         }
       ],
       "id": "bind-check-check-v8-denial-mapping",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-denial-mapping",
+      "title": "Claim npm script check:surface:denial-mapping",
       "priorityBand": "P2"
     },
     {
@@ -7122,12 +7122,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-diagnostics-contract"
+          "ref": "check:surface:diagnostics-contract"
         }
       ],
       "id": "bind-check-check-v8-diagnostics-contract",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-diagnostics-contract",
+      "title": "Claim npm script check:surface:diagnostics-contract",
       "priorityBand": "P2"
     },
     {
@@ -7137,12 +7137,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-hrefs"
+          "ref": "check:surface:hrefs"
         }
       ],
       "id": "bind-check-check-v8-hrefs",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-hrefs",
+      "title": "Claim npm script check:surface:hrefs",
       "priorityBand": "P2"
     },
     {
@@ -7152,12 +7152,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-hrefs:strict"
+          "ref": "check:surface:hrefs:strict"
         }
       ],
       "id": "bind-check-check-v8-hrefs-strict",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-hrefs:strict",
+      "title": "Claim npm script check:surface:hrefs:strict",
       "priorityBand": "P2"
     },
     {
@@ -7167,12 +7167,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-page-inventory"
+          "ref": "check:surface:page-inventory"
         }
       ],
       "id": "bind-check-check-v8-page-inventory",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-page-inventory",
+      "title": "Claim npm script check:surface:page-inventory",
       "priorityBand": "P2"
     },
     {
@@ -7182,12 +7182,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-suite"
+          "ref": "check:surface:suite"
         }
       ],
       "id": "bind-check-check-v8-suite",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-suite",
+      "title": "Claim npm script check:surface:suite",
       "priorityBand": "P2"
     },
     {
@@ -7197,12 +7197,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-supplemental-contracts"
+          "ref": "check:surface:supplemental-contracts"
         }
       ],
       "id": "bind-check-check-v8-supplemental-contracts",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-supplemental-contracts",
+      "title": "Claim npm script check:surface:supplemental-contracts",
       "priorityBand": "P2"
     },
     {
@@ -7212,12 +7212,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v8-vocabulary"
+          "ref": "check:surface:vocabulary"
         }
       ],
       "id": "bind-check-check-v8-vocabulary",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v8-vocabulary",
+      "title": "Claim npm script check:surface:vocabulary",
       "priorityBand": "P2"
     },
     {
@@ -7227,12 +7227,12 @@
       "bindings": [
         {
           "kind": "npmScript",
-          "ref": "check:v9-suite"
+          "ref": "check:previous-release-suite"
         }
       ],
       "id": "bind-check-check-v9-suite",
       "section": "reverse_bind_check",
-      "title": "Claim npm script check:v9-suite",
+      "title": "Claim npm script check:previous-release-suite",
       "priorityBand": "P2"
     },
     {

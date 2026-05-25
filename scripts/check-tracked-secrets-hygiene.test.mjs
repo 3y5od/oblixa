@@ -40,6 +40,17 @@ test("analyzeTrackedSecretsHygiene accepts safe env ignore and empty secret samp
   assert.equal(report.issueCount, 0);
 });
 
+test("analyzeTrackedSecretsHygiene accepts a tracked local env example template", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-tracked-secrets-local-example-"));
+  write(root, ".gitignore", ".env*\n!.env.example\n!.env.local.example\n");
+  write(root, ".env.example", "CRON_SECRET=\n");
+  const report = analyzeTrackedSecretsHygiene(root, {
+    trackedFiles: [".env.example", ".env.local.example"],
+  });
+
+  assert.equal(report.ok, true, JSON.stringify(report.issues, null, 2));
+});
+
 test("analyzeTrackedSecretsHygiene rejects tracked env, key, and coverage files", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-tracked-secrets-files-"));
   writeValidFixture(root);

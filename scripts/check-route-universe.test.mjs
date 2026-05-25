@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { findMissingRequiredAppRouterStateFailures, findRouteUniverseFailures } from "./check-route-universe.mjs";
-import { methodsFromSource } from "./lib/build-route-universe.mjs";
+import { buildRouteUniversePayload, methodsFromSource } from "./lib/build-route-universe.mjs";
 
 function write(root, rel, content) {
   const abs = path.join(root, rel);
@@ -63,6 +63,25 @@ test("methodsFromSource detects function and const route handlers", () => {
   `);
 
   assert.deepEqual(methods, ["GET", "POST", "PATCH", "HEAD"]);
+});
+
+test("buildRouteUniversePayload follows local route re-export wrappers", () => {
+  const payload = withFixture(
+    {
+      "src/app/api/cron/task/route.ts": 'export * from "../task-source/route";\n',
+      "src/app/api/cron/task-source/route.ts": `
+        export const runtime = "nodejs";
+        export const GET = async () => Response.json({ ok: true });
+      `,
+    },
+    buildRouteUniversePayload
+  );
+
+  const row = payload.universe.routes.find((route) => route.sourcePath === "src/app/api/cron/task/route.ts");
+  assert(row);
+  assert.deepEqual(row.methods, ["GET"]);
+  assert.equal(row.runtime, "nodejs");
+  assert.equal(row.authModel, "cron_secret");
 });
 
 test("findRouteUniverseFailures reads generated artifacts from the provided root", () => {

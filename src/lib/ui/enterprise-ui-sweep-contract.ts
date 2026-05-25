@@ -1,4 +1,4 @@
-import { OPS_ARTIFACT_V10_RUNBOOK, SPEC_ARTIFACT_V10 } from "../spec-artifact-ids";
+import { OPS_ARTIFACT_RUNBOOK, SPEC_ARTIFACT_V10 } from "../spec-artifact-ids";
 
 export type EnterpriseUiSweepTodoId =
   | "advanced-surfaces"
@@ -165,7 +165,7 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
     firstFoldAnswer: "pending fields, date gaps, review continuity, and next contract action",
     states: ["active-risk", "all-clear", "filtered-empty", "loading", "mobile", "keyboard"],
     roleModes: ["legal_reviewer", "editor", "manager", "admin"],
-    evidenceArtifacts: ["src/lib/v10-field-provenance.ts", "src/lib/contract-list-id-filters.ts"],
+    evidenceArtifacts: ["src/lib/field-provenance.ts", "src/lib/contract-list-id-filters.ts"],
   },
   {
     route: "/settings/health",
@@ -174,7 +174,7 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
     firstFoldAnswer: "user-visible trust issues before normal diagnostics",
     states: ["active-risk", "all-clear", "partial-data", "failed", "loading", "mobile", "keyboard"],
     roleModes: ["admin", "manager", "core", "advanced", "assurance"],
-    evidenceArtifacts: ["src/lib/v10-read-model-refresh.ts", "src/lib/v10-release-evidence.ts"],
+    evidenceArtifacts: ["src/lib/read-model-refresh.ts", "src/lib/release-evidence.ts"],
   },
   {
     route: "/reports",
@@ -183,7 +183,7 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
     firstFoldAnswer: "failed, partial, running, or stale report outputs before browsing",
     states: ["active-risk", "all-clear", "partial-data", "loading", "mobile", "keyboard"],
     roleModes: ["viewer", "manager", "admin", "core", "advanced", "assurance"],
-    evidenceArtifacts: ["src/lib/v10-report-export.ts", "src/components/reports/reports-v6-assurance-section.tsx"],
+    evidenceArtifacts: ["src/lib/report-export.ts", "src/components/reports/reports-assurance-section.tsx"],
   },
   {
     route: "/decisions",
@@ -228,7 +228,7 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
     firstFoldAnswer: "open findings, failed playbooks, policy health, and next assurance actions before diagnostics",
     states: ["active-risk", "all-clear", "partial-data", "loading", "mobile", "keyboard"],
     roleModes: ["admin", "manager", "assurance"],
-    evidenceArtifacts: ["src/components/reports/reports-v6-assurance-section.tsx", "src/lib/v10-route-api-catalog.ts"],
+    evidenceArtifacts: ["src/components/reports/reports-assurance-section.tsx", "src/lib/route-api-catalog.ts"],
   },
   {
     route: "/settings/product",
@@ -243,8 +243,8 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
 
 export const ENTERPRISE_UI_COMPONENT_CONTRACTS: readonly EnterpriseUiComponentContractRow[] = [
   {
-    component: "V10RecoverableState",
-    artifact: "src/components/ui/v10-recoverable-state.tsx",
+    component: "RecoverableState",
+    artifact: "src/components/ui/recoverable-state.tsx",
     density: ["standard", "compact"],
     requiredBehaviors: ["empty states are compact", "partial states explain trustworthy data", "failed states announce alerts"],
     telemetryOrA11yContract: "data-v10-state and aria-live remain stable",
@@ -367,8 +367,8 @@ export const ENTERPRISE_UI_SWEEP_LEDGER: readonly EnterpriseUiSweepLedgerRow[] =
   {
     id: "route-inventory",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/v10-route-api-catalog.ts"],
-    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/v10-route-api-catalog.v10.test.ts"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/route-api-catalog.ts"],
+    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/route-api-catalog.test.ts"],
     acceptanceEvidence: ["authenticated route inventory includes first-fold patterns and state coverage"],
   },
   {
@@ -382,42 +382,42 @@ export const ENTERPRISE_UI_SWEEP_LEDGER: readonly EnterpriseUiSweepLedgerRow[] =
     id: "forms-recoverability",
     status: "verified",
     artifacts: ["src/actions/tasks.ts", "src/actions/approvals.ts", "src/actions/exceptions.ts", "src/actions/obligations.ts"],
-    gates: ["src/lib/v10-mutation-rollout.v10.test.ts", "src/lib/v10-route-api-catalog.v10.test.ts"],
+    gates: ["src/lib/mutation-rollout.test.ts", "src/lib/route-api-catalog.test.ts"],
     acceptanceEvidence: ["mutations remain idempotent/audited with operational recovery surfaces"],
   },
   {
     id: "accessibility-performance",
     status: "verified",
-    artifacts: ["src/components/ui/v10-recoverable-state.tsx", "src/app/globals.css", "e2e/v10-core-smoke.spec.ts"],
-    gates: ["src/components/ui/v10-recoverable-state.test.tsx", "npm run test:e2e:v10"],
+    artifacts: ["src/components/ui/recoverable-state.tsx", "src/app/globals.css", "e2e/current-product-core-smoke.spec.ts"],
+    gates: ["src/components/ui/recoverable-state.test.tsx", "npm run test:e2e:current-product"],
     acceptanceEvidence: ["compact states preserve aria-live, keyboard disclosure, and server-rendered primitives"],
   },
   {
     id: "acceptance-matrix",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/v10-acceptance-matrix.ts"],
-    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/v10-acceptance-matrix.v10.test.ts"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/acceptance-matrix.ts"],
+    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/acceptance-matrix.test.ts"],
     acceptanceEvidence: ["surface and component matrices are represented as static contracts"],
   },
   {
     id: "telemetry-docs-release",
     status: "verified",
-    artifacts: [OPS_ARTIFACT_V10_RUNBOOK, SPEC_ARTIFACT_V10, "src/lib/product-telemetry.ts"],
-    gates: ["src/lib/product-telemetry.v10.test.ts", "npm run check:v10-release-evidence"],
+    artifacts: [OPS_ARTIFACT_RUNBOOK, SPEC_ARTIFACT_V10, "src/lib/product-telemetry.ts"],
+    gates: ["src/lib/product-telemetry-current.test.ts", "npm run check:release-evidence"],
     acceptanceEvidence: ["release and runbook artifacts carry the new operating principle"],
   },
   {
     id: "fixtures-visuals",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "e2e/v10-core-smoke.spec.ts"],
-    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "npm run test:e2e:v10"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "e2e/current-product-core-smoke.spec.ts"],
+    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "npm run test:e2e:current-product"],
     acceptanceEvidence: ["fixture state manifest enumerates all-clear, active-risk, partial, failed, role, mode, and mobile states"],
   },
   {
     id: "privacy-security-ui",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/v10-zero-exclusion-report.ts"],
-    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/v10-zero-exclusion-report.v10.test.ts"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", "src/lib/zero-exclusion-report.ts"],
+    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "src/lib/zero-exclusion-report.test.ts"],
     acceptanceEvidence: ["diagnostic disclosure and release manifests keep support-sensitive details out of default UI"],
   },
   {
@@ -430,8 +430,8 @@ export const ENTERPRISE_UI_SWEEP_LEDGER: readonly EnterpriseUiSweepLedgerRow[] =
   {
     id: "rollout-monitoring",
     status: "verified",
-    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", OPS_ARTIFACT_V10_RUNBOOK],
-    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "npm run check:v10-suite"],
+    artifacts: ["src/lib/ui/enterprise-ui-sweep-contract.ts", OPS_ARTIFACT_RUNBOOK],
+    gates: ["src/lib/ui/enterprise-ui-sweep-contract.test.ts", "npm run check:release-suite-current"],
     acceptanceEvidence: ["rollout monitoring keys and compatibility shims are tracked outside the plan file"],
   },
 ] as const;

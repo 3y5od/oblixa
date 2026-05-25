@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { nowIso, readJsonBody, toSafeString } from "@/lib/v5/api";
-import { decisionQueueSlaFields } from "@/lib/v5/decision-queue-sla";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { nowIso, readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { decisionQueueSlaFields } from "@/lib/decision-intelligence/decision-queue-sla";
 import {
   isValidPacketType,
   PACKET_TYPE_TEMPLATE_HINTS,
   packetTypeValidationError,
-} from "@/lib/v5/packet-types";
-import { buildDecisionExecutionContext } from "@/lib/v5/decision-context";
+} from "@/lib/decision-intelligence/packet-types";
+import { buildDecisionExecutionContext } from "@/lib/decision-intelligence/decision-context";
 import {
   uploadDecisionPacketJsonArtifact,
   uploadDecisionPacketPdfArtifact,
-} from "@/lib/v5/decision-packet-storage";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/decision-packet-storage";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { enforceIdempotency } from "@/lib/idempotency";
@@ -246,7 +246,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     typeof decision.title === "string" && decision.title.trim()
       ? decision.title
       : "Decision packet";
-  const { renderDecisionPacketPdfBuffer } = await import("@/lib/v5/decision-packet-pdf");
+  const { renderDecisionPacketPdfBuffer } = await import("@/lib/decision-intelligence/decision-packet-pdf");
   const packetPdfBuffer = await renderDecisionPacketPdfBuffer({
     title: decisionTitle,
     packetType: packetType,

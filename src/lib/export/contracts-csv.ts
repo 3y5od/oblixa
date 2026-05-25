@@ -5,14 +5,14 @@ import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import {
   describeV10Truncation,
   resolveV10ReportExportPlan,
-} from "@/lib/v10-report-export";
+} from "@/lib/report-export";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 
 const ROUTE = "/api/export/contracts";
 type ExportScope = "selected" | "workspace";

@@ -57,7 +57,7 @@ const REQUIRED_FILE_MARKERS = {
     "confirms uploaded OCR files are deleted",
     "audits cleanup failures without throwing",
   ],
-  "src/lib/v6/org-settings.ts": [
+  "src/lib/assurance/org-settings.ts": [
     "ai_processing_enabled?: boolean;",
     "next.ai_processing_enabled = raw.ai_processing_enabled === true;",
   ],
@@ -92,7 +92,7 @@ const REQUIRED_FILE_MARKERS = {
     "rejects injected field names and non-numeric confidence",
     "fails closed on oversized or overlong structured model output",
   ],
-  "src/lib/extraction/extraction-user-messages.v7.test.ts": [
+  "src/lib/extraction/extraction-user-messages.test.ts": [
     "mapAiExtractionError returns neutral copy",
     "invalid api key",
   ],

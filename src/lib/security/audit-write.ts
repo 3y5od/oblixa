@@ -1,4 +1,4 @@
-import { recordV10AuditEvent, recordV10AuditEventStrict, type V10AuditInput } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent, recordV10AuditEventStrict, type V10AuditInput } from "@/lib/server-contracts";
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { SecurityAuditAction } from "@/lib/security/audit-actions";
 

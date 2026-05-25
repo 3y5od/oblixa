@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
-import { toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { dryRunAutopilotRule } from "@/lib/v6/autopilot";
+import { toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { dryRunAutopilotRule } from "@/lib/assurance/autopilot";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
-import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
+import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/assurance/require-assurance-workspace-for-autopilot-api";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -61,6 +61,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       route: ROUTE,
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_autopilot_dry_run_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_autopilot_dry_run_total", 1).catch(() => undefined);
   return NextResponse.json({ rule: result.rule, run: result.run });
 }

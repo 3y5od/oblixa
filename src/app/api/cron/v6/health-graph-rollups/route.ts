@@ -1,5 +1,5 @@
-import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/v6/cron-route-runner";
-import { rebuildHealthGraph } from "@/lib/v6/cron-jobs";
+import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/assurance/cron-route-runner";
+import { rebuildHealthGraph } from "@/lib/assurance/cron-jobs";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 export const runtime = "nodejs";

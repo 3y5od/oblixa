@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Contract, ExtractedField } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 
 interface UpcomingAction {
   contract: Pick<Contract, "id" | "title">;

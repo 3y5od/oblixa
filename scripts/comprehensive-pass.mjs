@@ -1,4 +1,4 @@
-// Optional local gate for product-surface drift: `npm run check:v8-suite` (href + vocabulary + inventory scripts).
+// Optional local gate for product-surface drift: `npm run check:surface:suite` (href + vocabulary + inventory scripts).
 import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";

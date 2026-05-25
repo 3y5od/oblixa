@@ -1,5 +1,5 @@
-import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/v6/cron-route-runner";
-import { recomputeScorecardsForAllOrgs } from "@/lib/v6/cron-jobs";
+import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/assurance/cron-route-runner";
+import { recomputeScorecardsForAllOrgs } from "@/lib/assurance/cron-jobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

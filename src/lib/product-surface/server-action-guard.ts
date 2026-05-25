@@ -3,16 +3,16 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
 import {
   evaluateFeatureEligibility,
-  type V8EligibilityDenialClass,
+  type EligibilityDenialClass,
 } from "@/lib/product-surface/eligibility";
 import { featureRegistryByKey, type FeatureFamilyKey } from "@/lib/product-surface/feature-registry";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import { getFeatureFlags } from "@/lib/feature-flags";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 
 export type ServerActionEligibilityDenied = {
   ok: false;
-  denialClass: V8EligibilityDenialClass;
+  denialClass: EligibilityDenialClass;
   reason: string;
   message: string;
 };
@@ -51,7 +51,7 @@ export async function requireServerActionEligibility(input: {
     };
   }
 
-  const v6 = await getV6OrgSettingsJson(auth.admin, auth.orgId);
+  const v6 = await getOrgSettingsJson(auth.admin, auth.orgId);
   const ctx = buildProductSurfaceContext({
     orgId: auth.orgId,
     role: auth.role as WorkspaceRole,

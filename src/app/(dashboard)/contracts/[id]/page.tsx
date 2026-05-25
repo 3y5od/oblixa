@@ -57,8 +57,8 @@ import {
   supersedeContractFileForm,
   upsertContractHandoffChecklistForm,
 } from "@/actions/contracts";
-import { updateProgramAssignmentOverrideFormAction } from "@/actions/v4";
-import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
+import { updateProgramAssignmentOverrideFormAction } from "@/actions/policy-operations";
+import { ExecutionGraphVizDynamic } from "@/components/execution-graph-viz-dynamic";
 import type {
   ContractApproval, ContractExtractionJob, ContractObligation, ContractNote,
   ContractRenewalScenario, ContractRenewalCheckpoint, ContractTask, OrgRole,
@@ -71,15 +71,15 @@ import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { ContractHeroMetrics } from "@/components/contracts/contract-hero-metrics";
 import { OperationalQueueRow } from "@/components/ui/operational-summary-card";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { emitProductTelemetryIfFirstForOrgUser } from "@/lib/product-telemetry";
 import { getReminderDeliveryState, groupReminderDeliveriesByReminderId } from "@/lib/reminder-delivery-visibility";
 import { fetchReviewQueueContinuity } from "@/lib/contract-review-stats";
-import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import { buildContractImmediateActions, buildContractOperationsStrip, type ContractDetailIconKey } from "@/lib/contract-detail-summary";
 import { isEvidenceGapStatus } from "@/lib/evidence-status";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
@@ -1713,7 +1713,7 @@ export default async function ContractDetailPage(props: {
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
-                            Open queue
+                            Review queue
                           </Link>
                           {reviewQueueContinuity.nextContractId ? (
                             <ReviewSaveNextTelemetryLink
@@ -1878,7 +1878,7 @@ export default async function ContractDetailPage(props: {
                     ].map(([label, count, detail]) => (
                       <div key={String(label)} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_38%,transparent)] p-4">
                         <p className="ui-caps-3 text-[var(--text-tertiary)]">{label}</p>
-                        <p className="mt-2 text-2xl font-semibold leading-none tabular-nums text-[var(--text-primary)]">
+                        <p className="mt-2 text-lg font-semibold leading-none tabular-nums text-[var(--text-primary)]">
                           {count}
                         </p>
                         <p className="mt-2 text-[12.5px] text-[var(--text-secondary)]">{detail}</p>
@@ -1937,7 +1937,7 @@ export default async function ContractDetailPage(props: {
                   countLabel="pending"
                   action={
                     <Link href={`/contracts/approvals?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
-                      Open approval queue
+                      Review approval queue
                     </Link>
                   }
                 />
@@ -2379,7 +2379,7 @@ export default async function ContractDetailPage(props: {
                     .
                   </p>
                 ) : (
-                  <V10RecoverableState
+                  <RecoverableState
                     state="partial"
                     title="Contract health read model has not materialized"
                     reason="Related activation, work, renewal, evidence, approval, exception, and audit signals are shown below so the record remains recoverable while health is rebuilt."
@@ -2937,7 +2937,7 @@ export default async function ContractDetailPage(props: {
                   href={`/contracts/exceptions?status=open&contract=${contract.id}`}
                   className="ui-link mt-4 inline-block text-sm"
                 >
-                  Open exception ledger
+                  Review exception ledger
                 </Link>
               </div>
             </div>
@@ -3218,7 +3218,7 @@ export default async function ContractDetailPage(props: {
                     href={`/contracts/execution-graph?contractId=${contract.id}`}
                     className="ui-link mt-2 inline-block text-xs"
                   >
-                    Open portfolio graph view
+                    Inspect portfolio graph
                   </Link>
                   {executionGraphEdges.length > 0 ? (
                     <div className="mt-3 max-h-[320px] overflow-auto">

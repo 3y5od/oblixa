@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Split } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
+import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/decision-intelligence/decision-types";
 
 export default async function DecisionsComparePage(props: {
   searchParams: Promise<{ decisionA?: string; decisionB?: string }>;

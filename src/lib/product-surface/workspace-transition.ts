@@ -3,7 +3,7 @@
  * Extracted from product-surface-settings for reuse (onboarding calibration).
  */
 import { notificationTypesBlockedByMode } from "@/lib/notification-product-tier";
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import {
   minWorkspaceModeForReportType,

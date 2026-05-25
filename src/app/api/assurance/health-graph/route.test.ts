@@ -9,16 +9,16 @@ const { listHealthGraph } = vi.hoisted(() => ({
   listHealthGraph: vi.fn(),
 }));
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v6/assurance", () => ({
+vi.mock("@/lib/assurance/assurance", () => ({
   listHealthGraph,
 }));
 
@@ -26,8 +26,8 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => {}),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => {}),
 }));
 
 describe("GET /api/assurance/health-graph", () => {

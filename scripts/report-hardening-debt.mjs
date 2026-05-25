@@ -22,7 +22,7 @@ const integration = runJson("report-integration-contract-surface.mjs");
 const concurrency = runJson("report-concurrency-hotspots.mjs");
 const allowlists = analyzeAllowlistMetadata(ROOT, { maxIssues: 20 });
 const exemptions = JSON.parse(
-  readFileSync(path.join(ROOT, "src/lib/product-surface/v8-test-exemptions.json"), "utf8")
+  readFileSync(path.join(ROOT, "src/lib/product-surface/test-exemptions.json"), "utf8")
 );
 
 const report = {

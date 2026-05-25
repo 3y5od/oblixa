@@ -11,8 +11,8 @@ import {
   isOnboardingCalibrationStaleCronDryRun,
 } from "@/lib/onboarding/calibration-stale-env";
 import { parseOnboardingCalibration } from "@/lib/onboarding/calibration-types";
-import type { AdminClient } from "@/lib/v6/service";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { AdminClient } from "@/lib/assurance/service";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -97,7 +97,7 @@ export async function runOnboardingCalibrationStaleCron(input: {
 
   for (const orgId of input.orgIds) {
     try {
-      const prevV6 = await getV6OrgSettingsJson(input.admin, orgId);
+      const prevV6 = await getOrgSettingsJson(input.admin, orgId);
       const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
       if (!prevCal) {
         skipped_ineligible += 1;
@@ -142,7 +142,7 @@ export async function runOnboardingCalibrationStaleCron(input: {
         continue;
       }
 
-      const prevV6b = await getV6OrgSettingsJson(input.admin, orgId);
+      const prevV6b = await getOrgSettingsJson(input.admin, orgId);
       const prevCalb = parseOnboardingCalibration(prevV6b.onboarding_calibration);
       if (!prevCalb) {
         skipped_stale_race += 1;

@@ -22,11 +22,11 @@ vi.mock("@/lib/observability/cron-healthcheck", () => ({
   pingCronHealthcheck,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent,
 }));
 

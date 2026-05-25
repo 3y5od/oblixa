@@ -1344,7 +1344,7 @@
       "sec_id": "SEC-INT-001",
       "title": "Stripe webhook",
       "I_refs": "",
-      "T_refs": "src/lib/v10-route-api-catalog.v10.test.ts",
+      "T_refs": "src/lib/route-api-catalog.test.ts",
       "E_refs": "scripts/check-security-control-coverage.mjs",
       "M_refs": "out-of-repo manual / org evidence (no in-repo markdown)",
       "priority": "P0",

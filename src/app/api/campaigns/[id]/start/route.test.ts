@@ -6,12 +6,12 @@ const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
 const enforceIdempotency = vi.fn(async () => null as Response | null);
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 

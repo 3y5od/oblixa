@@ -113,13 +113,14 @@ describe("settings page release-state compliance", () => {
 
   it("keeps public Settings routes free of documentation runtime dependencies and landing decoration", () => {
     const raw = readPublicSettingsSource();
-    expect(raw).not.toMatch(/from\s+["'][^"']*docs\//);
-    expect(raw).not.toMatch(/readFileSync\([^)]*\.md/);
-    expect(raw).not.toContain(".md");
-    expect(raw).not.toContain("landing-corner-ring");
-    expect(raw).not.toContain("landing-eyebrow-dot");
-    expect(raw).not.toContain("ui-page-header");
-    expect(raw).not.toContain("w-fit");
+    const runtimeSource = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+    expect(runtimeSource).not.toMatch(/from\s+["'][^"']*docs\//);
+    expect(runtimeSource).not.toMatch(/readFileSync\([^)]*\.md/);
+    expect(runtimeSource).not.toContain(".md");
+    expect(runtimeSource).not.toContain("landing-corner-ring");
+    expect(runtimeSource).not.toContain("landing-eyebrow-dot");
+    expect(runtimeSource).not.toContain("ui-page-header");
+    expect(runtimeSource).not.toContain("w-fit");
   });
 
   it("uses native anchors and scroll margins for same-page settings links", () => {

@@ -7,7 +7,7 @@ import {
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
   externalActionTokenHash,
@@ -19,9 +19,9 @@ import {
   readJsonBody,
   toSafeString,
   verifyExternalPasscode,
-} from "@/lib/v5/api";
-import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+} from "@/lib/decision-intelligence/api";
+import { appendExternalWorkflowStep } from "@/lib/assurance/external-collaboration";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -214,7 +214,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     });
   }
 
-  await incrementV6QualityCounter(
+  await incrementAssuranceQualityCounter(
     admin,
     String(link.organization_id),
     "external_workflow_step_appends_total",

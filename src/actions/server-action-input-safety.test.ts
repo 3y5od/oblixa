@@ -30,19 +30,19 @@ describe("server action input safety coverage", () => {
   });
 
   it("covers invalid form state parsing for JSON-backed server actions", () => {
-    const v4Source = readAction("v4.ts");
+    const policyOperationsSource = readAction("policy-operations.ts");
     const productSettingsSource = readAction("product-surface-settings.ts");
 
-    expect(v4Source).toContain("Invalid JSON");
-    expect(v4Source).toContain("overrideJson must be valid JSON");
-    expect(v4Source).toContain("workspaceJson must be valid JSON");
+    expect(policyOperationsSource).toContain("Invalid JSON");
+    expect(policyOperationsSource).toContain("overrideJson must be valid JSON");
+    expect(policyOperationsSource).toContain("workspaceJson must be valid JSON");
     expect(productSettingsSource).toContain("isValidDefaultLandingPath");
     expect(productSettingsSource).toContain("That default landing path is not available");
   });
 
   it("covers stale optimistic update handling for versioned work-item actions", () => {
     const tasksSource = readAction("tasks.ts");
-    const v10ContractTest = readFileSync(join(process.cwd(), "src/lib/v10-server-contracts.v10.test.ts"), "utf8");
+    const v10ContractTest = readFileSync(join(process.cwd(), "src/lib/server-contracts.test.ts"), "utf8");
 
     expect(tasksSource).toContain("expectedVersion: input.expectedVersion");
     expect(tasksSource).toContain("currentVersion: task.updated_at");

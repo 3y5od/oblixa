@@ -18,6 +18,8 @@ test("sql security migrations bundle preserves strict sql audit ordering", () =>
     "check:migrations:strict",
     "check:rls-sanity-tables",
     "check:rls-policy-drift",
+    "check:supabase:seed-safety",
+    "check:supabase:retention-inventory",
     "check:migration-security-patterns:strict-inner",
     "check:sql-definer-invoker-inventory",
     "test:rls-smoke",

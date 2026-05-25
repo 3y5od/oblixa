@@ -5,12 +5,12 @@ const hoisted = vi.hoisted(() => ({
   requireAssuranceWorkspaceForAutopilotApi: vi.fn(),
 }));
 
-vi.mock("@/lib/v6/require-assurance-workspace-for-autopilot-api", () => ({
+vi.mock("@/lib/assurance/require-assurance-workspace-for-autopilot-api", () => ({
   requireAssuranceWorkspaceForAutopilotApi: (...args: unknown[]) =>
     hoisted.requireAssuranceWorkspaceForAutopilotApi(...args),
 }));
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature: () => null,
 }));
 
@@ -20,7 +20,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
 
 const requireV6Context = vi.fn();
 
-vi.mock("@/lib/v6/api-auth", () => ({
+vi.mock("@/lib/assurance/api-auth", () => ({
   requireV6Context: (...args: unknown[]) => requireV6Context(...args),
 }));
 

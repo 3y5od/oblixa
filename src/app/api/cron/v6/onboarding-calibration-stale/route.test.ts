@@ -10,7 +10,7 @@ vi.mock("@/lib/security/cron-route-gate", () => ({
   gateCronRequest,
 }));
 
-vi.mock("@/lib/v6/cron", () => ({
+vi.mock("@/lib/assurance/cron", () => ({
   listOrganizationIds: vi.fn(async () => ({
     orgIds: ["org-a"],
     error: null,

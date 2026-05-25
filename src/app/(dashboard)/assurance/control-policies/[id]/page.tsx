@@ -6,8 +6,8 @@ import { ControlPolicyAssignPanel } from "@/components/assurance/control-policy-
 import { ControlPolicyDetailActions } from "@/components/assurance/control-policy-detail-actions";
 import { ControlPolicyRemediationPlaybookPanel } from "@/components/assurance/control-policy-remediation-playbook";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
-import { diffPolicyJsonObjects } from "@/lib/v6/policy-json-diff";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
+import { diffPolicyJsonObjects } from "@/lib/assurance/policy-json-diff";
 
 const ENFORCEMENT_HELP: Record<string, string> = {
   observe_only: "Records evaluation only; no automated side effects.",

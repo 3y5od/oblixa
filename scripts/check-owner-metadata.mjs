@@ -103,7 +103,7 @@ for (const [idx, line] of allowlist.entries()) {
 }
 
 const exemptions = JSON.parse(
-  readFileSync(path.join(ROOT, "src/lib/product-surface/v8-test-exemptions.json"), "utf8")
+  readFileSync(path.join(ROOT, "src/lib/product-surface/test-exemptions.json"), "utf8")
 );
 let exemptionCount = 0;
 let exemptionExpiredCount = 0;
@@ -111,19 +111,19 @@ let exemptionExpiringSoonCount = 0;
 for (const [idx, row] of (Array.isArray(exemptions) ? exemptions : []).entries()) {
   exemptionCount += 1;
   if (!row.owner || typeof row.owner !== "string" || !row.owner.startsWith("@")) {
-    issues.push({ file: "src/lib/product-surface/v8-test-exemptions.json", row: idx, issue: "owner_must_start_with_at" });
+    issues.push({ file: "src/lib/product-surface/test-exemptions.json", row: idx, issue: "owner_must_start_with_at" });
   }
   if (!row.reason || typeof row.reason !== "string" || !row.reason.trim()) {
-    issues.push({ file: "src/lib/product-surface/v8-test-exemptions.json", row: idx, issue: "reason_must_be_non_empty" });
+    issues.push({ file: "src/lib/product-surface/test-exemptions.json", row: idx, issue: "reason_must_be_non_empty" });
   }
   if (!row.expiresOn || typeof row.expiresOn !== "string") {
-    issues.push({ file: "src/lib/product-surface/v8-test-exemptions.json", row: idx, issue: "missing_expires_on" });
+    issues.push({ file: "src/lib/product-surface/test-exemptions.json", row: idx, issue: "missing_expires_on" });
     continue;
   }
   const expiryDay = toDayNumber(row.expiresOn);
   if (expiryDay === null) {
     issues.push({
-      file: "src/lib/product-surface/v8-test-exemptions.json",
+      file: "src/lib/product-surface/test-exemptions.json",
       row: idx,
       issue: "invalid_expires_on_format",
     });
@@ -133,7 +133,7 @@ for (const [idx, row] of (Array.isArray(exemptions) ? exemptions : []).entries()
   if (daysUntilExpiry < 0) {
     exemptionExpiredCount += 1;
     issues.push({
-      file: "src/lib/product-surface/v8-test-exemptions.json",
+      file: "src/lib/product-surface/test-exemptions.json",
       row: idx,
       issue: "expired_exemption",
       expiry: row.expiresOn,
@@ -142,7 +142,7 @@ for (const [idx, row] of (Array.isArray(exemptions) ? exemptions : []).entries()
   } else if (daysUntilExpiry <= warningWindowDays) {
     exemptionExpiringSoonCount += 1;
     warnings.push({
-      file: "src/lib/product-surface/v8-test-exemptions.json",
+      file: "src/lib/product-surface/test-exemptions.json",
       row: idx,
       warning: "exemption_expiring_soon",
       expiry: row.expiresOn,

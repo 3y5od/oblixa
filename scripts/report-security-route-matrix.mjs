@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { buildRouteUniversePayload, HTTP_METHODS } from "./lib/build-route-universe.mjs";
+import { buildRouteUniversePayload, HTTP_METHODS, readEffectiveRouteSource } from "./lib/build-route-universe.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const defaultRoot = path.join(__dirname, "..");
@@ -284,7 +284,7 @@ export function buildSecurityRouteMatrix(root = defaultRoot) {
   for (const universeRow of apiRouteUniverseRows(root)) {
     const routeFile = universeRow.sourcePath;
     const abs = path.join(root, routeFile);
-    const source = fs.readFileSync(abs, "utf8");
+    const source = readEffectiveRouteSource(abs);
     const routePath = universeRow.route;
     const methods = (universeRow.methods ?? []).filter((method) => TARGET_METHODS.includes(method));
     for (const method of methods) {

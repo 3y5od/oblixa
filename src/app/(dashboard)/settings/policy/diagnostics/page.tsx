@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Scale } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { PolicySimulationPanel } from "@/components/v4/policy-simulation-panel";
+import { PolicySimulationPanel } from "@/components/policy-simulation-panel";
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface";
@@ -14,7 +14,7 @@ import {
   analyzePolicyRegistry,
   getApprovalSlaFallbackHours,
   validatePolicyRegistry,
-} from "@/lib/v4/policy-registry";
+} from "@/lib/contract-operations/policy-registry";
 
 export const metadata = { title: "Policy diagnostics" };
 

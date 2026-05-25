@@ -1,0 +1,3050 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-migration-organization.mjs --write",
+  "sourceManifest": "artifacts/supabase/migration-manifest.json",
+  "sourceDirectory": "supabase/migrations",
+  "migrationCount": 89,
+  "latestVersion": "089",
+  "groups": [
+    {
+      "label": "Auth And Identity",
+      "files": [
+        "064_public_auth_users_fk_on_delete.sql"
+      ],
+      "count": 1
+    },
+    {
+      "label": "Billing",
+      "files": [
+        "002_add_stripe_columns.sql",
+        "003_post_mvp_reliability.sql",
+        "005_stripe_webhook_idempotency.sql",
+        "014_v2_workflow_expansion.sql",
+        "018_v2_completion_hardening.sql",
+        "019_webhook_delivery_dispatch_index.sql",
+        "041_v4_security_hardening.sql",
+        "057_v10_runtime_contracts.sql"
+      ],
+      "count": 8
+    },
+    {
+      "label": "Core Schema",
+      "files": [
+        "023_prd_enhancements.sql",
+        "051_v6_org_settings_json.sql",
+        "053_v6_workspace_product_mode.sql",
+        "065_v10_report_run_family_modes.sql",
+        "071_public_token_hash_only.sql",
+        "078_tenant_table_schema_constraints_guard.sql",
+        "087_organization_settings_compatibility_view.sql"
+      ],
+      "count": 7
+    },
+    {
+      "label": "Evidence",
+      "files": [
+        "048_v5_decision_packet_artifact_depth.sql",
+        "052_v6_analytics_event_indexes.sql",
+        "081_saved_views_pinned_flag.sql"
+      ],
+      "count": 3
+    },
+    {
+      "label": "Jobs And Cron",
+      "files": [
+        "007_performance_indexes.sql",
+        "020_search_and_filter_indexes.sql",
+        "034_retry_worker_perf_and_observability_indexes.sql",
+        "036_operational_optimization_indexes.sql",
+        "040_v4_exception_dedup_and_auditability.sql",
+        "054_v5_portfolio_campaign_contracts_order_index.sql",
+        "055_v8_review_packet_due_index.sql",
+        "066_v10_job_visibility_multi_class_upsert.sql",
+        "067_runtime_route_dedupe_indexes.sql",
+        "068_scheduled_route_idempotency_indexes.sql",
+        "069_external_action_link_token_hashes.sql",
+        "070_org_scoped_route_lookup_indexes.sql",
+        "074_org_scoped_token_idempotency_constraints.sql",
+        "075_report_tracking_token_hashes.sql",
+        "076_report_tracking_token_revocation.sql"
+      ],
+      "count": 15
+    },
+    {
+      "label": "Operational Cleanup",
+      "files": [
+        "022_release_readiness_hardening.sql",
+        "077_external_action_token_revocation_metadata.sql",
+        "080_code_owned_transient_retention_cleanup.sql",
+        "084_codify_transient_retention_indexes.sql",
+        "086_integration_oauth_states_retention_index.sql"
+      ],
+      "count": 5
+    },
+    {
+      "label": "RLS And Security",
+      "files": [
+        "001_initial_schema.sql",
+        "004_organization_invites.sql",
+        "006_organization_invites_revoke_rls.sql",
+        "008_contract_tasks.sql",
+        "009_contract_notes.sql",
+        "010_contract_obligations.sql",
+        "011_saved_views.sql",
+        "012_renewal_checkpoints.sql",
+        "013_report_subscriptions.sql",
+        "015_v2_depth_completion.sql",
+        "016_v2_remaining_depth.sql",
+        "017_v2_operational_depth.sql",
+        "021_security_hardening_auth_and_keys.sql",
+        "024_v3_tasks_execution.sql",
+        "025_v3_obligations_execution.sql",
+        "026_v3_approvals_sla.sql",
+        "027_v3_renewal_workspace.sql",
+        "028_v3_intake_pipeline.sql",
+        "029_v3_reporting_data_quality.sql",
+        "031_v3_remaining_depth.sql",
+        "032_v3_policy_and_capability_layer.sql",
+        "033_v3_operational_depth_finalization.sql",
+        "035_fix_rls_recursion_org_members.sql",
+        "038_v3_task_rls_role_alignment.sql",
+        "039_v4_execution_platform_foundation.sql",
+        "042_dashboard_metrics_and_perf_indexes.sql",
+        "043_v4_feature_surface_completion.sql",
+        "044_v5_control_plane_foundation.sql",
+        "049_v6_assurance_adaptive_platform.sql",
+        "050_v6_contract_tags.sql",
+        "056_v9_performance_snapshots.sql",
+        "058_security_program_session_hints.sql",
+        "059_security_program_timeout_guidance.sql",
+        "060_security_program_rls_wave_marker.sql",
+        "061_org_mfa_required.sql",
+        "062_profile_legal_hold.sql",
+        "063_contract_operational_dates_security_invoker.sql",
+        "072_force_rls_tenant_tables.sql",
+        "073_security_definer_execute_privileges.sql",
+        "079_storage_bucket_private_policy_checks.sql",
+        "082_supabase_operational_hardening.sql",
+        "083_restore_anon_rls_helper_execute.sql",
+        "085_contract_fields_compatibility_view.sql",
+        "088_sql_neutral_function_aliases.sql",
+        "089_sql_neutral_table_view_aliases.sql"
+      ],
+      "count": 45
+    },
+    {
+      "label": "Storage",
+      "files": [
+        "045_v5_external_link_decision_scope.sql",
+        "047_v5_decision_packet_artifacts.sql"
+      ],
+      "count": 2
+    },
+    {
+      "label": "Workflows",
+      "files": [
+        "030_v3_automation_trigger_expansion.sql",
+        "037_v3_task_dependency_scope_guard.sql",
+        "046_v5_decision_type_api_alignment.sql"
+      ],
+      "count": 3
+    }
+  ],
+  "largeMigrations": [
+    {
+      "file": "001_initial_schema.sql",
+      "lineCount": 351,
+      "byteCount": 11860
+    },
+    {
+      "file": "039_v4_execution_platform_foundation.sql",
+      "lineCount": 915,
+      "byteCount": 42136
+    },
+    {
+      "file": "044_v5_control_plane_foundation.sql",
+      "lineCount": 853,
+      "byteCount": 40045
+    },
+    {
+      "file": "049_v6_assurance_adaptive_platform.sql",
+      "lineCount": 547,
+      "byteCount": 27902
+    },
+    {
+      "file": "057_v10_runtime_contracts.sql",
+      "lineCount": 2174,
+      "byteCount": 97565
+    }
+  ],
+  "highRiskMigrations": [
+    {
+      "file": "022_release_readiness_hardening.sql",
+      "changeType": "data-changing",
+      "domain": "data_retention",
+      "affectedTables": []
+    },
+    {
+      "file": "045_v5_external_link_decision_scope.sql",
+      "changeType": "data-changing",
+      "domain": "storage",
+      "affectedTables": []
+    },
+    {
+      "file": "046_v5_decision_type_api_alignment.sql",
+      "changeType": "data-changing",
+      "domain": "workflow",
+      "affectedTables": []
+    },
+    {
+      "file": "069_external_action_link_token_hashes.sql",
+      "changeType": "data-changing",
+      "domain": "performance",
+      "affectedTables": []
+    },
+    {
+      "file": "071_public_token_hash_only.sql",
+      "changeType": "data-changing",
+      "domain": "core_schema",
+      "affectedTables": []
+    },
+    {
+      "file": "075_report_tracking_token_hashes.sql",
+      "changeType": "data-changing",
+      "domain": "performance",
+      "affectedTables": []
+    },
+    {
+      "file": "077_external_action_token_revocation_metadata.sql",
+      "changeType": "data-changing",
+      "domain": "data_retention",
+      "affectedTables": []
+    }
+  ],
+  "policyChangingMigrations": [
+    {
+      "file": "001_initial_schema.sql",
+      "affectedTables": [
+        "public.audit_events",
+        "public.contract_files",
+        "public.contracts",
+        "public.extracted_fields",
+        "public.organization_members",
+        "public.organizations",
+        "public.profiles",
+        "public.reminders",
+        "storage.objects"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_files' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contracts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'extracted_fields' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_members' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organizations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'profiles' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'reminders' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "file": "003_post_mvp_reliability.sql",
+      "affectedTables": [
+        "public.contract_extraction_jobs"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_extraction_jobs' order by policyname;"
+      ]
+    },
+    {
+      "file": "004_organization_invites.sql",
+      "affectedTables": [
+        "public.organization_invites"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_invites' order by policyname;"
+      ]
+    },
+    {
+      "file": "005_stripe_webhook_idempotency.sql",
+      "affectedTables": [
+        "public.stripe_webhook_events"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'stripe_webhook_events' order by policyname;"
+      ]
+    },
+    {
+      "file": "006_organization_invites_revoke_rls.sql",
+      "affectedTables": [
+        "public.organization_invites"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_invites' order by policyname;"
+      ]
+    },
+    {
+      "file": "008_contract_tasks.sql",
+      "affectedTables": [
+        "public.contract_tasks"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_tasks' order by policyname;"
+      ]
+    },
+    {
+      "file": "009_contract_notes.sql",
+      "affectedTables": [
+        "public.contract_notes"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_notes' order by policyname;"
+      ]
+    },
+    {
+      "file": "010_contract_obligations.sql",
+      "affectedTables": [
+        "public.contract_obligations"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_obligations' order by policyname;"
+      ]
+    },
+    {
+      "file": "011_saved_views.sql",
+      "affectedTables": [
+        "public.saved_views"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'saved_views' order by policyname;"
+      ]
+    },
+    {
+      "file": "012_renewal_checkpoints.sql",
+      "affectedTables": [
+        "public.contract_renewal_checkpoints"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_checkpoints' order by policyname;"
+      ]
+    },
+    {
+      "file": "013_report_subscriptions.sql",
+      "affectedTables": [
+        "public.report_subscriptions"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "file": "014_v2_workflow_expansion.sql",
+      "affectedTables": [
+        "public.contract_approvals",
+        "public.contract_field_comments",
+        "public.contract_intake_history",
+        "public.contract_renewal_scenarios",
+        "public.internal_notifications",
+        "public.obligation_templates",
+        "public.outbound_events",
+        "public.task_automation_rules",
+        "public.webhook_subscriptions"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_approvals' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_field_comments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_intake_history' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_scenarios' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'internal_notifications' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'obligation_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outbound_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'task_automation_rules' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'webhook_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "file": "015_v2_depth_completion.sql",
+      "affectedTables": [
+        "public.contract_handoff_checklists",
+        "public.contract_task_events",
+        "public.renewal_playbook_templates"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_handoff_checklists' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_playbook_templates' order by policyname;"
+      ]
+    },
+    {
+      "file": "016_v2_remaining_depth.sql",
+      "affectedTables": [
+        "public.calendar_feeds",
+        "public.contract_import_job_rows",
+        "public.contract_import_jobs"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'calendar_feeds' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_import_job_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_import_jobs' order by policyname;"
+      ]
+    },
+    {
+      "file": "017_v2_operational_depth.sql",
+      "affectedTables": [
+        "public.contract_watchlists",
+        "public.field_templates",
+        "public.integration_connections",
+        "public.reminder_templates",
+        "public.task_templates"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_watchlists' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'field_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_connections' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'reminder_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'task_templates' order by policyname;"
+      ]
+    },
+    {
+      "file": "018_v2_completion_hardening.sql",
+      "affectedTables": [
+        "public.approval_policies",
+        "public.integration_api_keys",
+        "public.integration_oauth_states",
+        "public.organization_workflow_settings",
+        "public.outbound_event_deliveries",
+        "public.template_change_events"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_api_keys' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_oauth_states' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_workflow_settings' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outbound_event_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'template_change_events' order by policyname;"
+      ]
+    },
+    {
+      "file": "024_v3_tasks_execution.sql",
+      "affectedTables": [
+        "public.contract_task_checklist_items",
+        "public.contract_task_comments",
+        "public.contract_task_dependencies"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_checklist_items' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_comments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_dependencies' order by policyname;"
+      ]
+    },
+    {
+      "file": "025_v3_obligations_execution.sql",
+      "affectedTables": [
+        "public.contract_obligation_events"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_obligation_events' order by policyname;"
+      ]
+    },
+    {
+      "file": "026_v3_approvals_sla.sql",
+      "affectedTables": [
+        "public.contract_approval_events"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_approval_events' order by policyname;"
+      ]
+    },
+    {
+      "file": "027_v3_renewal_workspace.sql",
+      "affectedTables": [
+        "public.contract_renewal_workspace_notes"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_workspace_notes' order by policyname;"
+      ]
+    },
+    {
+      "file": "028_v3_intake_pipeline.sql",
+      "affectedTables": [
+        "public.contract_intake_requests"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_intake_requests' order by policyname;"
+      ]
+    },
+    {
+      "file": "029_v3_reporting_data_quality.sql",
+      "affectedTables": [
+        "public.contract_data_quality_snapshots",
+        "public.report_run_recipients",
+        "public.report_runs"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_data_quality_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_run_recipients' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_runs' order by policyname;"
+      ]
+    },
+    {
+      "file": "031_v3_remaining_depth.sql",
+      "affectedTables": [
+        "public.contract_task_artifacts",
+        "public.org_behavior_metrics"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'org_behavior_metrics' order by policyname;"
+      ]
+    },
+    {
+      "file": "033_v3_operational_depth_finalization.sql",
+      "affectedTables": [
+        "public.contract_change_events",
+        "public.notification_deliveries"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_change_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'notification_deliveries' order by policyname;"
+      ]
+    },
+    {
+      "file": "035_fix_rls_recursion_org_members.sql",
+      "affectedTables": [
+        "public.organization_members"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_members' order by policyname;"
+      ]
+    },
+    {
+      "file": "038_v3_task_rls_role_alignment.sql",
+      "affectedTables": [
+        "public.contract_task_checklist_items",
+        "public.contract_task_dependencies"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_checklist_items' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_dependencies' order by policyname;"
+      ]
+    },
+    {
+      "file": "039_v4_execution_platform_foundation.sql",
+      "affectedTables": [
+        "public.approval_slas",
+        "public.attestation_requests",
+        "public.attestation_responses",
+        "public.contract_program_assignments",
+        "public.contract_program_versions",
+        "public.contract_programs",
+        "public.escalation_policies",
+        "public.evidence_requirements",
+        "public.evidence_submissions",
+        "public.exception_events",
+        "public.exceptions",
+        "public.execution_graph_edges",
+        "public.maintenance_campaign_rows",
+        "public.maintenance_campaigns",
+        "public.operational_casefile_events",
+        "public.renewal_decision_packets",
+        "public.report_pack_runs",
+        "public.report_packs",
+        "public.role_command_center_preferences"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_slas' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'attestation_requests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'attestation_responses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_program_assignments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_program_versions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_programs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'escalation_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_requirements' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exception_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exceptions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'execution_graph_edges' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'maintenance_campaign_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'maintenance_campaigns' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'operational_casefile_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_decision_packets' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_pack_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_packs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'role_command_center_preferences' order by policyname;"
+      ]
+    },
+    {
+      "file": "041_v4_security_hardening.sql",
+      "affectedTables": [
+        "public.audit_events",
+        "public.contract_extraction_jobs",
+        "public.integration_connections",
+        "public.internal_notifications",
+        "public.webhook_subscriptions",
+        "storage.objects"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_extraction_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_connections' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'internal_notifications' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'webhook_subscriptions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "file": "042_dashboard_metrics_and_perf_indexes.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "043_v4_feature_surface_completion.sql",
+      "affectedTables": [
+        "public.evidence_requirement_templates",
+        "public.report_pack_subscriptions"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_requirement_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_pack_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "file": "044_v5_control_plane_foundation.sql",
+      "affectedTables": [
+        "public.account_workspaces",
+        "public.capacity_forecasts",
+        "public.capacity_snapshots",
+        "public.change_simulation_runs",
+        "public.change_simulations",
+        "public.counterparty_workspaces",
+        "public.decision_packet_runs",
+        "public.decision_packet_templates",
+        "public.decision_recommendations",
+        "public.decision_workspace_events",
+        "public.decision_workspace_stakeholders",
+        "public.decision_workspaces",
+        "public.external_action_events",
+        "public.external_action_links",
+        "public.operational_recommendations",
+        "public.portfolio_campaign_contracts",
+        "public.portfolio_campaign_events",
+        "public.portfolio_campaigns",
+        "public.relationship_timeline_events",
+        "public.relationship_timelines"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'account_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'capacity_forecasts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'capacity_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'change_simulation_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'change_simulations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'counterparty_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_packet_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_packet_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_recommendations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspace_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspace_stakeholders' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_action_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_action_links' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'operational_recommendations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaign_contracts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaign_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaigns' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'relationship_timeline_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'relationship_timelines' order by policyname;"
+      ]
+    },
+    {
+      "file": "049_v6_assurance_adaptive_platform.sql",
+      "affectedTables": [
+        "public.adaptive_playbook_runs",
+        "public.adaptive_playbook_steps",
+        "public.adaptive_playbooks",
+        "public.assurance_check_runs",
+        "public.assurance_finding_events",
+        "public.assurance_findings",
+        "public.assurance_scorecards",
+        "public.autopilot_rules",
+        "public.autopilot_run_logs",
+        "public.control_policies",
+        "public.control_policy_assignments",
+        "public.control_policy_versions",
+        "public.outcome_intervention_analyses",
+        "public.portfolio_health_graph_edges",
+        "public.portfolio_health_graph_nodes",
+        "public.program_evolution_experiments",
+        "public.program_evolution_results",
+        "public.review_board_runs",
+        "public.review_boards",
+        "public.scorecard_snapshots",
+        "public.segment_definitions",
+        "public.segment_memberships"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbook_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbook_steps' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbooks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_check_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_finding_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_findings' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_scorecards' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'autopilot_rules' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'autopilot_run_logs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policy_assignments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policy_versions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outcome_intervention_analyses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_health_graph_edges' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_health_graph_nodes' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'program_evolution_experiments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'program_evolution_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'review_board_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'review_boards' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'scorecard_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'segment_definitions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'segment_memberships' order by policyname;"
+      ]
+    },
+    {
+      "file": "050_v6_contract_tags.sql",
+      "affectedTables": [
+        "public.contract_export_jobs"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_export_jobs' order by policyname;"
+      ]
+    },
+    {
+      "file": "056_v9_performance_snapshots.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "057_v10_runtime_contracts.sql",
+      "affectedTables": [
+        "public.v10_activation_state",
+        "public.v10_advanced_assurance_linked_records",
+        "public.v10_approval_records",
+        "public.v10_audit_events",
+        "public.v10_command_search_index",
+        "public.v10_contract_activity_events",
+        "public.v10_contract_health_snapshots",
+        "public.v10_denominator_locks",
+        "public.v10_evidence_request_statuses",
+        "public.v10_exception_records",
+        "public.v10_external_blocker_records",
+        "public.v10_external_evidence_submissions",
+        "public.v10_field_provenance_records",
+        "public.v10_fixture_manifests",
+        "public.v10_fixture_teardown_records",
+        "public.v10_job_run_visibility",
+        "public.v10_metric_runs",
+        "public.v10_mutation_idempotency",
+        "public.v10_notification_deliveries",
+        "public.v10_obligation_records",
+        "public.v10_promotion_decisions",
+        "public.v10_read_model_lineage",
+        "public.v10_read_model_refresh_jobs",
+        "public.v10_read_model_rows",
+        "public.v10_release_evidence_records",
+        "public.v10_release_waivers",
+        "public.v10_renewal_checkpoint_records",
+        "public.v10_renewal_posture_snapshots",
+        "public.v10_report_run_visibility",
+        "public.v10_runtime_artifacts",
+        "public.v10_runtime_coverage_ledger",
+        "public.v10_verification_command_results",
+        "public.v10_work_items"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_activation_state' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_advanced_assurance_linked_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_approval_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_command_search_index' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_contract_activity_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_contract_health_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_denominator_locks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_evidence_request_statuses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_exception_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_external_blocker_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_external_evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_field_provenance_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_fixture_manifests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_fixture_teardown_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_job_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_metric_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_mutation_idempotency' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_notification_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_obligation_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_promotion_decisions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_lineage' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_refresh_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_release_evidence_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_release_waivers' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_renewal_checkpoint_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_renewal_posture_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_report_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_runtime_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_runtime_coverage_ledger' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_verification_command_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_work_items' order by policyname;"
+      ]
+    },
+    {
+      "file": "060_security_program_rls_wave_marker.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "063_contract_operational_dates_security_invoker.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "072_force_rls_tenant_tables.sql",
+      "affectedTables": [
+        "public.*"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' order by tablename, policyname;"
+      ]
+    },
+    {
+      "file": "073_security_definer_execute_privileges.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "079_storage_bucket_private_policy_checks.sql",
+      "affectedTables": [
+        "storage.objects"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "file": "080_code_owned_transient_retention_cleanup.sql",
+      "affectedTables": [],
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "file": "082_supabase_operational_hardening.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "083_restore_anon_rls_helper_execute.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "088_sql_neutral_function_aliases.sql",
+      "affectedTables": [],
+      "verificationQueries": []
+    },
+    {
+      "file": "089_sql_neutral_table_view_aliases.sql",
+      "affectedTables": [
+        "public.activation_state",
+        "public.advanced_assurance_linked_records",
+        "public.approval_records",
+        "public.audit_events",
+        "public.command_search_index",
+        "public.contract_activity_events",
+        "public.contract_health_snapshots",
+        "public.denominator_locks",
+        "public.evidence_request_statuses",
+        "public.exception_records",
+        "public.external_blocker_records",
+        "public.external_evidence_submissions",
+        "public.field_provenance_records",
+        "public.fixture_manifests",
+        "public.fixture_teardown_records",
+        "public.job_run_visibility",
+        "public.metric_runs",
+        "public.mutation_idempotency",
+        "public.notification_deliveries",
+        "public.obligation_records",
+        "public.promotion_decisions",
+        "public.read_model_lineage",
+        "public.read_model_refresh_jobs",
+        "public.read_model_rows",
+        "public.release_evidence_records",
+        "public.release_waivers",
+        "public.renewal_checkpoint_records",
+        "public.renewal_posture_snapshots",
+        "public.report_run_visibility",
+        "public.runtime_artifacts",
+        "public.runtime_coverage_ledger",
+        "public.verification_command_results",
+        "public.work_items"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'activation_state' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'advanced_assurance_linked_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'command_search_index' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_activity_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_health_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'denominator_locks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_request_statuses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exception_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_blocker_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'field_provenance_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'fixture_manifests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'fixture_teardown_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'job_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'metric_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'mutation_idempotency' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'notification_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'obligation_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'promotion_decisions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_lineage' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_refresh_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'release_evidence_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'release_waivers' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_checkpoint_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_posture_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'runtime_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'runtime_coverage_ledger' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'verification_command_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'work_items' order by policyname;"
+      ]
+    }
+  ],
+  "cleanupMigrations": [
+    {
+      "file": "022_release_readiness_hardening.sql",
+      "domain": "data_retention",
+      "changeType": "data-changing"
+    },
+    {
+      "file": "077_external_action_token_revocation_metadata.sql",
+      "domain": "data_retention",
+      "changeType": "data-changing"
+    },
+    {
+      "file": "080_code_owned_transient_retention_cleanup.sql",
+      "domain": "data_retention",
+      "changeType": "policy-changing"
+    },
+    {
+      "file": "084_codify_transient_retention_indexes.sql",
+      "domain": "data_retention",
+      "changeType": "schema-only"
+    },
+    {
+      "file": "086_integration_oauth_states_retention_index.sql",
+      "domain": "data_retention",
+      "changeType": "schema-only"
+    }
+  ],
+  "migrations": [
+    {
+      "version": "001",
+      "file": "001_initial_schema.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.audit_events",
+        "public.contract_files",
+        "public.contracts",
+        "public.extracted_fields",
+        "public.organization_members",
+        "public.organizations",
+        "public.profiles",
+        "public.reminders",
+        "storage.objects"
+      ],
+      "lineCount": 351,
+      "byteCount": 11860,
+      "large": true,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_files' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contracts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'extracted_fields' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_members' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organizations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'profiles' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'reminders' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "version": "002",
+      "file": "002_add_stripe_columns.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 7,
+      "byteCount": 252,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "003",
+      "file": "003_post_mvp_reliability.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_extraction_jobs"
+      ],
+      "lineCount": 54,
+      "byteCount": 2059,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_extraction_jobs' order by policyname;"
+      ]
+    },
+    {
+      "version": "004",
+      "file": "004_organization_invites.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.organization_invites"
+      ],
+      "lineCount": 22,
+      "byteCount": 956,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_invites' order by policyname;"
+      ]
+    },
+    {
+      "version": "005",
+      "file": "005_stripe_webhook_idempotency.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.stripe_webhook_events"
+      ],
+      "lineCount": 11,
+      "byteCount": 356,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'stripe_webhook_events' order by policyname;"
+      ]
+    },
+    {
+      "version": "006",
+      "file": "006_organization_invites_revoke_rls.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.organization_invites"
+      ],
+      "lineCount": 20,
+      "byteCount": 665,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_invites' order by policyname;"
+      ]
+    },
+    {
+      "version": "007",
+      "file": "007_performance_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 9,
+      "byteCount": 355,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "008",
+      "file": "008_contract_tasks.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_tasks"
+      ],
+      "lineCount": 80,
+      "byteCount": 2634,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_tasks' order by policyname;"
+      ]
+    },
+    {
+      "version": "009",
+      "file": "009_contract_notes.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_notes"
+      ],
+      "lineCount": 77,
+      "byteCount": 2404,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_notes' order by policyname;"
+      ]
+    },
+    {
+      "version": "010",
+      "file": "010_contract_obligations.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_obligations"
+      ],
+      "lineCount": 82,
+      "byteCount": 2711,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_obligations' order by policyname;"
+      ]
+    },
+    {
+      "version": "011",
+      "file": "011_saved_views.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.saved_views"
+      ],
+      "lineCount": 40,
+      "byteCount": 1462,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'saved_views' order by policyname;"
+      ]
+    },
+    {
+      "version": "012",
+      "file": "012_renewal_checkpoints.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_renewal_checkpoints"
+      ],
+      "lineCount": 77,
+      "byteCount": 2607,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_checkpoints' order by policyname;"
+      ]
+    },
+    {
+      "version": "013",
+      "file": "013_report_subscriptions.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.report_subscriptions"
+      ],
+      "lineCount": 42,
+      "byteCount": 1671,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "version": "014",
+      "file": "014_v2_workflow_expansion.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_approvals",
+        "public.contract_field_comments",
+        "public.contract_intake_history",
+        "public.contract_renewal_scenarios",
+        "public.internal_notifications",
+        "public.obligation_templates",
+        "public.outbound_events",
+        "public.task_automation_rules",
+        "public.webhook_subscriptions"
+      ],
+      "lineCount": 331,
+      "byteCount": 15485,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_approvals' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_field_comments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_intake_history' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_scenarios' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'internal_notifications' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'obligation_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outbound_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'task_automation_rules' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'webhook_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "version": "015",
+      "file": "015_v2_depth_completion.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_handoff_checklists",
+        "public.contract_task_events",
+        "public.renewal_playbook_templates"
+      ],
+      "lineCount": 142,
+      "byteCount": 5826,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_handoff_checklists' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_playbook_templates' order by policyname;"
+      ]
+    },
+    {
+      "version": "016",
+      "file": "016_v2_remaining_depth.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.calendar_feeds",
+        "public.contract_import_job_rows",
+        "public.contract_import_jobs"
+      ],
+      "lineCount": 115,
+      "byteCount": 4251,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'calendar_feeds' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_import_job_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_import_jobs' order by policyname;"
+      ]
+    },
+    {
+      "version": "017",
+      "file": "017_v2_operational_depth.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_watchlists",
+        "public.field_templates",
+        "public.integration_connections",
+        "public.reminder_templates",
+        "public.task_templates"
+      ],
+      "lineCount": 181,
+      "byteCount": 6525,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_watchlists' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'field_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_connections' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'reminder_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'task_templates' order by policyname;"
+      ]
+    },
+    {
+      "version": "018",
+      "file": "018_v2_completion_hardening.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.approval_policies",
+        "public.integration_api_keys",
+        "public.integration_oauth_states",
+        "public.organization_workflow_settings",
+        "public.outbound_event_deliveries",
+        "public.template_change_events"
+      ],
+      "lineCount": 212,
+      "byteCount": 9103,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_api_keys' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_oauth_states' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_workflow_settings' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outbound_event_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'template_change_events' order by policyname;"
+      ]
+    },
+    {
+      "version": "019",
+      "file": "019_webhook_delivery_dispatch_index.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 4,
+      "byteCount": 230,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "020",
+      "file": "020_search_and_filter_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 24,
+      "byteCount": 917,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "021",
+      "file": "021_security_hardening_auth_and_keys.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 16,
+      "byteCount": 681,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "022",
+      "file": "022_release_readiness_hardening.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 33,
+      "byteCount": 1086,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;",
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "023",
+      "file": "023_prd_enhancements.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 12,
+      "byteCount": 385,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "024",
+      "file": "024_v3_tasks_execution.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_task_checklist_items",
+        "public.contract_task_comments",
+        "public.contract_task_dependencies"
+      ],
+      "lineCount": 146,
+      "byteCount": 7014,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_checklist_items' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_comments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_dependencies' order by policyname;"
+      ]
+    },
+    {
+      "version": "025",
+      "file": "025_v3_obligations_execution.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_obligation_events"
+      ],
+      "lineCount": 64,
+      "byteCount": 2984,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_obligation_events' order by policyname;"
+      ]
+    },
+    {
+      "version": "026",
+      "file": "026_v3_approvals_sla.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_approval_events"
+      ],
+      "lineCount": 71,
+      "byteCount": 3303,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_approval_events' order by policyname;"
+      ]
+    },
+    {
+      "version": "027",
+      "file": "027_v3_renewal_workspace.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_renewal_workspace_notes"
+      ],
+      "lineCount": 78,
+      "byteCount": 3924,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_renewal_workspace_notes' order by policyname;"
+      ]
+    },
+    {
+      "version": "028",
+      "file": "028_v3_intake_pipeline.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_intake_requests"
+      ],
+      "lineCount": 73,
+      "byteCount": 3368,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_intake_requests' order by policyname;"
+      ]
+    },
+    {
+      "version": "029",
+      "file": "029_v3_reporting_data_quality.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_data_quality_snapshots",
+        "public.report_run_recipients",
+        "public.report_runs"
+      ],
+      "lineCount": 133,
+      "byteCount": 5968,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_data_quality_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_run_recipients' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_runs' order by policyname;"
+      ]
+    },
+    {
+      "version": "030",
+      "file": "030_v3_automation_trigger_expansion.sql",
+      "domain": "workflow",
+      "domainLabel": "Workflows",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 21,
+      "byteCount": 589,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "031",
+      "file": "031_v3_remaining_depth.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_task_artifacts",
+        "public.org_behavior_metrics"
+      ],
+      "lineCount": 109,
+      "byteCount": 4820,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'org_behavior_metrics' order by policyname;"
+      ]
+    },
+    {
+      "version": "032",
+      "file": "032_v3_policy_and_capability_layer.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 16,
+      "byteCount": 830,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "033",
+      "file": "033_v3_operational_depth_finalization.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_change_events",
+        "public.notification_deliveries"
+      ],
+      "lineCount": 138,
+      "byteCount": 5749,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_change_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'notification_deliveries' order by policyname;"
+      ]
+    },
+    {
+      "version": "034",
+      "file": "034_retry_worker_perf_and_observability_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 15,
+      "byteCount": 685,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "035",
+      "file": "035_fix_rls_recursion_org_members.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.organization_members"
+      ],
+      "lineCount": 26,
+      "byteCount": 723,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'organization_members' order by policyname;"
+      ]
+    },
+    {
+      "version": "036",
+      "file": "036_operational_optimization_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 14,
+      "byteCount": 658,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "037",
+      "file": "037_v3_task_dependency_scope_guard.sql",
+      "domain": "workflow",
+      "domainLabel": "Workflows",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 44,
+      "byteCount": 1350,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "038",
+      "file": "038_v3_task_rls_role_alignment.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_task_checklist_items",
+        "public.contract_task_dependencies"
+      ],
+      "lineCount": 27,
+      "byteCount": 1080,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_checklist_items' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_task_dependencies' order by policyname;"
+      ]
+    },
+    {
+      "version": "039",
+      "file": "039_v4_execution_platform_foundation.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.approval_slas",
+        "public.attestation_requests",
+        "public.attestation_responses",
+        "public.contract_program_assignments",
+        "public.contract_program_versions",
+        "public.contract_programs",
+        "public.escalation_policies",
+        "public.evidence_requirements",
+        "public.evidence_submissions",
+        "public.exception_events",
+        "public.exceptions",
+        "public.execution_graph_edges",
+        "public.maintenance_campaign_rows",
+        "public.maintenance_campaigns",
+        "public.operational_casefile_events",
+        "public.renewal_decision_packets",
+        "public.report_pack_runs",
+        "public.report_packs",
+        "public.role_command_center_preferences"
+      ],
+      "lineCount": 915,
+      "byteCount": 42136,
+      "large": true,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_slas' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'attestation_requests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'attestation_responses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_program_assignments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_program_versions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_programs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'escalation_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_requirements' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exception_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exceptions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'execution_graph_edges' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'maintenance_campaign_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'maintenance_campaigns' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'operational_casefile_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_decision_packets' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_pack_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_packs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'role_command_center_preferences' order by policyname;"
+      ]
+    },
+    {
+      "version": "040",
+      "file": "040_v4_exception_dedup_and_auditability.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 11,
+      "byteCount": 419,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "041",
+      "file": "041_v4_security_hardening.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.audit_events",
+        "public.contract_extraction_jobs",
+        "public.integration_connections",
+        "public.internal_notifications",
+        "public.webhook_subscriptions",
+        "storage.objects"
+      ],
+      "lineCount": 180,
+      "byteCount": 5664,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_extraction_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'integration_connections' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'internal_notifications' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'webhook_subscriptions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "version": "042",
+      "file": "042_dashboard_metrics_and_perf_indexes.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 73,
+      "byteCount": 3223,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "043",
+      "file": "043_v4_feature_surface_completion.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.evidence_requirement_templates",
+        "public.report_pack_subscriptions"
+      ],
+      "lineCount": 131,
+      "byteCount": 5722,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_requirement_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_pack_subscriptions' order by policyname;"
+      ]
+    },
+    {
+      "version": "044",
+      "file": "044_v5_control_plane_foundation.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.account_workspaces",
+        "public.capacity_forecasts",
+        "public.capacity_snapshots",
+        "public.change_simulation_runs",
+        "public.change_simulations",
+        "public.counterparty_workspaces",
+        "public.decision_packet_runs",
+        "public.decision_packet_templates",
+        "public.decision_recommendations",
+        "public.decision_workspace_events",
+        "public.decision_workspace_stakeholders",
+        "public.decision_workspaces",
+        "public.external_action_events",
+        "public.external_action_links",
+        "public.operational_recommendations",
+        "public.portfolio_campaign_contracts",
+        "public.portfolio_campaign_events",
+        "public.portfolio_campaigns",
+        "public.relationship_timeline_events",
+        "public.relationship_timelines"
+      ],
+      "lineCount": 853,
+      "byteCount": 40045,
+      "large": true,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'account_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'capacity_forecasts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'capacity_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'change_simulation_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'change_simulations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'counterparty_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_packet_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_packet_templates' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_recommendations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspace_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspace_stakeholders' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'decision_workspaces' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_action_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_action_links' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'operational_recommendations' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaign_contracts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaign_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_campaigns' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'relationship_timeline_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'relationship_timelines' order by policyname;"
+      ]
+    },
+    {
+      "version": "045",
+      "file": "045_v5_external_link_decision_scope.sql",
+      "domain": "storage",
+      "domainLabel": "Storage",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 16,
+      "byteCount": 800,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "046",
+      "file": "046_v5_decision_type_api_alignment.sql",
+      "domain": "workflow",
+      "domainLabel": "Workflows",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 40,
+      "byteCount": 1224,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "047",
+      "file": "047_v5_decision_packet_artifacts.sql",
+      "domain": "storage",
+      "domainLabel": "Storage",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 11,
+      "byteCount": 686,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "048",
+      "file": "048_v5_decision_packet_artifact_depth.sql",
+      "domain": "reporting",
+      "domainLabel": "Evidence",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 14,
+      "byteCount": 906,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "049",
+      "file": "049_v6_assurance_adaptive_platform.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.adaptive_playbook_runs",
+        "public.adaptive_playbook_steps",
+        "public.adaptive_playbooks",
+        "public.assurance_check_runs",
+        "public.assurance_finding_events",
+        "public.assurance_findings",
+        "public.assurance_scorecards",
+        "public.autopilot_rules",
+        "public.autopilot_run_logs",
+        "public.control_policies",
+        "public.control_policy_assignments",
+        "public.control_policy_versions",
+        "public.outcome_intervention_analyses",
+        "public.portfolio_health_graph_edges",
+        "public.portfolio_health_graph_nodes",
+        "public.program_evolution_experiments",
+        "public.program_evolution_results",
+        "public.review_board_runs",
+        "public.review_boards",
+        "public.scorecard_snapshots",
+        "public.segment_definitions",
+        "public.segment_memberships"
+      ],
+      "lineCount": 547,
+      "byteCount": 27902,
+      "large": true,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbook_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbook_steps' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'adaptive_playbooks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_check_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_finding_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_findings' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'assurance_scorecards' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'autopilot_rules' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'autopilot_run_logs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policies' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policy_assignments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'control_policy_versions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'outcome_intervention_analyses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_health_graph_edges' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'portfolio_health_graph_nodes' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'program_evolution_experiments' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'program_evolution_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'review_board_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'review_boards' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'scorecard_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'segment_definitions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'segment_memberships' order by policyname;"
+      ]
+    },
+    {
+      "version": "050",
+      "file": "050_v6_contract_tags.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.contract_export_jobs"
+      ],
+      "lineCount": 80,
+      "byteCount": 3462,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_export_jobs' order by policyname;"
+      ]
+    },
+    {
+      "version": "051",
+      "file": "051_v6_org_settings_json.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 7,
+      "byteCount": 364,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "052",
+      "file": "052_v6_analytics_event_indexes.sql",
+      "domain": "reporting",
+      "domainLabel": "Evidence",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 7,
+      "byteCount": 380,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "053",
+      "file": "053_v6_workspace_product_mode.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 6,
+      "byteCount": 547,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "054",
+      "file": "054_v5_portfolio_campaign_contracts_order_index.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 4,
+      "byteCount": 261,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "055",
+      "file": "055_v8_review_packet_due_index.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 3,
+      "byteCount": 144,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "056",
+      "file": "056_v9_performance_snapshots.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 286,
+      "byteCount": 9773,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "057",
+      "file": "057_v10_runtime_contracts.sql",
+      "domain": "billing",
+      "domainLabel": "Billing",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.v10_activation_state",
+        "public.v10_advanced_assurance_linked_records",
+        "public.v10_approval_records",
+        "public.v10_audit_events",
+        "public.v10_command_search_index",
+        "public.v10_contract_activity_events",
+        "public.v10_contract_health_snapshots",
+        "public.v10_denominator_locks",
+        "public.v10_evidence_request_statuses",
+        "public.v10_exception_records",
+        "public.v10_external_blocker_records",
+        "public.v10_external_evidence_submissions",
+        "public.v10_field_provenance_records",
+        "public.v10_fixture_manifests",
+        "public.v10_fixture_teardown_records",
+        "public.v10_job_run_visibility",
+        "public.v10_metric_runs",
+        "public.v10_mutation_idempotency",
+        "public.v10_notification_deliveries",
+        "public.v10_obligation_records",
+        "public.v10_promotion_decisions",
+        "public.v10_read_model_lineage",
+        "public.v10_read_model_refresh_jobs",
+        "public.v10_read_model_rows",
+        "public.v10_release_evidence_records",
+        "public.v10_release_waivers",
+        "public.v10_renewal_checkpoint_records",
+        "public.v10_renewal_posture_snapshots",
+        "public.v10_report_run_visibility",
+        "public.v10_runtime_artifacts",
+        "public.v10_runtime_coverage_ledger",
+        "public.v10_verification_command_results",
+        "public.v10_work_items"
+      ],
+      "lineCount": 2174,
+      "byteCount": 97565,
+      "large": true,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_activation_state' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_advanced_assurance_linked_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_approval_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_command_search_index' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_contract_activity_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_contract_health_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_denominator_locks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_evidence_request_statuses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_exception_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_external_blocker_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_external_evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_field_provenance_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_fixture_manifests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_fixture_teardown_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_job_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_metric_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_mutation_idempotency' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_notification_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_obligation_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_promotion_decisions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_lineage' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_refresh_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_read_model_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_release_evidence_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_release_waivers' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_renewal_checkpoint_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_renewal_posture_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_report_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_runtime_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_runtime_coverage_ledger' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_verification_command_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'v10_work_items' order by policyname;"
+      ]
+    },
+    {
+      "version": "058",
+      "file": "058_security_program_session_hints.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 36,
+      "byteCount": 1198,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "059",
+      "file": "059_security_program_timeout_guidance.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 5,
+      "byteCount": 338,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "060",
+      "file": "060_security_program_rls_wave_marker.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 5,
+      "byteCount": 354,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "061",
+      "file": "061_org_mfa_required.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 7,
+      "byteCount": 348,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "062",
+      "file": "062_profile_legal_hold.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 12,
+      "byteCount": 451,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "063",
+      "file": "063_contract_operational_dates_security_invoker.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 22,
+      "byteCount": 843,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "064",
+      "file": "064_public_auth_users_fk_on_delete.sql",
+      "domain": "identity_and_access",
+      "domainLabel": "Auth And Identity",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 69,
+      "byteCount": 2307,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "065",
+      "file": "065_v10_report_run_family_modes.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 22,
+      "byteCount": 592,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "066",
+      "file": "066_v10_job_visibility_multi_class_upsert.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 4,
+      "byteCount": 221,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "067",
+      "file": "067_runtime_route_dedupe_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 17,
+      "byteCount": 595,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "068",
+      "file": "068_scheduled_route_idempotency_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 50,
+      "byteCount": 1643,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "069",
+      "file": "069_external_action_link_token_hashes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 24,
+      "byteCount": 766,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "070",
+      "file": "070_org_scoped_route_lookup_indexes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 84,
+      "byteCount": 3523,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "071",
+      "file": "071_public_token_hash_only.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 44,
+      "byteCount": 1265,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "072",
+      "file": "072_force_rls_tenant_tables.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.*"
+      ],
+      "lineCount": 60,
+      "byteCount": 1812,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' order by tablename, policyname;"
+      ]
+    },
+    {
+      "version": "073",
+      "file": "073_security_definer_execute_privileges.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 61,
+      "byteCount": 3751,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "074",
+      "file": "074_org_scoped_token_idempotency_constraints.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 26,
+      "byteCount": 944,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "075",
+      "file": "075_report_tracking_token_hashes.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 38,
+      "byteCount": 1441,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "076",
+      "file": "076_report_tracking_token_revocation.sql",
+      "domain": "performance",
+      "domainLabel": "Jobs And Cron",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 7,
+      "byteCount": 277,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "077",
+      "file": "077_external_action_token_revocation_metadata.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 26,
+      "byteCount": 1009,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;",
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "078",
+      "file": "078_tenant_table_schema_constraints_guard.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 69,
+      "byteCount": 2322,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "079",
+      "file": "079_storage_bucket_private_policy_checks.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "storage.objects"
+      ],
+      "lineCount": 39,
+      "byteCount": 1436,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'storage' and tablename = 'objects' order by policyname;"
+      ]
+    },
+    {
+      "version": "080",
+      "file": "080_code_owned_transient_retention_cleanup.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 268,
+      "byteCount": 11266,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "version": "081",
+      "file": "081_saved_views_pinned_flag.sql",
+      "domain": "reporting",
+      "domainLabel": "Evidence",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 10,
+      "byteCount": 402,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "082",
+      "file": "082_supabase_operational_hardening.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 106,
+      "byteCount": 7728,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "083",
+      "file": "083_restore_anon_rls_helper_execute.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 8,
+      "byteCount": 434,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "084",
+      "file": "084_codify_transient_retention_indexes.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 31,
+      "byteCount": 1303,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "version": "085",
+      "file": "085_contract_fields_compatibility_view.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 22,
+      "byteCount": 524,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "086",
+      "file": "086_integration_oauth_states_retention_index.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 6,
+      "byteCount": 233,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "version": "087",
+      "file": "087_organization_settings_compatibility_view.sql",
+      "domain": "core_schema",
+      "domainLabel": "Core Schema",
+      "changeType": "schema-only",
+      "riskLevel": "low",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": false,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 9,
+      "byteCount": 218,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "088",
+      "file": "088_sql_neutral_function_aliases.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 179,
+      "byteCount": 5526,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
+    },
+    {
+      "version": "089",
+      "file": "089_sql_neutral_table_view_aliases.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.activation_state",
+        "public.advanced_assurance_linked_records",
+        "public.approval_records",
+        "public.audit_events",
+        "public.command_search_index",
+        "public.contract_activity_events",
+        "public.contract_health_snapshots",
+        "public.denominator_locks",
+        "public.evidence_request_statuses",
+        "public.exception_records",
+        "public.external_blocker_records",
+        "public.external_evidence_submissions",
+        "public.field_provenance_records",
+        "public.fixture_manifests",
+        "public.fixture_teardown_records",
+        "public.job_run_visibility",
+        "public.metric_runs",
+        "public.mutation_idempotency",
+        "public.notification_deliveries",
+        "public.obligation_records",
+        "public.promotion_decisions",
+        "public.read_model_lineage",
+        "public.read_model_refresh_jobs",
+        "public.read_model_rows",
+        "public.release_evidence_records",
+        "public.release_waivers",
+        "public.renewal_checkpoint_records",
+        "public.renewal_posture_snapshots",
+        "public.report_run_visibility",
+        "public.runtime_artifacts",
+        "public.runtime_coverage_ledger",
+        "public.verification_command_results",
+        "public.work_items"
+      ],
+      "lineCount": 300,
+      "byteCount": 11145,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'activation_state' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'advanced_assurance_linked_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'approval_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'audit_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'command_search_index' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_activity_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'contract_health_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'denominator_locks' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'evidence_request_statuses' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'exception_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_blocker_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'external_evidence_submissions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'field_provenance_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'fixture_manifests' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'fixture_teardown_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'job_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'metric_runs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'mutation_idempotency' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'notification_deliveries' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'obligation_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'promotion_decisions' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_lineage' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_refresh_jobs' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'read_model_rows' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'release_evidence_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'release_waivers' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_checkpoint_records' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'renewal_posture_snapshots' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'report_run_visibility' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'runtime_artifacts' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'runtime_coverage_ledger' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'verification_command_results' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'work_items' order by policyname;"
+      ]
+    }
+  ]
+}

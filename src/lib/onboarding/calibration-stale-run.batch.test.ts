@@ -20,8 +20,8 @@ vi.mock("@/lib/onboarding/calibration-stale-env", () => ({
   isOnboardingCalibrationStaleCronDryRun: () => hoisted.dryRun(),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => hoisted.getV6(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => hoisted.getV6(...args),
 }));
 
 import { runOnboardingCalibrationStaleCron } from "@/lib/onboarding/calibration-stale-run";

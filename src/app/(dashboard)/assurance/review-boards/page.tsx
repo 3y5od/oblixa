@@ -10,7 +10,7 @@ import {
   ReviewBoardRunLifecycle,
 } from "@/components/assurance/review-board-actions";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
 
 export default async function AssuranceReviewBoardsPage() {

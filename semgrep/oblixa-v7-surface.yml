@@ -1,4 +1,4 @@
-# V7 product-surface regression: canonical check is `npm run check:v7-hrefs:strict`
+# V7 product-surface regression: canonical check is `npm run check:surface-hrefs:compatibility:strict`
 # (`scripts/audit-v7-cross-surface-hrefs.mjs`). Semgrep here stays minimal so CI stays green;
 # extend only with rules that produce near-zero false positives across the full contracts tree.
 rules:

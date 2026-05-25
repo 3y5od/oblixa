@@ -38,7 +38,7 @@
       "lines": 705
     },
     {
-      "file": "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
+      "file": "src/components/dashboard/dashboard-operational-blocks.tsx",
       "lines": 423
     },
     {
@@ -74,7 +74,7 @@
       "lines": 591
     },
     {
-      "file": "src/components/reports/reports-v6-assurance-section.tsx",
+      "file": "src/components/reports/reports-assurance-section.tsx",
       "lines": 504
     },
     {

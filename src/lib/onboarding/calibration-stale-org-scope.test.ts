@@ -17,7 +17,7 @@ describe("onboarding calibration stale org scope (static)", () => {
   it("calibration-blocking-minimal passes orgId into merge and audit rows", () => {
     const file = join(process.cwd(), "src/lib/onboarding/calibration-blocking-minimal.ts");
     const raw = readFileSync(file, "utf8");
-    expect(raw).toContain("mergeV6OrgSettingsJson(admin, orgId,");
+    expect(raw).toContain("mergeOrgSettingsJson(admin, orgId,");
     expect(raw).toMatch(/organization_id:\s*orgId/);
   });
 });

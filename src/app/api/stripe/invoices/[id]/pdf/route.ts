@@ -1,9 +1,20 @@
-import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
+import {
+  jsonForbidden,
+  jsonProblem,
+  jsonRateLimited,
+  jsonUnauthorized,
+} from "@/lib/http/problem";
+import {
+  RATE_LIMITS,
+  getClientIpFromRequest,
+  rateLimitCheck,
+} from "@/lib/rate-limit";
 import {
   createClient,
   createAdminClient,
   getDeterministicMembership,
 } from "@/lib/supabase/server";
+import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 import { getStripeClient } from "@/lib/stripe";
 
 // SPEC: docs/billing-page-refinement-pass.md §3.19 — invoice PDF
@@ -15,10 +26,13 @@ export const runtime = "nodejs";
 const ROUTE = "/api/stripe/invoices/[id]/pdf";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
+  const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], ROUTE);
+  if (routeParamRejection) return routeParamRejection;
+
   if (!id || !id.startsWith("in_")) {
     return jsonProblem(400, {
       error: "Invalid invoice id",
@@ -43,6 +57,13 @@ export async function GET(
     });
   }
   if (membership.role !== "admin") return jsonForbidden(ROUTE);
+
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(
+    `stripe-invoice-pdf:${user.id}:${ip}`,
+    RATE_LIMITS.stripeCheckoutSession
+  );
+  if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
 
   const { data: orgRow } = await admin
     .from("organizations")

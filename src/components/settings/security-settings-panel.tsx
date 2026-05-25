@@ -155,6 +155,9 @@ export function SecuritySettingsPanel({
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`
   );
   const enrollHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const stepUpFocusTimerRef = useRef<number | null>(null);
+  const copiedSecretTimerRef = useRef<number | null>(null);
+  const restoreFocusTimerRef = useRef<number | null>(null);
   // V2 §1.52 — focus restoration helper. AsyncActionButton doesn't
   // forward refs, so we focus by id at restoration time.
   const ADD_AUTH_BTN_ID = "mfa-add-authenticator-btn";
@@ -204,6 +207,18 @@ export function SecuritySettingsPanel({
     }
   }, [enroll]);
 
+  useEffect(() => {
+    return () => {
+      for (const timer of [
+        stepUpFocusTimerRef.current,
+        copiedSecretTimerRef.current,
+        restoreFocusTimerRef.current,
+      ]) {
+        if (timer != null) window.clearTimeout(timer);
+      }
+    };
+  }, []);
+
   // V2 §3.9 detect offline state.
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -243,7 +258,13 @@ export function SecuritySettingsPanel({
         const el = document.getElementById("step-up-card");
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         const pwInput = document.getElementById("stepup-pass") as HTMLInputElement | null;
-        setTimeout(() => pwInput?.focus(), 350);
+        if (stepUpFocusTimerRef.current != null) {
+          window.clearTimeout(stepUpFocusTimerRef.current);
+        }
+        stepUpFocusTimerRef.current = window.setTimeout(() => {
+          pwInput?.focus();
+          stepUpFocusTimerRef.current = null;
+        }, 350);
       }
       return false;
     }
@@ -300,7 +321,13 @@ export function SecuritySettingsPanel({
     try {
       await navigator.clipboard.writeText(secret);
       setCopiedSecret(true);
-      setTimeout(() => setCopiedSecret(false), 2000);
+      if (copiedSecretTimerRef.current != null) {
+        window.clearTimeout(copiedSecretTimerRef.current);
+      }
+      copiedSecretTimerRef.current = window.setTimeout(() => {
+        setCopiedSecret(false);
+        copiedSecretTimerRef.current = null;
+      }, 2000);
     } catch {
       setCopyFallback(true);
     }
@@ -621,11 +648,15 @@ export function SecuritySettingsPanel({
                     setEnroll(null);
                     setVerifyError(null);
                     // V2 §1.52 — restore focus to the trigger button.
-                    setTimeout(() => {
+                    if (restoreFocusTimerRef.current != null) {
+                      window.clearTimeout(restoreFocusTimerRef.current);
+                    }
+                    restoreFocusTimerRef.current = window.setTimeout(() => {
                       const btn = document.getElementById(
                         ADD_AUTH_BTN_ID
                       ) as HTMLButtonElement | null;
                       btn?.focus();
+                      restoreFocusTimerRef.current = null;
                     }, 50);
                   }}
                 >
@@ -851,6 +882,10 @@ export function SecuritySettingsPanel({
                           {...timeAttrs(s.expiresAt)}
                         >
                           EXPIRES {fmtRelative(s.expiresAt)}
+                          <span className="sr-only">
+                            {" "}
+                            ({formatDate(s.expiresAt, "dateTime")})
+                          </span>
                         </time>
                       </>
                     ) : null}

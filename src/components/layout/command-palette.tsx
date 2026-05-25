@@ -38,7 +38,7 @@ import {
   emitCmdkSearchFailedTelemetry,
   emitCmdkZeroResultsTelemetry,
 } from "@/actions/product-telemetry";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import {
   allCommandItems,
   cmdkJumpMatchesPaletteQuery,
@@ -513,7 +513,7 @@ export function CommandPalette(props: {
             )}
             {remoteSearchPartial ? (
               <div className="border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">
-                <V10RecoverableState
+                <RecoverableState
                   state="partial"
                   title="Command search is partially available"
                   reason={remoteSearchRecovery?.message ?? remoteSearchPartial}
@@ -535,7 +535,7 @@ export function CommandPalette(props: {
             <ul data-testid={shellTestIds.commandPaletteResults} className="max-h-[58vh] overflow-y-auto py-2">
               {flatItems.length === 0 ? (
                 <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">
-                  <V10RecoverableState
+                  <RecoverableState
                     state={remoteSearchFailed ? "failed" : "empty"}
                     title={remoteSearchFailed ? "Command search could not load." : (remoteSearchRecovery?.message ?? "No matches found.")}
                     reason={

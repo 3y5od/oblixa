@@ -30,9 +30,9 @@ vi.mock("@/lib/feature-flags", () => ({
   getFeatureFlags: () => getFeatureFlags(),
 }));
 
-const getV6OrgSettingsJson = vi.fn();
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+const getOrgSettingsJson = vi.fn();
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
 describe("requireServerActionEligibility", () => {
@@ -43,7 +43,7 @@ describe("requireServerActionEligibility", () => {
     featureRegistryByKey.mockReset();
     logProductSurfaceDiagnostic.mockReset();
     getFeatureFlags.mockReset();
-    getV6OrgSettingsJson.mockReset();
+    getOrgSettingsJson.mockReset();
   });
 
   it("fails closed for unauthenticated callers", async () => {
@@ -89,7 +89,7 @@ describe("requireServerActionEligibility", () => {
     const auth = { admin: {}, orgId: "org_1", role: "admin" };
     getAuthContext.mockResolvedValue(auth);
     featureRegistryByKey.mockReturnValue(new Map([["contracts", { key: "contracts" }]]));
-    getV6OrgSettingsJson.mockResolvedValue({});
+    getOrgSettingsJson.mockResolvedValue({});
     getFeatureFlags.mockReturnValue({});
     buildProductSurfaceContext.mockReturnValue({ mode: "advanced", role: "admin" });
     evaluateFeatureEligibility.mockReturnValue({ allowed: true });
@@ -110,7 +110,7 @@ describe("requireServerActionEligibility", () => {
     const auth = { admin: {}, orgId: "org_1", role: "editor" };
     getAuthContext.mockResolvedValue(auth);
     featureRegistryByKey.mockReturnValue(new Map([["decisions", { key: "decisions" }]]));
-    getV6OrgSettingsJson.mockResolvedValue({});
+    getOrgSettingsJson.mockResolvedValue({});
     getFeatureFlags.mockReturnValue({});
     buildProductSurfaceContext.mockReturnValue({ mode: "core", role: "editor" });
     evaluateFeatureEligibility.mockReturnValue({

@@ -11,7 +11,7 @@ import {
   clampCalibrationWizardStep,
   parseCalibrationStepQuery,
 } from "@/lib/onboarding/calibration-wizard-step";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 
 export default async function OnboardingCalibrationPage({
   searchParams,
@@ -23,7 +23,7 @@ export default async function OnboardingCalibrationPage({
   if (!ctx) redirect("/login");
   if (ctx.role !== "admin") redirect("/dashboard");
 
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const v6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const cal = parseOnboardingCalibration(v6.onboarding_calibration);
   const blocking = isOnboardingBlockingForAdmin({ role: ctx.role, calibration: cal });
   const inProgress = cal?.status === "in_progress";

@@ -14,4 +14,4 @@ src/lib/actions/access.ts
 # meta: reviewedOn=2026-05-12 owner=security expiry=2027-12-31 classification=intentionally-global reason=admin_client_factory_definition compensatingTest=scripts/check-server-lib-admin.test.mjs
 src/lib/supabase/server.ts
 # meta: reviewedOn=2026-05-12 owner=security expiry=2027-12-31 classification=session-scoped reason=v4_api_auth_context_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
-src/lib/v4/api-auth.ts
+src/lib/contract-operations/api-auth.ts

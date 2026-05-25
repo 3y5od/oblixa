@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildDependencyRiskReport } from "./report-dependency-risk.mjs";
+import {
+  buildDependencyRiskReport,
+  dependencyRiskReportExitCode,
+} from "./report-dependency-risk.mjs";
 
 const NOW = new Date("2026-05-11T00:00:00.000Z");
 
@@ -47,6 +50,7 @@ test("dependency risk report fails on high vulnerabilities", () => {
   assert.equal(report.auditUnavailable, false);
   assert.equal(report.summary.riskLevel, "high");
   assert.equal(report.summary.highOrCriticalCount, 1);
+  assert.equal(dependencyRiskReportExitCode(report), 1);
 });
 
 test("dependency risk report fails closed on malformed audit output", () => {
@@ -56,6 +60,7 @@ test("dependency risk report fails closed on malformed audit output", () => {
   assert.equal(report.auditUnavailable, true);
   assert.equal(report.summary.riskLevel, "unknown");
   assert.match(report.auditError, /JSON/);
+  assert.equal(dependencyRiskReportExitCode(report), 0);
 });
 
 test("dependency risk report fails closed on empty audit output", () => {

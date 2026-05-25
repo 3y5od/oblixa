@@ -21,7 +21,7 @@ const REQUIRED_SPECS = new Set([
   "ui-resilience-api.spec.ts",
   "ui-resilience.spec.ts",
   "url-adversarial.spec.ts",
-  "v9-core-smoke.spec.ts",
+  "compatibility-core-smoke.spec.ts",
   "visual.route-states.spec.ts",
 ]);
 

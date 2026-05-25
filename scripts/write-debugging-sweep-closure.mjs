@@ -66,7 +66,7 @@ const LOCAL_RUNSET = [
   { id: "npm-check-env-matrix", script: "check:env-matrix", timeoutMs: 120_000 },
   { id: "npm-check-e2e-env-matrix", script: "check:e2e-env-matrix", timeoutMs: 120_000 },
   { id: "npm-test-ui-a11y", script: "test:ui:a11y", timeoutMs: 300_000 },
-  { id: "npm-check-v10-promotable", script: "check:v10-promotable", timeoutMs: 180_000 },
+  { id: "npm-check-release-promotable", script: "check:release-promotable", timeoutMs: 180_000 },
   { id: "npm-report-reproducible-build", script: "report:reproducible-build", timeoutMs: 300_000 },
   { id: "npm-report-bus-factor-codeowners", script: "report:bus-factor-codeowners", timeoutMs: 120_000 },
   { id: "npm-report-ratchet-snapshot", script: "report:ratchet-snapshot", timeoutMs: 120_000 },
@@ -577,7 +577,7 @@ function appendExtendedPlanInventory(rows) {
   rows.push({
     id: "vitest-v10-extras-scripts",
     kind: "npm_script",
-    command_or_workflow: "npm run check:v10-promotable:report && npm run check:v10-runtime-evidence-plan",
+    command_or_workflow: "npm run check:release-promotable:report && npm run report:runtime-evidence-plan",
     manifest_tier: null,
     status: "skipped_waiver",
     waiver_id: WAIVE_INVENTORY,
@@ -658,8 +658,8 @@ function appendPlaywrightAndDocInventory(rows) {
   const secDir = SECURITY_REPORTS_RELATIVE_DIR;
   const docs = [
     "src/lib/spec-artifact-ids.ts",
-    "src/lib/v10-spec-trace-map.ts",
-    "src/lib/v10-release-contract.ts",
+    "src/lib/spec-trace-map.ts",
+    "src/lib/release-contract.ts",
     `${secDir}/${SECURITY_REPORT_FILES.routeCoverage}`,
     `${secDir}/${SECURITY_REPORT_FILES.apiAuthHeuristics}`,
     `${secDir}/${SECURITY_REPORT_FILES.serverActions}`,

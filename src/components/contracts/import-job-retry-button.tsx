@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { mutateV10 } from "@/lib/v10-api-client";
+import { mutateV10 } from "@/lib/api-client";
 
 // mutateV10 centralizes interpretHttpMutationFailure for HTTP, rate-limit, and network copy.
 export function V10JobRetryButton({
@@ -65,3 +65,7 @@ export function ImportJobRetryButton({ jobId }: { jobId: string }) {
     />
   );
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { V10JobRetryButton as JobRetryButton };
+// End version-name compatibility aliases.

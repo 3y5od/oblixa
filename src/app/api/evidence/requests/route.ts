@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { parseIsoTimestampParam } from "@/lib/security/validation";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/v10-mutation-envelope";
+import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/mutation-envelope";
 import {
   executeV10AuditedMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };

@@ -5,7 +5,7 @@ import { SegmentRecomputeButton } from "@/components/assurance/segment-recompute
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 
 export default async function AssuranceSegmentsPage() {
   const ctx = await getAuthContext();

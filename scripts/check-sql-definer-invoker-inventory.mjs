@@ -8,14 +8,20 @@ const ROOT = process.cwd();
 const MIGRATIONS_REL = "supabase/migrations";
 const ARTIFACT_REL = "artifacts/assurance/sql-definer-invoker-inventory.json";
 const VIEW_SMOKE_REL = "supabase/tests/view_invoker_smoke.sql";
+const DEFAULT_SECURITY_DEFINER_OWNER = "platform-security";
 
 const TENANT_ROOT_TABLES = new Set(["organizations", "organization_members"]);
 const TENANT_CHILD_SCOPE = new Set(["contract_files", "extracted_fields", "reminders"]);
 const CLIENT_EXECUTE_ALLOWLIST = new Map([
   ["create_user_org", "binds requested user_id to auth.uid() before creating tenant root rows"],
   ["is_org_member", "membership predicate helper used by RLS policies"],
+  ["role_rank", "neutral compatibility wrapper for the pure v10 role ranking helper"],
+  ["member_can_read", "neutral compatibility wrapper for the V10 RLS predicate helper"],
   ["v10_role_rank", "pure role ranking helper with no table reads or writes"],
   ["v10_member_can_read", "V10 RLS predicate helper binds row organization to auth.uid() membership"],
+]);
+const ANON_EXECUTE_ALLOWLIST = new Map([
+  ["is_org_member", "RLS policy helper returns false for anon via auth.uid() and avoids permission-denied probes"],
 ]);
 
 function read(root, rel) {
@@ -30,6 +36,10 @@ function writeIfChanged(abs, content) {
   if (fs.existsSync(abs) && fs.readFileSync(abs, "utf8") === content) return;
   fs.mkdirSync(path.dirname(abs), { recursive: true });
   fs.writeFileSync(abs, content);
+}
+
+function stableStringify(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 function stripFullLineComments(sql) {
@@ -192,12 +202,13 @@ function hasViewSmokeMarkers(text) {
   );
 }
 
-function summarizeDefinerFunction(fn, privileges) {
+function summarizeDefinerFunction(fn, privileges, owner = DEFAULT_SECURITY_DEFINER_OWNER) {
   const grantedTo = [...(privileges?.grants ?? [])].sort();
   const revokedFrom = [...(privileges?.revokes ?? [])].sort();
   const clientRoles = grantedTo.filter((role) => ["public", "anon", "authenticated"].includes(role));
   return {
     function: fn.name,
+    owner,
     file: fn.file,
     line: fn.line,
     language: fn.language,
@@ -210,6 +221,7 @@ function summarizeDefinerFunction(fn, privileges) {
     client_callable: clientRoles.length > 0,
     client_roles: clientRoles,
     allowlist_rationale: clientRoles.length > 0 ? CLIENT_EXECUTE_ALLOWLIST.get(fn.name) ?? null : null,
+    anon_allowlist_rationale: clientRoles.includes("anon") ? ANON_EXECUTE_ALLOWLIST.get(fn.name) ?? null : null,
     safety_evidence: {
       auth_uid_check: fn.hasAuthUidCheck,
       membership_check: fn.hasMembershipCheck,
@@ -220,7 +232,7 @@ function summarizeDefinerFunction(fn, privileges) {
 
 function buildArtifact(definerFunctions, tenantViews, smokeOk) {
   return {
-    version: 2,
+    version: 3,
     generated_by: "scripts/check-sql-definer-invoker-inventory.mjs",
     migration_dir: MIGRATIONS_REL,
     active_security_definer_function_count: definerFunctions.length,
@@ -237,24 +249,32 @@ function buildArtifact(definerFunctions, tenantViews, smokeOk) {
   };
 }
 
-export function analyzeSqlDefinerInvokerInventory(root = ROOT) {
+export function analyzeSqlDefinerInvokerInventory(root = ROOT, options = {}) {
   const issues = [];
   const rows = readMigrationRows(root);
   const allSql = rows.map((row) => row.uncommented).join("\n");
   const activeFunctions = collectActiveFunctions(rows);
+  const activeFunctionNames = new Set(activeFunctions.map((fn) => fn.name));
   const privileges = collectFunctionPrivileges(allSql);
   const definerFunctions = activeFunctions.filter((fn) => fn.securityDefiner);
 
   const summarizedDefiners = definerFunctions.map((fn) => {
-    const entry = summarizeDefinerFunction(fn, privileges.get(fn.name));
+    const owner = options.ownerByFunction?.[fn.name] ?? DEFAULT_SECURITY_DEFINER_OWNER;
+    const entry = summarizeDefinerFunction(fn, privileges.get(fn.name), owner);
+    if (!entry.owner) {
+      issues.push({ issue: "security_definer_missing_owner", function: fn.name, file: fn.file, line: fn.line });
+    }
     if (!entry.search_path || !/^public\b/i.test(entry.search_path)) {
       issues.push({ issue: "security_definer_missing_public_search_path", function: fn.name, file: fn.file, line: fn.line });
     }
     if (!entry.execute.revoked_from_public) {
       issues.push({ issue: "security_definer_missing_public_revoke", function: fn.name, file: fn.file, line: fn.line });
     }
-    if (entry.client_roles.includes("public") || entry.client_roles.includes("anon")) {
-      issues.push({ issue: "security_definer_granted_to_public_or_anon", function: fn.name, roles: entry.client_roles });
+    if (entry.client_roles.includes("public")) {
+      issues.push({ issue: "security_definer_granted_to_public", function: fn.name, roles: entry.client_roles });
+    }
+    if (entry.client_roles.includes("anon") && !ANON_EXECUTE_ALLOWLIST.has(fn.name)) {
+      issues.push({ issue: "security_definer_granted_to_anon_not_allowlisted", function: fn.name, roles: entry.client_roles });
     }
     if (entry.client_roles.includes("authenticated") && !CLIENT_EXECUTE_ALLOWLIST.has(fn.name)) {
       issues.push({ issue: "security_definer_authenticated_grant_not_allowlisted", function: fn.name, file: fn.file, line: fn.line });
@@ -267,6 +287,12 @@ export function analyzeSqlDefinerInvokerInventory(root = ROOT) {
     }
     return entry;
   });
+
+  for (const functionName of privileges.keys()) {
+    if (!activeFunctionNames.has(functionName)) {
+      issues.push({ issue: "function_grant_references_missing_function", function: functionName });
+    }
+  }
 
   const tenantTables = buildTenantTableSet(rows);
   const tenantViews = collectActiveViews(rows)
@@ -291,6 +317,29 @@ export function analyzeSqlDefinerInvokerInventory(root = ROOT) {
   }
 
   const artifact = buildArtifact(summarizedDefiners, tenantViews, smokeOk);
+  const checkArtifact = Boolean(options.checkArtifact);
+  const artifactRel = options.artifactRel ?? ARTIFACT_REL;
+  if (checkArtifact) {
+    const artifactPath = path.join(root, artifactRel);
+    if (!fs.existsSync(artifactPath)) {
+      issues.push({
+        issue: "sql_definer_invoker_inventory_missing",
+        rel: artifactRel,
+        hint: "Run npm run write:sql-definer-invoker-inventory",
+      });
+    } else {
+      const committed = fs.readFileSync(artifactPath, "utf8");
+      const current = stableStringify(artifact);
+      if (committed !== current) {
+        issues.push({
+          issue: "sql_definer_invoker_inventory_drift",
+          rel: artifactRel,
+          hint: "Run npm run write:sql-definer-invoker-inventory",
+        });
+      }
+    }
+  }
+
   return {
     ok: issues.length === 0,
     issueCount: issues.length,
@@ -301,15 +350,42 @@ export function analyzeSqlDefinerInvokerInventory(root = ROOT) {
   };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const report = analyzeSqlDefinerInvokerInventory();
-  const outPath = path.join(ROOT, ARTIFACT_REL);
-  writeIfChanged(outPath, `${JSON.stringify(report.artifact, null, 2)}\n`);
+function parseArgs(argv) {
+  const options = { root: ROOT, artifactRel: ARTIFACT_REL, write: false };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === "--root") {
+      options.root = path.resolve(argv[index + 1] ?? "");
+      index += 1;
+    } else if (arg.startsWith("--root=")) {
+      options.root = path.resolve(arg.slice("--root=".length));
+    } else if (arg === "--artifact") {
+      options.artifactRel = argv[index + 1] ?? ARTIFACT_REL;
+      index += 1;
+    } else if (arg.startsWith("--artifact=")) {
+      options.artifactRel = arg.slice("--artifact=".length);
+    } else if (arg === "--write") {
+      options.write = true;
+    }
+  }
+  return options;
+}
+
+export function runSqlDefinerInvokerInventory(options = parseArgs(process.argv.slice(2))) {
+  const report = analyzeSqlDefinerInvokerInventory(options.root, {
+    artifactRel: options.artifactRel,
+    checkArtifact: !options.write,
+  });
+  if (options.write) {
+    const outPath = path.join(options.root, options.artifactRel);
+    writeIfChanged(outPath, stableStringify(report.artifact));
+  }
   console.log(
     JSON.stringify(
       {
         ok: report.ok,
-        artifact: ARTIFACT_REL,
+        artifact: options.artifactRel,
+        mode: options.write ? "write" : "check",
         issueCount: report.issueCount,
         securityDefinerFunctionCount: report.securityDefinerFunctionCount,
         tenantViewCount: report.tenantViewCount,
@@ -319,5 +395,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       2
     )
   );
-  process.exit(report.ok ? 0 : 1);
+  if (!report.ok) process.exitCode = 1;
+  return report;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  runSqlDefinerInvokerInventory();
 }

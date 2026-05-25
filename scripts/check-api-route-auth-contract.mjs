@@ -123,6 +123,9 @@ const AUTH_SIGNALS = [
   /\bsecureCompare\w*\b/,
   // Tokenized external actions
   /\[token\]/,
+  // Neutral compatibility aliases re-export the legacy handler instead of duplicating auth logic.
+  /^export\s+\*\s+from\s+["']\.\.\/v(?:4|5|6|10)\/[^"']+\/route["'];?\s*$/m,
+  /^export\s+\*\s+from\s+["']\.\.\/v6-settings\/route["'];?\s*$/m,
 ];
 
 const DENY_SIGNALS = [

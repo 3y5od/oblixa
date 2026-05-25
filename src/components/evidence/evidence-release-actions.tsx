@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ChevronDown } from "lucide-react";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
-import { mutateV10 } from "@/lib/v10-api-client";
+import { mutateV10 } from "@/lib/api-client";
 import type { EvidenceActionCapability, EvidenceRow } from "@/lib/evidence/types";
 
 export function EvidenceReleaseActions({

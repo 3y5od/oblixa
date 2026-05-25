@@ -13,7 +13,7 @@ type EvidenceSubmissionState =
 
 function evidenceSubmissionAction() {
   return async (_prevState: EvidenceSubmissionState, formData: FormData): Promise<EvidenceSubmissionState> => {
-    const mod = await import("@/actions/v4");
+    const mod = await import("@/actions/policy-operations");
     return mod.submitEvidenceNoteAction(formData);
   };
 }

@@ -2,8 +2,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { captureServerMessage } from "@/lib/observability/sentry";
-import { upsertDetectedExceptions, type DetectedExceptionInput } from "@/lib/v4/exceptions";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
+import { upsertDetectedExceptions, type DetectedExceptionInput } from "@/lib/contract-operations/exceptions";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 
 const MAX_ROWS_PER_UPSERT = 450;

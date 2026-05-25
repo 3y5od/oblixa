@@ -1,18 +1,18 @@
 import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { readJsonBody } from "@/lib/v5/api";
+import { readJsonBody } from "@/lib/decision-intelligence/api";
 import {
   executePostDecisionActions,
   suggestDefaultPostDecisionActions,
-} from "@/lib/v5/post-decision-actions";
+} from "@/lib/decision-intelligence/post-decision-actions";
 import {
   appendAccountTimelineEvent,
   appendCounterpartyTimelineEvent,
-} from "@/lib/v5/relationship-timeline";
-import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/relationship-timeline";
+import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";

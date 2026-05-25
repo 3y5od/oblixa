@@ -28,7 +28,7 @@ function writeValidFixture(root) {
   write(root, "src/lib/messaging/chat-snippet-sanitize.test.ts", 'it("breaks script tags and HTML data URLs", () => {})\nit("defangs Slack-style auto-link openers", () => {})\n');
   write(root, "src/lib/messaging/adaptive-card-snippet-sanitize.test.ts", 'it("breaks script tags and HTML data URLs", () => {})\n');
   write(root, "src/lib/messaging/discord-embed-snippet-sanitize.test.ts", 'it("breaks active content URL and script tokens", () => {})\n');
-  write(root, "src/lib/v9-dashboard-no-dangerous-html.v9.test.ts", 'Core dashboard tree avoids dangerouslySetInnerHTML\nexpect(hits, hits.join("\\n")).toEqual([]);\n');
+  write(root, "src/lib/dashboard-no-dangerous-html.test.ts", 'Core dashboard tree avoids dangerouslySetInnerHTML\nexpect(hits, hits.join("\\n")).toEqual([]);\n');
   write(root, "scripts/check-dangerously-set-inner-html.mjs", "dangerouslySetInnerHTML\n");
   write(root, "scripts/check-next-public-surface.mjs", "NEXT_PUBLIC_\n");
   write(root, "scripts/check-client-storage-sensitivity.mjs", "analyzeClientStorageSensitivity\ndirect_client_storage_access\nsensitive_storage_key\nunapproved_storage_key\n");

@@ -1,8 +1,8 @@
 import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
-import { appendCasefileEvent } from "@/lib/v4/casefile";
-import { applyProgramToContract } from "@/lib/v4/execution-engine";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
+import { appendCasefileEvent } from "@/lib/contract-operations/casefile";
+import { applyProgramToContract } from "@/lib/contract-operations/execution-engine";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
 

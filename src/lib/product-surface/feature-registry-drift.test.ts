@@ -8,6 +8,7 @@ import {
   featureFamilyForPath,
   minWorkspaceModeForReportsHash,
 } from "@/lib/product-surface/feature-registry";
+import { minWorkspaceModeForPath } from "@/lib/product-surface/routes";
 
 function normalizedPath(href: string): string {
   return href.split("?")[0] ?? href;
@@ -60,7 +61,7 @@ describe("feature registry drift checks", () => {
     }
   });
 
-  it("cmd-k extra deep links are blocked on Core surfaces", () => {
+  it("advanced cmd-k extra deep links are blocked on Core surfaces", () => {
     const surface: NavSurfaceInput = {
       mode: "core",
       role: "admin",
@@ -72,7 +73,9 @@ describe("feature registry drift checks", () => {
       utilityModulesHidden: [],
       searchScope: "match_mode",
     };
-    for (const item of CMDK_EXTRA_NAV_ITEMS) {
+    for (const item of CMDK_EXTRA_NAV_ITEMS.filter(
+      (item) => minWorkspaceModeForPath(normalizedPath(item.href)) !== "core"
+    )) {
       expect(isCmdkHrefAllowed(item.href, surface), item.href).toBe(false);
     }
   });

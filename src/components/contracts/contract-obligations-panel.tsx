@@ -12,7 +12,7 @@ import {
 } from "@/actions/obligations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractObligation, ContractObligationStatus } from "@/lib/types";
-import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
+import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
 
 type MemberOption = { userId: string; label: string };
 type ObligationRow = Pick<

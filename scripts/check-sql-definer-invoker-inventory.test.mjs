@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { analyzeSqlDefinerInvokerInventory } from "./check-sql-definer-invoker-inventory.mjs";
+import {
+  analyzeSqlDefinerInvokerInventory,
+  runSqlDefinerInvokerInventory,
+} from "./check-sql-definer-invoker-inventory.mjs";
 
 function write(root, rel, content) {
   const abs = path.join(root, rel);
@@ -93,6 +96,43 @@ left join public.extracted_fields ef on ef.contract_id = c.id;
   assert.equal(report.issueCount, 0);
   assert.equal(report.securityDefinerFunctionCount, 2);
   assert.equal(report.tenantViewCount, 1);
+  assert.equal(report.artifact.active_security_definer_functions[0].owner, "platform-security");
+});
+
+test("analyzeSqlDefinerInvokerInventory rejects security definers without owner metadata", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-sql-definer-owner-"));
+  write(
+    root,
+    "supabase/migrations/001_owner.sql",
+    `create table public.contracts (
+  id uuid primary key,
+  organization_id uuid not null
+);
+
+create or replace function public.service_snapshot(p_org_id uuid)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$ select count(*)::integer from public.contracts where organization_id = p_org_id $$;
+revoke all on function public.service_snapshot(uuid) from public;
+grant execute on function public.service_snapshot(uuid) to service_role;
+
+create or replace view public.contract_operational_dates
+with (security_invoker = true)
+as
+select id as contract_id, organization_id from public.contracts;
+`
+  );
+  writeSmoke(root);
+
+  const report = analyzeSqlDefinerInvokerInventory(root, {
+    ownerByFunction: { service_snapshot: "" },
+  });
+
+  assert.equal(report.ok, false);
+  assert(report.issues.some((issue) => issue.issue === "security_definer_missing_owner"));
 });
 
 test("analyzeSqlDefinerInvokerInventory rejects unsafe definer and view patterns", () => {
@@ -179,4 +219,71 @@ select id as contract_id, organization_id from public.contracts;
   assert.equal(report.ok, true);
   assert.equal(report.issueCount, 0);
   assert.equal(report.securityDefinerFunctionCount, 1);
+});
+
+test("analyzeSqlDefinerInvokerInventory rejects grants to functions that no longer exist", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-sql-definer-stale-grant-"));
+  write(
+    root,
+    "supabase/migrations/001_stale_grant.sql",
+    `create table public.contracts (
+  id uuid primary key,
+  organization_id uuid not null
+);
+grant execute on function public.removed_helper(uuid) to authenticated;
+
+create or replace view public.contract_operational_dates
+with (security_invoker = true)
+as
+select id as contract_id, organization_id from public.contracts;
+`
+  );
+  writeSmoke(root);
+
+  const report = analyzeSqlDefinerInvokerInventory(root);
+  assert.equal(report.ok, false);
+  assert(report.issues.some((issue) => issue.issue === "function_grant_references_missing_function"));
+});
+
+test("SQL definer/invoker artifact check is read-only and detects drift", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-sql-definer-artifact-"));
+  write(
+    root,
+    "supabase/migrations/001_ok.sql",
+    `create table public.contracts (
+  id uuid primary key,
+  organization_id uuid not null
+);
+
+create or replace view public.contract_operational_dates
+with (security_invoker = true)
+as
+select id as contract_id, organization_id from public.contracts;
+`
+  );
+  writeSmoke(root);
+
+  const artifactRel = "artifacts/assurance/sql-definer-invoker-inventory.json";
+  let report = analyzeSqlDefinerInvokerInventory(root, { artifactRel, checkArtifact: true });
+  assert.equal(report.ok, false);
+  assert(report.issues.some((issue) => issue.issue === "sql_definer_invoker_inventory_missing"));
+
+  const originalLog = console.log;
+  const originalExitCode = process.exitCode;
+  console.log = () => {};
+  process.exitCode = 0;
+  try {
+    runSqlDefinerInvokerInventory({ root, artifactRel, write: true });
+  } finally {
+    console.log = originalLog;
+    process.exitCode = originalExitCode;
+  }
+
+  report = analyzeSqlDefinerInvokerInventory(root, { artifactRel, checkArtifact: true });
+  assert.equal(report.ok, true, JSON.stringify(report.issues, null, 2));
+
+  write(root, artifactRel, JSON.stringify({ stale: true }, null, 2) + "\n");
+  report = analyzeSqlDefinerInvokerInventory(root, { artifactRel, checkArtifact: true });
+  assert.equal(report.ok, false);
+  assert(report.issues.some((issue) => issue.issue === "sql_definer_invoker_inventory_drift"));
 });

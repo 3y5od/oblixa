@@ -16,9 +16,13 @@
       "/reset-password"
     ],
     "public_information_paths": [
+      "/product",
+      "/pricing",
+      "/contact",
       "/privacy",
       "/terms",
       "/security",
+      "/acceptable-use",
       "/accessibility",
       "/cookies"
     ],

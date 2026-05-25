@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-remaining-local-contract-closure.mjs --write",
+  "policy": "Prove remaining repo-local version-name surfaces are classified, queued, allowlisted, alias-preserved, or blocked by explicit compatibility boundaries. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "versionedContentSurfaceCoverage": "artifacts/compatibility/versioned-content-surface-coverage.json",
+    "versionedRemainingSurfaceCoverage": "artifacts/compatibility/versioned-remaining-surface-coverage.json",
+    "versionedLocalSurfaceRegression": "artifacts/compatibility/versioned-local-surface-regression.json",
+    "versionedAdditiveAliasPreservation": "artifacts/compatibility/versioned-additive-alias-preservation.json",
+    "versionedCodeOnlyClosure": "artifacts/compatibility/versioned-code-only-closure.json",
+    "versionedPackageScriptReadiness": "artifacts/compatibility/versioned-package-script-readiness.json",
+    "seedVersionedNameQueueCoverage": "artifacts/supabase/seed-versioned-name-queue-coverage.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json"
+  },
+  "totals": {
+    "objectiveCount": 10,
+    "statusCounts": {
+      "coverage_proven": 8,
+      "requires_runtime_alias": 1,
+      "retained_legacy_blocked": 1
+    },
+    "coverageProvenCount": 8,
+    "retainedLegacyBlockedCount": 1,
+    "requiresRuntimeAliasCount": 1,
+    "issueCount": 0
+  },
+  "objectives": [
+    {
+      "id": "code_only_safe_action_exhaustion",
+      "owner": "platform-hardening",
+      "reason": "Safe path renames, exported-symbol aliases, local content rewrites, env aliases, and alias-usage rewrites must be exhausted.",
+      "validationCommand": "npm run check:versioned-code-only-closure",
+      "manualFollowUp": "If a new safe action appears, apply it through the owning explicit write command and rerun closure checks.",
+      "closureStatus": "coverage_proven",
+      "pendingSafeActionCount": 0,
+      "contractCount": 10,
+      "manualOnlyContractCount": 79,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "dom_selector_accessibility_aliases",
+      "owner": "frontend-platform",
+      "reason": "Old and neutral DOM selectors must coexist without changing accessibility semantics while support tooling migrates.",
+      "validationCommand": "npm run check:versioned-additive-alias-preservation",
+      "manualFollowUp": "Remove legacy selector attributes only after UI tests, analytics, and support tooling consume neutral selectors.",
+      "closureStatus": "coverage_proven",
+      "domAliasPairCount": 11,
+      "coveredDomAliasPairCount": 11,
+      "semgrepNeutralRulepackActive": true,
+      "contractCount": 11,
+      "manualOnlyContractCount": 11,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "package_script_retained_aliases",
+      "owner": "platform-hardening",
+      "reason": "Legacy package-script aliases remain callable until external runbooks and branch-protection references are explicitly retired.",
+      "validationCommand": "npm run check:versioned-package-script-readiness",
+      "manualFollowUp": "Do not remove legacy package scripts until every alias reports ready_for_removal and removal is in scope.",
+      "closureStatus": "retained_legacy_blocked",
+      "aliasCount": 37,
+      "readyForRemovalCount": 0,
+      "localReadyForRemovalCount": 37,
+      "blockingReferenceCount": 0,
+      "contractCount": 37,
+      "manualOnlyContractCount": 37,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "public_metadata_pwa_readiness",
+      "owner": "frontend-platform",
+      "reason": "Public metadata, PWA, and well-known names need runtime aliases or external cutover before old names can be removed.",
+      "validationCommand": "npm run check:versioned-public-contract-preservation",
+      "manualFollowUp": "Leave public metadata and PWA cutover unchecked until old and neutral public contracts are both validated.",
+      "closureStatus": "requires_runtime_alias",
+      "sourceGroupIds": [
+        "public_metadata_assets",
+        "pwa_well_known_install"
+      ],
+      "contractCount": 0,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "remaining_surface_queue_completeness",
+      "owner": "platform-hardening",
+      "reason": "Remaining content surfaces must have queue, allowlist, validation-command, and manual-boundary evidence.",
+      "validationCommand": "npm run check:versioned-remaining-surface-coverage",
+      "manualFollowUp": "Keep compatibility-sensitive names retained until their queue status reaches ready_for_removal.",
+      "closureStatus": "coverage_proven",
+      "categoryCount": 29,
+      "contractCount": 8497,
+      "manualOnlyContractCount": 2602,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "seed_payload_key_readiness",
+      "owner": "database-platform",
+      "reason": "Seed and local-reset payload keys are closed only when queued, schema-compatible, or covered by dual-read support.",
+      "validationCommand": "npm run check:seed-versioned-name-queue-coverage",
+      "manualFollowUp": "Do not remove legacy seed keys until reset fixtures and runtime readers accept neutral names.",
+      "closureStatus": "coverage_proven",
+      "contractCount": 0,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "skip_metadata_visual_snapshot_evidence_keys",
+      "owner": "test-platform",
+      "reason": "Skip metadata, visual snapshot prefixes, evidence keys, and QA registries need deterministic queue or manual-boundary coverage.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Keep retained test metadata queued until snapshots, fixtures, and support references use neutral names.",
+      "closureStatus": "coverage_proven",
+      "sourceGroupIds": [
+        "fixtures_evidence_and_qa_registries",
+        "test_tags_skip_and_snapshot_prefixes"
+      ],
+      "contractCount": 479,
+      "manualOnlyContractCount": 1,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "source_scanner_id_preservation",
+      "owner": "platform-security",
+      "reason": "Source-owned scanner IDs and Semgrep packs must prefer neutral active IDs while retaining legacy packs for SARIF history.",
+      "validationCommand": "npm run check:versioned-source-config-preservation",
+      "manualFollowUp": "Keep legacy scanner IDs queued until historical SARIF and suppressions no longer reference them.",
+      "closureStatus": "coverage_proven",
+      "sourceGroupIds": [
+        "source_owned_config_scanner_ids"
+      ],
+      "contractCount": 271,
+      "manualOnlyContractCount": 14,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "semgrepNeutralRulepackActive": true,
+      "legacyRulepacksInactiveInCi": true,
+      "versionedActiveRuleIdCount": 0
+    },
+    {
+      "id": "static_text_fixture_snapshot_closure",
+      "owner": "platform-hardening",
+      "reason": "Static text, comments, fixtures, and snapshots are closed only when classified, queued, allowlisted, or explicitly manual.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Rewrite only manifest-proven local text; retain historical evidence and standards/provider/schema version strings.",
+      "closureStatus": "coverage_proven",
+      "sourceGroupIds": [
+        "copy_and_localization_keys",
+        "test_tags_skip_and_snapshot_prefixes"
+      ],
+      "contractCount": 638,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "style_token_copy_key_readiness",
+      "owner": "frontend-platform",
+      "reason": "Style tokens and copy keys can be user-facing contracts, so retained version labels need explicit classification and queue coverage.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Add runtime-safe aliases before removing legacy style or copy keys.",
+      "closureStatus": "coverage_proven",
+      "sourceGroupIds": [
+        "copy_and_localization_keys",
+        "style_tokens_and_visual_keys"
+      ],
+      "contractCount": 647,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

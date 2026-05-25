@@ -1,0 +1,11 @@
+[
+  {
+    "name": "rls_disabled_in_public",
+    "title": "RLS Disabled in Public",
+    "level": "WARN",
+    "detail": "Table public.example has RLS disabled.",
+    "metadata": {
+      "name": "public.example"
+    }
+  }
+]

@@ -22,9 +22,9 @@ function writeValidFixture(root) {
   write(root, "src/lib/http/problem.ts", "redactSensitiveLogString\ndeepRedactEmailLikeInUnknown\nsanitizeProblemDetails\nredactProblemErrorMessage\n");
   write(root, "src/lib/http/problem.test.ts", 'it("redacts technical provider and stack details from problem error messages", () => {})\nit("redacts secret-bearing problem details and raw exception strings", () => {})\nsigned_url\nauthorization\n');
   write(root, "src/lib/product-telemetry.ts", "clampProductTelemetryDetails\nredactSensitiveLogString\nV10_TELEMETRY_FORBIDDEN_DETAIL_KEY_RE\nPRODUCT_TELEMETRY_DETAILS_MAX_JSON_BYTES\n");
-  write(root, "src/lib/product-telemetry.v10.test.ts", 'it("redacts email-like private strings before writing telemetry details", () => {})\nBearer abcdefghijk123456789\noauth_code\ndropped_field_count\n');
-  write(root, "src/lib/v10-hardening-contracts.ts", 'export function sanitizeV10DiagnosticMetadata(\nconst unsafe = /raw|text|email|token|secret|private.?url|customer.?name|file/i;\nsafe[key] = "redacted"\nreturn { safe, droppedKeys };\n');
-  write(root, "src/lib/v10-hardening-contracts.v10.test.ts", 'sanitizeV10DiagnosticMetadata({\nprovider_error: "redacted"\ndroppedKeys: ["raw_contract_text", "responder_email"]\n');
+  write(root, "src/lib/product-telemetry-current.test.ts", 'it("redacts email-like private strings before writing telemetry details", () => {})\nBearer abcdefghijk123456789\noauth_code\ndropped_field_count\n');
+  write(root, "src/lib/hardening-contracts.ts", 'export function sanitizeV10DiagnosticMetadata(\nconst unsafe = /raw|text|email|token|secret|private.?url|customer.?name|file/i;\nsafe[key] = "redacted"\nreturn { safe, droppedKeys };\n');
+  write(root, "src/lib/hardening-contracts.test.ts", 'sanitizeV10DiagnosticMetadata({\nprovider_error: "redacted"\ndroppedKeys: ["raw_contract_text", "responder_email"]\n');
   write(root, "src/lib/observability/sentry.ts", "truncateSweepTag\nSENTRY_SWEEP_MAX_TAGS\nsetSweepCorrelationContext\naddProductSurfaceDiagnosticBreadcrumb\n");
   write(root, "src/lib/observability/api-route-instrumentation.ts", "request_id\ncorrelation_id\nerror_class\ncaptureServerException\n");
   write(root, "scripts/check-notification-payload-scrub-contract.mjs", "analyzeNotificationPayloadScrubContract\n");

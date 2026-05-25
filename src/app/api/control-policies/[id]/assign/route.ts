@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { assignControlPolicy } from "@/lib/v6/control-policies";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { assignControlPolicy } from "@/lib/assurance/control-policies";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -71,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       route: ROUTE,
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_control_policy_assign_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_control_policy_assign_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
 
 const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
@@ -17,7 +17,7 @@ vi.mock("@/lib/rate-limit", async () => {
   };
 });
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5CronFeature: vi.fn(() => null),
 }));
 
@@ -25,7 +25,7 @@ const listOrganizationIds = vi.fn(async () => ["org-1"]);
 
 const createAdminClient = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/v5/cron", () => ({
+vi.mock("@/lib/decision-intelligence/cron", () => ({
   listOrganizationIds,
 }));
 
@@ -33,7 +33,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
 }));
 
-vi.mock("@/lib/v5/persist-signal-quality", () => ({
+vi.mock("@/lib/decision-intelligence/persist-signal-quality", () => ({
   incrementOrgV5SignalQuality: vi.fn(async () => {}),
 }));
 

@@ -6,9 +6,8 @@ import { DashboardQuickFilterCard } from "./dashboard-quick-filter-card";
 describe("DashboardQuickFilterCard", () => {
   it("renders quick filter links", () => {
     renderWithProviders(<DashboardQuickFilterCard view="team" quickFilter="deadlines" />);
-    expect(screen.getByText("Quick filters")).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: /quick filters/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Deadlines" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Approvals" })).toBeTruthy();
   });
 });
-

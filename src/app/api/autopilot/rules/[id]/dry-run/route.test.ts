@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature: () => null,
 }));
 
 const requireV6Context = vi.fn();
 const enforceIdempotency = vi.fn(async () => null as Response | null);
-vi.mock("@/lib/v6/api-auth", () => ({
+vi.mock("@/lib/assurance/api-auth", () => ({
   requireV6Context: (...args: unknown[]) => requireV6Context(...args),
 }));
 
@@ -14,23 +14,23 @@ vi.mock("@/lib/idempotency", () => ({
   enforceIdempotency,
 }));
 
-const getV6OrgSettingsJson = vi.fn();
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+const getOrgSettingsJson = vi.fn();
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
-vi.mock("@/lib/v6/autopilot", () => ({
+vi.mock("@/lib/assurance/autopilot", () => ({
   dryRunAutopilotRule: vi.fn(),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(),
 }));
 
 describe("POST /api/autopilot/rules/[id]/dry-run (§17.2)", () => {
   beforeEach(() => {
     requireV6Context.mockReset();
-    getV6OrgSettingsJson.mockReset();
+    getOrgSettingsJson.mockReset();
     enforceIdempotency.mockReset();
     enforceIdempotency.mockResolvedValue(null);
   });
@@ -40,7 +40,7 @@ describe("POST /api/autopilot/rules/[id]/dry-run (§17.2)", () => {
       ctx: { admin: {}, orgId: "o1", userId: "u1" },
       errorResponse: null,
     });
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
 
     const { POST } = await import("@/app/api/autopilot/rules/[id]/dry-run/route");
     const res = await POST(new Request("http://localhost"), {
@@ -54,7 +54,7 @@ describe("POST /api/autopilot/rules/[id]/dry-run (§17.2)", () => {
       ctx: { admin: {}, orgId: "o1", userId: "u1", role: "admin" },
       errorResponse: null,
     });
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "assurance" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "assurance" });
     enforceIdempotency.mockResolvedValueOnce(
       new Response(JSON.stringify({ error: "Duplicate request blocked by idempotency key" }), {
         status: 409,

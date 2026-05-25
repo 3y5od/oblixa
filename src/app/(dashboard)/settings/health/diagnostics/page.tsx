@@ -5,7 +5,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getOrgMemberRole } from "@/lib/permissions";
 import { hasRoleCapability } from "@/lib/access-control";
-import { V10_OPS_RELEASE_READINESS_CONTRACTS } from "@/lib/v10-operational-contracts";
+import { V10_OPS_RELEASE_READINESS_CONTRACTS } from "@/lib/operational-contracts";
 
 export const metadata = { title: "Internal health diagnostics" };
 

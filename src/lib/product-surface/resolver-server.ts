@@ -1,5 +1,5 @@
 import { isNotificationAllowed } from "@/lib/notification-policy";
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 
 export async function isNotificationCategoryAllowed(
   admin: AdminClient,

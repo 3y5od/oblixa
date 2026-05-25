@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-public-runtime-dual-read.mjs --write",
+  "policy": "Classify public route, deep-link, PWA, metadata, and OpenAPI version-name surfaces from route aliases, public-contract preservation, and compatibility queues. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json",
+    "routeInventory": "artifacts/routes/compatibility-route-inventory.json",
+    "versionedContentSurfaceCoverage": "artifacts/compatibility/versioned-content-surface-coverage.json",
+    "versionedRemainingSurfaceCoverage": "artifacts/compatibility/versioned-remaining-surface-coverage.json"
+  },
+  "totals": {
+    "familyCount": 6,
+    "statusCounts": {
+      "dual_read_present": 2,
+      "queue_covered": 4
+    },
+    "dualReadPresentCount": 2,
+    "queueCoveredCount": 4,
+    "requiresExternalOrProductionCutoverCount": 0,
+    "uncoveredManualCount": 0,
+    "remainingSafeActionCount": 0,
+    "missingMetadataCount": 0,
+    "missingValidationCommandCount": 0,
+    "missingQueueCoverageCount": 0,
+    "issueCount": 0
+  },
+  "families": [
+    {
+      "id": "api_route_runtime_aliases",
+      "owner": "platform-api",
+      "reason": "Neutral route aliases keep old public paths callable while code and documentation prefer neutral routes.",
+      "readinessStatus": "dual_read_present",
+      "validationCommand": "npm run check:versioned-route-aliases",
+      "manualFollowUp": "Keep legacy API paths callable until clients, generated docs, and support tooling use neutral paths.",
+      "legacyAliasCount": 1,
+      "neutralAliasCount": 1,
+      "queueEntryCount": 1,
+      "missingQueueCoverageCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "aliases": [
+        {
+          "legacyPath": "/api/workspace/v6-settings",
+          "neutralPath": "/api/workspace/settings",
+          "legacyRouteFile": "src/app/api/workspace/v6-settings/route.ts",
+          "neutralRouteFile": "src/app/api/workspace/settings/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral workspace settings alias keeps the legacy route callable during client and external reference migration."
+        }
+      ]
+    },
+    {
+      "id": "cron_route_runtime_aliases",
+      "owner": "platform-api",
+      "reason": "Neutral route aliases keep old public paths callable while code and documentation prefer neutral routes.",
+      "readinessStatus": "dual_read_present",
+      "validationCommand": "npm run check:versioned-route-aliases",
+      "manualFollowUp": "Keep legacy cron paths callable until production scheduler cutover is explicitly approved.",
+      "legacyAliasCount": 32,
+      "neutralAliasCount": 32,
+      "queueEntryCount": 32,
+      "missingQueueCoverageCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "aliases": [
+        {
+          "legacyPath": "/api/cron/v4/approvals-sla",
+          "neutralPath": "/api/cron/approvals-sla",
+          "legacyRouteFile": "src/app/api/cron/v4/approvals-sla/route.ts",
+          "neutralRouteFile": "src/app/api/cron/approvals-sla/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/assurance-checks",
+          "neutralPath": "/api/cron/assurance-checks",
+          "legacyRouteFile": "src/app/api/cron/v6/assurance-checks/route.ts",
+          "neutralRouteFile": "src/app/api/cron/assurance-checks/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/attestations-issue",
+          "neutralPath": "/api/cron/attestations-issue",
+          "legacyRouteFile": "src/app/api/cron/v4/attestations-issue/route.ts",
+          "neutralRouteFile": "src/app/api/cron/attestations-issue/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/autopilot-dry-run",
+          "neutralPath": "/api/cron/autopilot-dry-run",
+          "legacyRouteFile": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
+          "neutralRouteFile": "src/app/api/cron/autopilot-dry-run/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/autopilot-execution",
+          "neutralPath": "/api/cron/autopilot-execution",
+          "legacyRouteFile": "src/app/api/cron/v6/autopilot-execution/route.ts",
+          "neutralRouteFile": "src/app/api/cron/autopilot-execution/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/campaign-progress",
+          "neutralPath": "/api/cron/campaign-progress",
+          "legacyRouteFile": "src/app/api/cron/v5/campaign-progress/route.ts",
+          "neutralRouteFile": "src/app/api/cron/campaign-progress/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/capacity-forecast-refresh",
+          "neutralPath": "/api/cron/capacity-forecast-refresh",
+          "legacyRouteFile": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+          "neutralRouteFile": "src/app/api/cron/capacity-forecast-refresh/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/control-policy-reevaluation",
+          "neutralPath": "/api/cron/control-policy-reevaluation",
+          "legacyRouteFile": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
+          "neutralRouteFile": "src/app/api/cron/control-policy-reevaluation/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/decision-sla-monitor",
+          "neutralPath": "/api/cron/decision-sla-monitor",
+          "legacyRouteFile": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+          "neutralRouteFile": "src/app/api/cron/decision-sla-monitor/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/escalations-dispatch",
+          "neutralPath": "/api/cron/escalations-dispatch",
+          "legacyRouteFile": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+          "neutralRouteFile": "src/app/api/cron/escalations-dispatch/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/evidence-followup",
+          "neutralPath": "/api/cron/evidence-followup",
+          "legacyRouteFile": "src/app/api/cron/v4/evidence-followup/route.ts",
+          "neutralRouteFile": "src/app/api/cron/evidence-followup/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/exceptions-detect",
+          "neutralPath": "/api/cron/exceptions-detect",
+          "legacyRouteFile": "src/app/api/cron/v4/exceptions-detect/route.ts",
+          "neutralRouteFile": "src/app/api/cron/exceptions-detect/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/external-followup",
+          "neutralPath": "/api/cron/external-followup",
+          "legacyRouteFile": "src/app/api/cron/v5/external-followup/route.ts",
+          "neutralRouteFile": "src/app/api/cron/external-followup/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/external-workflow-deadlines",
+          "neutralPath": "/api/cron/external-workflow-deadlines",
+          "legacyRouteFile": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
+          "neutralRouteFile": "src/app/api/cron/external-workflow-deadlines/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/finding-refresh",
+          "neutralPath": "/api/cron/finding-refresh",
+          "legacyRouteFile": "src/app/api/cron/v6/finding-refresh/route.ts",
+          "neutralRouteFile": "src/app/api/cron/finding-refresh/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/health-graph-rollups",
+          "neutralPath": "/api/cron/health-graph-rollups",
+          "legacyRouteFile": "src/app/api/cron/v6/health-graph-rollups/route.ts",
+          "neutralRouteFile": "src/app/api/cron/health-graph-rollups/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v10/idempotency-cleanup",
+          "neutralPath": "/api/cron/idempotency-cleanup",
+          "legacyRouteFile": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+          "neutralRouteFile": "src/app/api/cron/idempotency-cleanup/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/onboarding-calibration-stale",
+          "neutralPath": "/api/cron/onboarding-calibration-stale",
+          "legacyRouteFile": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
+          "neutralRouteFile": "src/app/api/cron/onboarding-calibration-stale/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/outcome-effectiveness",
+          "neutralPath": "/api/cron/outcome-effectiveness",
+          "legacyRouteFile": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
+          "neutralRouteFile": "src/app/api/cron/outcome-effectiveness/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/playbook-follow-up-assurance",
+          "neutralPath": "/api/cron/playbook-follow-up-assurance",
+          "legacyRouteFile": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
+          "neutralRouteFile": "src/app/api/cron/playbook-follow-up-assurance/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/portfolio-risk-recompute",
+          "neutralPath": "/api/cron/portfolio-risk-recompute",
+          "legacyRouteFile": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+          "neutralRouteFile": "src/app/api/cron/portfolio-risk-recompute/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/programs-reconcile",
+          "neutralPath": "/api/cron/programs-reconcile",
+          "legacyRouteFile": "src/app/api/cron/v4/programs-reconcile/route.ts",
+          "neutralRouteFile": "src/app/api/cron/programs-reconcile/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v10/read-model-refresh",
+          "neutralPath": "/api/cron/read-model-refresh",
+          "legacyRouteFile": "src/app/api/cron/v10/read-model-refresh/route.ts",
+          "neutralRouteFile": "src/app/api/cron/read-model-refresh/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/recommendation-refresh",
+          "neutralPath": "/api/cron/recommendation-refresh",
+          "legacyRouteFile": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+          "neutralRouteFile": "src/app/api/cron/recommendation-refresh/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/relationship-rollups",
+          "neutralPath": "/api/cron/relationship-rollups",
+          "legacyRouteFile": "src/app/api/cron/v5/relationship-rollups/route.ts",
+          "neutralRouteFile": "src/app/api/cron/relationship-rollups/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/renewals-recompute-signals",
+          "neutralPath": "/api/cron/renewals-recompute-signals",
+          "legacyRouteFile": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+          "neutralRouteFile": "src/app/api/cron/renewals-recompute-signals/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v4/report-packs-generate",
+          "neutralPath": "/api/cron/report-packs-generate",
+          "legacyRouteFile": "src/app/api/cron/v4/report-packs-generate/route.ts",
+          "neutralRouteFile": "src/app/api/cron/report-packs-generate/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/review-board-packet-generation",
+          "neutralPath": "/api/cron/review-board-packet-generation",
+          "legacyRouteFile": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
+          "neutralRouteFile": "src/app/api/cron/review-board-packet-generation/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v10/runtime-artifact-cleanup",
+          "neutralPath": "/api/cron/runtime-artifact-cleanup",
+          "legacyRouteFile": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+          "neutralRouteFile": "src/app/api/cron/runtime-artifact-cleanup/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/scorecard-recompute",
+          "neutralPath": "/api/cron/scorecard-recompute",
+          "legacyRouteFile": "src/app/api/cron/v6/scorecard-recompute/route.ts",
+          "neutralRouteFile": "src/app/api/cron/scorecard-recompute/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v6/segment-recompute",
+          "neutralPath": "/api/cron/segment-recompute",
+          "legacyRouteFile": "src/app/api/cron/v6/segment-recompute/route.ts",
+          "neutralRouteFile": "src/app/api/cron/segment-recompute/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        },
+        {
+          "legacyPath": "/api/cron/v5/simulation-snapshots",
+          "neutralPath": "/api/cron/simulation-snapshots",
+          "legacyRouteFile": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+          "neutralRouteFile": "src/app/api/cron/simulation-snapshots/route.ts",
+          "owner": "platform-api",
+          "reason": "Neutral cron route alias preserves compatibility while Vercel schedules continue to call legacy paths."
+        }
+      ]
+    },
+    {
+      "id": "openapi_schema_public_contracts",
+      "owner": "frontend-platform",
+      "reason": "Public-facing versioned names are classified and retained until old and neutral contracts have compatibility evidence.",
+      "readinessStatus": "queue_covered",
+      "validationCommand": "npm run check:versioned-public-contract-preservation",
+      "manualFollowUp": "Keep legacy schema names resolvable until generated clients, replay fixtures, and external consumers have cut over.",
+      "subSurfaceClasses": [
+        "openapi_or_json_schema_contract"
+      ],
+      "categoryIds": [
+        "openapi_json_schema_generated_client_contracts"
+      ],
+      "contractCount": 4,
+      "manualOnlyContractCount": 4,
+      "queueEntryCount": 16,
+      "allowlistEntryCount": 1,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "public_metadata_assets",
+      "owner": "frontend-platform",
+      "reason": "Public-facing versioned names are classified and retained until old and neutral contracts have compatibility evidence.",
+      "readinessStatus": "queue_covered",
+      "validationCommand": "npm run check:versioned-public-contract-preservation",
+      "manualFollowUp": "Keep legacy public metadata and asset names until crawler, cache, and installed-app compatibility evidence exists.",
+      "subSurfaceClasses": [
+        "public_metadata_or_asset"
+      ],
+      "categoryIds": [
+        "public_metadata_pwa_install_contracts"
+      ],
+      "contractCount": 0,
+      "manualOnlyContractCount": 0,
+      "queueEntryCount": 98,
+      "allowlistEntryCount": 2,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "pwa_well_known_install",
+      "owner": "frontend-platform",
+      "reason": "Public-facing versioned names are classified and retained until old and neutral contracts have compatibility evidence.",
+      "readinessStatus": "queue_covered",
+      "validationCommand": "npm run check:versioned-public-contract-preservation",
+      "manualFollowUp": "Keep legacy PWA and well-known identifiers until installed-app, app-link, and cache behavior has cut over.",
+      "subSurfaceClasses": [
+        "pwa_or_well_known_contract"
+      ],
+      "categoryIds": [
+        "public_metadata_pwa_install_contracts"
+      ],
+      "contractCount": 0,
+      "manualOnlyContractCount": 0,
+      "queueEntryCount": 98,
+      "allowlistEntryCount": 2,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "routes_deeplinks_redirects",
+      "owner": "platform-api",
+      "reason": "Public-facing versioned names are classified and retained until old and neutral contracts have compatibility evidence.",
+      "readinessStatus": "queue_covered",
+      "validationCommand": "npm run check:versioned-public-contract-preservation",
+      "manualFollowUp": "Keep legacy routes and deep links accepted until bookmarks, generated links, notifications, and support tooling have cut over.",
+      "subSurfaceClasses": [
+        "page_route_or_deep_link_contract",
+        "api_route_contract",
+        "cron_route_contract"
+      ],
+      "categoryIds": [
+        "route_deeplink_redirect_contracts"
+      ],
+      "contractCount": 453,
+      "manualOnlyContractCount": 453,
+      "queueEntryCount": 486,
+      "allowlistEntryCount": 0,
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

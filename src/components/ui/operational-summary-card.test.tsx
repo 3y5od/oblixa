@@ -80,7 +80,7 @@ describe("OperationalSummaryCard primitives", () => {
       <OperationalSummaryCard
         eyebrow="Portfolio"
         headline="Contracts"
-        tone="neutral"
+        tone="healthy"
         icon={FileText}
         primaryValue={1}
         primaryUnit="total records"

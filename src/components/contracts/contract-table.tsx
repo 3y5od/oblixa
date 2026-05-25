@@ -9,8 +9,8 @@ import type { Contract } from "@/lib/types";
 import type { ContractReviewStats } from "@/lib/contract-review-stats";
 import type { ContractListRowSignals } from "@/lib/contract-list-row-signals";
 import { STATUS_SEMANTICS, STATUS_LABELS } from "@/lib/contracts";
-import { V10EmptyStateTelemetryLink } from "@/components/ui/v10-empty-state-telemetry-link";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { EmptyStateTelemetryLink } from "@/components/ui/empty-state-telemetry-link";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { ActionChip } from "@/components/ui/action-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
@@ -137,7 +137,7 @@ export function ContractTable({
   if (contracts.length === 0) {
     if (emptyState) {
       return (
-        <V10RecoverableState
+        <RecoverableState
           state="empty"
           title={emptyState.title}
           reason={emptyState.copy}
@@ -147,7 +147,7 @@ export function ContractTable({
           sourceObject="contract"
           nextActionLabel={emptyState.actionLabel}
           nextAction={
-            <V10EmptyStateTelemetryLink
+            <EmptyStateTelemetryLink
               href={emptyState.actionHref}
               className="ui-btn-primary px-6"
               surface="contracts"
@@ -156,13 +156,13 @@ export function ContractTable({
               actionLabel={emptyState.actionLabel}
             >
               {emptyState.actionLabel}
-            </V10EmptyStateTelemetryLink>
+            </EmptyStateTelemetryLink>
           }
         />
       );
     }
     return (
-      <V10RecoverableState
+      <RecoverableState
         state="empty"
         title="No contracts yet"
         reason="Upload an agreement to extract dates and build your operational record."
@@ -172,7 +172,7 @@ export function ContractTable({
         sourceObject="contract"
         nextActionLabel="Upload contract"
         nextAction={
-          <V10EmptyStateTelemetryLink
+          <EmptyStateTelemetryLink
             href="/contracts/new"
             className="ui-btn-primary px-6"
             surface="contracts"
@@ -181,7 +181,7 @@ export function ContractTable({
             actionLabel="Upload contract"
           >
             Upload contract
-          </V10EmptyStateTelemetryLink>
+          </EmptyStateTelemetryLink>
         }
       />
     );

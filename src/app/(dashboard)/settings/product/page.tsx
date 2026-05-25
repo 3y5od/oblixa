@@ -3,7 +3,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import {
   resetWorkspaceProductSurfaceDefaultsForm,
   updateWorkspaceProductSurfaceForm,
@@ -22,7 +22,7 @@ import { SettingsProductDraftPreview } from "@/app/(dashboard)/settings/product/
 import { SettingsProductCalibrationExport } from "@/app/(dashboard)/settings/product/settings-product-calibration-export";
 import { SettingsProductCalibrationSummary } from "@/app/(dashboard)/settings/product/settings-product-calibration-summary";
 import { SettingsProductEmailSection } from "@/app/(dashboard)/settings/product/settings-product-email-section";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 
 const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
 const ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS;
@@ -36,7 +36,7 @@ export default async function WorkspaceProductSettingsPage() {
   if (ctx.role !== "admin") {
     return (
       <div className="ui-page-stack mx-auto max-w-2xl">
-        <V10RecoverableState
+        <RecoverableState
           state="forbidden"
           title="Only workspace admins can change product mode"
           reason="Your current role can view settings but cannot change workspace mode, module visibility, or notification category controls."
@@ -55,7 +55,7 @@ export default async function WorkspaceProductSettingsPage() {
     );
   }
 
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const v6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const onboardingCal = parseOnboardingCalibration(v6.onboarding_calibration);
   const hidden = new Set(v6.advanced_modules_hidden ?? []);
   const assuranceHidden = new Set(v6.assurance_modules_hidden ?? []);

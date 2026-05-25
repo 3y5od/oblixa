@@ -25,7 +25,7 @@ import {
 } from "@/lib/import-job-visibility";
 import { getExportJobDetail, getExportJobHeadline } from "@/lib/export-job-visibility";
 import { isExtractionProcessingStale } from "@/lib/extraction/constants";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { ImportJobRetryButton, V10JobRetryButton } from "@/components/contracts/import-job-retry-button";
 import {
   buildWorkspaceHealthItem,
@@ -178,7 +178,7 @@ export default async function SettingsHealthPage() {
       .select("role_policy_json")
       .eq("organization_id", orgId)
       .maybeSingle(),
-    getV6OrgSettingsJson(admin, orgId),
+    getOrgSettingsJson(admin, orgId),
   ]);
   const canOpenHealth = hasRoleCapability({
     role,
@@ -1460,6 +1460,12 @@ export default async function SettingsHealthPage() {
           />
         </summary>
         <div className="py-4 pl-10">
+          <span id="v10-runtime" className="sr-only" aria-hidden="true" />
+          <span id="mutations" className="sr-only" aria-hidden="true" />
+          <span id="artifacts" className="sr-only" aria-hidden="true" />
+          <span id="providers" className="sr-only" aria-hidden="true" />
+          <span id="canary" className="sr-only" aria-hidden="true" />
+          <span id="rollback" className="sr-only" aria-hidden="true" />
           <SettingsHealthDiagnosticsSections
             retryQueueDepth={retryQueueDepth}
             pendingDeliveries={pendingDeliveries}

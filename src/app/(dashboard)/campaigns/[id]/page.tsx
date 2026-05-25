@@ -5,9 +5,9 @@ import { CampaignAssignmentPanel } from "@/components/campaigns/campaign-assignm
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 import { CampaignControlPanel } from "@/components/campaigns/campaign-control-panel";
 import { CampaignSimulationPromote } from "@/components/campaigns/campaign-simulation-promote";
 import { RelationshipTimelineCard } from "@/components/relationship/relationship-timeline-card";

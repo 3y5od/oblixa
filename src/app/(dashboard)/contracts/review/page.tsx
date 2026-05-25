@@ -101,13 +101,13 @@ export default async function ContractReviewQueuePage(props: {
           <div className="grid gap-0 border-b border-[var(--border-subtle)] md:grid-cols-4">
             <div className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
               <p className="ui-caps-3 text-[var(--text-tertiary)]">Review progress</p>
-              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+              <p className="mt-2 font-mono text-lg font-semibold tabular-nums text-[var(--text-primary)]">
                 {model.progress.activeFieldPosition}/{model.progress.activeContractPendingFields}
               </p>
             </div>
             <div className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
               <p className="ui-caps-3 text-[var(--text-tertiary)]">Backlog</p>
-              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+              <p className="mt-2 font-mono text-lg font-semibold tabular-nums text-[var(--text-primary)]">
                 {model.progress.fieldsWaiting}
               </p>
             </div>
@@ -122,7 +122,7 @@ export default async function ContractReviewQueuePage(props: {
             </div>
             <div className="px-4 py-4 sm:px-5">
               <p className="ui-caps-3 text-[var(--text-tertiary)]">Source files</p>
-              <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+              <p className="mt-2 font-mono text-lg font-semibold tabular-nums text-[var(--text-primary)]">
                 {activeContract.files.length}
               </p>
             </div>

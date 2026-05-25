@@ -32,12 +32,12 @@ test("analyzeSecurityEventContract validates writer delegation and runtime calls
   );
   write(
     root,
-    "src/lib/v10-server-contracts.ts",
+    "src/lib/server-contracts.ts",
     'import type { AuditAction } from "@/lib/security/audit-actions";\naction: AuditAction\nauditAction: AuditAction\nwriteMode?: V10AuditWriteMode\norganization_id: input.organizationId\nactor_user_id: input.actorUserId\naction: input.action\ntarget_type: input.targetType\ntarget_id: input.targetId\noutcome: input.outcome\nrequest_id: input.clientRequestId\naudit_write_mode: input.writeMode ?? "best_effort"\nsafe_metadata: safeMetadata\nsanitizeV10AuditMetadata({\n{ ...input, writeMode: "blocking" }\n'
   );
   write(
     root,
-    "src/lib/v10-server-contracts.v10.test.ts",
+    "src/lib/server-contracts.test.ts",
     "persists client request ids as support-safe audit metadata\nredacts unsafe audit metadata before V10 audit persistence\n"
   );
   for (const rel of [

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { listFindings } from "@/lib/v6/assurance";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { listFindings } from "@/lib/assurance/assurance";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { parseFixedEnumParam, validateBoundedString } from "@/lib/security/validation";
 
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_findings_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_findings_total", 1).catch(
     () => undefined
   );
 

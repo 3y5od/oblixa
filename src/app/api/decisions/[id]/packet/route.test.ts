@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 

@@ -1,8 +1,10 @@
 import { addDays, differenceInCalendarDays, format, isValid, parseISO, startOfDay, subDays } from "date-fns";
 import type { createAdminClient } from "@/lib/supabase/server";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import { parseNoticeDays } from "@/lib/contract-filters";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel, type OrgMemberProfileRow } from "@/lib/org-member-profiles";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { displayOrUnknown } from "@/lib/sparse-records";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import {
   RENEWAL_ACTION_LABELS,
   RENEWAL_STATUS_LABELS,
@@ -376,7 +378,7 @@ function shapeRenewalRow(
     id: contract.id,
     title: contract.title?.trim() || "Untitled contract",
     href,
-    counterparty: contract.counterparty?.trim() || "Missing counterparty",
+    counterparty: displayOrUnknown(contract.counterparty, "Missing counterparty"),
     ownerUserId: contract.owner_id ?? null,
     ownerLabel: input.ownerLabel,
     contractStatus: normalizeToken(contract.status) || "unknown",
@@ -556,8 +558,7 @@ function formatDateOnly(date: Date) {
 }
 
 function dateLabel(raw: string | null) {
-  const date = parseDateOnly(raw);
-  return date ? format(date, "MMM d, yyyy") : "Missing";
+  return formatBusinessDateAtNoon(raw, "Missing");
 }
 
 function latestByUpdate<T extends { updated_at?: string | null; due_date?: string | null }>(rows: T[]) {

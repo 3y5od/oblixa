@@ -1,0 +1,10 @@
+# One path prefix (relative to repo root) or filename suffix match per line.
+# Example: src/app/(dashboard)/decisions/page.tsx
+
+# Advanced control room cards: eligibility enforced where the strip is composed (dashboard route / mode).
+# meta: reviewedOn=2026-05-11 owner=@frontend-security expiry=2027-12-31 reason=control_room_dashboard_links_are_gated_where_surface_is_composed compensatingTest=scripts/audit-product-surface-cross-surface-hrefs.mjs
+src/lib/decision-intelligence/control-room-dashboard.ts
+
+# Assurance review-board email deep links: recipients are assurance workflow participants; URLs are org-scoped server-built.
+# meta: reviewedOn=2026-05-11 owner=@frontend-security expiry=2027-12-31 reason=review_board_email_links_are_server_built_for_assurance_participants compensatingTest=scripts/audit-product-surface-cross-surface-hrefs.mjs
+src/lib/assurance/review-board-notifications.ts

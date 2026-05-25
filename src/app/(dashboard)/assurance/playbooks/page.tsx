@@ -5,7 +5,7 @@ import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { PlaybookApproveButton } from "@/components/assurance/playbook-approve-button";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 

@@ -6,16 +6,16 @@ const upsertDetectedExceptions = vi.fn();
 const recordAutomationEvent = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v4/exceptions", () => ({
+vi.mock("@/lib/contract-operations/exceptions", () => ({
   upsertDetectedExceptions,
 }));
 
-vi.mock("@/lib/v4/automation-audit", () => ({
+vi.mock("@/lib/contract-operations/automation-audit", () => ({
   recordAutomationEvent,
 }));
 

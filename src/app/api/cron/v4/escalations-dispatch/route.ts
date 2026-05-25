@@ -1,7 +1,7 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

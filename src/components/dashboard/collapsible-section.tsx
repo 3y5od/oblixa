@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import {
+  readDashboardCollapsedSection,
+  writeDashboardCollapsedSection,
+} from "@/lib/security/client-storage";
 
 interface CollapsibleSectionProps {
   storageKey: string;
@@ -9,8 +13,6 @@ interface CollapsibleSectionProps {
   defaultOpen?: boolean;
   children: ReactNode;
 }
-
-const KEY_PREFIX = "oblixa.dashboard.collapsed.";
 
 /**
  * Server-friendly collapsible wrapper. Renders fully expanded on the server,
@@ -29,15 +31,11 @@ export function CollapsibleSection({
   const hydratedRef = useRef(false);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(KEY_PREFIX + storageKey);
-      if (stored === "closed" && detailsRef.current) {
-        detailsRef.current.open = false;
-      } else if (stored === "open" && detailsRef.current) {
-        detailsRef.current.open = true;
-      }
-    } catch {
-      /* localStorage may throw in private mode; ignore */
+    const stored = readDashboardCollapsedSection(storageKey);
+    if (stored === "closed" && detailsRef.current) {
+      detailsRef.current.open = false;
+    } else if (stored === "open" && detailsRef.current) {
+      detailsRef.current.open = true;
     }
     hydratedRef.current = true;
     return () => {
@@ -47,14 +45,7 @@ export function CollapsibleSection({
 
   function onToggle(): void {
     if (!detailsRef.current || !hydratedRef.current) return;
-    try {
-      window.localStorage.setItem(
-        KEY_PREFIX + storageKey,
-        detailsRef.current.open ? "open" : "closed"
-      );
-    } catch {
-      /* ignore */
-    }
+    writeDashboardCollapsedSection(storageKey, detailsRef.current.open ? "open" : "closed");
   }
 
   return (

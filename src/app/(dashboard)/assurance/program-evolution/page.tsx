@@ -9,7 +9,7 @@ import {
 } from "@/components/assurance/program-evolution-form";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 
 export default async function ProgramEvolutionPage() {
   const ctx = await getAuthContext();

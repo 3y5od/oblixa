@@ -1,4 +1,4 @@
-# V8 product-surface regression checks are primarily enforced by `npm run check:v8-suite`.
+# V8 product-surface regression checks are primarily enforced by `npm run check:surface:suite`.
 # Keep Semgrep pack narrow/low-noise and reserve richer policy for deterministic scripts/tests.
 rules:
   - id: oblixa-v8-api-create-admin-needs-workspace-gate

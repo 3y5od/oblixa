@@ -10,15 +10,15 @@ import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { emitVisibleMutationErrorTelemetry } from "@/lib/product-telemetry";
 import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import type { OrgRole } from "@/lib/types";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 import {
   getV10ExceptionResolutionActionFeature,
   getV10ExceptionResolutionActionLabel,
   type V10ExceptionResolutionAction,
   validateV10ExceptionResolution,
-} from "@/lib/v10-approval-exception";
+} from "@/lib/approval-exception";
 
 const MAX_RESOLUTION_NOTE_LEN = 4000;
 

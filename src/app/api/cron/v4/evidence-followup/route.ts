@@ -1,9 +1,9 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { upsertDetectedExceptions } from "@/lib/v4/exceptions";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { getV10EvidenceFollowUpStage } from "@/lib/v10-evidence-collaboration";
+import { upsertDetectedExceptions } from "@/lib/contract-operations/exceptions";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { getV10EvidenceFollowUpStage } from "@/lib/evidence-collaboration";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 
 const EVIDENCE_FOLLOWUP_BATCH_LIMIT = 1000;

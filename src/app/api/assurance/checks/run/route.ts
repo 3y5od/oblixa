@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { runChecks } from "@/lib/v6/assurance";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runChecks } from "@/lib/assurance/assurance";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -51,6 +51,6 @@ export async function POST(request?: Request) {
       route: ROUTE,
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_assurance_checks_run_total");
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_assurance_checks_run_total");
   return NextResponse.json({ checkRun: result.checkRun, finding: result.finding }, { status: 201 });
 }

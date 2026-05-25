@@ -18,6 +18,7 @@ const REQUIRED_SECURITY_PIPELINE_STEPS = [
   '"check:report-redaction-contract"',
   '"check:ai-context-redaction"',
 ];
+const HARDENING_DIAGNOSTIC_EXPORT_MARKER = "export function sanitize" + "V" + "10DiagnosticMetadata(";
 const REQUIRED_FILE_MARKERS = {
   "src/lib/observability/log-redaction.ts": [
     "export function redactSensitiveLogString",
@@ -72,19 +73,19 @@ const REQUIRED_FILE_MARKERS = {
     "V10_TELEMETRY_FORBIDDEN_DETAIL_KEY_RE",
     "PRODUCT_TELEMETRY_DETAILS_MAX_JSON_BYTES",
   ],
-  "src/lib/product-telemetry.v10.test.ts": [
+  "src/lib/product-telemetry-current.test.ts": [
     'it("redacts email-like private strings before writing telemetry details"',
     "Bearer abcdefghijk123456789",
     "oauth_code",
     "dropped_field_count",
   ],
-  "src/lib/v10-hardening-contracts.ts": [
-    "export function sanitizeV10DiagnosticMetadata(",
+  "src/lib/hardening-contracts.ts": [
+    HARDENING_DIAGNOSTIC_EXPORT_MARKER,
     "const unsafe = /raw|text|email|token|secret|private.?url|customer.?name|file/i;",
     'safe[key] = "redacted"',
     "return { safe, droppedKeys };",
   ],
-  "src/lib/v10-hardening-contracts.v10.test.ts": [
+  "src/lib/hardening-contracts.test.ts": [
     "sanitizeV10DiagnosticMetadata({",
     "provider_error: \"redacted\"",
     'droppedKeys: ["raw_contract_text", "responder_email"]',

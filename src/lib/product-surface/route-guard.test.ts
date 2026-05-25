@@ -19,7 +19,7 @@ vi.mock("@/lib/product-surface/context", () => ({
 }));
 
 const resolveFeatureMappingForPagePath = vi.fn();
-vi.mock("@/lib/product-surface/v8-surface-mapping", () => ({
+vi.mock("@/lib/product-surface/surface-mapping", () => ({
   resolveFeatureMappingForPagePath: (...args: unknown[]) => resolveFeatureMappingForPagePath(...args),
 }));
 

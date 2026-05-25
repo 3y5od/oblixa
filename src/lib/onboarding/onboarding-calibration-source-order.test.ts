@@ -12,7 +12,7 @@ describe("onboarding-calibration accept path ordering (org JSON before transitio
     expect(start).toBeGreaterThan(-1);
     expect(end).toBeGreaterThan(start);
     const body = raw.slice(start, end);
-    const mergeIdxs = [...body.matchAll(/await mergeV6OrgSettingsJson/g)].map((m) => m.index!);
+    const mergeIdxs = [...body.matchAll(/await mergeOrgSettingsJson/g)].map((m) => m.index!);
     expect(mergeIdxs.length).toBeGreaterThanOrEqual(2);
     const applyIdx = body.indexOf("await applyWorkspaceProductTransitionSideEffects");
     const safeSuppressIdx = body.indexOf("await safeSuppressNotificationTypesForModeDowngradeCalibration");
@@ -37,7 +37,7 @@ describe("onboarding-calibration accept path ordering (org JSON before transitio
     expect(hs).toBeGreaterThan(-1);
     expect(he).toBeGreaterThan(hs);
     const hb = h.slice(hs, he);
-    const mergeIdx = hb.indexOf("await mergeV6OrgSettingsJson");
+    const mergeIdx = hb.indexOf("await mergeOrgSettingsJson");
     const applyIdx = hb.indexOf("await applyWorkspaceProductTransitionSideEffects");
     const safeIdx = hb.indexOf("await safeSuppressNotificationTypesForModeDowngradeCalibration");
     expect(mergeIdx).toBeGreaterThan(-1);

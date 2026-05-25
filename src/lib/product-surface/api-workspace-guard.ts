@@ -3,16 +3,16 @@ import { getFeatureFlags } from "@/lib/feature-flags";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
-import type { V8EligibilityDenialClass } from "@/lib/product-surface/eligibility";
+import type { EligibilityDenialClass } from "@/lib/product-surface/eligibility";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
-import { statusForEligibilityDenial } from "@/lib/product-surface/v8-denial-status";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-import { resolveFeatureMappingForApiPath } from "@/lib/product-surface/v8-surface-mapping";
+import { statusForEligibilityDenial } from "@/lib/product-surface/denial-status";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
+import { resolveFeatureMappingForApiPath } from "@/lib/product-surface/surface-mapping";
 import {
   buildV10DeniedMutationResponse,
   buildV10MutationJsonResponse,
-} from "@/lib/v10-server-contracts";
-import type { V10MutationOutcome } from "@/lib/v10-release-contract";
+} from "@/lib/server-contracts";
+import type { V10MutationOutcome } from "@/lib/release-contract";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { jsonRateLimited } from "@/lib/http/problem";
 
@@ -25,7 +25,7 @@ export function resolveApiWorkspaceEligibilityDeniedStatus(input: {
   return status === 401 ? 403 : status;
 }
 
-function v10OutcomeForApiWorkspaceDenial(denialClass: V8EligibilityDenialClass): Extract<
+function v10OutcomeForApiWorkspaceDenial(denialClass: EligibilityDenialClass): Extract<
   V10MutationOutcome,
   "unauthorized" | "forbidden" | "not_found" | "plan_required" | "mode_required" | "hidden_module"
 > {
@@ -37,7 +37,7 @@ function v10OutcomeForApiWorkspaceDenial(denialClass: V8EligibilityDenialClass):
 }
 
 export async function requireApiWorkspaceEligibility(input: {
-  admin: Parameters<typeof getV6OrgSettingsJson>[0];
+  admin: Parameters<typeof getOrgSettingsJson>[0];
   orgId: string;
   apiPath: string;
   /** Defaults to viewer when omitted (token feeds, etc.); pass real role whenever available. */
@@ -76,7 +76,7 @@ export async function requireApiWorkspaceEligibility(input: {
   }
 
   const family = mapping.featureFamily;
-  const settings = await getV6OrgSettingsJson(input.admin, input.orgId);
+  const settings = await getOrgSettingsJson(input.admin, input.orgId);
   const role = input.role ?? "viewer";
   const ctx = buildProductSurfaceContext({
     orgId: input.orgId,
@@ -116,7 +116,7 @@ export async function requireApiWorkspaceEligibility(input: {
 }
 
 export async function requireApiWorkspaceEligibilityV10(input: {
-  admin: Parameters<typeof getV6OrgSettingsJson>[0];
+  admin: Parameters<typeof getOrgSettingsJson>[0];
   orgId: string;
   apiPath: string;
   role?: WorkspaceRole;
@@ -145,7 +145,7 @@ export async function requireApiWorkspaceEligibilityV10(input: {
   }
 
   const family = mapping.featureFamily;
-  const settings = await getV6OrgSettingsJson(input.admin, input.orgId);
+  const settings = await getOrgSettingsJson(input.admin, input.orgId);
   const role = input.role ?? "viewer";
   const ctx = buildProductSurfaceContext({
     orgId: input.orgId,

@@ -3,13 +3,13 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { AutopilotDisableButton, AutopilotRulePatchForm } from "@/components/assurance/autopilot-rule-patch";
 import { AutopilotRevertLogButton } from "@/components/assurance/autopilot-revert-log-button";
-import { OrgV6SettingsPanel } from "@/components/assurance/org-v6-settings-panel";
+import { OrgSettingsPanel } from "@/components/assurance/org-settings-panel";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { readOrgSettingsJsonFromRow } from "@/lib/assurance/org-settings";
 
 export default async function AssuranceAutopilotPage() {
   const ctx = await getAuthContext();
@@ -37,11 +37,8 @@ export default async function AssuranceAutopilotPage() {
     ctx.admin.from("organizations").select("v6_org_settings_json").eq("id", ctx.orgId).maybeSingle(),
   ]);
 
-  const orgSettings = (orgRow?.v6_org_settings_json ?? {}) as {
-    autopilot_allow_execution?: boolean;
-    review_board_notification_emails?: string[];
-  };
-  const workspaceMode = parseWorkspaceMode((orgRow?.v6_org_settings_json ?? {}) as V6OrgSettingsJson);
+  const orgSettings = readOrgSettingsJsonFromRow(orgRow);
+  const workspaceMode = parseWorkspaceMode(orgSettings);
   const mutatingExecutionEnabled =
     workspaceMode === "assurance" && orgSettings.autopilot_allow_execution === true;
 
@@ -80,7 +77,7 @@ export default async function AssuranceAutopilotPage() {
           </p>
         }
       >
-        <OrgV6SettingsPanel
+        <OrgSettingsPanel
           canManage={canManage}
           initialAutopilotAllowExecution={orgSettings.autopilot_allow_execution ?? null}
           initialEmails={Array.isArray(orgSettings.review_board_notification_emails) ? orgSettings.review_board_notification_emails : []}

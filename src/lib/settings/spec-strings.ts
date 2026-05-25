@@ -1,3 +1,4 @@
+// SPEC: docs/oblixa-release-state.md + settings page surface contracts.
 export const SETTINGS_PAGE_STRINGS = {
   eyebrow: "Settings",
   title: "Settings",

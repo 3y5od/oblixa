@@ -2,22 +2,22 @@ import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { secureCompareUtf8 } from "@/lib/security/secret-compare";
-import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/v10-mutation-envelope";
+import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/mutation-envelope";
 import {
   executeV10AuditedMutation,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { getV10ExternalLinkState, validateV10ExternalEvidenceSubmission } from "@/lib/v10-evidence-collaboration";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { getV10ExternalLinkState, validateV10ExternalEvidenceSubmission } from "@/lib/evidence-collaboration";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 
@@ -454,7 +454,7 @@ export async function POST(request: Request) {
       }
 
       if (isFeatureEnabled("v6AssuranceCore")) {
-        await incrementV6QualityCounter(ctx.admin, ctx.orgId, "evidence_submit_incremental_assurance_hook_total", 1).catch(
+        await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "evidence_submit_incremental_assurance_hook_total", 1).catch(
           () => undefined
         );
         await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);

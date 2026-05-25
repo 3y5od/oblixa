@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { UiAlert } from "@/components/ui/ui-alert";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 // SPEC: docs/billing-page-maximal-pass.md §15.1 + refinement-pass §1.14
 // billing-scoped error boundary with variant copy per error class.
@@ -15,8 +16,7 @@ function classifyError(error: Error & { digest?: string; cause?: unknown }): {
   title: string;
   body: string;
 } {
-  const msg = error.message ?? "";
-  const name = error.name ?? "";
+  const { message: msg = "", name = "" } = error;
   if (
     name === "StripeAPIError" ||
     name.startsWith("Stripe") ||
@@ -73,6 +73,9 @@ export default function BillingError({
 }) {
   useEffect(() => {
     console.error("[settings/billing] error boundary:", error);
+    captureClientException(error, {
+      extra: { route: "settings/billing/error", digest: error.digest },
+    });
   }, [error]);
 
   const { title, body } = classifyError(error);

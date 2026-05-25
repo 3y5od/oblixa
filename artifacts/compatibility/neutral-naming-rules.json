@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "check:neutral-naming-rules",
+  "rules": [
+    {
+      "id": "no_product_phase_labels_in_neutral_names",
+      "description": "Neutral aliases and safe rename targets must not introduce v-numbered product phase labels."
+    },
+    {
+      "id": "no_aging_replacement_terms",
+      "description": "Neutral aliases must not use next, new, latest, modern, or future as replacement names."
+    },
+    {
+      "id": "transitional_terms_require_compatibility_metadata",
+      "description": "current, compatibility, legacy, and release terms require queue or safe-rename compatibility metadata."
+    },
+    {
+      "id": "canonical_old_to_neutral_mapping",
+      "description": "Each legacy name has one canonical neutral name in the compatibility queue."
+    }
+  ],
+  "candidateCount": 3580,
+  "transitionalUseCount": 73,
+  "bannedReplacementCount": 0,
+  "renameableWithoutNeutralCount": 0,
+  "issueCount": 0,
+  "issues": []
+}

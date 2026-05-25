@@ -7,7 +7,7 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
-export const CI_BUILD_E2E_LOCAL_STEPS = ["build", "test:e2e:smoke", "test:e2e:v10", "test:e2e:a11y", "test:e2e:visual"];
+export const CI_BUILD_E2E_LOCAL_STEPS = ["build", "test:e2e:smoke", "test:e2e:current-product", "test:e2e:a11y", "test:e2e:visual"];
 export const CI_BUILD_E2E_ONBOARDING_STEPS = ["test:e2e:onboarding-deep", "test:e2e:multi-browser"];
 
 function evaluateGate(label, strictVariable, requiredKeys) {

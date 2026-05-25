@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { listHealthGraph } from "@/lib/v6/assurance";
-import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/v6/health-graph-paths";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { listHealthGraph } from "@/lib/assurance/assurance";
+import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/assurance/health-graph-paths";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 const ROUTE = "/api/assurance/health-graph";
@@ -33,7 +33,7 @@ export async function GET() {
     action: "api.sensitive_read_authorized",
   }).catch(() => undefined);
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_health_graph_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_health_graph_total", 1).catch(
     () => undefined
   );
 

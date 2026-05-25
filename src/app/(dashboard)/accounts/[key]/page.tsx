@@ -9,14 +9,14 @@ import {
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 import { RelationshipWorkspaceOverview } from "@/components/relationship/relationship-workspace-overview";
 import { RelationshipWorkspaceActions } from "@/components/relationship/relationship-workspace-actions";
-import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
+import { buildRelationshipKeyMetrics } from "@/lib/decision-intelligence/relationship-key-metrics";
 import {
   ensureAccountWorkspaceFromContracts,
   ensureTimelineForAccount,
-} from "@/lib/v5/relationship-bootstrap";
+} from "@/lib/decision-intelligence/relationship-bootstrap";
 
 export default async function AccountWorkspacePage({ params }: { params: Promise<{ key: string }> }) {
   const { key: rawKey } = await params;

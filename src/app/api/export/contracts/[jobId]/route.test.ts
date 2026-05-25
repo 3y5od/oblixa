@@ -4,7 +4,7 @@ const createClient = vi.fn();
 const createAdminClient = vi.fn();
 const createContractExportJob = vi.fn();
 const executeContractExportCsv = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const emitProductTelemetryEvent = vi.fn();
 const executeV10IdempotentMutation = vi.fn(
   async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({ response: await execute(), replayed: false })
@@ -41,15 +41,15 @@ vi.mock("@/lib/export/contracts-csv", () => ({
   executeContractExportCsv,
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson,
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson,
 }));
 
 vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest: (request: Request) =>
     request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,
@@ -57,7 +57,7 @@ vi.mock("@/lib/v10-server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
@@ -66,7 +66,7 @@ describe("GET /api/export/contracts/[jobId]", () => {
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
     createContractExportJob.mockResolvedValue({ jobId: "job-2", auditEventId: "audit-created-1" });
     executeContractExportCsv.mockResolvedValue(new Response(null, { status: 200 }));
     emitProductTelemetryEvent.mockResolvedValue(undefined);

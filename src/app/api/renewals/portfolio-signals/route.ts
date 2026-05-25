@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext } from "@/lib/v4/api-auth";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 const ROUTE = "/api/renewals/portfolio-signals";

@@ -36,7 +36,7 @@ function withFixture(files, fn) {
     );
     write(
       root,
-      "src/lib/v6/api-auth.ts",
+      "src/lib/assurance/api-auth.ts",
       `
         jsonUnauthorized();
         jsonForbidden();
@@ -44,7 +44,7 @@ function withFixture(files, fn) {
     );
     write(
       root,
-      "src/lib/v6/feature-guards.ts",
+      "src/lib/assurance/feature-guards.ts",
       `
         jsonProblem(403, { code: "feature_disabled", diagnostic_id: "v6_feature_disabled" });
       `

@@ -17,10 +17,10 @@ import {
   emitVisibleMutationErrorTelemetry,
   emitWorkActionTelemetry,
 } from "@/lib/product-telemetry";
-import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/v10-mutation-envelope";
-import { getV10CompatibleActionGroup } from "@/lib/v10-work-semantics";
+import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/mutation-envelope";
+import { getV10CompatibleActionGroup } from "@/lib/work-semantics";
 
 const TASK_STATUSES: ContractTaskStatus[] = ["open", "in_progress", "blocked", "done"];
 const TASK_PRIORITIES: ContractTaskPriority[] = ["low", "medium", "high"];

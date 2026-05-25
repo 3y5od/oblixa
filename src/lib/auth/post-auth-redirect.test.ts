@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 
 const getV6 = vi.fn();
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getV6(...args),
 }));
 
 describe("resolvePostAuthRedirectPath (§11.3)", () => {

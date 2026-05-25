@@ -121,23 +121,23 @@ describe("v7 product-surface trace strings", () => {
 
   it("anchors V7 automation entrypoints on disk (traceability)", () => {
     const paths = [
-      "scripts/audit-v7-cross-surface-hrefs.mjs",
-      "scripts/check-v7-vocabulary.mjs",
-      "src/lib/product-surface/v7-vocabulary-consistency.test.ts",
+      "scripts/audit-compatibility-cross-surface-hrefs.mjs",
+      "scripts/check-product-surface-compatibility-vocabulary.mjs",
+      "src/lib/product-surface/compatibility-vocabulary-consistency.test.ts",
       "src/lib/product-surface/workspace-settings-module-labels.ts",
-      "src/lib/product-surface/href-eligibility-registry.v7.test.ts",
+      "src/lib/product-surface/href-eligibility-registry-compatibility.test.ts",
       "src/lib/product-surface/more-index-header-parity.test.ts",
-      "src/lib/product-surface/api-workspace-guard.v7-matrix.test.ts",
+      "src/lib/product-surface/api-workspace-guard-compatibility-matrix.test.ts",
       "src/lib/observability/sentry-product-surface-breadcrumb.test.ts",
-      "src/lib/integrations/calendar.v7.test.ts",
+      "src/lib/integrations/calendar-compatibility.test.ts",
       "src/lib/marketing/robots-route-inventory.test.ts",
       "src/lib/marketing/proxy-public-paths-alignment.test.ts",
-      "src/components/settings/billing-stripe-surface.v7.test.ts",
-      "src/lib/extraction/extraction-user-messages.v7.test.ts",
-      "src/app/(dashboard)/settings/operations/settings-operations-surface.v7.test.ts",
-      "src/lib/product-surface/api-error-json-core.v7.test.ts",
-      "src/app/(dashboard)/contracts/reports/contracts-reports-pack-surface.v7.test.ts",
-      "src/lib/qa/dashboard-shell-copy.v7.test.ts",
+      "src/components/settings/billing-stripe-surface.test.ts",
+      "src/lib/extraction/extraction-user-messages.test.ts",
+      "src/app/(dashboard)/settings/operations/settings-operations-surface.test.ts",
+      "src/lib/product-surface/api-error-json-core-compatibility.test.ts",
+      "src/app/(dashboard)/contracts/reports/contracts-reports-pack-surface.test.ts",
+      "src/lib/qa/dashboard-shell-copy.test.ts",
     ];
     for (const rel of paths) {
       const raw = readFileSync(join(process.cwd(), rel), "utf8");

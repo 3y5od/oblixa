@@ -6,7 +6,7 @@ import {
   orgMemberProfileLabel,
   type OrgMemberProfileRow,
 } from "@/lib/org-member-profiles";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import {
   REPORT_LABELS,
   REPORT_WINDOW_LABELS,
@@ -371,7 +371,7 @@ export async function loadReportsPageModel(
             .from("extracted_fields")
             .select("contract_id, field_name, field_value, status, updated_at")
             .in("contract_id", contractIds)
-            .limit(10000)
+            .range(0, 9999)
         )
       : [];
 
@@ -434,7 +434,7 @@ export async function loadReportsPageModel(
             .from("evidence_submissions")
             .select("id, requirement_id, evidence_requirement_id, status, file_count, files, created_at")
             .or(`requirement_id.in.(${requirementIds.join(",")}),evidence_requirement_id.in.(${requirementIds.join(",")})`)
-            .limit(5000)
+            .range(0, 4999)
         )
       : [];
 

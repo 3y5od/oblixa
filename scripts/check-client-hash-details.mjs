@@ -22,7 +22,11 @@ async function* walk(dir) {
     if (e.isDirectory()) {
       if (e.name === "node_modules" || e.name === ".next") continue;
       yield* walk(full);
-    } else if (e.isFile() && (e.name.endsWith(".tsx") || e.name.endsWith(".ts"))) {
+    } else if (
+      e.isFile() &&
+      !/\.(?:test|spec)\.[cm]?[tj]sx?$/u.test(e.name) &&
+      (e.name.endsWith(".tsx") || e.name.endsWith(".ts"))
+    ) {
       yield full;
     }
   }

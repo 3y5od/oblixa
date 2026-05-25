@@ -7,9 +7,9 @@ import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import type { ContractObligationStatus } from "@/lib/types";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryEvent, emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/mutation-envelope";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
 const OBLIGATION_STATUSES: ContractObligationStatus[] = [

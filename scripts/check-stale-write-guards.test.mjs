@@ -37,26 +37,26 @@ function writeAllTargetFiles(root, overrides = {}) {
       "expected_version_required";
       "stale_version";
     `,
-    "src/lib/v6/service.ts": `
+    "src/lib/assurance/service.ts": `
       options?: { expectedUpdatedAt?: string | number | null };
       query.eq("updated_at", String(options.expectedUpdatedAt));
     `,
     "src/app/api/autopilot/rules/[id]/route.ts": delegatedRoute("autopilot_rule"),
-    "src/lib/v6/autopilot.ts": delegatedHelper,
+    "src/lib/assurance/autopilot.ts": delegatedHelper,
     "src/app/api/campaigns/[id]/route.ts": directRoute("campaign"),
     "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts": directRoute("campaign_contract_row"),
     "src/app/api/control-policies/[id]/route.ts": delegatedRoute("control_policy"),
-    "src/lib/v6/control-policies.ts": delegatedHelper,
+    "src/lib/assurance/control-policies.ts": delegatedHelper,
     "src/app/api/decisions/[id]/route.ts": directRoute("decision"),
     "src/app/api/decisions/packet-templates/[id]/route.ts": directRoute("packet_template"),
     "src/app/api/review-boards/[id]/route.ts": delegatedRoute("review_board"),
-    "src/lib/v6/review-boards.ts": delegatedHelper,
+    "src/lib/assurance/review-boards.ts": delegatedHelper,
     "src/app/api/workspace/v6-settings/route.ts": `
       settingsVersion: snapshot.updatedAt;
       ${delegatedRoute("workspace_v6_settings")}
       expectedVersion: expectedVersionResult.expectedVersion;
     `,
-    "src/lib/v6/org-settings.ts": `
+    "src/lib/assurance/org-settings.ts": `
       options?: { expectedVersion?: string | number | null };
       select("v6_org_settings_json, updated_at");
       q.eq("updated_at", String(expectedVersion));
@@ -88,7 +88,7 @@ test("rejects missing stale-write guard files and markers", () => {
     "src/app/api/campaigns/[id]/route.ts": `
       requireExpectedVersionForMutation(request, { diagnosticPrefix: "campaign" });
     `,
-    "src/lib/v6/org-settings.ts": null,
+    "src/lib/assurance/org-settings.ts": null,
   });
 
   const report = analyzeStaleWriteGuards(root);

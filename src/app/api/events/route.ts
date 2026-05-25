@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { createHash } from "crypto";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { filterAuditEventsForWorkspaceMode } from "@/lib/product-surface/audit-events-filter";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
     });
   }
 
-  const v6 = await getV6OrgSettingsJson(admin, organizationId);
+  const v6 = await getOrgSettingsJson(admin, organizationId);
   const workspaceMode = parseWorkspaceMode(v6);
   const filtered = filterAuditEventsForWorkspaceMode(data ?? [], workspaceMode);
 

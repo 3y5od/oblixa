@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-migration-history-version-exceptions.mjs --write",
+  "migrationDir": "supabase/migrations",
+  "exceptionCount": 37,
+  "exceptions": [
+    {
+      "path": "supabase/migrations/014_v2_workflow_expansion.sql",
+      "migrationFile": "014_v2_workflow_expansion.sql",
+      "tokens": [
+        "v2"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/015_v2_depth_completion.sql",
+      "migrationFile": "015_v2_depth_completion.sql",
+      "tokens": [
+        "v2"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/016_v2_remaining_depth.sql",
+      "migrationFile": "016_v2_remaining_depth.sql",
+      "tokens": [
+        "v2"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/017_v2_operational_depth.sql",
+      "migrationFile": "017_v2_operational_depth.sql",
+      "tokens": [
+        "v2"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/018_v2_completion_hardening.sql",
+      "migrationFile": "018_v2_completion_hardening.sql",
+      "tokens": [
+        "v2"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/024_v3_tasks_execution.sql",
+      "migrationFile": "024_v3_tasks_execution.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/025_v3_obligations_execution.sql",
+      "migrationFile": "025_v3_obligations_execution.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/026_v3_approvals_sla.sql",
+      "migrationFile": "026_v3_approvals_sla.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/027_v3_renewal_workspace.sql",
+      "migrationFile": "027_v3_renewal_workspace.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/028_v3_intake_pipeline.sql",
+      "migrationFile": "028_v3_intake_pipeline.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/029_v3_reporting_data_quality.sql",
+      "migrationFile": "029_v3_reporting_data_quality.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/030_v3_automation_trigger_expansion.sql",
+      "migrationFile": "030_v3_automation_trigger_expansion.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/031_v3_remaining_depth.sql",
+      "migrationFile": "031_v3_remaining_depth.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/032_v3_policy_and_capability_layer.sql",
+      "migrationFile": "032_v3_policy_and_capability_layer.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/033_v3_operational_depth_finalization.sql",
+      "migrationFile": "033_v3_operational_depth_finalization.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/037_v3_task_dependency_scope_guard.sql",
+      "migrationFile": "037_v3_task_dependency_scope_guard.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/038_v3_task_rls_role_alignment.sql",
+      "migrationFile": "038_v3_task_rls_role_alignment.sql",
+      "tokens": [
+        "v3"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/039_v4_execution_platform_foundation.sql",
+      "migrationFile": "039_v4_execution_platform_foundation.sql",
+      "tokens": [
+        "v4"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/040_v4_exception_dedup_and_auditability.sql",
+      "migrationFile": "040_v4_exception_dedup_and_auditability.sql",
+      "tokens": [
+        "v4"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/041_v4_security_hardening.sql",
+      "migrationFile": "041_v4_security_hardening.sql",
+      "tokens": [
+        "v4"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/043_v4_feature_surface_completion.sql",
+      "migrationFile": "043_v4_feature_surface_completion.sql",
+      "tokens": [
+        "v4"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/044_v5_control_plane_foundation.sql",
+      "migrationFile": "044_v5_control_plane_foundation.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/045_v5_external_link_decision_scope.sql",
+      "migrationFile": "045_v5_external_link_decision_scope.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/046_v5_decision_type_api_alignment.sql",
+      "migrationFile": "046_v5_decision_type_api_alignment.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/047_v5_decision_packet_artifacts.sql",
+      "migrationFile": "047_v5_decision_packet_artifacts.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/048_v5_decision_packet_artifact_depth.sql",
+      "migrationFile": "048_v5_decision_packet_artifact_depth.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/049_v6_assurance_adaptive_platform.sql",
+      "migrationFile": "049_v6_assurance_adaptive_platform.sql",
+      "tokens": [
+        "v6"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/050_v6_contract_tags.sql",
+      "migrationFile": "050_v6_contract_tags.sql",
+      "tokens": [
+        "v6"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/051_v6_org_settings_json.sql",
+      "migrationFile": "051_v6_org_settings_json.sql",
+      "tokens": [
+        "v6"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/052_v6_analytics_event_indexes.sql",
+      "migrationFile": "052_v6_analytics_event_indexes.sql",
+      "tokens": [
+        "v6"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/053_v6_workspace_product_mode.sql",
+      "migrationFile": "053_v6_workspace_product_mode.sql",
+      "tokens": [
+        "v6"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/054_v5_portfolio_campaign_contracts_order_index.sql",
+      "migrationFile": "054_v5_portfolio_campaign_contracts_order_index.sql",
+      "tokens": [
+        "v5"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/055_v8_review_packet_due_index.sql",
+      "migrationFile": "055_v8_review_packet_due_index.sql",
+      "tokens": [
+        "v8"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/056_v9_performance_snapshots.sql",
+      "migrationFile": "056_v9_performance_snapshots.sql",
+      "tokens": [
+        "v9"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/057_v10_runtime_contracts.sql",
+      "migrationFile": "057_v10_runtime_contracts.sql",
+      "tokens": [
+        "v10"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/065_v10_report_run_family_modes.sql",
+      "migrationFile": "065_v10_report_run_family_modes.sql",
+      "tokens": [
+        "v10"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    },
+    {
+      "path": "supabase/migrations/066_v10_job_visibility_multi_class_upsert.sql",
+      "migrationFile": "066_v10_job_visibility_multi_class_upsert.sql",
+      "tokens": [
+        "v10"
+      ],
+      "owner": "database-platform",
+      "classification": "immutable_migration_ledger_evidence",
+      "reason": "Historical Supabase migration filenames are deployed ledger evidence and must not be renamed by a code-only pass.",
+      "removalStrategy": "retain_as_historical_exception",
+      "validationCommand": "npm run check:migration-manifest",
+      "manualFollowUp": "Only revisit migration filename history during an explicit migration-ledger reconciliation or squash project."
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

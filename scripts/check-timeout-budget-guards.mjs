@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import process from "node:process";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   fileExists,
@@ -7,6 +8,7 @@ import {
   readText,
   walkFiles,
 } from "./lib/static-check-utils.mjs";
+import { readEffectiveRouteSource } from "./lib/build-route-universe.mjs";
 
 const SAFE_FETCH = "src/lib/security/safe-fetch.ts";
 const RETRY_HELPER = "src/lib/extraction/retry.ts";
@@ -69,7 +71,7 @@ export function analyzeTimeoutBudgetGuards(root = process.cwd()) {
 
   const routeFiles = collectRouteFiles(root);
   for (const file of routeFiles) {
-    const source = readText(root, file);
+    const source = readEffectiveRouteSource(path.join(root, file));
     const requiresBudget = EXPENSIVE_ROUTE_PATH_RE.test(file) || EXPENSIVE_ROUTE_SOURCE_RE.test(source);
     if (!requiresBudget) continue;
     const value = maxDurationValue(source);

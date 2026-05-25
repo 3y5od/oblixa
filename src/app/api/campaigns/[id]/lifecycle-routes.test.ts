@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 

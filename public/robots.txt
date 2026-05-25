@@ -1,5 +1,19 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /work/
+Disallow: /contracts/
+Disallow: /settings/
+Disallow: /onboarding/
+Disallow: /reports/
+Disallow: /assurance/
+Disallow: /campaigns/
+Disallow: /decisions/
+Disallow: /relationship-workspaces/
+Disallow: /accounts/
+Disallow: /counterparties/
+Disallow: /more/
 
 User-agent: GPTBot
 Disallow: /

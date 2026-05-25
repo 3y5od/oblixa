@@ -9,7 +9,7 @@ import { createAdminClient, createClient, getDeterministicMembership } from "@/l
 import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { parseBooleanParam, parseFixedEnumParam } from "@/lib/security/validation";

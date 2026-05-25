@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { createReviewBoard, listReviewBoards } from "@/lib/v6/review-boards";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { createReviewBoard, listReviewBoards } from "@/lib/assurance/review-boards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 
@@ -27,7 +27,7 @@ export async function GET() {
   });
   if (modeGate) return modeGate;
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_review_boards_list_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_review_boards_list_total", 1).catch(
     () => undefined
   );
 

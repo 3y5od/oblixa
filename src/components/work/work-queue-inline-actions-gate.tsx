@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react";
 import { WorkQueueInlineActions } from "@/components/work/work-queue-inline-actions";
-import { v9InlineQueueActionsEnabled } from "@/lib/v9-rollout";
+import { v9InlineQueueActionsEnabled } from "@/lib/rollout";
 
 type GateProps = ComponentProps<typeof WorkQueueInlineActions>;
 

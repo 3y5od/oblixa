@@ -101,7 +101,7 @@ export function BulkUploadForm({
 
         try {
           const csv = await file.text();
-          const response = await fetch("/api/import/contracts", {
+          const response = await fetch("/api/import/contracts", { // security:fetch-allowlist SEC-INT-005 same-origin CSV import endpoint; server-only safeFetch is not usable in this client form.
             method: "POST",
             headers: { "content-type": "text/csv; charset=utf-8" },
             body: csv,

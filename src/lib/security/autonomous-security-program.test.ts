@@ -88,7 +88,7 @@ describe("p3-ai-llm-surface", () => {
 
 describe("test-chaos-degrade", () => {
   it("documents fail-closed contract: API auth returns null without a session", () => {
-    const src = readFileSync(join(process.cwd(), "src/lib/v4/api-auth.ts"), "utf8");
+    const src = readFileSync(join(process.cwd(), "src/lib/contract-operations/api-auth.ts"), "utf8");
     expect(src).toContain("if (!user) return null");
     expect(src).toContain("if (!membership) return null");
   });
@@ -115,7 +115,7 @@ describe("p1-headers-corp-coop", () => {
 
 describe("p2-rfc7807-problem-details", () => {
   it("mutation envelope helpers exist for API response validation", async () => {
-    const mod = await import("@/lib/v10-mutation-envelope");
+    const mod = await import("@/lib/mutation-envelope");
     expect(typeof mod.validateV10ApiResponseSchema).toBe("function");
   });
 });

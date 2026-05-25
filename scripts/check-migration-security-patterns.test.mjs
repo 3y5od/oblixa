@@ -143,3 +143,63 @@ create table public.integration_api_keys (
   assert(report.issues.some((issue) => issue.issue === "tenant_table_missing_org_id_or_classification"));
   assert(report.issues.some((issue) => issue.issue === "creates_table_without_rls_enable"));
 });
+
+test("analyzeMigrationSecurityPatterns accepts audited neutral SQL alias grants", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-migration-neutral-alias-ok-"));
+  write(
+    root,
+    "supabase/migrations/088_sql_neutral_function_aliases.sql",
+    `create or replace function public.role_rank(role_name text)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$ select public.v10_role_rank(role_name) $$;
+grant execute on function public.role_rank(text) to authenticated;
+
+create or replace function public.member_can_read(row_organization_id uuid, row_required_role_minimum text, row_visibility_state text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$ select public.v10_member_can_read(row_organization_id, row_required_role_minimum, row_visibility_state) $$;
+grant execute on function public.member_can_read(uuid, text, text) to authenticated;
+`
+  );
+  write(
+    root,
+    "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+    `create or replace view public.activation_state
+with (security_invoker = true)
+as
+select * from public.v10_activation_state;
+
+revoke all on table public.activation_state from public;
+grant select on table public.activation_state to authenticated;
+grant select on table public.activation_state to service_role;
+`
+  );
+
+  const report = analyzeMigrationSecurityPatterns(root, { strict: true });
+  assert.equal(report.issueCount, 0);
+});
+
+test("analyzeMigrationSecurityPatterns rejects neutral alias grants without scoped security-invoker evidence", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-migration-neutral-alias-bad-"));
+  write(
+    root,
+    "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+    `create or replace view public.activation_state
+as
+select * from public.v10_activation_state;
+
+revoke all on table public.activation_state from public;
+grant select on table public.activation_state to authenticated;
+`
+  );
+
+  const report = analyzeMigrationSecurityPatterns(root, { strict: true });
+  assert(report.issues.some((issue) => issue.issue === "broad_grant_to_client_role"));
+});

@@ -12,7 +12,7 @@ const REQUIRED_SITES = [
     markers: ["redactForPersistence", "redactPersistenceString", "isHighRiskPersistenceKey"],
   },
   {
-    rel: "src/lib/v10-server-contracts.ts",
+    rel: "src/lib/server-contracts.ts",
     markers: ["redactPersistenceString"],
   },
   {
@@ -20,7 +20,7 @@ const REQUIRED_SITES = [
     markers: ["redactPersistenceString"],
   },
   {
-    rel: "src/lib/v6/external-collaboration.ts",
+    rel: "src/lib/assurance/external-collaboration.ts",
     markers: ["redactForPersistence(payload)", "payload_json: redactForPersistence(payload)"],
   },
   {
@@ -35,12 +35,12 @@ const REQUIRED_SITES = [
 
 const FORBIDDEN_RAW_PATTERNS = [
   {
-    rel: "src/lib/v6/external-collaboration.ts",
+    rel: "src/lib/assurance/external-collaboration.ts",
     re: /payload_json:\s*payload\b/,
     issue: "external_action_event_raw_payload_persisted",
   },
   {
-    rel: "src/lib/v10-server-contracts.ts",
+    rel: "src/lib/server-contracts.ts",
     re: /safe_metadata:\s*input\.safeMetadata\b/,
     issue: "v10_audit_raw_metadata_persisted",
   },

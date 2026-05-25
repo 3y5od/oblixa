@@ -16,7 +16,7 @@
       "controlId": "GDPR-ART25",
       "framework": "GDPR",
       "description": "Data protection by design (telemetry clamp)",
-      "testPaths": ["src/lib/product-telemetry.v10.test.ts"]
+      "testPaths": ["src/lib/product-telemetry-current.test.ts"]
     }
   ]
 }

@@ -4,11 +4,11 @@ const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability: vi.fn(),
 }));
@@ -17,7 +17,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/v6/outcomes", () => ({
+vi.mock("@/lib/assurance/outcomes", () => ({
   listOutcomeInterventionsPaginated: vi.fn(async () => ({
     rows: [],
     total: 0,
@@ -34,8 +34,8 @@ vi.mock("@/lib/v6/outcomes", () => ({
   })),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => {}),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => {}),
 }));
 
 describe("GET /api/outcomes/interventions", () => {

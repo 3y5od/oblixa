@@ -177,7 +177,8 @@ function writeReleaseProvenanceFixture(root, options = {}) {
       "preflight:release": "node scripts/release-preflight.mjs",
       "verify": "npm run pipeline:verify",
       "check:comprehensive-pass": "node scripts/comprehensive-pass.mjs",
-      "test:e2e:v10": "playwright test --grep @v10",
+      "test:e2e:current-product": "npm run test:e2e:current-product",
+      "test:e2e:current-product": "playwright test --grep @current-product",
       "test:e2e": "playwright test",
       "release:checklist": "node scripts/pipelines/pipeline-release-checklist.mjs",
       ...(options.scripts ?? {}),
@@ -202,11 +203,11 @@ function writeReleaseProvenanceFixture(root, options = {}) {
     "scripts/pipelines/pipeline-release-checklist.mjs",
     [
       '"preflight:release"',
-      '"check:v10-release-evidence"',
-      '"check:v10-suite"',
+      '"check:release-evidence"',
+      '"check:release-suite-current"',
       '"verify"',
       '"check:comprehensive-pass"',
-      '"test:e2e:v10"',
+      '"test:e2e:current-product"',
       '"test:e2e"',
     ].filter((line) => line !== options.omitReleaseStep).join("\n")
   );

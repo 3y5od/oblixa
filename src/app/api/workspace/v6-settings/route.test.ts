@@ -10,11 +10,11 @@ const enforceIdempotency = vi.fn();
 const recordApiMutationAuditEvent = vi.fn();
 const recordApiRouteAuditEvent = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -36,24 +36,24 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
   recordApiRouteAuditEvent,
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: vi.fn(async () => ({ autopilot_allow_execution: false })),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: vi.fn(async () => ({ autopilot_allow_execution: false })),
   getV6OrgSettingsSnapshot: vi.fn(async () => ({
     settings: { autopilot_allow_execution: false },
     updatedAt: "2026-01-01T00:00:00Z",
   })),
-  mergeV6OrgSettingsJson: vi.fn(async () => ({
+  mergeOrgSettingsJson: vi.fn(async () => ({
     data: { autopilot_allow_execution: true },
     error: null,
   })),
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks: vi.fn(async () => ({})),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => {}),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => {}),
 }));
 
 describe("/api/workspace/v6-settings", () => {

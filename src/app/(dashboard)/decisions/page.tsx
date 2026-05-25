@@ -8,7 +8,7 @@ import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 
 function decisionStatusTone(status: string): SemanticStatus {
   if (status === "open") return "info";

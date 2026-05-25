@@ -11,8 +11,8 @@
  * Optional path allowlist: scripts/security-static-audit-allowlist.txt (one substring per line;
  * if a source path includes the substring, grep hits in that file are skipped).
  *
- * V8 cross-surface dashboard href policy is enforced separately by `npm run check:v8-hrefs:strict`
- * (scripts/audit-v8-cross-surface-hrefs.mjs); keep that as the canonical strict gate for raw /decisions,
+ * V8 cross-surface dashboard href policy is enforced separately by `npm run check:surface:hrefs:strict`
+ * (scripts/audit-product-surface-cross-surface-hrefs.mjs); keep that as the canonical strict gate for raw /decisions,
  * /campaigns, /assurance, etc. in UI trees.
  */
 import fs from "node:fs";

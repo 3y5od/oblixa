@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const gateCronRequest = vi.fn();
 const rateLimitCheck = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const cronMatchesUtc = vi.fn();
 const computeReportPackMetrics = vi.fn();
 const extractPriorKpis = vi.fn();
@@ -19,28 +19,28 @@ vi.mock("@/lib/rate-limit", () => ({
   rateLimitCheck,
 }));
 
-vi.mock("@/lib/v4/cron-schedule", () => ({
+vi.mock("@/lib/contract-operations/cron-schedule", () => ({
   cronMatchesUtc: (...args: unknown[]) => cronMatchesUtc(...args),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
-vi.mock("@/lib/v4/report-pack-metrics", () => ({
+vi.mock("@/lib/contract-operations/report-pack-metrics", () => ({
   computeReportPackMetrics: (...args: unknown[]) => computeReportPackMetrics(...args),
   extractPriorKpis: (...args: unknown[]) => extractPriorKpis(...args),
 }));
 
-vi.mock("@/lib/v4/automation-audit", () => ({
+vi.mock("@/lib/contract-operations/automation-audit", () => ({
   recordAutomationEvent: (...args: unknown[]) => recordAutomationEvent(...args),
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent: (...args: unknown[]) => recordV10AuditEvent(...args),
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
 }));
 
@@ -57,7 +57,7 @@ describe("GET /api/cron/v4/report-packs-generate", () => {
     gateCronRequest.mockReturnValue(null);
     rateLimitCheck.mockResolvedValue({ ok: true });
     cronMatchesUtc.mockReturnValue(true);
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       workspace_mode: "core",
       advanced_modules_hidden: [],
       assurance_modules_hidden: [],

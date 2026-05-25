@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const REPORT_PACKS_CRON = join(process.cwd(), "src/app/api/cron/v4/report-packs-generate/route.ts");
-const REVIEW_BOARD_NOTIFICATIONS = join(process.cwd(), "src/lib/v6/review-board-notifications.ts");
+const REVIEW_BOARD_NOTIFICATIONS = join(process.cwd(), "src/lib/assurance/review-board-notifications.ts");
 
 describe("cron outbound product-surface gating", () => {
   it("keeps report-pack digest/email/webhook delivery behind report mode checks", async () => {

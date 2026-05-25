@@ -99,6 +99,33 @@ export const GENERATED_VISUAL_ROUTES = [
     "expectedHeading": "Continuous assurance"
   },
   {
+    "route": "/product",
+    "visitPath": "/product",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "mode": "public",
+    "expectedHeading": "Product"
+  },
+  {
+    "route": "/pricing",
+    "visitPath": "/pricing",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "mode": "public",
+    "expectedHeading": "Pricing"
+  },
+  {
+    "route": "/contact",
+    "visitPath": "/contact",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "mode": "public",
+    "expectedHeading": "Contact"
+  },
+  {
     "route": "/",
     "visitPath": "/",
     "fixtureId": null,
@@ -160,6 +187,15 @@ export const GENERATED_VISUAL_ROUTES = [
     "shellFamily": "marketing",
     "mode": "public",
     "expectedHeading": "Terms of use"
+  },
+  {
+    "route": "/acceptable-use",
+    "visitPath": "/acceptable-use",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "mode": "public",
+    "expectedHeading": "Acceptable use"
   },
   {
     "route": "/security",

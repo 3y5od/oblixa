@@ -8,7 +8,7 @@ import {
 } from "@/lib/rate-limit";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { getExportCsvExtractedFieldNamesForWorkspaceMode } from "@/lib/export-contract-csv-field-policy";
 import { isUuid } from "@/lib/security/validation";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -18,16 +18,15 @@ import {
   executeV10IdempotentResponseMutation,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse, buildV10MutationResponseInit, validateV10IdempotencyKey } from "@/lib/v10-mutation-envelope";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse, buildV10MutationResponseInit, validateV10IdempotencyKey } from "@/lib/mutation-envelope";
 import {
   getV10ContractExportRowLimit,
   isV10AsyncReportOrExportRequired,
   resolveV10ReportExportPlan,
-} from "@/lib/v10-report-export";
+} from "@/lib/report-export";
 import { createContractExportJob, executeContractExportCsv } from "@/lib/export/contracts-csv";
-import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const ROUTE = "/api/export/contracts";
@@ -71,7 +70,6 @@ type ExportCsvOptions = {
   filterJsonExtension?: Record<string, unknown>;
   createExportJob?: boolean;
   existingExportJobId?: string | null;
-  auditSensitiveRead?: boolean;
 };
 
 async function countContractsForAsyncHandoff(admin: AdminClient, orgId: string, selectedIds: string[]): Promise<number> {
@@ -146,17 +144,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
   });
   if (modeGate) return modeGate;
 
-  if (options?.auditSensitiveRead) {
-    void recordApiRouteAuditEvent(admin, {
-      organizationId: orgId,
-      actorUserId: user.id,
-      route: ROUTE,
-      method: "GET",
-      action: "api.sensitive_read_authorized",
-    }).catch(() => undefined);
-  }
-
-  const v6Settings = await getV6OrgSettingsJson(admin, orgId);
+  const v6Settings = await getOrgSettingsJson(admin, orgId);
   const csvFieldNames = getExportCsvExtractedFieldNamesForWorkspaceMode(v6Settings.workspace_mode);
   const exportPlan = resolveV10ReportExportPlan(v6Settings);
   const exportRowLimit = getV10ContractExportRowLimit(exportPlan);
@@ -193,7 +181,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
 }
 
 export async function GET(request: Request) {
-  return runExportContractsCsv(request, { auditSensitiveRead: true });
+  return runExportContractsCsv(request);
 }
 
 /**
@@ -327,7 +315,7 @@ export async function POST(request: Request) {
   });
   if (modeGate) return modeGate;
 
-  const v6Settings = await getV6OrgSettingsJson(admin, orgId);
+  const v6Settings = await getOrgSettingsJson(admin, orgId);
   const csvFieldNames = getExportCsvExtractedFieldNamesForWorkspaceMode(v6Settings.workspace_mode);
   const exportPlan = resolveV10ReportExportPlan(v6Settings);
   const exportRowLimit = getV10ContractExportRowLimit(exportPlan);

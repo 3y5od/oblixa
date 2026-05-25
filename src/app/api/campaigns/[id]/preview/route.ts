@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { nowIso } from "@/lib/v5/api";
-import { parseCampaignAssignmentJson } from "@/lib/v5/campaign-assignment";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { nowIso } from "@/lib/decision-intelligence/api";
+import { parseCampaignAssignmentJson } from "@/lib/decision-intelligence/campaign-assignment";
 import {
   countContractsMatchingEligibility,
   syncCampaignContractsFromEligibility,
-} from "@/lib/v5/campaign-eligibility";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/campaign-eligibility";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -145,7 +145,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_preview_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_preview_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data, preview });
 }

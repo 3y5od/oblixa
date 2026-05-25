@@ -29,11 +29,11 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitWorkActionTelemetry: vi.fn(),
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent: vi.fn(),
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: vi.fn(),
 }));
 

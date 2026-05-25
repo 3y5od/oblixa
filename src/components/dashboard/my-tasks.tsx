@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ContractTask } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 
 type TaskRow = Pick<ContractTask, "id" | "title" | "status" | "priority" | "due_date"> & {
   contracts: { id: string; title: string };

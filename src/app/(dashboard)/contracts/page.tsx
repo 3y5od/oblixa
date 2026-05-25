@@ -6,7 +6,7 @@ import {
 } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
@@ -1117,7 +1117,7 @@ export default async function ContractsPage(props: {
 
       <section>
         {contractsPageError ? (
-          <V10RecoverableState
+          <RecoverableState
             state="failed"
             title="Contracts could not be loaded"
             reason="The contract list query failed, so this is not being shown as an empty contract list."

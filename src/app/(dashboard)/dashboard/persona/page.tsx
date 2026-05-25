@@ -197,8 +197,8 @@ export default async function PersonaDashboardPage(props: {
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">Feature flag</p>
         <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">Persona dashboard is disabled</h1>
         <p className="mt-3 max-w-xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-          This surface is off when <code className="text-xs">ENABLE_V3_PERSONA_DASHBOARDS</code> is set to false, 0, no,
-          or off on the server. Unset it to restore the default (on).
+          This surface is off when <code className="text-xs">ENABLE_PERSONA_DASHBOARDS</code> is set to false, 0, no, or
+          off on the server. Unset it to restore the default (on).
         </p>
         <div className="mt-5">
           <Link href="/dashboard" className="ui-btn-secondary px-4 py-2 text-[12.5px]">

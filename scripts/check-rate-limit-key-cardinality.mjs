@@ -33,7 +33,7 @@ const REQUIRED_MARKERS = {
     "rateLimitCheck(",
     'stripe-webhook:account:${event.account ?? "platform"}:${event.type}',
   ],
-  "src/lib/v6/cron-route-runner.ts": [
+  "src/lib/assurance/cron-route-runner.ts": [
     'rateLimitKey: options.rateLimitKey ?? `cron:v6:${options.route.split("/").pop() ?? "job"}`',
   ],
 };

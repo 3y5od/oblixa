@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { buildAssuranceAnalyticsSummary } from "@/lib/v6/assurance-analytics";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { buildAssuranceAnalyticsSummary } from "@/lib/assurance/assurance-analytics";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 
 export async function GET() {
   const disabled = requireV6ApiFeature("v6AssuranceCore");
@@ -20,7 +20,7 @@ export async function GET() {
   });
   if (modeGate) return modeGate;
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_analytics_summary_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_analytics_summary_total", 1).catch(
     () => undefined
   );
 

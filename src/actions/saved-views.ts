@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { isReasonableEmail, isUuid, validateBoundedString } from "@/lib/security/validation";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
 const MAX_NAME_LEN = 80;

@@ -14,7 +14,7 @@ export function hasProductionDebugMisconfiguration(
 
 /** Mirrors `parseFlag` in feature-flags: unset = enabled for external collaboration env gate. */
 function externalCollaborationEnabledInEnv(env: NodeJS.ProcessEnv): boolean {
-  const raw = String(env.ENABLE_V5_EXTERNAL_COLLABORATION ?? "").trim().toLowerCase();
+  const raw = String(env.ENABLE_EXTERNAL_COLLABORATION ?? env.ENABLE_V5_EXTERNAL_COLLABORATION ?? "").trim().toLowerCase();
   if (!raw) return true;
   return !["false", "0", "no", "off"].includes(raw);
 }

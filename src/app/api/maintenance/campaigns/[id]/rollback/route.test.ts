@@ -7,7 +7,7 @@ const recordApiMutationAuditEvent = vi.fn();
 const hasSensitiveActionProof = vi.fn();
 const recordSecurityAuditEvent = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability: vi.fn(async () => true),
 }));

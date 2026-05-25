@@ -22,30 +22,41 @@ export type FeatureFlagKey =
   | "v6Segments"
   | "v6AutopilotAllowExecution";
 
-const envMap: Record<FeatureFlagKey, string> = {
-  v3TasksEngine: "ENABLE_V3_TASKS_ENGINE",
-  v3ObligationsExecution: "ENABLE_V3_OBLIGATIONS_EXECUTION",
-  v3ApprovalsSla: "ENABLE_V3_APPROVALS_SLA",
-  v3RenewalWorkspace: "ENABLE_V3_RENEWAL_WORKSPACE",
-  v3IntakePipeline: "ENABLE_V3_INTAKE_PIPELINE",
-  v3PersonaDashboards: "ENABLE_V3_PERSONA_DASHBOARDS",
-  v3ReportingHistory: "ENABLE_V3_REPORTING_HISTORY",
-  v3AutomationExpansion: "ENABLE_V3_AUTOMATION_EXPANSION",
-  v5DecisionFoundation: "ENABLE_V5_DECISION_FOUNDATION",
-  v5PortfolioCampaigns: "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
-  v5SimulationAndIntelligence: "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
-  v5RelationshipLayer: "ENABLE_V5_RELATIONSHIP_LAYER",
-  v5ExternalCollaboration: "ENABLE_V5_EXTERNAL_COLLABORATION",
-  v5ControlRoomUx: "ENABLE_V5_CONTROL_ROOM_UX",
-  v6AssuranceCore: "ENABLE_V6_ASSURANCE_CORE",
-  v6ControlPolicies: "ENABLE_V6_CONTROL_POLICIES",
-  v6AdaptivePlaybooks: "ENABLE_V6_ADAPTIVE_PLAYBOOKS",
-  v6Autopilot: "ENABLE_V6_AUTOPILOT",
-  v6OutcomeIntelligence: "ENABLE_V6_OUTCOME_INTELLIGENCE",
-  v6ReviewBoards: "ENABLE_V6_REVIEW_BOARDS",
-  v6Segments: "ENABLE_V6_SEGMENTS",
+export type FeatureFlagEnvAlias = {
+  neutral: string;
+  legacy: string;
+};
+
+export const FEATURE_FLAG_ENV_ALIASES: Record<FeatureFlagKey, FeatureFlagEnvAlias> = {
+  v3TasksEngine: { neutral: "ENABLE_TASKS_ENGINE", legacy: "ENABLE_V3_TASKS_ENGINE" },
+  v3ObligationsExecution: { neutral: "ENABLE_OBLIGATIONS_EXECUTION", legacy: "ENABLE_V3_OBLIGATIONS_EXECUTION" },
+  v3ApprovalsSla: { neutral: "ENABLE_APPROVALS_SLA", legacy: "ENABLE_V3_APPROVALS_SLA" },
+  v3RenewalWorkspace: { neutral: "ENABLE_RENEWAL_WORKSPACE", legacy: "ENABLE_V3_RENEWAL_WORKSPACE" },
+  v3IntakePipeline: { neutral: "ENABLE_INTAKE_PIPELINE", legacy: "ENABLE_V3_INTAKE_PIPELINE" },
+  v3PersonaDashboards: { neutral: "ENABLE_PERSONA_DASHBOARDS", legacy: "ENABLE_V3_PERSONA_DASHBOARDS" },
+  v3ReportingHistory: { neutral: "ENABLE_REPORTING_HISTORY", legacy: "ENABLE_V3_REPORTING_HISTORY" },
+  v3AutomationExpansion: { neutral: "ENABLE_AUTOMATION_EXPANSION", legacy: "ENABLE_V3_AUTOMATION_EXPANSION" },
+  v5DecisionFoundation: { neutral: "ENABLE_DECISION_FOUNDATION", legacy: "ENABLE_V5_DECISION_FOUNDATION" },
+  v5PortfolioCampaigns: { neutral: "ENABLE_PORTFOLIO_CAMPAIGNS", legacy: "ENABLE_V5_PORTFOLIO_CAMPAIGNS" },
+  v5SimulationAndIntelligence: {
+    neutral: "ENABLE_SIMULATION_AND_INTELLIGENCE",
+    legacy: "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
+  },
+  v5RelationshipLayer: { neutral: "ENABLE_RELATIONSHIP_LAYER", legacy: "ENABLE_V5_RELATIONSHIP_LAYER" },
+  v5ExternalCollaboration: { neutral: "ENABLE_EXTERNAL_COLLABORATION", legacy: "ENABLE_V5_EXTERNAL_COLLABORATION" },
+  v5ControlRoomUx: { neutral: "ENABLE_CONTROL_ROOM_UX", legacy: "ENABLE_V5_CONTROL_ROOM_UX" },
+  v6AssuranceCore: { neutral: "ENABLE_ASSURANCE_CORE", legacy: "ENABLE_V6_ASSURANCE_CORE" },
+  v6ControlPolicies: { neutral: "ENABLE_CONTROL_POLICIES", legacy: "ENABLE_V6_CONTROL_POLICIES" },
+  v6AdaptivePlaybooks: { neutral: "ENABLE_ADAPTIVE_PLAYBOOKS", legacy: "ENABLE_V6_ADAPTIVE_PLAYBOOKS" },
+  v6Autopilot: { neutral: "ENABLE_AUTOPILOT", legacy: "ENABLE_V6_AUTOPILOT" },
+  v6OutcomeIntelligence: { neutral: "ENABLE_OUTCOME_INTELLIGENCE", legacy: "ENABLE_V6_OUTCOME_INTELLIGENCE" },
+  v6ReviewBoards: { neutral: "ENABLE_REVIEW_BOARDS", legacy: "ENABLE_V6_REVIEW_BOARDS" },
+  v6Segments: { neutral: "ENABLE_SEGMENTS", legacy: "ENABLE_V6_SEGMENTS" },
   /** When false, autopilot performs dry-runs only (no mutating execute path). Default on when unset. */
-  v6AutopilotAllowExecution: "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
+  v6AutopilotAllowExecution: {
+    neutral: "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
+    legacy: "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
+  },
 };
 
 export const TRUE_FLAG_VALUES = new Set(["1", "true", "yes", "on"]);
@@ -62,8 +73,13 @@ export function parseFeatureFlagEnv(value: string | undefined): boolean {
   return false;
 }
 
-export function isFeatureEnabled(key: FeatureFlagKey): boolean {
-  return parseFeatureFlagEnv(process.env[envMap[key]]);
+export function readFeatureFlagEnvValue(key: FeatureFlagKey, env: NodeJS.ProcessEnv = process.env): string | undefined {
+  const keys = FEATURE_FLAG_ENV_ALIASES[key];
+  return env[keys.neutral] ?? env[keys.legacy];
+}
+
+export function isFeatureEnabled(key: FeatureFlagKey, env: NodeJS.ProcessEnv = process.env): boolean {
+  return parseFeatureFlagEnv(readFeatureFlagEnvValue(key, env));
 }
 
 let cachedFlags: Record<FeatureFlagKey, boolean> | null = null;

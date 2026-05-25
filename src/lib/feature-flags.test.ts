@@ -3,8 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 describe("feature flags", () => {
   beforeEach(() => {
     vi.resetModules();
+    delete process.env.ENABLE_TASKS_ENGINE;
     delete process.env.ENABLE_V3_TASKS_ENGINE;
+    delete process.env.ENABLE_ASSURANCE_CORE;
     delete process.env.ENABLE_V6_ASSURANCE_CORE;
+    delete process.env.ENABLE_AUTOPILOT_ALLOW_EXECUTION;
     delete process.env.ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION;
   });
 
@@ -39,6 +42,25 @@ describe("feature flags", () => {
     process.env.ENABLE_V6_ASSURANCE_CORE = "yes";
     const { isFeatureEnabled } = await import("@/lib/feature-flags");
     expect(isFeatureEnabled("v6AssuranceCore")).toBe(true);
+  });
+
+  it("prefers neutral env aliases over legacy feature flag keys", async () => {
+    process.env.ENABLE_ASSURANCE_CORE = "0";
+    process.env.ENABLE_V6_ASSURANCE_CORE = "yes";
+    const { isFeatureEnabled, readFeatureFlagEnvValue, FEATURE_FLAG_ENV_ALIASES } = await import("@/lib/feature-flags");
+    expect(FEATURE_FLAG_ENV_ALIASES.v6AssuranceCore).toEqual({
+      neutral: "ENABLE_ASSURANCE_CORE",
+      legacy: "ENABLE_V6_ASSURANCE_CORE",
+    });
+    expect(readFeatureFlagEnvValue("v6AssuranceCore")).toBe("0");
+    expect(isFeatureEnabled("v6AssuranceCore")).toBe(false);
+  });
+
+  it("falls back to legacy feature flag keys during compatibility", async () => {
+    process.env.ENABLE_V3_TASKS_ENGINE = "0";
+    const { isFeatureEnabled, readFeatureFlagEnvValue } = await import("@/lib/feature-flags");
+    expect(readFeatureFlagEnvValue("v3TasksEngine")).toBe("0");
+    expect(isFeatureEnabled("v3TasksEngine")).toBe(false);
   });
 
   it("getFeatureFlags returns every key", async () => {

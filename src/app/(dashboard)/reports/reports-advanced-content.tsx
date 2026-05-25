@@ -8,19 +8,19 @@ import {
   isAssuranceModuleHidden,
 } from "@/lib/product-surface/context";
 import type { ProductSurfaceContext } from "@/lib/product-surface/context";
-import type { AdminClient } from "@/lib/v6/service";
-import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
+import type { AdminClient } from "@/lib/assurance/service";
+import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/decision-intelligence/capacity-forecast-keys";
 import {
   getPortfolioByCounterpartyRows,
   getPortfolioByProgramRows,
-} from "@/lib/v5/portfolio-analytics";
-import { buildPortfolioSignalSummary } from "@/lib/v5/portfolio-signal-summary";
-import { parseV5SignalQualityForDisplay } from "@/lib/v5/v5-signal-quality-labels";
-import { buildAssuranceAnalyticsSummary } from "@/lib/v6/assurance-analytics";
-import { computeOutcomeViews, listOutcomeInterventionsPaginated } from "@/lib/v6/outcomes";
+} from "@/lib/decision-intelligence/portfolio-analytics";
+import { buildPortfolioSignalSummary } from "@/lib/decision-intelligence/portfolio-signal-summary";
+import { parseSignalQualityForDisplay } from "@/lib/decision-intelligence/signal-quality-labels";
+import { buildAssuranceAnalyticsSummary } from "@/lib/assurance/assurance-analytics";
+import { computeOutcomeViews, listOutcomeInterventionsPaginated } from "@/lib/assurance/outcomes";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { operationalToneFromSignalSeverity } from "@/lib/ui/operational-surface";
-import { ReportsV6AssuranceAnalyticsSection } from "@/components/reports/reports-v6-assurance-section";
+import { ReportsV6AssuranceAnalyticsSection } from "@/components/reports/reports-assurance-section";
 import {
   ReportsCapacityCampaignsSection,
   ReportsOutcomeIntelligenceSection,
@@ -125,7 +125,7 @@ export async function ReportsAdvancedContent(props: {
       : null;
 
   const signalQualityRows = signalQualityDebug
-    ? parseV5SignalQualityForDisplay(signalQualityDebug.v5_signal_quality_json)
+    ? parseSignalQualityForDisplay(signalQualityDebug.v5_signal_quality_json)
     : [];
 
   const latestForecast = forecasts?.[0];

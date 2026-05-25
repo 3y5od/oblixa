@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { mergeExternalResponsePack } from "@/lib/v6/external-collaboration";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { mergeExternalResponsePack } from "@/lib/assurance/external-collaboration";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -107,7 +107,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       phase: "persist",
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_response_pack_merges_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "external_response_pack_merges_total", 1).catch(
     () => undefined
   );
   return NextResponse.json({ externalAction: data });

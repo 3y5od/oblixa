@@ -35,6 +35,26 @@ const APPROVED_STORAGE_KEYS = [
     dataClass: "navigation_history",
   },
   {
+    storage: "localStorage",
+    pattern: /^oblixa\.dashboard\.collapsed\.\$\{value\}$/,
+    dataClass: "ui_preference",
+  },
+  {
+    storage: "localStorage",
+    pattern: /^oblixa\.dashboard\.section-order$/,
+    dataClass: "ui_preference",
+  },
+  {
+    storage: "localStorage",
+    pattern: /^oblixa\.dashboard\.section-order:\$\{value\}$/,
+    dataClass: "ui_preference",
+  },
+  {
+    storage: "sessionStorage",
+    pattern: /^oblixa-product-mobile-cta-dismissed$/,
+    dataClass: "ui_preference",
+  },
+  {
     storage: "sessionStorage",
     pattern: /^oblixa\.contract-table\.selection:\$\{value\}$/,
     dataClass: "ephemeral_contract_selection",

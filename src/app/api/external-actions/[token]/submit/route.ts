@@ -8,7 +8,7 @@ import {
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import {
   externalActionTokenHash,
   externalActionTokenMatches,
@@ -18,19 +18,19 @@ import {
   nowIso,
   verifyExternalPasscode,
   verifyExternalSubmitTicket,
-} from "@/lib/v5/api";
-import { validateExternalActionPayload } from "@/lib/v5/external-action-payload";
+} from "@/lib/decision-intelligence/api";
+import { validateExternalActionPayload } from "@/lib/decision-intelligence/external-action-payload";
 import {
   type ExternalActionType,
   isValidExternalActionType,
-} from "@/lib/v5/external-action-types";
+} from "@/lib/decision-intelligence/external-action-types";
 import {
   appendAccountTimelineEvent,
   appendCounterpartyTimelineEvent,
-} from "@/lib/v5/relationship-timeline";
-import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+} from "@/lib/decision-intelligence/relationship-timeline";
+import { appendExternalWorkflowStep } from "@/lib/assurance/external-collaboration";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -403,7 +403,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
 
   if (isFeatureEnabled("v6AssuranceCore")) {
-    await incrementV6QualityCounter(
+    await incrementAssuranceQualityCounter(
       admin,
       String(link.organization_id),
       "external_collaboration_submissions_total",

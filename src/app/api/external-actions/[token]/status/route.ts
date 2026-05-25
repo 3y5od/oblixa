@@ -8,17 +8,17 @@ import {
   isExternalActionTokenSyntax,
   nowIso,
   signExternalSubmitTicket,
-} from "@/lib/v5/api";
+} from "@/lib/decision-intelligence/api";
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collaboration";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { recordMissedExternalDeadlineFinding } from "@/lib/assurance/external-collaboration";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 import { recordPublicTokenMiss } from "@/lib/security/public-token-telemetry";
@@ -119,7 +119,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   }
 
   if (isFeatureEnabled("v6AssuranceCore") && data.organization_id) {
-    await incrementV6QualityCounter(
+    await incrementAssuranceQualityCounter(
       admin,
       String(data.organization_id),
       "external_public_status_polls_total",

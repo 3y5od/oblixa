@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext: vi.fn(),
   canManageCapability: vi.fn(),
 }));
@@ -11,17 +11,17 @@ vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(() => false),
 }));
 
-vi.mock("@/lib/v5/post-decision-actions", () => ({
+vi.mock("@/lib/decision-intelligence/post-decision-actions", () => ({
   executePostDecisionActions: vi.fn(),
   suggestDefaultPostDecisionActions: vi.fn(() => []),
 }));
 
-vi.mock("@/lib/v5/relationship-timeline", () => ({
+vi.mock("@/lib/decision-intelligence/relationship-timeline", () => ({
   appendAccountTimelineEvent: vi.fn(),
   appendCounterpartyTimelineEvent: vi.fn(),
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 

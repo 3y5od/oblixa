@@ -4,7 +4,7 @@
  */
 export const ONBOARDING_SPEC_IMPLEMENTATION_TRACE = {
   "§1-2": ["src/lib/onboarding/calibration-gate.ts", "src/actions/onboarding-calibration.ts"],
-  "§3": ["src/lib/v6/org-settings.ts", "src/lib/product-surface/context.ts"],
+  "§3": ["src/lib/assurance/org-settings.ts", "src/lib/product-surface/context.ts"],
   "§4": [
     "src/proxy.ts",
     "src/app/auth/callback/route.ts",

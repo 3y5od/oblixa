@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { UiAlert } from "@/components/ui/ui-alert";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 // SPEC: docs/security-page-maximal-pass.md §5.5 — recoverable error
 // boundary mirroring billing's pattern for cross-page chrome parity
@@ -16,8 +17,7 @@ function classifyError(error: Error & { digest?: string; cause?: unknown }): {
   title: string;
   body: string;
 } {
-  const msg = error.message ?? "";
-  const name = error.name ?? "";
+  const { message: msg = "", name = "" } = error;
   // V2 §1.44 — step-up signing secret missing in production.
   if (/OBLIXA_STEP_UP_SECRET|step-up signing/i.test(msg)) {
     return {
@@ -70,6 +70,9 @@ export default function SecurityError({
 }) {
   useEffect(() => {
     console.error("[settings/security] error boundary:", error);
+    captureClientException(error, {
+      extra: { route: "settings/security/error", digest: error.digest },
+    });
   }, [error]);
 
   const { title, body } = classifyError(error);

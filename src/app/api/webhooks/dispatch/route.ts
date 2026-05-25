@@ -10,7 +10,7 @@ import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { isKillWebhookDispatch, killSwitchJsonResponse } from "@/lib/security/kill-switches";
-import { appendCasefileEvent } from "@/lib/v4/casefile";
+import { appendCasefileEvent } from "@/lib/contract-operations/casefile";
 import { scrubOutboundPayloadValue } from "@/lib/messaging/outbound-payload-scrub";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";

@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { RATE_LIMITS, getClientIpFromHeaders, rateLimitCheck } from "@/lib/rate-limit";
 import { loadRenewalsPageModel } from "@/lib/renewals/model";
 import { RENEWAL_ROW_LABELS } from "@/lib/renewals/spec-strings";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
+import { parseFixedEnumParam } from "@/lib/security/validation";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 
 const ROUTE = "/api/export/renewals";
+const RENEWAL_EXPORT_STATUSES = [
+  "",
+  "needs_owner",
+  "needs_review",
+  "notice_window_open",
+  "in_progress",
+  "completed",
+  "no_renewal_action_needed",
+] as const;
 
 export const maxDuration = 60;
 
@@ -54,6 +65,7 @@ export async function GET(request: Request) {
   if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
 
   const url = new URL(request.url);
+  const status = parseFixedEnumParam(url.searchParams.get("status"), RENEWAL_EXPORT_STATUSES, "");
   await emitProductTelemetryEvent(admin, {
     organizationId: orgId,
     userId: user.id,
@@ -63,7 +75,7 @@ export async function GET(request: Request) {
       window: url.searchParams.get("window") ?? "",
       has_owner_filter: url.searchParams.has("owner"),
       has_counterparty_filter: url.searchParams.has("counterparty"),
-      has_status_filter: url.searchParams.has("status"),
+      has_status_filter: status !== "",
     },
   });
 
@@ -76,7 +88,7 @@ export async function GET(request: Request) {
       horizon: url.searchParams.get("horizon"),
       owner: url.searchParams.get("owner"),
       counterparty: url.searchParams.get("counterparty"),
-      status: url.searchParams.get("status"),
+      status,
     });
 
     const headers = [
@@ -127,7 +139,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("[export/renewals]", error);
+    console.error("[export/renewals]", formatUnknownForServerLog(error));
     await emitProductTelemetryEvent(admin, {
       organizationId: orgId,
       userId: user.id,

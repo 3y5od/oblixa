@@ -9,7 +9,7 @@ import { RecommendedPlaybookRun } from "@/components/assurance/recommended-playb
 import { FindingPolicyActions } from "@/components/assurance/finding-policy-actions";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 import type { WorkspaceRole } from "@/lib/navigation";
 
 export default async function AssuranceFindingDetailPage(props: { params: Promise<{ id: string }> }) {

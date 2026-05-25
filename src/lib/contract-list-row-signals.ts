@@ -2,8 +2,8 @@ import type { createAdminClient } from "@/lib/supabase/server";
 import { differenceInCalendarDays, isValid } from "date-fns";
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
-import { parseBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 

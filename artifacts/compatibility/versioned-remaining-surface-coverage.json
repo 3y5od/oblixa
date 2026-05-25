@@ -1,0 +1,1542 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-remaining-surface-coverage.mjs --write",
+  "policy": "Prove remaining version-name checklist surfaces are covered by deterministic inventories, removal queues, legitimate-version allowlists, or explicit manual boundaries. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "versionedContentSurfaceCoverage": "artifacts/compatibility/versioned-content-surface-coverage.json",
+    "versionedContentContracts": "artifacts/compatibility/versioned-content-contract-inventory.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json",
+    "versionReferenceAllowlist": "scripts/version-reference-allowlist.json",
+    "localContentRewriteManifest": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json"
+  },
+  "manualBoundaryStatus": {
+    "boundaryCount": 2,
+    "boundariesPresent": true,
+    "boundaries": [
+      "Do not remove compatibility-sensitive legacy names in the same change that creates an alias.",
+      "Provider dashboards, scheduled jobs, external analytics, and production SQL objects require manual cutover evidence."
+    ]
+  },
+  "packageScriptReadiness": {
+    "aliasCount": 37,
+    "readyForRemovalCount": 0,
+    "blockedCount": 37,
+    "blockedByExternalReferencesCount": 0,
+    "byStatus": {
+      "alias_added": 37
+    },
+    "blockedAliases": [
+      {
+        "legacyName": "check:v10-complete-closure",
+        "neutralAlias": "check:complete-closure",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:complete-closure"
+      },
+      {
+        "legacyName": "check:v10-inventory-lock",
+        "neutralAlias": "check:release-inventory-lock",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:release-inventory-lock"
+      },
+      {
+        "legacyName": "check:v10-migration-smoke",
+        "neutralAlias": "check:migration-smoke:current",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:migration-smoke:current"
+      },
+      {
+        "legacyName": "check:v10-migration-smoke:strict",
+        "neutralAlias": "check:migration-smoke:current:strict",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:migration-smoke:current:strict"
+      },
+      {
+        "legacyName": "check:v10-privacy-scan",
+        "neutralAlias": "check:release-privacy-scan",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:release-privacy-scan"
+      },
+      {
+        "legacyName": "check:v10-promotable",
+        "neutralAlias": "check:release-promotable",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:release-promotable"
+      },
+      {
+        "legacyName": "check:v10-promotable:report",
+        "neutralAlias": "report:release-promotable",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run report:release-promotable"
+      },
+      {
+        "legacyName": "check:v10-release-evidence",
+        "neutralAlias": "check:release-evidence",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:release-evidence"
+      },
+      {
+        "legacyName": "check:v10-runtime-evidence-plan",
+        "neutralAlias": "report:runtime-evidence-plan",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run report:runtime-evidence-plan"
+      },
+      {
+        "legacyName": "check:v10-suite",
+        "neutralAlias": "check:release-suite-current",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:release-suite-current"
+      },
+      {
+        "legacyName": "check:v10-zero-exclusion-report",
+        "neutralAlias": "check:zero-exclusion-report",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:zero-exclusion-report"
+      },
+      {
+        "legacyName": "check:v7-hrefs:strict",
+        "neutralAlias": "check:surface-hrefs:compatibility:strict",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface-hrefs:compatibility:strict"
+      },
+      {
+        "legacyName": "check:v7-suite",
+        "neutralAlias": "check:surface-suite:compatibility",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface-suite:compatibility"
+      },
+      {
+        "legacyName": "check:v8-acceptance-criteria",
+        "neutralAlias": "check:surface:acceptance-criteria",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:acceptance-criteria"
+      },
+      {
+        "legacyName": "check:v8-acceptance-matrix",
+        "neutralAlias": "check:surface:acceptance-matrix",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:acceptance-matrix"
+      },
+      {
+        "legacyName": "check:v8-action-eligibility",
+        "neutralAlias": "check:surface:action-eligibility",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:action-eligibility"
+      },
+      {
+        "legacyName": "check:v8-action-inventory",
+        "neutralAlias": "check:surface:action-inventory",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:action-inventory"
+      },
+      {
+        "legacyName": "check:v8-api-eligibility",
+        "neutralAlias": "check:surface:api-eligibility",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:api-eligibility"
+      },
+      {
+        "legacyName": "check:v8-api-inventory",
+        "neutralAlias": "check:surface:api-inventory",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:api-inventory"
+      },
+      {
+        "legacyName": "check:v8-denial-mapping",
+        "neutralAlias": "check:surface:denial-mapping",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:denial-mapping"
+      },
+      {
+        "legacyName": "check:v8-diagnostics-contract",
+        "neutralAlias": "check:surface:diagnostics-contract",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:diagnostics-contract"
+      },
+      {
+        "legacyName": "check:v8-hrefs",
+        "neutralAlias": "check:surface:hrefs",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:hrefs"
+      },
+      {
+        "legacyName": "check:v8-hrefs:strict",
+        "neutralAlias": "check:surface:hrefs:strict",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:hrefs:strict"
+      },
+      {
+        "legacyName": "check:v8-page-inventory",
+        "neutralAlias": "check:surface:page-inventory",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:page-inventory"
+      },
+      {
+        "legacyName": "check:v8-suite",
+        "neutralAlias": "check:surface:suite",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:suite"
+      },
+      {
+        "legacyName": "check:v8-supplemental-contracts",
+        "neutralAlias": "check:surface:supplemental-contracts",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:supplemental-contracts"
+      },
+      {
+        "legacyName": "check:v8-vocabulary",
+        "neutralAlias": "check:surface:vocabulary",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:surface:vocabulary"
+      },
+      {
+        "legacyName": "check:v9-suite",
+        "neutralAlias": "check:previous-release-suite",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run check:previous-release-suite"
+      },
+      {
+        "legacyName": "rebuild:v10-read-models",
+        "neutralAlias": "rebuild:read-models",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run rebuild:read-models"
+      },
+      {
+        "legacyName": "report:v9-pr-body-rollup",
+        "neutralAlias": "report:release-pr-body-rollup",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run report:release-pr-body-rollup"
+      },
+      {
+        "legacyName": "test:e2e:v10",
+        "neutralAlias": "test:e2e:current-product",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:e2e:current-product"
+      },
+      {
+        "legacyName": "test:e2e:v10:matrix",
+        "neutralAlias": "test:e2e:current-product:matrix",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:e2e:current-product:matrix"
+      },
+      {
+        "legacyName": "test:e2e:v9",
+        "neutralAlias": "test:e2e:compatibility",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:e2e:compatibility"
+      },
+      {
+        "legacyName": "test:e2e:v9:visual",
+        "neutralAlias": "test:e2e:compatibility:visual",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:e2e:compatibility:visual"
+      },
+      {
+        "legacyName": "test:e2e:v9:visual:update",
+        "neutralAlias": "test:e2e:compatibility:visual:update",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:e2e:compatibility:visual:update"
+      },
+      {
+        "legacyName": "test:vitest:v10",
+        "neutralAlias": "test:vitest:current-product",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run test:vitest:current-product"
+      },
+      {
+        "legacyName": "v8:inventory-report",
+        "neutralAlias": "report:surface-inventory",
+        "status": "alias_added",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+        "externalReferenceCount": 0,
+        "externalReferences": [],
+        "validationCommand": "npm run report:surface-inventory"
+      }
+    ]
+  },
+  "totals": {
+    "categoryCount": 29,
+    "completedCoverageCategoryCount": 28,
+    "retainedLegacyCategoryCount": 1,
+    "contractCount": 8497,
+    "manualOnlyContractCount": 2602,
+    "uncoveredManualCount": 0,
+    "remainingSafeActionCount": 0,
+    "missingValidationCommandCount": 0,
+    "queueEntryCount": 3183,
+    "allowlistEntryCount": 31
+  },
+  "categories": [
+    {
+      "id": "ai_prompt_model_eval_contracts",
+      "label": "AI prompts, model-facing instructions, structured-output schemas, tool-call schemas, eval fixtures, and model-bound extraction contracts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "ai_fixture_or_prompt_contract",
+        "provider_model_or_eval_version",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 274,
+      "manualOnlyContractCount": 136,
+      "queueCoveredManualCount": 136,
+      "allowlistCoveredManualCount": 133,
+      "documentationOnlyManualCount": 2,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 274,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 134,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 134
+      },
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "provider-model-and-eval-versions",
+          "surface": "provider_model_or_eval",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 138,
+        "platform-security": 136
+      }
+    },
+    {
+      "id": "api_payload_metric_dom_selector_contracts",
+      "label": "API payload fields, response envelopes, persisted JSON keys, metrics, SLO keys, DOM attributes, and test selectors",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "audit_evidence_or_diagnostic_key",
+        "dom_data_attribute",
+        "dom_or_test_selector",
+        "openapi_or_json_schema_contract",
+        "source_schema_or_action_contract",
+        "test_selector"
+      ],
+      "contractCount": 450,
+      "manualOnlyContractCount": 4,
+      "queueCoveredManualCount": 4,
+      "allowlistCoveredManualCount": 4,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 450,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 63,
+      "queueStatusCounts": {
+        "alias_added": 50,
+        "awaiting_production_cutover": 13
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-api": 4,
+        "platform-hardening": 386,
+        "qa-platform": 60
+      }
+    },
+    {
+      "id": "async_queue_worker_job_contracts",
+      "label": "Async queue names, worker classes, job payload schemas, retry outcomes, dead-letter keys, leases, and poison-message classes",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "operational_storage_or_queue_key",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 410,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 410,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 410
+      }
+    },
+    {
+      "id": "audit_security_evidence_governance_ids",
+      "label": "Audit action enums, security event types, evidence keys, compliance evidence IDs, and governance evidence artifacts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "audit_evidence_or_diagnostic_key",
+        "standards_compliance_reference",
+        "telemetry_event_name"
+      ],
+      "contractCount": 433,
+      "manualOnlyContractCount": 179,
+      "queueCoveredManualCount": 179,
+      "allowlistCoveredManualCount": 179,
+      "documentationOnlyManualCount": 5,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 433,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 248,
+      "queueStatusCounts": {
+        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_production_cutover": 17
+      },
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "asvs-control-ids",
+          "surface": "security_standard",
+          "owner": "platform-security",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "legal-regulatory-versions",
+          "surface": "legal_regulatory_standard",
+          "owner": "platform-security",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 254,
+        "platform-security": 22,
+        "platform-telemetry": 157
+      }
+    },
+    {
+      "id": "auth_capability_entitlement_keys",
+      "label": "Authorization role helpers, capability keys, feature-family keys, entitlement boundaries, workspace modes, and plan gates",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "feature_flag_key",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 197,
+      "manualOnlyContractCount": 65,
+      "queueCoveredManualCount": 63,
+      "allowlistCoveredManualCount": 65,
+      "documentationOnlyManualCount": 3,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 197,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 62,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 62
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 132,
+        "platform-runtime": 65
+      }
+    },
+    {
+      "id": "billing_provider_contract_keys",
+      "label": "Billing provider catalog keys, price lookup keys, checkout metadata, subscription mappings, and invoice metadata",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "provider_oauth_protocol_version",
+        "provider_or_protocol_version",
+        "provider_signature_version",
+        "webhook_or_provider_callback"
+      ],
+      "contractCount": 62,
+      "manualOnlyContractCount": 62,
+      "queueCoveredManualCount": 62,
+      "allowlistCoveredManualCount": 52,
+      "documentationOnlyManualCount": 6,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 62,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 48,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 48
+      },
+      "allowlistEntryCount": 3,
+      "allowlistEntries": [
+        {
+          "id": "oauth-protocol-versions",
+          "surface": "provider_protocol",
+          "owner": "platform-auth",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-endpoint-versions",
+          "surface": "provider_endpoint",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-signature-versions",
+          "surface": "provider_signature",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-api": 1,
+        "platform-security": 61
+      }
+    },
+    {
+      "id": "browser_persisted_storage_contracts",
+      "label": "Browser storage keys, cookie names, service-worker cache names, cross-tab channels, postMessage events, and URL state keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "operational_storage_or_queue_key",
+        "page_route_or_deep_link_contract",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 508,
+      "manualOnlyContractCount": 98,
+      "queueCoveredManualCount": 98,
+      "allowlistCoveredManualCount": 89,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 508,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 98,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 98
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "frontend-platform": 98,
+        "platform-hardening": 410
+      }
+    },
+    {
+      "id": "browser_security_policy_versions",
+      "label": "Browser policy directives, Trusted Types policies, reporting endpoint groups, CSP report fields, and isolation rollout keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "feature_flag_key",
+        "standards_compliance_reference"
+      ],
+      "contractCount": 87,
+      "manualOnlyContractCount": 87,
+      "queueCoveredManualCount": 85,
+      "allowlistCoveredManualCount": 87,
+      "documentationOnlyManualCount": 8,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 87,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 79,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 79
+      },
+      "allowlistEntryCount": 3,
+      "allowlistEntries": [
+        {
+          "id": "accessibility-and-css-standards",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "asvs-control-ids",
+          "surface": "security_standard",
+          "owner": "platform-security",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "browser-api-versions",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-runtime": 65,
+        "platform-security": 22
+      }
+    },
+    {
+      "id": "command_palette_search_registry_contracts",
+      "label": "Command palette item keys, search index model keys, ranking terms, autocomplete tokens, recent-item keys, and discovery registries",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "local_source_literal",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 729,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 729,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 729
+      }
+    },
+    {
+      "id": "deployment_runtime_config",
+      "label": "Deployment/runtime config resources, release labels, source-map labels, container resources, and build artifacts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "artifact_schema_version",
+        "ci_contract",
+        "ci_job_matrix_or_artifact",
+        "environment_key",
+        "operational_env_key",
+        "public_env_key",
+        "test_runtime_env_key"
+      ],
+      "contractCount": 153,
+      "manualOnlyContractCount": 150,
+      "queueCoveredManualCount": 149,
+      "allowlistCoveredManualCount": 150,
+      "documentationOnlyManualCount": 7,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 153,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 170,
+      "queueStatusCounts": {
+        "alias_added": 24,
+        "awaiting_production_cutover": 146
+      },
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "dependency-runtime-versions",
+          "surface": "runtime_dependency",
+          "owner": "release-engineering",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "schema-version-fields",
+          "surface": "schema_metadata",
+          "owner": "platform-hardening",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-runtime": 137,
+        "platform-security": 13,
+        "release-engineering": 3
+      }
+    },
+    {
+      "id": "design_token_theme_contracts",
+      "label": "Design tokens, CSS custom properties, theme keys, semantic color tokens, and style-system registries",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "style_token_or_selector"
+      ],
+      "contractCount": 19,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 19,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "accessibility-and-css-standards",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "browser-api-versions",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 19
+      }
+    },
+    {
+      "id": "diagnostic_response_problem_codes",
+      "label": "Internal diagnostic IDs, response headers, and problem-code strings",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "audit_evidence_or_diagnostic_key",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 386,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 386,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 386
+      }
+    },
+    {
+      "id": "domain_workflow_policy_state_contracts",
+      "label": "Domain workflow states, transition IDs, rule-engine keys, policy DSL schemas, playbook markers, and state-machine registries",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "local_source_literal",
+        "source_schema_or_action_contract",
+        "sql_or_persisted_key"
+      ],
+      "contractCount": 781,
+      "manualOnlyContractCount": 52,
+      "queueCoveredManualCount": 52,
+      "allowlistCoveredManualCount": 52,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 781,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 127,
+      "queueStatusCounts": {
+        "alias_added": 42,
+        "awaiting_linked_verification": 85
+      },
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "customer-domain-version-labels",
+          "surface": "customer_domain_data",
+          "owner": "product-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "database-platform": 52,
+        "platform-hardening": 729
+      }
+    },
+    {
+      "id": "inbound_import_parser_contracts",
+      "label": "Import template IDs, parser field aliases, upload metadata keys, import job statuses, row error codes, dedupe keys, and mapping presets",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "operational_storage_or_queue_key",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 410,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 410,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 410
+      }
+    },
+    {
+      "id": "localization_copy_catalog_contracts",
+      "label": "Locale segments, translation keys, copy/spec-string registry keys, pseudo-locale fixtures, and localized metadata keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "local_copy_or_historical_document",
+        "localization_or_copy_key"
+      ],
+      "contractCount": 31,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 31,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "customer-domain-version-labels",
+          "surface": "customer_domain_data",
+          "owner": "product-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "docs-platform": 18,
+        "platform-hardening": 13
+      }
+    },
+    {
+      "id": "notification_export_email_contracts",
+      "label": "Notification templates, integration message IDs, Slack block/action IDs, export filenames, CSV/PDF metadata, and email routing keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "notification_or_export_contract",
+        "provider_or_protocol_version",
+        "provider_signature_version"
+      ],
+      "contractCount": 84,
+      "manualOnlyContractCount": 55,
+      "queueCoveredManualCount": 55,
+      "allowlistCoveredManualCount": 45,
+      "documentationOnlyManualCount": 3,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 84,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 47,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 47
+      },
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "oauth-protocol-versions",
+          "surface": "provider_protocol",
+          "owner": "platform-auth",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-signature-versions",
+          "surface": "provider_signature",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 29,
+        "platform-security": 55
+      }
+    },
+    {
+      "id": "openapi_json_schema_generated_client_contracts",
+      "label": "OpenAPI components, JSON Schema IDs/refs, schema registry keys, generated client types, SDK helpers, and Zod contracts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "artifact_schema_version",
+        "openapi_or_json_schema_contract",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 149,
+      "manualOnlyContractCount": 17,
+      "queueCoveredManualCount": 17,
+      "allowlistCoveredManualCount": 17,
+      "documentationOnlyManualCount": 1,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 149,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 16,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 16
+      },
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "schema-version-fields",
+          "surface": "schema_metadata",
+          "owner": "platform-hardening",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-api": 4,
+        "platform-hardening": 132,
+        "platform-security": 13
+      }
+    },
+    {
+      "id": "operational_cache_rate_limit_lock_model_keys",
+      "label": "Operational keys, cache keys, rate-limit keys, lock keys, hash anchors, and model-version strings",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "feature_flag_key",
+        "operational_env_key",
+        "operational_storage_or_queue_key",
+        "provider_model_or_eval_version"
+      ],
+      "contractCount": 496,
+      "manualOnlyContractCount": 218,
+      "queueCoveredManualCount": 216,
+      "allowlistCoveredManualCount": 215,
+      "documentationOnlyManualCount": 6,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 496,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 236,
+      "queueStatusCounts": {
+        "alias_added": 24,
+        "awaiting_production_cutover": 212
+      },
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "provider-model-and-eval-versions",
+          "surface": "provider_model_or_eval",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 278,
+        "platform-runtime": 82,
+        "platform-security": 136
+      }
+    },
+    {
+      "id": "package_script_alias_readiness",
+      "label": "Versioned package-script aliases and readiness blockers",
+      "completionClaimed": false,
+      "retainedLegacySurface": true,
+      "coverageStatus": "legacy_alias_retained",
+      "subSurfaceClasses": [
+        "package_script_key",
+        "package_script_or_metadata"
+      ],
+      "contractCount": 5,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 5,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 41,
+      "queueStatusCounts": {
+        "alias_added": 37,
+        "awaiting_production_cutover": 4
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 5
+      }
+    },
+    {
+      "id": "provider_integration_connector_ids",
+      "label": "Third-party connector IDs, provider account mappings, sync cursors, external record mappings, and connector field aliases",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "provider_model_or_eval_version",
+        "provider_oauth_protocol_version",
+        "provider_or_protocol_version",
+        "provider_signature_version",
+        "webhook_or_provider_callback"
+      ],
+      "contractCount": 198,
+      "manualOnlyContractCount": 198,
+      "queueCoveredManualCount": 198,
+      "allowlistCoveredManualCount": 185,
+      "documentationOnlyManualCount": 8,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 198,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 182,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 182
+      },
+      "allowlistEntryCount": 4,
+      "allowlistEntries": [
+        {
+          "id": "oauth-protocol-versions",
+          "surface": "provider_protocol",
+          "owner": "platform-auth",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-endpoint-versions",
+          "surface": "provider_endpoint",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-model-and-eval-versions",
+          "surface": "provider_model_or_eval",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "provider-signature-versions",
+          "surface": "provider_signature",
+          "owner": "platform-integrations",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-api": 1,
+        "platform-security": 197
+      }
+    },
+    {
+      "id": "proxy_middleware_browser_policy_contracts",
+      "label": "Proxy matchers, middleware policy keys, safe redirects, auth headers, correlation headers, and browser policy keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "page_route_or_deep_link_contract",
+        "source_schema_or_action_contract",
+        "standards_compliance_reference"
+      ],
+      "contractCount": 252,
+      "manualOnlyContractCount": 120,
+      "queueCoveredManualCount": 120,
+      "allowlistCoveredManualCount": 111,
+      "documentationOnlyManualCount": 5,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 252,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 115,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 115
+      },
+      "allowlistEntryCount": 3,
+      "allowlistEntries": [
+        {
+          "id": "accessibility-and-css-standards",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "asvs-control-ids",
+          "surface": "security_standard",
+          "owner": "platform-security",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "browser-api-versions",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "frontend-platform": 98,
+        "platform-hardening": 132,
+        "platform-security": 22
+      }
+    },
+    {
+      "id": "public_metadata_pwa_install_contracts",
+      "label": "Public SEO/social metadata, app-install metadata, public asset URLs, sitemap/robots/canonical output, PWA manifests, and well-known contracts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "page_route_or_deep_link_contract",
+        "public_metadata_or_asset",
+        "pwa_or_well_known_contract"
+      ],
+      "contractCount": 98,
+      "manualOnlyContractCount": 98,
+      "queueCoveredManualCount": 98,
+      "allowlistCoveredManualCount": 89,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 98,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 98,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 98
+      },
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "accessibility-and-css-standards",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "browser-api-versions",
+          "surface": "browser_or_web_standard",
+          "owner": "frontend-platform",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "frontend-platform": 98
+      }
+    },
+    {
+      "id": "public_token_signed_link_external_action_contracts",
+      "label": "Public token prefixes, signed-link scopes, invite/callback states, OAuth state keys, and external-action token contracts",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "api_route_contract",
+        "operational_storage_or_queue_key",
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 616,
+      "manualOnlyContractCount": 206,
+      "queueCoveredManualCount": 206,
+      "allowlistCoveredManualCount": 206,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 616,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 207,
+      "queueStatusCounts": {
+        "alias_added": 1,
+        "awaiting_production_cutover": 206
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-api": 206,
+        "platform-hardening": 410
+      }
+    },
+    {
+      "id": "route_deeplink_redirect_contracts",
+      "label": "Frontend route segments, navigation hrefs, redirects, rewrites, deep links, route-state keys, and hash anchors",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "api_route_contract",
+        "cron_route_contract",
+        "page_route_or_deep_link_contract"
+      ],
+      "contractCount": 453,
+      "manualOnlyContractCount": 453,
+      "queueCoveredManualCount": 453,
+      "allowlistCoveredManualCount": 444,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 453,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 486,
+      "queueStatusCounts": {
+        "alias_added": 33,
+        "awaiting_production_cutover": 453
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "frontend-platform": 98,
+        "platform-api": 355
+      }
+    },
+    {
+      "id": "seed_fixture_config_scanner_ids",
+      "label": "Supabase seed rows, local reset fixtures, QA registries, source-owned allowlists, static-analysis rule IDs, and scanner packs",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "seed_fixture_key",
+        "source_owned_config_or_scanner_id",
+        "tooling_or_local_fixture"
+      ],
+      "contractCount": 272,
+      "manualOnlyContractCount": 15,
+      "queueCoveredManualCount": 15,
+      "allowlistCoveredManualCount": 15,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 272,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 254,
+      "queueStatusCounts": {
+        "alias_added": 29,
+        "awaiting_linked_verification": 1,
+        "awaiting_production_cutover": 224
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "database-platform": 1,
+        "platform-hardening": 257,
+        "platform-security": 14
+      }
+    },
+    {
+      "id": "server_action_form_contracts",
+      "label": "Server action exports, form action IDs, FormData fields, hidden inputs, submitter values, action-state keys, and validation keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "source_schema_or_action_contract"
+      ],
+      "contractCount": 132,
+      "manualOnlyContractCount": 0,
+      "queueCoveredManualCount": 0,
+      "allowlistCoveredManualCount": 0,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 132,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 0,
+      "queueStatusCounts": {},
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-hardening": 132
+      }
+    },
+    {
+      "id": "storage_object_artifact_paths",
+      "label": "Storage bucket names, object-path prefixes, artifact storage paths, artifact kinds, and artifact keys",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "artifact_schema_version",
+        "operational_storage_or_queue_key"
+      ],
+      "contractCount": 291,
+      "manualOnlyContractCount": 13,
+      "queueCoveredManualCount": 13,
+      "allowlistCoveredManualCount": 13,
+      "documentationOnlyManualCount": 1,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 291,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 12,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 12
+      },
+      "allowlistEntryCount": 1,
+      "allowlistEntries": [
+        {
+          "id": "schema-version-fields",
+          "surface": "schema_metadata",
+          "owner": "platform-hardening",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 278,
+        "platform-security": 13
+      }
+    },
+    {
+      "id": "stream_realtime_topic_contracts",
+      "label": "SSE event names, stream route IDs, realtime channels, WebSocket topics, broadcast topics, presence keys, and heartbeat/error codes",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "api_route_contract",
+        "source_schema_or_action_contract",
+        "telemetry_event_name"
+      ],
+      "contractCount": 495,
+      "manualOnlyContractCount": 363,
+      "queueCoveredManualCount": 363,
+      "allowlistCoveredManualCount": 363,
+      "documentationOnlyManualCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 495,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 438,
+      "queueStatusCounts": {
+        "alias_added": 1,
+        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_production_cutover": 206
+      },
+      "allowlistEntryCount": 0,
+      "allowlistEntries": [],
+      "ownerCoverage": {
+        "platform-api": 206,
+        "platform-hardening": 132,
+        "platform-telemetry": 157
+      }
+    },
+    {
+      "id": "supply_chain_evidence_ids",
+      "label": "SBOM aliases, provenance subjects, attestation predicates, release artifact provenance keys, license allowlist IDs, and supply-chain waiver IDs",
+      "completionClaimed": true,
+      "retainedLegacySurface": false,
+      "coverageStatus": "coverage_proven",
+      "subSurfaceClasses": [
+        "artifact_schema_version",
+        "supply_chain_evidence_id"
+      ],
+      "contractCount": 26,
+      "manualOnlyContractCount": 13,
+      "queueCoveredManualCount": 13,
+      "allowlistCoveredManualCount": 13,
+      "documentationOnlyManualCount": 1,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "validationCommandCoveredCount": 26,
+      "missingValidationCommandCount": 0,
+      "remainingSafeActionCount": 0,
+      "queueEntryCount": 22,
+      "queueStatusCounts": {
+        "awaiting_production_cutover": 22
+      },
+      "allowlistEntryCount": 2,
+      "allowlistEntries": [
+        {
+          "id": "dependency-runtime-versions",
+          "surface": "runtime_dependency",
+          "owner": "release-engineering",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        },
+        {
+          "id": "schema-version-fields",
+          "surface": "schema_metadata",
+          "owner": "platform-hardening",
+          "validationCommand": "npm run check:version-reference-allowlist"
+        }
+      ],
+      "ownerCoverage": {
+        "platform-hardening": 13,
+        "platform-security": 13
+      }
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

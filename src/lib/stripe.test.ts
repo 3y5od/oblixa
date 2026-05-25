@@ -23,7 +23,7 @@ describe("stripe helpers", () => {
         resolveSubscriptionStatus({
           status: "incomplete_expired",
         } as Stripe.Subscription)
-      ).toBe("incomplete");
+      ).toBe("incomplete_expired");
       expect(
         resolveSubscriptionStatus({ status: "unpaid" } as Stripe.Subscription)
       ).toBe("unpaid");

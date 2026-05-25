@@ -57,8 +57,8 @@ function playwrightLegs() {
   const legs = [
     { script: "test:e2e:resilience:all", required: true },
     { script: "test:e2e:adversarial", required: true },
-    { script: "test:e2e:v10", required: true },
-    { script: "test:e2e:v9", required: true },
+    { script: "test:e2e:current-product", required: true },
+    { script: "test:e2e:compatibility", required: true },
     { script: "test:e2e:i18n-matrix", required: true },
     { script: "test:e2e:maximal-playwright-bundle", required: true },
     { script: "test:e2e:shard", required: true },
@@ -71,7 +71,7 @@ function playwrightLegs() {
   }
   if (extendedLegs) {
     legs.push(
-      { script: "test:e2e:v10:matrix", required: false },
+      { script: "test:e2e:current-product:matrix", required: false },
       { script: "test:e2e:a11y", required: false }
     );
   }

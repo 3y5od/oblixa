@@ -4,7 +4,7 @@ import { finalizeRecommendation, recommendationToV6Patch } from "@/lib/onboardin
 import type { CalibrationAnswersRequired } from "@/lib/onboarding/calibration-types";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 
 const flags = getFeatureFlags();
 
@@ -26,7 +26,7 @@ describe("calibration apply vs eligibility (spot)", () => {
     const ctx = buildProductSurfaceContext({
       orgId: "org-test",
       role: "viewer",
-      v6: patch as V6OrgSettingsJson,
+      v6: patch as OrgSettingsJson,
       featureFlags: flags,
     });
     expect(evaluateFeatureEligibility(ctx, "decisions").allowed).toBe(false);

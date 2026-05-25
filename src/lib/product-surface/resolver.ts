@@ -5,7 +5,7 @@ import {
   type NavSurfaceInput,
 } from "@/lib/product-surface/nav-visibility";
 import { isPathAllowedForWorkspaceMode, minWorkspaceModeForPath } from "@/lib/product-surface/routes";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibility";
@@ -39,7 +39,7 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
   {
     name: "Notifications",
     href: "/settings/operations#notifications",
-    description: "Reminder defaults for renewals, review, work, evidence, and weekly digest email.",
+    description: "Reminder defaults for renewals, review, work, evidence, and weekly digest delivery.",
     section: "primary",
   },
   {
@@ -79,7 +79,7 @@ export const HOME_SECTION_IDS = [
 
 export type HomeSectionId = (typeof HOME_SECTION_IDS)[number];
 
-export function isHomeBlockAllowed(blockId: string, v6: V6OrgSettingsJson): boolean {
+export function isHomeBlockAllowed(blockId: string, v6: OrgSettingsJson): boolean {
   if (blockId === "dashboard_upper" || blockId === "dashboard_lower") return true;
   const hidden = new Set(v6.home_hidden_sections ?? []);
   return !hidden.has(blockId);

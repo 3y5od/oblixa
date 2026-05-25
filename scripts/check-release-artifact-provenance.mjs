@@ -13,7 +13,8 @@ const REQUIRED_PACKAGE_SCRIPTS = [
   "preflight:release",
   "verify",
   "check:comprehensive-pass",
-  "test:e2e:v10",
+  "test:e2e:current-product",
+  "test:e2e:current-product",
   "test:e2e",
   "release:checklist",
 ];
@@ -29,11 +30,11 @@ const REQUIRED_CI_SIGNALS = [
 ];
 const REQUIRED_RELEASE_STEPS = [
   "preflight:release",
-  "check:v10-release-evidence",
-  "check:v10-suite",
+  "check:release-evidence",
+  "check:release-suite-current",
   "verify",
   "check:comprehensive-pass",
-  "test:e2e:v10",
+  "test:e2e:current-product",
   "test:e2e",
 ];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:release-artifact-provenance"'];

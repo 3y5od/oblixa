@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, X } from "lucide-react";
+import {
+  readProductMobileCtaDismissed,
+  writeProductMobileCtaDismissed,
+} from "@/lib/security/client-storage";
 
 /**
  * v5 T16.2 — Mobile-only floating CTA pill.
@@ -16,11 +20,7 @@ export function ProductMobileCta() {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    try {
-      return sessionStorage.getItem("oblixa-product-mobile-cta-dismissed") === "1";
-    } catch {
-      return false;
-    }
+    return readProductMobileCtaDismissed();
   });
 
   useEffect(() => {
@@ -53,11 +53,7 @@ export function ProductMobileCta() {
           aria-label="Dismiss start-free-trial banner"
           onClick={() => {
             setDismissed(true);
-            try {
-              sessionStorage.setItem("oblixa-product-mobile-cta-dismissed", "1");
-            } catch {
-              /* ignore */
-            }
+            writeProductMobileCtaDismissed();
           }}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-raised)_88%,transparent)] hover:text-[var(--text-secondary)] motion-reduce:transition-none"
         >

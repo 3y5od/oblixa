@@ -33,7 +33,7 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent,
 }));
 

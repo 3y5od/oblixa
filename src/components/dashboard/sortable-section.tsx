@@ -9,6 +9,11 @@ import {
   type ReactNode,
 } from "react";
 import { GripVertical } from "lucide-react";
+import {
+  DASHBOARD_SECTION_ORDER_KEY,
+  readDashboardSectionOrder,
+  writeDashboardSectionOrder,
+} from "@/lib/security/client-storage";
 
 interface SortableSectionProps {
   /** Stable identifier persisted in localStorage. */
@@ -17,8 +22,6 @@ interface SortableSectionProps {
   storageKey?: string;
   children: ReactNode;
 }
-
-const DEFAULT_KEY = "oblixa.dashboard.section-order";
 
 /**
  * Wraps a dashboard section with a drag handle so users can reorder its
@@ -33,7 +36,7 @@ const DEFAULT_KEY = "oblixa.dashboard.section-order";
  */
 export function SortableSection({
   sectionId,
-  storageKey = DEFAULT_KEY,
+  storageKey = DASHBOARD_SECTION_ORDER_KEY,
   children,
 }: SortableSectionProps) {
   const [order, setOrder] = useState<string[]>([]);
@@ -42,24 +45,12 @@ export function SortableSection({
   const rootRef = useRef<HTMLDivElement>(null);
 
   const readOrder = useCallback((): string[] => {
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.filter((v): v is string => typeof v === "string");
-    } catch {
-      return [];
-    }
+    return readDashboardSectionOrder(storageKey);
   }, [storageKey]);
 
   const writeOrder = useCallback(
     (next: string[]): void => {
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
+      writeDashboardSectionOrder(next, storageKey);
     },
     [storageKey]
   );

@@ -89,6 +89,42 @@ export async function GET(request) {
   assert.equal(report.checkedRowCount, 4);
 });
 
+test("accepts local route re-export wrappers when the implementation has the race-safety signal", () => {
+  const root = makeRoot();
+  write(root, "src/app/api/cron/task/route.ts", 'export * from "../task-source/route";\n');
+  write(root, "src/app/api/cron/task-source/route.ts", `
+export const GET = runCronRoute(async () => Response.json({ ok: true }));
+`);
+  write(root, "src/app/api/settings/route.ts", 'export * from "../settings-source/route";\n');
+  write(root, "src/app/api/settings-source/route.ts", `
+export async function PATCH(request) {
+  const duplicate = await enforceIdempotency(request, { scope: "settings", actorKey: "actor" });
+  if (duplicate) return duplicate;
+  return Response.json({ ok: true });
+}
+`);
+  writeMatrix(root, [
+    {
+      path: "/api/cron/task",
+      method: "GET",
+      route_file: "src/app/api/cron/task/route.ts",
+      idempotency_or_job_lock_policy: "job_lock_or_claim",
+    },
+    {
+      path: "/api/settings",
+      method: "PATCH",
+      route_file: "src/app/api/settings/route.ts",
+      idempotency_or_job_lock_policy: "idempotency_or_duplicate_guard",
+    },
+  ]);
+
+  const report = analyzeMutationRaceSafety(root);
+  assert.equal(report.ok, true);
+  assert.equal(report.issueCount, 0);
+  assert.equal(report.signalCounts.job_lock_or_claim, 1);
+  assert.equal(report.signalCounts.duplicate_guard, 1);
+});
+
 test("rejects missing policy, missing source signal, and audit-before-idempotency regressions", () => {
   const root = makeRoot();
   write(root, "src/app/api/missing/route.ts", `

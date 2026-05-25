@@ -47,7 +47,7 @@ The local app runs on [http://localhost:3000](http://localhost:3000) by default.
 | `npm run check:quick` | Fast local gate: migrations, API route coverage, lint, typecheck, tests |
 | `npm run verify` | Full verification pipeline used before higher-confidence merges |
 | `npm run verify:security` | Security-focused pipeline and reports |
-| `npm run check:v8-suite` | Product-surface, routing, vocabulary, and eligibility suite |
+| `npm run check:surface:suite` | Product-surface, routing, vocabulary, and eligibility suite |
 | `npm run test:e2e:smoke` | Fast authenticated/public Playwright smoke |
 | `npm run test:e2e:a11y` | Playwright accessibility lanes |
 | `npm run test:e2e:visual:full:update` | First-time or OS-specific visual baselines: public + authenticated surfaces with `--update-snapshots` (needs `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD` for the second half) |
@@ -95,4 +95,4 @@ public/      Static assets and well-known files
 5. Update Supabase auth redirects, Stripe webhooks, and any cron/callback destinations to match the deployed URL.
 6. For scheduled routes and GitHub cron canary secrets, follow [docs/ops-cron-production-assurance.md](docs/ops-cron-production-assurance.md).
 
-Contributors touching dashboard composition, navigation, command palette behavior, or workspace visibility should align with the team's surface conventions and run `npm run check:v8-suite`.
+Contributors touching dashboard composition, navigation, command palette behavior, or workspace visibility should align with the team's surface conventions and run `npm run check:surface:suite`.

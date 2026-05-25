@@ -15,4 +15,4 @@ PRs that touch **dashboard layout, primary navigation, command palette, workspac
 - Prefer hide/gate over deleting schemas, API routes, migrations, or advanced code paths.
 - Keep nav, command palette, dashboard composition, and outbound surfaces workspace-mode aware.
 - Consider whether the change supports one or more `REFINEMENT_OBJECTIVES` in `src/lib/product-surface/refinement-trace.ts`.
-- Run `npm run check:v8-suite` when the change affects governed surfaces, route eligibility, or discoverability.
+- Run `npm run check:surface:suite` when the change affects governed surfaces, route eligibility, or discoverability.

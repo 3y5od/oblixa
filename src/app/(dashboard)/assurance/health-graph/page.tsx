@@ -4,8 +4,8 @@ import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { HealthGraphConcentrationDynamic } from "@/components/assurance/health-graph-concentration-dynamic";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
-import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/v6/health-graph-paths";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
+import { summarizePropagationPaths, summarizeThreeHopPropagationPaths } from "@/lib/assurance/health-graph-paths";
 
 export default async function AssuranceHealthGraphPage(props: {
   searchParams: Promise<{ type?: string }>;

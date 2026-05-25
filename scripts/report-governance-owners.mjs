@@ -43,7 +43,7 @@ for (const line of allowlist) {
 }
 
 const exemptions = JSON.parse(
-  readFileSync(path.join(ROOT, "src/lib/product-surface/v8-test-exemptions.json"), "utf8")
+  readFileSync(path.join(ROOT, "src/lib/product-surface/test-exemptions.json"), "utf8")
 );
 for (const row of Array.isArray(exemptions) ? exemptions : []) {
   if (row?.owner) inc(row.owner, "exemptionEntries");

@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
 import {
   parseCampaignAssignmentJson,
-} from "@/lib/v5/campaign-assignment";
+} from "@/lib/decision-intelligence/campaign-assignment";
 import {
   campaignTypeValidationError,
   isValidCampaignType,
-} from "@/lib/v5/campaign-types";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/campaign-types";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -227,7 +227,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_patch_campaign_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_patch_campaign_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data });
 }

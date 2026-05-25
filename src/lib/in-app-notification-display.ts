@@ -84,3 +84,7 @@ export function truncateInAppNotificationBody(
   const slice = t.slice(0, maxLen - 1).trimEnd();
   return slice.length > 0 ? `${slice}…` : "…";
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { V9_IN_APP_NOTIFICATION_BODY_MAX as IN_APP_NOTIFICATION_BODY_MAX };
+// End version-name compatibility aliases.

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext } from "@/lib/v4/api-auth";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
-import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
+import { buildRelationshipKeyMetrics } from "@/lib/decision-intelligence/relationship-key-metrics";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import {
   isAdvancedModuleHidden,
@@ -13,7 +13,7 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import {
   ensureCounterpartyWorkspaceFromContracts,
   ensureTimelineForCounterparty,
-} from "@/lib/v5/relationship-bootstrap";
+} from "@/lib/decision-intelligence/relationship-bootstrap";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const ROUTE = "/api/counterparties/[key]/summary";

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderDecisionPacketPdfBuffer } from "@/lib/v5/decision-packet-pdf";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { renderDecisionPacketPdfBuffer } from "@/lib/decision-intelligence/decision-packet-pdf";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
@@ -9,16 +9,16 @@ const recordV10AuditEvent = vi.fn(async (...args: unknown[]) => {
   return "audit-1";
 });
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v5/decision-packet-pdf", () => ({
+vi.mock("@/lib/decision-intelligence/decision-packet-pdf", () => ({
   renderDecisionPacketPdfBuffer: vi.fn(async () => new Uint8Array([0x25, 0x50, 0x44, 0x46])),
 }));
 
@@ -26,7 +26,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent: (...args: unknown[]) => recordV10AuditEvent(...args),
 }));
 

@@ -3,7 +3,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 
 function isLikelyContractId(ref: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ref.trim());

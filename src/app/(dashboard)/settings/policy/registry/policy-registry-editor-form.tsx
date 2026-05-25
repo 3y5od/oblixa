@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
+import { validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
 
 type RegistryEditorState = { error?: string; success?: boolean };
 

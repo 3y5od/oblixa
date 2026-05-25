@@ -1,6 +1,6 @@
 import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext } from "@/lib/v4/api-auth";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { API_RESPONSE_LIMIT_SMALL_JSON, jsonResponseWithSizeLimit } from "@/lib/security/response-size";
 
@@ -8,7 +8,7 @@ const ROUTE = "/api/capacity/forecast";
 
 /**
  * Each row’s `forecast_json` is written by the capacity-forecast-refresh cron. See
- * `CAPACITY_FORECAST_JSON_KEYS` in `@/lib/v5/capacity-forecast-keys` for stable field names
+ * `CAPACITY_FORECAST_JSON_KEYS` in `@/lib/decision-intelligence/capacity-forecast-keys` for stable field names
  * (includes `open_tasks_by_team_key` and `pending_approvals_by_type`).
  */
 

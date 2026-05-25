@@ -162,6 +162,30 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/settings/billing",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/settings/billing/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/settings/billing",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/settings/security",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/settings/security/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/settings/security",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/onboarding/calibration",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
@@ -237,6 +261,12 @@ export const GENERATED_ROUTE_STATES = [
     "route": "/",
     "kind": "loading",
     "sourcePath": "src/app/(marketing)/loading.tsx",
+    "shellFamily": "marketing"
+  },
+  {
+    "route": "/product",
+    "kind": "loading",
+    "sourcePath": "src/app/(marketing)/product/loading.tsx",
     "shellFamily": "marketing"
   },
   {

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext } from "@/lib/v4/api-auth";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import {
   contentDispositionAttachment,
@@ -57,7 +57,7 @@ export async function GET(
     .maybeSingle();
   if (!pack) return jsonNotFound(ROUTE);
 
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const v6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const mode = parseWorkspaceMode(v6);
   if (!workspaceModeAllowsReportType(mode, String(pack.report_type ?? ""))) {
     return jsonNotFound(ROUTE);

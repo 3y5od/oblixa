@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const rateLimitCheck = vi.fn<() => Promise<{ ok: true } | { ok: false; retryAfterMs: number }>>(async () => ({ ok: true }));
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 vi.mock("@/lib/rate-limit", async () => {
   const actual = await vi.importActual<typeof import("@/lib/rate-limit")>("@/lib/rate-limit");
@@ -13,11 +13,11 @@ vi.mock("@/lib/rate-limit", async () => {
 describe("requireApiWorkspaceEligibility", () => {
   beforeEach(() => {
     rateLimitCheck.mockResolvedValue({ ok: true });
-    getV6OrgSettingsJson.mockReset();
+    getOrgSettingsJson.mockReset();
   });
 
   it("returns null for mapped core routes", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );
@@ -30,7 +30,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("fails closed for unmapped api routes", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );
@@ -60,11 +60,11 @@ describe("requireApiWorkspaceEligibility", () => {
       diagnostic_id: "route_rate_limited",
       route: "/api/contracts/recompute-signals",
     });
-    expect(getV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(getOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("returns 403 when workspace mode is below route family floor", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );
@@ -77,7 +77,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns 404 when advanced module is hidden for non-admin", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       workspace_mode: "advanced",
       advanced_modules_hidden: ["decisions"],
     });
@@ -94,7 +94,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns null when advanced module is hidden but caller is admin", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       workspace_mode: "advanced",
       advanced_modules_hidden: ["decisions"],
     });
@@ -111,7 +111,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns 404 when assurance module is hidden for non-admin", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       workspace_mode: "assurance",
       assurance_modules_hidden: ["autopilot"],
     });
@@ -128,7 +128,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns 404 when utility module API is hidden for non-admin", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       workspace_mode: "core",
       utility_modules_hidden: ["intake"],
     });
@@ -145,7 +145,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("supports explicit 403 override for guarded API families", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibility } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );
@@ -159,7 +159,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns V10 mutation envelopes for workspace gate denials when requested", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibilityV10 } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );
@@ -181,7 +181,7 @@ describe("requireApiWorkspaceEligibility", () => {
   });
 
   it("returns V10 not_found envelopes for unmapped API routes", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     const { requireApiWorkspaceEligibilityV10 } = await import(
       "@/lib/product-surface/api-workspace-guard"
     );

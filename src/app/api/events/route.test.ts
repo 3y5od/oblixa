@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const filterAuditEventsForWorkspaceMode = vi.fn((rows) => rows);
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson,
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson,
 }));
 
 vi.mock("@/lib/product-surface/context", () => ({
@@ -32,7 +32,7 @@ describe("GET /api/events", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
-    getV6OrgSettingsJson.mockResolvedValue({});
+    getOrgSettingsJson.mockResolvedValue({});
     requireApiWorkspaceEligibility.mockResolvedValue(null);
   });
 

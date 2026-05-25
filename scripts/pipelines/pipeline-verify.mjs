@@ -6,11 +6,11 @@ import { runParallel, runSequential } from "../lib/scheduler.mjs";
 
 export const VERIFY_FIRST_PASS_STEPS = [
   "check:migrations:strict",
-  "check:v10-migration-smoke:strict",
-  "check:v10-release-evidence",
-  "check:v10-privacy-scan",
-  "check:v10-complete-closure",
-  "check:v10-suite",
+  "check:migration-smoke:current:strict",
+  "check:release-evidence",
+  "check:release-privacy-scan",
+  "check:complete-closure",
+  "check:release-suite-current",
   "check:api-route-tests",
   "check:api-route-auth-contract",
   "check:api-route-guard-normalization",

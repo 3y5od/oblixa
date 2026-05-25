@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { isDecisionPacketServerPdfEnabled } from "@/lib/v5/decision-packet-export";
-import { buildDecisionPacketRunHtml } from "@/lib/v5/decision-packet-html";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { isDecisionPacketServerPdfEnabled } from "@/lib/decision-intelligence/decision-packet-export";
+import { buildDecisionPacketRunHtml } from "@/lib/decision-intelligence/decision-packet-html";
 import {
   DECISION_PACKET_SIGNED_URL_TTL_SECONDS,
   createDecisionPacketArtifactSignedUrl,
-  getV5DecisionPacketBucket,
+  getDecisionPacketBucket,
   isDecisionPacketArtifactStoragePathScoped,
-} from "@/lib/v5/decision-packet-storage";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/decision-packet-storage";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import {
   contentDispositionAttachment,
   sanitizeExportFileName,
   sanitizeExportFileNameToken,
 } from "@/lib/security/export-filename";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 import { parseFixedEnumParam } from "@/lib/security/validation";
 
@@ -73,9 +73,9 @@ export async function GET(
 
   const url = new URL(request.url);
   if (url.searchParams.get("signed") === "1") {
-    if (!getV5DecisionPacketBucket()) {
+    if (!getDecisionPacketBucket()) {
       return jsonProblem(503, {
-        error: "Signed artifact URLs require V5_DECISION_PACKET_BUCKET to be configured.",
+        error: "Signed artifact URLs require DECISION_PACKET_BUCKET to be configured.",
         code: "packet_bucket_not_configured",
         diagnostic_id: "packet_bucket_not_configured",
         route: ROUTE,
@@ -87,7 +87,7 @@ export async function GET(
       typeof rawStoragePath === "string" && rawStoragePath.trim() ? rawStoragePath.trim() : null;
     if (!storagePath) {
       return jsonProblem(404, {
-        error: `No stored ${kind.toUpperCase()} artifact for this run. Enable V5_DECISION_PACKET_BUCKET and regenerate the packet.`,
+        error: `No stored ${kind.toUpperCase()} artifact for this run. Enable DECISION_PACKET_BUCKET and regenerate the packet.`,
         code: "packet_artifact_not_found",
         diagnostic_id: "packet_artifact_not_found",
         route: ROUTE,
@@ -164,7 +164,7 @@ export async function GET(
         ? decision.title
         : "Decision packet";
     const bodyText = JSON.stringify(payload, null, 2);
-    const { renderDecisionPacketPdfBuffer } = await import("@/lib/v5/decision-packet-pdf");
+    const { renderDecisionPacketPdfBuffer } = await import("@/lib/decision-intelligence/decision-packet-pdf");
     const buf = await renderDecisionPacketPdfBuffer({
       title,
       packetType: String(run.packet_type ?? "packet"),

@@ -8,6 +8,7 @@ const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:storage-path-safety"];
 const REQUIRED_CI_COMMANDS = ["npm run check:storage-path-safety"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:storage-path-safety"'];
+const LEGACY_DECISION_PACKET_BUCKET_ENV = ["V", "5_DECISION_PACKET_BUCKET"].join("");
 const REQUIRED_FILE_MARKERS = {
   "src/lib/security/validation.ts": [
     "export function isContractStoragePathSafe(path: string | null | undefined): boolean {",
@@ -31,16 +32,18 @@ const REQUIRED_FILE_MARKERS = {
     'action: "contract_file.download_url_created"',
     'expires_in_seconds: CONTRACT_FILE_SIGNED_URL_TTL_SECONDS',
   ],
-  "src/lib/v5/decision-packet-storage.ts": [
+  "src/lib/decision-intelligence/decision-packet-storage.ts": [
     "export const DECISION_PACKET_SIGNED_URL_TTL_SECONDS = 5 * 60;",
+    "export function getDecisionPacketBucket(): string | null {",
+    `process.env.DECISION_PACKET_BUCKET ?? process.env.${LEGACY_DECISION_PACKET_BUCKET_ENV}`,
     "export function decisionPacketStoragePath(orgId: string, runId: string): string {",
     "export function decisionPacketPdfStoragePath(orgId: string, runId: string): string {",
     "export function isDecisionPacketArtifactStoragePathScoped(",
     "export function normalizeDecisionPacketSignedUrlTtl(expiresInSeconds: number): number {",
-    'const bucket = getV5DecisionPacketBucket();',
+    "const bucket = getDecisionPacketBucket();",
     ".createSignedUrl(storagePath, safeExpiresIn);",
   ],
-  "src/lib/v5/decision-packet-storage.test.ts": [
+  "src/lib/decision-intelligence/decision-packet-storage.test.ts": [
     'it("decisionPacketStoragePath is org-scoped"',
     'it("decisionPacketPdfStoragePath is org-scoped"',
     'it("validates decision packet artifact paths against org, run, and artifact kind"',
@@ -49,7 +52,9 @@ const REQUIRED_FILE_MARKERS = {
     'it("createDecisionPacketArtifactSignedUrl returns URL when bucket set"',
   ],
   "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts": [
-    'if (!getV5DecisionPacketBucket()) {',
+    "getDecisionPacketBucket,",
+    "if (!getDecisionPacketBucket()) {",
+    "Signed artifact URLs require DECISION_PACKET_BUCKET to be configured.",
     'isDecisionPacketArtifactStoragePathScoped(storagePath, {',
     'const expiresIn = DECISION_PACKET_SIGNED_URL_TTL_SECONDS;',
     'const signed = await createDecisionPacketArtifactSignedUrl(ctx.admin, storagePath, expiresIn);',

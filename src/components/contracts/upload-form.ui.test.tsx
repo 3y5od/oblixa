@@ -30,9 +30,9 @@ describe("UploadForm", () => {
     expect(screen.getByLabelText(/annual value/i)).toBeTruthy();
     expect(screen.getByLabelText(/source system/i)).toBeTruthy();
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
-    expect(screen.getByText(/add enough identity to find this agreement later/i)).toBeTruthy();
-    expect(screen.getByText(/source-backed review starts after at least one signed file is attached/i)).toBeTruthy();
-    expect(screen.getByText(/no files selected/i)).toBeTruthy();
+    expect(screen.getByText(/record metadata/i)).toBeTruthy();
+    expect(screen.getByText(/source documents/i)).toBeTruthy();
+    expect(screen.getByText(/no source attached/i)).toBeTruthy();
     expect(screen.getByRole("button", { name: /^create contract$/i })).toBeTruthy();
   });
 
@@ -65,11 +65,10 @@ describe("UploadForm", () => {
     expect(await screen.findByText(/1 duplicate file was ignored/i)).toBeTruthy();
     expect(screen.getByText(/1 unsupported file was skipped/i)).toBeTruthy();
     expect(screen.getByText(/1 file exceeds the 20 mb limit/i)).toBeTruthy();
-    const queuedLabel = screen.getByText(/queued files:/i);
-    expect(queuedLabel.parentElement?.textContent).toContain("1");
-    expect(screen.getByText(/duplicates ignored:/i).parentElement?.textContent).toContain("1");
-    expect(screen.getByText(/unsupported:/i).parentElement?.textContent).toContain("1");
-    expect(screen.getByText(/over size limit:/i).parentElement?.textContent).toContain("1");
+    expect(screen.getByText("agreement.pdf")).toBeTruthy();
+    expect(screen.getAllByText(/1 duplicate/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/1 unsupported/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/1 over size limit/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /create contract and upload files/i })).toBeTruthy();
   });
 

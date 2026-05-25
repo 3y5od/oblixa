@@ -15,11 +15,11 @@ import {
   buildV10MutationResponseInit,
   validateV10IdempotencyKey,
   type V10MutationResponse,
-} from "@/lib/v10-mutation-envelope";
-import { executeV10IdempotentMutation, getV10ExpectedVersionFromRequest, getV10IdempotencyKeyFromRequest, recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
-import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/v10-job-visibility";
+} from "@/lib/mutation-envelope";
+import { executeV10IdempotentMutation, getV10ExpectedVersionFromRequest, getV10IdempotencyKeyFromRequest, recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
+import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/job-visibility";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 

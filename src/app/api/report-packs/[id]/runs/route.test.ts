@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getApiAuthContext = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
 }));
 
@@ -12,8 +12,8 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
 function adminForRuns(packReportType: string, runs: Array<Record<string, unknown>> = []) {
@@ -61,7 +61,7 @@ describe("GET /api/report-packs/[id]/runs", () => {
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
   });
 
   it("returns 401 when unauthenticated", async () => {

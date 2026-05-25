@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
-import { appendCasefileEvent } from "@/lib/v4/casefile";
-import { buildRenewalDecisionPacketPayload } from "@/lib/v4/renewal-decision-packet";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
+import { appendCasefileEvent } from "@/lib/contract-operations/casefile";
+import { buildRenewalDecisionPacketPayload } from "@/lib/contract-operations/renewal-decision-packet";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import {
   buildV10MutationResponse,
   buildV10MutationResponseInit,
   type V10MutationResponse,
-} from "@/lib/v10-mutation-envelope";
+} from "@/lib/mutation-envelope";
 import {
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };

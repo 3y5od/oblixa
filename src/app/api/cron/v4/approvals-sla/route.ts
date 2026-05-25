@@ -1,7 +1,7 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
-import { getApprovalSlaFallbackHours } from "@/lib/v4/policy-registry";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
+import { getApprovalSlaFallbackHours } from "@/lib/contract-operations/policy-registry";
 
 type SlaRow = {
   id: string;

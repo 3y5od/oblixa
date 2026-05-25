@@ -22,7 +22,7 @@ describe("onboarding QA static guards", () => {
     const slice = raw.slice(idx, idx + 800);
     expect(slice).toContain("onboarding_completed_at");
     expect(slice).not.toContain("onboarding_calibration");
-    expect(slice).not.toContain("mergeV6OrgSettingsJson");
+    expect(slice).not.toContain("mergeOrgSettingsJson");
   });
 
   it("feature registry keeps /onboarding/calibration in product route prefixes", () => {

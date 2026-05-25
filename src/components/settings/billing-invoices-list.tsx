@@ -7,7 +7,10 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import type { SemanticStatus } from "@/components/ui/status-badge";
 import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { SETTINGS_BILLING_STRINGS } from "@/lib/settings/spec-strings";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import type { Stripe } from "stripe";
+
+const STRIPE_REFUND_LOOKUP_CONCURRENCY = 2;
 
 /**
  * SPEC: docs/billing-page-maximal-pass.md §9.5 + §9.19 + §4.17 — recent
@@ -81,8 +84,10 @@ export async function BillingInvoicesList({
   // Fetch refunds per charge (§9.19) — best effort.
   // Stripe SDK 22.x deprecated Invoice.charge from public types; runtime
   // still has it. Narrow via unknown cast.
-  const refundsPerInvoice = await Promise.all(
-    invoices.map(async (inv) => {
+  const refundsPerInvoice = await mapWithConcurrency(
+    invoices,
+    STRIPE_REFUND_LOOKUP_CONCURRENCY,
+    async (inv) => {
       const invAsAny = inv as unknown as {
         charge?: string | { id?: string } | null;
       };
@@ -102,7 +107,7 @@ export async function BillingInvoicesList({
       } catch {
         return 0;
       }
-    })
+    }
   );
 
   const statusToneMap: Record<string, SemanticStatus> = {

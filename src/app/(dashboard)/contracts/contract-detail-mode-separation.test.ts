@@ -76,7 +76,7 @@ describe("contract detail mode separation", () => {
     for (const forbidden of [
       "Operational lifecycle",
       "Execution graph",
-      "Open portfolio graph view",
+      "Inspect portfolio graph",
       "Operational evidence pack",
       "Download evidence pack (JSON)",
       "Program assignment overrides",
@@ -145,7 +145,7 @@ describe("contract detail mode separation", () => {
     for (const label of [
       "Operational lifecycle",
       "Execution graph",
-      "Open portfolio graph view",
+      "Inspect portfolio graph",
       "Program assignment overrides",
       "CRM / external link",
       "Renewal scenario & approvals",

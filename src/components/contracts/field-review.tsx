@@ -18,7 +18,7 @@ import {
 import type { ExtractedField } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
-import { fieldReviewProvenanceLabel } from "@/lib/v9-field-provenance";
+import { fieldReviewProvenanceLabel } from "@/lib/compatibility-field-provenance";
 import { CriticalDateReviewNotice } from "./critical-date-review-notice";
 
 const statusBadge: Record<string, string> = {

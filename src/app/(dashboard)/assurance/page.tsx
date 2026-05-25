@@ -20,8 +20,8 @@ import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { assertAnyV6PageFeature } from "@/lib/v6/feature-guards";
-import { buildAssuranceAnalyticsSummary } from "@/lib/v6/assurance-analytics";
+import { assertAnyV6PageFeature } from "@/lib/assurance/feature-guards";
+import { buildAssuranceAnalyticsSummary } from "@/lib/assurance/assurance-analytics";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 
 const hubItems = [

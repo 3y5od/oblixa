@@ -8,17 +8,17 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-const getV6OrgSettingsJson = vi.fn(async () => ({}));
+const getOrgSettingsJson = vi.fn(async () => ({}));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson,
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson,
 }));
 
 describe("enqueueOutboundEvent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insert.mockResolvedValue({ error: null });
-    getV6OrgSettingsJson.mockResolvedValue({});
+    getOrgSettingsJson.mockResolvedValue({});
     vi.resetModules();
   });
 
@@ -47,7 +47,7 @@ describe("enqueueOutboundEvent", () => {
   });
 
   it("returns false when event type is suppressed in org settings", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({
       notification_suppressed_event_types: ["muted.event"],
     });
     const { enqueueOutboundEvent } = await import("@/lib/integrations/events");

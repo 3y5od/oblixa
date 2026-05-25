@@ -5,6 +5,10 @@ import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { completeProductOnboarding } from "@/actions/settings";
 import { OnboardingBanner } from "./onboarding-banner";
 
+function expectProgress(value: string) {
+  expect(screen.getByText((_, node) => node?.textContent === value)).toBeTruthy();
+}
+
 vi.mock("@/actions/settings", () => ({
   completeProductOnboarding: vi.fn(async () => ({ ok: true })),
 }));
@@ -51,7 +55,7 @@ describe("OnboardingBanner", () => {
       />
     );
 
-    expect(screen.getByText("4/7 complete")).toBeTruthy();
+    expectProgress("4/7");
     expect(screen.getByRole("link", { name: /review extracted fields/i })).toBeTruthy();
     expect(screen.getAllByText(/run extraction, then confirm fields with source-backed review/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/1 contract created/i)).toBeTruthy();
@@ -150,7 +154,7 @@ describe("OnboardingBanner", () => {
       />
     );
 
-    expect(screen.getByText("4/7 complete")).toBeTruthy();
+    expectProgress("4/7");
     expect(screen.getByRole("link", { name: /review extracted fields/i })).toBeTruthy();
     expect(screen.getAllByText(/still need review attention before this step is complete/i).length).toBeGreaterThan(0);
   });

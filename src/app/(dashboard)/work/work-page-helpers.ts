@@ -1,9 +1,9 @@
 import type { SemanticStatus } from "@/components/ui/status-badge";
-import { getV10WorkItemHref } from "@/lib/v10-job-routing";
-import { V9_DUE_SOON_DAYS } from "@/lib/v9-business-dates";
-import type { V10WorkReadModelRow } from "@/lib/v10-work-semantics";
+import { getV10WorkItemHref } from "@/lib/job-routing";
+import { DUE_SOON_DAYS } from "@/lib/business-dates";
+import type { V10WorkReadModelRow } from "@/lib/work-semantics";
 import type { WorkHubLens } from "@/lib/work-hub-lens";
-import type { V10WorkItemType } from "@/lib/v10-release-contract";
+import type { V10WorkItemType } from "@/lib/release-contract";
 
 export function toSemanticStatus(status: string): SemanticStatus {
   if (status === "blocked") return "blocked";
@@ -60,7 +60,7 @@ export function tasksEmptyLensAction(lens: WorkHubLens): { href: string; label: 
     case "assigned":
       return { href: "/contracts", label: "Browse contracts" };
     case "due_soon":
-      return { href: "/contracts/renewals?horizon=renewal_30", label: `Review renewals (≤${V9_DUE_SOON_DAYS}d)` };
+      return { href: "/contracts/renewals?horizon=renewal_30", label: `Review renewals (≤${DUE_SOON_DAYS}d)` };
     case "overdue":
       return { href: "/contracts/renewals?horizon=end_30", label: "Review end-date pressure (≤30d)" };
     case "blocked":

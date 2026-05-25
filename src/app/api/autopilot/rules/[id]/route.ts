@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit, rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { disableAutopilotRule, patchAutopilotRule } from "@/lib/v6/autopilot";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { disableAutopilotRule, patchAutopilotRule } from "@/lib/assurance/autopilot";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
-import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/v6/require-assurance-workspace-for-autopilot-api";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
+import { requireAssuranceWorkspaceForAutopilotApi } from "@/lib/assurance/require-assurance-workspace-for-autopilot-api";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { requireExpectedVersionForMutation, staleExpectedVersionResponse } from "@/lib/security/stale-write-guard";
@@ -94,7 +94,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       diagnosticPrefix: "autopilot_rule",
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_patch_autopilot_rule_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_patch_autopilot_rule_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
@@ -149,7 +149,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       route: ROUTE,
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_delete_autopilot_rule_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_delete_autopilot_rule_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }

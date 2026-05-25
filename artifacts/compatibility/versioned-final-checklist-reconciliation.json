@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-final-checklist-reconciliation.mjs --write",
+  "policy": "Classify remaining checklist families from code-owned closure/readiness artifacts, queues, allowlists, SQL staging, public runtime readiness, and package-script readiness. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "versionedCodeOnlyClosure": "artifacts/compatibility/versioned-code-only-closure.json",
+    "versionedUncheckedObjectiveReadiness": "artifacts/compatibility/versioned-unchecked-objective-readiness.json",
+    "versionedForwardMigrationReadiness": "artifacts/compatibility/versioned-forward-migration-readiness.json",
+    "sqlPolicyPredicateEquivalence": "artifacts/supabase/sql-policy-predicate-equivalence.json",
+    "sqlPolicyForwardMigrationBlueprint": "artifacts/supabase/sql-policy-forward-migration-blueprint.json",
+    "versionedPublicRuntimeDualRead": "artifacts/compatibility/versioned-public-runtime-dual-read.json",
+    "versionedPackageScriptReadiness": "artifacts/compatibility/versioned-package-script-readiness.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json"
+  },
+  "totals": {
+    "objectiveCount": 9,
+    "statusCounts": {
+      "code_only_complete": 5,
+      "final_zero_blocked": 1,
+      "requires_external_or_production_cutover": 1,
+      "requires_forward_migration": 1,
+      "retained_legacy_blocked": 1
+    },
+    "codeOnlyCompleteCount": 5,
+    "retainedLegacyBlockedCount": 1,
+    "requiresForwardMigrationCount": 1,
+    "requiresExternalOrProductionCutoverCount": 1,
+    "finalZeroBlockedCount": 1,
+    "uncoveredScannerRowCount": 0,
+    "missingValidationCommandCount": 0,
+    "pendingSafeActionCount": 0,
+    "missingMetadataCount": 0,
+    "sourceIssueCount": 0,
+    "issueCount": 0
+  },
+  "objectives": [
+    {
+      "id": "compatibility_queue_and_artifact_evidence",
+      "owner": "platform-hardening",
+      "reason": "Remaining retained names are covered by compatibility queues, readiness artifacts, and deterministic artifact drift checks.",
+      "validationCommand": "npm run check:compatibility-removal-queue",
+      "manualFollowUp": "Refresh only with owning write commands and keep docs out of runtime configuration.",
+      "finalStatus": "code_only_complete",
+      "sourceReports": [
+        "versionedCodeOnlyClosure",
+        "versionedUncheckedObjectiveReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "codeOnlyStatusCounts": {
+          "coverage_proven": 6,
+          "requires_external_or_production_cutover": 2,
+          "requires_forward_migration": 1,
+          "retained_legacy_blocked": 1
+        },
+        "uncheckedReadinessStatusCounts": {
+          "alias_ready": 1,
+          "implemented": 4,
+          "queue_covered": 1,
+          "requires_external_or_production_cutover": 2,
+          "requires_forward_migration": 1
+        },
+        "compatibilityQueueIssueCount": 0
+      }
+    },
+    {
+      "id": "external_provider_telemetry_and_public_cutover",
+      "owner": "platform",
+      "reason": "Provider dashboards, persisted telemetry names, public route removal, traffic, scheduler, and secret changes require external or production evidence.",
+      "validationCommand": "npm run check:versioned-unchecked-objective-readiness",
+      "manualFollowUp": "Keep external/provider/telemetry cutover items unchecked until external evidence is available.",
+      "finalStatus": "requires_external_or_production_cutover",
+      "sourceReports": [
+        "versionedUncheckedObjectiveReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "requiresExternalOrProductionCutoverCount": 2,
+        "telemetryQueueCount": 74,
+        "apiRouteQueueCount": 1,
+        "cronRouteQueueCount": 32
+      }
+    },
+    {
+      "id": "final_zero_version_enforcement",
+      "owner": "platform-hardening",
+      "reason": "Final zero-version enforcement remains blocked by retained compatibility names and production/external cutover work.",
+      "validationCommand": "npm run check:versioned-naming",
+      "manualFollowUp": "Keep final zero-version enforcement unchecked until every retained queue row is ready for removal and legacy names are removed in scope.",
+      "finalStatus": "final_zero_blocked",
+      "sourceReports": [
+        "versionedCodeOnlyClosure",
+        "versionedUncheckedObjectiveReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "pendingSafeActionCount": 0,
+        "retainedLegacyAliasCount": 79,
+        "packageScriptAliasCount": 37,
+        "currentValidationCommand": "npm run check:versioned-naming"
+      }
+    },
+    {
+      "id": "package_script_alias_retirement",
+      "owner": "platform-hardening",
+      "reason": "Legacy package-script aliases remain callable even though local references prefer neutral commands.",
+      "validationCommand": "npm run check:versioned-package-script-readiness",
+      "manualFollowUp": "Remove legacy package scripts only in a future explicit removal pass after queue readiness permits it.",
+      "finalStatus": "retained_legacy_blocked",
+      "sourceReports": [
+        "versionedPackageScriptReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "aliasCount": 37,
+        "localReadyForRemovalCount": 37,
+        "readyForRemovalCount": 0,
+        "blockingReferenceCount": 0,
+        "queueCount": 37
+      }
+    },
+    {
+      "id": "public_runtime_dual_read_readiness",
+      "owner": "frontend-platform",
+      "reason": "Public route, deep-link, PWA, metadata, and OpenAPI version-name surfaces are classified as dual-read, alias-ready, queued, or externally blocked.",
+      "validationCommand": "npm run check:versioned-public-runtime-dual-read",
+      "manualFollowUp": "Keep public and PWA cutover items unchecked until external consumer and cache behavior evidence exists.",
+      "finalStatus": "code_only_complete",
+      "sourceReports": [
+        "versionedPublicRuntimeDualRead",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "statusCounts": {
+          "dual_read_present": 2,
+          "queue_covered": 4
+        },
+        "dualReadPresentCount": 2,
+        "queueCoveredCount": 4
+      }
+    },
+    {
+      "id": "safe_path_export_and_content_actions",
+      "owner": "platform-hardening",
+      "reason": "Safe path renames, exported-symbol aliases, and local content rewrites are exhausted and remain guarded by read-only checks.",
+      "validationCommand": "npm run check:versioned-code-only-closure",
+      "manualFollowUp": "Run the owning explicit write command if a future scanner pass finds a new safe action.",
+      "finalStatus": "code_only_complete",
+      "sourceReports": [
+        "versionedCodeOnlyClosure",
+        "safeRenames",
+        "exportedSymbolAliases",
+        "localContentRewrites"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "pendingSafeActionCount": 0,
+        "appliedRenameCount": 381,
+        "exportedAliasPendingCount": 0,
+        "localContentPendingRewriteCount": 0
+      }
+    },
+    {
+      "id": "sql_forward_migration_readiness",
+      "owner": "database-platform",
+      "reason": "Neutral SQL function aliases are staged while table and policy rows remain blocked on safe forward migrations and linked verification.",
+      "validationCommand": "npm run check:versioned-forward-migration-readiness",
+      "manualFollowUp": "Do not mark SQL table or policy alias completion until forward migrations and linked read-only verification exist.",
+      "finalStatus": "requires_forward_migration",
+      "sourceReports": [
+        "versionedForwardMigrationReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "rowCount": 75,
+        "aliasAddedCount": 42,
+        "requiresForwardMigrationCount": 33,
+        "blockerClassCounts": {
+          "neutral_target_is_view_requires_policy_migration": 33,
+          "none": 42
+        },
+        "sqlObjectQueueCount": 75
+      }
+    },
+    {
+      "id": "sql_policy_forward_migration_blueprint",
+      "owner": "database-platform",
+      "reason": "Retained SQL policy rows have a non-executing forward-migration blueprint with future target requirements and linked-verification contexts.",
+      "validationCommand": "npm run check:sql-policy-forward-migration-blueprint",
+      "manualFollowUp": "Keep actual neutral policy migration unchecked until a policy-capable neutral target, linked verification, and a reviewed forward migration exist.",
+      "finalStatus": "code_only_complete",
+      "sourceReports": [
+        "sqlPolicyForwardMigrationBlueprint",
+        "versionedForwardMigrationReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "policyRowCount": 33,
+        "statusCounts": {
+          "requires_forward_migration": 33
+        },
+        "blockerClassCounts": {
+          "neutral_target_is_view_requires_policy_migration": 33
+        },
+        "requiredPredicateEquivalenceLinkedContextCounts": {
+          "manual_catalog_and_role_context_for_non_select_policy": 1,
+          "representative_authenticated_org_member_contexts": 32
+        },
+        "futureTargetRequirementCounts": {
+          "neutral_policy_capable_table_or_equivalent_target_required": 33
+        },
+        "migratableInThisPassCount": 0,
+        "commentOnlyFutureDdlPlaceholderCount": 33
+      }
+    },
+    {
+      "id": "sql_policy_predicate_equivalence_staging",
+      "owner": "database-platform",
+      "reason": "Retained SQL policy rows have deterministic predicate evidence and generated read-only linked-verification SQL, while actual neutral policy migration remains blocked.",
+      "validationCommand": "npm run check:sql-policy-predicate-equivalence",
+      "manualFollowUp": "Run linked read-only verification and add a future forward migration before creating neutral policies or removing legacy policies.",
+      "finalStatus": "code_only_complete",
+      "sourceReports": [
+        "sqlPolicyPredicateEquivalence",
+        "versionedForwardMigrationReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "uncoveredScannerRowCount": 0,
+      "missingValidationCommandCount": 0,
+      "pendingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "evidence": {
+        "policyRowCount": 33,
+        "statusCounts": {
+          "requires_forward_migration": 33
+        },
+        "blockerClassCounts": {
+          "neutral_target_is_view_requires_policy_migration": 33
+        },
+        "linkedVerificationKindCounts": {
+          "manual_auth_context_select_comparison": 32,
+          "manual_non_select_policy_placeholder": 1
+        },
+        "predicateEvidenceCount": 33,
+        "manualLinkedVerificationRequiredCount": 33
+      }
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

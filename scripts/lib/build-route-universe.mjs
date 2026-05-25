@@ -32,6 +32,42 @@ function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
 }
 
+function resolveRelativeModule(fromFile, specifier) {
+  if (!specifier.startsWith(".")) return null;
+  const base = path.resolve(path.dirname(fromFile), specifier);
+  const candidates = [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.js`,
+    `${base}.jsx`,
+    path.join(base, "route.ts"),
+    path.join(base, "route.tsx"),
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile()) ?? null;
+}
+
+export function readEffectiveRouteSource(file, seen = new Set()) {
+  if (seen.has(file)) return "";
+  seen.add(file);
+
+  const source = read(file);
+  const nestedSources = [];
+  const reExportPatterns = [
+    /export\s+\*\s+from\s+["']([^"']+)["']/g,
+    /export\s+\{[^}]+\}\s+from\s+["']([^"']+)["']/g,
+  ];
+
+  for (const pattern of reExportPatterns) {
+    for (const match of source.matchAll(pattern)) {
+      const target = resolveRelativeModule(file, match[1]);
+      if (target) nestedSources.push(readEffectiveRouteSource(target, seen));
+    }
+  }
+
+  return [source, ...nestedSources.filter(Boolean)].join("\n");
+}
+
 function walk(dir, predicate = () => true, acc = []) {
   if (!fs.existsSync(dir)) return acc;
   for (const name of fs.readdirSync(dir)) {
@@ -282,8 +318,8 @@ function buildAppRouteRows(root, cronPaths) {
   return files.map((file) => {
     const name = path.basename(file);
     const route = appFileToRoute(appRoot, file);
-    const source = read(file);
     const kind = name === "route.ts" ? "api_route" : name === "page.tsx" ? "page" : name === "layout.tsx" ? "layout" : "route_state";
+    const source = kind === "api_route" ? readEffectiveRouteSource(file) : read(file);
     const methods = kind === "api_route" ? methodsFromSource(source) : ["GET"];
     const auth = authModel(route, source, cronPaths);
     const cls = routeClass(route, kind === "api_route" ? "api" : kind, cronPaths);

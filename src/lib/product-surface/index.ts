@@ -24,12 +24,19 @@ export {
   featureFamilyForApiPath,
   featureFamilyForPath,
   minWorkspaceModeForRegistryPath,
+  adminRevealPolicyForFeature,
+  commandVocabularyForFeature,
+  discoverabilityForFeature,
   eligibleReportTypeOptionsForWorkspaceMode,
   minWorkspaceModeForReportType,
   minWorkspaceModeForReportsHash,
+  owningActionIdsForFeature,
+  owningApiPrefixesForFeature,
+  owningPagePatternsForFeature,
   REPORT_HASH_MAP,
   REPORT_TYPE_MAP,
   SEARCH_INDEX_CLASSES,
+  searchVocabularyForFeature,
   workspaceModeAllowsReportType,
   workspaceModeAtLeast,
   v8AdminRevealPolicyForFeature,
@@ -42,14 +49,16 @@ export {
 } from "@/lib/product-surface/feature-registry";
 export {
   evaluateFeatureEligibility,
+  type EligibilityDenialClass,
   type FeatureDiscoverability,
   type FeatureEligibility,
   type V8EligibilityDenialClass,
 } from "@/lib/product-surface/eligibility";
 export {
+  denialStatusMatrix,
   statusForEligibilityDenial,
   v8DenialStatusMatrix,
-} from "@/lib/product-surface/v8-denial-status";
+} from "@/lib/product-surface/denial-status";
 export {
   featureFamilyForHref,
   isHrefEligibleForNavSurface,
@@ -70,24 +79,31 @@ export type {
   SearchIndexClassDef,
   ReportHashMapEntry,
   ReportTypeMapEntry,
+  AdminRevealPolicy,
+  FeatureDiscoverabilityPolicy,
   V8AdminRevealPolicy,
   V8FeatureDiscoverability,
 } from "@/lib/product-surface/feature-registry";
 export {
+  allExemptSurfaceRules,
   allV8ExemptSurfaceRules,
   resolveActionExemptSurface,
   resolveApiExemptSurface,
   resolvePageExemptSurface,
+  type ExemptSurfaceClass,
+  type ExemptSurfaceRule,
   type V8ExemptSurfaceClass,
   type V8ExemptSurfaceRule,
-} from "@/lib/product-surface/v8-exempt-surfaces";
+} from "@/lib/product-surface/exempt-surfaces";
 export {
   resolveFeatureMappingForAction,
   resolveFeatureMappingForApiPath,
   resolveFeatureMappingForPagePath,
+  type SurfaceMapping,
+  type SurfaceType,
   type V8SurfaceMapping,
   type V8SurfaceType,
-} from "@/lib/product-surface/v8-surface-mapping";
+} from "@/lib/product-surface/surface-mapping";
 export {
   isNavItemVisibleForSurface,
   isNavChildVisibleForSurface,
@@ -102,7 +118,7 @@ export {
   assertCoreUtilitySurfaceOrRedirect,
   assertPagePathEligibleOrNotFound,
 } from "@/lib/product-surface/route-guard";
-export { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+export { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/request-pathname";
 export { filterAuditEventsForWorkspaceMode } from "@/lib/product-surface/audit-events-filter";
 export {
   ROUTE_INVENTORY,
@@ -143,3 +159,7 @@ export {
   type WorkflowDestinationPlacement,
   type WorkflowDestinationSurface,
 } from "@/lib/product-surface/workflow-destinations";
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { REFINEMENT_V7_TRACE_STRINGS as REFINEMENT_TRACE_STRINGS } from "@/lib/product-surface/refinement-trace";
+// End version-name compatibility aliases.

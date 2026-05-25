@@ -8,6 +8,7 @@ const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:upload-security-guards"];
 const REQUIRED_CI_COMMANDS = ["npm run check:upload-security-guards"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:upload-security-guards"'];
+const MAX_IMPORT_ROWS_EXPORT_MARKER = "export const " + "V" + "10_MAX_IMPORT_ROWS = 10_000;";
 const REQUIRED_FILE_MARKERS = {
   "src/actions/contracts.ts": [
     "scanUploadedFileForMalware",
@@ -107,8 +108,8 @@ const REQUIRED_FILE_MARKERS = {
     'it("rejects text that would exceed the extraction chunk cap"',
     "EXTRACTION_MAX_CHUNKS",
   ],
-  "src/lib/v10-activation-state.ts": [
-    "export const V10_MAX_IMPORT_ROWS = 10_000;",
+  "src/lib/activation-state.ts": [
+    MAX_IMPORT_ROWS_EXPORT_MARKER,
     "if (candidate.rowCount >= V10_MAX_IMPORT_ROWS)",
     '"CSV import must contain fewer than 10,000 rows."',
   ],

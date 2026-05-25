@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getFeatureFlags } from "@/lib/feature-flags";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 
 const flags = getFeatureFlags();
 
@@ -28,7 +28,7 @@ describe("onboarding last_applied vs runtime surface (§3)", () => {
           default_landing_path: "/dashboard",
         },
       },
-    } as unknown as V6OrgSettingsJson;
+    } as unknown as OrgSettingsJson;
 
     const ctx = buildProductSurfaceContext({
       orgId: "org",

@@ -67,7 +67,7 @@ describe("enterprise UI sweep contract", () => {
   it("keeps shared component contracts aligned with density, diagnostics, telemetry, and a11y expectations", () => {
     expect(ENTERPRISE_UI_COMPONENT_CONTRACTS.map((row) => row.component)).toEqual(
       expect.arrayContaining([
-        "V10RecoverableState",
+        "RecoverableState",
         "OperationalTriagePanel",
         "ContractTable",
         "DiagnosticDisclosure",

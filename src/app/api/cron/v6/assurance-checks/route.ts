@@ -1,6 +1,6 @@
-import { logV6Cron } from "@/lib/v6/cron";
-import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/v6/cron-route-runner";
-import { runAssuranceChecksForAllOrgs } from "@/lib/v6/cron-jobs";
+import { logV6Cron } from "@/lib/assurance/cron";
+import { buildV6CronRouteResult, withV6CronRoute } from "@/lib/assurance/cron-route-runner";
+import { runAssuranceChecksForAllOrgs } from "@/lib/assurance/cron-jobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

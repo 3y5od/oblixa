@@ -3,13 +3,13 @@ import { parseNoticeDays } from "@/lib/contract-filters";
 import { getReviewStatsForContractIds, fetchReviewQueuePage } from "@/lib/contract-review-stats";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
-import { getV10WorkItemHref } from "@/lib/v10-job-routing";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
-import { compareV10WorkReadModelRows, getV10DueState } from "@/lib/v10-work-semantics";
-import { parseBusinessDateAtNoon } from "@/lib/v9-business-dates";
+import { getV10WorkItemHref } from "@/lib/job-routing";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
+import { compareV10WorkReadModelRows, getV10DueState } from "@/lib/work-semantics";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { orgHasActivePlan } from "@/lib/plan";
-import type { V10WorkItemType } from "@/lib/v10-release-contract";
+import type { V10WorkItemType } from "@/lib/release-contract";
 import {
   DASHBOARD_EMPTY_STATES,
   DASHBOARD_MAIN_SECTIONS,
@@ -708,7 +708,7 @@ export async function loadCoreDashboardModel(input: {
       .eq("status", "approved")
       .in("field_name", [...DASHBOARD_DEADLINE_FIELDS])
       .not("field_value", "is", null)
-      .limit(5000),
+      .range(0, 4999),
     admin
       .from("contracts")
       .select("id, title, counterparty, owner_id, status, annual_value, updated_at")
@@ -790,7 +790,7 @@ export async function loadCoreDashboardModel(input: {
     .select("contract_id, field_name, field_value, status, contracts!inner(organization_id)")
     .eq("contracts.organization_id", orgId)
     .in("field_name", ["renewal_date", "notice_date", "notice_window", "notice_window_ends"])
-    .limit(5000);
+    .range(0, 4999);
   if (dataGapFieldRowsRes.error) partialErrors.push("data_gap_fields");
 
   const dataGapRows = buildDataGapRows(

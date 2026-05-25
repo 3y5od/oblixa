@@ -19,11 +19,11 @@ vi.mock("@/lib/idempotency", () => ({
   enforceIdempotency,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5CronFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v5/cron", () => ({
+vi.mock("@/lib/decision-intelligence/cron", () => ({
   listOrganizationIds,
 }));
 
@@ -82,7 +82,7 @@ describe("GET /api/cron/v5/decision-sla-monitor", () => {
   });
 
   it("returns skipped when feature is disabled", async () => {
-    const { requireV5CronFeature } = await import("@/lib/v5/feature-guards");
+    const { requireV5CronFeature } = await import("@/lib/decision-intelligence/feature-guards");
     vi.mocked(requireV5CronFeature).mockReturnValueOnce(
       NextResponse.json({ ok: true, skipped: true, reason: "feature_disabled" })
     );

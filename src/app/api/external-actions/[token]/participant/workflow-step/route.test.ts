@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { appendExternalWorkflowStep } from "@/lib/v6/external-collaboration";
+import { appendExternalWorkflowStep } from "@/lib/assurance/external-collaboration";
 
 vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("@/lib/rate-limit", async () => {
   };
 });
 
-vi.mock("@/lib/v6/external-collaboration", () => ({
+vi.mock("@/lib/assurance/external-collaboration", () => ({
   appendExternalWorkflowStep: vi.fn(),
 }));
 

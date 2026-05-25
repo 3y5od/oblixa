@@ -4,7 +4,7 @@ import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 import { getOrgUsageStats } from "@/lib/usage-stats";
 import { orgHasActivePlan } from "@/lib/plan";
-import { V9_DUE_SOON_DAYS } from "@/lib/v9-business-dates";
+import { DUE_SOON_DAYS } from "@/lib/business-dates";
 
 export type DashboardOrgMetrics = {
   totalContracts: number;
@@ -187,7 +187,7 @@ export const getDashboardOperationalSignalsCached = cache(
     const admin = await getDashboardAdminClientCached();
     const today = new Date();
     const todayIso = today.toISOString().slice(0, 10);
-    const soonDateIso = new Date(today.getTime() + V9_DUE_SOON_DAYS * 24 * 60 * 60 * 1000)
+    const soonDateIso = new Date(today.getTime() + DUE_SOON_DAYS * 24 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, 10);
     const reviewWindowIso = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();

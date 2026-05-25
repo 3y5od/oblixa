@@ -50,7 +50,7 @@ vi.mock("@/lib/supabase/server", () => ({
   getAuthContext,
 }));
 
-const getV6OrgSettingsJson = vi.hoisted(() =>
+const getOrgSettingsJson = vi.hoisted(() =>
   vi.fn(async () => ({
     onboarding_calibration: {
       version: 2,
@@ -60,9 +60,9 @@ const getV6OrgSettingsJson = vi.hoisted(() =>
   }))
 );
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson,
-  mergeV6OrgSettingsJson: vi.fn(async () => ({ error: null })),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson,
+  mergeOrgSettingsJson: vi.fn(async () => ({ error: null })),
 }));
 
 vi.mock("@/lib/feature-flags", () => ({
@@ -74,7 +74,7 @@ describe("onboarding-calibration rate limits", () => {
     rateLimitCheck.mockReset();
     getClientIpFromHeaders.mockClear();
     rateLimitCheck.mockResolvedValue({ ok: true });
-    getV6OrgSettingsJson.mockImplementation(async () => ({
+    getOrgSettingsJson.mockImplementation(async () => ({
       onboarding_calibration: {
         version: 2,
         blocking_required: true,
@@ -108,7 +108,7 @@ describe("onboarding-calibration rate limits", () => {
   });
 
   it("returns Too many requests when export bucket is exhausted", async () => {
-    getV6OrgSettingsJson.mockResolvedValueOnce({
+    getOrgSettingsJson.mockResolvedValueOnce({
       onboarding_calibration: {
         version: 2,
         blocking_required: false,

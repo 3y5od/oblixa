@@ -2,20 +2,21 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { ReactNode } from "react";
-import { ArrowUpRight, CalendarClock, Download, MoreHorizontal, Plus } from "lucide-react";
+import { ArrowUpRight, CalendarClock, ChevronRight, Download, MoreHorizontal, Plus, Sparkles } from "lucide-react";
 import { createContractTask } from "@/actions/tasks";
 import { updateRenewalCheckpointStatus } from "@/actions/renewal-playbook";
+import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
 import { UiTabs } from "@/components/ui/ui-tabs";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import type { OrgRole } from "@/lib/types";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { loadProductSurfaceContext } from "@/lib/product-surface";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 import {
   buildRenewalsHref,
   loadRenewalsPageModel,
@@ -115,6 +116,9 @@ export default async function RenewalsPage(props: {
     contract: firstParam(searchParams.contract),
   });
   const canMutate = canEditContracts(ctx.role as OrgRole);
+  const showDecisionsCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "decisions");
   const createHref = buildRenewalsHref({
     window: model.activeWindow,
     filters: model.filters,
@@ -130,6 +134,17 @@ export default async function RenewalsPage(props: {
         title={model.title}
         actions={
           <>
+            {showDecisionsCta ? (
+              <Link
+                href="/decisions"
+                prefetch={false}
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              >
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                Review decisions
+                <ChevronRight className="h-3 w-3 opacity-60" aria-hidden />
+              </Link>
+            ) : null}
             <Link href={model.exportHref} className="ui-btn-secondary inline-flex items-center gap-2 px-4 py-2">
               <Download className="h-4 w-4" aria-hidden />
               {RENEWAL_ACTION_LABELS.export_renewal_report}
@@ -143,7 +158,7 @@ export default async function RenewalsPage(props: {
       />
 
       {model.warnings.length > 0 ? (
-        <V10RecoverableState
+        <RecoverableState
           state="partial"
           title={RENEWALS_PARTIAL_DATA_TITLE}
           reason={RENEWALS_PARTIAL_DATA_REASON}
@@ -403,6 +418,11 @@ function RenewalRows({
             <Link href={row.href} className="ui-link break-words text-[14px] font-semibold">
               {row.title}
             </Link>
+            <ContractContinuityLinks
+              contractId={row.id}
+              omit={["contract", "renewals"]}
+              className="mt-2 flex max-w-[18rem] flex-wrap items-center gap-x-1 gap-y-1 text-[12.5px] text-[var(--text-tertiary)]"
+            />
           </RenewalFact>
 
           <RenewalRowFactGrid row={row} />

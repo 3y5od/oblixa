@@ -6,19 +6,19 @@ const canManageCapability = vi.fn();
 const approveAndContinuePlaybookRun = vi.fn();
 const enforceIdempotency = vi.fn();
 const recordApiMutationAuditEvent = vi.fn();
-const incrementV6QualityCounter = vi.fn();
+const incrementAssuranceQualityCounter = vi.fn();
 const runIncrementalAssuranceChecks = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v6/playbooks", () => ({
+vi.mock("@/lib/assurance/playbooks", () => ({
   approveAndContinuePlaybookRun,
 }));
 
@@ -34,11 +34,11 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
   recordApiMutationAuditEvent,
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter,
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter,
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks,
 }));
 
@@ -50,7 +50,7 @@ describe("POST /api/playbooks/runs/[id]/approve", () => {
     canManageCapability.mockResolvedValue(true);
     enforceIdempotency.mockResolvedValue(null);
     recordApiMutationAuditEvent.mockResolvedValue("audit-1");
-    incrementV6QualityCounter.mockResolvedValue(undefined);
+    incrementAssuranceQualityCounter.mockResolvedValue(undefined);
     runIncrementalAssuranceChecks.mockResolvedValue(undefined);
   });
 

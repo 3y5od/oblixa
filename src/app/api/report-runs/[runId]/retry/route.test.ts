@@ -33,7 +33,7 @@ vi.mock("@/lib/rate-limit", () => ({
   rateLimitCheck,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest: (request: Request) =>
     request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,

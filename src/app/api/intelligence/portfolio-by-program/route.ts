@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext } from "@/lib/v4/api-auth";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
-import { getPortfolioByProgramRows } from "@/lib/v5/portfolio-analytics";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
+import { getPortfolioByProgramRows } from "@/lib/decision-intelligence/portfolio-analytics";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 const ROUTE = "/api/intelligence/portfolio-by-program";

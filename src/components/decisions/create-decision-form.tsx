@@ -7,7 +7,7 @@ import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { LiveRegion } from "@/components/ui/live-region";
 import { mutateJson } from "@/lib/http/client-json";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
-import { DECISION_TYPES, DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
+import { DECISION_TYPES, DECISION_TYPE_LABELS, type DecisionType } from "@/lib/decision-intelligence/decision-types";
 
 export function CreateDecisionForm() {
   const router = useRouter();

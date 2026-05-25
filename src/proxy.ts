@@ -7,7 +7,7 @@ import {
 } from "@/lib/auth/proxy-path-policy";
 import { resolveBlockingCalibrationPathForUserClient } from "@/lib/onboarding/calibration-gate";
 import { applyCorrelationHeadersToResponse, resolveCorrelationIds } from "@/lib/observability/request-id";
-import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/request-pathname";
 import { getSafeRedirectPath } from "@/lib/security/redirect";
 import { hasMethodOverrideAttempt, secFetchSiteAllowsSensitiveMutation } from "@/lib/security/sec-fetch-policy";
 import {

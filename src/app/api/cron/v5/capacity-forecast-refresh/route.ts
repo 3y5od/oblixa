@@ -1,11 +1,11 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
-import { listOrganizationIds } from "@/lib/v5/cron";
-import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
+import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/decision-intelligence/capacity-forecast-keys";
+import { listOrganizationIds } from "@/lib/decision-intelligence/cron";
+import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { buildV6AssuranceProjectionForCapacity } from "@/lib/v6/capacity-assurance-bridge";
+import { buildV6AssuranceProjectionForCapacity } from "@/lib/assurance/capacity-assurance-bridge";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
 type OpenTaskTeamRow = { team_key?: string | null };

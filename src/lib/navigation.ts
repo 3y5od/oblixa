@@ -114,6 +114,7 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Contract work across tasks, approvals, obligations, and exceptions.",
     section: "primary",
     icon: "tasks",
+    navChildren: [],
   },
   {
     name: "Renewals",
@@ -402,3 +403,8 @@ export function getWorkflowAreaForNavItem(item: NavItem): WorkflowArea {
   }
   return "workflows";
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { isV5NavChildVisible as isNavChildVisible };
+export { isV5NavItemVisible as isNavItemVisible };
+// End version-name compatibility aliases.

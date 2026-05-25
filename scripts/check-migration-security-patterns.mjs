@@ -26,9 +26,12 @@ const LEGACY_PLAINTEXT_SECRET_FILES = new Set([
 const SECURITY_DEFINER_CLIENT_EXECUTE_ALLOWLIST = new Set([
   "create_user_org",
   "is_org_member",
+  "role_rank",
+  "member_can_read",
   "v10_role_rank",
   "v10_member_can_read",
 ]);
+const NEUTRAL_TABLE_VIEW_ALIAS_GRANT_FILE = "089_sql_neutral_table_view_aliases.sql";
 const LEGACY_IMPLICIT_DELETE_FILES = new Set([
   "001_initial_schema.sql",
   "039_v4_execution_platform_foundation.sql",
@@ -120,6 +123,50 @@ function collectReferencesWithoutExplicitDelete(sql) {
   return refs;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractNeutralTableViewAliases(sql) {
+  const aliases = new Set();
+  for (const match of sql.matchAll(
+    /create\s+or\s+replace\s+view\s+public\.([a-zA-Z_][\w]*)\s+with\s*\(\s*security_invoker\s*=\s*true\s*\)\s+as\s+select\s+\*\s+from\s+public\.v10_[a-zA-Z_][\w]*\s*;/gi
+  )) {
+    aliases.add(normalizeTableName(match[1]));
+  }
+  return aliases;
+}
+
+function collectClientPrivilegeGrants(sql) {
+  return [...sql.matchAll(/\bgrant\s+(select|insert|update|delete|usage|all)\b\s+on\s+(?:table\s+)?(?:public\.)?([a-zA-Z_][\w]*)[\s\S]*?\bto\s+(public|anon|authenticated)\b/gi)].map(
+    (match) => ({
+      privilege: match[1].toLowerCase(),
+      objectName: normalizeTableName(match[2]),
+      role: match[3].toLowerCase(),
+    })
+  );
+}
+
+function neutralTableViewAliasGrantsAreScoped(file, uncommented) {
+  if (file !== NEUTRAL_TABLE_VIEW_ALIAS_GRANT_FILE) return false;
+
+  const aliases = extractNeutralTableViewAliases(uncommented);
+  if (aliases.size === 0) return false;
+
+  for (const grant of collectClientPrivilegeGrants(uncommented)) {
+    if (grant.privilege !== "select") return false;
+    if (grant.role !== "authenticated") return false;
+    if (!aliases.has(grant.objectName)) return false;
+
+    const escapedObject = escapeRegExp(grant.objectName);
+    const revokePublic = new RegExp(`revoke\\s+all\\s+on\\s+table\\s+public\\.${escapedObject}\\s+from\\s+public\\b`, "i");
+    const grantServiceRole = new RegExp(`grant\\s+select\\s+on\\s+table\\s+public\\.${escapedObject}\\s+to\\s+service_role\\b`, "i");
+    if (!revokePublic.test(uncommented) || !grantServiceRole.test(uncommented)) return false;
+  }
+
+  return true;
+}
+
 export function analyzeMigrationSecurityPatterns(scanRoot = root, options = { strict }) {
   const scanMigrationsDir = path.join(scanRoot, "supabase", "migrations");
   const files = fs.readdirSync(scanMigrationsDir).filter((f) => f.endsWith(".sql")).sort();
@@ -146,7 +193,10 @@ export function analyzeMigrationSecurityPatterns(scanRoot = root, options = { st
     if (/\bgrant\s+all\s+on\s+(?:table\s+)?public\./i.test(uncommented)) {
       issues.push({ file: rel, issue: "grant_all_on_public_table" });
     }
-    if (/\bgrant\s+(?:select|insert|update|delete|usage|all)\b[\s\S]*?\bto\s+(?:public|anon|authenticated)\b/i.test(uncommented)) {
+    if (
+      collectClientPrivilegeGrants(uncommented).length > 0 &&
+      !neutralTableViewAliasGrantsAreScoped(file, uncommented)
+    ) {
       issues.push({ file: rel, issue: "broad_grant_to_client_role" });
     }
 
@@ -223,7 +273,7 @@ export function analyzeMigrationSecurityPatterns(scanRoot = root, options = { st
       const name = /create\s+or\s+replace\s+function\s+((?:public\.)?[a-zA-Z_][\w]*)\s*\(/i.exec(body)?.[1];
       if (name) {
         const normalizedName = name.replace(/^public\./i, "");
-        const escapedName = normalizedName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const escapedName = escapeRegExp(normalizedName);
         const broadExecuteGrant = new RegExp(
           `grant\\s+execute\\s+on\\s+function\\s+(?:public\\.)?${escapedName}\\s*\\([^;]*\\)\\s+to\\s+(?:public|anon|authenticated)\\b`,
           "i"

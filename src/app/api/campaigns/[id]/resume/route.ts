@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { enforceIdempotency } from "@/lib/idempotency";
@@ -95,7 +95,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_resume_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_resume_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data });
 }

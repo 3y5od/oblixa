@@ -12,7 +12,7 @@ const maxLines = strict ? 450 : 700;
 /** Policy/compliance generators kept as single files for traceability; do not grow without split. */
 const LINE_COUNT_ALLOWLIST = new Set([
   "scripts/build-qa-comprehensive-taxonomy.mjs",
-  "scripts/check-v10-release-evidence.mjs",
+  "scripts/check-release-evidence.mjs",
   "scripts/generate-debugging-sweep-catalog.mjs",
   "scripts/report-qa-closure-manifest.mjs",
   "scripts/write-debugging-sweep-closure.mjs",

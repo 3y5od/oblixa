@@ -9,7 +9,7 @@ const REQUIRED_PACKAGE_SCRIPTS = ["check:signed-link-nonce-policy"];
 const REQUIRED_CI_COMMANDS = ["npm run check:signed-link-nonce-policy"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:signed-link-nonce-policy"'];
 const REQUIRED_FILE_MARKERS = {
-  "src/lib/v5/api.ts": [
+  "src/lib/decision-intelligence/api.ts": [
     "const SUBMIT_TICKET_TTL_MS = 15 * 60 * 1000;",
     "`EXTERNAL_ACTION_SUBMIT_TICKET_SECRET` (must not reuse CRON_SECRET or the passcode pepper).",
     'const exp = Date.now() + SUBMIT_TICKET_TTL_MS;',
@@ -18,7 +18,7 @@ const REQUIRED_FILE_MARKERS = {
     'if (raw.lid !== expectedLinkId) return { ok: false, reason: "submit_ticket_invalid" };',
     'return { ok: false, reason: "submit_ticket_expired" };',
   ],
-  "src/lib/v5/api.external.test.ts": [
+  "src/lib/decision-intelligence/api.external.test.ts": [
     'it("signExternalSubmitTicket works in production with dedicated submit secret", () => {',
     'it("rejects CRON_SECRET as submit-ticket HMAC key in production", () => {',
   ],

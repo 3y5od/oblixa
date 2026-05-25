@@ -17,11 +17,11 @@ function revalidatePathsFromSource(source: string): Set<string> {
 }
 
 describe("onboarding merge + revalidate parity with product settings", () => {
-  it("both actions use mergeV6OrgSettingsJson for org JSON writes", () => {
+  it("both actions use mergeOrgSettingsJson for org JSON writes", () => {
     const ob = readFileSync(ONBOARDING_ACTION, "utf8");
     const ps = readFileSync(PRODUCT_SETTINGS_ACTION, "utf8");
-    expect(ob).toContain("mergeV6OrgSettingsJson");
-    expect(ps).toContain("mergeV6OrgSettingsJson");
+    expect(ob).toContain("mergeOrgSettingsJson");
+    expect(ps).toContain("mergeOrgSettingsJson");
   });
 
   it("revalidatePath targets from onboarding-calibration are a subset of product-surface-settings union", () => {

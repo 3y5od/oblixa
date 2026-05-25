@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";

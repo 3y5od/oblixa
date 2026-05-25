@@ -1,7 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import { redactSensitiveLogString } from "@/lib/observability/log-redaction";
 import { redactPersistenceString } from "@/lib/security/persistence-redaction";
-import { createV10ObjectiveTelemetryPayload } from "@/lib/v10-objective-telemetry";
+import { createV10ObjectiveTelemetryPayload } from "@/lib/objective-telemetry";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -81,7 +81,20 @@ export const PRODUCT_TELEMETRY_ACTIONS = [
   "product.v9.visible_mutation_error",
 ] as const;
 
-export type ProductTelemetryAction = (typeof PRODUCT_TELEMETRY_ACTIONS)[number];
+export type ProductTelemetryLegacyAction = (typeof PRODUCT_TELEMETRY_ACTIONS)[number];
+export type ProductTelemetryNeutralAction = `product.${string}`;
+export type ProductTelemetryAction = ProductTelemetryLegacyAction | ProductTelemetryNeutralAction;
+
+function neutralAliasForLegacyAction(action: ProductTelemetryLegacyAction): ProductTelemetryNeutralAction {
+  const match = /^product\.v(\d+)\.(.+)$/u.exec(action);
+  if (!match) return action as ProductTelemetryNeutralAction;
+  const [, version, suffix] = match;
+  return (version === "10" ? `product.${suffix}` : `product.compat.${suffix}`) as ProductTelemetryNeutralAction;
+}
+
+export const PRODUCT_TELEMETRY_NEUTRAL_ACTION_ALIASES = Object.freeze(
+  Object.fromEntries(PRODUCT_TELEMETRY_ACTIONS.map((action) => [neutralAliasForLegacyAction(action), action]))
+) as Readonly<Record<ProductTelemetryNeutralAction, ProductTelemetryLegacyAction>>;
 
 export const V10_TELEMETRY_COMPATIBILITY_BRIDGES = {
   "product.v9.evidence_requested": "product.v10.evidence_request_created",
@@ -92,9 +105,9 @@ export const V10_TELEMETRY_COMPATIBILITY_BRIDGES = {
   "product.v9.cmdk_zero_results": "product.v10.command_palette_zero_result",
   "product.v9.work_action_succeeded": "product.v10.work_item_completed",
   "product.v9.review_save_next_used": "product.v10.review_save_next_used",
-} as const satisfies Partial<Record<ProductTelemetryAction, ProductTelemetryAction>>;
+} as const satisfies Partial<Record<ProductTelemetryLegacyAction, ProductTelemetryLegacyAction>>;
 
-export const V10_TELEMETRY_EVENT_EVIDENCE_EXCEPTIONS: Partial<Record<ProductTelemetryAction, string>> = {
+export const V10_TELEMETRY_EVENT_EVIDENCE_EXCEPTIONS: Partial<Record<ProductTelemetryLegacyAction, string>> = {
   "product.v10.first_work_item_generated": "Generated from read-model activation evidence until the async job worker emits runtime telemetry.",
   "product.v10.renewal_posture_computed": "Computed during read-model refresh and promoted through release evidence.",
   "product.v10.evidence_follow_up_scheduled": "Cron/provider delivery evidence is release-environment gated.",
@@ -171,13 +184,15 @@ export async function emitProductTelemetryIfFirstInOrganization(
     details?: Record<string, string | number | boolean | null>;
   }
 ): Promise<void> {
+  const action = normalizeProductTelemetryAction(input.action);
+  if (!action) return;
   const { count, error } = await admin
     .from("audit_events")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", input.organizationId)
-    .eq("action", input.action);
+    .eq("action", action);
   if (error || (count ?? 0) > 0) return;
-  await emitProductTelemetryEvent(admin, input);
+  await emitProductTelemetryEvent(admin, { ...input, action });
 }
 
 /** Emit `action` at most once per organization + user. */
@@ -191,14 +206,16 @@ export async function emitProductTelemetryIfFirstForOrgUser(
     details?: Record<string, string | number | boolean | null>;
   }
 ): Promise<void> {
+  const action = normalizeProductTelemetryAction(input.action);
+  if (!action) return;
   const { count, error } = await admin
     .from("audit_events")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", input.organizationId)
     .eq("user_id", input.userId)
-    .eq("action", input.action);
+    .eq("action", action);
   if (error || (count ?? 0) > 0) return;
-  await emitProductTelemetryEvent(admin, input);
+  await emitProductTelemetryEvent(admin, { ...input, action });
 }
 
 export type WorkTelemetrySurface = "task" | "approval" | "obligation";
@@ -273,8 +290,13 @@ export async function emitV10ObjectiveTelemetryEvent(
   });
 }
 
-function isAllowlistedAction(action: string): action is ProductTelemetryAction {
+function isLegacyAction(action: string): action is ProductTelemetryLegacyAction {
   return (PRODUCT_TELEMETRY_ACTIONS as readonly string[]).includes(action);
+}
+
+export function normalizeProductTelemetryAction(action: string): ProductTelemetryLegacyAction | null {
+  if (isLegacyAction(action)) return action;
+  return PRODUCT_TELEMETRY_NEUTRAL_ACTION_ALIASES[action as ProductTelemetryNeutralAction] ?? null;
 }
 
 /**
@@ -291,14 +313,15 @@ export async function emitProductTelemetryEvent(
     details?: Record<string, string | number | boolean | null>;
   }
 ): Promise<boolean> {
-  if (!isAllowlistedAction(input.action)) return false;
+  const action = normalizeProductTelemetryAction(input.action);
+  if (!action) return false;
   try {
     const details = clampProductTelemetryDetails(input.details);
     const { error } = await admin.from("audit_events").insert({
       organization_id: input.organizationId,
       user_id: input.userId,
       contract_id: input.contractId ?? null,
-      action: input.action,
+      action,
       details,
     });
     if (error) {
@@ -311,3 +334,10 @@ export async function emitProductTelemetryEvent(
     return false;
   }
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { emitV10ObjectiveTelemetryEvent as emitObjectiveTelemetryEvent };
+export { sanitizeV10TelemetryUrl as sanitizeTelemetryUrl };
+export { V10_TELEMETRY_COMPATIBILITY_BRIDGES as TELEMETRY_COMPATIBILITY_BRIDGES };
+export { V10_TELEMETRY_EVENT_EVIDENCE_EXCEPTIONS as TELEMETRY_EVENT_EVIDENCE_EXCEPTIONS };
+// End version-name compatibility aliases.

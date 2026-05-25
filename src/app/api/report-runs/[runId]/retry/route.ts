@@ -5,20 +5,20 @@ import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
-import { statusForV10JobRetryOutcome } from "@/lib/v10-job-retry";
-import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/v10-job-visibility";
+import { statusForV10JobRetryOutcome } from "@/lib/job-retry";
+import { isV10JobRetryable, normalizeV10JobStatus } from "@/lib/job-visibility";
 import {
   buildV10MutationResponse,
   buildV10MutationResponseInit,
   validateV10IdempotencyKey,
   type V10MutationResponse,
-} from "@/lib/v10-mutation-envelope";
+} from "@/lib/mutation-envelope";
 import {
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
+} from "@/lib/server-contracts";
 import { runSingleReportPackGeneration } from "@/app/api/cron/v4/report-packs-generate/route";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";

@@ -7,8 +7,8 @@ import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
 import { isUuid, validateBoundedString } from "@/lib/security/validation";
 import type { RenewalCheckpointStatus } from "@/lib/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 
 const MAX_WORKSPACE_NOTE_LEN = 4000;
 

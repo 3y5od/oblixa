@@ -7,14 +7,14 @@ const requireApiWorkspaceEligibility = vi.fn();
 const enforceIdempotency = vi.fn();
 const recordApiMutationAuditEvent = vi.fn();
 const patchControlPolicySettings = vi.fn();
-const incrementV6QualityCounter = vi.fn();
+const incrementAssuranceQualityCounter = vi.fn();
 const runIncrementalAssuranceChecks = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -31,15 +31,15 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
   recordApiMutationAuditEvent,
 }));
 
-vi.mock("@/lib/v6/control-policies", () => ({
+vi.mock("@/lib/assurance/control-policies", () => ({
   patchControlPolicySettings,
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter,
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter,
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks,
 }));
 
@@ -52,7 +52,7 @@ describe("PATCH /api/control-policies/[id]", () => {
     enforceIdempotency.mockResolvedValue(null);
     recordApiMutationAuditEvent.mockResolvedValue("audit-1");
     patchControlPolicySettings.mockResolvedValue({ data: { id: "p1" }, error: null });
-    incrementV6QualityCounter.mockResolvedValue(undefined);
+    incrementAssuranceQualityCounter.mockResolvedValue(undefined);
     runIncrementalAssuranceChecks.mockResolvedValue(undefined);
   });
 

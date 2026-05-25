@@ -14,9 +14,9 @@ import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { autoTransitionTasksForApproval } from "@/actions/tasks";
 import { isNotificationTypeAllowedForWorkspace } from "@/lib/notification-policy";
 import { emitVisibleMutationErrorTelemetry, emitWorkActionTelemetry } from "@/lib/product-telemetry";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { validateV10ApprovalDecision } from "@/lib/v10-approval-exception";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { validateV10ApprovalDecision } from "@/lib/approval-exception";
 import {
   appendApprovalEvent,
   approvalAuditActionForStatus,

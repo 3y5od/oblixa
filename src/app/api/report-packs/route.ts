@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { workspaceModeAllowsReportType } from "@/lib/product-surface/feature-registry";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/v10-mutation-envelope";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
+import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/mutation-envelope";
 import {
   executeV10AuditedMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
@@ -57,7 +57,7 @@ export async function GET() {
     action: "api.sensitive_read_authorized",
   }).catch(() => undefined);
 
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const v6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const mode = parseWorkspaceMode(v6);
 
   const { data, error } = await ctx.admin
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
   }
 
   const reportType = body.reportType?.trim() || "weekly_execution_health";
-  const v6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const v6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const mode = parseWorkspaceMode(v6);
   if (!workspaceModeAllowsReportType(mode, reportType)) {
     return jsonV10(

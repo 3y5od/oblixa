@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "manual-reviewed-version-reference-allowlist",
+  "policy": "Allow version-looking strings that are standards, provider formats, dependency/runtime versions, schema versions, cryptographic envelope versions, or customer/domain labels rather than product-version naming debt.",
+  "metadataDefaults": {
+    "revisitTrigger": "Re-review whenever version-reference scanner rules or legitimate-version preservation categories change.",
+    "compensatingTest": "scripts/check-version-reference-allowlist.test.mjs"
+  },
+  "entries": [
+    {
+      "id": "accessibility-and-css-standards",
+      "owner": "frontend-platform",
+      "reason": "Accessibility, CSS, and browser standards use externally defined versions that should be preserved.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:WCAG [0-9]+(?:\\.[0-9]+)?|CSS Color [0-9]+|CSS [0-9]+|OKLCH|OKLAB)\\b",
+      "examples": ["WCAG 2.2", "CSS Color 4"],
+      "surface": "browser_or_web_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "asvs-control-ids",
+      "owner": "platform-security",
+      "reason": "OWASP ASVS uses V-prefixed chapter identifiers.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\bV(?:1[0-4]|[1-9])\\b",
+      "examples": ["V1", "V14"],
+      "surface": "security_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "browser-api-versions",
+      "owner": "frontend-platform",
+      "reason": "Browser platform APIs and web standards can include stable version numbers unrelated to product phases.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:WebGL 2|HTTP/2|HTTP/3|CSP[23]?|TLS 1\\.[23])\\b",
+      "examples": ["WebGL 2", "HTTP/2"],
+      "surface": "browser_or_web_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "cryptographic-envelope-prefixes",
+      "owner": "platform-security",
+      "reason": "Encrypted payload envelopes encode their compatibility version in the persisted prefix.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\benc:v[0-9]+:",
+      "examples": ["enc:v1:", "enc:v2:"],
+      "surface": "cryptographic_format",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "customer-domain-version-labels",
+      "owner": "product-platform",
+      "reason": "Imported customer or domain labels can be versioned source data and are not code object names.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:customer|domain|external|vendor)[-_ ]?v[0-9]+\\b",
+      "examples": ["customer-v2", "external v3"],
+      "surface": "customer_domain_data",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "dependency-runtime-versions",
+      "owner": "release-engineering",
+      "reason": "Runtime and dependency versions are required for reproducible builds and provider support windows.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:[Nn]ode|[Pp]ostgres|[Pp]ostgreSQL|[Pp]ostgREST|[Ss]upabase|[Nn]ext|[Rr]eact|[Tt]ype[Ss]cript|[Vv]itest|[Pp]laywright):?[>=~^ ]*v?[0-9]+(?:\\.[0-9]+){0,2}\\b",
+      "examples": ["node:20", "PostgreSQL 16"],
+      "surface": "runtime_dependency",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "key-version-metadata",
+      "owner": "platform-security",
+      "reason": "Key identifiers and key-version metadata are persisted compatibility markers, not product release labels.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:kid|key|secret|token)[-_ ]?v[0-9]+\\b",
+      "examples": ["kid-v1", "token v2"],
+      "surface": "key_version_metadata",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "legal-regulatory-versions",
+      "owner": "platform-security",
+      "reason": "Legal and regulatory standards include externally defined version labels that must not be renamed as product cleanup.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:PCI DSS v[0-9]+(?:\\.[0-9]+)?|SOC 2|ISO 27001:[0-9]{4}|GDPR Article [0-9]+)\\b",
+      "examples": ["PCI DSS v4.0", "SOC 2"],
+      "surface": "legal_regulatory_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "localization-standards",
+      "owner": "frontend-platform",
+      "reason": "Locale tags and Unicode/Intl versions are language/platform standards rather than product phase labels.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:[a-z]{2,3}-[A-Z]{2}|BCP 47|Unicode [0-9]+(?:\\.[0-9]+)?|Intl(?:\\.Segmenter)? [0-9]+(?:\\.[0-9]+)?)\\b",
+      "examples": ["en-US", "BCP 47", "Unicode 15"],
+      "surface": "localization_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "network-terminology",
+      "owner": "platform-security",
+      "reason": "Network standards such as IPv4 and IPv6 are protocol terms, not product phase labels.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\bIPv[46]\\b",
+      "examples": ["IPv4", "IPv6"],
+      "surface": "network_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "oauth-protocol-versions",
+      "owner": "platform-auth",
+      "reason": "OAuth and OIDC protocol names include externally defined versions.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:OAuth 2(?:\\.0)?|OIDC|OpenID Connect 1(?:\\.0)?)\\b",
+      "examples": ["OAuth 2.0", "OpenID Connect 1.0"],
+      "surface": "provider_protocol",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "provider-endpoint-versions",
+      "owner": "platform-integrations",
+      "reason": "Provider endpoint names can include externally defined API versions.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:oauth\\.v2|api\\.v[0-9]+|graph\\.v[0-9]+)\\b",
+      "examples": ["oauth.v2"],
+      "surface": "provider_endpoint",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "provider-model-and-eval-versions",
+      "owner": "platform-integrations",
+      "reason": "Provider model names, tokenizer families, and evaluation benchmark labels can contain externally defined version numbers.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:gpt-[0-9]+(?:\\.[0-9]+)?|claude-[0-9]+(?:\\.[0-9]+)?|text-embedding-[0-9]+|tokenizer-v[0-9]+|eval-v[0-9]+)\\b",
+      "examples": ["gpt-5.2", "eval-v2"],
+      "surface": "provider_model_or_eval",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "provider-signature-versions",
+      "owner": "platform-integrations",
+      "reason": "Provider webhook signatures include mandatory version labels.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "(?:\\bv0=|\\bv1=|\\bStripe-Signature\\b|\\bX-Slack-Signature\\b)",
+      "examples": ["v0=", "v1="],
+      "surface": "provider_signature",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "schema-version-fields",
+      "owner": "platform-hardening",
+      "reason": "Generated artifacts and external schemas need explicit schemaVersion fields.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\bschemaVersion\\b",
+      "examples": ["schemaVersion"],
+      "surface": "schema_metadata",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    },
+    {
+      "id": "supply-chain-standards",
+      "owner": "release-engineering",
+      "reason": "Supply-chain evidence formats use externally defined standard versions that must not be rewritten as product-version debt.",
+      "reviewedOn": "2026-05-23",
+      "pattern": "\\b(?:SPDX(?:-[A-Za-z0-9.]+)? [0-9]+(?:\\.[0-9]+)?|CycloneDX [0-9]+(?:\\.[0-9]+)?|SLSA [0-9]+|SARIF [0-9]+(?:\\.[0-9]+)?|VEX [0-9]+(?:\\.[0-9]+)?)\\b",
+      "examples": ["CycloneDX 1.5", "SLSA 3", "SARIF 2.1"],
+      "surface": "supply_chain_standard",
+      "validationCommand": "npm run check:version-reference-allowlist"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import {
   generateRenewalDecisionPacketFormAction,
   updateRenewalCheckpointRenewalStateFormAction,
   updateRenewalCheckpointWorkspaceFormAction,
-} from "@/actions/v4";
+} from "@/actions/policy-operations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractRenewalCheckpoint, RenewalCheckpointStatus } from "@/lib/types";
 

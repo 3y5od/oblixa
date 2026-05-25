@@ -145,6 +145,36 @@ function toAuthenticatedEntry([route, routeFamily, expectedHeading, coverage]) {
 
 const publicRoutes = [
   withManifestMetadata({
+    route: "/product",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Product",
+    visitPath: "/product",
+    coverage: ["smoke", "a11y", "visual"],
+  }),
+  withManifestMetadata({
+    route: "/pricing",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Pricing",
+    visitPath: "/pricing",
+    coverage: ["smoke", "a11y", "visual"],
+  }),
+  withManifestMetadata({
+    route: "/contact",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Contact",
+    visitPath: "/contact",
+    coverage: ["smoke", "a11y", "visual"],
+  }),
+  withManifestMetadata({
     route: "/",
     routeFamily: "marketing",
     mode: "public",
@@ -212,6 +242,16 @@ const publicRoutes = [
     shellFamily: "marketing",
     expectedHeading: "Terms of use",
     visitPath: "/terms",
+    coverage: ["smoke", "a11y", "visual"],
+  }),
+  withManifestMetadata({
+    route: "/acceptable-use",
+    routeFamily: "marketing",
+    mode: "public",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Acceptable use",
+    visitPath: "/acceptable-use",
     coverage: ["smoke", "a11y", "visual"],
   }),
   withManifestMetadata({

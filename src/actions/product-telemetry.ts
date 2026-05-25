@@ -171,3 +171,7 @@ export async function emitPageLoadMeasuredTelemetry(input: { path: string; durat
     details: { path: path.data, durationMs: Math.round(input.durationMs) },
   });
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { emitV10EmptyStateCtaClickedTelemetry as emitEmptyStateCtaClickedTelemetry };
+// End version-name compatibility aliases.

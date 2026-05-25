@@ -5,16 +5,16 @@ const canManageCapability = vi.fn();
 const appendCasefileEvent = vi.fn();
 const applyProgramToContract = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v4/casefile", () => ({
+vi.mock("@/lib/contract-operations/casefile", () => ({
   appendCasefileEvent,
 }));
 
-vi.mock("@/lib/v4/execution-engine", () => ({
+vi.mock("@/lib/contract-operations/execution-engine", () => ({
   applyProgramToContract,
 }));
 

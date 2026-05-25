@@ -30,7 +30,7 @@ const REQUIRED_AUDIT_ACTION_FAMILIES = [
   { family: "destructive", actionRe: /(deleted|revoked|delete_requested|account_delete|teardown)/ },
 ];
 const REQUIRED_AUDIT_STORAGE_MARKERS = {
-  "src/lib/v10-server-contracts.ts": [
+  "src/lib/server-contracts.ts": [
     "import type { AuditAction }",
     "action: AuditAction",
     "auditAction: AuditAction",
@@ -47,7 +47,7 @@ const REQUIRED_AUDIT_STORAGE_MARKERS = {
     "sanitizeV10AuditMetadata({",
     '{ ...input, writeMode: "blocking" }',
   ],
-  "src/lib/v10-server-contracts.v10.test.ts": [
+  "src/lib/server-contracts.test.ts": [
     "persists client request ids as support-safe audit metadata",
     "redacts unsafe audit metadata before V10 audit persistence",
   ],

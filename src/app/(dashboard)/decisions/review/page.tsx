@@ -6,9 +6,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
-import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/v5/decision-types";
-import { decisionQueueSlaFields } from "@/lib/v5/decision-queue-sla";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
+import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/decision-intelligence/decision-types";
+import { decisionQueueSlaFields } from "@/lib/decision-intelligence/decision-queue-sla";
 
 export default async function DecisionsManagerReviewPage() {
   const ctx = await getAuthContext();

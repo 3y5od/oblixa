@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireV6Context = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
-const incrementV6QualityCounter = vi.fn(async (...args: unknown[]) => {
+const incrementAssuranceQualityCounter = vi.fn(async (...args: unknown[]) => {
   void args;
 });
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v6/api-auth", () => ({
+vi.mock("@/lib/assurance/api-auth", () => ({
   requireV6Context: (...args: unknown[]) => requireV6Context(...args),
 }));
 
@@ -18,8 +18,8 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: (...args: unknown[]) => incrementV6QualityCounter(...args),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: (...args: unknown[]) => incrementAssuranceQualityCounter(...args),
 }));
 
 function maybeSingleChain(data: Record<string, unknown> | null) {

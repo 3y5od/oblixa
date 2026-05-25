@@ -1,18 +1,18 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
-import { cronMatchesUtc } from "@/lib/v4/cron-schedule";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
+import { cronMatchesUtc } from "@/lib/contract-operations/cron-schedule";
 import {
   computeReportPackMetrics,
   extractPriorKpis,
-} from "@/lib/v4/report-pack-metrics";
+} from "@/lib/contract-operations/report-pack-metrics";
 import { sendReportPackDigestEmail } from "@/lib/email";
 import { getCanonicalServerBaseUrl } from "@/lib/app-url";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { getV10ReportFamilyForRun } from "@/lib/v10-report-export";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { getV10ReportFamilyForRun } from "@/lib/report-export";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { buildProductSurfaceContext } from "@/lib/product-surface/context";
@@ -23,7 +23,7 @@ import {
   minWorkspaceModeForReportType,
   workspaceModeAtLeast,
 } from "@/lib/product-surface/feature-registry";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import {
   executeBatch,
   safeErrorMessage,
@@ -137,7 +137,7 @@ export async function runSingleReportPackGeneration(input: {
       pushError("refresh", "v10_report_pack_refresh_failed", safeErrorMessage(error) ?? "V10 refresh failed");
     }
   };
-  const v6Org = await getV6OrgSettingsJson(input.admin, orgId);
+  const v6Org = await getOrgSettingsJson(input.admin, orgId);
   const workspaceProductMode = parseWorkspaceMode(v6Org);
   const minModeForReport = minWorkspaceModeForReportType(reportType);
   const failQueuedRun = async (message: string, diagnosticId: string): Promise<ReportPackGenerationResult> => {

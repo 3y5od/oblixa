@@ -96,7 +96,7 @@
         "test:e2e:ui-qa-plan",
         "test:e2e:adversarial",
         "test:e2e:resilience:all",
-        "test:vitest:v10",
+        "test:vitest:current-product",
         "report:test-heatmap"
       ]
     },
@@ -143,7 +143,7 @@
         "test:e2e:ui-qa-plan",
         "test:e2e:adversarial",
         "test:e2e:resilience:all",
-        "test:vitest:v10",
+        "test:vitest:current-product",
         "report:test-heatmap",
         { "script": "check:openapi-contract-smoke", "required": true, "ifEnv": "STAGING_BASE_URL" },
         { "script": "test:staging-env-parity", "required": true, "ifEnv": "STAGING_BASE_URL" },
@@ -211,7 +211,7 @@
         "test:e2e:ui-qa-plan",
         "test:e2e:adversarial",
         "test:e2e:resilience:all",
-        "test:vitest:v10",
+        "test:vitest:current-product",
         "report:test-heatmap",
         "check:quick",
         "check:comprehensive-pass",

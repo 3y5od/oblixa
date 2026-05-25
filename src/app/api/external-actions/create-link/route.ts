@@ -3,23 +3,23 @@ import { NextResponse } from "next/server";
 import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
 import { parseFutureIsoTimestamp } from "@/lib/security/validation";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import {
   externalActionTokenHash,
   externalActionTokenPrefix,
   hashExternalPasscode,
   readJsonBody,
   toSafeString,
-} from "@/lib/v5/api";
+} from "@/lib/decision-intelligence/api";
 import {
   type ExternalActionType,
   externalActionTypeValidationError,
   isValidExternalActionType,
-} from "@/lib/v5/external-action-types";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/external-action-types";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 
 const ROUTE = "/api/external-actions/create-link";
@@ -201,11 +201,11 @@ export async function POST(request: Request) {
   }
 
   if (isFeatureEnabled("v6AssuranceCore")) {
-    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_action_links_created_total", 1).catch(
+    await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "external_action_links_created_total", 1).catch(
       () => undefined
     );
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_external_create_link_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_external_create_link_total", 1).catch(
     () => undefined
   );
 

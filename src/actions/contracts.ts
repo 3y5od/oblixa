@@ -30,10 +30,10 @@ import { scanUploadedFileForMalware, sniffUploadedFileMime } from "@/lib/securit
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { autoTransitionTasksForField } from "@/actions/tasks";
-import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
-import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { autoAttachProgramsForContract } from "@/lib/contract-operations/program-auto-attach";
+import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 import type { AuditAction } from "@/lib/security/audit-actions";
 import {
   updateContractStatus as updateContractStatusImpl,

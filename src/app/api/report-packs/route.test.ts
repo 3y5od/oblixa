@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const recordV10AuditEvent = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
 const executeV10AuditedMutation = vi.fn(
@@ -19,7 +19,7 @@ const executeV10AuditedMutation = vi.fn(
   }
 );
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -28,11 +28,11 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10AuditedMutation,
   getV10ExpectedVersionFromRequest: (request: Request) =>
     request.headers.get("x-v10-expected-version")?.trim() || request.headers.get("if-match")?.replace(/^"|"$/g, "").trim() || undefined,
@@ -40,7 +40,7 @@ vi.mock("@/lib/v10-server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
@@ -117,7 +117,7 @@ describe("/api/report-packs", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
     recordV10AuditEvent.mockResolvedValue("v10-audit-1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
     executeV10AuditedMutation.mockClear();

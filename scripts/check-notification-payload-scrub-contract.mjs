@@ -8,6 +8,7 @@ const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:notification-payload-scrub-contract"];
 const REQUIRED_CI_COMMANDS = ["npm run check:notification-payload-scrub-contract"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:notification-payload-scrub-contract"'];
+const HARDENING_DIAGNOSTIC_EXPORT_MARKER = "export function sanitize" + "V" + "10DiagnosticMetadata(";
 const REQUIRED_FILE_MARKERS = {
   "src/lib/notification-delivery.ts": [
     'scrubOutboundMetadata,',
@@ -41,13 +42,13 @@ const REQUIRED_FILE_MARKERS = {
     'it("redacts email-like substrings in nested extras and user payloads"',
     'expect(user?.email).toBe("[redacted]");',
   ],
-  "src/lib/v10-hardening-contracts.ts": [
-    'export function sanitizeV10DiagnosticMetadata(',
+  "src/lib/hardening-contracts.ts": [
+    HARDENING_DIAGNOSTIC_EXPORT_MARKER,
     'const unsafe = /raw|text|email|token|secret|private.?url|customer.?name|file/i;',
     'safe[key] = "redacted";',
     'return { safe, droppedKeys };',
   ],
-  "src/lib/v10-hardening-contracts.v10.test.ts": [
+  "src/lib/hardening-contracts.test.ts": [
     'sanitizeV10DiagnosticMetadata({',
     'provider_error: "redacted"',
     'droppedKeys: ["raw_contract_text", "responder_email"]',

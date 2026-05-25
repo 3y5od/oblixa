@@ -4,9 +4,9 @@ import {
   refreshV10ReadModelsForOrganization,
   type V10ReadModelKey,
   type V10ReadModelRefreshScope,
-} from "@/lib/v10-read-model-refresh";
-import { V10_REQUIRED_READ_MODEL_KEYS } from "@/lib/v10-read-models";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+} from "@/lib/read-model-refresh";
+import { V10_REQUIRED_READ_MODEL_KEYS } from "@/lib/read-models";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { parseFixedEnumParam, parseIsoTimestampParam, parsePositiveIntParam } from "@/lib/security/validation";
 
 export const runtime = "nodejs";

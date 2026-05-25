@@ -167,6 +167,32 @@ function hasRlsEnable(allSql, table) {
   return new RegExp(`alter\\s+table\\s+(?:if\\s+exists\\s+)?public\\.${escaped}\\s+enable\\s+row\\s+level\\s+security`, "i").test(allSql);
 }
 
+function collectPublicTableGrants(allSql) {
+  const tableGrants = new Map();
+  const ensure = (table) => {
+    const normalized = normalizeTableName(table);
+    const roles = tableGrants.get(normalized) ?? new Set();
+    tableGrants.set(normalized, roles);
+    return roles;
+  };
+
+  for (const match of allSql.matchAll(/\bgrant\s+[^;]*?\s+on\s+(?:table\s+)?((?:public\.)?"?[a-zA-Z_][\w]*"?)\s+to\s+([^;]+);/gi)) {
+    for (const role of match[2].split(",")) {
+      const normalizedRole = role.trim().toLowerCase();
+      if (normalizedRole === "public") ensure(match[1]).add(normalizedRole);
+    }
+  }
+
+  for (const match of allSql.matchAll(/\bgrant\s+[^;]*?\s+on\s+all\s+tables\s+in\s+schema\s+public\s+to\s+([^;]+);/gi)) {
+    for (const role of match[1].split(",")) {
+      const normalizedRole = role.trim().toLowerCase();
+      if (["public", "anon", "authenticated"].includes(normalizedRole)) ensure("*").add(normalizedRole);
+    }
+  }
+
+  return tableGrants;
+}
+
 function hasForceMigration(text) {
   return (
     /force\s+row\s+level\s+security/i.test(text) &&
@@ -205,6 +231,7 @@ export function analyzeRlsSanityTables(root = ROOT) {
   const allSql = rows.map((row) => row.uncommented).join("\n");
   const inventory = buildTenantInventory(rows);
   const policyCoverage = mergeCoverage(collectDirectPolicyCoverage(allSql), collectDynamicPolicyCoverage(allSql));
+  const publicTableGrants = collectPublicTableGrants(allSql);
   const forceMigrationText = exists(root, FORCE_RLS_MIGRATION_REL) ? read(root, FORCE_RLS_MIGRATION_REL) : "";
   const forceMigrationOk = hasForceMigration(forceMigrationText);
 
@@ -265,6 +292,21 @@ export function analyzeRlsSanityTables(root = ROOT) {
   }
 
   for (const entry of inventory) {
+    if (publicTableGrants.has("*")) {
+      issues.push({
+        issue: "tenant_tables_exposed_by_schema_wide_client_grant",
+        table: entry.table,
+        roles: [...publicTableGrants.get("*")].sort(),
+      });
+    }
+    if (publicTableGrants.has(entry.table)) {
+      issues.push({
+        issue: "tenant_table_granted_to_public",
+        table: entry.table,
+        roles: [...publicTableGrants.get(entry.table)].sort(),
+      });
+    }
+
     if (!hasRlsEnable(allSql, entry.table)) {
       issues.push({ issue: "tenant_table_missing_rls_enable", table: entry.table, rel: entry.rel });
     }

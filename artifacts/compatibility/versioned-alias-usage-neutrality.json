@@ -1,0 +1,4874 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-alias-usage-neutrality.mjs --write",
+  "policy": "Repo-local callers should prefer neutral aliases. Legacy aliases remain callable/readable only when queue-covered and compatibility-sensitive.",
+  "sourceArtifacts": {
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json",
+    "exportedSymbolInventory": "artifacts/compatibility/versioned-exported-symbol-inventory.json",
+    "telemetryInventory": "artifacts/telemetry/event-inventory.json",
+    "routeInventory": "artifacts/routes/compatibility-route-inventory.json"
+  },
+  "totals": {
+    "aliasCount": 79,
+    "queueCoveredCount": 79,
+    "retainedLegacyAliasCount": 79,
+    "neutralOnlyAliasCount": 0,
+    "legacyReferenceCount": 258,
+    "neutralReferenceCount": 1351,
+    "issueCount": 0
+  },
+  "aliases": [
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_APPROVALS_SLA",
+      "neutralAlias": "ENABLE_APPROVALS_SLA",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_AUTOMATION_EXPANSION",
+      "neutralAlias": "ENABLE_AUTOMATION_EXPANSION",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_INTAKE_PIPELINE",
+      "neutralAlias": "ENABLE_INTAKE_PIPELINE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_OBLIGATIONS_EXECUTION",
+      "neutralAlias": "ENABLE_OBLIGATIONS_EXECUTION",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_PERSONA_DASHBOARDS",
+      "neutralAlias": "ENABLE_PERSONA_DASHBOARDS",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 3,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/(dashboard)/dashboard/persona/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_RENEWAL_WORKSPACE",
+      "neutralAlias": "ENABLE_RENEWAL_WORKSPACE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_REPORTING_HISTORY",
+      "neutralAlias": "ENABLE_REPORTING_HISTORY",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 4,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/data-quality/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/reports/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V3_TASKS_ENGINE",
+      "neutralAlias": "ENABLE_TASKS_ENGINE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 7,
+      "neutralReferenceCount": 3,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.kill-switch.contract.test.ts",
+          "legacyCount": 3,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.test.ts",
+          "legacyCount": 2,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_CONTROL_ROOM_UX",
+      "neutralAlias": "ENABLE_CONTROL_ROOM_UX",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "e2e/external-surfaces.spec.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_DECISION_FOUNDATION",
+      "neutralAlias": "ENABLE_DECISION_FOUNDATION",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/assurance/epics-15-24-boundary.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_EXTERNAL_COLLABORATION",
+      "neutralAlias": "ENABLE_EXTERNAL_COLLABORATION",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 8,
+      "neutralReferenceCount": 6,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-env-flag-aliases.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/observability/instrumentation-env-warn.test.ts",
+          "legacyCount": 2,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/observability/instrumentation-env-warn.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
+      "neutralAlias": "ENABLE_PORTFOLIO_CAMPAIGNS",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_RELATIONSHIP_LAYER",
+      "neutralAlias": "ENABLE_RELATIONSHIP_LAYER",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
+      "neutralAlias": "ENABLE_SIMULATION_AND_INTELLIGENCE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/decision-intelligence/flag-matrix.test.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_ADAPTIVE_PLAYBOOKS",
+      "neutralAlias": "ENABLE_ADAPTIVE_PLAYBOOKS",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_ASSURANCE_CORE",
+      "neutralAlias": "ENABLE_ASSURANCE_CORE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 13,
+      "neutralReferenceCount": 6,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-feature-flag-security-bypass.test.mjs",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-content-contracts.test.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/assurance/epics-15-24-boundary.test.ts",
+          "legacyCount": 2,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.test.ts",
+          "legacyCount": 7,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_AUTOPILOT",
+      "neutralAlias": "ENABLE_AUTOPILOT",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 6,
+      "neutralReferenceCount": 5,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.test.ts",
+          "legacyCount": 2,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
+      "neutralAlias": "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 3,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.test.ts",
+          "legacyCount": 2,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_CONTROL_POLICIES",
+      "neutralAlias": "ENABLE_CONTROL_POLICIES",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_OUTCOME_INTELLIGENCE",
+      "neutralAlias": "ENABLE_OUTCOME_INTELLIGENCE",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_REVIEW_BOARDS",
+      "neutralAlias": "ENABLE_REVIEW_BOARDS",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "ENABLE_V6_SEGMENTS",
+      "neutralAlias": "ENABLE_SEGMENTS",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 2,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "PLAYWRIGHT_V10_MATRIX",
+      "neutralAlias": "PLAYWRIGHT_DEVICE_MATRIX",
+      "owner": "test-platform",
+      "queueCovered": true,
+      "legacyReferenceCount": 9,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npx playwright test --list e2e/current-product-device-matrix.chromium.spec.ts",
+      "references": [
+        {
+          "path": "e2e/current-product-device-matrix.chromium.spec.ts",
+          "legacyCount": 2,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "e2e/current-product-device-matrix.firefox.spec.ts",
+          "legacyCount": 2,
+          "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "e2e/current-product-device-matrix.webkit.spec.ts",
+          "legacyCount": 2,
+          "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 3,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "environment_key",
+      "legacyName": "V5_DECISION_PACKET_BUCKET",
+      "neutralAlias": "DECISION_PACKET_BUCKET",
+      "owner": "decision-intelligence",
+      "queueCovered": true,
+      "legacyReferenceCount": 29,
+      "neutralReferenceCount": 50,
+      "referenceFileCount": 10,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/decision-intelligence/decision-packet-storage.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 3,
+          "neutralCount": 5,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-storage-path-safety.mjs",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-storage-path-safety.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-content-contracts.test.mjs",
+          "legacyCount": 5,
+          "neutralCount": 6,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/api/decisions/[id]/packet-runs/[runId]/route.test.ts",
+          "legacyCount": 9,
+          "neutralCount": 9,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/decisions/[id]/packet/route.test.ts",
+          "legacyCount": 5,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/decision-intelligence/decision-packet-storage.test.ts",
+          "legacyCount": 6,
+          "neutralCount": 10,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/decision-intelligence/decision-packet-storage.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "allV8ExemptSurfaceRules",
+      "neutralAlias": "allExemptSurfaceRules",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 7,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/exempt-surfaces-exemplars.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/exempt-surfaces.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "getV6OrgSettingsJson",
+      "neutralAlias": "getOrgSettingsJson",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 179,
+      "referenceFileCount": 49,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-outbound-events-context.mjs",
+          "legacyCount": 2,
+          "neutralCount": 0,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/actions/onboarding-calibration-export.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/onboarding-calibration-rate-limit.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/onboarding-calibration.ts",
+          "legacyCount": 0,
+          "neutralCount": 14,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/product-surface-settings.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 9,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/product-surface-settings.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/program-surface-guards.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/onboarding/calibration/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/settings/health/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/settings/product/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/autopilot/rules/[id]/dry-run/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/autopilot/run-logs/[id]/revert/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/cron/v4/report-packs-generate/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/events/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/events/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/export/contracts/[jobId]/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/export/contracts/[jobId]/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/export/contracts/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/report-packs/[id]/runs/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/report-packs/[id]/runs/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/report-packs/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/report-packs/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/reports/send-summaries/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/reports/send-summaries/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/workspace/v6-settings/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/dashboard/dashboard-upper.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/org-settings.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 10,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/org-settings.ts",
+          "legacyCount": 1,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/require-assurance-workspace-for-autopilot-api.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/require-assurance-workspace-for-autopilot-api.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/auth/post-auth-redirect.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/auth/post-auth-redirect.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/integrations/events.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/integrations/events.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/notification-policy.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-gate.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-stale-run.batch.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-stale-run.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/api-workspace-guard-compatibility-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/api-workspace-guard.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 15,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/api-workspace-guard.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/context-load-build-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/context.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/refinement-critical-cron-invariants.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/server-action-guard.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/server-action-guard.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/security/ai-tenant-gate.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "mergeV6OrgSettingsJson",
+      "neutralAlias": "mergeOrgSettingsJson",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 52,
+      "referenceFileCount": 15,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/actions/onboarding-calibration-rate-limit.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/onboarding-calibration.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/product-surface-settings.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 18,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/actions/product-surface-settings.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/workspace/v6-settings/route.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/api/workspace/v6-settings/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/org-settings.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/org-settings.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-blocking-minimal.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-stale-org-scope.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/onboarding-acceptance.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/onboarding-calibration-source-order.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/onboarding-merge-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/onboarding-qa-static-guards.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V10RecoverableState",
+      "neutralAlias": "RecoverableState",
+      "owner": "frontend-platform",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 43,
+      "referenceFileCount": 20,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-exported-symbols.test.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/renewals/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/reports/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/settings/product/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/work/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/contracts/contract-table.tsx",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/layout/command-palette.tsx",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/ui/recoverable-state.test.tsx",
+          "legacyCount": 0,
+          "neutralCount": 10,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/ui/recoverable-state.tsx",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/contracts-list-surface.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/core-workflow-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/empty-states-high-traffic.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/exceptions-surface.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/ui/enterprise-ui-sweep-contract.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/ui/enterprise-ui-sweep-contract.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V5SignalQualityDisplayRow",
+      "neutralAlias": "SignalQualityDisplayRow",
+      "owner": "decision-intelligence",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/decision-intelligence/signal-quality-labels.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/components/dashboard/telemetry-compact.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/reports/reports-control-room-more.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/decision-intelligence/signal-quality-labels.ts",
+          "legacyCount": 1,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V6OrgSettingsJson",
+      "neutralAlias": "OrgSettingsJson",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 46,
+      "referenceFileCount": 12,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/api/workspace/v6-settings/route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/assurance/org-settings.ts",
+          "legacyCount": 1,
+          "neutralCount": 16,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-blocking-minimal.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-eligibility-spot.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/calibration-post-patch-surface.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/onboarding/onboarding-product-context-last-applied.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/context-core.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/context-load-build-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/context.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/resolver.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/supabase/server.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8AdminRevealPolicy",
+      "neutralAlias": "AdminRevealPolicy",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 7,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/refinement-contract.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/feature-registry.ts",
+          "legacyCount": 1,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "v8AdminRevealPolicyForFeature",
+      "neutralAlias": "adminRevealPolicyForFeature",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 5,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/refinement-contract.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/feature-registry.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "v8DenialStatusMatrix",
+      "neutralAlias": "denialStatusMatrix",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/denial-status.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/denial-class-reachability.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/denial-status.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/denial-status.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/eligibility/index.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "v8DiscoverabilityForFeature",
+      "neutralAlias": "discoverabilityForFeature",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 6,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/refinement-contract.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-exported-symbols.test.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/feature-registry.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8EligibilityDenialClass",
+      "neutralAlias": "EligibilityDenialClass",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 18,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/denial-class-reachability.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/api-workspace-guard.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/denial-class-reachability.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/denial-status.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/eligibility.ts",
+          "legacyCount": 1,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/eligibility/index.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/server-action-guard.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8ExemptSurfaceClass",
+      "neutralAlias": "ExemptSurfaceClass",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 5,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/exempt-surfaces-exemplars.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/exempt-surfaces.ts",
+          "legacyCount": 1,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/surface-mapping.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8ExemptSurfaceRule",
+      "neutralAlias": "ExemptSurfaceRule",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 11,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/exempt-surfaces.ts",
+          "legacyCount": 1,
+          "neutralCount": 9,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8FeatureDiscoverability",
+      "neutralAlias": "FeatureDiscoverabilityPolicy",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 9,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/refinement-contract.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/eligibility.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/feature-registry.ts",
+          "legacyCount": 2,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "v8GovernedPageRootPrefixes",
+      "neutralAlias": "governedPageRootPrefixes",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 12,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/governed-page-shell.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/governed-prefixes.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/href-eligibility.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/page-inventory-coverage.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/proxy-path-policy-alignment.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8SurfaceMapping",
+      "neutralAlias": "SurfaceMapping",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 8,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/surface-mapping.ts",
+          "legacyCount": 1,
+          "neutralCount": 6,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V8SurfaceType",
+      "neutralAlias": "SurfaceType",
+      "owner": "product-surface",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 11,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/eligibility.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/index.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/surface-mapping.ts",
+          "legacyCount": 1,
+          "neutralCount": 6,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "exported_symbol_alias",
+      "legacyName": "V9_DUE_SOON_DAYS",
+      "neutralAlias": "DUE_SOON_DAYS",
+      "owner": "frontend-platform",
+      "queueCovered": true,
+      "legacyReferenceCount": 3,
+      "neutralReferenceCount": 21,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "vitest run src/lib/business-dates-drift.test.ts src/lib/hardening.test.ts",
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-exported-symbols.test.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/app/(dashboard)/work/work-page-helpers.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/dashboard/dashboard-upper.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/business-dates-drift.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/business-dates.ts",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/dashboard-data.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-complete-closure",
+      "neutralAlias": "check:complete-closure",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 18,
+      "referenceFileCount": 13,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:complete-closure",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/zero-exclusion-report.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-inventory-lock",
+      "neutralAlias": "check:release-inventory-lock",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 9,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:release-inventory-lock",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-migration-smoke",
+      "neutralAlias": "check:migration-smoke:current",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 28,
+      "referenceFileCount": 17,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:migration-smoke:current",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": ".github/workflows/qa-max-nightly.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 2,
+          "neutralCount": 4,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-qa-maximal-bundle.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/rebuild-read-models.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/release-preflight.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-migration-smoke:strict",
+      "neutralAlias": "check:migration-smoke:current:strict",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 12,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:migration-smoke:current:strict",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": ".github/workflows/qa-max-nightly.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-qa-maximal-bundle.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-privacy-scan",
+      "neutralAlias": "check:release-privacy-scan",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 35,
+      "referenceFileCount": 20,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:release-privacy-scan",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-suite-current.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/release-preflight.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/complete-closure.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/zero-exclusion-report.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-promotable",
+      "neutralAlias": "check:release-promotable",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 18,
+      "referenceFileCount": 9,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:release-promotable",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 2,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/write-debugging-sweep-closure.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-gates-and-promotable.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-promotable:report",
+      "neutralAlias": "report:release-promotable",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 4,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run report:release-promotable",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-release-evidence",
+      "neutralAlias": "check:release-evidence",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 123,
+      "referenceFileCount": 34,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:release-evidence",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-artifact-provenance.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-suite-current.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-release-checklist.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/rebuild-read-models.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/release-preflight.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 16,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/complete-closure.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/mutation-rollout.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/mutation-rollout.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/objective-measurements.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/objective-measurements.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 36,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/readiness-scorecard.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/readiness-scorecard.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/section6-gate-ci.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/ui/enterprise-ui-sweep-contract.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/zero-exclusion-report.ts",
+          "legacyCount": 0,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-runtime-evidence-plan",
+      "neutralAlias": "report:runtime-evidence-plan",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 12,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run report:runtime-evidence-plan",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/write-debugging-sweep-closure.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-suite",
+      "neutralAlias": "check:release-suite-current",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 118,
+      "referenceFileCount": 39,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:release-suite-current",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-artifact-provenance.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-closure-readiness.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-content-surface-coverage.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-detailed-objective-coverage.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-versioned-remaining-surface-coverage.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-release-checklist.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/rebuild-read-models.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/release-preflight.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/acceptance-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 9,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 8,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/mutation-rollout.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/mutation-rollout.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/objective-measurements.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 28,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/readiness-scorecard.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/readiness-scorecard.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/traceability-ledger.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/traceability-ledger.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/ui/enterprise-ui-sweep-contract.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/zero-exclusion-report.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v10-zero-exclusion-report",
+      "neutralAlias": "check:zero-exclusion-report",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 15,
+      "referenceFileCount": 10,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:zero-exclusion-report",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/release-preflight.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v7-hrefs:strict",
+      "neutralAlias": "check:surface-hrefs:compatibility:strict",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 7,
+      "referenceFileCount": 5,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface-hrefs:compatibility:strict",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/alias-compatibility-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v7-suite",
+      "neutralAlias": "check:surface-suite:compatibility",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 8,
+      "referenceFileCount": 5,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface-suite:compatibility",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/alias-compatibility-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-acceptance-criteria",
+      "neutralAlias": "check:surface:acceptance-criteria",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 8,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:acceptance-criteria",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-acceptance-matrix",
+      "neutralAlias": "check:surface:acceptance-matrix",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 7,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:acceptance-matrix",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-action-eligibility",
+      "neutralAlias": "check:surface:action-eligibility",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 12,
+      "referenceFileCount": 9,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:action-eligibility",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/global-constraints.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-action-inventory",
+      "neutralAlias": "check:surface:action-inventory",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 13,
+      "referenceFileCount": 9,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:action-inventory",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/product-surface-inventory-report.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-api-eligibility",
+      "neutralAlias": "check:surface:api-eligibility",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 10,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:api-eligibility",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/global-constraints.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/plan-enforcement-bundles.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-api-inventory",
+      "neutralAlias": "check:surface:api-inventory",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 13,
+      "referenceFileCount": 9,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:api-inventory",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/product-surface-inventory-report.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-denial-mapping",
+      "neutralAlias": "check:surface:denial-mapping",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 7,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:denial-mapping",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-diagnostics-contract",
+      "neutralAlias": "check:surface:diagnostics-contract",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 7,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:diagnostics-contract",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-hrefs",
+      "neutralAlias": "check:surface:hrefs",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 30,
+      "referenceFileCount": 14,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:hrefs",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 2,
+          "neutralCount": 6,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-qa-maximal-bundle.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/security-static-audit.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/global-constraints.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/plan-enforcement-bundles.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/alias-compatibility-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-hrefs:strict",
+      "neutralAlias": "check:surface:hrefs:strict",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 24,
+      "referenceFileCount": 14,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:hrefs:strict",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 4,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-qa-maximal-bundle.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/security-static-audit.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/global-constraints.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/plan-enforcement-bundles.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/alias-compatibility-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-page-inventory",
+      "neutralAlias": "check:surface:page-inventory",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 14,
+      "referenceFileCount": 10,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:page-inventory",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/product-surface-inventory-report.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-suite",
+      "neutralAlias": "check:surface:suite",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 33,
+      "referenceFileCount": 17,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:suite",
+      "references": [
+        {
+          "path": ".github/pull_request_template.md",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-refinement-acceptance-commands.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/comprehensive-pass.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-verify.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/refinement-acceptance-checklist.txt",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/global-constraints.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/plan-enforcement-bundles.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 7,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/alias-compatibility-parity.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-supplemental-contracts",
+      "neutralAlias": "check:surface:supplemental-contracts",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 11,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:supplemental-contracts",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/regression-bridge.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v8-vocabulary",
+      "neutralAlias": "check:surface:vocabulary",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 15,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:surface:vocabulary",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 3,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/product-surface/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/product-surface/objectives-trace.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "check:v9-suite",
+      "neutralAlias": "check:previous-release-suite",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 12,
+      "referenceFileCount": 8,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run check:previous-release-suite",
+      "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "rebuild:v10-read-models",
+      "neutralAlias": "rebuild:read-models",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 10,
+      "referenceFileCount": 6,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run rebuild:read-models",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/rebuild-read-models-nightly-gate.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "report:v9-pr-body-rollup",
+      "neutralAlias": "report:release-pr-body-rollup",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 3,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run report:release-pr-body-rollup",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:e2e:v10",
+      "neutralAlias": "test:e2e:current-product",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 63,
+      "referenceFileCount": 26,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:e2e:current-product",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "e2e/current-product-device-matrix.chromium.spec.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 2,
+          "neutralCount": 4,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-artifact-provenance.mjs",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-evidence.mjs",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 4,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-ci-build-e2e-local.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-qa-code-maximal.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-release-checklist.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-matrix.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/acceptance-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 10,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/final-gap-audit.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/hardening-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 6,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/no-exclusions-matrix.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-contracts.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/program-plan-gates.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/readiness-scorecard.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/release-evidence.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/section6-gate-ci.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/ui/enterprise-ui-sweep-contract.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/zero-exclusion-report.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:e2e:v10:matrix",
+      "neutralAlias": "test:e2e:current-product:matrix",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 5,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:e2e:current-product:matrix",
+      "references": [
+        {
+          "path": "e2e/current-product-device-matrix.chromium.spec.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-qa-code-maximal.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:e2e:v9",
+      "neutralAlias": "test:e2e:compatibility",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 6,
+      "neutralReferenceCount": 13,
+      "referenceFileCount": 5,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:e2e:compatibility",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 3,
+          "neutralCount": 6,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 3,
+          "neutralCount": 3,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-qa-code-maximal.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:e2e:v9:visual",
+      "neutralAlias": "test:e2e:compatibility:visual",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 4,
+      "neutralReferenceCount": 7,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:e2e:compatibility:visual",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 2,
+          "neutralCount": 4,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "src/lib/acceptance-criteria.test.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:e2e:v9:visual:update",
+      "neutralAlias": "test:e2e:compatibility:visual:update",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 3,
+      "referenceFileCount": 2,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:e2e:compatibility:visual:update",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "test:vitest:v10",
+      "neutralAlias": "test:vitest:current-product",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 6,
+      "referenceFileCount": 3,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run test:vitest:current-product",
+      "references": [
+        {
+          "path": "config/qa-tier-manifest.json",
+          "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    },
+    {
+      "surface": "package_script",
+      "legacyName": "v8:inventory-report",
+      "neutralAlias": "report:surface-inventory",
+      "owner": "platform-hardening",
+      "queueCovered": true,
+      "legacyReferenceCount": 2,
+      "neutralReferenceCount": 5,
+      "referenceFileCount": 4,
+      "retainedLegacyStatus": "retained_compatibility_alias",
+      "validationCommand": "npm run report:surface-inventory",
+      "references": [
+        {
+          "path": "package.json",
+          "legacyCount": 1,
+          "neutralCount": 2,
+          "referenceClass": "package_metadata"
+        },
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/pipelines/pipeline-surface-suite.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/report-qa-closure-manifest.mjs",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        }
+      ]
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

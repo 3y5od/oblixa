@@ -14,7 +14,7 @@
  * and `buildProductSurfaceContext` (this file); feature flags gate specific pages/APIs but do not replace mode.
  */
 import type { FeatureFlagKey } from "@/lib/feature-flags";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type {
   AdvancedNavModuleKey,
@@ -34,7 +34,7 @@ export type ProductSurfaceContext = {
   orgId: string;
   workspaceMode: WorkspaceProductMode;
   mode: WorkspaceProductMode;
-  v6: V6OrgSettingsJson;
+  v6: OrgSettingsJson;
   featureFlags: Record<FeatureFlagKey, boolean>;
   role: WorkspaceRole;
   isAdmin: boolean;
@@ -52,7 +52,7 @@ export type ProductSurfaceContext = {
   autopilotAllowExecution: boolean;
 };
 
-export function parseWorkspaceMode(raw: V6OrgSettingsJson): WorkspaceProductMode {
+export function parseWorkspaceMode(raw: OrgSettingsJson): WorkspaceProductMode {
   const m = raw.workspace_mode;
   if (m === "advanced" || m === "assurance") return m;
   return "core";
@@ -74,7 +74,7 @@ function roleSeesAssuranceNavByDefault(role: WorkspaceRole): boolean {
 export function buildProductSurfaceContext(input: {
   orgId: string;
   role: WorkspaceRole;
-  v6: V6OrgSettingsJson;
+  v6: OrgSettingsJson;
   featureFlags: Record<FeatureFlagKey, boolean>;
 }): ProductSurfaceContext {
   const mode = parseWorkspaceMode(input.v6);

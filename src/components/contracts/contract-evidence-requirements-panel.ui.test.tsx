@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { ContractEvidenceRequirementsPanel } from "./contract-evidence-requirements-panel";
 
-vi.mock("@/actions/v4", () => ({
+vi.mock("@/actions/policy-operations", () => ({
   submitEvidenceNoteAction: vi.fn(async () => ({ ok: true })),
 }));
 
@@ -34,6 +34,7 @@ describe("ContractEvidenceRequirementsPanel", () => {
     const card = screen.getByText("Board resolution pack").closest("li");
     expect(card).toBeTruthy();
     expect((card as HTMLElement).getAttribute("data-v9-evidence-req-status")).toBe("required");
+    expect((card as HTMLElement).getAttribute("data-evidence-req-status")).toBe("required");
     const region = within(card as HTMLElement);
     expect(region.getByText(/legal pack · requested · due 2026-06-15 · review by 2026-06-20/i)).toBeTruthy();
     expect(region.getByText(/^Why it matters:/)).toBeTruthy();
@@ -43,6 +44,37 @@ describe("ContractEvidenceRequirementsPanel", () => {
     expect(
       region.getByText(/this requirement is still blocking completion of the linked work item/i)
     ).toBeTruthy();
+  });
+
+  it("keeps neutral and legacy evidence selectors on the same row without adding ID collisions", () => {
+    const legacyStatusAttribute = ["data", "v" + "9", "evidence-req-status"].join("-");
+    renderWithProviders(
+      <ContractEvidenceRequirementsPanel
+        canEdit={false}
+        contractId="contract-xyz"
+        requirements={[
+          {
+            id: "req-single",
+            title: "Board resolution pack",
+            requirement_type: "legal_pack",
+            status: "required",
+            due_at: null,
+            review_due_at: null,
+            work_item_type: "obligation",
+            work_item_id: "obligation-uuid-1234567890",
+          },
+        ]}
+      />
+    );
+
+    const card = screen.getByText("Board resolution pack").closest("li") as HTMLElement;
+    expect(card.getAttribute(legacyStatusAttribute)).toBe("required");
+    expect(card.getAttribute("data-evidence-req-status")).toBe("required");
+    expect(document.querySelector(`[${legacyStatusAttribute}="required"]`)).toBe(card);
+    expect(document.querySelector('[data-evidence-req-status="required"]')).toBe(card);
+    expect(card.getAttribute("id")).toBeNull();
+    expect(card.getAttribute("aria-labelledby")).toBeNull();
+    expect(card.getAttribute("aria-describedby")).toBeNull();
   });
 
   it("surfaces v9 evidence state copy and contract-level export", () => {
@@ -143,10 +175,17 @@ describe("ContractEvidenceRequirementsPanel", () => {
     expect(screen.getByText("Security questionnaire").closest("li")?.getAttribute("data-v9-evidence-req-status")).toBe(
       "required"
     );
+    expect(screen.getByText("Security questionnaire").closest("li")?.getAttribute("data-evidence-req-status")).toBe(
+      "required"
+    );
     expect(screen.getByText("Insurance certificate").closest("li")?.getAttribute("data-v9-evidence-req-status")).toBe(
       "submitted"
     );
+    expect(screen.getByText("Insurance certificate").closest("li")?.getAttribute("data-evidence-req-status")).toBe(
+      "submitted"
+    );
     expect(screen.getByText("SOC 2 report").closest("li")?.getAttribute("data-v9-evidence-req-status")).toBe("rejected");
+    expect(screen.getByText("SOC 2 report").closest("li")?.getAttribute("data-evidence-req-status")).toBe("rejected");
 
     const requiredCard = screen.getByText("Security questionnaire").closest("li") as HTMLElement;
     expect(

@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   let parsed: unknown;
   try {
-    parsed = raw.text ? JSON.parse(raw.text) : null;
+    parsed = raw.body ? JSON.parse(raw.body) : null;
   } catch {
     return jsonBadRequest(ROUTE, { reason: "invalid_csp_report_json" });
   }

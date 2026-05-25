@@ -2,7 +2,7 @@ import type { createAdminClient } from "@/lib/supabase/server";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -199,3 +199,7 @@ export async function resolveAuxiliaryContractListIntersectIds(
 
   return combineContractListIntersectIds(parts);
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { getContractIdsWithV10HealthWatch as getContractIdsWithHealthWatch };
+// End version-name compatibility aliases.

@@ -3,11 +3,11 @@ import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 import { featureFamilyForPath } from "@/lib/product-surface/feature-registry";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
-import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
-import { v8GovernedPageRootPrefixes } from "@/lib/product-surface/v8-governed-prefixes";
+import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/surface-mapping";
+import { governedPageRootPrefixes } from "@/lib/product-surface/governed-prefixes";
 
 /** Governed roots fail closed when mapping is unresolved (single source: `v8-governed-prefixes`). */
-const GOVERNED_ROOT_PREFIXES = v8GovernedPageRootPrefixes();
+const GOVERNED_ROOT_PREFIXES = governedPageRootPrefixes();
 
 function pathnameFromHref(href: string): string {
   const raw = href.split("?")[0] ?? href;

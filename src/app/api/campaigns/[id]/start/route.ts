@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { parseCampaignAssignmentJson, resolveCampaignTaskRouting } from "@/lib/v5/campaign-assignment";
-import { CAMPAIGN_TASK_MARKER } from "@/lib/v5/campaign-eligibility";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { parseCampaignAssignmentJson, resolveCampaignTaskRouting } from "@/lib/decision-intelligence/campaign-assignment";
+import { CAMPAIGN_TASK_MARKER } from "@/lib/decision-intelligence/campaign-eligibility";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { gatherPortfolioMetrics } from "@/lib/assurance/portfolio-metrics";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
@@ -166,7 +166,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_start_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_start_total", 1).catch(() => undefined);
 
   return NextResponse.json({ campaign: data, tasksSeeded });
 }

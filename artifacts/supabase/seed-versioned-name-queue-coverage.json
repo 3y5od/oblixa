@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-seed-versioned-name-queue-coverage.mjs --write",
+  "inventoryPath": "artifacts/compatibility/versioned-content-contract-inventory.json",
+  "queuePath": "artifacts/compatibility/removal-queue.json",
+  "seedContractCount": 1,
+  "manualOnlySeedContractCount": 1,
+  "queueCoveredManualCount": 1,
+  "rows": [
+    {
+      "path": "supabase/seed.sql",
+      "contractName": "v6_org_settings_json",
+      "surfaceClass": "sql_object",
+      "subSurfaceClass": "seed_fixture_key",
+      "owner": "database-platform",
+      "reason": "Compatibility-sensitive seed_fixture_key version content is inventoried and queued instead of removed in code-only passes.",
+      "manualOnly": true,
+      "suggestedNeutralName": "org_settings_json",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "Do not remove or rename this seed_fixture_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "queueCovered": true,
+      "hitCount": 3
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

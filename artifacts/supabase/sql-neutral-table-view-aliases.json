@@ -1,0 +1,777 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-sql-neutral-table-view-aliases.mjs --write",
+  "policy": "Prove neutral read-only compatibility views exist for staged data-bearing versioned SQL tables. This artifact does not authorize production migration application, policy duplication, writes, backfills, or legacy object removal.",
+  "sourceArtifacts": {
+    "sqlObjectRenameStaging": "artifacts/supabase/sql-object-rename-staging.json",
+    "migration": "supabase/migrations/089_sql_neutral_table_view_aliases.sql"
+  },
+  "totals": {
+    "tableAliasCount": 33,
+    "aliasAddedCount": 33,
+    "memberReadableAliasCount": 32,
+    "serviceRoleOnlyAliasCount": 1,
+    "issueCount": 0
+  },
+  "rows": [
+    {
+      "legacyObject": "public.v10_activation_state",
+      "neutralObject": "public.activation_state",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_advanced_assurance_linked_records",
+      "neutralObject": "public.advanced_assurance_linked_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_approval_records",
+      "neutralObject": "public.approval_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_audit_events",
+      "neutralObject": "public.audit_events",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_command_search_index",
+      "neutralObject": "public.command_search_index",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_contract_activity_events",
+      "neutralObject": "public.contract_activity_events",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_contract_health_snapshots",
+      "neutralObject": "public.contract_health_snapshots",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_denominator_locks",
+      "neutralObject": "public.denominator_locks",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_evidence_request_statuses",
+      "neutralObject": "public.evidence_request_statuses",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_exception_records",
+      "neutralObject": "public.exception_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_external_blocker_records",
+      "neutralObject": "public.external_blocker_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_external_evidence_submissions",
+      "neutralObject": "public.external_evidence_submissions",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_field_provenance_records",
+      "neutralObject": "public.field_provenance_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_fixture_manifests",
+      "neutralObject": "public.fixture_manifests",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_fixture_teardown_records",
+      "neutralObject": "public.fixture_teardown_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_job_run_visibility",
+      "neutralObject": "public.job_run_visibility",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_metric_runs",
+      "neutralObject": "public.metric_runs",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_mutation_idempotency",
+      "neutralObject": "public.mutation_idempotency",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "service_role"
+      ],
+      "actualGrantees": [
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_notification_deliveries",
+      "neutralObject": "public.notification_deliveries",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_obligation_records",
+      "neutralObject": "public.obligation_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_promotion_decisions",
+      "neutralObject": "public.promotion_decisions",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_read_model_lineage",
+      "neutralObject": "public.read_model_lineage",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_read_model_refresh_jobs",
+      "neutralObject": "public.read_model_refresh_jobs",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_read_model_rows",
+      "neutralObject": "public.read_model_rows",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_release_evidence_records",
+      "neutralObject": "public.release_evidence_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_release_waivers",
+      "neutralObject": "public.release_waivers",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_renewal_checkpoint_records",
+      "neutralObject": "public.renewal_checkpoint_records",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_renewal_posture_snapshots",
+      "neutralObject": "public.renewal_posture_snapshots",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_report_run_visibility",
+      "neutralObject": "public.report_run_visibility",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_runtime_artifacts",
+      "neutralObject": "public.runtime_artifacts",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_runtime_coverage_ledger",
+      "neutralObject": "public.runtime_coverage_ledger",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_verification_command_results",
+      "neutralObject": "public.verification_command_results",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    },
+    {
+      "legacyObject": "public.v10_work_items",
+      "neutralObject": "public.work_items",
+      "owner": "database-platform",
+      "reason": "Versioned SQL object names require forward-compatible aliases or views before application code can move.",
+      "validationCommand": "npm run check:sql-neutral-table-view-aliases",
+      "manualFollowUp": "Do not remove the legacy SQL object until production cutover evidence exists and the compatibility removal queue is ready_for_removal.",
+      "expectedGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "actualGrantees": [
+        "authenticated",
+        "service_role"
+      ],
+      "viewDefined": true,
+      "securityInvoker": true,
+      "delegatesToLegacyTable": true,
+      "publicRevoked": true,
+      "missingGrantees": [],
+      "unexpectedGrantees": [],
+      "status": "alias_added"
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

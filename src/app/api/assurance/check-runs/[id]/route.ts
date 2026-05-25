@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
-import { toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const ROUTE = "/api/assurance/check-runs/[id]";
@@ -24,7 +24,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   });
   if (modeGate) return modeGate;
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_check_run_detail_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_assurance_check_run_detail_total", 1).catch(
     () => undefined
   );
 

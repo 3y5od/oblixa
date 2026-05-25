@@ -13,7 +13,7 @@ vi.mock("@/lib/rate-limit", async (importOriginal) => {
   };
 });
 
-const getV6OrgSettingsJson = vi.hoisted(() => vi.fn());
+const getOrgSettingsJson = vi.hoisted(() => vi.fn());
 const insertMock = vi.hoisted(() => vi.fn(async () => ({ error: null })));
 
 const getAuthContext = vi.hoisted(() =>
@@ -36,8 +36,8 @@ vi.mock("@/lib/supabase/server", () => ({
   getAuthContext,
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson,
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson,
 }));
 
 describe("exportOnboardingCalibrationSupportJson", () => {
@@ -45,8 +45,8 @@ describe("exportOnboardingCalibrationSupportJson", () => {
     rateLimitCheck.mockReset();
     rateLimitCheck.mockResolvedValue({ ok: true });
     insertMock.mockClear();
-    getV6OrgSettingsJson.mockReset();
-    getV6OrgSettingsJson.mockImplementation(async (_admin: unknown, orgId: string) => {
+    getOrgSettingsJson.mockReset();
+    getOrgSettingsJson.mockImplementation(async (_admin: unknown, orgId: string) => {
       expect(orgId).toBe("org-target-9");
       return {
         onboarding_calibration: {
@@ -58,10 +58,10 @@ describe("exportOnboardingCalibrationSupportJson", () => {
     });
   });
 
-  it("returns JSON scoped to auth org (getV6OrgSettingsJson org id)", async () => {
+  it("returns JSON scoped to auth org (getOrgSettingsJson org id)", async () => {
     const res = await exportOnboardingCalibrationSupportJson();
-    expect(getV6OrgSettingsJson).toHaveBeenCalled();
-    const firstCall = getV6OrgSettingsJson.mock.calls[0];
+    expect(getOrgSettingsJson).toHaveBeenCalled();
+    const firstCall = getOrgSettingsJson.mock.calls[0];
     expect(firstCall?.[1]).toBe("org-target-9");
     expect(res.ok).toBe(true);
     if (!res.ok) return;

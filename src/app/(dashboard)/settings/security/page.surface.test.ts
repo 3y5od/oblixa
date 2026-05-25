@@ -24,7 +24,6 @@ const ERROR_BOUNDARY = join(
   process.cwd(),
   "src/app/(dashboard)/settings/security/error.tsx"
 );
-const SPEC_STRINGS = join(process.cwd(), "src/lib/settings/spec-strings.ts");
 const STEP_UP_COOKIE = join(
   process.cwd(),
   "src/lib/security/step-up-cookie.ts"
@@ -35,7 +34,6 @@ const pageSrc = readFileSync(PAGE, "utf8");
 const panelSrc = readFileSync(PANEL, "utf8");
 const loadingSrc = readFileSync(LOADING, "utf8");
 const errorSrc = readFileSync(ERROR_BOUNDARY, "utf8");
-const specSrc = readFileSync(SPEC_STRINGS, "utf8");
 const stepUpSrc = readFileSync(STEP_UP_COOKIE, "utf8");
 const mfaActionsSrc = readFileSync(MFA_ACTIONS, "utf8");
 
@@ -92,14 +90,9 @@ describe("Security page — page structure + primitives (§1, §2)", () => {
     expect(panelSrc).toContain("<StatusBadge");
   });
 
-  it("§2.4 / V3 §1.13 landing-eyebrow-dot reserved for top-level eyebrows only", () => {
-    // V3 §1.13 — sub-card landing-eyebrow-dot decoration dropped
-    // (now reserved for the page-header SETTINGS + Resources card).
-    // Panel-level eyebrows (MFA, STEP-UP, SESSIONS, POLICY) no
-    // longer carry the dot.
+  it("§2.4 / V3 §1.13 public settings avoids landing eyebrow decoration", () => {
     expect(panelSrc).not.toContain("landing-eyebrow-dot");
-    // Page-level still has at least one (Resources card eyebrow).
-    expect(pageSrc).toContain("landing-eyebrow-dot");
+    expect(pageSrc).not.toContain("landing-eyebrow-dot");
   });
 
   it("§2.5 medallion icons render on sub-section headers", () => {
@@ -118,8 +111,9 @@ describe("Security page — page structure + primitives (§1, §2)", () => {
     expect(pageSrc).toMatch(/dt[^>]*>MFA/);
   });
 
-  it("§2.7 landing-corner-ring decoration on Resources card", () => {
-    expect(pageSrc).toContain("landing-corner-ring");
+  it("§2.7 local Resources card decoration avoids landing helpers", () => {
+    expect(pageSrc).toContain("rounded-full border border-[color:color-mix");
+    expect(pageSrc).not.toContain("landing-corner-ring");
   });
 
   it("§2.9 UiToggle primitive replaces raw checkbox", () => {

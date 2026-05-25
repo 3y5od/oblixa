@@ -11,14 +11,14 @@ import {
   CAMPAIGN_TYPE_LABELS,
   isValidCampaignType,
   type CampaignType,
-} from "@/lib/v5/campaign-types";
+} from "@/lib/decision-intelligence/campaign-types";
 import { CampaignSimulationPromote } from "@/components/campaigns/campaign-simulation-promote";
 import {
   DiagnosticDisclosure,
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
-import { SIMULATION_TYPE_FOCUS, type SimulationType } from "@/lib/v5/simulation-types";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
+import { SIMULATION_TYPE_FOCUS, type SimulationType } from "@/lib/decision-intelligence/simulation-types";
 
 function campaignStatusTone(status: string): SemanticStatus {
   if (status === "active") return "healthy";

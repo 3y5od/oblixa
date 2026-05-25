@@ -34,7 +34,7 @@ export const maximalEpicEvidence = {
   29:
     "vitest run src/lib/http-path-sanitize.property.test.ts src/lib/export/csv-formula-guard.test.ts src/lib/money/integer-cents.test.ts src/lib/export/calendar-text-guard.test.ts",
   30: "vitest run src/lib/__tests__/i18n-rtl-intl.test.ts",
-  31: "vitest run src/lib/export-job-visibility.v9.test.ts",
+  31: "vitest run src/lib/export-job-visibility.test.ts",
   32: "vitest run src/lib/marketing/public-paths.security.test.ts",
   33: "OBLIXA_STRICT_BODY_LIMITS=1 BODY_LIMIT_MIN_ROUTES=64 node scripts/check-json-body-limited-adoption.mjs",
   34: "vitest run src/lib/money/integer-cents.test.ts src/lib/export/calendar-text-guard.test.ts",
@@ -61,7 +61,7 @@ export const maximalEpicEvidence = {
   55: "npm run check:next-script-integrity",
   56: "vitest run src/app/api/stripe/webhook/route.test.ts",
   57: "npm run check:migrations",
-  58: "vitest run src/lib/qa/intl-format-sampling.v9.test.ts",
+  58: "vitest run src/lib/qa/intl-format-sampling.test.ts",
   60: "npm run check:sharp-svgo-versions",
   61: "node scripts/check-absent-protocol-evidence.mjs",
   63: "npm run check:install-script-risk",

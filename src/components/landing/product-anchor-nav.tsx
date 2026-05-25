@@ -29,6 +29,7 @@ export function ProductAnchorNav() {
   const ratiosRef = useRef<Map<string, number>>(new Map());
   const lastReportedRef = useRef<string>("");
   const suspendHashUpdateRef = useRef<boolean>(false);
+  const hashResetTimerRef = useRef<number | null>(null);
   const navRef = useRef<HTMLUListElement | null>(null);
 
   // v6 T26.1 — also re-sync if the hash changes via History API
@@ -38,13 +39,23 @@ export function ProductAnchorNav() {
       if (raw && PRODUCT_SECTIONS.some((s) => s.id === raw)) {
         suspendHashUpdateRef.current = true;
         setActiveId(raw);
-        setTimeout(() => {
+        if (hashResetTimerRef.current != null) {
+          window.clearTimeout(hashResetTimerRef.current);
+        }
+        hashResetTimerRef.current = window.setTimeout(() => {
           suspendHashUpdateRef.current = false;
+          hashResetTimerRef.current = null;
         }, 800);
       }
     }
     window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+      if (hashResetTimerRef.current != null) {
+        window.clearTimeout(hashResetTimerRef.current);
+        hashResetTimerRef.current = null;
+      }
+    };
   }, []);
 
   // IntersectionObserver scroll-spy

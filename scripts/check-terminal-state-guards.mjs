@@ -85,7 +85,7 @@ const TARGETS = [
   },
   {
     id: "assurance_finding_resolve_claim_non_terminal",
-    file: "src/lib/v6/assurance.ts",
+    file: "src/lib/assurance/assurance.ts",
     objective: "Finding resolve/dismiss must not rewrite already resolved or dismissed findings.",
     markers: [
       marker("resolved exclusion", /\.neq\(\s*["']status["']\s*,\s*["']resolved["']\s*\)/),
@@ -143,7 +143,7 @@ const TARGETS = [
   },
   {
     id: "playbook_approval_claim_awaiting_approval",
-    file: "src/lib/v6/playbooks.ts",
+    file: "src/lib/assurance/playbooks.ts",
     objective: "Playbook approval must claim awaiting_approval before executing follow-up side effects.",
     markers: [
       marker("awaiting approval predicate", /\.eq\(\s*["']status["']\s*,\s*["']awaiting_approval["']\s*\)/),

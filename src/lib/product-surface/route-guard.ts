@@ -10,7 +10,7 @@ import { featureFamilyForPath } from "@/lib/product-surface/feature-registry";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { roleMayBypassProductRoute } from "@/lib/product-surface/nav-visibility";
-import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
+import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/surface-mapping";
 
 type AuthContext = NonNullable<Awaited<ReturnType<typeof getAuthContext>>>;
 

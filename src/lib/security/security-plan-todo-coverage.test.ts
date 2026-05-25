@@ -64,7 +64,7 @@ describe("security plan todo ↔ repo enforcement map", () => {
   });
   it("p0-rls-critical", () => hasScript("check:migration-security-patterns"));
   it("p0-webhook-stripe", () => {
-    expect(readFileSync(join(process.cwd(), "src/lib/v10-route-api-catalog.v10.test.ts"), "utf8")).toContain(
+    expect(readFileSync(join(process.cwd(), "src/lib/route-api-catalog.test.ts"), "utf8")).toContain(
       "stripe_signed_webhook"
     );
   });

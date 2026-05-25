@@ -16,7 +16,6 @@ describe("LegalFooter", () => {
     renderWithProviders(<LegalFooter />);
     const toggle = screen.getByRole("button", { name: /view/i });
     await user.click(toggle);
-    expect(screen.getByText(/does not provide legal advice/i)).toBeTruthy();
+    expect(screen.getByText(/not legal advice/i)).toBeTruthy();
   });
 });
-

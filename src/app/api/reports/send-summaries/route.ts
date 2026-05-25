@@ -8,13 +8,13 @@ import { getContractIdsForDeadlinePreset, type DeadlinePreset } from "@/lib/cont
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { isNotificationAllowed } from "@/lib/notification-policy";
 import { deliverWithRetries, markNotificationSuppressed } from "@/lib/notification-delivery";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import {
   degradeOutboundEmailCopyForCore,
   emailCopyUsesCoreSurface,
 } from "@/lib/email-workspace-degrade";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import {
   executeBatch,
@@ -420,7 +420,7 @@ export const GET = withCronRoute({
         }
         const selectedSavedView: SavedViewRow = savedView;
 
-        const v6Org = await getV6OrgSettingsJson(admin, subscription.organization_id);
+        const v6Org = await getOrgSettingsJson(admin, subscription.organization_id);
         const workspaceProductMode = v6Org.workspace_mode;
         const summarySubjectName = emailCopyUsesCoreSurface(workspaceProductMode)
           ? degradeOutboundEmailCopyForCore(selectedSavedView.name)

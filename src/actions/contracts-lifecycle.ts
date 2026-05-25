@@ -18,8 +18,8 @@ import {
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryIfFirstInOrganization } from "@/lib/product-telemetry";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {

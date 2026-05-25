@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FileCode } from "lucide-react";
-import { savePolicyRegistryAction } from "@/actions/v4";
+import { savePolicyRegistryAction } from "@/actions/policy-operations";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -8,7 +8,7 @@ import {
   DEFAULT_WORKSPACE_POLICY_REGISTRY,
   getWorkspacePolicyWarnings,
 } from "@/lib/workspace-policy-model";
-import { validatePolicyRegistry } from "@/lib/v4/policy-registry";
+import { validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
 import { PolicyRegistryEditorForm } from "./policy-registry-editor-form";
 
 export const metadata = { title: "Advanced policy editor" };

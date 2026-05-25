@@ -10,8 +10,8 @@ import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-worksp
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { emitV10ObjectiveTelemetryEvent } from "@/lib/product-telemetry";
-import { applyV10CommandSearchVisibility } from "@/lib/v10-visibility";
-import { V10_PLANS, type V10Plan } from "@/lib/v10-release-contract";
+import { applyV10CommandSearchVisibility } from "@/lib/visibility";
+import { V10_PLANS, type V10Plan } from "@/lib/release-contract";
 
 const ROLE_ORDER: WorkspaceRole[] = ["viewer", "legal_reviewer", "finance_reviewer", "editor", "ops_manager", "manager", "admin"];
 const MODE_ORDER: WorkspaceProductMode[] = ["core", "advanced", "assurance"];

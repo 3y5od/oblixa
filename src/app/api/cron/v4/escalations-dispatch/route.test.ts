@@ -26,7 +26,7 @@ vi.mock("@/lib/integrations/events", () => ({
   enqueueOutboundEvent,
 }));
 
-vi.mock("@/lib/v4/automation-audit", () => ({
+vi.mock("@/lib/contract-operations/automation-audit", () => ({
   recordAutomationEvent,
 }));
 

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import {
   validatePolicyRegistry,
   getApprovalSlaFallbackHours,
   analyzePolicyRegistry,
-} from "@/lib/v4/policy-registry";
+} from "@/lib/contract-operations/policy-registry";
 import { getContractsMissingCriticalFields } from "@/lib/missing-critical-fields";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";

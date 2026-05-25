@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
 import { BODY_LIMIT_SMALL_JSON, readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { readJsonBody } from "@/lib/v5/api";
+import { readJsonBody } from "@/lib/decision-intelligence/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
 import {
   getV6OrgSettingsSnapshot,
-  mergeV6OrgSettingsJson,
-  type V6OrgSettingsJson,
-} from "@/lib/v6/org-settings";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+  mergeOrgSettingsJson,
+  type OrgSettingsJson,
+} from "@/lib/assurance/org-settings";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent, recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { requireExpectedVersionForMutation, staleExpectedVersionResponse } from "@/lib/security/stale-write-guard";
@@ -41,7 +41,7 @@ export async function GET() {
     action: "api.sensitive_read_authorized",
   }).catch(() => undefined);
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_get_workspace_v6_settings_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_get_workspace_v6_settings_total", 1).catch(() => undefined);
 
   const snapshot = await getV6OrgSettingsSnapshot(ctx.admin, ctx.orgId);
   return NextResponse.json({ settings: snapshot.settings, settingsVersion: snapshot.updatedAt });
@@ -81,7 +81,7 @@ export async function PATCH(request: Request) {
     reviewBoardNotificationEmails?: string[];
   }>(_lb_body.body ?? {}, {});
 
-  const patch: Partial<V6OrgSettingsJson> = {};
+  const patch: Partial<OrgSettingsJson> = {};
   if (typeof body.autopilotAllowExecution === "boolean") {
     patch.autopilot_allow_execution = body.autopilotAllowExecution;
   }
@@ -104,7 +104,7 @@ export async function PATCH(request: Request) {
   });
   if (!expectedVersionResult.ok) return expectedVersionResult.response;
 
-  const { data, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch, {
+  const { data, error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, patch, {
     expectedVersion: expectedVersionResult.expectedVersion,
   });
   if (error) {
@@ -127,7 +127,7 @@ export async function PATCH(request: Request) {
       diagnosticPrefix: "workspace_v6_settings",
     });
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_patch_workspace_v6_settings_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_patch_workspace_v6_settings_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
-import { toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { recomputeSegmentMemberships } from "@/lib/v6/segments";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { recomputeSegmentMemberships } from "@/lib/assurance/segments";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -67,6 +67,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_segment_recompute_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_segment_recompute_total", 1).catch(() => undefined);
   return NextResponse.json({ ok: true, membershipCount: result.count });
 }

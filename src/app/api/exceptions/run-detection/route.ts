@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
-import { upsertDetectedExceptions } from "@/lib/v4/exceptions";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
+import { upsertDetectedExceptions } from "@/lib/contract-operations/exceptions";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";

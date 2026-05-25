@@ -20,13 +20,13 @@ const e2eRequired = releaseE2eRequired();
 
 const steps = [
   "preflight:release",
-  "check:v10-release-evidence",
-  "check:v10-suite",
+  "check:release-evidence",
+  "check:release-suite-current",
   "verify",
   { script: "check:comprehensive-pass", required: comprehensivePassRequired },
 ];
 if (e2eRequired) {
-  steps.push("test:e2e:v10", "test:e2e");
+  steps.push("test:e2e:current-product", "test:e2e");
 }
 
 const results = await runSequential(steps);

@@ -6,8 +6,8 @@ import {
   workspaceModeAtLeast,
 } from "@/lib/product-surface/feature-registry";
 import type { UtilityModuleKey } from "@/lib/product-surface/types";
-import type { V8FeatureDiscoverability } from "@/lib/product-surface/feature-registry";
-import type { V8SurfaceType } from "@/lib/product-surface/v8-surface-mapping";
+import type { FeatureDiscoverabilityPolicy } from "@/lib/product-surface/feature-registry";
+import type { SurfaceType } from "@/lib/product-surface/surface-mapping";
 
 export type FeatureDiscoverability =
   | "direct"
@@ -16,7 +16,7 @@ export type FeatureDiscoverability =
   | "admin_only"
   | "suppressed";
 
-export type V8EligibilityDenialClass =
+export type EligibilityDenialClass =
   | "unauthenticated"
   | "unauthorized_role"
   | "insufficient_workspace_mode"
@@ -31,24 +31,27 @@ export type FeatureEligibility = {
   allowed: boolean;
   discoverability: FeatureDiscoverability;
   reason: string | null;
-  denialClass: V8EligibilityDenialClass | null;
-  resolvedDiscoverability: V8FeatureDiscoverability;
+  denialClass: EligibilityDenialClass | null;
+  resolvedDiscoverability: FeatureDiscoverabilityPolicy;
   telemetry: {
     featureKey: FeatureFamilyKey;
     mode: ProductSurfaceContext["mode"];
     role: ProductSurfaceContext["role"];
     isAdmin: boolean;
-    surfaceType: V8SurfaceType;
+    surfaceType: SurfaceType;
     surfaceIdentifier: string;
   };
   definition: ProductFeatureDef;
 };
 
 export type EligibilityEvaluationInput = {
-  surfaceType?: V8SurfaceType;
+  surfaceType?: SurfaceType;
   surfaceIdentifier?: string;
   authState?: "authenticated" | "unauthenticated";
 };
+
+/** @deprecated Use EligibilityDenialClass. */
+export type V8EligibilityDenialClass = EligibilityDenialClass;
 
 function adminBypass(ctx: ProductSurfaceContext): boolean {
   return ctx.role === "admin";

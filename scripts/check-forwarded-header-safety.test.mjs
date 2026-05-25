@@ -21,6 +21,8 @@ function fixtureRoot() {
     [
       "OBLIXA_TRUST_FORWARDED_IP",
       "export function isForwardedClientIpTrusted",
+      "export function requireTrustedClientIpConfigForProduction",
+      "Missing ${TRUST_FORWARDED_IP_ENV}=1",
       "export function getTrustedClientIpFromHeaders",
       "export function getTrustedClientIpFromRequest",
       'normalizeForwardedClientIp(headers.get("x-forwarded-for"))',
@@ -43,6 +45,7 @@ function fixtureRoot() {
     [
       "ignores client IP forwarding headers unless a trusted proxy is configured",
       "uses the first forwarded client IP when running behind a trusted proxy",
+      "fails closed in non-Vercel production when trusted client IP config is absent",
       "falls back safely when trusted forwarded IP headers are malformed",
     ].join("\n")
   );

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { GitBranch } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { DecisionExecutionContextCard } from "@/components/decisions/decision-execution-context";
@@ -12,9 +12,9 @@ import { DecisionExternalPanel } from "@/components/decisions/decision-external-
 import { ExternalLink } from "@/components/ui/external-link";
 import { RelationshipTimelineCard } from "@/components/relationship/relationship-timeline-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { buildDecisionExecutionContext } from "@/lib/v5/decision-context";
-import { isDecisionPacketServerPdfEnabled } from "@/lib/v5/decision-packet-export";
-import { isValidPacketType } from "@/lib/v5/packet-types";
+import { buildDecisionExecutionContext } from "@/lib/decision-intelligence/decision-context";
+import { isDecisionPacketServerPdfEnabled } from "@/lib/decision-intelligence/decision-packet-export";
+import { isValidPacketType } from "@/lib/decision-intelligence/packet-types";
 
 export default async function DecisionDetailPage({
   params,

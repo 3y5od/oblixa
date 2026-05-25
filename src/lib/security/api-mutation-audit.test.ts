@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { recordApiMutationAuditEvent, recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent: vi.fn(async () => "audit_1"),
 }));
 

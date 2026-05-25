@@ -5,7 +5,7 @@ export {
   getV10IdempotencyKeyFromRequest,
   getV10RequestHash,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
+} from "@/lib/server-contracts";
 
 const IDEMPOTENCY_KEY_RE = /^[A-Za-z0-9:_\-]{8,200}$/;
 
@@ -37,3 +37,10 @@ export async function enforceIdempotency(request: Request | null | undefined, in
     }
   );
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { executeV10IdempotentMutation as executeIdempotentMutation } from "@/lib/server-contracts";
+export { getV10IdempotencyKeyFromRequest as getIdempotencyKeyFromRequest } from "@/lib/server-contracts";
+export { getV10RequestHash as getRequestHash } from "@/lib/server-contracts";
+export { recordV10AuditEvent as recordAuditEvent } from "@/lib/server-contracts";
+// End version-name compatibility aliases.

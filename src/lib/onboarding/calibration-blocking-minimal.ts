@@ -17,8 +17,8 @@ import {
   applyWorkspaceProductTransitionSideEffects,
   suppressNotificationTypesForModeDowngrade,
 } from "@/lib/product-surface/workspace-transition";
-import type { AdminClient } from "@/lib/v6/service";
-import { mergeV6OrgSettingsJson, type V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { AdminClient } from "@/lib/assurance/service";
+import { mergeOrgSettingsJson, type OrgSettingsJson } from "@/lib/assurance/org-settings";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -60,8 +60,8 @@ async function insertProductSurfaceAuditCalibration(input: {
   admin: AdminClient;
   orgId: string;
   userId: string;
-  prevV6: V6OrgSettingsJson;
-  merged: V6OrgSettingsJson;
+  prevV6: OrgSettingsJson;
+  merged: OrgSettingsJson;
   source: string;
   transition: Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>;
 }) {
@@ -122,7 +122,7 @@ export async function applyBlockingCalibrationMinimalSkip(input: {
   admin: AdminClient;
   orgId: string;
   actorUserId: string;
-  prevV6: V6OrgSettingsJson;
+  prevV6: OrgSettingsJson;
   prevCal: OnboardingCalibrationState;
   choice: BlockingMinimalChoice;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -146,7 +146,7 @@ export async function applyBlockingCalibrationMinimalSkip(input: {
       } satisfies CalibrationHistoryEntry,
     ].slice(-32),
   });
-  const { data: merged, error } = await mergeV6OrgSettingsJson(admin, orgId, {
+  const { data: merged, error } = await mergeOrgSettingsJson(admin, orgId, {
     ...fallback,
     onboarding_calibration: nextCal,
   });

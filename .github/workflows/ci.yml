@@ -331,6 +331,147 @@ jobs:
       - name: Migration prefix guard
         run: npm run check:migrations:strict
 
+      - name: Migration manifest guard
+        run: npm run check:migration-manifest
+
+      - name: Migration organization guard
+        run: npm run check:migration-organization
+
+      - name: Migration idempotency guard
+        run: npm run check:migration-idempotency
+
+      - name: Supabase operational readiness guard
+        run: npm run check:supabase:ops
+
+      - name: Supabase snapshot bundle guard
+        run: npm run check:supabase:snapshot
+
+      - name: Supabase local catalog fingerprint artifact
+        run: npm run check:supabase:fingerprint-artifact
+
+      - name: Supabase advisor warning registry
+        run: npm run check:supabase:advisor-registry
+
+      - name: Supabase local config guard
+        run: npm run check:supabase:config
+
+      - name: Supabase local reset dry-run harness
+        run: npm run check:supabase:local-reset-harness
+
+      - name: Supabase release checklist guard
+        run: npm run check:supabase:release-checklist
+
+      - name: Supabase seed safety guard
+        run: npm run check:supabase:seed-safety
+
+      - name: Supabase data retention inventory
+        run: npm run check:supabase:retention-inventory
+
+      - name: Runtime health probe contracts
+        run: npm run check:runtime-health-probe-contracts
+
+      - name: Static secret safety aggregate
+        run: npm run check:static-secret-safety
+
+      - name: Environment contract hygiene
+        run: npm run check:env-contract-hygiene
+
+      - name: Documentation runtime dependency hardening guard
+        run: npm run check:documentation-runtime-dependencies
+
+      - name: Versioned naming ratchet
+        run: npm run check:versioned-naming
+
+      - name: Versioned naming safe rename guard
+        run: npm run check:versioned-naming-safe-renames
+
+      - name: Versioned naming removal queue
+        run: npm run check:versioned-naming-removal-queue
+
+      - name: Legitimate version reference allowlist
+        run: npm run check:version-reference-allowlist
+
+      - name: Versioned exported symbol inventory
+        run: npm run check:versioned-exported-symbols
+
+      - name: Versioned exported symbol alias guard
+        run: npm run check:versioned-exported-symbol-aliases
+
+      - name: Versioned content contract inventory
+        run: npm run check:versioned-content-contracts
+
+      - name: Versioned local content rewrite guard
+        run: npm run check:versioned-local-content-rewrites
+
+      - name: Versioned content surface coverage
+        run: npm run check:versioned-content-surface-coverage
+
+      - name: Versioned remaining surface coverage
+        run: npm run check:versioned-remaining-surface-coverage
+
+      - name: Versioned detailed objective coverage
+        run: npm run check:versioned-detailed-objective-coverage
+
+      - name: Versioned public contract preservation
+        run: npm run check:versioned-public-contract-preservation
+
+      - name: Versioned public runtime dual-read readiness
+        run: npm run check:versioned-public-runtime-dual-read
+
+      - name: Versioned forward migration readiness
+        run: npm run check:versioned-forward-migration-readiness
+
+      - name: Versioned source config preservation
+        run: npm run check:versioned-source-config-preservation
+
+      - name: Versioned export and download contract coverage
+        run: npm run check:versioned-export-download-contracts
+
+      - name: Versioned package script readiness
+        run: npm run check:versioned-package-script-readiness
+
+      - name: Neutral naming rules
+        run: npm run check:neutral-naming-rules
+
+      - name: Versioned manual surface closure
+        run: npm run check:versioned-manual-surface-closure
+
+      - name: Versioned open objective closure
+        run: npm run check:versioned-open-objective-closure
+
+      - name: Versioned compatibility equivalence
+        run: npm run check:versioned-compatibility-equivalence
+
+      - name: Versioned local surface regression
+        run: npm run check:versioned-local-surface-regression
+
+      - name: Versioned alias usage neutrality
+        run: npm run check:versioned-alias-usage-neutrality
+
+      - name: Versioned env flag aliases
+        run: npm run check:versioned-env-flag-aliases
+
+      - name: Versioned code-only closure
+        run: npm run check:versioned-code-only-closure
+
+      - name: Versioned additive alias preservation
+        run: npm run check:versioned-additive-alias-preservation
+
+      - name: Versioned remaining local contract closure
+        run: npm run check:versioned-remaining-local-contract-closure
+
+      - name: Versioned unchecked objective readiness
+        run: npm run check:versioned-unchecked-objective-readiness
+
+      - name: Versioned final checklist reconciliation
+        run: npm run check:versioned-final-checklist-reconciliation
+
+      - name: Versioned route alias guard
+        run: npm run check:versioned-route-aliases
+
+      - name: Baseline ownership registry
+        run: npm run check:baseline-registry
+
       - name: API route auth contract
         run: npm run check:api-route-auth-contract
 
@@ -339,6 +480,48 @@ jobs:
 
       - name: API route auth inventory path index
         run: npm run check:api-route-auth-route-index
+
+      - name: Compatibility-sensitive route inventory
+        run: npm run check:compatibility-route-inventory
+
+      - name: Telemetry event inventory
+        run: npm run check:telemetry-event-inventory
+
+      - name: Compatibility removal queue
+        run: npm run check:compatibility-removal-queue
+
+      - name: SQL object reference inventory
+        run: npm run check:sql-object-reference-inventory
+
+      - name: SQL object rename staging
+        run: npm run check:sql-object-rename-staging
+
+      - name: SQL neutral table view aliases
+        run: npm run check:sql-neutral-table-view-aliases
+
+      - name: SQL policy alias readiness
+        run: npm run check:sql-policy-alias-readiness
+
+      - name: SQL policy predicate equivalence
+        run: npm run check:sql-policy-predicate-equivalence
+
+      - name: SQL policy forward-migration blueprint
+        run: npm run check:sql-policy-forward-migration-blueprint
+
+      - name: SQL rename verification SQL
+        run: npm run check:sql-rename-verification-sql
+
+      - name: SQL security automation coverage
+        run: npm run check:sql-security-automation-coverage
+
+      - name: Migration history version exceptions
+        run: npm run check:migration-history-version-exceptions
+
+      - name: Seed versioned-name queue coverage
+        run: npm run check:seed-versioned-name-queue-coverage
+
+      - name: Hardening CI wiring parity
+        run: npm run check:hardening-ci-wiring
 
       - name: Generated security artifact drift gates
         run: npm run check:route-universe && npm run check:catalog-script-index && npm run check:assurance-epics-registry && npm run check:assurance-catalog-drift && npm run check:e2e-generated-drift
@@ -458,7 +641,7 @@ jobs:
         run: npm run check:report-redaction-contract
 
       - name: V10 privacy scan
-        run: npm run check:v10-privacy-scan
+        run: npm run check:release-privacy-scan
 
       - name: Feature-flag security bypass
         run: npm run check:feature-flag-security-bypass
@@ -551,7 +734,7 @@ jobs:
         run: npm run check:incident-readiness:strict
 
       - name: Change-impact check mapping (telemetry)
-        run: node scripts/check-ci-change-impact.mjs
+        run: npm run report:ci-change-impact
 
       - name: CI provenance report (telemetry)
         if: ${{ always() }}
@@ -636,7 +819,7 @@ jobs:
         run: pip install "semgrep>=1.90.0"
 
       - name: Semgrep (OSS + Oblixa rules)
-        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-v7-surface.yml --config semgrep/oblixa-v8-surface.yml --config semgrep/oblixa-v10-surface.yml --severity ERROR --error .
+        run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-surface.yml --severity ERROR --error .
 
       - name: OSV dependency scan
         uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
@@ -729,12 +912,12 @@ jobs:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
         run: npm run test:e2e:smoke
 
-      - name: Playwright V10 release smoke
+      - name: Playwright current product release smoke
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
         env:
           E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-        run: npm run test:e2e:v10
+        run: npm run test:e2e:current-product
 
       - name: Playwright accessibility lanes
         if: ${{ steps.gate_e2e.outputs.run == 'true' }}
@@ -793,22 +976,22 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install --yes postgresql-client
       - name: V10 inventory lock
-        run: npm run check:v10-inventory-lock
+        run: npm run check:release-inventory-lock
       - name: V10 release evidence
-        run: npm run check:v10-release-evidence
+        run: npm run check:release-evidence
       - name: V10 release privacy scan
-        run: npm run check:v10-privacy-scan
+        run: npm run check:release-privacy-scan
       - name: V10 migration smoke (disposable PostgreSQL)
         env:
           V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
           V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
-        run: npm run check:v10-migration-smoke -- --strict
+        run: npm run check:migration-smoke:current:strict
       - name: V10 complete closure
-        run: npm run check:v10-complete-closure
+        run: npm run check:complete-closure
       - name: V10 zero exclusion report
-        run: npm run check:v10-zero-exclusion-report
+        run: npm run check:zero-exclusion-report
       - name: V10 suite
-        run: npm run check:v10-suite
+        run: npm run check:release-suite-current
       - name: Surface suite pipeline
         run: npm run pipeline:surface:suite
       - name: Operational UI strict audit

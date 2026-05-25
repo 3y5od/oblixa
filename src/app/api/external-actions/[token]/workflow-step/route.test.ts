@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import {
   appendExternalWorkflowStep,
   setExternalWorkflowAckDeadline,
-} from "@/lib/v6/external-collaboration";
+} from "@/lib/assurance/external-collaboration";
 
 vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(),
@@ -13,12 +13,12 @@ vi.mock("@/lib/feature-flags", () => ({
 const getApiAuthContext = vi.hoisted(() => vi.fn());
 const canManageCapability = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
@@ -36,13 +36,13 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
 }));
 
-vi.mock("@/lib/v6/external-collaboration", () => ({
+vi.mock("@/lib/assurance/external-collaboration", () => ({
   appendExternalWorkflowStep: vi.fn(),
   setExternalWorkflowAckDeadline: vi.fn(),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => undefined),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => undefined),
 }));
 
 const mockedFlags = vi.mocked(isFeatureEnabled);

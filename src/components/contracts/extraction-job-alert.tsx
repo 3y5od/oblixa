@@ -10,7 +10,7 @@ import {
   isExtractionProcessingStale,
   MAX_EXTRACTION_ATTEMPTS,
 } from "@/lib/extraction/constants";
-import { formatRelativeSampleAge } from "@/lib/v9-data-freshness";
+import { formatRelativeSampleAge } from "@/lib/data-freshness";
 
 interface ExtractionJobAlertProps {
   job: ContractExtractionJob | null;

@@ -567,12 +567,12 @@ jobs:
         env:
           V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
           V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
-        run: npm run check:v10-migration-smoke -- --strict
+        run: npm run check:migration-smoke:current:strict
       - name: V10 read-models rebuild dry-run (same disposable DB)
         env:
           V10_MIGRATION_SMOKE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
           V10_MIGRATION_SMOKE_ALLOW_MUTATING_DATABASE: "1"
-        run: npm run check:rebuild-v10-read-models-nightly-gate
+        run: npm run check:rebuild-read-models-nightly-gate
 
   har_redact_optional:
     needs: qa_static

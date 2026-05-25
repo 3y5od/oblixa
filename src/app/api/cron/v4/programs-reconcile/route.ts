@@ -1,7 +1,7 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { recordAutomationEvent } from "@/lib/v4/automation-audit";
-import { backfillAutoAttachPrograms } from "@/lib/v4/program-auto-attach";
+import { recordAutomationEvent } from "@/lib/contract-operations/automation-audit";
+import { backfillAutoAttachPrograms } from "@/lib/contract-operations/program-auto-attach";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

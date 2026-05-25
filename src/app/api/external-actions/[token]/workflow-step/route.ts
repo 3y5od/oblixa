@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -15,12 +15,12 @@ import {
   isExternalActionTokenSyntax,
   readJsonBody,
   toSafeString,
-} from "@/lib/v5/api";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/api";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { appendExternalWorkflowStep, setExternalWorkflowAckDeadline } from "@/lib/v6/external-collaboration";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { appendExternalWorkflowStep, setExternalWorkflowAckDeadline } from "@/lib/assurance/external-collaboration";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -189,7 +189,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   }
 
   if (isFeatureEnabled("v6AssuranceCore")) {
-    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "external_workflow_step_appends_total", 1).catch(
+    await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "external_workflow_step_appends_total", 1).catch(
       () => undefined
     );
   }

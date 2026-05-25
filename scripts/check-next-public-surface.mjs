@@ -19,12 +19,14 @@ const PUBLIC_ENV_ALLOWLIST = new Set([
   "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
   "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
   "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+  "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
   "NEXT_PUBLIC_SENTRY_DSN",
   "NEXT_PUBLIC_SENTRY_RELEASE",
   "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
   "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
   "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
   "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+  "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
@@ -34,13 +36,15 @@ const PUBLIC_DIAGNOSTIC_KEYS = new Set([
   "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
   "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
   "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+  "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
   "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
 ]);
 const PUBLIC_DIAGNOSTIC_ALLOWED_FILES = new Map([
   ["NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB", new Set(["src/lib/debugging-sweep/client-sweep-bridge.tsx"])],
   ["NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS", new Set(["src/lib/product-surface/dev-diagnostics.ts"])],
   ["NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS", new Set(["src/lib/observability/sentry-client.ts"])],
-  ["NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", new Set(["src/components/ui/v10-recoverable-state.tsx"])],
+  ["NEXT_PUBLIC_SUPPORT_DIAGNOSTICS", new Set(["src/components/ui/recoverable-state.tsx"])],
+  ["NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", new Set(["src/components/ui/recoverable-state.tsx"])],
 ]);
 const FORBIDDEN_PUBLIC_ENV_TOKENS =
   /(?:SECRET|SERVICE_ROLE|PRIVATE|PASSWORD|WEBHOOK|CRON|PEPPER|ENCRYPTION|INTERNAL|BEARER|ACCESS_TOKEN|REFRESH_TOKEN|API_KEY)/i;
@@ -130,10 +134,13 @@ function collectDiagnosticKeyIssues(root, refs) {
     }
   }
 
-  const v10Rel = "src/components/ui/v10-recoverable-state.tsx";
-  const v10Source = readIfExists(root, v10Rel) ?? "";
-  if (!hasDevOnlyFlagGuard(v10Source, "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS")) {
-    issues.push({ issue: "v10_support_diagnostics_not_dev_only", key: "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", file: v10Rel });
+  const recoverableStateRel = "src/components/ui/recoverable-state.tsx";
+  const recoverableStateSource = readIfExists(root, recoverableStateRel) ?? "";
+  if (!hasDevOnlyFlagGuard(recoverableStateSource, "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS")) {
+    issues.push({ issue: "support_diagnostics_not_dev_only", key: "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS", file: recoverableStateRel });
+  }
+  if (!hasDevOnlyFlagGuard(recoverableStateSource, "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS")) {
+    issues.push({ issue: "v10_support_diagnostics_not_dev_only", key: "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS", file: recoverableStateRel });
   }
 
   const productRel = "src/lib/product-surface/dev-diagnostics.ts";

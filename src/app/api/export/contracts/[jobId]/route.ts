@@ -5,7 +5,7 @@ import {
   getClientIpFromRequest,
   rateLimitCheck,
 } from "@/lib/rate-limit";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { getExportJobDetail, getExportJobHeadline, getExportJobTone } from "@/lib/export-job-visibility";
@@ -15,19 +15,19 @@ import {
   buildV10MutationResponseInit,
   validateV10IdempotencyKey,
   type V10MutationResponse,
-} from "@/lib/v10-mutation-envelope";
+} from "@/lib/mutation-envelope";
 import {
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { getExportCsvExtractedFieldNamesForWorkspaceMode } from "@/lib/export-contract-csv-field-policy";
-import { getV10ContractExportRowLimit, resolveV10ReportExportPlan } from "@/lib/v10-report-export";
-import { normalizeV10JobStatus, isV10JobRetryable } from "@/lib/v10-job-visibility";
-import { statusForV10JobRetryOutcome } from "@/lib/v10-job-retry";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { getV10ContractExportRowLimit, resolveV10ReportExportPlan } from "@/lib/report-export";
+import { normalizeV10JobStatus, isV10JobRetryable } from "@/lib/job-visibility";
+import { statusForV10JobRetryOutcome } from "@/lib/job-retry";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { createContractExportJob, executeContractExportCsv } from "@/lib/export/contracts-csv";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
@@ -262,7 +262,7 @@ export async function POST(
       const filterJson = (priorJob.filter_json as Record<string, unknown> | null) ?? {};
       const selectedIds = Array.isArray(filterJson.contract_ids) ? filterJson.contract_ids.map(String) : [];
       const filterJsonExtension = normalizeRetryFilterJson(filterJson);
-      const v6Settings = await getV6OrgSettingsJson(admin, membership.organization_id);
+      const v6Settings = await getOrgSettingsJson(admin, membership.organization_id);
       const csvFieldNames = getExportCsvExtractedFieldNamesForWorkspaceMode(v6Settings.workspace_mode);
       const exportPlan = resolveV10ReportExportPlan(v6Settings);
       const exportRowLimit = getV10ContractExportRowLimit(exportPlan);

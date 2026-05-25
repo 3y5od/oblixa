@@ -27,7 +27,7 @@ import {
   OnboardingBanner,
   type OnboardingActivationStats,
 } from "@/components/dashboard/onboarding-banner";
-import { V9_DUE_SOON_DAYS } from "@/lib/v9-business-dates";
+import { DUE_SOON_DAYS } from "@/lib/business-dates";
 import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
@@ -49,7 +49,7 @@ import {
   DASHBOARD_PRIMARY_CTA,
   DASHBOARD_SECONDARY_CTA,
 } from "@/lib/dashboard/spec-strings";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import type { ProductSurfaceContext } from "@/lib/product-surface/context";
@@ -91,7 +91,7 @@ export async function DashboardUpper(props: {
 
   const admin = await getDashboardAdminClientCached();
   const [v6OrgSettings, recentImportJobsRes, failedExtractionRes, orgIdentityRes] = await Promise.all([
-    getV6OrgSettingsJson(admin, orgId),
+    getOrgSettingsJson(admin, orgId),
     admin
       .from("contract_import_jobs")
       .select("id, status, error_rows, failure_reason, created_at, inserted_rows, total_rows")
@@ -234,7 +234,7 @@ export async function DashboardUpper(props: {
       id: "due-soon",
       title: "Upcoming deadlines",
       href: "/work?lens=due_soon",
-      why: `Items in the next ${V9_DUE_SOON_DAYS} days that need attention before they slip.`,
+      why: `Items in the next ${DUE_SOON_DAYS} days that need attention before they slip.`,
       count: operationalSignals.dueSoonAssignedWork,
       icon: CalendarClock,
       tone:

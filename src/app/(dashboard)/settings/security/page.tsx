@@ -182,10 +182,6 @@ export default async function SecuritySettingsPage({
 
   const isAdmin = ctx.role === "admin";
   const factorCount = totpFactors.length;
-  const mfaStateLabel =
-    factorCount > 0
-      ? SETTINGS_SECURITY_STRINGS.mfaTwoFactorLabel
-      : SETTINGS_SECURITY_STRINGS.mfaSingleLabel;
   const accountEmail = ctx.user.email ?? "";
   // V2 §1.50 defensive: fall back to first provider when email empty.
   const accountIdentity = accountEmail
@@ -429,7 +425,7 @@ function ResourcesCard({
     >
       <div
         aria-hidden
-        className="landing-corner-ring pointer-events-none absolute"
+        className="pointer-events-none absolute rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,transparent)] opacity-70"
         style={{
           top: "-2.25rem",
           right: "-2.25rem",
@@ -438,13 +434,10 @@ function ResourcesCard({
         }}
       />
       <header className="relative border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-        {/* V3 §1.13 — landing-eyebrow-dot retained ONLY on
-            page-header SETTINGS + the top-level Resources card
-            (reduces dot count from 7 → 2). */}
+        {/* Resources uses a plain caps eyebrow so public Settings pages avoid
+            landing-page decoration helpers. */}
         <p className="ui-caps-1 text-[var(--accent)]">
-          <span className="landing-eyebrow-dot">
-            {SETTINGS_SECURITY_STRINGS.eyebrows.resources}
-          </span>
+          <span>{SETTINGS_SECURITY_STRINGS.eyebrows.resources}</span>
         </p>
         <h2
           id="security-resources-title"

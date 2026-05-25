@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getAuthContext = vi.fn();
-const mergeV6OrgSettingsJson = vi.fn();
-const getV6OrgSettingsJson = vi.fn();
+const mergeOrgSettingsJson = vi.fn();
+const getOrgSettingsJson = vi.fn();
 const requireServerActionEligibility = vi.fn();
 const applyWorkspaceProductTransitionSideEffects = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
@@ -37,9 +37,9 @@ vi.mock("@/lib/supabase/server", () => ({
   getAuthContext: (...args: unknown[]) => getAuthContext(...args),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  mergeV6OrgSettingsJson: (...args: unknown[]) => mergeV6OrgSettingsJson(...args),
-  getV6OrgSettingsJson: (...args: unknown[]) => getV6OrgSettingsJson(...args),
+vi.mock("@/lib/assurance/org-settings", () => ({
+  mergeOrgSettingsJson: (...args: unknown[]) => mergeOrgSettingsJson(...args),
+  getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
 }));
 
 vi.mock("next/cache", () => ({
@@ -59,7 +59,7 @@ vi.mock("@/lib/product-surface/workspace-transition", async (importOriginal) => 
   };
 });
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: (...args: unknown[]) => refreshV10ReadModelsForOrganization(...args),
 }));
 
@@ -71,13 +71,13 @@ vi.mock("@/lib/product-surface/landing-eligibility", () => ({
 describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   beforeEach(() => {
     getAuthContext.mockReset();
-    mergeV6OrgSettingsJson.mockReset();
-    getV6OrgSettingsJson.mockReset();
+    mergeOrgSettingsJson.mockReset();
+    getOrgSettingsJson.mockReset();
     requireServerActionEligibility.mockReset();
     applyWorkspaceProductTransitionSideEffects.mockReset();
     refreshV10ReadModelsForOrganization.mockReset();
-    getV6OrgSettingsJson.mockResolvedValue({});
-    mergeV6OrgSettingsJson.mockResolvedValue({ error: null });
+    getOrgSettingsJson.mockResolvedValue({});
+    mergeOrgSettingsJson.mockResolvedValue({ error: null });
     requireServerActionEligibility.mockResolvedValue({ ok: true });
     applyWorkspaceProductTransitionSideEffects.mockResolvedValue({
       autoBlockedNotificationTypes: [],
@@ -92,7 +92,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "advanced");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ error: "Only workspace admins can change product experience settings." });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("returns error when caller is not admin", async () => {
@@ -107,7 +107,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "assurance");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ error: "Only workspace admins can change product experience settings." });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("rejects default_landing_path when invalid for selected workspace mode", async () => {
@@ -123,12 +123,12 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("default_landing_path", "/decisions");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ error: "That default landing path is not available in the selected workspace mode." });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("allows workspace mode changes even when stored billing metadata is lower tier", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
-    mergeV6OrgSettingsJson.mockResolvedValue({ data: { workspace_mode: "assurance" }, error: null });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core", workspace_plan: "core" });
+    mergeOrgSettingsJson.mockResolvedValue({ data: { workspace_mode: "assurance" }, error: null });
     const from = vi.fn((table: string) => {
       if (table === "v10_audit_events") {
         return {
@@ -156,7 +156,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "assurance");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
+    expect(mergeOrgSettingsJson).toHaveBeenCalledWith(
       expect.objectContaining({ from }),
       "org-1",
       expect.objectContaining({ workspace_mode: "assurance" })
@@ -164,7 +164,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   });
 
   it("requires confirmation before downgrade suppresses scheduled report subscriptions", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
     const from = vi.fn((table: string) => {
       if (table === "report_pack_subscriptions") {
         return {
@@ -207,7 +207,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     expect(result).toEqual({
       error: "This mode change would suppress 1 active scheduled report subscription. Confirm scheduled report suppression and save again.",
     });
-    expect(mergeV6OrgSettingsJson).not.toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("merges settings scoped to authenticated org for admin", async () => {
@@ -250,7 +250,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("search_scope", "core_only");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
+    expect(mergeOrgSettingsJson).toHaveBeenCalledWith(
       expect.objectContaining({ from }),
       "org-1",
       expect.objectContaining({
@@ -308,7 +308,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "core");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 
@@ -346,7 +346,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("workspace_mode", "core");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 
@@ -386,7 +386,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     );
     const result = await resetWorkspaceProductSurfaceDefaultsForm();
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalledWith(
+    expect(mergeOrgSettingsJson).toHaveBeenCalledWith(
       expect.objectContaining({ from }),
       "org-1",
       expect.objectContaining({
@@ -406,8 +406,8 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   });
 
   it("captures downgrade side-effect details for blocked notification types and suppressed subscriptions", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced" });
-    mergeV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced" });
+    mergeOrgSettingsJson.mockResolvedValue({
       data: { workspace_mode: "core" },
       error: null,
     });
@@ -496,8 +496,8 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   });
 
   it("allows confirmed downgrade when scheduled report subscriptions will be suppressed", async () => {
-    getV6OrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
-    mergeV6OrgSettingsJson.mockResolvedValue({
+    getOrgSettingsJson.mockResolvedValue({ workspace_mode: "advanced", workspace_plan: "advanced" });
+    mergeOrgSettingsJson.mockResolvedValue({
       data: { workspace_mode: "core" },
       error: null,
     });
@@ -554,7 +554,7 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
     fd.set("confirm_scheduled_report_downgrade", "on");
     const result = await updateWorkspaceProductSurfaceForm(fd);
     expect(result).toEqual({ success: true });
-    expect(mergeV6OrgSettingsJson).toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).toHaveBeenCalled();
   });
 });
 

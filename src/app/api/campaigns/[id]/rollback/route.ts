@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { CAMPAIGN_TASK_MARKER } from "@/lib/v5/campaign-eligibility";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { CAMPAIGN_TASK_MARKER } from "@/lib/decision-intelligence/campaign-eligibility";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { enforceIdempotency } from "@/lib/idempotency";

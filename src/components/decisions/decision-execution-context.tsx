@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
-import type { DecisionExecutionContext } from "@/lib/v5/decision-context";
+import type { DecisionExecutionContext } from "@/lib/decision-intelligence/decision-context";
 
 type Props = {
   decisionId: string;

@@ -51,7 +51,7 @@ function writeAllTargetFiles(root, overrides = {}) {
       await q.eq("state", "draft");
       "program_publish_stale_status";
     `,
-    "src/lib/v6/assurance.ts": `
+    "src/lib/assurance/assurance.ts": `
       await q.neq("status", "resolved").neq("status", "dismissed");
       "finding_not_active";
     `,
@@ -78,7 +78,7 @@ function writeAllTargetFiles(root, overrides = {}) {
       await q.neq("status", "submitted");
       "external_action_already_submitted";
     `,
-    "src/lib/v6/playbooks.ts": `
+    "src/lib/assurance/playbooks.ts": `
       const claimedRun = await q.eq("status", "awaiting_approval");
       "run_not_awaiting_approval";
     `,

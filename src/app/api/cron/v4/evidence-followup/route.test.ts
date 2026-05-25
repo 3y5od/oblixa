@@ -20,15 +20,15 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
 }));
 
-vi.mock("@/lib/v4/exceptions", () => ({
+vi.mock("@/lib/contract-operations/exceptions", () => ({
   upsertDetectedExceptions,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 

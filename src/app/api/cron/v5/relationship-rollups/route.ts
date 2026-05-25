@@ -5,16 +5,16 @@
  */
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { listOrganizationIds } from "@/lib/v5/cron";
-import { buildRelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
+import { listOrganizationIds } from "@/lib/decision-intelligence/cron";
+import { buildRelationshipKeyMetrics } from "@/lib/decision-intelligence/relationship-key-metrics";
 import {
   ensureAccountWorkspaceFromContracts,
   ensureCounterpartyWorkspaceFromContracts,
   ensureTimelineForAccount,
   ensureTimelineForCounterparty,
-} from "@/lib/v5/relationship-bootstrap";
-import { appendTimelineEventDeduped } from "@/lib/v5/relationship-timeline";
+} from "@/lib/decision-intelligence/relationship-bootstrap";
+import { appendTimelineEventDeduped } from "@/lib/decision-intelligence/relationship-timeline";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -25,9 +25,7 @@ const configs = [
   "p/typescript",
   "semgrep/oblixa-security.yml",
   "semgrep/oblixa-performance.yml",
-  "semgrep/oblixa-v7-surface.yml",
-  "semgrep/oblixa-v8-surface.yml",
-  "semgrep/oblixa-v10-surface.yml",
+  "semgrep/oblixa-surface.yml",
 ].filter((c) => c.startsWith("p/") || fs.existsSync(path.join(root, c)));
 
 const args = ["scan", ...configs.flatMap((c) => ["--config", c]), "--error", "."];

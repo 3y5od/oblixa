@@ -4,11 +4,11 @@
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
-const root = dirname(fileURLToPath(new URL("..", import.meta.url)));
+const root = fileURLToPath(new URL("..", import.meta.url));
 const budget = JSON.parse(readFileSync(join(root, "scripts", "slo-budgets.json"), "utf8"));
-const strict = process.env.SLO_BUDGETS_STRICT === "1" || process.env.SLO_BUDGETS_STRICT === "true");
+const strict = process.env.SLO_BUDGETS_STRICT === "1" || process.env.SLO_BUDGETS_STRICT === "true";
 const allowPath = join(root, "artifacts", "red-metrics-allowlist.json");
 let allow = null;
 try {

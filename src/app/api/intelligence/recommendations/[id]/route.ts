@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
-import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
+import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";

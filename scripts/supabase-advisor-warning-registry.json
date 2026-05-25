@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "registryOwner": "engineering",
+  "purpose": "Reviewed Supabase advisor warnings that are known and intentionally tolerated until their follow-up work is complete.",
+  "reviewedWarnings": []
+}

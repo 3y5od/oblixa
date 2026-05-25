@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { resetMockRouter } from "@/test-utils/mock-router";
 import { bulkAssignContractOwners } from "@/actions/contracts";
-import { emitV10EmptyStateCtaClickedTelemetry } from "@/actions/product-telemetry";
+import { emitEmptyStateCtaClickedTelemetry } from "@/actions/product-telemetry";
 import type { Contract } from "@/lib/types";
 import { ContractTable } from "./contract-table";
 
@@ -14,7 +14,7 @@ vi.mock("@/actions/contracts", () => ({
 }));
 
 vi.mock("@/actions/product-telemetry", () => ({
-  emitV10EmptyStateCtaClickedTelemetry: vi.fn(),
+  emitEmptyStateCtaClickedTelemetry: vi.fn(),
 }));
 
 const baseContracts: Contract[] = [
@@ -165,7 +165,7 @@ describe("ContractTable", () => {
     expect(state.getAttribute("data-v10-source-object")).toBe("contract");
     expect(state.getAttribute("data-v10-next-action-label")).toBe("Upload contract");
     fireEvent.click(screen.getByRole("link", { name: /upload contract/i }));
-    expect(emitV10EmptyStateCtaClickedTelemetry).toHaveBeenCalledWith({
+    expect(emitEmptyStateCtaClickedTelemetry).toHaveBeenCalledWith({
       surface: "contracts",
       section: "contract_table",
       sourceObject: "contract",

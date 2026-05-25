@@ -14,7 +14,7 @@ export default async function ContractDataQualityPage() {
         <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">Data quality is disabled</h1>
         <p className="mt-3 max-w-xl text-[12.5px] leading-relaxed text-[var(--text-tertiary)]">
           Data quality is tied to the same toggle as reporting history. It is off when{" "}
-          <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> is explicitly false, 0, no, or off.
+          <code className="text-xs">ENABLE_REPORTING_HISTORY</code> is explicitly false, 0, no, or off.
         </p>
       </div>
     );

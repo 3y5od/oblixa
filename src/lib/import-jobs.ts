@@ -1,4 +1,4 @@
-import { autoAttachProgramsForContract } from "@/lib/v4/program-auto-attach";
+import { autoAttachProgramsForContract } from "@/lib/contract-operations/program-auto-attach";
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { stripCsvBidiControlCharacters } from "@/lib/csv-formula-safe";

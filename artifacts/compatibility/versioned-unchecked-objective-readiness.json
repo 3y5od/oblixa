@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-unchecked-objective-readiness.mjs --write",
+  "policy": "Classify still-unchecked code-only version-name objective families from code-owned inventories, queues, allowlists, SQL staging, route/PWA checks, additive alias preservation, code-only closure, and local-surface regression artifacts. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "versionedCodeOnlyClosure": "artifacts/compatibility/versioned-code-only-closure.json",
+    "versionedRemainingLocalContractClosure": "artifacts/compatibility/versioned-remaining-local-contract-closure.json",
+    "versionedAdditiveAliasPreservation": "artifacts/compatibility/versioned-additive-alias-preservation.json",
+    "versionedPackageScriptReadiness": "artifacts/compatibility/versioned-package-script-readiness.json",
+    "versionedAliasUsageNeutrality": "artifacts/compatibility/versioned-alias-usage-neutrality.json",
+    "versionedEnvFlagAliases": "artifacts/compatibility/versioned-env-flag-aliases.json",
+    "versionedPublicRuntimeDualRead": "artifacts/compatibility/versioned-public-runtime-dual-read.json",
+    "versionedLocalSurfaceRegression": "artifacts/compatibility/versioned-local-surface-regression.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json",
+    "sqlObjectRenameStaging": "artifacts/supabase/sql-object-rename-staging.json",
+    "sqlSecurityAutomationCoverage": "artifacts/supabase/sql-security-automation-coverage.json",
+    "seedVersionedNameQueueCoverage": "artifacts/supabase/seed-versioned-name-queue-coverage.json"
+  },
+  "totals": {
+    "objectiveCount": 9,
+    "statusCounts": {
+      "alias_ready": 1,
+      "implemented": 4,
+      "queue_covered": 1,
+      "requires_external_or_production_cutover": 2,
+      "requires_forward_migration": 1
+    },
+    "implementedCount": 4,
+    "queueCoveredCount": 1,
+    "aliasReadyCount": 1,
+    "requiresRuntimeDualReadCount": 0,
+    "requiresForwardMigrationCount": 1,
+    "requiresExternalOrProductionCutoverCount": 2,
+    "uncoveredManualCount": 0,
+    "remainingSafeActionCount": 0,
+    "missingMetadataCount": 0,
+    "missingValidationCommandCount": 0,
+    "issueCount": 0
+  },
+  "objectives": [
+    {
+      "id": "compatibility_alias_equivalence",
+      "owner": "platform-hardening",
+      "reason": "Retained old and neutral aliases must remain equivalent for packages, exports, env flags, telemetry, routes, selectors, and SQL staging metadata.",
+      "validationCommand": "npm run check:versioned-compatibility-equivalence",
+      "manualFollowUp": "Keep old aliases until their compatibility queue rows are ready for removal and downstream references have migrated.",
+      "readinessStatus": "implemented",
+      "sourceReports": [
+        "versionedCompatibilityEquivalence",
+        "versionedAliasUsageNeutrality",
+        "versionedAdditiveAliasPreservation",
+        "versionedEnvFlagAliases",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "packageScriptAliases",
+        "exportedSymbolAliases",
+        "telemetryEventNames",
+        "environmentKeys",
+        "apiRoutes",
+        "cronRoutes",
+        "sqlObjects"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "cronRoutes": 32,
+        "environmentKeys": 24,
+        "exportedSymbolAliases": 1148,
+        "packageScriptAliases": 37,
+        "sqlObjects": 75,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "retainedLegacyAliasCount": 79,
+        "domAliasPairCount": 11,
+        "coveredDomAliasPairCount": 11,
+        "envAliasCount": 22
+      }
+    },
+    {
+      "id": "env_feature_flag_dual_read",
+      "owner": "platform-hardening",
+      "reason": "Repo-owned versioned env and feature-flag keys need neutral-first, legacy-second dual reads without changing production values.",
+      "validationCommand": "npm run check:versioned-env-flag-aliases",
+      "manualFollowUp": "Keep legacy env keys accepted until production configuration and external runbooks explicitly cut over to neutral names.",
+      "readinessStatus": "implemented",
+      "sourceReports": [
+        "versionedEnvFlagAliases",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "environmentKeys"
+      ],
+      "queueCounts": {
+        "environmentKeys": 24
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "aliasCount": 22,
+        "precedence": "neutral_first_legacy_second"
+      }
+    },
+    {
+      "id": "final_zero_version_enforcement",
+      "owner": "platform-hardening",
+      "reason": "Final zero-version enforcement remains blocked by retained compatibility names, production cutover evidence, and public/runtime legacy contracts.",
+      "validationCommand": "npm run check:versioned-naming",
+      "manualFollowUp": "Keep final zero-version enforcement unchecked until all retained queues are ready_for_removal and production/external cutover is complete.",
+      "readinessStatus": "requires_external_or_production_cutover",
+      "sourceReports": [
+        "versionedCodeOnlyClosure",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "packageScriptAliases",
+        "telemetryEventNames",
+        "apiRoutes",
+        "cronRoutes",
+        "environmentKeys",
+        "sqlObjects",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "contentContractAliases": 1532,
+        "cronRoutes": 32,
+        "environmentKeys": 24,
+        "packageScriptAliases": 37,
+        "sqlObjects": 75,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "currentVersionedNamingCommand": "npm run check:versioned-naming",
+        "pendingSafeActionCount": 0,
+        "retainedLegacyAliasCount": 79,
+        "compatibilityQueueIssueCount": 0
+      }
+    },
+    {
+      "id": "package_script_alias_readiness",
+      "owner": "platform-hardening",
+      "reason": "Legacy package-script aliases stay callable, but repo-local usage must prefer neutral commands and readiness evidence must remain deterministic.",
+      "validationCommand": "npm run check:versioned-package-script-readiness",
+      "manualFollowUp": "Remove retained legacy package scripts only after all aliases report ready_for_removal and removal is explicitly in scope.",
+      "readinessStatus": "alias_ready",
+      "sourceReports": [
+        "versionedPackageScriptReadiness",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "packageScriptAliases"
+      ],
+      "queueCounts": {
+        "packageScriptAliases": 37
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "aliasCount": 37,
+        "localReadyForRemovalCount": 37,
+        "readyForRemovalCount": 0,
+        "blockedAliasCount": 37,
+        "blockingReferenceCount": 0
+      }
+    },
+    {
+      "id": "public_metadata_pwa_routes",
+      "owner": "frontend-platform",
+      "reason": "Public metadata, PWA, well-known, OpenAPI, route, cron, and deep-link names require runtime aliases or external consumer cutover before legacy names can be removed.",
+      "validationCommand": "npm run check:versioned-public-runtime-dual-read",
+      "manualFollowUp": "Leave public-name removals unchecked until old and neutral contracts are both validated and consumer cutover evidence exists.",
+      "readinessStatus": "queue_covered",
+      "sourceReports": [
+        "versionedPublicContractPreservation",
+        "versionedPublicRuntimeDualRead",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "apiRoutes",
+        "cronRoutes",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "contentContractAliases": 1532,
+        "cronRoutes": 32
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "publicGroupCount": 4,
+        "preservedGroupCount": 4,
+        "contractCount": 457,
+        "dualReadPresentCount": 2,
+        "runtimeReadinessStatusCounts": {
+          "dual_read_present": 2,
+          "queue_covered": 4
+        }
+      }
+    },
+    {
+      "id": "remaining_local_surface_contracts",
+      "owner": "platform-hardening",
+      "reason": "Local text, fixtures, selectors, style tokens, copy keys, QA registries, and source-owned config IDs must be classified, queued, allowlisted, or regression-guarded.",
+      "validationCommand": "npm run check:versioned-remaining-local-contract-closure",
+      "manualFollowUp": "Rewrite only scanner-proven local references; retain historical evidence and standards/provider/schema versions.",
+      "readinessStatus": "implemented",
+      "sourceReports": [
+        "versionedRemainingLocalContractClosure",
+        "versionedLocalSurfaceRegression",
+        "versionedSourceConfigPreservation",
+        "versionedAdditiveAliasPreservation"
+      ],
+      "queueNames": [
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "contentContractAliases": 1532
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "localClosureStatusCounts": {
+          "coverage_proven": 8,
+          "requires_runtime_alias": 1,
+          "retained_legacy_blocked": 1
+        },
+        "localRegressionGroupCount": 6,
+        "sourceConfigGroupCount": 5
+      }
+    },
+    {
+      "id": "safe_action_exhaustion",
+      "owner": "platform-hardening",
+      "reason": "Path renames, exported-symbol aliases, local content rewrites, env aliases, and alias-usage rewrites must stay exhausted before unchecked code-only items can be marked complete.",
+      "validationCommand": "npm run check:versioned-code-only-closure",
+      "manualFollowUp": "Apply any newly discovered safe action through its owning explicit write command before marking further checklist items complete.",
+      "readinessStatus": "implemented",
+      "sourceReports": [
+        "versionedCodeOnlyClosure"
+      ],
+      "queueNames": [],
+      "queueCounts": {},
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "pendingSafeActionCount": 0,
+        "statusCounts": {
+          "coverage_proven": 6,
+          "requires_external_or_production_cutover": 2,
+          "requires_forward_migration": 1,
+          "retained_legacy_blocked": 1
+        },
+        "safeActionGateCount": 6
+      }
+    },
+    {
+      "id": "sql_security_seed_forward_migration",
+      "owner": "database-platform",
+      "reason": "SQL object names, RLS/security automation, and seed payload keys require forward migrations, staging metadata, and linked verification before removal.",
+      "validationCommand": "npm run check:sql-object-rename-staging",
+      "manualFollowUp": "Do not remove SQL legacy names or migration evidence without forward aliases and linked production catalog verification.",
+      "readinessStatus": "requires_forward_migration",
+      "sourceReports": [
+        "sqlObjectRenameStaging",
+        "sqlSecurityAutomationCoverage",
+        "seedVersionedNameQueueCoverage",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "sqlObjects",
+        "sqlSecurityAutomation",
+        "migrationHistoryFilenames",
+        "seedVersionedNames"
+      ],
+      "queueCounts": {
+        "migrationHistoryFilenames": 37,
+        "seedVersionedNames": 1,
+        "sqlObjects": 75,
+        "sqlSecurityAutomation": 67
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "stagedSqlRenameCount": 75,
+        "sqlSecurityCoverageCount": 67,
+        "seedQueueCoveredCount": 0
+      }
+    },
+    {
+      "id": "telemetry_observability_external_cutover",
+      "owner": "platform",
+      "reason": "Persisted telemetry, observability, audit, diagnostic, provider, and external integration names require dashboard or external consumer cutover before removal.",
+      "validationCommand": "npm run check:versioned-compatibility-equivalence",
+      "manualFollowUp": "Keep persisted telemetry and provider-facing names until dashboards, consumers, and provider contracts have explicit cutover evidence.",
+      "readinessStatus": "requires_external_or_production_cutover",
+      "sourceReports": [
+        "versionedCompatibilityEquivalence",
+        "compatibilityRemovalQueue"
+      ],
+      "queueNames": [
+        "telemetryEventNames",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "contentContractAliases": 1532,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0,
+      "evidence": {
+        "telemetryEventCount": 338,
+        "telemetryNeutralAliasCount": 74,
+        "telemetryQueueCount": 74
+      }
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -95,9 +95,9 @@ function writeFixture(root, overrides = {}) {
     "src/app/api/example/[id]/route.ts": `
       rejectUnsafeRouteParams({ id }, ["id"], "/api/example/[id]")
     `,
-    "src/lib/v5/external-action-types.ts": "export const EXTERNAL_ACTION_TYPES = []; export function isValidExternalActionType(){} export function externalActionTypeValidationError(){}",
-    "src/lib/v5/external-action-payload.ts": "function validateExternalActionPayload() { switch (actionType) {} const _exhaustive: never = actionType; }",
-    "src/lib/v5/external-action-payload.test.ts": `
+    "src/lib/decision-intelligence/external-action-types.ts": "export const EXTERNAL_ACTION_TYPES = []; export function isValidExternalActionType(){} export function externalActionTypeValidationError(){}",
+    "src/lib/decision-intelligence/external-action-payload.ts": "function validateExternalActionPayload() { switch (actionType) {} const _exhaustive: never = actionType; }",
+    "src/lib/decision-intelligence/external-action-payload.test.ts": `
       it("covers every ExternalActionType without falling through to unsupported", () => {})
       acknowledged must be boolean true
       review_decision_packet: reviewed true

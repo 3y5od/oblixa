@@ -769,7 +769,7 @@ export const WORKFLOW_DESTINATIONS = [
     workflowArea: "workspace",
     minWorkspaceMode: "core",
     placementsByMode: placements(["admin_contextual", "cmdk"]),
-    copyByMode: copies(copy("Notifications", "Reminder defaults for renewal, review, work, evidence, and digest email.", "Edit notifications")),
+    copyByMode: copies(copy("Notifications", "Reminder defaults for renewal, review, work, evidence, and digest delivery.", "Edit notifications")),
   },
   {
     key: "product_settings",

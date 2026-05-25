@@ -1,12 +1,13 @@
 {
-  "version": 2,
+  "version": 3,
   "generated_by": "scripts/check-sql-definer-invoker-inventory.mjs",
   "migration_dir": "supabase/migrations",
-  "active_security_definer_function_count": 19,
-  "tenant_security_invoker_view_count": 1,
+  "active_security_definer_function_count": 27,
+  "tenant_security_invoker_view_count": 36,
   "active_security_definer_functions": [
     {
       "function": "assurance_hub_snapshot",
+      "owner": "platform-security",
       "file": "supabase/migrations/056_v9_performance_snapshots.sql",
       "line": 246,
       "language": "sql",
@@ -21,6 +22,31 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "claim_mutation_idempotency",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 14,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -29,6 +55,7 @@
     },
     {
       "function": "claim_v10_mutation_idempotency",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 94,
       "language": "plpgsql",
@@ -43,6 +70,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -51,6 +79,7 @@
     },
     {
       "function": "cleanup_code_owned_transient_data",
+      "owner": "platform-security",
       "file": "supabase/migrations/080_code_owned_transient_retention_cleanup.sql",
       "line": 101,
       "language": "plpgsql",
@@ -65,6 +94,55 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "cleanup_expired_mutation_idempotency",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 2,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "cleanup_expired_runtime_artifacts",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 128,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -73,6 +151,7 @@
     },
     {
       "function": "cleanup_expired_v10_mutation_idempotency",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 70,
       "language": "plpgsql",
@@ -87,6 +166,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -95,6 +175,7 @@
     },
     {
       "function": "cleanup_expired_v10_runtime_artifacts",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 1348,
       "language": "plpgsql",
@@ -109,6 +190,31 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "cleanup_old_read_model_refresh_jobs",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 116,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -117,6 +223,7 @@
     },
     {
       "function": "cleanup_old_v10_read_model_refresh_jobs",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 1247,
       "language": "plpgsql",
@@ -131,6 +238,31 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "complete_mutation_idempotency",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 54,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -139,6 +271,7 @@
     },
     {
       "function": "complete_v10_mutation_idempotency",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 187,
       "language": "plpgsql",
@@ -153,6 +286,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -161,6 +295,7 @@
     },
     {
       "function": "contracts_page_snapshot",
+      "owner": "platform-security",
       "file": "supabase/migrations/056_v9_performance_snapshots.sql",
       "line": 43,
       "language": "sql",
@@ -175,6 +310,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -183,6 +319,7 @@
     },
     {
       "function": "create_user_org",
+      "owner": "platform-security",
       "file": "supabase/migrations/041_v4_security_hardening.sql",
       "line": 41,
       "language": "plpgsql",
@@ -200,6 +337,7 @@
         "authenticated"
       ],
       "allowlist_rationale": "binds requested user_id to auth.uid() before creating tenant root rows",
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": true,
         "membership_check": true,
@@ -208,6 +346,7 @@
     },
     {
       "function": "dashboard_home_snapshot",
+      "owner": "platform-security",
       "file": "supabase/migrations/056_v9_performance_snapshots.sql",
       "line": 200,
       "language": "sql",
@@ -222,6 +361,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -230,6 +370,7 @@
     },
     {
       "function": "dashboard_org_metrics",
+      "owner": "platform-security",
       "file": "supabase/migrations/042_dashboard_metrics_and_perf_indexes.sql",
       "line": 2,
       "language": "sql",
@@ -244,6 +385,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -252,6 +394,7 @@
     },
     {
       "function": "handle_new_user",
+      "owner": "platform-security",
       "file": "supabase/migrations/041_v4_security_hardening.sql",
       "line": 60,
       "language": "plpgsql",
@@ -264,6 +407,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -272,8 +416,38 @@
     },
     {
       "function": "is_org_member",
+      "owner": "platform-security",
       "file": "supabase/migrations/035_fix_rls_recursion_org_members.sql",
       "line": 2,
+      "language": "sql",
+      "volatility": "stable",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "anon",
+          "authenticated",
+          "service_role"
+        ]
+      },
+      "client_callable": true,
+      "client_roles": [
+        "anon",
+        "authenticated"
+      ],
+      "allowlist_rationale": "membership predicate helper used by RLS policies",
+      "anon_allowlist_rationale": "RLS policy helper returns false for anon via auth.uid() and avoids permission-denied probes",
+      "safety_evidence": {
+        "auth_uid_check": true,
+        "membership_check": true,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "member_can_read",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 98,
       "language": "sql",
       "volatility": "stable",
       "search_path": "public",
@@ -288,15 +462,17 @@
       "client_roles": [
         "authenticated"
       ],
-      "allowlist_rationale": "membership predicate helper used by RLS policies",
+      "allowlist_rationale": "neutral compatibility wrapper for the V10 RLS predicate helper",
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
-        "auth_uid_check": true,
+        "auth_uid_check": false,
         "membership_check": true,
         "dynamic_sql": false
       }
     },
     {
       "function": "org_nav_badge_counts",
+      "owner": "platform-security",
       "file": "supabase/migrations/042_dashboard_metrics_and_perf_indexes.sql",
       "line": 42,
       "language": "sql",
@@ -311,6 +487,31 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "replace_read_model_rows",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 140,
+      "language": "sql",
+      "volatility": "volatile",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -319,6 +520,7 @@
     },
     {
       "function": "replace_v10_read_model_rows",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 1477,
       "language": "plpgsql",
@@ -333,6 +535,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -341,6 +544,7 @@
     },
     {
       "function": "reports_control_room_snapshot",
+      "owner": "platform-security",
       "file": "supabase/migrations/056_v9_performance_snapshots.sql",
       "line": 213,
       "language": "sql",
@@ -355,6 +559,34 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "role_rank",
+      "owner": "platform-security",
+      "file": "supabase/migrations/088_sql_neutral_function_aliases.sql",
+      "line": 84,
+      "language": "sql",
+      "volatility": "stable",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "authenticated",
+          "service_role"
+        ]
+      },
+      "client_callable": true,
+      "client_roles": [
+        "authenticated"
+      ],
+      "allowlist_rationale": "neutral compatibility wrapper for the pure v10 role ranking helper",
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -363,6 +595,7 @@
     },
     {
       "function": "v10_member_can_read",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 249,
       "language": "sql",
@@ -380,6 +613,7 @@
         "authenticated"
       ],
       "allowlist_rationale": "V10 RLS predicate helper binds row organization to auth.uid() membership",
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": true,
         "membership_check": true,
@@ -388,6 +622,7 @@
     },
     {
       "function": "v10_role_rank",
+      "owner": "platform-security",
       "file": "supabase/migrations/057_v10_runtime_contracts.sql",
       "line": 226,
       "language": "sql",
@@ -405,6 +640,7 @@
         "authenticated"
       ],
       "allowlist_rationale": "pure role ranking helper with no table reads or writes",
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -413,6 +649,7 @@
     },
     {
       "function": "work_hub_snapshot",
+      "owner": "platform-security",
       "file": "supabase/migrations/056_v9_performance_snapshots.sql",
       "line": 133,
       "language": "sql",
@@ -427,6 +664,7 @@
       "client_callable": false,
       "client_roles": [],
       "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
       "safety_evidence": {
         "auth_uid_check": false,
         "membership_check": false,
@@ -436,12 +674,330 @@
   ],
   "tenant_views": [
     {
+      "view": "activation_state",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 2,
+      "tenant_references": [
+        "v10_activation_state"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "advanced_assurance_linked_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 11,
+      "tenant_references": [
+        "v10_advanced_assurance_linked_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "approval_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 20,
+      "tenant_references": [
+        "v10_approval_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "audit_events",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 29,
+      "tenant_references": [
+        "audit_events",
+        "v10_audit_events"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "command_search_index",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 38,
+      "tenant_references": [
+        "v10_command_search_index"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "contract_activity_events",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 47,
+      "tenant_references": [
+        "v10_contract_activity_events"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "contract_fields",
+      "file": "supabase/migrations/085_contract_fields_compatibility_view.sql",
+      "line": 1,
+      "tenant_references": [
+        "contracts",
+        "extracted_fields"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "contract_health_snapshots",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 56,
+      "tenant_references": [
+        "v10_contract_health_snapshots"
+      ],
+      "security_invoker": true
+    },
+    {
       "view": "contract_operational_dates",
       "file": "supabase/migrations/063_contract_operational_dates_security_invoker.sql",
       "line": 1,
       "tenant_references": [
         "contracts",
         "extracted_fields"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "denominator_locks",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 65,
+      "tenant_references": [
+        "v10_denominator_locks"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "evidence_request_statuses",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 74,
+      "tenant_references": [
+        "v10_evidence_request_statuses"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "exception_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 83,
+      "tenant_references": [
+        "v10_exception_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "external_blocker_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 92,
+      "tenant_references": [
+        "v10_external_blocker_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "external_evidence_submissions",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 101,
+      "tenant_references": [
+        "v10_external_evidence_submissions"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "field_provenance_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 110,
+      "tenant_references": [
+        "v10_field_provenance_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "fixture_manifests",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 119,
+      "tenant_references": [
+        "v10_fixture_manifests"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "fixture_teardown_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 128,
+      "tenant_references": [
+        "v10_fixture_teardown_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "job_run_visibility",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 137,
+      "tenant_references": [
+        "v10_job_run_visibility"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "metric_runs",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 146,
+      "tenant_references": [
+        "v10_metric_runs"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "mutation_idempotency",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 155,
+      "tenant_references": [
+        "v10_mutation_idempotency"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "notification_deliveries",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 163,
+      "tenant_references": [
+        "notification_deliveries",
+        "v10_notification_deliveries"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "obligation_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 172,
+      "tenant_references": [
+        "v10_obligation_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "organization_settings",
+      "file": "supabase/migrations/087_organization_settings_compatibility_view.sql",
+      "line": 1,
+      "tenant_references": [
+        "organizations"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "promotion_decisions",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 181,
+      "tenant_references": [
+        "v10_promotion_decisions"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "read_model_lineage",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 190,
+      "tenant_references": [
+        "v10_read_model_lineage"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "read_model_refresh_jobs",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 199,
+      "tenant_references": [
+        "v10_read_model_refresh_jobs"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "read_model_rows",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 208,
+      "tenant_references": [
+        "v10_read_model_rows"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "release_evidence_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 217,
+      "tenant_references": [
+        "v10_release_evidence_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "release_waivers",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 226,
+      "tenant_references": [
+        "v10_release_waivers"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "renewal_checkpoint_records",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 235,
+      "tenant_references": [
+        "v10_renewal_checkpoint_records"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "renewal_posture_snapshots",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 244,
+      "tenant_references": [
+        "v10_renewal_posture_snapshots"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "report_run_visibility",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 253,
+      "tenant_references": [
+        "v10_report_run_visibility"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "runtime_artifacts",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 262,
+      "tenant_references": [
+        "v10_runtime_artifacts"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "runtime_coverage_ledger",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 271,
+      "tenant_references": [
+        "v10_runtime_coverage_ledger"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "verification_command_results",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 280,
+      "tenant_references": [
+        "v10_verification_command_results"
+      ],
+      "security_invoker": true
+    },
+    {
+      "view": "work_items",
+      "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
+      "line": 289,
+      "tenant_references": [
+        "v10_work_items"
       ],
       "security_invoker": true
     }

@@ -1,0 +1,174 @@
+---
+alwaysApply: true
+---
+
+# Regression Prevention For Autonomous Agents
+
+When fixing or adding code, preserve the operational hardening guarantees already enforced by this repo. Do not treat a green local typecheck as sufficient when the touched area has a dedicated guardrail.
+
+## General workflow
+
+- Inspect the existing implementation and tests before changing assertions. Update a test expectation only when the current UI/API behavior is intentionally different and still accessible, safe, and covered by another contract.
+- Treat failing tests and checks as evidence first, not noise. Do not delete assertions, broaden matchers, or expand baselines unless you can point to the current implementation contract that makes the old assertion obsolete.
+- Prefer narrowly scoped fixes over baseline or allowlist expansion. Add an allowlist entry only when the name or behavior is intentionally retained, has owner/reason metadata, and is covered by a validation command.
+- If a `check:*` command reports deterministic artifact drift and gives an owning `write:*` or `generate:*` command, refresh only through that owning command, then rerun the read-only check.
+- When a broad pipeline fails, fix the first concrete failing command before chasing later symptoms. For noisy pipelines, capture output to a temp log and inspect the failing step rather than relying on truncated terminal output.
+- Do not add runtime, test, script, or build dependencies on checklist or planning docs. Documentation can describe status, but code-owned config and artifacts must drive checks.
+- Keep production-impacting operations out of autonomous fixes unless explicitly requested: no production Supabase checks, local reset, production migrations, provider/dashboard changes, scheduler/traffic changes, or secret rotation.
+- Preserve existing dirty worktree changes. If a file has unrelated edits, work with them and keep your patch scoped to the failure being fixed.
+
+## Check and script changes
+
+- `check:*` commands must be read-only. If a script needs to modify artifacts, expose that only behind an explicit `write:*`, `generate:*`, or `report:*` command whose write set is deterministic and narrow.
+- When changing a static check, add or update focused `node --test` coverage for the failure class that regressed and for at least one valid sample that must continue to pass.
+- Prefer fixing shared scanner helpers over adding one-off exceptions in each check. If multiple checks reason about routes, storage, SQL, generated artifacts, or aliases, centralize the parsing/normalization behavior.
+- Static checks should be deterministic, offline, and repo-local by default. Do not add network calls, time-dependent output, random ordering, environment-specific absolute paths, or dependency on developer-local files.
+- If a check owns an artifact, keep the artifact path registered in generated-artifact hygiene and baseline/ownership checks when those registries exist.
+
+## Route and API guardrails
+
+- When adding or changing API routes, public routes, cron wrappers, or route re-export wrappers, run the relevant route-derived checks. At minimum consider:
+  - `npm run generate:route-universe`
+  - `npm run check:route-universe`
+  - `npm run report:security-route-matrix`
+  - `npm run check:security-route-matrix`
+  - `npm run generate:security-report-checksums`
+  - `npm run check:security-report-checksums`
+- Route analysis helpers must follow local `export * from` and `export { ... } from` wrappers so wrapper routes inherit auth, race-safety, timeout, and rate-limit signals from their implementation route.
+- Query and route parameters need explicit validation. Use fixed enum parsers for bounded query values and reject unsafe dynamic route params before using them in provider, database, export, or redirect operations.
+- New or changed route handlers need bounded runtime behavior: timeout budget, idempotency or race-safety signal for mutations, input validation, auth/tenant checks, and concurrency caps for fan-out work.
+- If a route is a compatibility wrapper, do not duplicate security signals by hand unless necessary. Prefer updating shared route-analysis helpers so auth, timeout, rate-limit, mutation-safety, and generated inventories all evaluate the effective implementation source consistently.
+
+## Auth, abuse controls, and browser boundaries
+
+- Use shared auth, session, role, and step-up helpers rather than hand-rolled cookie/session parsing. Public allowlist entries need explicit owner/reason metadata and stale-entry checks.
+- Rate-limit keys must have bounded cardinality and stable scope. Do not key limits on raw untrusted free text, full URLs, tokens, or attacker-controlled high-cardinality values.
+- Preserve CSRF, origin, host, forwarded-header, and browser-isolation checks when changing forms, mutating routes, middleware, or proxy behavior.
+- Security headers, CSP, cache-control, and sensitive-response headers are part of the contract. If these change, rerun the browser/header/static security checks that own them.
+- Auth failures should stay consistent and non-enumerating. Do not expose whether an email, token, tenant, or user exists unless a public recovery flow intentionally requires that behavior.
+
+## Scheduled and background work
+
+- Cron and background jobs must be idempotent, bounded, and safe to retry. Preserve existing lock, lease, idempotency, stale-write, and rate-limit patterns instead of launching unguarded batch work.
+- Do not change Vercel schedules, provider dashboard schedules, queue names, webhook destinations, or production traffic routing unless explicitly requested.
+- Job processors should record recoverable failure state without leaking provider payloads or raw document/user text. Retries should be capped or delegated to the existing retry policy.
+- If changing cron wrappers or scheduled route aliases, verify both old and neutral paths remain callable during compatibility windows and keep scheduler-facing legacy paths intact.
+
+## Time, dates, and scheduling semantics
+
+- Contract dates, notice windows, renewal horizons, retention deadlines, trial/billing periods, and SLA windows must use the repo's explicit date/time helpers or a clearly documented timezone boundary. Avoid ad hoc `Date` parsing and implicit local-time behavior.
+- Tests for time-sensitive logic should pin the current time and timezone through existing test utilities, and cover boundary cases such as start/end of day, month/year rollover, daylight-saving transitions, leap years, and inclusive/exclusive deadline edges when relevant.
+- Do not compare formatted date strings unless they are normalized machine values with documented ordering semantics, such as ISO date-only strings. UI-localized strings are display output, not business logic.
+- Cron and reminder changes should state the expected execution window in absolute terms and preserve idempotency for duplicate or delayed runs.
+
+## SQL, Supabase, and migrations
+
+- Migration files are code artifacts only unless the user explicitly asks to apply them. Do not run local resets, linked Supabase checks, production checks, or migration application commands during autonomous hardening.
+- SQL changes must be forward-only and additive unless removal is explicitly in scope. Do not drop, rename, backfill, duplicate data-bearing tables, or remove legacy SQL objects to satisfy a scanner.
+- Neutral SQL aliases must preserve access boundaries. For views, prefer `security_invoker = true`, revoke public access, and grant only the minimum role set justified by the legacy object.
+- Do not claim RLS policy equivalence from static aliases alone. Policies on views, predicate equivalence, and linked verification require explicit artifacts and usually remain manual or forward-migration work.
+- After changing migrations or SQL artifacts, run the relevant SQL inventory/staging checks and refresh only owning artifacts, for example SQL object reference inventory, SQL rename staging, SQL verification SQL, SQL security coverage, migration manifest, migration organization, and fingerprint artifacts.
+- SQL verification artifacts should distinguish static evidence, local-only migration code, linked verification prerequisites, and production-applied state. Do not mark production or linked verification complete from repository-only evidence.
+
+## Client and UI safety
+
+- Client components must not directly persist sensitive or ad hoc storage keys. Add or use `src/lib/security/client-storage.ts` helpers and keep `check:client-storage-sensitivity` green.
+- Client-rendered error boundaries must not expose raw `error.message` or `error.name` unless the value is explicitly classified and sanitized.
+- Client-side `fetch` calls need a clear same-origin or approved-sink justification. Server code should use the established safe fetch helpers where applicable.
+- UI tests should assert accessible roles, names, links, and stable user-facing behavior rather than removed prose or internal cleanup labels.
+- When a component uses retained compatibility aliases, tests should mock and assert the current neutral export while legacy exports remain covered by compatibility tests.
+- Avoid changing product copy or visual structure just to satisfy an old test. If the current UI is intentional, update the test to assert the durable accessible contract; if the UI lost an accessible role, name, state, or action, fix the component.
+- Do not add `data-testid` as the first fix for a broken UI test. Prefer role, label, text alternative, or form-control queries; add test IDs only for non-user-visible surfaces that already have a QA selector policy.
+- UI changes must preserve keyboard access, focus-visible states, landmark structure, accessible names, and reduced-motion behavior. Avoid hiding important state in visual-only styling.
+- Responsive changes need stable dimensions for fixed-format controls, tables, tiles, and counters so text, badges, and hover/focus states do not resize or overlap across mobile and desktop.
+
+## Data access and tenant isolation
+
+- Database reads and writes must keep organization/workspace membership checks close to the query or mutation. Do not rely on client-provided organization IDs without server-side membership validation.
+- Admin clients and service-role paths need explicit boundary checks before data access. If a route or action uses elevated credentials, tests should prove cross-tenant access is denied.
+- Server actions should preserve form input on recoverable rejection, map auth/session failures through the shared recoverable-error copy, and avoid exposing raw provider/database errors.
+- Cache invalidation and revalidation must be scoped to the affected tenant, route, or object. Avoid broad cache busting as a shortcut for stale UI unless the broader invalidation is intentional and tested.
+
+## Rollouts, flags, and emergency controls
+
+- Preserve existing feature gates, rollout checks, entitlement checks, and kill switches. Do not bypass them in routes, actions, cron jobs, or UI navigation to make a test pass.
+- New flags should have safe defaults, neutral-first/legacy-second env support when replacing old keys, and tests for enabled, disabled, and missing-env behavior.
+- High-risk workflow changes should keep a fast rollback or disable path. If a change affects automation, provider writes, notifications, exports, or billing, document and test the fallback behavior.
+- Do not remove compatibility flags or rollout branches until the owning readiness artifact or queue says removal is in scope.
+
+## Public contracts, uploads, and exports
+
+- OpenAPI, problem-json, route inventory, and public contract artifacts must stay aligned with route behavior. If a route's params, query values, response shape, status codes, headers, or auth boundary changes, update and verify the matching contract artifact.
+- Upload/import paths must validate file type, size, duplicate handling, tenant ownership, storage path safety, and recoverable error copy. Do not trust browser-provided MIME type or file name alone.
+- Export/download paths must validate filters and identifiers before querying, scope output to the tenant, guard against CSV formula injection, and set intentional cache and content-disposition headers.
+- Signed-link and tokenized public access must preserve nonce, expiry, scope narrowing, and redaction guarantees. Do not log full tokens or signed URLs.
+- If changing CSV/PDF/report filenames, headers, export metadata, or import/export diagnostic payloads, refresh the export/download contract checks and compatibility queue metadata where retained names remain public.
+
+## Performance, pagination, and data volume
+
+- Avoid introducing unbounded reads, full-table scans, unbounded `select *`, or unlimited provider list calls in request paths. Add explicit limits, pagination, cursoring, or background jobs for large data sets.
+- New filters, sorts, joins, retention scans, or dashboard aggregations should have matching index or query-plan evidence when they can hit production-scale tables.
+- Keep expensive reports, exports, imports, and recomputations off latency-sensitive routes unless work is bounded and covered by timeout and concurrency checks.
+- Streaming and large payload paths must preserve payload sensitivity checks, backpressure/error handling, and cache-control boundaries.
+
+## Compatibility and retained aliases
+
+- Legacy public routes, cron paths, package scripts, telemetry persisted names, env keys, SQL objects, provider identifiers, and exported aliases remain callable/readable until the compatibility queue marks them ready and removal is explicitly requested.
+- When introducing a neutral alias, keep the legacy name covered by queue metadata and equivalence tests where practical. The old and neutral paths should delegate to the same implementation or normalize to the same persisted contract.
+- Neutral package scripts must not call legacy package-script aliases. Legacy package-script aliases may delegate to neutral commands during the compatibility window.
+- For env and feature-flag aliases, prefer neutral-first and legacy-second reads. Add tests proving neutral precedence and legacy fallback equivalence.
+
+## Environment, secrets, and provider boundaries
+
+- Never print secret values, tokens, cookies, signed URLs, provider payloads, or full env dumps in tests, checks, logs, or generated artifacts. Assert presence, shape, prefix, or redacted samples instead.
+- If adding an env key, update `.env.example` with a safe placeholder and verify env token/secret quality checks where applicable. Do not require real credentials for default checks.
+- Provider-facing identifiers, webhook signatures, OAuth protocol versions, Stripe/Slack signature formats, schema versions, and customer/domain version labels are compatibility contracts. Preserve them unless a dual-read or provider migration plan exists and is explicitly in scope.
+
+## Privacy, retention, and data lifecycle
+
+- Preserve data retention, deletion, export, and account-data lifecycle behavior when touching user, organization, file, telemetry, audit, notification, or provider-sync data.
+- Do not widen persisted PII, document text, evidence payloads, or provider metadata without a minimization reason and redaction coverage.
+- Retention cleanup and data-prune changes need dry-run/read-only evidence, explicit scope, and tests that protected records are retained while expired records are eligible.
+- User export/delete flows must stay tenant-scoped and recoverable; do not add hidden dependencies on production credentials or linked projects to validate them.
+
+## AI and document-processing boundaries
+
+- AI extraction, summarization, and classification paths must keep tenant isolation, prompt boundaries, source citation requirements, and output validation intact. Do not trust model output as policy, SQL, HTML, or executable instructions.
+- Document text, snippets, embeddings, provider prompts, and model responses are sensitive. Keep them out of telemetry, logs, generated artifacts, and client-visible errors unless minimized and explicitly scrubbed.
+- Provider/model/runtime version strings may be legitimate compatibility labels. Preserve them through allowlists instead of rewriting them as product-version debt.
+- If changing AI provider calls or extraction flows, rerun AI boundary, upload security, persistence redaction, logging/telemetry redaction, and user-visible error shape checks where applicable.
+
+## Dependencies, build, and generated files
+
+- Do not change dependencies, lockfiles, build config, Next config, Playwright config, or CI matrices as a side effect of unrelated fixes. If dependency or config changes are required, run the matching dependency-risk, build, lint/typecheck, and CI wiring checks.
+- Generated files should be produced by the repo's generator scripts, not hand-edited. If a generated artifact must change, run the generator, then the artifact hygiene/baseline checks that own it.
+- Keep build outputs and local caches out of source changes unless the repo intentionally tracks the artifact. Do not commit `.next`, test-result noise, logs, or local machine paths.
+- When changing package scripts, keep neutral commands canonical, retain compatibility aliases unless removal is explicitly in scope, and update hardening CI/change-impact/report references to prefer neutral commands.
+
+## Telemetry, logging, and audit evidence
+
+- Telemetry names, audit event names, notification IDs, and persisted problem codes are contracts. Add neutral aliases only when they normalize to the retained persisted name or have an explicit migration queue entry.
+- Logs, telemetry payloads, audit evidence, and generated reports must use redacted or minimized payloads. Do not include raw request bodies, provider responses, document text, file names with sensitive context, or user-entered free text unless a scrubber covers it.
+- When changing telemetry emitters or empty-state/recoverable-state primitives, update tests to mock the current neutral export and verify the payload shape, not only that a click or render happened.
+
+## Notifications and outbound communication
+
+- Email, Slack, webhook, in-app notification, and digest changes must preserve tenant scoping, opt-out/subscription state, idempotency or dedupe keys, retry limits, and safe deep-link generation.
+- Notification payloads should contain only the minimum recipient-visible data needed for the workflow. Do not include raw document text, provider responses, signed URLs, tokens, or cross-tenant identifiers unless an existing scrubber and test cover them.
+- Delivery retries and background notification jobs must avoid duplicate sends after partial failure. Keep provider errors recoverable and redacted, and test the retry/dedupe behavior for changed delivery paths.
+- If changing templates or notification routing, verify both rendering/interpolation and authorization boundaries. A passing snapshot is not enough if recipient selection, tenant scope, or link expiry changed.
+
+## Concurrency, timeouts, and mutation safety
+
+- Any `Promise.all(...map(async ...))` or similar fan-out over remote/provider/database work must have an explicit concurrency cap such as the repo's `mapWithConcurrency` helper.
+- Public and API handlers that can perform network, provider, export, database, or expensive work need explicit timeout budget coverage.
+- Mutating endpoints and server actions need stale-write, idempotency, or race-safety coverage before broad tests are updated.
+- Provider calls, exports, imports, report generation, and bulk operations should have both bounded concurrency and recoverable error handling. Do not let a single provider failure expose raw errors or collapse the whole response without intentional fallback behavior.
+
+## Verification expectations
+
+- For small targeted fixes, run the narrow failing check or test plus any directly related guardrail.
+- For generated artifacts, run the read-only check after every write/generate command and confirm it reports zero issues.
+- Keep tests isolated: clear storage, mocks, timers, and router state in changed UI/unit tests. Avoid assertions that depend on execution order, wall-clock time, random IDs, or state leaked from a previous test.
+- Before claiming broad stability, run `npm run pipeline:security:comprehensive` when feasible. If it fails, fix the first concrete failure, refresh only owning deterministic artifacts when instructed, and rerun.
+- Always run `git diff --check` before final handoff.

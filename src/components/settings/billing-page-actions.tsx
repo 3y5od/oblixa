@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Printer } from "lucide-react";
 
 // SPEC: docs/billing-page-polish-pass.md §1.7 + §7.5 + §7.6 + §8.6
@@ -59,8 +59,18 @@ export function BillingCopyButton({
 }) {
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const resetTimerRef = useRef<number | null>(null);
   const masked = maskIdentifier(value, prefix, suffix);
   const display = revealed ? value : masked;
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current != null) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <button
       type="button"
@@ -69,9 +79,13 @@ export function BillingCopyButton({
           await navigator.clipboard.writeText(value);
           setCopied(true);
           setRevealed(true);
-          setTimeout(() => {
+          if (resetTimerRef.current != null) {
+            window.clearTimeout(resetTimerRef.current);
+          }
+          resetTimerRef.current = window.setTimeout(() => {
             setCopied(false);
             setRevealed(false);
+            resetTimerRef.current = null;
           }, 2000);
         } catch {
           // Clipboard may be blocked by permissions — silent.

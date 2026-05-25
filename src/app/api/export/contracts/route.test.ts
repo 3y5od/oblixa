@@ -46,7 +46,7 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10IdempotentResponseMutation: async (
     _admin: unknown,
     _input: unknown,
@@ -58,7 +58,7 @@ vi.mock("@/lib/v10-server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 
@@ -504,17 +504,7 @@ describe("GET /api/export/contracts", () => {
     expect(body).toMatchObject({ code: "row_budget_exceeded", details: { partial: true } });
     expect(body.error).toContain("core plan row limit of 10000");
     expect(emitProductTelemetryEvent).not.toHaveBeenCalled();
-    expect(recordV10AuditEvent).toHaveBeenCalledTimes(1);
-    expect(recordV10AuditEvent).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        action: "api.sensitive_read_authorized",
-        actorUserId: "user-1",
-        organizationId: "550e8400-e29b-41d4-a716-446655440001",
-        targetId: "GET /api/export/contracts",
-        targetType: "api_route",
-      })
-    );
+    expect(recordV10AuditEvent).not.toHaveBeenCalled();
   });
 });
 

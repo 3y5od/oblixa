@@ -67,7 +67,7 @@ describe("onboarding spec acceptance (§22)", () => {
     expect(wizard).toMatch(/\(recommended\)/);
   });
 
-  it("§22.6 — beginRecalibration sets in_progress and merges via mergeV6OrgSettingsJson", () => {
+  it("§22.6 — beginRecalibration sets in_progress and merges via mergeOrgSettingsJson", () => {
     const raw = readFileSync(join(process.cwd(), "src/actions/onboarding-calibration.ts"), "utf8");
     expect(raw).toContain("export async function beginRecalibration");
     expect(raw).toContain("status: \"in_progress\"");
@@ -75,12 +75,12 @@ describe("onboarding spec acceptance (§22)", () => {
     const end = raw.indexOf("function buildAppliedSnapshot", start);
     expect(start).toBeGreaterThan(-1);
     expect(end).toBeGreaterThan(start);
-    expect(raw.slice(start, end)).toContain("mergeV6OrgSettingsJson");
+    expect(raw.slice(start, end)).toContain("mergeOrgSettingsJson");
   });
 
   it("§22.7 — merge + revalidate parity covered by onboarding-merge-parity.test.ts import surface", () => {
     const raw = readFileSync(join(process.cwd(), "src/lib/onboarding/onboarding-merge-parity.test.ts"), "utf8");
-    expect(raw).toContain("mergeV6OrgSettingsJson");
+    expect(raw).toContain("mergeOrgSettingsJson");
     expect(raw).toContain("revalidatePath");
   });
 });

@@ -13,11 +13,11 @@ describe("refinement §18 cron / bulk send routes", () => {
     const checks: { rel: string; mustInclude: string[] }[] = [
       {
         rel: "reports/send-summaries/route.ts",
-        mustInclude: ["getV6OrgSettingsJson", "isNotificationAllowed"],
+        mustInclude: ["getOrgSettingsJson", "isNotificationAllowed"],
       },
       {
         rel: "cron/v4/report-packs-generate/route.ts",
-        mustInclude: ["getV6OrgSettingsJson"],
+        mustInclude: ["getOrgSettingsJson"],
       },
       {
         rel: "reminders/send/route.ts",

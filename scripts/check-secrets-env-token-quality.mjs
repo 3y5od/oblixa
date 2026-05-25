@@ -136,13 +136,13 @@ const REQUIRED_FILE_MARKERS = {
     "dry-runs plaintext and old envelopes into active v2 kid",
     "skips already-active envelopes",
   ],
-  "src/lib/v10-operational-contracts.ts": [
+  "src/lib/operational-contracts.ts": [
     "V10_PROVIDER_BOUNDARIES",
     "requiredServerEnv",
     "publicEnvAllowed",
     "buildV10ProviderReadinessSnapshot",
   ],
-  "src/lib/v10-operational-contracts.v10.test.ts": [
+  "src/lib/operational-contracts.test.ts": [
     "hardens provider configuration and public/private environment boundaries",
     "server_secret_must_not_be_public",
     "releaseBlockerWhenMissing: true",
@@ -185,7 +185,7 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "scripts/check-security-env-contract.mjs": ["REQUIRED_ENV_KEYS"],
   "src/lib/observability/sentry-scrub.test.ts": ["redacts API keys, cookies, and inbound automation tokens"],
-  "src/lib/v10-hardening-contracts.ts": ["token|secret|private.?url"],
+  "src/lib/hardening-contracts.ts": ["token|secret|private.?url"],
 };
 
 function read(root, rel) {

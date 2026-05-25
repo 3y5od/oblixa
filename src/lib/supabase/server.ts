@@ -14,7 +14,7 @@ import {
   SUPABASE_SERVER_FETCH_TIMEOUT_MS,
 } from "@/lib/supabase/fetch";
 import type { OrgRole } from "@/lib/types";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 import { ONBOARDING_CALIBRATION_JSON_VERSION } from "@/lib/onboarding/calibration-types";
 import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
@@ -38,7 +38,7 @@ export const supabaseServerFetch: typeof fetch = async (input, init) => {
 };
 
 /** product-surface policy §13.1 / §17.1 — persisted on first org creation via `ensureUserOrg`. */
-export const NEW_WORKSPACE_V6_ORG_SETTINGS_JSON: V6OrgSettingsJson = {
+export const NEW_WORKSPACE_V6_ORG_SETTINGS_JSON: OrgSettingsJson = {
   workspace_mode: "core",
   autopilot_allow_execution: false,
   search_scope: "match_mode",
@@ -249,3 +249,7 @@ export async function ensureUserOrg(
     })
     .eq("id", org.id);
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { NEW_WORKSPACE_V6_ORG_SETTINGS_JSON as NEW_WORKSPACE_ORG_SETTINGS_JSON };
+// End version-name compatibility aliases.

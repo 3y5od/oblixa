@@ -181,7 +181,7 @@ export function buildAllCoverageRows() {
   for (let i = 0; i < intTitles.length; i++) {
     out.push(
       row(`SEC-INT-${String(i + 1).padStart(3, "0")}`, intTitles[i], {
-        T: i === 0 ? "src/lib/v10-route-api-catalog.v10.test.ts" : "",
+        T: i === 0 ? "src/lib/route-api-catalog.test.ts" : "",
         priority: "P0",
       })
     );

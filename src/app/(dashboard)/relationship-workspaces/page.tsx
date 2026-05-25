@@ -3,7 +3,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { RelationshipKeyJump } from "@/components/relationship/relationship-key-jump";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertAnyV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertAnyV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 
 export default async function RelationshipWorkspacesPage() {
   const ctx = await getAuthContext();

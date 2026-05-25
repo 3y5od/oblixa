@@ -22,11 +22,11 @@ vi.mock("@/lib/idempotency", () => ({
   enforceIdempotency,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5CronFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v5/cron", () => ({
+vi.mock("@/lib/decision-intelligence/cron", () => ({
   listOrganizationIds,
 }));
 

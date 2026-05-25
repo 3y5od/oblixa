@@ -15,6 +15,8 @@ import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 const ROUTE = "/api/contact";
 const CONTACT_DUPLICATE_WINDOW_MS = 15 * 60_000;
 
+export const maxDuration = 60;
+
 const FIELD_MAX = {
   name: 200,
   email: 320,

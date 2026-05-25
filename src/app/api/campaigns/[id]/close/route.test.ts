@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
@@ -19,7 +19,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: (...args: unknown[]) => requireApiWorkspaceEligibility(...args),
 }));
 
-vi.mock("@/lib/v5/persist-signal-quality", () => ({
+vi.mock("@/lib/decision-intelligence/persist-signal-quality", () => ({
   incrementOrgV5SignalQuality: vi.fn(async () => undefined),
 }));
 
@@ -27,20 +27,20 @@ vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(() => false),
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/v6/portfolio-metrics", () => ({
+vi.mock("@/lib/assurance/portfolio-metrics", () => ({
   gatherPortfolioMetrics: vi.fn(async () => ({})),
 }));
 
-vi.mock("@/lib/v6/outcome-writers", () => ({
+vi.mock("@/lib/assurance/outcome-writers", () => ({
   recordCampaignInterventionOutcome: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => undefined),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => undefined),
 }));
 
 const mockedV5Guard = vi.mocked(requireV5ApiFeature);

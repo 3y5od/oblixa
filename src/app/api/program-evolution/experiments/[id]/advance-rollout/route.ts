@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { addProgramEvolutionResult, advanceExperimentRollout } from "@/lib/v6/program-evolution";
-import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { addProgramEvolutionResult, advanceExperimentRollout } from "@/lib/assurance/program-evolution";
+import { gatherPortfolioMetrics } from "@/lib/assurance/portfolio-metrics";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -100,7 +100,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_program_evolution_advance_rollout_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_program_evolution_advance_rollout_total", 1).catch(
     () => undefined
   );
   if (isFeatureEnabled("v6AssuranceCore")) {

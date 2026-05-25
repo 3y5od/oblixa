@@ -15,13 +15,16 @@ import {
   createAdminClient,
   getDeterministicMembership,
 } from "@/lib/supabase/server";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { getStripeClient } from "@/lib/stripe";
 import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 
 // SPEC: docs/billing-page-maximal-pass.md §3.27 — Stripe SDK is Node-only.
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const ROUTE = "/api/stripe/invoices";
+const STRIPE_REFUND_LOOKUP_CONCURRENCY = 2;
 
 export type BillingInvoiceLine = {
   description: string;
@@ -102,8 +105,10 @@ export async function GET(request: Request) {
       expand: ["data.charge"],
     });
 
-    const invoices: BillingInvoice[] = await Promise.all(
-      list.data.map(async (inv) => {
+    const invoices: BillingInvoice[] = await mapWithConcurrency(
+      list.data,
+      STRIPE_REFUND_LOOKUP_CONCURRENCY,
+      async (inv) => {
         // SPEC: §9.19 — refunds are separate Refund objects associated
         // with the Charge. List them when there's a charge.
         // Note: Stripe SDK 22.x deprecated Invoice.charge from public types;
@@ -150,7 +155,7 @@ export async function GET(request: Request) {
             amountMinor: l.amount,
           })),
         };
-      })
+      }
     );
 
     const res = jsonOk({ invoices });

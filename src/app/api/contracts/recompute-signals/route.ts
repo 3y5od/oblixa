@@ -1,8 +1,8 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { recomputeContractSignals } from "@/lib/workflow-signals";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { toSafeString } from "@/lib/v5/api";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { toSafeString } from "@/lib/decision-intelligence/api";
 import {
   campaignTypeValidationError,
   isValidCampaignType,
-} from "@/lib/v5/campaign-types";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+} from "@/lib/decision-intelligence/campaign-types";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";

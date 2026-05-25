@@ -1,0 +1,11 @@
+[
+  {
+    "name": "auth_rls_initplan",
+    "title": "Auth RLS InitPlan",
+    "level": "warning",
+    "detail": "Policy can be optimized by wrapping auth.uid() in a select.",
+    "metadata": {
+      "entity": "public.example:Members can read"
+    }
+  }
+]

@@ -1,8 +1,8 @@
 {
   "version": 1,
   "program": "maximal-assurance-epic3",
-  "generatedAt": "2026-05-05T22:47:53.114Z",
-  "routeCount": 185,
+  "generatedAt": "2026-05-24T21:59:21.697Z",
+  "routeCount": 226,
   "routes": [
     {
       "routeFile": "src/app/api/accounts/[key]/summary/route.ts",
@@ -618,6 +618,22 @@
       "smokeTier": "nightly"
     },
     {
+      "routeFile": "src/app/api/contact/route.ts",
+      "pathTemplate": "/api/contact",
+      "samplePath": "/api/contact",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
       "routeFile": "src/app/api/contracts/recompute-signals/route.ts",
       "pathTemplate": "/api/contracts/recompute-signals",
       "samplePath": "/api/contracts/recompute-signals",
@@ -729,6 +745,600 @@
         "503_dependency_blocked"
       ],
       "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/cron/approvals-sla/route.ts",
+      "pathTemplate": "/api/cron/approvals-sla",
+      "samplePath": "/api/cron/approvals-sla",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/assurance-checks/route.ts",
+      "pathTemplate": "/api/cron/assurance-checks",
+      "samplePath": "/api/cron/assurance-checks",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/attestations-issue/route.ts",
+      "pathTemplate": "/api/cron/attestations-issue",
+      "samplePath": "/api/cron/attestations-issue",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/autopilot-dry-run/route.ts",
+      "pathTemplate": "/api/cron/autopilot-dry-run",
+      "samplePath": "/api/cron/autopilot-dry-run",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/autopilot-execution/route.ts",
+      "pathTemplate": "/api/cron/autopilot-execution",
+      "samplePath": "/api/cron/autopilot-execution",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/campaign-progress/route.ts",
+      "pathTemplate": "/api/cron/campaign-progress",
+      "samplePath": "/api/cron/campaign-progress",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/capacity-forecast-refresh/route.ts",
+      "pathTemplate": "/api/cron/capacity-forecast-refresh",
+      "samplePath": "/api/cron/capacity-forecast-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/control-policy-reevaluation/route.ts",
+      "pathTemplate": "/api/cron/control-policy-reevaluation",
+      "samplePath": "/api/cron/control-policy-reevaluation",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/decision-sla-monitor/route.ts",
+      "pathTemplate": "/api/cron/decision-sla-monitor",
+      "samplePath": "/api/cron/decision-sla-monitor",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/escalations-dispatch/route.ts",
+      "pathTemplate": "/api/cron/escalations-dispatch",
+      "samplePath": "/api/cron/escalations-dispatch",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/evidence-followup/route.ts",
+      "pathTemplate": "/api/cron/evidence-followup",
+      "samplePath": "/api/cron/evidence-followup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/exceptions-detect/route.ts",
+      "pathTemplate": "/api/cron/exceptions-detect",
+      "samplePath": "/api/cron/exceptions-detect",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/external-followup/route.ts",
+      "pathTemplate": "/api/cron/external-followup",
+      "samplePath": "/api/cron/external-followup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/external-workflow-deadlines/route.ts",
+      "pathTemplate": "/api/cron/external-workflow-deadlines",
+      "samplePath": "/api/cron/external-workflow-deadlines",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/finding-refresh/route.ts",
+      "pathTemplate": "/api/cron/finding-refresh",
+      "samplePath": "/api/cron/finding-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/health-graph-rollups/route.ts",
+      "pathTemplate": "/api/cron/health-graph-rollups",
+      "samplePath": "/api/cron/health-graph-rollups",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/idempotency-cleanup/route.ts",
+      "pathTemplate": "/api/cron/idempotency-cleanup",
+      "samplePath": "/api/cron/idempotency-cleanup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/onboarding-calibration-stale/route.ts",
+      "pathTemplate": "/api/cron/onboarding-calibration-stale",
+      "samplePath": "/api/cron/onboarding-calibration-stale",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/outcome-effectiveness/route.ts",
+      "pathTemplate": "/api/cron/outcome-effectiveness",
+      "samplePath": "/api/cron/outcome-effectiveness",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/playbook-follow-up-assurance/route.ts",
+      "pathTemplate": "/api/cron/playbook-follow-up-assurance",
+      "samplePath": "/api/cron/playbook-follow-up-assurance",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/portfolio-risk-recompute/route.ts",
+      "pathTemplate": "/api/cron/portfolio-risk-recompute",
+      "samplePath": "/api/cron/portfolio-risk-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/programs-reconcile/route.ts",
+      "pathTemplate": "/api/cron/programs-reconcile",
+      "samplePath": "/api/cron/programs-reconcile",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/read-model-refresh/route.ts",
+      "pathTemplate": "/api/cron/read-model-refresh",
+      "samplePath": "/api/cron/read-model-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/recommendation-refresh/route.ts",
+      "pathTemplate": "/api/cron/recommendation-refresh",
+      "samplePath": "/api/cron/recommendation-refresh",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/relationship-rollups/route.ts",
+      "pathTemplate": "/api/cron/relationship-rollups",
+      "samplePath": "/api/cron/relationship-rollups",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/renewals-recompute-signals/route.ts",
+      "pathTemplate": "/api/cron/renewals-recompute-signals",
+      "samplePath": "/api/cron/renewals-recompute-signals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/report-packs-generate/route.ts",
+      "pathTemplate": "/api/cron/report-packs-generate",
+      "samplePath": "/api/cron/report-packs-generate",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/review-board-packet-generation/route.ts",
+      "pathTemplate": "/api/cron/review-board-packet-generation",
+      "samplePath": "/api/cron/review-board-packet-generation",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/runtime-artifact-cleanup/route.ts",
+      "pathTemplate": "/api/cron/runtime-artifact-cleanup",
+      "samplePath": "/api/cron/runtime-artifact-cleanup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/scorecard-recompute/route.ts",
+      "pathTemplate": "/api/cron/scorecard-recompute",
+      "samplePath": "/api/cron/scorecard-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "pathTemplate": "/api/cron/security/retention-cleanup",
+      "samplePath": "/api/cron/security/retention-cleanup",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/segment-recompute/route.ts",
+      "pathTemplate": "/api/cron/segment-recompute",
+      "samplePath": "/api/cron/segment-recompute",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
+    },
+    {
+      "routeFile": "src/app/api/cron/simulation-snapshots/route.ts",
+      "pathTemplate": "/api/cron/simulation-snapshots",
+      "samplePath": "/api/cron/simulation-snapshots",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "defer_cron_canary",
+      "verificationHint": "cron_semantic_deferred",
+      "expectedOutcomes": [
+        "200_success",
+        "207_partial",
+        "401_auth",
+        "429_rate_limited",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "none"
     },
     {
       "routeFile": "src/app/api/cron/stripe-webhook-events/route.ts",
@@ -1611,6 +2221,22 @@
       "smokeTier": "nightly"
     },
     {
+      "routeFile": "src/app/api/evidence/requests/[id]/remind/route.ts",
+      "pathTemplate": "/api/evidence/requests/[id]/remind",
+      "samplePath": "/api/evidence/requests/00000000-0000-0000-0000-000000000001/remind",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
       "routeFile": "src/app/api/evidence/requests/route.ts",
       "pathTemplate": "/api/evidence/requests",
       "samplePath": "/api/evidence/requests",
@@ -1797,6 +2423,38 @@
         "supabase_admin"
       ],
       "degradedBehavior": "207 partial or mutation envelope failure"
+    },
+    {
+      "routeFile": "src/app/api/export/renewals/route.ts",
+      "pathTemplate": "/api/export/renewals",
+      "samplePath": "/api/export/renewals",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/export/reports/route.ts",
+      "pathTemplate": "/api/export/reports",
+      "samplePath": "/api/export/reports",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
     },
     {
       "routeFile": "src/app/api/export/review-packet/route.ts",
@@ -3008,6 +3666,22 @@
       "smokeTier": "nightly"
     },
     {
+      "routeFile": "src/app/api/security/csp-report/route.ts",
+      "pathTemplate": "/api/security/csp-report",
+      "samplePath": "/api/security/csp-report",
+      "methods": [
+        "POST"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
       "routeFile": "src/app/api/segments/[id]/recompute/route.ts",
       "pathTemplate": "/api/segments/[id]/recompute",
       "samplePath": "/api/segments/00000000-0000-0000-0000-000000000001/recompute",
@@ -3136,6 +3810,38 @@
         "supabase_admin"
       ],
       "degradedBehavior": "503 dependency_blocked"
+    },
+    {
+      "routeFile": "src/app/api/stripe/invoices/[id]/pdf/route.ts",
+      "pathTemplate": "/api/stripe/invoices/[id]/pdf",
+      "samplePath": "/api/stripe/invoices/00000000-0000-0000-0000-000000000001/pdf",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/stripe/invoices/route.ts",
+      "pathTemplate": "/api/stripe/invoices",
+      "samplePath": "/api/stripe/invoices",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
     },
     {
       "routeFile": "src/app/api/stripe/portal/route.ts",
@@ -3296,6 +4002,22 @@
       "routeFile": "src/app/api/workspace/nav-badges/route.ts",
       "pathTemplate": "/api/workspace/nav-badges",
       "samplePath": "/api/workspace/nav-badges",
+      "methods": [
+        "GET"
+      ],
+      "runnerHint": "session_or_worker_unsigned_reject",
+      "verificationHint": "unsigned_auth_reject",
+      "expectedOutcomes": [
+        "401_auth",
+        "403_auth",
+        "503_dependency_blocked"
+      ],
+      "smokeTier": "nightly"
+    },
+    {
+      "routeFile": "src/app/api/workspace/settings/route.ts",
+      "pathTemplate": "/api/workspace/settings",
+      "samplePath": "/api/workspace/settings",
       "methods": [
         "GET"
       ],

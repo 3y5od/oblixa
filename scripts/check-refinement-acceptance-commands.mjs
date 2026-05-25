@@ -14,7 +14,7 @@ const REQUIRED_SUBSTRINGS = [
   "npm run audit:core-terminology:strict",
   "npm run audit:marketing-identity:strict",
   "npm run audit:ui-operational:strict",
-  "npm run check:v8-suite",
+  "npm run check:surface:suite",
   "npm run test:e2e",
   "e2e/refinement-optional-fixtures.spec.ts",
   "e2e/authenticated.spec.ts",

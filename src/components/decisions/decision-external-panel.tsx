@@ -9,7 +9,7 @@ import { mutateJson } from "@/lib/http/client-json";
 import {
   EXTERNAL_ACTION_TYPES,
   type ExternalActionType,
-} from "@/lib/v5/external-action-types";
+} from "@/lib/decision-intelligence/external-action-types";
 
 type LinkRow = {
   id: string;

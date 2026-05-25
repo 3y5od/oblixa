@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonUnauthorized } from "@/lib/http/problem";
-import { getApiAuthContext, canManageCapability } from "@/lib/v4/api-auth";
+import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 
 const ROUTE = "/api/attestations/run";

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-15T23:12:38.559Z",
+  "generatedAt": "2026-05-24T23:20:58.887Z",
   "rows": [
     {
       "route": "/",
@@ -478,8 +478,265 @@
       "fallbackRequired": true
     },
     {
+      "route": "/api/cron/approvals-sla",
+      "sourcePath": "src/app/api/cron/approvals-sla/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/assurance-checks",
+      "sourcePath": "src/app/api/cron/assurance-checks/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/attestations-issue",
+      "sourcePath": "src/app/api/cron/attestations-issue/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/autopilot-dry-run",
+      "sourcePath": "src/app/api/cron/autopilot-dry-run/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/autopilot-execution",
+      "sourcePath": "src/app/api/cron/autopilot-execution/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/campaign-progress",
+      "sourcePath": "src/app/api/cron/campaign-progress/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/capacity-forecast-refresh",
+      "sourcePath": "src/app/api/cron/capacity-forecast-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/control-policy-reevaluation",
+      "sourcePath": "src/app/api/cron/control-policy-reevaluation/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/decision-sla-monitor",
+      "sourcePath": "src/app/api/cron/decision-sla-monitor/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/escalations-dispatch",
+      "sourcePath": "src/app/api/cron/escalations-dispatch/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/evidence-followup",
+      "sourcePath": "src/app/api/cron/evidence-followup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/exceptions-detect",
+      "sourcePath": "src/app/api/cron/exceptions-detect/route.ts",
+      "providers": [
+        "sentry",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/external-followup",
+      "sourcePath": "src/app/api/cron/external-followup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/external-workflow-deadlines",
+      "sourcePath": "src/app/api/cron/external-workflow-deadlines/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/finding-refresh",
+      "sourcePath": "src/app/api/cron/finding-refresh/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/health-graph-rollups",
+      "sourcePath": "src/app/api/cron/health-graph-rollups/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/idempotency-cleanup",
+      "sourcePath": "src/app/api/cron/idempotency-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/onboarding-calibration-stale",
+      "sourcePath": "src/app/api/cron/onboarding-calibration-stale/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/outcome-effectiveness",
+      "sourcePath": "src/app/api/cron/outcome-effectiveness/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/playbook-follow-up-assurance",
+      "sourcePath": "src/app/api/cron/playbook-follow-up-assurance/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/portfolio-risk-recompute",
+      "sourcePath": "src/app/api/cron/portfolio-risk-recompute/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/programs-reconcile",
+      "sourcePath": "src/app/api/cron/programs-reconcile/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/read-model-refresh",
+      "sourcePath": "src/app/api/cron/read-model-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/recommendation-refresh",
+      "sourcePath": "src/app/api/cron/recommendation-refresh/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/relationship-rollups",
+      "sourcePath": "src/app/api/cron/relationship-rollups/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/renewals-recompute-signals",
+      "sourcePath": "src/app/api/cron/renewals-recompute-signals/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/report-packs-generate",
+      "sourcePath": "src/app/api/cron/report-packs-generate/route.ts",
+      "providers": [
+        "openai",
+        "resend",
+        "supabase",
+        "upstash_or_memory_rate_limit",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/review-board-packet-generation",
+      "sourcePath": "src/app/api/cron/review-board-packet-generation/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/runtime-artifact-cleanup",
+      "sourcePath": "src/app/api/cron/runtime-artifact-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/scorecard-recompute",
+      "sourcePath": "src/app/api/cron/scorecard-recompute/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "/api/cron/security/retention-cleanup",
       "sourcePath": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/cron/segment-recompute",
+      "sourcePath": "src/app/api/cron/segment-recompute/route.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/api/cron/simulation-snapshots",
+      "sourcePath": "src/app/api/cron/simulation-snapshots/route.ts",
       "providers": [
         "supabase",
         "upstash_or_memory_rate_limit"
@@ -888,6 +1145,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "/api/evidence/requests/[id]/remind",
+      "sourcePath": "src/app/api/evidence/requests/[id]/remind/route.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/api/evidence/submit",
       "sourcePath": "src/app/api/evidence/submit/route.ts",
       "providers": [
@@ -966,6 +1231,24 @@
       "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
       "providers": [
         "openai",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/renewals",
+      "sourcePath": "src/app/api/export/renewals/route.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/export/reports",
+      "sourcePath": "src/app/api/export/reports/route.ts",
+      "providers": [
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -1574,6 +1857,27 @@
       "fallbackRequired": true
     },
     {
+      "route": "/api/stripe/invoices",
+      "sourcePath": "src/app/api/stripe/invoices/route.ts",
+      "providers": [
+        "openai",
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/api/stripe/invoices/[id]/pdf",
+      "sourcePath": "src/app/api/stripe/invoices/[id]/pdf/route.ts",
+      "providers": [
+        "stripe",
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/api/stripe/portal",
       "sourcePath": "src/app/api/stripe/portal/route.ts",
       "providers": [
@@ -1651,6 +1955,12 @@
         "supabase"
       ],
       "fallbackRequired": true
+    },
+    {
+      "route": "/api/workspace/settings",
+      "sourcePath": "src/app/api/workspace/settings/route.ts",
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/api/workspace/v6-settings",
@@ -1932,7 +2242,6 @@
       "route": "/contracts/bulk",
       "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
       "providers": [
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2049,6 +2358,7 @@
       "route": "/contracts/new",
       "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
       "providers": [
+        "calendar",
         "openai",
         "supabase"
       ],
@@ -2089,7 +2399,6 @@
       "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
       "providers": [
         "calendar",
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2136,7 +2445,6 @@
       "route": "/contracts/review",
       "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
       "providers": [
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2211,7 +2519,6 @@
       "route": "/dashboard",
       "sourcePath": "src/app/(dashboard)/dashboard/page.tsx",
       "providers": [
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2361,6 +2668,7 @@
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
       "providers": [
+        "calendar",
         "openai"
       ],
       "fallbackRequired": true
@@ -2447,8 +2755,25 @@
       "route": "/settings",
       "sourcePath": "src/app/(dashboard)/settings/page.tsx",
       "providers": [
-        "openai",
         "stripe",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
+      "providers": [
+        "sentry",
+        "stripe",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/billing",
+      "sourcePath": "src/app/(dashboard)/settings/billing/loading.tsx",
+      "providers": [
         "supabase"
       ],
       "fallbackRequired": true
@@ -2457,7 +2782,6 @@
       "route": "/settings/billing",
       "sourcePath": "src/app/(dashboard)/settings/billing/page.tsx",
       "providers": [
-        "calendar",
         "openai",
         "stripe",
         "supabase"
@@ -2525,8 +2849,27 @@
     },
     {
       "route": "/settings/security",
+      "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
+      "providers": [
+        "sentry",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/security",
+      "sourcePath": "src/app/(dashboard)/settings/security/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/settings/security",
       "sourcePath": "src/app/(dashboard)/settings/security/page.tsx",
       "providers": [
+        "openai",
+        "resend",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2555,7 +2898,6 @@
       "route": "/work",
       "sourcePath": "src/app/(dashboard)/work/page.tsx",
       "providers": [
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2710,7 +3052,7 @@
     },
     {
       "route": "action:applyProgramAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -2839,6 +3181,15 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:bulk-compatible-work.test",
+      "sourcePath": "src/actions/bulk-compatible-work.test.ts",
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:bulkAssignCompatibleContractTasks",
       "sourcePath": "src/actions/tasks.ts",
       "providers": [
@@ -2848,7 +3199,7 @@
     },
     {
       "route": "action:bulkAssignCompatibleV10WorkItems",
-      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "sourcePath": "src/actions/bulk-compatible-work.ts",
       "providers": [
         "supabase"
       ],
@@ -2867,7 +3218,7 @@
     },
     {
       "route": "action:bulkAssignGenericV10WorkItems",
-      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "sourcePath": "src/actions/bulk-compatible-work-helpers.ts",
       "providers": [
         "supabase"
       ],
@@ -2875,7 +3226,7 @@
     },
     {
       "route": "action:bulkAssignObligationV10WorkItems",
-      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "sourcePath": "src/actions/bulk-compatible-work-helpers.ts",
       "providers": [
         "supabase"
       ],
@@ -2891,7 +3242,7 @@
     },
     {
       "route": "action:bulkCompleteCompatibleV10WorkItems",
-      "sourcePath": "src/actions/v10-bulk-compatible-work.ts",
+      "sourcePath": "src/actions/bulk-compatible-work.ts",
       "providers": [
         "supabase"
       ],
@@ -2899,7 +3250,7 @@
     },
     {
       "route": "action:bulkCompleteGenericV10WorkItems",
-      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "sourcePath": "src/actions/bulk-compatible-work-helpers.ts",
       "providers": [
         "supabase"
       ],
@@ -3001,8 +3352,8 @@
       "fallbackRequired": true
     },
     {
-      "route": "action:contracts-bulk-import-telemetry.v9.test",
-      "sourcePath": "src/actions/contracts-bulk-import-telemetry.v9.test.ts",
+      "route": "action:contracts-bulk-import-telemetry.test",
+      "sourcePath": "src/actions/contracts-bulk-import-telemetry.test.ts",
       "providers": [],
       "fallbackRequired": false
     },
@@ -3124,7 +3475,7 @@
     },
     {
       "route": "action:createEvidenceTemplateAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3133,7 +3484,7 @@
     },
     {
       "route": "action:createExceptionAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3204,7 +3555,7 @@
     },
     {
       "route": "action:createProgramAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3237,7 +3588,7 @@
     },
     {
       "route": "action:createReportPackAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3246,7 +3597,7 @@
     },
     {
       "route": "action:createReportPackSubscriptionAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3434,6 +3785,15 @@
       "fallbackRequired": false
     },
     {
+      "route": "action:email-verification.test",
+      "sourcePath": "src/actions/email-verification.test.ts",
+      "providers": [
+        "resend",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:emitCmdkPaletteOpenedTelemetry",
       "sourcePath": "src/actions/product-telemetry.ts",
       "providers": [
@@ -3498,7 +3858,7 @@
     },
     {
       "route": "action:ensureOwnerOrgMember",
-      "sourcePath": "src/actions/v10-bulk-compatible-work-helpers.ts",
+      "sourcePath": "src/actions/bulk-compatible-work-helpers.ts",
       "providers": [
         "supabase"
       ],
@@ -3506,7 +3866,7 @@
     },
     {
       "route": "action:ensureProgramsSurfaceAccess",
-      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "sourcePath": "src/actions/program-surface-guards.ts",
       "providers": [
         "supabase"
       ],
@@ -3514,7 +3874,7 @@
     },
     {
       "route": "action:ensureReportPackReportTypeAllowed",
-      "sourcePath": "src/actions/v4-surface-guards.ts",
+      "sourcePath": "src/actions/program-surface-guards.ts",
       "providers": [
         "supabase"
       ],
@@ -3566,7 +3926,7 @@
     },
     {
       "route": "action:generateRenewalDecisionPacketAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3575,7 +3935,7 @@
     },
     {
       "route": "action:generateRenewalDecisionPacketFormAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3667,6 +4027,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:notifications.test",
+      "sourcePath": "src/actions/notifications.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:obligations.test",
       "sourcePath": "src/actions/obligations.test.ts",
       "providers": [
@@ -3741,6 +4109,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:policy-operations.test",
+      "sourcePath": "src/actions/policy-operations.test.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:previewCalibrationRecommendation",
       "sourcePath": "src/actions/onboarding-calibration.ts",
       "providers": [
@@ -3775,8 +4151,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:program-surface-guard.test",
+      "sourcePath": "src/actions/program-surface-guard.test.ts",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "action:publishProgramAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3858,6 +4240,15 @@
       "providers": [
         "supabase",
         "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:resendEmailVerification",
+      "sourcePath": "src/actions/email-verification.ts",
+      "providers": [
+        "resend",
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -3982,7 +4373,7 @@
     },
     {
       "route": "action:savePolicyRegistryAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -3991,7 +4382,7 @@
     },
     {
       "route": "action:saveProgramVersionDefinitionAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4011,7 +4402,7 @@
     },
     {
       "route": "action:saveReportPackAnnotationsAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4173,7 +4564,7 @@
     },
     {
       "route": "action:submitEvidenceNoteAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4556,7 +4947,7 @@
     },
     {
       "route": "action:updateProgramAssignmentOverrideAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4565,7 +4956,7 @@
     },
     {
       "route": "action:updateProgramAssignmentOverrideFormAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4574,7 +4965,7 @@
     },
     {
       "route": "action:updateProgramRoutingAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4583,7 +4974,7 @@
     },
     {
       "route": "action:updateRenewalCheckpointRenewalStateAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4592,7 +4983,7 @@
     },
     {
       "route": "action:updateRenewalCheckpointRenewalStateFormAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4610,7 +5001,7 @@
     },
     {
       "route": "action:updateRenewalCheckpointWorkspaceAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4619,7 +5010,7 @@
     },
     {
       "route": "action:updateRenewalCheckpointWorkspaceFormAction",
-      "sourcePath": "src/actions/v4.ts",
+      "sourcePath": "src/actions/policy-operations.ts",
       "providers": [
         "supabase",
         "webhook_outbox"
@@ -4713,6 +5104,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:upsertNotificationSettingsForm",
+      "sourcePath": "src/actions/notifications.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:upsertRenewalScenario",
       "sourcePath": "src/actions/approvals.ts",
       "providers": [
@@ -4749,21 +5148,6 @@
         "webhook_outbox"
       ],
       "fallbackRequired": true
-    },
-    {
-      "route": "action:v10-bulk-compatible-work.v10.test",
-      "sourcePath": "src/actions/v10-bulk-compatible-work.v10.test.ts",
-      "providers": [
-        "openai",
-        "supabase"
-      ],
-      "fallbackRequired": true
-    },
-    {
-      "route": "action:v4-program-surface-guard.test",
-      "sourcePath": "src/actions/v4-program-surface-guard.test.ts",
-      "providers": [],
-      "fallbackRequired": false
     },
     {
       "route": "action:validateWorkspaceModeBillingEligibility",

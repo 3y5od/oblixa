@@ -13,8 +13,8 @@ import {
   publishProgramAction,
   saveProgramVersionDefinitionAction,
   updateProgramRoutingAction,
-} from "@/actions/v4";
-import { ProgramImpactPreviewButton } from "@/components/v4/program-impact-preview-button";
+} from "@/actions/policy-operations";
+import { ProgramImpactPreviewButton } from "@/components/program-impact-preview-button";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 

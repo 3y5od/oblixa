@@ -1,7 +1,7 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { listOrganizationIds } from "@/lib/v5/cron";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
+import { listOrganizationIds } from "@/lib/decision-intelligence/cron";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

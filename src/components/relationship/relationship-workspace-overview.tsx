@@ -1,4 +1,4 @@
-import type { RelationshipKeyMetrics } from "@/lib/v5/relationship-key-metrics";
+import type { RelationshipKeyMetrics } from "@/lib/decision-intelligence/relationship-key-metrics";
 
 type Props = {
   healthSignalJson: unknown;

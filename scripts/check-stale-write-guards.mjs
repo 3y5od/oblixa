@@ -19,7 +19,7 @@ const TARGETS = [
   },
   {
     id: "v6_update_row_expected_updated_at",
-    file: "src/lib/v6/service.ts",
+    file: "src/lib/assurance/service.ts",
     objective: "Shared V6 row updates must support expected updated_at predicates.",
     markers: [
       marker("expected updated_at option", /expectedUpdatedAt/),
@@ -34,7 +34,7 @@ const TARGETS = [
   },
   {
     id: "autopilot_rule_helper_expected_updated_at",
-    file: "src/lib/v6/autopilot.ts",
+    file: "src/lib/assurance/autopilot.ts",
     objective: "Autopilot rule helper must pass expected versions into the shared update predicate.",
     markers: [
       marker("expected version helper parameter", /expectedVersion\?:\s*string\s*\|\s*number\s*\|\s*null/),
@@ -61,7 +61,7 @@ const TARGETS = [
   },
   {
     id: "control_policy_helper_expected_updated_at",
-    file: "src/lib/v6/control-policies.ts",
+    file: "src/lib/assurance/control-policies.ts",
     objective: "Control-policy helper must pass expected versions into the shared update predicate.",
     markers: [
       marker("expected version helper parameter", /expectedVersion\?:\s*string\s*\|\s*number\s*\|\s*null/),
@@ -88,7 +88,7 @@ const TARGETS = [
   },
   {
     id: "review_board_helper_expected_updated_at",
-    file: "src/lib/v6/review-boards.ts",
+    file: "src/lib/assurance/review-boards.ts",
     objective: "Review-board helper must pass expected versions into the shared update predicate.",
     markers: [
       marker("expected version helper parameter", /expectedVersion\?:\s*string\s*\|\s*number\s*\|\s*null/),
@@ -107,7 +107,7 @@ const TARGETS = [
   },
   {
     id: "workspace_v6_settings_helper_expected_updated_at",
-    file: "src/lib/v6/org-settings.ts",
+    file: "src/lib/assurance/org-settings.ts",
     objective: "Workspace settings merge must guard organization JSON writes with updated_at.",
     markers: [
       marker("settings snapshot includes updated_at", /select\(\s*["']v6_org_settings_json,\s*updated_at["']\s*\)/),

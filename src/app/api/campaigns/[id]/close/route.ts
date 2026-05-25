@@ -1,12 +1,12 @@
 import { jsonForbidden, jsonNotFound, jsonOk, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { gatherPortfolioMetrics, type V6PortfolioMetrics } from "@/lib/v6/portfolio-metrics";
-import { recordCampaignInterventionOutcome } from "@/lib/v6/outcome-writers";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { gatherPortfolioMetrics, type V6PortfolioMetrics } from "@/lib/assurance/portfolio-metrics";
+import { recordCampaignInterventionOutcome } from "@/lib/assurance/outcome-writers";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -172,7 +172,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
   }
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_close_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_campaign_close_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
   }

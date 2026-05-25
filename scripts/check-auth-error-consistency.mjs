@@ -28,11 +28,11 @@ const REQUIRED_MARKERS = [
     markers: ["return jsonUnauthorized();", "return jsonForbidden();"],
   },
   {
-    rel: "src/lib/v6/api-auth.ts",
+    rel: "src/lib/assurance/api-auth.ts",
     markers: ["jsonUnauthorized()", "jsonForbidden()"],
   },
   {
-    rel: "src/lib/v6/feature-guards.ts",
+    rel: "src/lib/assurance/feature-guards.ts",
     markers: ['code: "feature_disabled"', 'diagnostic_id: "v6_feature_disabled"', "jsonProblem(403"],
   },
 ];

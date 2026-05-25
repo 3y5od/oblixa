@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
-import type { AdminClient } from "@/lib/v6/service";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { AdminClient } from "@/lib/assurance/service";
+import { getOrgSettingsJson, readOrgSettingsJsonFromRow } from "@/lib/assurance/org-settings";
 import {
   isOnboardingBlockingForAdmin,
   parseOnboardingCalibration,
@@ -37,8 +37,8 @@ export async function resolveBlockingCalibrationPathForAdminOrg(input: {
     .eq("user_id", userId)
     .maybeSingle();
   if (!mem || mem.role !== "admin") return null;
-  const v6 = await getV6OrgSettingsJson(admin, orgId);
-  const cal = parseOnboardingCalibration(v6.onboarding_calibration);
+  const settings = await getOrgSettingsJson(admin, orgId);
+  const cal = parseOnboardingCalibration(settings.onboarding_calibration);
   if (isOnboardingBlockingForAdmin({ role: "admin", calibration: cal })) {
     return CALIBRATION_PATH;
   }
@@ -76,8 +76,10 @@ export async function resolveBlockingCalibrationPathForUserClient(
     .eq("id", row.organization_id)
     .maybeSingle();
   if (orgErr || !org) return null;
-  const raw = (org as { v6_org_settings_json?: unknown }).v6_org_settings_json;
-  const v6 = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
-  const cal = parseOnboardingCalibration(v6.onboarding_calibration);
+  const settings = readOrgSettingsJsonFromRow(org as {
+    org_settings_json?: unknown;
+    v6_org_settings_json?: unknown;
+  });
+  const cal = parseOnboardingCalibration(settings.onboarding_calibration);
   return isOnboardingBlockingForAdmin({ role: "admin", calibration: cal }) ? CALIBRATION_PATH : null;
 }

@@ -8,7 +8,7 @@ import {
   listOrganizationIds,
   logV6Cron,
   v6CronRunMetadata,
-} from "@/lib/v6/cron";
+} from "@/lib/assurance/cron";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

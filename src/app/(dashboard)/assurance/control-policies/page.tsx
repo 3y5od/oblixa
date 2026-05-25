@@ -5,7 +5,7 @@ import { AssuranceListCard } from "@/components/assurance/assurance-list-card";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV6PageFeature } from "@/lib/v6/feature-guards";
+import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
 
 export default async function AssuranceControlPoliciesPage() {
   const ctx = await getAuthContext();

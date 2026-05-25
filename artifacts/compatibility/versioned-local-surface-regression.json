@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-local-surface-regression.mjs --write",
+  "policy": "Guard remaining local-only version-name surfaces with deterministic coverage. Public/runtime contracts stay queued or manual.",
+  "sourceArtifacts": {
+    "versionedContentSurfaceCoverage": "artifacts/compatibility/versioned-content-surface-coverage.json",
+    "versionedRemainingSurfaceCoverage": "artifacts/compatibility/versioned-remaining-surface-coverage.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json",
+    "versionReferenceAllowlist": "scripts/version-reference-allowlist.json"
+  },
+  "totals": {
+    "groupCount": 6,
+    "guardedGroupCount": 6,
+    "contractCount": 1460,
+    "manualOnlyContractCount": 15,
+    "uncoveredManualCount": 0,
+    "remainingSafeActionCount": 0,
+    "missingValidationCommandCount": 0
+  },
+  "groups": [
+    {
+      "id": "copy_and_localization_keys",
+      "owner": "frontend-platform",
+      "reason": "Copy and localization keys can be product-facing and need explicit manual-boundary metadata when retained.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Queue retained copy keys until all localized catalogs and snapshots use neutral names.",
+      "subSurfaceClasses": [
+        "localization_or_copy_key",
+        "local_copy_or_historical_document",
+        "local_source_literal"
+      ],
+      "categoryIds": [
+        "localization_copy_catalog_contracts",
+        "static_text_fixtures_snapshots"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 628,
+      "hitCount": 3739,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {},
+      "ownerCoverage": {
+        "docs-platform": 18,
+        "platform-hardening": 610
+      }
+    },
+    {
+      "id": "dom_and_test_selectors",
+      "owner": "frontend-platform",
+      "reason": "DOM/test selector compatibility requires explicit queue coverage before old selector strings are removed.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Retain selector aliases until UI tests, analytics, and support tooling consume neutral selectors.",
+      "subSurfaceClasses": [
+        "dom_data_attribute",
+        "dom_or_test_selector",
+        "test_selector"
+      ],
+      "categoryIds": [
+        "api_payload_metric_dom_selector_contracts"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 60,
+      "hitCount": 101,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {
+        "alias_added": 50,
+        "awaiting_production_cutover": 13
+      },
+      "ownerCoverage": {
+        "qa-platform": 60
+      }
+    },
+    {
+      "id": "fixtures_evidence_and_qa_registries",
+      "owner": "platform-hardening",
+      "reason": "Fixture, evidence, QA, and local reset keys must stay classified so new product-version labels do not appear silently.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Queue retained fixture/evidence names until local consumers use neutral keys.",
+      "subSurfaceClasses": [
+        "tooling_or_local_fixture",
+        "seed_fixture_key",
+        "audit_evidence_or_diagnostic_key"
+      ],
+      "categoryIds": [
+        "seed_fixture_config_scanner_ids",
+        "audit_security_evidence_governance_ids"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 469,
+      "hitCount": 2462,
+      "manualOnlyContractCount": 1,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {
+        "alias_added": 29,
+        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_linked_verification": 1,
+        "awaiting_production_cutover": 241
+      },
+      "ownerCoverage": {
+        "database-platform": 1,
+        "platform-hardening": 468
+      }
+    },
+    {
+      "id": "source_config_and_static_analysis_ids",
+      "owner": "platform-security",
+      "reason": "Source-owned config, Semgrep/static-analysis IDs, and scanner IDs are local governance contracts.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Queue retained scanner/config IDs until all local references use neutral IDs.",
+      "subSurfaceClasses": [
+        "source_owned_config_or_scanner_id",
+        "tooling_or_local_fixture",
+        "ci_job_matrix_or_artifact"
+      ],
+      "categoryIds": [
+        "seed_fixture_config_scanner_ids",
+        "deployment_runtime_config"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 274,
+      "hitCount": 1221,
+      "manualOnlyContractCount": 14,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {
+        "alias_added": 53,
+        "awaiting_linked_verification": 1,
+        "awaiting_production_cutover": 370
+      },
+      "ownerCoverage": {
+        "platform-hardening": 257,
+        "platform-security": 14,
+        "release-engineering": 3
+      }
+    },
+    {
+      "id": "style_tokens_and_visual_keys",
+      "owner": "design-systems",
+      "reason": "Style tokens and visual keys are local contracts and must not gain unqueued product-version labels.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Queue retained visual/token names until snapshots and themes migrate.",
+      "subSurfaceClasses": [
+        "style_token_or_selector"
+      ],
+      "categoryIds": [
+        "design_token_theme_contracts"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 19,
+      "hitCount": 26,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {},
+      "ownerCoverage": {
+        "platform-hardening": 19
+      }
+    },
+    {
+      "id": "test_tags_skip_and_snapshot_prefixes",
+      "owner": "test-platform",
+      "reason": "Local test metadata can carry product-version labels only when classified, queued, or explicitly manual.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Keep any retained test-only legacy labels queued until fixtures and snapshots migrate.",
+      "subSurfaceClasses": [
+        "e2e_contract",
+        "e2e_test_tag_or_fixture",
+        "test_selector"
+      ],
+      "categoryIds": [
+        "static_text_fixtures_snapshots",
+        "seed_fixture_config_scanner_ids"
+      ],
+      "coverageStatus": "regression_guarded",
+      "contractCount": 10,
+      "hitCount": 21,
+      "manualOnlyContractCount": 0,
+      "uncoveredManualCount": 0,
+      "missingMetadataCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingValidationCommandCount": 0,
+      "queueStatusCounts": {
+        "alias_added": 29,
+        "awaiting_linked_verification": 1,
+        "awaiting_production_cutover": 224
+      },
+      "ownerCoverage": {
+        "qa-platform": 10
+      }
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

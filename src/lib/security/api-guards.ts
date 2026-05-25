@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { OrgRole } from "@/lib/types";
-import { getApiAuthContext, type AuthContext } from "@/lib/v4/api-auth";
+import { getApiAuthContext, type AuthContext } from "@/lib/contract-operations/api-auth";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 import { jsonForbidden, jsonUnauthorized, PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";

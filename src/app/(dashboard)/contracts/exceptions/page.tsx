@@ -26,7 +26,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { StatCell, type StatTone } from "@/components/ui/stat-cell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { UiRadioGroup } from "@/components/ui/ui-radio-group";
-import { getV10ExceptionResolutionActionOptions } from "@/lib/v10-approval-exception";
+import { getV10ExceptionResolutionActionOptions } from "@/lib/approval-exception";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 
 type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";

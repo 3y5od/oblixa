@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
 import {
   workflowExternalEvidenceRefresh,
   workflowFindingToIntervention,
   workflowPolicyBreachRemediation,
   workflowPortfolioBoardReview,
   workflowProgramPerformanceTuning,
-} from "@/lib/v6/workflows";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+} from "@/lib/assurance/workflows";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
@@ -55,7 +55,7 @@ export async function POST(request?: Request) {
     workflowPortfolioBoardReview(ctx.admin, ctx.orgId, ctx.userId),
   ]);
 
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_assurance_workflows_run_all_total", 1).catch(
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_assurance_workflows_run_all_total", 1).catch(
     () => undefined
   );
   if (isFeatureEnabled("v6AssuranceCore")) {

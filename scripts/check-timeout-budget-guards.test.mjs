@@ -69,6 +69,24 @@ test("analyzeTimeoutBudgetGuards accepts bounded retry helpers and expensive rou
   assert.equal(report.issueCount, 0);
 });
 
+test("analyzeTimeoutBudgetGuards follows local route wrappers for inherited maxDuration", () => {
+  const root = tempRoot("timeout-wrapper");
+  write(root, "src/lib/security/safe-fetch.ts", safeFetchHelper);
+  write(root, "src/lib/extraction/retry.ts", retryHelper);
+  write(root, "src/app/api/cron/task/route.ts", 'export * from "../task-source/route";\n');
+  write(
+    root,
+    "src/app/api/cron/task-source/route.ts",
+    `export const maxDuration = 60;
+     export const GET = withCronRoute({ handler: async () => ({ body: {} }) });`
+  );
+
+  const report = analyzeTimeoutBudgetGuards(root);
+
+  assert.equal(report.ok, true);
+  assert.equal(report.issueCount, 0);
+});
+
 test("analyzeTimeoutBudgetGuards rejects missing helper timeout support and route budgets", () => {
   const root = tempRoot("timeout-bad");
   write(root, "src/lib/security/safe-fetch.ts", "export async function safeFetch() {}\n");

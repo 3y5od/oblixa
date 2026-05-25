@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const forEachSupabaseRangePageMock = vi.fn();
 const rateLimitCheckMock = vi.fn();
 const pingCronHealthcheckMock = vi.fn();
-const getV6OrgSettingsJsonMock = vi.fn();
+const getOrgSettingsJsonMock = vi.fn();
 const isNotificationAllowedMock = vi.fn();
 const recordV10AuditEventMock = vi.fn();
 const emitProductTelemetryEventMock = vi.fn();
@@ -124,15 +124,15 @@ vi.mock("@/lib/supabase/server", () => ({
   createAdminClient: vi.fn(async () => createAdminMock()),
 }));
 
-vi.mock("@/lib/v6/org-settings", () => ({
-  getV6OrgSettingsJson: getV6OrgSettingsJsonMock,
+vi.mock("@/lib/assurance/org-settings", () => ({
+  getOrgSettingsJson: getOrgSettingsJsonMock,
 }));
 
 vi.mock("@/lib/notification-policy", () => ({
   isNotificationAllowed: isNotificationAllowedMock,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   recordV10AuditEvent: recordV10AuditEventMock,
 }));
 
@@ -140,7 +140,7 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent: emitProductTelemetryEventMock,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization: refreshV10ReadModelsForOrganizationMock,
 }));
 
@@ -166,13 +166,13 @@ describe("GET /api/reports/send-summaries", () => {
     forEachSupabaseRangePageMock.mockReset();
     rateLimitCheckMock.mockReset();
     pingCronHealthcheckMock.mockReset();
-    getV6OrgSettingsJsonMock.mockReset();
+    getOrgSettingsJsonMock.mockReset();
     isNotificationAllowedMock.mockReset();
     recordV10AuditEventMock.mockReset();
     emitProductTelemetryEventMock.mockReset();
     refreshV10ReadModelsForOrganizationMock.mockReset();
     rateLimitCheckMock.mockResolvedValue({ ok: true });
-    getV6OrgSettingsJsonMock.mockResolvedValue({ workspace_mode: "advanced" });
+    getOrgSettingsJsonMock.mockResolvedValue({ workspace_mode: "advanced" });
     isNotificationAllowedMock.mockResolvedValue(true);
     recordV10AuditEventMock.mockResolvedValue("audit-1");
     emitProductTelemetryEventMock.mockResolvedValue(true);

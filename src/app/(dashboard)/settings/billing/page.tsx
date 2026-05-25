@@ -1022,7 +1022,11 @@ export default async function BillingPage(props: {
   ];
   const rows: FactRow[] = rawRows
     .filter((r) => !r.hideWhen)
-    .map(({ hideWhen: _h, ...r }) => r);
+    .map((row) => {
+      const normalized = { ...row };
+      delete normalized.hideWhen;
+      return normalized;
+    });
 
   function renderBillingActions(): ReactNode {
     if (!isAdmin || !stripeConfigured) return null;
@@ -1236,7 +1240,7 @@ export default async function BillingPage(props: {
           </span>
           <div className="min-w-0 flex-1">
             <p>
-              <span className="landing-eyebrow-dot ui-caps-1 text-[var(--warning-ink)]">
+              <span className="ui-caps-1 text-[var(--warning-ink)]">
                 Action required
               </span>
             </p>
@@ -1620,7 +1624,7 @@ export default async function BillingPage(props: {
         >
           <div
             aria-hidden
-            className="landing-corner-ring pointer-events-none absolute"
+            className="pointer-events-none absolute rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,transparent)] opacity-70"
             style={{ top: "-2.25rem", right: "-2.25rem", width: "7rem", height: "7rem" }}
           />
           <div className="relative flex items-start gap-4">
@@ -1778,7 +1782,7 @@ export default async function BillingPage(props: {
               §3.13 add WHAT YOU GET eyebrow */}
           <div>
             <p>
-              <span className="landing-eyebrow-dot ui-caps-1 text-[var(--accent)]">
+              <span className="ui-caps-1 text-[var(--accent)]">
                 {SETTINGS_BILLING_STRINGS.whatYouGetEyebrow}
               </span>
             </p>

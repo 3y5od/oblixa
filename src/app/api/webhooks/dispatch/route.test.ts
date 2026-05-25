@@ -22,7 +22,7 @@ vi.mock("@/lib/security/token-crypto", () => ({
   encryptIntegrationToken,
 }));
 
-vi.mock("@/lib/v4/casefile", () => ({
+vi.mock("@/lib/contract-operations/casefile", () => ({
   appendCasefileEvent,
 }));
 

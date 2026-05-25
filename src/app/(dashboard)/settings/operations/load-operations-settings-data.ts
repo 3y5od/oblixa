@@ -1,4 +1,4 @@
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 
 function logQueryError(context: string, error: unknown) {
   console.error(`[operations-settings] ${context}`, error);

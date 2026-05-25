@@ -5,7 +5,7 @@ import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { CampaignRollbackButton } from "@/components/v4/campaign-maintenance-actions";
+import { CampaignRollbackButton } from "@/components/campaign-maintenance-actions";
 import {
   archiveContractAsDuplicateForm,
   deleteOrphanFileRecordForm,

@@ -1,5 +1,5 @@
 import { jsonProblem } from "@/lib/http/problem";
-import { getV10ExpectedVersionFromRequest } from "@/lib/v10-server-contracts";
+import { getV10ExpectedVersionFromRequest } from "@/lib/server-contracts";
 
 type ExpectedVersionGuardInput = {
   route: string;

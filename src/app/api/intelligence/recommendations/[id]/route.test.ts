@@ -7,11 +7,11 @@ vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(() => true),
 }));
 
-vi.mock("@/lib/v5/feature-guards", () => ({
+vi.mock("@/lib/decision-intelligence/feature-guards", () => ({
   requireV5ApiFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -20,7 +20,7 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility: vi.fn(async () => null),
 }));
 
-vi.mock("@/lib/v5/persist-signal-quality", () => ({
+vi.mock("@/lib/decision-intelligence/persist-signal-quality", () => ({
   incrementOrgV5SignalQuality: vi.fn(async () => {}),
 }));
 

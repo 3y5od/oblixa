@@ -6,7 +6,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UiTabs } from "@/components/ui/ui-tabs";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { canEditContracts } from "@/lib/permissions";
 import type { OrgRole } from "@/lib/types";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -86,7 +86,7 @@ export default async function EvidencePage(props: {
       />
 
       {model.warnings.length > 0 ? (
-        <V10RecoverableState
+        <RecoverableState
           state="partial"
           title={EVIDENCE_PARTIAL_DATA_TITLE}
           reason={EVIDENCE_PARTIAL_DATA_REASON}

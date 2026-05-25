@@ -9,6 +9,9 @@ import { SETTINGS_BILLING_STRINGS } from "@/lib/settings/spec-strings";
 export default function BillingLoading() {
   return (
     <div className="ui-page-stack mx-auto max-w-4xl gap-4" aria-busy="true">
+      <div className="sr-only" role="status" aria-live="polite">
+        Loading billing settings.
+      </div>
       <span
         aria-hidden
         className="ui-skeleton h-7 w-32 rounded-full"

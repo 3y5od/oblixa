@@ -67,13 +67,13 @@ const REQUIRED_FILE_MARKERS = {
     'action: "decision_packet_artifact.download_url_created"',
     '"Cache-Control": "private, no-store"',
   ],
-  "src/lib/v5/decision-packet-storage.ts": [
+  "src/lib/decision-intelligence/decision-packet-storage.ts": [
     "export const DECISION_PACKET_SIGNED_URL_TTL_SECONDS = 5 * 60;",
     "export function isDecisionPacketArtifactStoragePathScoped(",
     "export function normalizeDecisionPacketSignedUrlTtl(expiresInSeconds: number): number {",
     ".createSignedUrl(storagePath, safeExpiresIn);",
   ],
-  "src/lib/product-surface/v8-external-actions-token-contract.test.ts": [
+  "src/lib/product-surface/external-actions-token-contract.test.ts": [
     'const BEARER_STYLE_POST_ROUTES = [',
     'raw.includes("verifyExternalSubmitTicket(") || raw.includes("verifyExternalPasscode(");',
     'it("internal workflow-step POST is session-governed (not anonymous token crypto)", () => {',

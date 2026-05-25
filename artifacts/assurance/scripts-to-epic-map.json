@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-12T21:56:51.696Z",
+  "generatedAt": "2026-05-24T21:59:54.038Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -208,6 +208,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-baseline-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-baseline-registry.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-binary-metadata-stripping.mjs",
       "primaryEpicNumber": null
     },
@@ -276,6 +284,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-ci-change-impact.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-ci-verify-extras.mjs",
       "primaryEpicNumber": null
     },
@@ -325,6 +337,22 @@
     },
     {
       "path": "scripts/check-command-reference-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-compatibility-removal-queue.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-compatibility-removal-queue.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-compatibility-route-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-compatibility-route-inventory.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -540,6 +568,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-env-contract-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-env-contract-hygiene.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-env-example-parity.mjs",
       "primaryEpicNumber": null
     },
@@ -648,6 +684,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-hardening-ci-wiring.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-hardening-ci-wiring.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-hardening-debt-ratchet.mjs",
       "primaryEpicNumber": null
     },
@@ -736,6 +780,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-local-auth-env.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-local-auth-env.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-locale-coverage-drift.mjs",
       "primaryEpicNumber": null
     },
@@ -788,11 +840,43 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-migration-history-version-exceptions.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-idempotency.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-idempotency.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-manifest.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-manifest.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-organization.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-organization.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-migration-security-patterns.mjs",
       "primaryEpicNumber": null
     },
     {
       "path": "scripts/check-migration-security-patterns.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-migration-smoke-current.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -813,6 +897,10 @@
     },
     {
       "path": "scripts/check-mutation-race-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-neutral-naming-rules.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1060,6 +1148,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-previous-release-suite.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-privacy-inventory.mjs",
       "primaryEpicNumber": null
     },
@@ -1069,6 +1161,14 @@
     },
     {
       "path": "scripts/check-private-network-egress-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-product-surface-compatibility-vocabulary.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-product-surface-vocabulary.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1220,7 +1320,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-release-evidence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-inventory-lock.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-release-metadata-leakage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-promotable.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1229,6 +1341,10 @@
     },
     {
       "path": "scripts/check-release-security-required-env.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-suite-current.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1321,6 +1437,14 @@
     },
     {
       "path": "scripts/check-route-universe.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-runtime-health-probe-contracts.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-runtime-health-probe-contracts.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1433,6 +1557,10 @@
     },
     {
       "path": "scripts/check-security-telemetry-suppression.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-seed-versioned-name-queue-coverage.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1564,6 +1692,66 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-sql-neutral-function-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-neutral-table-view-aliases.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-neutral-table-view-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-object-reference-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-object-reference-inventory.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-object-rename-staging.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-object-rename-staging.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-alias-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-alias-readiness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-forward-migration-blueprint.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-forward-migration-blueprint.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-predicate-equivalence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-policy-predicate-equivalence.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-rename-verification-sql.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sql-security-automation-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-sql-security-migrations-bundle.mjs",
       "primaryEpicNumber": null
     },
@@ -1596,6 +1784,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-static-secret-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-static-secret-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-storage-path-safety.mjs",
       "primaryEpicNumber": null
     },
@@ -1624,6 +1820,78 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-supabase-advisor-registry.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-advisor-registry.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-config-guard.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-config-guard.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-fingerprint-artifact.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-fingerprint-artifact.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-local-reset-harness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-local-reset-harness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-operational-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-operational-readiness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-release-checklist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-release-checklist.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-retention-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-retention-inventory.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-seed-safety.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-seed-safety.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-snapshot-bundle.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supabase-snapshot-bundle.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-supply-chain-security-matrix.mjs",
       "primaryEpicNumber": null
     },
@@ -1645,6 +1913,14 @@
     },
     {
       "path": "scripts/check-synthetic-slo-env.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-telemetry-event-inventory.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-telemetry-event-inventory.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1792,38 +2068,6 @@
       "primaryEpicNumber": null
     },
     {
-      "path": "scripts/check-v10-inventory-lock.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v10-migration-smoke.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v10-promotable.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v10-release-evidence.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v10-suite.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v7-vocabulary.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v8-vocabulary.mjs",
-      "primaryEpicNumber": null
-    },
-    {
-      "path": "scripts/check-v9-suite.mjs",
-      "primaryEpicNumber": null
-    },
-    {
       "path": "scripts/check-vendor-geo-blocklist.mjs",
       "primaryEpicNumber": null
     },
@@ -1833,6 +2077,214 @@
     },
     {
       "path": "scripts/check-vercel-cron-canary-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-version-reference-allowlist.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-version-reference-allowlist.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-additive-alias-preservation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-additive-alias-preservation.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-alias-usage-neutrality.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-alias-usage-neutrality.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-closure-evidence.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-closure-readiness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-code-only-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-code-only-closure.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-compatibility-equivalence.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-content-contracts.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-content-contracts.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-content-surface-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-content-surface-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-detailed-objective-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-detailed-objective-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-env-flag-aliases.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-env-flag-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-export-download-contracts.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-exported-symbol-aliases.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-exported-symbol-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-exported-symbols.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-exported-symbols.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-final-checklist-reconciliation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-final-checklist-reconciliation.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-forward-migration-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-forward-migration-readiness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-local-content-rewrites.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-local-content-rewrites.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-local-surface-regression.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-manual-surface-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming-removal-queue.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming-removal-queue.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming-safe-renames.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming-safe-renames.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-naming.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-open-objective-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-package-script-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-public-contract-preservation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-public-runtime-dual-read.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-public-runtime-dual-read.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-remaining-local-contract-closure.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-remaining-local-contract-closure.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-remaining-surface-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-remaining-surface-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-route-aliases.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-route-aliases.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-source-config-preservation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-unchecked-objective-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-versioned-unchecked-objective-readiness.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1946,7 +2398,23 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/report-hardening-pr-summary.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-hardening-pr-summary.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/report-integration-contract-surface.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-migration-rollbacks.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-migration-rollbacks.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1962,6 +2430,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/report-production-evidence-summary.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-production-evidence-summary.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/report-qa-closure-manifest.mjs",
       "primaryEpicNumber": null
     },
@@ -1971,6 +2447,10 @@
     },
     {
       "path": "scripts/report-ratchet-snapshot.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-ratchet-snapshot.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -2024,6 +2504,14 @@
     {
       "path": "scripts/report-user-facing-interactions.mjs",
       "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-versioned-naming-cleanup.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/report-versioned-naming-cleanup.test.mjs",
+      "primaryEpicNumber": null
     }
   ],
   "npmTestScripts": [
@@ -2053,6 +2541,26 @@
     },
     {
       "name": "test:e2e:adversarial",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:compatibility",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:compatibility:visual",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:compatibility:visual:update",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:current-product",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:current-product:matrix",
       "primaryEpicNumber": null
     },
     {
@@ -2260,6 +2768,10 @@
       "primaryEpicNumber": null
     },
     {
+      "name": "test:supabase:local-reset",
+      "primaryEpicNumber": null
+    },
+    {
       "name": "test:synthetic-p0",
       "primaryEpicNumber": null
     },
@@ -2277,6 +2789,10 @@
     },
     {
       "name": "test:ui:watch",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:vitest:current-product",
       "primaryEpicNumber": null
     },
     {

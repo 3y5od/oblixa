@@ -1,9 +1,9 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { listOrganizationIds } from "@/lib/v5/cron";
-import { recordMissedExternalDeadlineFinding } from "@/lib/v6/external-collaboration";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
+import { listOrganizationIds } from "@/lib/decision-intelligence/cron";
+import { recordMissedExternalDeadlineFinding } from "@/lib/assurance/external-collaboration";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

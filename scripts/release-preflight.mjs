@@ -49,12 +49,11 @@ execSync("npm run check:incident-readiness:strict", { stdio: "inherit", cwd });
 // Do not run check:artifact-integrity here: release-preflight is invoked from
 // report-release-readiness.mjs, which is spawned by report-artifact-integrity.mjs —
 // nesting artifact-integrity would recurse until timeout.
-execSync("npm run check:v10-migration-smoke", { stdio: "inherit", cwd });
-execSync("npm run check:v10-release-evidence", { stdio: "inherit", cwd });
-execSync("npm run check:v10-privacy-scan", { stdio: "inherit", cwd });
-execSync("npm run check:v10-zero-exclusion-report", { stdio: "inherit", cwd });
-execSync("npm run check:v10-suite", { stdio: "inherit", cwd });
+execSync("npm run check:migration-smoke:current", { stdio: "inherit", cwd });
+execSync("npm run check:release-evidence", { stdio: "inherit", cwd });
+execSync("npm run check:release-privacy-scan", { stdio: "inherit", cwd });
+execSync("npm run check:zero-exclusion-report", { stdio: "inherit", cwd });
+execSync("npm run check:release-suite-current", { stdio: "inherit", cwd });
 execSync("npm run report:ci-provenance", { stdio: "inherit", cwd });
 
 console.log("Release preflight includes V10 release evidence, privacy, and suite checks.");
-

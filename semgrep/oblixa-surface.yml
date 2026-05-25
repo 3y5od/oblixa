@@ -1,0 +1,205 @@
+# Product-surface and release-surface guardrails.
+# Legacy versioned rulepacks remain available for historical SARIF compatibility,
+# but CI and local security scans should use this neutral pack.
+rules:
+  - id: oblixa-surface-placeholder
+    languages: [typescript]
+    message: >
+      Product-surface Semgrep pack reserved for high-signal local rules; deterministic Node checks
+      remain the canonical enforcement layer for cross-surface link policy.
+    severity: INFO
+    pattern: oblixaSurfaceSemgrepPlaceholderNeverUsed()
+    paths:
+      include:
+        - /src/app/(dashboard)/contracts/**/*.tsx
+
+  - id: oblixa-api-create-admin-needs-workspace-gate
+    languages: [typescript]
+    message: >
+      API routes using createAdminClient should also invoke requireApiWorkspaceEligibility unless explicitly exempt.
+    severity: WARNING
+    patterns:
+      - pattern: |
+          const $ADMIN = await createAdminClient(...);
+      - pattern-not: |
+          await requireApiWorkspaceEligibility(...)
+    paths:
+      include:
+        - /src/app/api/**/route.ts
+      exclude:
+        - /src/app/api/cron/**/route.ts
+        - /src/app/api/stripe/**/route.ts
+        - /src/app/api/tracking/**/route.ts
+        - /src/app/api/health/**/route.ts
+
+  - id: oblixa-server-action-needs-eligibility-or-org-scope
+    languages: [typescript]
+    message: >
+      Governed server action modules should call requireServerActionEligibility or enforce auth+org scope checks.
+    severity: WARNING
+    patterns:
+      - pattern: '"use server";'
+      - pattern: |
+          const $ADMIN = await createAdminClient(...);
+      - pattern-not: |
+          await requireServerActionEligibility(...)
+      - pattern-not: |
+          await getOrgMemberRole(...)
+    paths:
+      include:
+        - /src/actions/**/*.ts
+      exclude:
+        - /src/actions/auth.ts
+        - /src/actions/demo.ts
+
+  - id: oblixa-dashboard-layout-must-enforce-page-eligibility
+    languages: [typescript]
+    message: >
+      Dashboard layout must enforce page-surface eligibility via assertPagePathEligibleForContextOrNotFound
+      or assertPagePathEligibleOrNotFound.
+    severity: WARNING
+    patterns:
+      - pattern: |
+          export default async function $LAYOUT(...) {
+            ...
+          }
+      - pattern-not: |
+          assertPagePathEligibleForContextOrNotFound(...)
+      - pattern-not: |
+          assertPagePathEligibleOrNotFound(...)
+    paths:
+      include:
+        - /src/app/(dashboard)/layout.tsx
+
+  - id: oblixa-service-role-read-needs-visibility-helper
+    languages: [typescript]
+    message: >
+      Member-facing service-role reads against retained read-model tables should use a visibility helper
+      or equivalent organization, visibility, and role filtering.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          $ADMIN.from("v10_$TABLE").select(...)
+      - pattern-not-inside: |
+          applyV10ReadModelVisibility(...)
+      - pattern-not-inside: |
+          applyV10CommandSearchVisibility(...)
+      - pattern-not: |
+          $ADMIN.from("v10_$TABLE").select(...).eq("organization_id", ...).eq("visibility_state", "visible").in("required_role_minimum", ...)
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/app/**/*.tsx
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/app/api/cron/**/route.ts
+        - /src/lib/read-model-refresh.ts
+        - /src/lib/server-contracts.ts
+
+  - id: oblixa-cron-needs-private-no-store
+    languages: [typescript]
+    message: >
+      Cron routes must return private no-store responses so diagnostics and maintenance counts are not cached.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          export async function GET(...) {
+            ...
+          }
+      - pattern-not: |
+          export async function GET(...) {
+            ...
+            const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
+            ...
+          }
+    paths:
+      include:
+        - /src/app/api/cron/v10/**/route.ts
+
+  - id: oblixa-cron-needs-cron-auth
+    languages: [typescript]
+    message: >
+      Cron routes must authenticate with ensureCronAuthorized before executing maintenance or refresh work.
+    severity: ERROR
+    patterns:
+      - pattern: |
+          export async function GET($REQUEST: Request) {
+            ...
+          }
+      - pattern-not: |
+          export async function GET($REQUEST: Request) {
+            ...
+            ensureCronAuthorized($REQUEST)
+            ...
+          }
+    paths:
+      include:
+        - /src/app/api/cron/v10/**/route.ts
+
+  - id: oblixa-privacy-scan-no-file-wide-redaction-bypass
+    languages: [javascript]
+    message: >
+      Privacy scans must not waive an entire file because it mentions privacy_redaction_cases;
+      redaction exceptions must be line-scoped.
+    severity: ERROR
+    pattern: |
+      content.includes("privacy_redaction_cases")
+    paths:
+      include:
+        - /scripts/check-release-evidence.mjs
+
+  - id: oblixa-telemetry-no-private-detail-keys
+    languages: [typescript]
+    message: >
+      Telemetry details must not include private payload key names such as raw contract text,
+      emails, tokens, signed URLs, or file URLs. Use safe state/count fields instead.
+    severity: ERROR
+    pattern-regex: '(raw_contract_text|contract_text|responder_email|owner_email|signed_url|private_url|file_url|file_name|access_token|refresh_token|id_token|api_token|bearer_token|session_token|auth_token|secret)\s*:'
+    paths:
+      include:
+        - /src/lib/objective-telemetry.ts
+        - /src/lib/product-telemetry.ts
+        - /src/actions/product-telemetry.ts
+        - /src/lib/readiness-scorecard.ts
+      exclude:
+        - /src/lib/product-telemetry-current.test.ts
+        - /src/lib/product-telemetry-compatibility.test.ts
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx
+        - /src/lib/types/**
+
+  - id: oblixa-mutation-actor-must-be-server-derived
+    languages: [typescript]
+    message: >
+      Mutation actorUserId must come from authenticated server context, not request bodies,
+      payload objects, form fields, or request-derived helper inputs.
+    severity: ERROR
+    pattern-either:
+      - pattern-regex: 'actorUserId\s*:\s*String\([^\n]*formData\.get\('
+      - pattern-regex: 'actorUserId\s*:\s*(body|requestBody|clientBody|payload)\??\.[A-Za-z0-9_]+'
+      - pattern-regex: 'actorUserId\s*:\s*[^,\n]*get[A-Za-z0-9_]*FromRequest\('
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/actions/**/*.ts
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx
+        - /src/lib/server-contracts.ts
+
+  - id: oblixa-mutation-next-destination-no-unsafe-query
+    languages: [typescript]
+    message: >
+      Mutation nextDestinationHref values must not embed titles, emails, tokens, signatures,
+      secrets, or passwords in query strings.
+    severity: ERROR
+    pattern-regex: 'nextDestinationHref\s*:\s*(["\''"]|`)[^\n]*\?(?=[^\n]*(token|signature|secret|password|email|title)=)[^\n]*\1'
+    paths:
+      include:
+        - /src/app/**/*.ts
+        - /src/actions/**/*.ts
+        - /src/lib/**/*.ts
+      exclude:
+        - /src/**/*.test.ts
+        - /src/**/*.test.tsx

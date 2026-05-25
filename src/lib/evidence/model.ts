@@ -1,6 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel, type OrgMemberProfileRow } from "@/lib/org-member-profiles";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import {
   EVIDENCE_ACTION_LABELS,
   EVIDENCE_EMPTY_STATE,

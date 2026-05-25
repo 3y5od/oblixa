@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
-import { runIncrementalAssuranceChecks } from "@/lib/v6/assurance-checks";
-import { publishControlPolicy } from "@/lib/v6/control-policies";
-import { gatherPortfolioMetrics } from "@/lib/v6/portfolio-metrics";
-import { recordControlPolicyOutcome } from "@/lib/v6/outcome-writers";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
+import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
+import { publishControlPolicy } from "@/lib/assurance/control-policies";
+import { gatherPortfolioMetrics } from "@/lib/assurance/portfolio-metrics";
+import { recordControlPolicyOutcome } from "@/lib/assurance/outcome-writers";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { enforceIdempotency } from "@/lib/idempotency";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 
 const ROUTE = "/api/control-policies/[id]/publish";
@@ -73,7 +73,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   }
   await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);
-  await incrementV6QualityCounter(ctx.admin, ctx.orgId, "api_post_control_policy_publish_total", 1).catch(() => undefined);
+  await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_post_control_policy_publish_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6OutcomeIntelligence")) {
     const metricsAfter = await gatherPortfolioMetrics(ctx.admin, ctx.orgId);
     await recordControlPolicyOutcome(ctx.admin, ctx.orgId, policyId, metricsBefore, metricsAfter).catch(() => undefined);

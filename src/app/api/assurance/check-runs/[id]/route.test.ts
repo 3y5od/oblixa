@@ -4,17 +4,17 @@ const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn().mockResolvedValue(undefined),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe("GET /api/assurance/check-runs/[id]", () => {

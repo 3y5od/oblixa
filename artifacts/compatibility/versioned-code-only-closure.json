@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-code-only-closure.mjs --write",
+  "policy": "Prove remaining version-name work is code-only complete, queued, allowlisted, or blocked by explicit manual/production compatibility boundaries. Checklist docs are not configuration.",
+  "sourceArtifacts": {
+    "versionedNamingSafeRenameManifest": "artifacts/compatibility/versioned-naming-safe-rename-manifest.json",
+    "versionedExportedSymbolInventory": "artifacts/compatibility/versioned-exported-symbol-inventory.json",
+    "versionedLocalContentRewriteManifest": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json",
+    "versionedPackageScriptReadiness": "artifacts/compatibility/versioned-package-script-readiness.json",
+    "versionedAliasUsageNeutrality": "artifacts/compatibility/versioned-alias-usage-neutrality.json",
+    "versionedEnvFlagAliases": "artifacts/compatibility/versioned-env-flag-aliases.json",
+    "versionedOpenObjectiveClosure": "artifacts/compatibility/versioned-open-objective-closure.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json"
+  },
+  "totals": {
+    "objectiveCount": 10,
+    "statusCounts": {
+      "coverage_proven": 6,
+      "requires_external_or_production_cutover": 2,
+      "requires_forward_migration": 1,
+      "retained_legacy_blocked": 1
+    },
+    "safeActionGateCount": 6,
+    "pendingSafeActionCount": 0,
+    "retainedLegacyAliasCount": 79,
+    "envFlagAliasCount": 22,
+    "packageScriptAliasCount": 37,
+    "packageScriptReadyForRemovalCount": 0,
+    "packageScriptLocalReadyForRemovalCount": 37,
+    "sourceIssueCount": 0,
+    "issueCount": 0
+  },
+  "safeActionGates": [
+    {
+      "id": "path_level_safe_renames",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 381,
+      "reason": "All manifest-approved local path renames must be applied before closure can be claimed."
+    },
+    {
+      "id": "exported_symbol_aliases",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-exported-symbol-aliases",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 1130,
+      "reason": "All non-manual exported-symbol aliases must be added or intentionally queued."
+    },
+    {
+      "id": "local_content_rewrites",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-local-content-rewrites",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 0,
+      "reason": "All manifest-proven local content rewrites must be applied before closure can be claimed."
+    },
+    {
+      "id": "package_script_alias_readiness",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-package-script-readiness",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 37,
+      "reason": "Repo-local references to retained package-script aliases must stay neutral while aliases remain callable."
+    },
+    {
+      "id": "alias_usage_neutrality",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-alias-usage-neutrality",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 79,
+      "reason": "Retained compatibility aliases must be queue-covered and repo-local callers should prefer neutral names."
+    },
+    {
+      "id": "env_feature_flag_aliases",
+      "owner": "platform-hardening",
+      "validationCommand": "npm run check:versioned-env-flag-aliases",
+      "safeActionStatus": "exhausted",
+      "pendingSafeActionCount": 0,
+      "completedActionCount": 22,
+      "reason": "Versioned feature-flag env keys need neutral-first, legacy-second aliases and queue coverage."
+    }
+  ],
+  "objectives": [
+    {
+      "id": "compatibility_alias_equivalence",
+      "owner": "platform-hardening",
+      "reason": "Old and neutral aliases must remain equivalent while legacy names are retained.",
+      "validationCommand": "npm run check:versioned-compatibility-equivalence",
+      "manualFollowUp": "Remove aliases only after their queue rows become ready_for_removal.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [
+        "packageScriptAliases",
+        "exportedSymbolAliases",
+        "telemetryEventNames",
+        "environmentKeys",
+        "apiRoutes",
+        "cronRoutes",
+        "sqlObjects"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "cronRoutes": 32,
+        "environmentKeys": 24,
+        "exportedSymbolAliases": 1148,
+        "packageScriptAliases": 37,
+        "sqlObjects": 75,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "content_surface_classification",
+      "owner": "platform-hardening",
+      "reason": "Content-level version names must have surface/sub-surface metadata, ownership, neutral-name strategy, and validation evidence.",
+      "validationCommand": "npm run check:versioned-detailed-objective-coverage",
+      "manualFollowUp": "Do not remove compatibility-sensitive content names without queue readiness.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [],
+      "queueCounts": {},
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "export_download_storage_contracts",
+      "owner": "reports-platform",
+      "reason": "Export/download filenames, storage keys, signed links, and import/export diagnostics need inventory and queue coverage.",
+      "validationCommand": "npm run check:versioned-export-download-contracts",
+      "manualFollowUp": "Keep legacy export/storage names until consumers and signed-link readers migrate.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [
+        "exportDownloadContracts",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "contentContractAliases": 1532,
+        "exportDownloadContracts": 171
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "final_zero_version_enforcement",
+      "owner": "platform-hardening",
+      "reason": "Final zero-version enforcement is blocked by retained public/runtime compatibility names and production cutover evidence.",
+      "validationCommand": "npm run check:versioned-naming",
+      "manualFollowUp": "Keep final zero-version enforcement unchecked until all retained queues are ready_for_removal.",
+      "closureStatus": "requires_external_or_production_cutover",
+      "sourceCoverageStatus": "requires_production_or_external_cutover",
+      "queueNames": [
+        "packageScriptAliases",
+        "telemetryEventNames",
+        "apiRoutes",
+        "cronRoutes",
+        "environmentKeys",
+        "sqlObjects",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "contentContractAliases": 1532,
+        "cronRoutes": 32,
+        "environmentKeys": 24,
+        "packageScriptAliases": 37,
+        "sqlObjects": 75,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "local_surface_regression_guard",
+      "owner": "platform-hardening",
+      "reason": "Remaining local-only surfaces must fail new unclassified product-version labels.",
+      "validationCommand": "npm run check:versioned-local-surface-regression",
+      "manualFollowUp": "Queue or allowlist any retained local labels before accepting new version-token hits.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [],
+      "queueCounts": {},
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "package_script_alias_retirement_readiness",
+      "owner": "platform-hardening",
+      "reason": "Retained legacy package scripts need proof that repo-local references are neutralized before any manual removal decision.",
+      "validationCommand": "npm run check:versioned-package-script-readiness",
+      "manualFollowUp": "Keep legacy package-script aliases callable until external runbooks and branch protection no longer require them.",
+      "closureStatus": "retained_legacy_blocked",
+      "sourceCoverageStatus": "retained_legacy_blocked",
+      "queueNames": [
+        "packageScriptAliases"
+      ],
+      "queueCounts": {
+        "packageScriptAliases": 37
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "public_route_and_metadata_preservation",
+      "owner": "frontend-platform",
+      "reason": "Public routes, PWA metadata, OpenAPI names, and crawler-visible identifiers need compatibility queues or manual cutover.",
+      "validationCommand": "npm run check:versioned-public-runtime-dual-read",
+      "manualFollowUp": "Keep public legacy names until runtime aliases are present and consumer cutover evidence exists.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [
+        "apiRoutes",
+        "cronRoutes",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "apiRoutes": 1,
+        "contentContractAliases": 1532,
+        "cronRoutes": 32
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "sql_security_and_seed_staging",
+      "owner": "database-platform",
+      "reason": "SQL objects, RLS/security references, migrations, and seed keys require forward aliases and linked verification before removal.",
+      "validationCommand": "npm run check:sql-object-rename-staging",
+      "manualFollowUp": "Do not remove SQL legacy objects or migration evidence without production catalog verification.",
+      "closureStatus": "requires_forward_migration",
+      "sourceCoverageStatus": "requires_production_or_external_cutover",
+      "queueNames": [
+        "sqlObjects",
+        "sqlSecurityAutomation",
+        "migrationHistoryFilenames",
+        "seedVersionedNames"
+      ],
+      "queueCounts": {
+        "migrationHistoryFilenames": 37,
+        "seedVersionedNames": 1,
+        "sqlObjects": 75,
+        "sqlSecurityAutomation": 67
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "standards_and_provider_version_preservation",
+      "owner": "platform-security",
+      "reason": "Standards, provider protocols, signatures, runtime versions, and schemaVersion fields are legitimate versions, not product-version debt.",
+      "validationCommand": "npm run check:version-reference-allowlist",
+      "manualFollowUp": "Do not rewrite standards, provider, cryptographic, or artifact schema versions.",
+      "closureStatus": "coverage_proven",
+      "sourceCoverageStatus": "coverage_proven",
+      "queueNames": [],
+      "queueCounts": {},
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    },
+    {
+      "id": "telemetry_and_observability_preservation",
+      "owner": "platform",
+      "reason": "Persisted telemetry, metrics, audit, and observability names need dashboard and consumer cutover evidence.",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Keep persisted telemetry names until analytics/dashboard cutover evidence exists.",
+      "closureStatus": "requires_external_or_production_cutover",
+      "sourceCoverageStatus": "requires_production_or_external_cutover",
+      "queueNames": [
+        "telemetryEventNames",
+        "contentContractAliases"
+      ],
+      "queueCounts": {
+        "contentContractAliases": 1532,
+        "telemetryEventNames": 74
+      },
+      "uncoveredManualCount": 0,
+      "remainingSafeActionCount": 0,
+      "missingMetadataCount": 0,
+      "missingValidationCommandCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

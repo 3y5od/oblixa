@@ -1,4 +1,4 @@
-import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/v4/policy-registry";
+import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 
 export const DEFAULT_WORKSPACE_POLICY_REGISTRY = [

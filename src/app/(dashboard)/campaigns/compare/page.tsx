@@ -4,7 +4,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
-import { assertV5PageFeature } from "@/lib/v5/feature-guards";
+import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 
 export default async function CampaignComparePage(props: {
   searchParams: Promise<{ campaignA?: string; campaignB?: string; simulationId?: string }>;

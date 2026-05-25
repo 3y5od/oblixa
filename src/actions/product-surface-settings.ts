@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { getAuthContext } from "@/lib/supabase/server";
 import {
-  getV6OrgSettingsJson,
-  mergeV6OrgSettingsJson,
+  getOrgSettingsJson,
+  mergeOrgSettingsJson,
   type V6OrgSettingsMergePatch,
-} from "@/lib/v6/org-settings";
+} from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import {
   applyWorkspaceProductTransitionSideEffects,
@@ -19,7 +19,7 @@ import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
   ALL_ASSURANCE_NAV_MODULE_KEYS,
 } from "@/lib/product-surface/workspace-module-keys";
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import {
   countScheduledReportSubscriptionsSuppressedByModeChange,
@@ -94,7 +94,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
 
   const ctx = await getAuthContext();
   if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can change product experience settings." };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevVersion = JSON.stringify(prevV6);
   const prevMode = parseWorkspaceMode(prevV6);
 
@@ -168,7 +168,7 @@ async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Prom
   });
   if (v10ModuleReservation) return v10ModuleReservation;
 
-  const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
+  const { data: merged, error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) {
     console.error("[product-surface-settings]", error.message);
     return { error: mapDataSourceError(error.message) };
@@ -304,7 +304,7 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
 
   const ctx = await getAuthContext();
   if (!ctx || ctx.role !== "admin") return { error: "Only workspace admins can reset product experience settings." };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevVersion = JSON.stringify(prevV6);
   const prevMode = parseWorkspaceMode(prevV6);
   const patch: V6OrgSettingsMergePatch = {
@@ -343,7 +343,7 @@ async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<Product
     },
   });
   if (v10ModuleReservation) return v10ModuleReservation;
-  const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, patch);
+  const { data: merged, error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, patch);
   if (error) return { error: mapDataSourceError(error.message) };
   await safeApplyWorkspaceProductTransitionSideEffects({
     admin: ctx.admin,

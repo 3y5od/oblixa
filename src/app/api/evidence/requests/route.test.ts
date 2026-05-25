@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 
 const getApiAuthContext = vi.fn();
 const canManageCapability = vi.fn();
@@ -9,7 +9,7 @@ const refreshV10ReadModelsForOrganization = vi.fn();
 const recordV10AuditEvent = vi.fn();
 const emitProductTelemetryEvent = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -18,14 +18,14 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10AuditedMutation,
   getV10ExpectedVersionFromRequest: (request: Request) => request.headers.get("if-match") ?? undefined,
   getV10IdempotencyKeyFromRequest: (request: Request) => request.headers.get("x-idempotency-key"),
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 

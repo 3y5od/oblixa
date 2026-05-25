@@ -18,7 +18,10 @@ function collectReferences(text) {
 
 const files = [
   ...walkFiles(path.join(root, ".github", "workflows"), (abs) => abs.endsWith(".yml")),
-  ...walkFiles(path.join(root, "scripts"), (abs) => abs.endsWith(".mjs") || abs.endsWith(".txt")),
+  ...walkFiles(
+    path.join(root, "scripts"),
+    (abs) => (abs.endsWith(".mjs") || abs.endsWith(".txt")) && !abs.endsWith(".test.mjs")
+  ),
 ];
 const missing = [];
 for (const file of files) {

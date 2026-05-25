@@ -1,5 +1,44 @@
 export const GENERATED_PUBLIC_ROUTES = [
   {
+    "route": "/product",
+    "visitPath": "/product",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "expectedHeading": "Product",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual"
+    ]
+  },
+  {
+    "route": "/pricing",
+    "visitPath": "/pricing",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "expectedHeading": "Pricing",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual"
+    ]
+  },
+  {
+    "route": "/contact",
+    "visitPath": "/contact",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "expectedHeading": "Contact",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual"
+    ]
+  },
+  {
     "route": "/",
     "visitPath": "/",
     "fixtureId": null,
@@ -86,6 +125,19 @@ export const GENERATED_PUBLIC_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "expectedHeading": "Terms of use",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual"
+    ]
+  },
+  {
+    "route": "/acceptable-use",
+    "visitPath": "/acceptable-use",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "expectedHeading": "Acceptable use",
     "coverage": [
       "smoke",
       "a11y",

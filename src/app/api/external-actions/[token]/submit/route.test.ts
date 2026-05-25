@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { signExternalSubmitTicket } from "@/lib/v5/api";
+import { signExternalSubmitTicket } from "@/lib/decision-intelligence/api";
 
 vi.mock("@/lib/feature-flags", () => ({
   isFeatureEnabled: vi.fn(),
@@ -23,21 +23,21 @@ vi.mock("@/lib/rate-limit", async () => {
   };
 });
 
-vi.mock("@/lib/v5/relationship-timeline", () => ({
+vi.mock("@/lib/decision-intelligence/relationship-timeline", () => ({
   appendAccountTimelineEvent: vi.fn(),
   appendCounterpartyTimelineEvent: vi.fn(),
 }));
 
-vi.mock("@/lib/v6/external-collaboration", () => ({
+vi.mock("@/lib/assurance/external-collaboration", () => ({
   appendExternalWorkflowStep,
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks: vi.fn(async () => ({})),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => {}),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => {}),
 }));
 
 const enforceIdempotency = vi.hoisted(() => vi.fn<() => Promise<Response | null>>(async () => null));

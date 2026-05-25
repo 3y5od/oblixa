@@ -27,6 +27,10 @@ export const routeStateManifest = [
   { route: "/relationship-workspaces", kind: "loading", sourcePath: "src/app/(dashboard)/relationship-workspaces/loading.tsx", shellFamily: "dashboard" },
   { route: "/settings", kind: "loading", sourcePath: "src/app/(dashboard)/settings/loading.tsx", shellFamily: "dashboard" },
   { route: "/settings/security", kind: "loading", sourcePath: "src/app/(dashboard)/settings/loading.tsx", shellFamily: "dashboard" },
+  { route: "/settings/billing", kind: "loading", sourcePath: "src/app/(dashboard)/settings/billing/loading.tsx", shellFamily: "dashboard" },
+  { route: "/settings/billing", kind: "error", sourcePath: "src/app/(dashboard)/settings/billing/error.tsx", shellFamily: "dashboard" },
+  { route: "/settings/security", kind: "loading", sourcePath: "src/app/(dashboard)/settings/security/loading.tsx", shellFamily: "dashboard" },
+  { route: "/settings/security", kind: "error", sourcePath: "src/app/(dashboard)/settings/security/error.tsx", shellFamily: "dashboard" },
   { route: "/onboarding/calibration", kind: "loading", sourcePath: "src/app/(dashboard)/onboarding/calibration/loading.tsx", shellFamily: "dashboard" },
   { route: "/accounts/[key]", kind: "loading", sourcePath: "src/app/(dashboard)/accounts/[key]/loading.tsx", shellFamily: "dashboard" },
   { route: "/counterparties/[key]", kind: "loading", sourcePath: "src/app/(dashboard)/counterparties/[key]/loading.tsx", shellFamily: "dashboard" },
@@ -42,6 +46,7 @@ export const routeStateManifest = [
   { route: "/reset-password", kind: "error", sourcePath: "src/app/(auth)/error.tsx", shellFamily: "auth" },
 
   { route: "/", kind: "loading", sourcePath: "src/app/(marketing)/loading.tsx", shellFamily: "marketing" },
+  { route: "/product", kind: "loading", sourcePath: "src/app/(marketing)/product/loading.tsx", shellFamily: "marketing" },
   { route: "/privacy", kind: "loading", sourcePath: "src/app/(marketing)/loading.tsx", shellFamily: "marketing" },
   { route: "/terms", kind: "loading", sourcePath: "src/app/(marketing)/loading.tsx", shellFamily: "marketing" },
   { route: "/security", kind: "loading", sourcePath: "src/app/(marketing)/loading.tsx", shellFamily: "marketing" },
@@ -53,4 +58,3 @@ export const routeStateManifest = [
   { route: "/external/[token]", kind: "loading", sourcePath: "src/app/external/loading.tsx", shellFamily: "external" },
   { route: "/external/[token]", kind: "error", sourcePath: "src/app/external/error.tsx", shellFamily: "external" },
 ];
-

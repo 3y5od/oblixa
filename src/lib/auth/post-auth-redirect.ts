@@ -1,6 +1,6 @@
 import { getSafeRedirectPath } from "@/lib/security/redirect";
-import type { AdminClient } from "@/lib/v6/service";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { AdminClient } from "@/lib/assurance/service";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { resolveEffectiveLandingPath } from "@/lib/product-surface/landing-eligibility";
 
@@ -27,7 +27,7 @@ export async function resolvePostAuthRedirectPath(
   const homePaths = new Set(["/dashboard", getSafeRedirectPath(null)]);
   if (!homePaths.has(requestedPath)) return requestedPath;
   if (!orgId) return requestedPath;
-  const v6 = await getV6OrgSettingsJson(admin, orgId);
+  const v6 = await getOrgSettingsJson(admin, orgId);
   const mode = parseWorkspaceMode(v6);
   const resolved = resolveEffectiveLandingPath(v6.default_landing_path, mode);
   return getSafeRedirectPath(resolved);

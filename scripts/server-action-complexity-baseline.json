@@ -38,11 +38,11 @@
       "lines": 2079
     },
     {
-      "file": "src/actions/v10-bulk-compatible-work.ts",
+      "file": "src/actions/bulk-compatible-work.ts",
       "lines": 501
     },
     {
-      "file": "src/actions/v4.ts",
+      "file": "src/actions/policy-operations.ts",
       "lines": 839
     },
     {

@@ -17,6 +17,11 @@ export const SIDEBAR_COLLAPSED_KEY = "oblixa.sidebar.collapsed";
 export const REVIEW_QUEUE_GUIDE_DISMISSED_KEY =
   "oblixa.contracts.reviewQueueStartGuide.dismissed";
 export const RECENT_COMMANDS_KEY = "oblixa.command-palette.recent";
+export const DASHBOARD_COLLAPSED_SECTION_KEY_PREFIX =
+  "oblixa.dashboard.collapsed.";
+export const DASHBOARD_SECTION_ORDER_KEY = "oblixa.dashboard.section-order";
+export const PRODUCT_MOBILE_CTA_DISMISSED_KEY =
+  "oblixa-product-mobile-cta-dismissed";
 export const CONTRACT_TABLE_SELECTION_KEY_PREFIX =
   "oblixa.contract-table.selection:";
 export const UPLOAD_DRAFT_KEY_PREFIX = "oblixa.uploadDraft.v1:";
@@ -77,6 +82,19 @@ function tableDensityStorageKey(scopeValue: string): string | null {
 function recentItemsStorageKey(scopeValue: string): string | null {
   const scope = safeScope(scopeValue);
   return scope ? `${RECENT_ITEMS_KEY_PREFIX}${scope}` : null;
+}
+
+function dashboardCollapsedSectionStorageKey(scopeValue: string): string | null {
+  const scope = safeScope(scopeValue);
+  return scope ? `${DASHBOARD_COLLAPSED_SECTION_KEY_PREFIX}${scope}` : null;
+}
+
+function dashboardSectionOrderStorageKey(storageKey: string): string | null {
+  const trimmed = storageKey.trim();
+  if (trimmed === DASHBOARD_SECTION_ORDER_KEY) return DASHBOARD_SECTION_ORDER_KEY;
+  const scope = safeScope(trimmed);
+  if (!scope || !scope.startsWith(`${DASHBOARD_SECTION_ORDER_KEY}:`)) return null;
+  return scope;
 }
 
 function isSafeRecentItem(value: unknown): value is StoredRecentItem {
@@ -225,6 +243,64 @@ export function writeCommandPaletteRecentCommands(next: string[]): void {
   if (!storage) return;
   const safe = next.filter(isSafeStoredHref).slice(0, 6);
   writeStoredJson(storage, RECENT_COMMANDS_KEY, safe);
+}
+
+export function readDashboardCollapsedSection(
+  storageKey: string
+): "open" | "closed" | null {
+  const storage = getLocalStorage();
+  const key = dashboardCollapsedSectionStorageKey(storageKey);
+  if (!storage || !key) return null;
+  try {
+    const stored = storage.getItem(key);
+    if (stored === "open" || stored === "closed") return stored;
+    if (stored !== null) storage.removeItem(key);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeDashboardCollapsedSection(
+  storageKey: string,
+  value: "open" | "closed"
+): void {
+  const storage = getLocalStorage();
+  const key = dashboardCollapsedSectionStorageKey(storageKey);
+  if (!storage || !key) return;
+  try {
+    storage.setItem(key, value);
+  } catch {
+    // Ignore storage failures; UI state remains in memory.
+  }
+}
+
+export function readDashboardSectionOrder(storageKey = DASHBOARD_SECTION_ORDER_KEY): string[] {
+  const storage = getLocalStorage();
+  const key = dashboardSectionOrderStorageKey(storageKey);
+  if (!storage || !key) return [];
+  const parsed = readStoredJson(storage, key);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter((value): value is string => isSafeStoredString(value, 128)).slice(0, 100);
+}
+
+export function writeDashboardSectionOrder(
+  next: string[],
+  storageKey = DASHBOARD_SECTION_ORDER_KEY
+): void {
+  const storage = getLocalStorage();
+  const key = dashboardSectionOrderStorageKey(storageKey);
+  if (!storage || !key) return;
+  const safe = next.filter((value) => isSafeStoredString(value, 128)).slice(0, 100);
+  writeStoredJson(storage, key, safe);
+}
+
+export function readProductMobileCtaDismissed(): boolean {
+  return readFlag(getSessionStorage(), PRODUCT_MOBILE_CTA_DISMISSED_KEY);
+}
+
+export function writeProductMobileCtaDismissed(): void {
+  writeFlag(getSessionStorage(), PRODUCT_MOBILE_CTA_DISMISSED_KEY, true);
 }
 
 export function readRecentItems(scope: string, limit = 5): StoredRecentItem[] {

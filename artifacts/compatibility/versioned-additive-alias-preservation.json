@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-versioned-additive-alias-preservation.mjs --write",
+  "policy": "Prove additive neutral aliases exist for code-owned remaining version-name surfaces while legacy selectors, rulepacks, and runtime contracts remain compatible.",
+  "sourceArtifacts": {
+    "versionedLocalSurfaceRegression": "artifacts/compatibility/versioned-local-surface-regression.json",
+    "seedVersionedNameQueueCoverage": "artifacts/supabase/seed-versioned-name-queue-coverage.json",
+    "compatibilityRemovalQueue": "artifacts/compatibility/removal-queue.json"
+  },
+  "semgrep": {
+    "activeRulepackCount": 3,
+    "legacyRulepackCount": 3,
+    "neutralRulepackActive": true,
+    "legacyRulepacksRetained": true,
+    "legacyRulepacksInactiveInCi": true,
+    "versionedActiveRuleIdCount": 0,
+    "validationCommand": "npm run check:semgrep-rulepack-integrity",
+    "manualFollowUp": "Keep legacy Semgrep rulepacks until historical SARIF and suppressions no longer reference old rule IDs."
+  },
+  "sqlAliases": [
+    {
+      "id": "organization_settings_sql_alias",
+      "owner": "platform-data",
+      "legacyName": "public.organizations.v6_org_settings_json",
+      "neutralName": "public.organization_settings.org_settings_json",
+      "validationCommand": "npm run check:versioned-additive-alias-preservation",
+      "manualFollowUp": "Keep the legacy organizations column until a production migration and downstream consumers explicitly cut over to the neutral view.",
+      "neutralAliasAvailable": true,
+      "legacySeedWritePresent": true,
+      "legacyColumnDropped": false,
+      "issueCount": 0,
+      "issues": []
+    }
+  ],
+  "domAliases": [
+    {
+      "id": "recoverable_state_selectors",
+      "owner": "frontend-platform",
+      "path": "src/components/ui/recoverable-state.tsx",
+      "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
+      "manualFollowUp": "Remove legacy data-v10-* attributes only after support tooling, tests, and analytics use neutral data-* attributes.",
+      "aliasPairCount": 10,
+      "coveredAliasPairCount": 10,
+      "pairs": [
+        {
+          "legacyName": "data-v10-state",
+          "neutralName": "data-state",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-surface",
+          "neutralName": "data-surface",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-section",
+          "neutralName": "data-section",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-action",
+          "neutralName": "data-action",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-source-object",
+          "neutralName": "data-source-object",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-diagnostic-id",
+          "neutralName": "data-diagnostic-id",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-contract-ok",
+          "neutralName": "data-contract-ok",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-focus-target",
+          "neutralName": "data-focus-target",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-next-action-label",
+          "neutralName": "data-next-action-label",
+          "legacyPresent": true,
+          "neutralPresent": true
+        },
+        {
+          "legacyName": "data-v10-contract-failures",
+          "neutralName": "data-contract-failures",
+          "legacyPresent": true,
+          "neutralPresent": true
+        }
+      ],
+      "issueCount": 0,
+      "issues": []
+    },
+    {
+      "id": "evidence_requirement_status_selector",
+      "owner": "frontend-platform",
+      "path": "src/components/contracts/contract-evidence-requirements-panel.tsx",
+      "validationCommand": "vitest run --config vitest.ui.config.ts src/components/contracts/contract-evidence-requirements-panel.ui.test.tsx",
+      "manualFollowUp": "Remove data-v9-evidence-req-status only after UI tests and external support selectors use data-evidence-req-status.",
+      "aliasPairCount": 1,
+      "coveredAliasPairCount": 1,
+      "pairs": [
+        {
+          "legacyName": "data-v9-evidence-req-status",
+          "neutralName": "data-evidence-req-status",
+          "legacyPresent": true,
+          "neutralPresent": true
+        }
+      ],
+      "issueCount": 0,
+      "issues": []
+    }
+  ],
+  "dependentCoverage": {
+    "publicContractPreservationOk": true,
+    "sourceConfigPreservationOk": true,
+    "localSurfaceRegressionOk": true,
+    "seedQueueCoverageOk": true
+  },
+  "totals": {
+    "domAliasTargetCount": 2,
+    "domAliasPairCount": 11,
+    "coveredDomAliasPairCount": 11,
+    "sqlAliasTargetCount": 1,
+    "coveredSqlAliasTargetCount": 1,
+    "issueCount": 0
+  },
+  "issueCount": 0,
+  "issues": []
+}

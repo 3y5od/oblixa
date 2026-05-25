@@ -60,9 +60,9 @@ export const REFINEMENT_LAYER2_ANCHORS = [
 /** product-surface policy §5 Layer 3 — Assurance (Assurance mode + flags) + outcome intelligence. */
 export const REFINEMENT_LAYER3_ANCHORS = [
   "src/app/(dashboard)/assurance/",
-  "src/components/dashboard/dashboard-v6-operational-blocks.tsx",
-  "src/lib/v6/assurance-analytics.ts",
-  "src/lib/v6/outcomes.ts (outcome intelligence)",
+  "src/components/dashboard/dashboard-operational-blocks.tsx",
+  "src/lib/assurance/assurance-analytics.ts",
+  "src/lib/assurance/outcomes.ts (outcome intelligence)",
   "src/app/(dashboard)/reports/page.tsx (#outcome-intelligence, #assurance-analytics)",
 ] as const;
 
@@ -99,7 +99,7 @@ export const REFINEMENT_TRACE = {
   "§14": [...REFINEMENT_CONTEXTUAL_ENTRY_ANCHORS],
   "§16.3": ["src/components/ui/contract-continuity-links.tsx"],
   "§17.2": [
-    "src/lib/v6/org-settings.ts",
+    "src/lib/assurance/org-settings.ts",
     "src/app/(dashboard)/assurance/autopilot/",
     "src/app/api/autopilot/",
   ],
@@ -122,7 +122,7 @@ export const REFINEMENT_TRACE = {
     "src/lib/product-surface/resolver.ts",
     "src/app/(dashboard)/contracts/page.tsx",
     "e2e/authenticated.spec.ts",
-    "e2e/v9-core-smoke.spec.ts",
+    "e2e/compatibility-core-smoke.spec.ts",
     "scripts/audit-nav-primary-vs-metadata.mjs (nav label vs page title heuristic)",
     "Global / header search dispatches into the command palette bridge with mode-gated results",
   ],
@@ -147,3 +147,7 @@ export const REFINEMENT_TRACE = {
     "src/lib/product-surface/refinement-contract.test.ts",
   ],
 } as const;
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { REFINEMENT_V7_TRACE_STRINGS as REFINEMENT_TRACE_STRINGS };
+// End version-name compatibility aliases.

@@ -9,11 +9,16 @@ const workflowConfigMocks = vi.hoisted(() => ({
   getOrEnsureDeterministicMembership: vi.fn(),
   getUser: vi.fn(),
   hasSensitiveActionProof: vi.fn(),
+  revalidatePath: vi.fn(),
   recordSecurityAuditEvent: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
   cookies: workflowConfigMocks.cookies,
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: workflowConfigMocks.revalidatePath,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({

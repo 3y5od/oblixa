@@ -1,0 +1,1433 @@
+{
+  "schemaVersion": 2,
+  "generatedBy": "check:versioned-package-script-readiness",
+  "source": "package.json and PACKAGE_SCRIPT_ALIASES",
+  "aliasCount": 37,
+  "readyForRemovalCount": 0,
+  "localReadyForRemovalCount": 37,
+  "blockedAliasCount": 37,
+  "blockingReferenceCount": 0,
+  "repoLocalReferenceCount": 0,
+  "docsOnlyReferenceCount": 0,
+  "generatedArtifactReferenceCount": 0,
+  "externalOrManualReferenceCount": 0,
+  "byStatus": {
+    "alias_added": 37
+  },
+  "byBlockingClass": {},
+  "byBlockerCategory": {
+    "docs_only": 0,
+    "external_or_manual": 0,
+    "generated_artifact": 0,
+    "ready_for_removal": 0,
+    "repo_local": 0
+  },
+  "aliases": [
+    {
+      "legacyName": "check:v10-complete-closure",
+      "neutralAlias": "check:complete-closure",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-complete-closure",
+        "neutral": "npm run check:complete-closure"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:complete-closure",
+      "neutralCommand": "vitest run src/lib/complete-closure.test.ts src/lib/zero-exclusion-report.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-inventory-lock",
+      "neutralAlias": "check:release-inventory-lock",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-inventory-lock",
+        "neutral": "npm run check:release-inventory-lock"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:release-inventory-lock",
+      "neutralCommand": "node scripts/check-release-inventory-lock.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-migration-smoke",
+      "neutralAlias": "check:migration-smoke:current",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-migration-smoke",
+        "neutral": "npm run check:migration-smoke:current"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:migration-smoke:current",
+      "neutralCommand": "node scripts/check-migration-smoke-current.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-migration-smoke:strict",
+      "neutralAlias": "check:migration-smoke:current:strict",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-migration-smoke:strict",
+        "neutral": "npm run check:migration-smoke:current:strict"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:migration-smoke:current:strict",
+      "neutralCommand": "node scripts/check-migration-smoke-current.mjs --strict",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-privacy-scan",
+      "neutralAlias": "check:release-privacy-scan",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-privacy-scan",
+        "neutral": "npm run check:release-privacy-scan"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:release-privacy-scan",
+      "neutralCommand": "node scripts/check-release-evidence.mjs --privacy-scan all",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-promotable",
+      "neutralAlias": "check:release-promotable",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-promotable",
+        "neutral": "npm run check:release-promotable"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:release-promotable",
+      "neutralCommand": "node scripts/check-release-promotable.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-promotable:report",
+      "neutralAlias": "report:release-promotable",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-promotable:report",
+        "neutral": "npm run report:release-promotable"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run report:release-promotable",
+      "neutralCommand": "node scripts/check-release-promotable.mjs --report",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-release-evidence",
+      "neutralAlias": "check:release-evidence",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-release-evidence",
+        "neutral": "npm run check:release-evidence"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:release-evidence",
+      "neutralCommand": "node scripts/check-release-evidence.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-runtime-evidence-plan",
+      "neutralAlias": "report:runtime-evidence-plan",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-runtime-evidence-plan",
+        "neutral": "npm run report:runtime-evidence-plan"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run report:runtime-evidence-plan",
+      "neutralCommand": "node scripts/check-release-evidence.mjs --runtime-plan v10-rc-runtime --metric all",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-suite",
+      "neutralAlias": "check:release-suite-current",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-suite",
+        "neutral": "npm run check:release-suite-current"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:release-suite-current",
+      "neutralCommand": "node scripts/check-release-suite-current.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v10-zero-exclusion-report",
+      "neutralAlias": "check:zero-exclusion-report",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v10-zero-exclusion-report",
+        "neutral": "npm run check:zero-exclusion-report"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:zero-exclusion-report",
+      "neutralCommand": "vitest run src/lib/zero-exclusion-report.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v7-hrefs:strict",
+      "neutralAlias": "check:surface-hrefs:compatibility:strict",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v7-hrefs:strict",
+        "neutral": "npm run check:surface-hrefs:compatibility:strict"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface-hrefs:compatibility:strict",
+      "neutralCommand": "npm run check:surface:hrefs:strict",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v7-suite",
+      "neutralAlias": "check:surface-suite:compatibility",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v7-suite",
+        "neutral": "npm run check:surface-suite:compatibility"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface-suite:compatibility",
+      "neutralCommand": "npm run check:surface:suite",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-acceptance-criteria",
+      "neutralAlias": "check:surface:acceptance-criteria",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-acceptance-criteria",
+        "neutral": "npm run check:surface:acceptance-criteria"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:acceptance-criteria",
+      "neutralCommand": "vitest run src/lib/product-surface/acceptance-criteria.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-acceptance-matrix",
+      "neutralAlias": "check:surface:acceptance-matrix",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-acceptance-matrix",
+        "neutral": "npm run check:surface:acceptance-matrix"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:acceptance-matrix",
+      "neutralCommand": "vitest run src/lib/product-surface/acceptance-matrix.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-action-eligibility",
+      "neutralAlias": "check:surface:action-eligibility",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-action-eligibility",
+        "neutral": "npm run check:surface:action-eligibility"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:action-eligibility",
+      "neutralCommand": "vitest run src/lib/product-surface/action-eligibility-gate.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-action-inventory",
+      "neutralAlias": "check:surface:action-inventory",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-action-inventory",
+        "neutral": "npm run check:surface:action-inventory"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:action-inventory",
+      "neutralCommand": "vitest run src/lib/product-surface/server-action-inventory-coverage.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-api-eligibility",
+      "neutralAlias": "check:surface:api-eligibility",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-api-eligibility",
+        "neutral": "npm run check:surface:api-eligibility"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:api-eligibility",
+      "neutralCommand": "npm run check:api-workspace-eligibility:strict",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-api-inventory",
+      "neutralAlias": "check:surface:api-inventory",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-api-inventory",
+        "neutral": "npm run check:surface:api-inventory"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:api-inventory",
+      "neutralCommand": "vitest run src/lib/product-surface/api-inventory-coverage.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-denial-mapping",
+      "neutralAlias": "check:surface:denial-mapping",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-denial-mapping",
+        "neutral": "npm run check:surface:denial-mapping"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:denial-mapping",
+      "neutralCommand": "vitest run src/lib/product-surface/denial-status.test.ts src/lib/product-surface/denial-class-reachability.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-diagnostics-contract",
+      "neutralAlias": "check:surface:diagnostics-contract",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-diagnostics-contract",
+        "neutral": "npm run check:surface:diagnostics-contract"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:diagnostics-contract",
+      "neutralCommand": "vitest run src/lib/product-surface/diagnostics-contract.test.ts src/lib/product-surface/diagnostics-field-presence.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-hrefs",
+      "neutralAlias": "check:surface:hrefs",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-hrefs",
+        "neutral": "npm run check:surface:hrefs"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:hrefs",
+      "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-hrefs:strict",
+      "neutralAlias": "check:surface:hrefs:strict",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-hrefs:strict",
+        "neutral": "npm run check:surface:hrefs:strict"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:hrefs:strict",
+      "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs --strict",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-page-inventory",
+      "neutralAlias": "check:surface:page-inventory",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-page-inventory",
+        "neutral": "npm run check:surface:page-inventory"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:page-inventory",
+      "neutralCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-suite",
+      "neutralAlias": "check:surface:suite",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-suite",
+        "neutral": "npm run check:surface:suite"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:suite",
+      "neutralCommand": "node scripts/pipelines/pipeline-surface-suite.mjs && echo \"check:surface:page-inventory check:surface:api-inventory check:surface:action-inventory check:surface:acceptance-matrix check:surface:api-eligibility check:surface:action-eligibility check:surface:hrefs:strict check:surface:vocabulary check:workflow-destinations check:api-route-tests check:api-route-auth-contract check:api-route-auth-route-index check:server-lib-admin check:surface:diagnostics-contract check:route-inventory check:surface:denial-mapping check:surface:supplemental-contracts refinement-contract.test.ts\"",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-supplemental-contracts",
+      "neutralAlias": "check:surface:supplemental-contracts",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-supplemental-contracts",
+        "neutral": "npm run check:surface:supplemental-contracts"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:supplemental-contracts",
+      "neutralCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts src/lib/product-surface/registry-contract.test.ts src/lib/product-surface/eligibility-output-contract.test.ts src/lib/product-surface/eligibility-surface-type-matrix.test.ts src/lib/product-surface/context-load-build-parity.test.ts src/lib/product-surface/proxy-path-policy-alignment.test.ts src/lib/product-surface/admin-bypass-boundary.test.ts src/lib/product-surface/cross-surface-consistency.test.ts src/lib/product-surface/href-audit-roots-contract.test.ts src/lib/product-surface/route-inventory-mapping.test.ts src/lib/product-surface/metadata-public-routes.test.ts src/lib/product-surface/sentry-scrub-bridge.test.ts src/lib/product-surface/workspace-role-matrix.test.ts src/lib/product-surface/governed-page-shell.test.ts src/lib/product-surface/capability-token-discoverability.test.ts src/lib/product-surface/external-actions-token-contract.test.ts src/lib/product-surface/nav-cmdk-utilities-parity.test.ts src/lib/auth/post-auth-redirect.test.ts src/lib/product-surface/objectives-trace.test.ts src/lib/product-surface/alias-compatibility-parity.test.ts src/lib/product-surface/test-exemptions-contract.test.ts src/lib/product-surface/outbound-link-sources.test.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v8-vocabulary",
+      "neutralAlias": "check:surface:vocabulary",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v8-vocabulary",
+        "neutral": "npm run check:surface:vocabulary"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:surface:vocabulary",
+      "neutralCommand": "node scripts/check-product-surface-vocabulary.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "check:v9-suite",
+      "neutralAlias": "check:previous-release-suite",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run check:v9-suite",
+        "neutral": "npm run check:previous-release-suite"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run check:previous-release-suite",
+      "neutralCommand": "node scripts/check-previous-release-suite.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "rebuild:v10-read-models",
+      "neutralAlias": "rebuild:read-models",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run rebuild:v10-read-models",
+        "neutral": "npm run rebuild:read-models"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run rebuild:read-models",
+      "neutralCommand": "node scripts/rebuild-read-models.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "report:v9-pr-body-rollup",
+      "neutralAlias": "report:release-pr-body-rollup",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run report:v9-pr-body-rollup",
+        "neutral": "npm run report:release-pr-body-rollup"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run report:release-pr-body-rollup",
+      "neutralCommand": "node scripts/render-compatibility-pr-body-rollup.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:e2e:v10",
+      "neutralAlias": "test:e2e:current-product",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:e2e:v10",
+        "neutral": "npm run test:e2e:current-product"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:e2e:current-product",
+      "neutralCommand": "playwright test --grep @current-product",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:e2e:v10:matrix",
+      "neutralAlias": "test:e2e:current-product:matrix",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:e2e:v10:matrix",
+        "neutral": "npm run test:e2e:current-product:matrix"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:e2e:current-product:matrix",
+      "neutralCommand": "PLAYWRIGHT_DEVICE_MATRIX=1 playwright test e2e/current-product-device-matrix.chromium.spec.ts e2e/current-product-device-matrix.webkit.spec.ts e2e/current-product-device-matrix.firefox.spec.ts",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:e2e:v9",
+      "neutralAlias": "test:e2e:compatibility",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:e2e:v9",
+        "neutral": "npm run test:e2e:compatibility"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:e2e:compatibility",
+      "neutralCommand": "playwright test --grep @compatibility",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:e2e:v9:visual",
+      "neutralAlias": "test:e2e:compatibility:visual",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:e2e:v9:visual",
+        "neutral": "npm run test:e2e:compatibility:visual"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:e2e:compatibility:visual",
+      "neutralCommand": "PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:e2e:v9:visual:update",
+      "neutralAlias": "test:e2e:compatibility:visual:update",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:e2e:v9:visual:update",
+        "neutral": "npm run test:e2e:compatibility:visual:update"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:e2e:compatibility:visual:update",
+      "neutralCommand": "PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility --update-snapshots",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "test:vitest:v10",
+      "neutralAlias": "test:vitest:current-product",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run test:vitest:v10",
+        "neutral": "npm run test:vitest:current-product"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run test:vitest:current-product",
+      "neutralCommand": "vitest run v10.test",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    },
+    {
+      "legacyName": "v8:inventory-report",
+      "neutralAlias": "report:surface-inventory",
+      "owner": "platform-hardening",
+      "status": "alias_added",
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
+      "validationCommands": {
+        "legacy": "npm run v8:inventory-report",
+        "neutral": "npm run report:surface-inventory"
+      },
+      "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
+      "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
+      "legacyCommand": "npm run report:surface-inventory",
+      "neutralCommand": "node scripts/product-surface-inventory-report.mjs",
+      "aliasDirection": "legacy_to_neutral",
+      "referenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
+      "docsOnlyReferenceCount": 0,
+      "generatedArtifactReferenceCount": 0,
+      "externalOrManualReferenceCount": 0,
+      "blockerCategoryCounts": {
+        "docs_only": 0,
+        "external_or_manual": 0,
+        "generated_artifact": 0,
+        "ready_for_removal": 0,
+        "repo_local": 0
+      },
+      "references": [
+        {
+          "path": "scripts/check-compatibility-removal-queue.mjs",
+          "class": "tooling"
+        }
+      ],
+      "blockingReferences": []
+    }
+  ]
+}

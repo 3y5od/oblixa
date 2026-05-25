@@ -34,10 +34,10 @@ export function exerciseV6CronRouteShell(input: V6CronShellCase) {
           rateLimitCheck,
         };
       });
-      vi.doMock("@/lib/v6/feature-guards", () => ({
+      vi.doMock("@/lib/assurance/feature-guards", () => ({
         requireV6CronFeature,
       }));
-      vi.doMock("@/lib/v6/cron", () => ({
+      vi.doMock("@/lib/assurance/cron", () => ({
         listOrganizationIds,
         logV6Cron,
         v6CronRunMetadata: (orgsProcessed: number, _startedAtMs: number, errorsCount = 0) => ({
@@ -46,7 +46,7 @@ export function exerciseV6CronRouteShell(input: V6CronShellCase) {
           errors_count: errorsCount,
         }),
       }));
-      vi.doMock("@/lib/v6/cron-jobs", () => ({
+      vi.doMock("@/lib/assurance/cron-jobs", () => ({
         [input.jobExportName]: jobHandler,
       }));
 

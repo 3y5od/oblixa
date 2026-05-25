@@ -1,5 +1,5 @@
-import { v9OutcomeLabel } from "./v9-outcome-semantics";
-import { normalizeV10JobStatus } from "./v10-job-visibility";
+import { v9OutcomeLabel } from "./outcome-semantics";
+import { normalizeV10JobStatus } from "./job-visibility";
 
 export type ExportJobVisibilityInput = {
   status: string;

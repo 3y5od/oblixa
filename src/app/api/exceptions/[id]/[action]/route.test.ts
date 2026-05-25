@@ -7,12 +7,12 @@ const recordV10AuditEvent = vi.fn();
 const refreshV10ReadModelsForOrganization = vi.fn();
 const emitProductTelemetryEvent = vi.fn();
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
 
-vi.mock("@/lib/v4/casefile", () => ({
+vi.mock("@/lib/contract-operations/casefile", () => ({
   appendCasefileEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -29,7 +29,7 @@ vi.mock("@/lib/product-telemetry", () => ({
   emitProductTelemetryEvent,
 }));
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10IdempotentMutation: async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({
     response: await execute(),
     replayed: false,
@@ -39,7 +39,7 @@ vi.mock("@/lib/v10-server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 

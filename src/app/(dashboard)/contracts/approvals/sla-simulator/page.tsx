@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock3 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { SlaSimulatorClient } from "@/components/v4/sla-simulator-client";
+import { SlaSimulatorClient } from "@/components/sla-simulator-client";
 
 export default async function ApprovalSlaSimulatorPage() {
   const ctx = await getAuthContext();

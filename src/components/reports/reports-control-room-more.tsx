@@ -17,12 +17,12 @@ import {
   OperationalSectionHeader,
   OperationalSummaryCard,
 } from "@/components/ui/operational-summary-card";
-import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/v5/capacity-forecast-keys";
-import type { V5SignalQualityDisplayRow } from "@/lib/v5/v5-signal-quality-labels";
-import type { OutcomeInterventionRow } from "@/lib/v6/outcomes";
-import type { computeOutcomeViews, listOutcomeInterventionsPaginated } from "@/lib/v6/outcomes";
+import { CAPACITY_FORECAST_JSON_KEYS } from "@/lib/decision-intelligence/capacity-forecast-keys";
+import type { SignalQualityDisplayRow } from "@/lib/decision-intelligence/signal-quality-labels";
+import type { OutcomeInterventionRow } from "@/lib/assurance/outcomes";
+import type { computeOutcomeViews, listOutcomeInterventionsPaginated } from "@/lib/assurance/outcomes";
 
-type SignalQualityRow = V5SignalQualityDisplayRow;
+type SignalQualityRow = SignalQualityDisplayRow;
 type OutcomeIntelResult = Awaited<ReturnType<typeof computeOutcomeViews>>;
 type OutcomeDrilldownResult = Awaited<ReturnType<typeof listOutcomeInterventionsPaginated>>;
 
@@ -553,3 +553,7 @@ export function ReportsOutcomeIntelligenceSection(props: {
     </section>
   );
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { ReportsV5SignalQualitySection as ReportsSignalQualitySection };
+// End version-name compatibility aliases.

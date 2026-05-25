@@ -1045,6 +1045,32 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/contact:
+    post:
+      operationId: post_contact
+      summary: POST /api/contact
+      description: Generated route contract for src/app/api/contact/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/contracts/recompute-signals: {}
   /api/control-policies/{id}/assign:
     post:
@@ -1219,6 +1245,39 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/cron/approvals-sla: {}
+  /api/cron/assurance-checks: {}
+  /api/cron/attestations-issue: {}
+  /api/cron/autopilot-dry-run: {}
+  /api/cron/autopilot-execution: {}
+  /api/cron/campaign-progress: {}
+  /api/cron/capacity-forecast-refresh: {}
+  /api/cron/control-policy-reevaluation: {}
+  /api/cron/decision-sla-monitor: {}
+  /api/cron/escalations-dispatch: {}
+  /api/cron/evidence-followup: {}
+  /api/cron/exceptions-detect: {}
+  /api/cron/external-followup: {}
+  /api/cron/external-workflow-deadlines: {}
+  /api/cron/finding-refresh: {}
+  /api/cron/health-graph-rollups: {}
+  /api/cron/idempotency-cleanup: {}
+  /api/cron/onboarding-calibration-stale: {}
+  /api/cron/outcome-effectiveness: {}
+  /api/cron/playbook-follow-up-assurance: {}
+  /api/cron/portfolio-risk-recompute: {}
+  /api/cron/programs-reconcile: {}
+  /api/cron/read-model-refresh: {}
+  /api/cron/recommendation-refresh: {}
+  /api/cron/relationship-rollups: {}
+  /api/cron/renewals-recompute-signals: {}
+  /api/cron/report-packs-generate: {}
+  /api/cron/review-board-packet-generation: {}
+  /api/cron/runtime-artifact-cleanup: {}
+  /api/cron/scorecard-recompute: {}
+  /api/cron/security/retention-cleanup: {}
+  /api/cron/segment-recompute: {}
+  /api/cron/simulation-snapshots: {}
   /api/cron/stripe-webhook-events: {}
   /api/cron/v10/idempotency-cleanup: {}
   /api/cron/v10/read-model-refresh: {}
@@ -1731,6 +1790,32 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/evidence/requests/{id}/remind:
+    post:
+      operationId: post_evidence_requests_by_id_remind
+      summary: POST /api/evidence/requests/{id}/remind
+      description: Generated route contract for src/app/api/evidence/requests/[id]/remind/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/evidence/requests:
     post:
       operationId: post_evidence_requests
@@ -2013,6 +2098,50 @@ paths:
           description: Conflict
         "413":
           description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/renewals:
+    get:
+      operationId: get_export_renewals
+      summary: GET /api/export/renewals
+      description: Generated route contract for src/app/api/export/renewals/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/export/reports:
+    get:
+      operationId: get_export_reports
+      summary: GET /api/export/reports
+      description: Generated route contract for src/app/api/export/reports/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
         "429":
           description: Rate limited
         "500":
@@ -3574,6 +3703,32 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/security/csp-report:
+    post:
+      operationId: post_security_csp_report
+      summary: POST /api/security/csp-report
+      description: Generated route contract for src/app/api/security/csp-report/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/segments/{id}/recompute:
     post:
       operationId: post_segments_by_id_recompute
@@ -3773,6 +3928,50 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/stripe/invoices/{id}/pdf:
+    get:
+      operationId: get_stripe_invoices_by_id_pdf
+      summary: GET /api/stripe/invoices/{id}/pdf
+      description: Generated route contract for src/app/api/stripe/invoices/[id]/pdf/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/stripe/invoices:
+    get:
+      operationId: get_stripe_invoices
+      summary: GET /api/stripe/invoices
+      description: Generated route contract for src/app/api/stripe/invoices/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/stripe/portal:
     post:
       operationId: post_stripe_portal
@@ -3948,6 +4147,7 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
+  /api/workspace/settings: {}
   /api/workspace/v6-settings:
     get:
       operationId: get_workspace_v6_settings

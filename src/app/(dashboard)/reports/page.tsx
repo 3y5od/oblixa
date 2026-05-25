@@ -3,7 +3,7 @@ import { ArrowUpRight, BarChart3, Download } from "lucide-react";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UiSelect } from "@/components/ui/ui-select";
 import { UiTabs } from "@/components/ui/ui-tabs";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -80,7 +80,7 @@ export default async function ReportsPage(props: {
         // above the actual report content. Reason text + action link
         // already convey the recoverability; the standard-density card
         // was over-prominent for a transient partial-data state.
-        <V10RecoverableState
+        <RecoverableState
           state="partial"
           density="compact"
           title={REPORTS_PARTIAL_DATA_TITLE}

@@ -283,3 +283,9 @@ export function hrefV9SevenNotificationClass(key: V9SevenNotificationClassKey): 
     }
   }
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { hrefV9SevenNotificationClass as hrefSevenNotificationClass };
+export { V9_SEVEN_NOTIFICATION_CLASS_KEYS as SEVEN_NOTIFICATION_CLASS_KEYS };
+export type { V9SevenNotificationClassKey as SevenNotificationClassKey };
+// End version-name compatibility aliases.

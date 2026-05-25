@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -31,8 +32,14 @@ const Ctx = createContext<ToastContextValue | null>(null);
 
 export function UiToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
+  const dismissTimersRef = useRef<Map<string, number>>(new Map());
 
   const dismiss = useCallback((id: string) => {
+    const timer = dismissTimersRef.current.get(id);
+    if (timer != null) {
+      window.clearTimeout(timer);
+      dismissTimersRef.current.delete(id);
+    }
     setItems((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
@@ -42,7 +49,8 @@ export function UiToastProvider({ children }: { children: ReactNode }) {
       setItems((prev) => [...prev, { ...toast, id }]);
       if (toast.tone !== "loading") {
         const duration = toast.durationMs ?? 4000;
-        setTimeout(() => dismiss(id), duration);
+        const timer = window.setTimeout(() => dismiss(id), duration);
+        dismissTimersRef.current.set(id, timer);
       }
       return id;
     },
@@ -50,6 +58,16 @@ export function UiToastProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(() => ({ show, dismiss }), [show, dismiss]);
+
+  useEffect(() => {
+    const dismissTimers = dismissTimersRef.current;
+    return () => {
+      for (const timer of dismissTimers.values()) {
+        window.clearTimeout(timer);
+      }
+      dismissTimers.clear();
+    };
+  }, []);
 
   return (
     <Ctx.Provider value={value}>
@@ -113,8 +131,8 @@ function ToneIcon({ tone }: { tone: ToastTone }) {
 function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
   const [entered, setEntered] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setEntered(true), 10);
-    return () => clearTimeout(t);
+    const t = window.setTimeout(() => setEntered(true), 10);
+    return () => window.clearTimeout(t);
   }, []);
 
   return (

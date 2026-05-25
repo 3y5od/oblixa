@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { UiSelect } from "@/components/ui/ui-select";
-import { mutateV10 } from "@/lib/v10-api-client";
+import { mutateV10 } from "@/lib/api-client";
 import { EVIDENCE_ACTION_LABELS } from "@/lib/evidence/spec-strings";
 import type { EvidenceCreateModel } from "@/lib/evidence/types";
 

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { readEffectiveRouteSource } from "./lib/build-route-universe.mjs";
 
 const ROOT = process.cwd();
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -118,7 +119,7 @@ export function analyzeMutationRaceSafety(root = ROOT) {
       continue;
     }
 
-    const handlerSource = handlerBlockFromSource(fs.readFileSync(abs, "utf8"), method);
+    const handlerSource = handlerBlockFromSource(readEffectiveRouteSource(abs), method);
     const signals = detectSignals(handlerSource);
     for (const signal of signals) signalCounts[signal] = (signalCounts[signal] ?? 0) + 1;
 

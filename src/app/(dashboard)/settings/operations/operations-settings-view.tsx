@@ -176,13 +176,12 @@ export function OperationsSettingsView({
   useEffect(() => {
     if (prevCountRef.current === enabledReminderCount) return;
     prevCountRef.current = enabledReminderCount;
-    if (enabledReminderCount === totalReminderCount) {
-      setAnnouncement("All reminder categories enabled");
-    } else {
-      setAnnouncement(
-        `${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`
-      );
-    }
+    const nextAnnouncement =
+      enabledReminderCount === totalReminderCount
+        ? "All reminder categories enabled"
+        : `${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`;
+    const t = setTimeout(() => setAnnouncement(nextAnnouncement), 0);
+    return () => clearTimeout(t);
   }, [enabledReminderCount, totalReminderCount]);
 
   // V3 T22.x — clear transient announcements after 4s.
@@ -269,19 +268,21 @@ export function OperationsSettingsView({
     setError(null);
     setMessage(null);
     const formData = new FormData(e.currentTarget);
-    startTransition(async () => {
-      const r = await upsertNotificationSettingsForm(formData);
-      if ("error" in r) {
-        setError(r.error);
+    startTransition(() => {
+      void (async () => {
+        const r = await upsertNotificationSettingsForm(formData);
+        if ("error" in r) {
+          setError(r.error);
+          setAnnouncement(
+            SETTINGS_NOTIFICATIONS_STRINGS.saveErrorAnnouncement
+          );
+          return;
+        }
+        setMessage(SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement);
         setAnnouncement(
-          SETTINGS_NOTIFICATIONS_STRINGS.saveErrorAnnouncement
+          SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement
         );
-        return;
-      }
-      setMessage(SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement);
-      setAnnouncement(
-        SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement
-      );
+      })();
     });
   }
 

@@ -1,7 +1,7 @@
 {
   "match": true,
   "hashes": {
-    "packageLock": "e493428d2cc33e3f4294e937a3cd4267d94646e87dc220cbc38af73cde48a87b"
+    "packageLock": "b750917e16cb98a625d32ac2a7d5ab4b760a7abc3d78a730f2ce7bc1a6faee0b"
   },
   "note": "Extend with .next/static subset when nightly compares two builds."
 }

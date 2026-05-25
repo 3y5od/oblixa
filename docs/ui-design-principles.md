@@ -223,7 +223,7 @@ Three coordinated treatments for `isZero`:
 
 Never apply `opacity-*` to dim a zero card — the muted tone-tinting already de-emphasizes without washing out the green semantics.
 
-Canonical implementation: `src/components/v4/command-center-role-metrics.tsx`.
+Canonical implementation: `src/components/command-center-role-metrics.tsx`.
 
 ## 3. Typography
 
@@ -879,7 +879,7 @@ When in doubt, look at the canonical implementation:
 | Page-lead ChipCapsule (count + action capsule) | `src/components/ui/chip-capsule.tsx` |
 | ChipPair (weight gradation, no middle-dot) | `src/components/ui/chip-pair.tsx` |
 | Time / Ratio / KeyValue / Count / Action chip primitives | `src/components/ui/time-chip.tsx`, `ratio-chip.tsx`, `key-value-chip.tsx`, `count-chip.tsx`, `action-chip.tsx` |
-| Live portfolio metric strip with zero-state Check medallion | `src/components/v4/command-center-role-metrics.tsx` |
+| Live portfolio metric strip with zero-state Check medallion | `src/components/command-center-role-metrics.tsx` |
 | Mini calendar with today ring + event-count chip | `src/components/ui/mini-calendar.tsx` |
 | Right-rail Pulse panel (key/value rows with reserved tone-dot slot) | `src/components/dashboard/pulse-panel.tsx` |
 | Right-rail Data quality (arc + tone-coded metric bars + 0%-pulse) | `src/components/dashboard/data-quality-score.tsx` |
@@ -899,7 +899,7 @@ When in doubt, look at the canonical implementation:
 Tests pin specific design-contract substrings (page titles, key copy, structural assertions). When evolving the design, update tests to reflect the new contract — don't preserve a literal that no longer matches the intent. Test files near the relevant code:
 
 - `src/app/(dashboard)/settings/settings-page-refinement.test.ts`
-- `src/app/(dashboard)/settings/health/settings-health-visible-impact.v9.test.ts`
+- `src/app/(dashboard)/settings/health/settings-health-visible-impact.test.ts`
 - `src/components/auth/auth-form.ui.test.tsx`
 - `src/components/landing/marketing-site-chrome.ui.test.tsx`
 - `src/lib/qa/ui-quality-sweep.test.ts`

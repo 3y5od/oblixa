@@ -9,7 +9,7 @@ import { EvidenceSubmissionForm } from "./evidence-submission-form";
 
 const submitEvidenceNoteAction = vi.fn();
 
-vi.mock("@/actions/v4", () => ({
+vi.mock("@/actions/policy-operations", () => ({
   submitEvidenceNoteAction,
 }));
 

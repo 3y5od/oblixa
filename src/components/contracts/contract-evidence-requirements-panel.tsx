@@ -73,6 +73,7 @@ export function ContractEvidenceRequirementsPanel({
           key={r.id}
           className="rounded-lg border border-[var(--border-subtle)] px-3 py-3"
           data-v9-evidence-req-status={r.status}
+          data-evidence-req-status={r.status}
         >
           {(() => {
             const latestSubmission = latestSubmissionByRequirement?.[r.id];

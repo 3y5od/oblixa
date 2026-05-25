@@ -31,7 +31,7 @@ export async function TrendsSection({ orgId }: TrendsSectionProps) {
       SERIES_ACTIONS.map((s) => s.action)
     )
     .gte("created_at", sinceIso)
-    .limit(5000);
+    .range(0, 4999);
 
   const events = (rows ?? []) as Array<{ action: string; created_at: string }>;
   if (events.length === 0) return null;

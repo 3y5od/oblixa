@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import { jsonForbidden, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { canManageCapability, getApiAuthContext } from "@/lib/v4/api-auth";
-import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/v4/policy-registry";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV5ApiFeature } from "@/lib/v5/feature-guards";
+import { canManageCapability, getApiAuthContext } from "@/lib/contract-operations/api-auth";
+import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { buildSimulationTypeSpecificSignals } from "@/lib/v5/simulation-type-metrics";
+import { buildSimulationTypeSpecificSignals } from "@/lib/decision-intelligence/simulation-type-metrics";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import {
   SIMULATION_TYPE_FOCUS,
   isValidSimulationType,
   simulationTypeValidationError,
-} from "@/lib/v5/simulation-types";
+} from "@/lib/decision-intelligence/simulation-types";
 
 const ROUTE = "/api/simulations/run";
 

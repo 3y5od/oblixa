@@ -7,19 +7,19 @@
 # meta: reviewedOn=2026-05-11 owner=@api-surface expiry=2027-12-31 reason=bundled lifecycle route tests cover preview mutations. bundleProofTest=app/api/campaigns/[id]/lifecycle-routes.test.ts
 campaigns/[id]/preview/route.ts
 
-# cron/v5/v5-crons-feature-skip.test.ts
-# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v5 suite covers feature-gated cron handlers as a bundle. bundleProofTest=app/api/cron/v5/v5-crons-feature-skip.test.ts
+# cron/v5/crons-feature-skip.test.ts
+# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v5 suite covers feature-gated cron handlers as a bundle. bundleProofTest=app/api/cron/v5/crons-feature-skip.test.ts
 
-# intelligence/v5-intelligence-routes.test.ts
-# meta: reviewedOn=2026-05-11 owner=@v5-intelligence expiry=2027-12-31 reason=intelligence bundle test exercises v5 portfolio and decision intelligence endpoints. bundleProofTest=app/api/intelligence/v5-intelligence-routes.test.ts
+# intelligence/intelligence-routes.test.ts
+# meta: reviewedOn=2026-05-11 owner=@v5-intelligence expiry=2027-12-31 reason=intelligence bundle test exercises v5 portfolio and decision intelligence endpoints. bundleProofTest=app/api/intelligence/intelligence-routes.test.ts
 intelligence/decision-queue/route.ts
 intelligence/portfolio-by-counterparty/route.ts
 intelligence/portfolio-by-program/route.ts
 intelligence/portfolio-signals/route.ts
 intelligence/recommendations/route.ts
 
-# v6-api-feature-gate.test.ts + security-org-scope-queries.test.ts (findings GET also needs Request URL in callers)
-# meta: reviewedOn=2026-05-11 owner=@v6-assurance expiry=2027-12-31 reason=v6 assurance integration tests assert auth, mode gates, and org scope across grouped handlers. bundleProofTest=app/api/v6-api-feature-gate.test.ts
+# api-feature-gate.test.ts + security-org-scope-queries.test.ts (findings GET also needs Request URL in callers)
+# meta: reviewedOn=2026-05-11 owner=@v6-assurance expiry=2027-12-31 reason=v6 assurance integration tests assert auth, mode gates, and org scope across grouped handlers. bundleProofTest=app/api/api-feature-gate.test.ts
 assurance/findings/route.ts
 assurance/scorecards/route.ts
 assurance/analytics/summary/route.ts
@@ -32,10 +32,9 @@ review-boards/[id]/runs/route.ts
 
 # workspace v6 org settings
 
-# cron/v6/v6-crons-feature-skip.test.ts
-# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v6 suite validates auth + feature gate behavior for v6 cron surfaces. bundleProofTest=app/api/cron/v6/v6-crons-feature-skip.test.ts
+# cron/v6/crons-feature-skip.test.ts
+# meta: reviewedOn=2026-05-11 owner=@cron expiry=2027-12-31 reason=cron-v6 suite validates auth + feature gate behavior for v6 cron surfaces. bundleProofTest=app/api/cron/v6/crons-feature-skip.test.ts
 
 # v9 command palette / telemetry / navigation surface bundles
-# meta: reviewedOn=2026-05-11 owner=@v9-core-surface expiry=2027-12-31 reason=v9 route, telemetry, and product-surface suites cover these grouped Core surface APIs. bundleProofTest=lib/v10-no-exclusions-matrix.v10.test.ts
-command-palette/contracts/route.ts
+# meta: reviewedOn=2026-05-11 owner=@v9-core-surface expiry=2027-12-31 reason=v9 route, telemetry, and product-surface suites cover these grouped Core surface APIs. bundleProofTest=lib/no-exclusions-matrix.test.ts
 workspace/nav-badges/route.ts

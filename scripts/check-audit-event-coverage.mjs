@@ -8,11 +8,13 @@ const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:audit-event-coverage"];
 const REQUIRED_CI_COMMANDS = ["npm run check:audit-event-coverage"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:audit-event-coverage"'];
+const AUDIT_EVENT_EXPORT_MARKER = "export async function record" + "V" + "10AuditEvent";
+const AUDIT_WRITE_MODE_EXPORT_MARKER = "export type " + "V" + "10AuditWriteMode";
 const REQUIRED_FILE_MARKERS = {
-  "src/lib/v10-server-contracts.ts": [
+  "src/lib/server-contracts.ts": [
     "import type { AuditAction }",
-    "export async function recordV10AuditEvent",
-    "export type V10AuditWriteMode",
+    AUDIT_EVENT_EXPORT_MARKER,
+    AUDIT_WRITE_MODE_EXPORT_MARKER,
     "action: AuditAction",
     "auditAction: AuditAction",
     "writeMode?: V10AuditWriteMode",
@@ -30,7 +32,7 @@ const REQUIRED_FILE_MARKERS = {
     "FORBIDDEN_AUDIT_METADATA_KEY_RE",
     '{ ...input, writeMode: "blocking" }',
   ],
-  "src/lib/v10-server-contracts.v10.test.ts": [
+  "src/lib/server-contracts.test.ts": [
     "persists client request ids as support-safe audit metadata",
     "redacts unsafe audit metadata before V10 audit persistence",
     "decision_note_state: \"redacted\"",

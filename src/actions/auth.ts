@@ -180,7 +180,7 @@ async function signInUnsafe(formData: FormData): Promise<AuthActionResult> {
   if (error) {
     const elapsed = Date.now() - t0;
     await new Promise((r) => setTimeout(r, Math.max(0, 200 - elapsed)));
-    return { error: mapAuthError(error) };
+    return { error: mapAuthError(error.message) };
   }
 
   if (data.user) {

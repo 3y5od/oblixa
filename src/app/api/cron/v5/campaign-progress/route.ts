@@ -1,8 +1,8 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { requireV5CronFeature } from "@/lib/v5/feature-guards";
-import { listOrganizationIds } from "@/lib/v5/cron";
-import { incrementOrgV5SignalQuality } from "@/lib/v5/persist-signal-quality";
+import { requireV5CronFeature } from "@/lib/decision-intelligence/feature-guards";
+import { listOrganizationIds } from "@/lib/decision-intelligence/cron";
+import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 
 type CampaignContractSegRow = {

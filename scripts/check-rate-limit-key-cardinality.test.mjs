@@ -35,7 +35,7 @@ const requiredFiles = {
   "src/app/api/external-actions/[token]/status/route.ts": "rateLimitCheck(`external-status:token-hash:${tokenKey}`\n",
   "src/app/api/external-actions/[token]/participant/workflow-step/route.ts": "rateLimitCheck(\n    `external-participant-workflow:token-hash:${tokenKey}`\n",
   "src/app/api/stripe/webhook/route.ts": "rateLimitCheck(`stripe-webhook:account:${event.account ?? \"platform\"}:${event.type}`\n",
-  "src/lib/v6/cron-route-runner.ts": "rateLimitKey: options.rateLimitKey ?? `cron:v6:${options.route.split(\"/\").pop() ?? \"job\"}`\n",
+  "src/lib/assurance/cron-route-runner.ts": "rateLimitKey: options.rateLimitKey ?? `cron:v6:${options.route.split(\"/\").pop() ?? \"job\"}`\n",
   "src/app/api/cron/example/route.ts": "export const GET = withCronRoute({ route: \"/api/cron/example\", rateLimitKey: \"cron:example\" });\n",
 };
 

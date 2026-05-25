@@ -5,7 +5,7 @@ import type {
 } from "@/lib/product-surface/types";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
-import { V10_CORE_REPORT_FAMILIES } from "@/lib/v10-release-contract";
+import { V10_CORE_REPORT_FAMILIES } from "@/lib/release-contract";
 
 export type FeatureState = "primary" | "secondary" | "hidden" | "admin_only" | "disabled";
 export type FeatureLifecycle =
@@ -16,8 +16,13 @@ export type FeatureLifecycle =
   | "retired_visible"
   | "retired_hidden";
 
-export type V8FeatureDiscoverability = "normal" | "deep_link_only" | "hidden";
-export type V8AdminRevealPolicy = "none" | "admin_only";
+export type FeatureDiscoverabilityPolicy = "normal" | "deep_link_only" | "hidden";
+export type AdminRevealPolicy = "none" | "admin_only";
+
+/** @deprecated Use FeatureDiscoverabilityPolicy. */
+export type V8FeatureDiscoverability = FeatureDiscoverabilityPolicy;
+/** @deprecated Use AdminRevealPolicy. */
+export type V8AdminRevealPolicy = AdminRevealPolicy;
 
 export type FeatureFamilyKey =
   | "contracts"
@@ -70,8 +75,8 @@ export type ProductFeatureDef = {
   contextualEntryAllowed: boolean;
   deepLinkAllowed: boolean;
   adminRevealAllowed: boolean;
-  v8Discoverability?: V8FeatureDiscoverability;
-  v8AdminRevealPolicy?: V8AdminRevealPolicy;
+  v8Discoverability?: FeatureDiscoverabilityPolicy;
+  v8AdminRevealPolicy?: AdminRevealPolicy;
   /** Optional explicit mappings; falls back to route/api prefixes and label-derived defaults. */
   owningPagePatterns?: string[];
   owningApiPrefixes?: string[];
@@ -213,7 +218,15 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
     label: "Reports",
     ...CORE_DEF,
     routePrefixes: ["/reports", "/contracts/reports"],
-    apiPrefixes: ["/reports", "/report-packs", "/report-runs", "/export/contracts", "/export/review-packet", "/export/calendar"],
+    apiPrefixes: [
+      "/reports",
+      "/report-packs",
+      "/report-runs",
+      "/export/contracts",
+      "/export/reports",
+      "/export/review-packet",
+      "/export/calendar",
+    ],
   },
   {
     key: "settings",
@@ -374,42 +387,63 @@ export function featureRegistryByKey(): Map<FeatureFamilyKey, ProductFeatureDef>
   return new Map(PRODUCT_FEATURE_REGISTRY.map((row) => [row.key, row]));
 }
 
-export function v8DiscoverabilityForFeature(def: ProductFeatureDef): V8FeatureDiscoverability {
+export function discoverabilityForFeature(def: ProductFeatureDef): FeatureDiscoverabilityPolicy {
   if (def.v8Discoverability) return def.v8Discoverability;
   if (def.lifecycle === "retired_hidden" || def.defaultFeatureState === "disabled") return "hidden";
   if (!def.contextualEntryAllowed && def.deepLinkAllowed) return "deep_link_only";
   return "normal";
 }
 
-export function v8AdminRevealPolicyForFeature(def: ProductFeatureDef): V8AdminRevealPolicy {
+/** @deprecated Use discoverabilityForFeature. */
+export const v8DiscoverabilityForFeature = discoverabilityForFeature;
+
+export function adminRevealPolicyForFeature(def: ProductFeatureDef): AdminRevealPolicy {
   if (def.v8AdminRevealPolicy) return def.v8AdminRevealPolicy;
   return def.adminRevealAllowed ? "admin_only" : "none";
 }
 
-export function v8OwningPagePatternsForFeature(def: ProductFeatureDef): string[] {
+/** @deprecated Use adminRevealPolicyForFeature. */
+export const v8AdminRevealPolicyForFeature = adminRevealPolicyForFeature;
+
+export function owningPagePatternsForFeature(def: ProductFeatureDef): string[] {
   if (def.owningPagePatterns?.length) return [...new Set(def.owningPagePatterns)];
   return [...new Set(def.routePrefixes)];
 }
 
-export function v8OwningApiPrefixesForFeature(def: ProductFeatureDef): string[] {
+/** @deprecated Use owningPagePatternsForFeature. */
+export const v8OwningPagePatternsForFeature = owningPagePatternsForFeature;
+
+export function owningApiPrefixesForFeature(def: ProductFeatureDef): string[] {
   if (def.owningApiPrefixes?.length) return [...new Set(def.owningApiPrefixes)];
   return [...new Set(def.apiPrefixes)];
 }
 
-export function v8OwningActionIdsForFeature(def: ProductFeatureDef): string[] {
+/** @deprecated Use owningApiPrefixesForFeature. */
+export const v8OwningApiPrefixesForFeature = owningApiPrefixesForFeature;
+
+export function owningActionIdsForFeature(def: ProductFeatureDef): string[] {
   if (def.owningActionIds?.length) return [...new Set(def.owningActionIds)];
   return [];
 }
 
-export function v8CommandVocabularyForFeature(def: ProductFeatureDef): string[] {
+/** @deprecated Use owningActionIdsForFeature. */
+export const v8OwningActionIdsForFeature = owningActionIdsForFeature;
+
+export function commandVocabularyForFeature(def: ProductFeatureDef): string[] {
   if (def.commandVocabulary?.length) return [...new Set(def.commandVocabulary)];
   return [def.label.toLowerCase(), def.key.replaceAll("_", " ")];
 }
 
-export function v8SearchVocabularyForFeature(def: ProductFeatureDef): string[] {
+/** @deprecated Use commandVocabularyForFeature. */
+export const v8CommandVocabularyForFeature = commandVocabularyForFeature;
+
+export function searchVocabularyForFeature(def: ProductFeatureDef): string[] {
   if (def.searchVocabulary?.length) return [...new Set(def.searchVocabulary)];
   return [def.label.toLowerCase(), def.key.replaceAll("_", " ")];
 }
+
+/** @deprecated Use searchVocabularyForFeature. */
+export const v8SearchVocabularyForFeature = searchVocabularyForFeature;
 
 const FEATURE_LABEL_BY_KEY = new Map(PRODUCT_FEATURE_REGISTRY.map((row) => [row.key, row.label] as const));
 
@@ -541,3 +575,7 @@ export function minWorkspaceModeForReportsHash(hash: string): WorkspaceProductMo
   const row = REPORT_HASH_MAP.find((v) => v.hash === normalized);
   return row?.minWorkspaceMode ?? "core";
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export type { V8FeatureDiscoverability as FeatureDiscoverability };
+// End version-name compatibility aliases.

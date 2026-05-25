@@ -4,11 +4,11 @@ const requireV6Context = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
 const enforceIdempotency = vi.fn(async () => null as Response | null);
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/v6/api-auth", () => ({
+vi.mock("@/lib/assurance/api-auth", () => ({
   requireV6Context: (...args: unknown[]) => requireV6Context(...args),
 }));
 

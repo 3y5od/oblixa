@@ -211,7 +211,8 @@ describe("Refinement §14 — page restructure pins", () => {
   // §14.1 none state — premium empty-state takeover suppresses STATUS metaStrip
   it("§14.1 free-plan admin renders premium-card empty state (replaces dl)", () => {
     expect(pageSrc).toContain("Choose a plan");
-    expect(pageSrc).toContain("landing-corner-ring");
+    expect(pageSrc).toContain("rounded-full border border-[color:color-mix");
+    expect(pageSrc).not.toContain("landing-corner-ring");
     expect(pageSrc).toContain('aria-labelledby="billing-empty-title"');
   });
 

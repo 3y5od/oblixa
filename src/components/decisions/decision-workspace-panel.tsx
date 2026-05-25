@@ -10,13 +10,13 @@ import {
   DECISION_TYPES,
   DECISION_TYPE_LABELS,
   type DecisionType,
-} from "@/lib/v5/decision-types";
+} from "@/lib/decision-intelligence/decision-types";
 import {
   isValidPacketType,
   PACKET_TYPES,
   PACKET_TYPE_LABELS,
   type PacketType,
-} from "@/lib/v5/packet-types";
+} from "@/lib/decision-intelligence/packet-types";
 
 type Props = {
   decisionId: string;

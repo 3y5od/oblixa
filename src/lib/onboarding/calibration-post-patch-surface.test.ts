@@ -12,7 +12,7 @@ import {
   finalizeRecommendation,
   recommendationToV6Patch,
 } from "@/lib/onboarding/calibration-map";
-import type { V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { OrgSettingsJson } from "@/lib/assurance/org-settings";
 
 const flags = getFeatureFlags();
 
@@ -49,7 +49,7 @@ describe("calibration recommendation → V6 patch → surface (search_scope / ho
   it("core recommendation sets core_only search_scope and hides outcome_intelligence on home", () => {
     const rec = finalizeRecommendation(baseAnswers(), flags);
     const patch = recommendationToV6Patch(rec);
-    const v6 = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patch } as V6OrgSettingsJson;
+    const v6 = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patch } as OrgSettingsJson;
     expect(rec.recommended_workspace_mode).toBe("core");
     expect(patch.search_scope).toBe("core_only");
     expect(v6.search_scope).toBe("core_only");
@@ -77,7 +77,7 @@ describe("calibration recommendation → V6 patch → surface (search_scope / ho
       flags
     );
     const patch = recommendationToV6Patch(rec);
-    const v6 = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patch } as V6OrgSettingsJson;
+    const v6 = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patch } as OrgSettingsJson;
     expect(rec.recommended_workspace_mode).toBe("advanced");
     expect(patch.search_scope).toBe("match_mode");
     const ctx = buildProductSurfaceContext({
@@ -97,7 +97,7 @@ describe("calibration recommendation → V6 patch → surface (search_scope / ho
   it("§18.1 — core_only search_scope filters cmd-K recent hrefs more aggressively than match_mode for the same list", () => {
     const recCore = finalizeRecommendation(baseAnswers(), flags);
     const patchCore = recommendationToV6Patch(recCore);
-    const v6Core = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patchCore } as V6OrgSettingsJson;
+    const v6Core = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patchCore } as OrgSettingsJson;
 
     const recAdv = finalizeRecommendation(
       baseAnswers({
@@ -108,7 +108,7 @@ describe("calibration recommendation → V6 patch → surface (search_scope / ho
       flags
     );
     const patchAdv = recommendationToV6Patch(recAdv);
-    const v6Adv = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patchAdv } as V6OrgSettingsJson;
+    const v6Adv = { ...NEW_WORKSPACE_V6_ORG_SETTINGS_JSON, ...patchAdv } as OrgSettingsJson;
 
     const hrefs = ["/contracts/review", "/decisions", "/campaigns"];
 

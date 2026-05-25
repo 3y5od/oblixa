@@ -31,7 +31,7 @@ import {
   parseOnboardingCalibration,
 } from "@/lib/onboarding/calibration-types";
 import type { WorkspaceProductMode } from "@/lib/product-surface/types";
-import { getV6OrgSettingsJson, mergeV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson, mergeOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { applyWorkspaceProductTransitionSideEffects } from "@/lib/product-surface/workspace-transition";
 import {
@@ -148,7 +148,7 @@ export async function recordQuestionnaireStarted(): Promise<CalibrationActionRes
   if (!ctx || ctx.role !== "admin") return { ok: false, error: "Unauthorized." };
   const limited = await rateLimitOnboardingCalibration(ctx.user.id, "mutation");
   if (limited) return { ok: false, error: limited };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal?.blocking_required) return { ok: true };
   if (prevCal.status !== "pending" && prevCal.status !== "in_progress") return { ok: true };
@@ -157,7 +157,7 @@ export async function recordQuestionnaireStarted(): Promise<CalibrationActionRes
     status: "in_progress",
     questionnaire_started_at: started,
   });
-  const { error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+  const { error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
@@ -195,7 +195,7 @@ export async function saveQuestionnaireProgress(input: unknown): Promise<Calibra
   const raw = typeof input === "object" && input !== null ? stripPrototypePollutionKeys(input as never) : {};
   const parsed = partialAnswersSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Invalid progress payload." };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "Calibration is not available for this workspace." };
   const canEdit =
@@ -216,7 +216,7 @@ export async function saveQuestionnaireProgress(input: unknown): Promise<Calibra
     answers_required: Object.keys(mergedRequired).length > 0 ? mergedRequired : undefined,
     answers_optional: Object.keys(mergedOptional).length > 0 ? mergedOptional : undefined,
   });
-  const { error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+  const { error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
@@ -241,7 +241,7 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
   if (!ctx || ctx.role !== "admin") return { ok: false, error: "Unauthorized." };
   const limited = await rateLimitOnboardingCalibration(ctx.user.id, "mutation");
   if (limited) return { ok: false, error: limited };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "Calibration is not configured." };
   if (prevCal.status !== "completed" && prevCal.status !== "skipped") {
@@ -251,7 +251,7 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
     status: "in_progress",
     questionnaire_started_at: nowIso(),
   });
-  const { error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+  const { error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
@@ -278,7 +278,7 @@ export async function beginRecalibration(): Promise<CalibrationActionResult> {
 }
 
 function buildAppliedSnapshot(
-  merged: Awaited<ReturnType<typeof getV6OrgSettingsJson>>,
+  merged: Awaited<ReturnType<typeof getOrgSettingsJson>>,
   userId: string
 ): CalibrationAppliedSnapshot {
   return {
@@ -298,8 +298,8 @@ async function insertProductSurfaceAudit(input: {
   admin: NonNullable<Awaited<ReturnType<typeof getAuthContext>>>["admin"];
   orgId: string;
   userId: string;
-  prevV6: Awaited<ReturnType<typeof getV6OrgSettingsJson>>;
-  merged: Awaited<ReturnType<typeof getV6OrgSettingsJson>>;
+  prevV6: Awaited<ReturnType<typeof getOrgSettingsJson>>;
+  merged: Awaited<ReturnType<typeof getOrgSettingsJson>>;
   source: string;
   transition: Awaited<ReturnType<typeof applyWorkspaceProductTransitionSideEffects>>;
 }) {
@@ -361,7 +361,7 @@ export async function completeQuestionnaireAcceptRecommendation(
   const parsed = previewPayloadSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Invalid questionnaire payload." };
 
-  let prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  let prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   let prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "Calibration is not available." };
   let allowComplete =
@@ -369,7 +369,7 @@ export async function completeQuestionnaireAcceptRecommendation(
     (!prevCal.blocking_required && prevCal.status === "in_progress");
   if (!allowComplete) return { ok: false, error: "Questionnaire is already finished." };
 
-  prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "Calibration is not available." };
   if (prevCal.status === "completed") {
@@ -410,7 +410,7 @@ export async function completeQuestionnaireAcceptRecommendation(
 
   try {
     // §24.2 — single organizations.update per step: surface patch + onboarding_calibration subtree together.
-    const { data: merged, error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+    const { data: merged, error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
       ...v6Patch,
       onboarding_calibration: nextCalWithoutSnapshot,
     });
@@ -422,7 +422,7 @@ export async function completeQuestionnaireAcceptRecommendation(
       last_applied: snapshot,
     });
 
-    const { data: merged2, error: err2 } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+    const { data: merged2, error: err2 } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
       onboarding_calibration: finalCal,
     });
     if (err2 || !merged2) throw new Error(err2?.message ?? "merge calibration snapshot failed");
@@ -532,7 +532,7 @@ export async function completeQuestionnaireAcceptRecommendation(
         } satisfies CalibrationHistoryEntry,
       ].slice(-32),
     });
-    const { error: fbErr } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+    const { error: fbErr } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
       ...fallback,
       onboarding_calibration: failCal,
     });
@@ -583,13 +583,13 @@ async function completeMinimalPath(
   if (!ctx || ctx.role !== "admin") return { ok: false, error: "Unauthorized." };
   const limited = await rateLimitOnboardingCalibration(ctx.user.id, "mutation");
   if (limited) return { ok: false, error: limited };
-  let prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  let prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   let prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal?.blocking_required) return { ok: false, error: "Minimal path is only for first-run blocking." };
   if (prevCal.status !== "pending" && prevCal.status !== "in_progress") {
     return { ok: false, error: "Questionnaire is already finished." };
   }
-  prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (prevCal?.status === "completed" || prevCal?.status === "skipped") {
     revalidateCalibrationSurfaces();
@@ -623,13 +623,13 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
   if (!ctx || ctx.role !== "admin") return { ok: false, error: "Unauthorized." };
   const limited = await rateLimitOnboardingCalibration(ctx.user.id, "mutation");
   if (limited) return { ok: false, error: limited };
-  let prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  let prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   let prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal?.blocking_required) return { ok: false, error: "This path is only for first-run blocking." };
   if (prevCal.status !== "pending" && prevCal.status !== "in_progress") {
     return { ok: false, error: "Questionnaire is already finished." };
   }
-  prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (prevCal?.status === "completed") {
     revalidateCalibrationSurfaces();
@@ -656,7 +656,7 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
       } satisfies CalibrationHistoryEntry,
     ].slice(-32),
   });
-  const { error } = await mergeV6OrgSettingsJson(ctx.admin, ctx.orgId, {
+  const { error } = await mergeOrgSettingsJson(ctx.admin, ctx.orgId, {
     onboarding_calibration: nextCal,
   });
   if (error) return { ok: false, error: error.message };
@@ -707,7 +707,7 @@ export async function exportOnboardingCalibrationSupportJson(
   if (!ctx || ctx.role !== "admin") return { ok: false, error: "Unauthorized." };
   const limited = await rateLimitOnboardingCalibration(ctx.user.id, "export");
   if (limited) return { ok: false, error: limited };
-  const prevV6 = await getV6OrgSettingsJson(ctx.admin, ctx.orgId);
+  const prevV6 = await getOrgSettingsJson(ctx.admin, ctx.orgId);
   const prevCal = parseOnboardingCalibration(prevV6.onboarding_calibration);
   if (!prevCal) return { ok: false, error: "No calibration record." };
   const orgFingerprint = createHash("sha256").update(ctx.orgId).digest("hex").slice(0, 8);

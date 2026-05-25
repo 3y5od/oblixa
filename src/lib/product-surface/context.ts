@@ -16,8 +16,8 @@
 import { cache } from "react";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { getFeatureFlags } from "@/lib/feature-flags";
-import type { AdminClient } from "@/lib/v6/service";
-import { getV6OrgSettingsJson, type V6OrgSettingsJson } from "@/lib/v6/org-settings";
+import type { AdminClient } from "@/lib/assurance/service";
+import { getOrgSettingsJson, type OrgSettingsJson } from "@/lib/assurance/org-settings";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type {
   AdvancedNavModuleKey,
@@ -37,7 +37,7 @@ export type ProductSurfaceContext = {
   orgId: string;
   workspaceMode: WorkspaceProductMode;
   mode: WorkspaceProductMode;
-  v6: V6OrgSettingsJson;
+  v6: OrgSettingsJson;
   featureFlags: Record<FeatureFlagKey, boolean>;
   role: WorkspaceRole;
   isAdmin: boolean;
@@ -55,7 +55,7 @@ export type ProductSurfaceContext = {
   autopilotAllowExecution: boolean;
 };
 
-export function parseWorkspaceMode(raw: V6OrgSettingsJson): WorkspaceProductMode {
+export function parseWorkspaceMode(raw: OrgSettingsJson): WorkspaceProductMode {
   const m = raw.workspace_mode;
   if (m === "advanced" || m === "assurance") return m;
   return "core";
@@ -77,7 +77,7 @@ function roleSeesAssuranceNavByDefault(role: WorkspaceRole): boolean {
 export function buildProductSurfaceContext(input: {
   orgId: string;
   role: WorkspaceRole;
-  v6: V6OrgSettingsJson;
+  v6: OrgSettingsJson;
   featureFlags: Record<FeatureFlagKey, boolean>;
 }): ProductSurfaceContext {
   const mode = parseWorkspaceMode(input.v6);
@@ -164,7 +164,7 @@ export function buildProductSurfaceContext(input: {
 export const loadProductSurfaceContext = cache(
   async (admin: AdminClient, orgId: string, role: WorkspaceRole): Promise<ProductSurfaceContext> => {
     const featureFlags = getFeatureFlags();
-    const v6 = await getV6OrgSettingsJson(admin, orgId);
+    const v6 = await getOrgSettingsJson(admin, orgId);
     return buildProductSurfaceContext({ orgId, role, v6, featureFlags });
   }
 );

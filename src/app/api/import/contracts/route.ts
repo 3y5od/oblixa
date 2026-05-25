@@ -7,15 +7,15 @@ import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitV10ObjectiveTelemetryEvent } from "@/lib/product-telemetry";
 import { MAX_IMPORT_BODY_CHARS, parseCsv, runContractCsvImport } from "@/lib/import-jobs";
-import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/v10-mutation-envelope";
-import { findV10DuplicateImportCandidates, validateV10ImportCandidate } from "@/lib/v10-activation-state";
+import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/mutation-envelope";
+import { findV10DuplicateImportCandidates, validateV10ImportCandidate } from "@/lib/activation-state";
 import {
   executeV10IdempotentMutation,
   getV10ExpectedVersionFromRequest,
   getV10IdempotencyKeyFromRequest,
   recordV10AuditEvent,
-} from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
+} from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
 const ROUTE = "/api/import/contracts";

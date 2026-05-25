@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "description": "Ownership and refresh metadata for repository baseline artifacts.",
+  "baselines": [
+    {
+      "path": "artifacts/api-route-guard-normalization-baseline.json",
+      "owner": "platform-security",
+      "purpose": "Ratchet API route guard ordering findings.",
+      "checkCommand": "npm run check:api-route-guard-normalization",
+      "refreshCommand": "manual: update after reviewed guard-normalization cleanup",
+      "sourceScanner": "scripts/check-api-route-guard-normalization.mjs",
+      "sourceScannerSha256": "f3180b2959ea4f85505bc9364af95adc9fcccd1a7f5cbf2ea7252f3a8b125586",
+      "reviewTrigger": "Route guard scanner changes or intentional cleanup of existing findings.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "artifacts/baseline/baseline-manifest.json",
+      "owner": "qa-platform",
+      "purpose": "Record QA baseline capture metadata after a reviewed green sweep.",
+      "checkCommand": "node scripts/qa-baseline-capture.mjs",
+      "refreshCommand": "node scripts/qa-baseline-capture.mjs",
+      "sourceScanner": "scripts/qa-baseline-capture.mjs",
+      "sourceScannerSha256": "0164f87306a0328f4cc859bcc77dba48ddcbc35f82dcb6c9410033ed6426b307",
+      "reviewTrigger": "After an intentionally captured QA baseline.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "artifacts/baseline/branch-protection-snapshot.json",
+      "owner": "release-engineering",
+      "purpose": "Snapshot expected branch protection settings for drift checks.",
+      "checkCommand": "npm run check:branch-protection-drift",
+      "refreshCommand": "manual: update after reviewed branch protection policy change",
+      "sourceScanner": "scripts/check-branch-protection-drift.mjs",
+      "sourceScannerSha256": "af42b64356831c5dee2ec5e266ad6e44750eb245f7f9a637eeedf18be7b0d147",
+      "reviewTrigger": "Branch protection policy changes.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "artifacts/baseline/qa-cost.json",
+      "owner": "qa-platform",
+      "purpose": "Track QA wall-clock budget expectations.",
+      "checkCommand": "npm run qa:cost:estimate",
+      "refreshCommand": "manual: update after reviewed QA runtime budget change",
+      "sourceScanner": "scripts/qa-cost-estimate.mjs",
+      "sourceScannerSha256": "fd4006f4d2371fded6b2d8601eeda492e425293cf8b6a0c153f7f8ce9a0bb294",
+      "reviewTrigger": "CI topology or QA runtime budget changes.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "artifacts/zap-baseline.json",
+      "owner": "security",
+      "purpose": "Track accepted ZAP findings with required review metadata.",
+      "checkCommand": "npm run check:zap-baseline-compare",
+      "refreshCommand": "manual: update after reviewed DAST finding acceptance",
+      "sourceScanner": "scripts/zap-baseline-compare.mjs",
+      "sourceScannerSha256": "b54d58ce8eef438183fd140489ffe11784a7ca3ec9beedb54403d0e8e0bcce48",
+      "reviewTrigger": "New reviewed ZAP findings or expiration review.",
+      "temporaryPaths": ["zap-report.json"]
+    },
+    {
+      "path": "scripts/concurrency-hotspots-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Ratchet concurrency hotspot findings.",
+      "checkCommand": "npm run check:concurrency-hotspots-ratchet",
+      "refreshCommand": "manual: update after reviewed concurrency cleanup",
+      "sourceScanner": "scripts/check-concurrency-hotspots-ratchet.mjs",
+      "sourceScannerSha256": "75a828b11661057651a0efe0e1d1c9ed2611eb1cc6e7e98eed3e33a4817caf63",
+      "reviewTrigger": "Concurrency scanner changes or intentional hotspot cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/e2e-skip-baseline.json",
+      "owner": "qa-platform",
+      "purpose": "Ratchet skipped and problematic end-to-end tests.",
+      "checkCommand": "npm run check:e2e:skip-baseline",
+      "refreshCommand": "manual: update after reviewed skip cleanup",
+      "sourceScanner": "scripts/check-e2e-skip-baseline.mjs",
+      "sourceScannerSha256": "4669ff70dcdc9b0e91767f0bca815f1c090a998d1d28f585408a7a03cde9281f",
+      "reviewTrigger": "Intentional test skip cleanup or skip-governance scanner changes.",
+      "temporaryPaths": ["test-results/**", "playwright-report/**"]
+    },
+    {
+      "path": "scripts/frontend-component-complexity-baseline.json",
+      "owner": "frontend-platform",
+      "purpose": "Ratchet oversized frontend component files.",
+      "checkCommand": "npm run check:frontend-component-complexity",
+      "refreshCommand": "manual: update after reviewed component complexity cleanup",
+      "sourceScanner": "scripts/check-frontend-component-complexity.mjs",
+      "sourceScannerSha256": "042689454fe369e52d7e31e8309252e916bf9295c097ec355ce8d0e24ad5db17",
+      "reviewTrigger": "Component complexity threshold changes or intentional cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/hardening-debt-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Ratchet broad hardening debt metrics.",
+      "checkCommand": "npm run check:hardening-debt-ratchet",
+      "refreshCommand": "manual: update after reviewed hardening debt reduction",
+      "sourceScanner": "scripts/check-hardening-debt-ratchet.mjs",
+      "sourceScannerSha256": "9d563f2dd82f691d664582f33e02fa718a09fa71671f420fe84f5efb2f65e4ea",
+      "reviewTrigger": "Hardening report schema changes or intentional debt reduction.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/playwright-stability-baseline.json",
+      "owner": "qa-platform",
+      "purpose": "Track accepted Playwright stability thresholds.",
+      "checkCommand": "npm run check:e2e:stability-threshold",
+      "refreshCommand": "manual: update after reviewed Playwright stability policy change",
+      "sourceScanner": "scripts/check-playwright-stability-threshold.mjs",
+      "sourceScannerSha256": "40eb47e82db9b15fe90633038c0dfb49a54f157450385e00d9a404581db8f8e9",
+      "reviewTrigger": "Playwright stability threshold changes.",
+      "temporaryPaths": ["playwright-report/**", "test-results/**"]
+    },
+    {
+      "path": "scripts/security-fetch-sink-baseline.txt",
+      "owner": "security",
+      "purpose": "Track reviewed raw fetch sinks outside safeFetch.",
+      "checkCommand": "npm run check:security-fetch-sinks:strict",
+      "refreshCommand": "manual: update after reviewed outbound fetch exception",
+      "sourceScanner": "scripts/check-security-fetch-sinks.mjs",
+      "sourceScannerSha256": "8e2d12f95b71fe4d2f725d939f13fe37d6b792d9fab701fd5f54324ebc1033da",
+      "reviewTrigger": "Outbound fetch scanner changes or reviewed exception changes.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/server-action-complexity-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Ratchet oversized server action files.",
+      "checkCommand": "npm run check:server-action-complexity",
+      "refreshCommand": "manual: update after reviewed server action complexity cleanup",
+      "sourceScanner": "scripts/check-server-action-complexity.mjs",
+      "sourceScannerSha256": "3cb8303a8e77f59c197bfc07bb25c4839ff8d6020d35b5136c914326358c5a67",
+      "reviewTrigger": "Server action complexity threshold changes or intentional cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/subprocessors-baseline.sha256",
+      "owner": "security",
+      "purpose": "Track reviewed subprocessors inventory hash.",
+      "checkCommand": "npm run check:subprocessors-drift",
+      "refreshCommand": "manual: update hash after reviewed subprocessors change",
+      "sourceScanner": "scripts/check-subprocessors-drift.mjs",
+      "sourceScannerSha256": "6a13c56f4b15b801b1212e0839a8f921d88b07ccdb9fcd776de985133e859172",
+      "reviewTrigger": "Reviewed subprocessors inventory changes.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/type-lint-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Ratchet TypeScript and lint strictness status.",
+      "checkCommand": "npm run check:type-lint-ratchet",
+      "refreshCommand": "manual: update after reviewed type or lint status improvement",
+      "sourceScanner": "scripts/check-type-lint-ratchet.mjs",
+      "sourceScannerSha256": "e614be8bdace6aa77513afd938f3824090854589dfc20af3b354bfe51a3205fc",
+      "reviewTrigger": "Typecheck or lint ratchet changes.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/versioned-naming-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Ratchet existing versioned naming debt down.",
+      "checkCommand": "npm run check:versioned-naming",
+      "refreshCommand": "node scripts/check-versioned-naming.mjs --write-baseline",
+      "sourceScanner": "scripts/check-versioned-naming.mjs",
+      "sourceScannerSha256": "1423d3d2f9f3bf975ee7acb8a211bbd69c60d29ac3555040d32d7fe14ece2b3c",
+      "reviewTrigger": "After intentional naming cleanup or scanner logic changes.",
+      "temporaryPaths": [
+        ".next/**",
+        "artifacts/**",
+        "coverage/**",
+        "node_modules/**",
+        "playwright-report/**",
+        "supabase/.branches/**",
+        "supabase/.temp/**",
+        "test-results/**"
+      ]
+    },
+    {
+      "path": "scripts/wrapper-reintroduction-baseline.json",
+      "owner": "platform-hardening",
+      "purpose": "Track reviewed generic script wrapper exceptions.",
+      "checkCommand": "npm run check:wrapper-reintroduction",
+      "refreshCommand": "manual: update after reviewed wrapper cleanup",
+      "sourceScanner": "scripts/check-wrapper-reintroduction.mjs",
+      "sourceScannerSha256": "d57a24760c710ac4450c24e560be9255a38524d80f839c36eb867322402679d9",
+      "reviewTrigger": "Generic wrapper cleanup or reviewed exception changes.",
+      "temporaryPaths": ["none"]
+    }
+  ]
+}

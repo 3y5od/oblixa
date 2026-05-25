@@ -13,7 +13,7 @@ import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
   ALL_ASSURANCE_NAV_MODULE_KEYS,
 } from "@/lib/product-surface/workspace-module-keys";
-import type { V6OrgSettingsMergePatch } from "@/lib/v6/org-settings";
+import type { V6OrgSettingsMergePatch } from "@/lib/assurance/org-settings";
 import type {
   CalibrationAnswersOptional,
   CalibrationAnswersRequired,
@@ -357,3 +357,8 @@ export function coreFallbackV6Patch(): V6OrgSettingsMergePatch {
 
 /** Plan §6 — public name for deterministic recommendation (`finalizeRecommendation`). */
 export const computeRecommendation: typeof finalizeRecommendation = finalizeRecommendation;
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { coreFallbackV6Patch as coreFallbackPatch };
+export { recommendationToV6Patch as recommendationToPatch };
+// End version-name compatibility aliases.

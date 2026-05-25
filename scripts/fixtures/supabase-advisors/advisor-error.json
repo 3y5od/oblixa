@@ -1,0 +1,11 @@
+[
+  {
+    "name": "function_search_path_mutable",
+    "title": "Function Search Path Mutable",
+    "level": "ERROR",
+    "detail": "Function public.example does not set search_path.",
+    "metadata": {
+      "name": "public.example()"
+    }
+  }
+]

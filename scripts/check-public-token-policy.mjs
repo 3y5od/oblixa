@@ -35,7 +35,7 @@ const REQUIRED_MARKERS = {
   "src/lib/security/public-token-telemetry.test.ts": [
     "logs token misses without raw bearer token material",
   ],
-  "src/lib/v5/api.ts": [
+  "src/lib/decision-intelligence/api.ts": [
     "export function externalActionTokenHash(token: string): string",
     "export function externalActionTokenPrefix(token: string): string",
     "export function externalActionTokenStableKey(token: string): string",
@@ -181,7 +181,7 @@ const REQUIRED_MARKERS = {
 };
 
 const FORBIDDEN_MARKERS = {
-  "src/lib/v5/api.ts": ["legacyToken", "token?: unknown"],
+  "src/lib/decision-intelligence/api.ts": ["legacyToken", "token?: unknown"],
   "src/app/api/external-actions/[token]/status/route.ts": [
     "token.eq.${token}",
     ".eq(\"token\", token)",

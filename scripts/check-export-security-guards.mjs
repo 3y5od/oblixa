@@ -30,7 +30,7 @@ const REQUIRED_FILE_MARKERS = {
     "const trimmedStart = t.trimStart();",
     "if (/^[\\t\\r]/.test(t) || /^[=+\\-@]/.test(trimmedStart)) {",
   ],
-  "src/lib/csv-formula-safe.v9.test.ts": [
+  "src/lib/csv-formula-safe.test.ts": [
     'it("neutralizes leading formula characters"',
     'it("neutralizes leading whitespace formula variants"',
     'it("strips bidi controls before formula neutralization"',

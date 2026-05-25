@@ -84,7 +84,7 @@ const REQUIRED_FILE_MARKERS = {
   "src/lib/messaging/discord-embed-snippet-sanitize.test.ts": [
     'it("breaks active content URL and script tokens"',
   ],
-  "src/lib/v9-dashboard-no-dangerous-html.v9.test.ts": [
+  "src/lib/dashboard-no-dangerous-html.test.ts": [
     "Core dashboard tree avoids dangerouslySetInnerHTML",
     "expect(hits, hits.join(\"\\n\")).toEqual([]);",
   ],
@@ -119,8 +119,10 @@ const ALLOWED_PUBLIC_ENV = new Set([
   "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
   "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
   "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
+  "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
   "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
   "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+  "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
   "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
 ]);
 const FORBIDDEN_PUBLIC_ENV_TOKENS = /SECRET|SERVICE_ROLE|PRIVATE|TOKEN|KEY/i;

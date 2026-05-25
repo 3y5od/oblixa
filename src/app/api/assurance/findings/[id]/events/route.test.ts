@@ -3,11 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 const requireV6ApiFeature = vi.fn();
 const getApiAuthContext = vi.fn();
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability: vi.fn(),
 }));

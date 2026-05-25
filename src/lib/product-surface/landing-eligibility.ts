@@ -12,7 +12,7 @@ import type {
   AssuranceNavModuleKey,
   UtilityModuleKey,
 } from "@/lib/product-surface/types";
-import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/v8-surface-mapping";
+import { resolveFeatureMappingForPagePath } from "@/lib/product-surface/surface-mapping";
 import { evaluateFeatureEligibility } from "@/lib/product-surface/eligibility";
 
 /** Strip query/hash for path policy checks. */

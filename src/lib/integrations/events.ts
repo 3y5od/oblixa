@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import { workspaceModeAllowsNotificationTier } from "@/lib/notification-product-tier";
 import { outboundEventTierForType } from "@/lib/product-surface/outbound-event-tier";
@@ -14,7 +14,7 @@ export async function enqueueOutboundEvent(input: {
 }) {
   try {
     const admin = await createAdminClient();
-    const v6 = await getV6OrgSettingsJson(admin, input.organizationId);
+    const v6 = await getOrgSettingsJson(admin, input.organizationId);
     const suppressed = Array.isArray(v6.notification_suppressed_event_types)
       ? v6.notification_suppressed_event_types
       : [];

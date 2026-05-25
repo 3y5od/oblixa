@@ -488,7 +488,7 @@ function staleTextEntryIssue(root, entry) {
     return null;
   }
 
-  if (entry.file === "scripts/v7-href-audit-allowlist.txt") {
+  if (entry.file === "scripts/compatibility-href-audit-allowlist.txt") {
     if (!fs.existsSync(path.join(root, value))) return "stale_allowlist_entry_missing_file";
     return null;
   }

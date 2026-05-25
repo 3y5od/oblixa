@@ -107,3 +107,17 @@ create policy "Bad read"
   assert(report.issues.some((issue) => issue.issue === "tenant_table_missing_rls_enable"));
   assert(report.issues.some((issue) => issue.issue === "tenant_table_policy_missing_tenant_boundary"));
 });
+
+test("analyzeRlsSanityTables rejects public grants on tenant tables", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-rls-public-grant-"));
+  writeBase(root);
+  write(
+    root,
+    "supabase/migrations/002_public_grant.sql",
+    "grant select on table public.tenant_records to public;\n",
+  );
+
+  const report = analyzeRlsSanityTables(root);
+  assert.equal(report.ok, false);
+  assert(report.issues.some((issue) => issue.issue === "tenant_table_granted_to_public"));
+});

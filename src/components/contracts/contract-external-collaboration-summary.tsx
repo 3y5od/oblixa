@@ -1,5 +1,5 @@
 import { ExternalLink } from "@/components/ui/external-link";
-import type { AdminClient } from "@/lib/v6/service";
+import type { AdminClient } from "@/lib/assurance/service";
 
 /**
  * Surface external action links whose scope_json includes `contractId` (set when creating links with that scope).

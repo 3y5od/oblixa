@@ -82,6 +82,23 @@ describe("listStrictProductionSecretDeficits", () => {
     expect(out).not.toContain("EXTERNAL_ACTION_PASSCODE_PEPPER");
     expect(out).not.toContain("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET");
   });
+
+  it("prefers the neutral external collaboration env key over the legacy key", () => {
+    const out = listStrictProductionSecretDeficits({
+      NODE_ENV: "production",
+      OBLIXA_STRICT_ENV: "1",
+      ENABLE_EXTERNAL_COLLABORATION: "false",
+      ENABLE_V5_EXTERNAL_COLLABORATION: "true",
+      SUPABASE_SERVICE_ROLE_KEY: "sr",
+      CRON_SECRET: "c",
+      OBLIXA_STEP_UP_SECRET: "step_up_secret_that_is_long_enough_32",
+      STRIPE_SECRET_KEY: "",
+      EXTERNAL_ACTION_PASSCODE_PEPPER: "",
+      EXTERNAL_ACTION_SUBMIT_TICKET_SECRET: "",
+    } as NodeJS.ProcessEnv);
+    expect(out).not.toContain("EXTERNAL_ACTION_PASSCODE_PEPPER");
+    expect(out).not.toContain("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET");
+  });
 });
 
 describe("listWeakProductionSecretFindings", () => {

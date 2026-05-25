@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
-import { getV6OrgSettingsJson } from "@/lib/v6/org-settings";
+import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
 import {
   notificationTierForType,
@@ -91,7 +91,7 @@ export async function isNotificationTypeAllowedForWorkspace(
   admin: AdminClient,
   input: { organizationId: string; notificationType: string }
 ): Promise<boolean> {
-  const v6 = await getV6OrgSettingsJson(admin, input.organizationId);
+  const v6 = await getOrgSettingsJson(admin, input.organizationId);
   const mode = parseWorkspaceMode(v6);
   const tier = notificationTierForType(input.notificationType);
   if (!workspaceModeAllowsNotificationTier(mode, tier)) return false;

@@ -9,7 +9,7 @@ import {
   getV10ExceptionResolutionActionOptions,
   type V10ExceptionResolutionAction,
   type V10ExceptionResolutionActionOption,
-} from "@/lib/v10-approval-exception";
+} from "@/lib/approval-exception";
 
 type OwnerOption = {
   id: string;

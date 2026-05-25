@@ -25,7 +25,9 @@ function writeValidFixture(root) {
       "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=",
       "NEXT_PUBLIC_APP_URL=http://localhost:3000",
       "# NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB=1",
+      "# NEXT_PUBLIC_INLINE_QUEUE_ACTIONS=",
       "# NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS=",
+      "# NEXT_PUBLIC_SUPPORT_DIAGNOSTICS=",
       "# NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS=",
       "# NEXT_PUBLIC_SENTRY_DSN=",
       "# NEXT_PUBLIC_SENTRY_RELEASE=",
@@ -40,8 +42,8 @@ function writeValidFixture(root) {
   write(root, "next.config.ts", "const release = process.env.NEXT_PUBLIC_SENTRY_RELEASE;\nexport default {};\n");
   write(
     root,
-    "src/components/ui/v10-recoverable-state.tsx",
-    'export function shouldShow(){ return process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS === "1"; }\n'
+    "src/components/ui/recoverable-state.tsx",
+    'export function shouldShow(){ return process.env.NODE_ENV !== "production" && (process.env.NEXT_PUBLIC_SUPPORT_DIAGNOSTICS === "1" || process.env.NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS === "1"); }\n'
   );
   write(
     root,
@@ -105,7 +107,7 @@ test("analyzeNextPublicSurface rejects production-enabled V10 support diagnostic
   writeValidFixture(root);
   write(
     root,
-    "src/components/ui/v10-recoverable-state.tsx",
+    "src/components/ui/recoverable-state.tsx",
     'export function shouldShow(){ return process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS === "1"; }\n'
   );
 

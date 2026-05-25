@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { jsonNotFound, jsonProblem } from "@/lib/http/problem";
 import { parseJsonBodyWithLimit } from "@/lib/security/read-json-body-limited";
-import { readJsonBody, toSafeString } from "@/lib/v5/api";
-import { requireV6ApiFeature } from "@/lib/v6/feature-guards";
-import { requireV6Context } from "@/lib/v6/api-auth";
+import { readJsonBody, toSafeString } from "@/lib/decision-intelligence/api";
+import { requireV6ApiFeature } from "@/lib/assurance/feature-guards";
+import { requireV6Context } from "@/lib/assurance/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { dismissFinding, resolveFinding } from "@/lib/v6/assurance";
-import { incrementV6QualityCounter } from "@/lib/v6/telemetry";
+import { dismissFinding, resolveFinding } from "@/lib/assurance/assurance";
+import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -87,7 +87,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   if (!result.data) return jsonNotFound(ROUTE);
   if (signalFeedback === "false_positive") {
-    await incrementV6QualityCounter(ctx.admin, ctx.orgId, "findings_labeled_false_positive_total", 1).catch(
+    await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "findings_labeled_false_positive_total", 1).catch(
       () => undefined
     );
   }

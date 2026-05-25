@@ -45,7 +45,7 @@ test("QA max check scripts exit 0", () => {
   run("check-ofac-screening-stub-parity.mjs");
   run("check-suppress-hydration-warning.mjs");
   run("check-kyb-beneficial-owner-schema.mjs");
-  run("rebuild-v10-read-models-nightly-gate.mjs");
+  run("rebuild-read-models-nightly-gate.mjs");
   run("reproducible-build-hash.mjs");
   run("eslint-custom-rules-optional.mjs");
   run("knip-supply-chain-stub.mjs");

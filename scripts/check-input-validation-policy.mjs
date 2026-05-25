@@ -78,17 +78,17 @@ const REQUIRED_FILE_MARKERS = {
     'it("returns problem JSON for unsafe path parameters"',
     'it("returns problem JSON for unsupported enum path parameters"',
   ],
-  "src/lib/v5/external-action-types.ts": [
+  "src/lib/decision-intelligence/external-action-types.ts": [
     "export const EXTERNAL_ACTION_TYPES",
     "export function isValidExternalActionType",
     "externalActionTypeValidationError",
   ],
-  "src/lib/v5/external-action-payload.ts": [
+  "src/lib/decision-intelligence/external-action-payload.ts": [
     "validateExternalActionPayload(",
     "switch (actionType)",
     "const _exhaustive: never = actionType;",
   ],
-  "src/lib/v5/external-action-payload.test.ts": [
+  "src/lib/decision-intelligence/external-action-payload.test.ts": [
     'it("covers every ExternalActionType without falling through to unsupported"',
     "acknowledged must be boolean true",
     "review_decision_packet: reviewed true",

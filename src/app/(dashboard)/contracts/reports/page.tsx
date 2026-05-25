@@ -17,7 +17,7 @@ import {
   createReportPackAction,
   createReportPackSubscriptionAction,
   saveReportPackAnnotationsAction,
-} from "@/actions/v4";
+} from "@/actions/policy-operations";
 
 export default async function ReportsHistoryPage(props: {
   searchParams: Promise<{ runId?: string }>;
@@ -29,8 +29,8 @@ export default async function ReportsHistoryPage(props: {
         <h1 className="ui-display-title mt-2">Reports history is disabled</h1>
         <p className="mt-3 max-w-xl text-sm text-[var(--text-tertiary)]">
           This surface is off because the server has disabled it (set{" "}
-          <code className="text-xs">ENABLE_V3_REPORTING_HISTORY</code> to false, 0, no, or off). Remove or unset that
-          variable to turn reporting history back on.
+          <code className="text-xs">ENABLE_REPORTING_HISTORY</code> to false, 0, no, or off). Remove or unset that variable
+          to turn reporting history back on.
         </p>
       </div>
     );

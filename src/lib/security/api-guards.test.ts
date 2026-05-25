@@ -8,11 +8,11 @@ import {
   requireSessionApiContext,
 } from "@/lib/security/api-guards";
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext: vi.fn(),
 }));
 
-import { getApiAuthContext } from "@/lib/v4/api-auth";
+import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
 
 describe("api-guards", () => {
   beforeEach(() => {

@@ -1,9 +1,9 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Network } from "lucide-react";
-import { ExecutionGraphVizDynamic } from "@/components/v4/execution-graph-viz-dynamic";
+import { ExecutionGraphVizDynamic } from "@/components/execution-graph-viz-dynamic";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import type { ExecutionGraphEdgeRow } from "@/lib/v4/graph-edge-labels";
+import type { ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
 
 export default async function ExecutionGraphPage(props: {
   searchParams: Promise<{ contractId?: string }>;

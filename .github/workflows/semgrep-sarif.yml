@@ -36,9 +36,7 @@ jobs:
             --config p/typescript \
             --config semgrep/oblixa-security.yml \
             --config semgrep/oblixa-performance.yml \
-            --config semgrep/oblixa-v7-surface.yml \
-            --config semgrep/oblixa-v8-surface.yml \
-            --config semgrep/oblixa-v10-surface.yml \
+            --config semgrep/oblixa-surface.yml \
             --sarif --output semgrep.sarif \
             .
 

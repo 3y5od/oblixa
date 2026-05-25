@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { RATE_LIMITS, getClientIpFromHeaders, rateLimitCheck } from "@/lib/rate-limit";
@@ -9,9 +10,25 @@ import { REPORTS_PAGE_TITLE } from "@/lib/reports/spec-strings";
 import type { ReportKey } from "@/lib/reports/types";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
+import { parseFixedEnumParam } from "@/lib/security/validation";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 
 const ROUTE = "/api/export/reports";
+const REPORT_EXPORT_STATUSES = [
+  "",
+  "active",
+  "pending_review",
+  "draft",
+  "open",
+  "in_progress",
+  "blocked",
+  "requested",
+  "overdue",
+  "received",
+  "accepted",
+  "rejected",
+  "completed",
+] as const;
 
 export const maxDuration = 60;
 
@@ -54,6 +71,7 @@ export async function GET(request: Request) {
     });
   }
   const reportKey: ReportKey = report ?? "upcoming_renewals";
+  const status = parseFixedEnumParam(url.searchParams.get("status"), REPORT_EXPORT_STATUSES, "");
 
   void recordApiRouteAuditEvent(admin, {
     organizationId: orgId,
@@ -77,7 +95,7 @@ export async function GET(request: Request) {
       window: url.searchParams.get("window") ?? "",
       has_owner_filter: url.searchParams.has("owner"),
       has_counterparty_filter: url.searchParams.has("counterparty"),
-      has_status_filter: url.searchParams.has("status"),
+      has_status_filter: status !== "",
     },
   });
 
@@ -90,7 +108,7 @@ export async function GET(request: Request) {
       window: url.searchParams.get("window"),
       owner: url.searchParams.get("owner"),
       counterparty: url.searchParams.get("counterparty"),
-      status: url.searchParams.get("status"),
+      status,
       previewLimit: null,
     });
 
@@ -149,7 +167,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("[export/reports]", error);
+    console.error("[export/reports]", formatUnknownForServerLog(error));
     await emitProductTelemetryEvent(admin, {
       organizationId: orgId,
       userId: user.id,

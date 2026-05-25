@@ -1,4 +1,4 @@
-import { recordV10AuditEvent } from "@/lib/v10-server-contracts";
+import { recordV10AuditEvent } from "@/lib/server-contracts";
 import type { ApiAuditAction } from "@/lib/security/audit-actions";
 
 type AuditAdmin = Parameters<typeof recordV10AuditEvent>[0];

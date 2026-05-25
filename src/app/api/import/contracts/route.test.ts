@@ -33,7 +33,7 @@ vi.mock("@/lib/import-jobs", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/v10-server-contracts", () => ({
+vi.mock("@/lib/server-contracts", () => ({
   executeV10IdempotentMutation: async (_admin: unknown, _input: unknown, execute: () => Promise<unknown>) => ({
     response: await execute(),
     replayed: false,
@@ -43,7 +43,7 @@ vi.mock("@/lib/v10-server-contracts", () => ({
   recordV10AuditEvent,
 }));
 
-vi.mock("@/lib/v10-read-model-refresh", () => ({
+vi.mock("@/lib/read-model-refresh", () => ({
   refreshV10ReadModelsForOrganization,
 }));
 

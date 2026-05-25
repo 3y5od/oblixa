@@ -2,20 +2,20 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { ReactNode } from "react";
-import { ArrowUpRight, ListTodo, Plus } from "lucide-react";
+import { ArrowUpRight, ChevronRight, ListTodo, Plus, Sparkles } from "lucide-react";
 import { createContractTask } from "@/actions/tasks";
 import { WorkReleaseActions } from "@/components/work/work-release-actions";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
 import { UiTabs } from "@/components/ui/ui-tabs";
-import { V10RecoverableState } from "@/components/ui/v10-recoverable-state";
+import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
 import { canEditContracts } from "@/lib/permissions";
 import type { OrgRole } from "@/lib/types";
 import type { WorkspaceRole } from "@/lib/navigation";
-import { loadProductSurfaceContext } from "@/lib/product-surface";
+import { isAdvancedModuleHidden, loadProductSurfaceContext } from "@/lib/product-surface";
 import { buildWorkHref, loadWorkPageModel, WORK_EMPTY_STATE } from "@/lib/work/model";
 import {
   WORK_FILTER_LABELS,
@@ -92,7 +92,10 @@ export default async function WorkPage(props: {
     type: firstParam(searchParams.type),
     create: firstParam(searchParams.create),
   });
-  const canMutate = canEditContracts(ctx.role as OrgRole);
+  const workQueueMutationsEnabled = canEditContracts(ctx.role as OrgRole);
+  const showDecisionsCta =
+    (productSurface.mode === "advanced" || productSurface.mode === "assurance") &&
+    !isAdvancedModuleHidden(productSurface, "decisions");
   const createHref = buildWorkHref({ tab: model.activeTab, filters: model.filters, create: true });
   const error = firstParam(searchParams.error);
 
@@ -103,15 +106,28 @@ export default async function WorkPage(props: {
         eyebrow={model.eyebrow}
         title={WORK_PAGE_TITLE}
         actions={
-          <Link href={createHref} className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
-            <Plus className="h-4 w-4" aria-hidden />
-            {model.primaryCta}
-          </Link>
+          <>
+            {showDecisionsCta ? (
+              <Link
+                href="/decisions"
+                prefetch={false}
+                className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              >
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                Review decisions
+                <ChevronRight className="h-3 w-3 opacity-60" aria-hidden />
+              </Link>
+            ) : null}
+            <Link href={createHref} className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
+              <Plus className="h-4 w-4" aria-hidden />
+              {model.primaryCta}
+            </Link>
+          </>
         }
       />
 
       {model.warnings.length > 0 ? (
-        <V10RecoverableState
+        <RecoverableState
           state="partial"
           title={WORK_PARTIAL_DATA_TITLE}
           reason={WORK_PARTIAL_DATA_REASON}
@@ -245,7 +261,7 @@ export default async function WorkPage(props: {
           </div>
         ) : null}
 
-        <WorkRows rows={model.rows} canMutate={canMutate} />
+         <WorkRows rows={model.rows} mutationsEnabled={workQueueMutationsEnabled} />
       </section>
     </div>
   );
@@ -323,7 +339,13 @@ function FilterSelect({
   );
 }
 
-function WorkRows({ rows, canMutate }: { rows: WorkItemRow[]; canMutate: boolean }) {
+function WorkRows({
+  rows,
+  mutationsEnabled,
+}: {
+  rows: WorkItemRow[];
+  mutationsEnabled: boolean;
+}) {
   if (rows.length === 0) {
     return (
       <div className="px-5 py-12 text-center">
@@ -388,7 +410,7 @@ function WorkRows({ rows, canMutate }: { rows: WorkItemRow[]; canMutate: boolean
           </dl>
 
           <div className="min-w-0 lg:justify-self-end">
-            <WorkReleaseActions row={row} mutationsEnabled={canMutate} />
+             <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
           </div>
         </article>
       ))}

@@ -1,7 +1,7 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import type { createAdminClient } from "@/lib/supabase/server";
-import { getV10WorkItemHref } from "@/lib/v10-job-routing";
-import { applyV10ReadModelVisibility } from "@/lib/v10-visibility";
+import { getV10WorkItemHref } from "@/lib/job-routing";
+import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel, type OrgMemberProfileRow } from "@/lib/org-member-profiles";
 import {
   WORK_ACTION_LABELS,

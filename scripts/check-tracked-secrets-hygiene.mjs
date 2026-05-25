@@ -11,6 +11,8 @@ import { pathToFileURL } from "node:url";
 
 const CHECK_ID = "tracked-secrets-hygiene";
 const REQUIRED_GITIGNORE_ENV_PATTERNS = [".env*", "!.env.example"];
+const ALLOWED_TRACKED_ENV_EXAMPLES = new Set([".env.example", ".env.local.example"]);
+const ALLOWED_ENV_UNIGNORE_PATTERNS = new Set(["!.env.example", "!.env.local.example"]);
 const SENSITIVE_ENV_KEY_RE =
   /(?:SECRET|TOKEN|PASSWORD|PRIVATE|SERVICE_ROLE|API_KEY|_KEY\b|HMAC|PEPPER|BEARER|CLIENT_SECRET|ENCRYPTION_KEY|DSN|PASSCODE)/i;
 const SECRET_VALUE_PATTERNS = [
@@ -75,7 +77,7 @@ function analyzeGitignoreEnvRules(root, issues) {
     });
   }
   for (const { index, pattern } of lines) {
-    if (pattern.startsWith("!.env") && pattern !== "!.env.example") {
+    if (pattern.startsWith("!.env") && !ALLOWED_ENV_UNIGNORE_PATTERNS.has(pattern)) {
       issues.push({ issue: "unsafe_env_unignore_pattern", file: rel, line: index, pattern });
     }
   }
@@ -124,7 +126,7 @@ export function analyzeTrackedSecretsHygiene(root = process.cwd(), options = {})
 
   for (const f of tracked) {
     const base = f.split("/").pop() ?? f;
-    if (base.startsWith(".env") && base !== ".env.example") {
+    if (base.startsWith(".env") && !ALLOWED_TRACKED_ENV_EXAMPLES.has(base)) {
       issues.push({ issue: "tracked_env_file", file: f });
     }
     if (/\.(pem|p12)$/i.test(f)) {

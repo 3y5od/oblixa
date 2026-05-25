@@ -9,7 +9,7 @@ const { autoAttachProgramsForContract, emitProductTelemetryEvent, mapWithConcurr
   }),
 }));
 
-vi.mock("@/lib/v4/program-auto-attach", () => ({ autoAttachProgramsForContract }));
+vi.mock("@/lib/contract-operations/program-auto-attach", () => ({ autoAttachProgramsForContract }));
 vi.mock("@/lib/product-telemetry", () => ({ emitProductTelemetryEvent }));
 vi.mock("@/lib/extraction/concurrency", () => ({ mapWithConcurrency }));
 

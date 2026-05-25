@@ -9,7 +9,7 @@ const REGISTRY_FORM = join(
   "src/app/(dashboard)/settings/policy/registry/policy-registry-editor-form.tsx"
 );
 const DIAGNOSTICS = join(process.cwd(), "src/app/(dashboard)/settings/policy/diagnostics/page.tsx");
-const SIMULATION_PANEL = join(process.cwd(), "src/components/v4/policy-simulation-panel.tsx");
+const SIMULATION_PANEL = join(process.cwd(), "src/components/policy-simulation-panel.tsx");
 
 describe("settings policy refinement", () => {
   it("keeps the default policy page user-facing", () => {

@@ -7,7 +7,7 @@ import { LegalFooter } from "@/components/layout/legal-footer";
 import { CommandPaletteLoader } from "@/components/layout/command-palette-loader";
 import { RefetchOnWindowFocus } from "@/components/layout/refetch-on-window-focus";
 import { UiRouteProgress } from "@/components/ui/ui-route-progress";
-import { V9PageLoadReporter } from "@/components/layout/v9-page-load-reporter";
+import { V9PageLoadReporter } from "@/components/layout/page-load-reporter";
 import { createClient, getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { getFeatureFlags, isFeatureEnabled } from "@/lib/feature-flags";
@@ -15,7 +15,7 @@ import { loadProductSurfaceContext } from "@/lib/product-surface/context";
 import { moreToolsIndexHasVisibleEntries } from "@/lib/product-surface/more-index-visibility";
 import { toNavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/v8-request-pathname";
+import { OBLIXA_PATHNAME_HEADER } from "@/lib/product-surface/request-pathname";
 import { assertPagePathEligibleForContextOrNotFound } from "@/lib/product-surface/route-guard";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 

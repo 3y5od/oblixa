@@ -13,11 +13,11 @@ const workflowExternalEvidenceRefresh = vi.fn(async () => ({ stub: "w3" }));
 const workflowProgramPerformanceTuning = vi.fn(async () => ({ stub: "w4" }));
 const workflowPortfolioBoardReview = vi.fn(async () => ({ stub: "w5" }));
 
-vi.mock("@/lib/v6/feature-guards", () => ({
+vi.mock("@/lib/assurance/feature-guards", () => ({
   requireV6ApiFeature,
 }));
 
-vi.mock("@/lib/v4/api-auth", () => ({
+vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
   canManageCapability,
 }));
@@ -38,7 +38,7 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
   recordApiMutationAuditEvent,
 }));
 
-vi.mock("@/lib/v6/workflows", () => ({
+vi.mock("@/lib/assurance/workflows", () => ({
   workflowFindingToIntervention,
   workflowPolicyBreachRemediation,
   workflowExternalEvidenceRefresh,
@@ -46,12 +46,12 @@ vi.mock("@/lib/v6/workflows", () => ({
   workflowPortfolioBoardReview,
 }));
 
-vi.mock("@/lib/v6/assurance-checks", () => ({
+vi.mock("@/lib/assurance/assurance-checks", () => ({
   runIncrementalAssuranceChecks: vi.fn(async () => ({})),
 }));
 
-vi.mock("@/lib/v6/telemetry", () => ({
-  incrementV6QualityCounter: vi.fn(async () => {}),
+vi.mock("@/lib/assurance/telemetry", () => ({
+  incrementAssuranceQualityCounter: vi.fn(async () => {}),
 }));
 
 describe("POST /api/assurance/workflows/run-all", () => {

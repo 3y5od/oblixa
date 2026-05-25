@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { hasOrgCapability } from "@/lib/actions/access";
 import { createAdminClient } from "@/lib/supabase/server";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 import type { ApprovalStatus } from "@/lib/types";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-epic-closure",
-  "generatedAt": "2026-05-05T01:32:30.200Z",
+  "generatedAt": "2026-05-24T22:01:12.171Z",
   "notes": "Each epic is either evidence (automated command) or explicit bulk N/A. NA set reviewed quarterly; promote rows to evidence when shipping scope.",
   "closures": [
     {
@@ -188,7 +188,7 @@
       "epicNumber": 31,
       "todoId": "epic31-privacy-data-lifecycle",
       "mode": "evidence",
-      "evidence": "vitest run src/lib/export-job-visibility.v9.test.ts"
+      "evidence": "vitest run src/lib/export-job-visibility.test.ts"
     },
     {
       "epicNumber": 32,
@@ -350,7 +350,7 @@
       "epicNumber": 58,
       "todoId": "epic58-intl-locale-matrix",
       "mode": "evidence",
-      "evidence": "vitest run src/lib/qa/intl-format-sampling.v9.test.ts"
+      "evidence": "vitest run src/lib/qa/intl-format-sampling.test.ts"
     },
     {
       "epicNumber": 59,

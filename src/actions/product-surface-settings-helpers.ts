@@ -8,11 +8,11 @@ import {
   WORKSPACE_HOME_SECTION_KEYS,
   WORKSPACE_NAV_ROLE_ORDER,
 } from "@/lib/product-surface/workspace-module-keys";
-import { executeV10IdempotentMutation } from "@/lib/v10-server-contracts";
-import { refreshV10ReadModelsForOrganization } from "@/lib/v10-read-model-refresh";
-import { buildV10MutationResponse } from "@/lib/v10-mutation-envelope";
+import { executeV10IdempotentMutation } from "@/lib/server-contracts";
+import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { buildV10MutationResponse } from "@/lib/mutation-envelope";
 import type { ProductSearchScope, WorkspaceProductMode } from "@/lib/product-surface/types";
-import type { V10Plan } from "@/lib/v10-release-contract";
+import type { V10Plan } from "@/lib/release-contract";
 
 const WORKSPACE_HOME_HIDE_KEYS = [
   "control_room_strip",
@@ -160,3 +160,8 @@ export async function reserveV10SettingsMutation(
     return null;
   }
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { refreshV10SettingsReadModels as refreshSettingsReadModels };
+export { reserveV10SettingsMutation as reserveSettingsMutation };
+// End version-name compatibility aliases.
