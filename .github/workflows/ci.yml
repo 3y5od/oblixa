@@ -53,7 +53,7 @@ jobs:
         run: npm run check:supply-chain-dependency-risk && npm run check:dependency-policy && npm run check:dependency-confusion-guards && npm run check:npm-script-integrity && npm run check:npm-lifecycle && npm run check:install-script-risk && npm run check:executable-masquerade-guards && npm run check:dynamic-import-specifiers && npm run check:test-fixture-secrets && npm run check:ci-artifact-secret-leakage && npm run check:supply-chain-waivers && npm run check:codeowners-security-paths
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: cyclonedx-sbom
           path: cyclonedx-sbom.json
@@ -1046,7 +1046,7 @@ jobs:
 
       - name: Upload autonomous perf run artifact
         if: ${{ steps.gate_e2e.outputs.run == 'true' && always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: autonomous-perf-run
           path: artifacts/autonomous-perf-run.json
