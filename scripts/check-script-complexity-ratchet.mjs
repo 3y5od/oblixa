@@ -8,6 +8,7 @@ const root = process.cwd();
 const scriptsDir = path.join(root, "scripts");
 const strict = process.argv.includes("--strict");
 const maxLines = strict ? 450 : 700;
+const baselinePath = path.join(root, "scripts", "script-complexity-baseline.json");
 
 /** Policy/compliance generators kept as single files for traceability; do not grow without split. */
 const LINE_COUNT_ALLOWLIST = new Set([
@@ -32,6 +33,17 @@ const payload = {
   strict,
   ok: offenders.length === 0,
   offenders,
+  offenderCount: offenders.length,
 };
+if (strict && fs.existsSync(baselinePath)) {
+  const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
+  const baselineMap = new Map((baseline.offenders || []).map((row) => [row.file, row.lines]));
+  const regressions = offenders.filter((row) => {
+    const prior = baselineMap.get(row.file);
+    return prior === undefined || row.lines > prior;
+  });
+  payload.regressions = regressions;
+  payload.ok = regressions.length === 0;
+}
 console.log(JSON.stringify(payload, null, 2));
 process.exit(payload.ok ? 0 : 1);

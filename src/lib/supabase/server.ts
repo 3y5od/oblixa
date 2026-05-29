@@ -126,14 +126,20 @@ type UserWithOptionalProfile = {
   id: string;
   user_metadata?: {
     full_name?: unknown;
+    company_name?: unknown;
   } | null;
 };
 
 export function resolveDefaultOrganizationNameForUser(user: {
   user_metadata?: {
     full_name?: unknown;
+    company_name?: unknown;
   } | null;
 }): string {
+  const companyName = typeof user.user_metadata?.company_name === "string"
+    ? user.user_metadata.company_name.trim()
+    : "";
+  if (companyName) return companyName;
   const fullName = typeof user.user_metadata?.full_name === "string"
     ? user.user_metadata.full_name.trim()
     : "";

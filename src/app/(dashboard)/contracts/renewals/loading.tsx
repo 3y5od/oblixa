@@ -20,20 +20,21 @@ export default function RenewalsLoading() {
           </div>
         </div>
 
-        <div className="ui-card overflow-hidden p-0">
+        <div className="ui-card-quiet overflow-hidden">
           <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
             <div className="ui-skeleton h-5 w-52 rounded" />
-            <div className="ui-skeleton h-8 w-32 rounded-full" />
+            <div className="ui-skeleton h-8 w-28 rounded-full" />
           </div>
-          <div className="flex gap-2 px-5 py-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="ui-skeleton h-9 w-24 rounded-full" />
-            ))}
+          <div className="flex items-center gap-3 border-t border-[var(--border-subtle)] px-5 py-3">
+            <div className="ui-skeleton h-3 w-16 rounded" />
+            <div className="ui-skeleton h-9 w-72 max-w-full rounded-[0.625rem]" />
           </div>
-          <div className="grid gap-3 px-5 py-4 md:grid-cols-3">
+          <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] px-5 py-3">
+            <div className="ui-skeleton h-3 w-10 rounded" />
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="ui-skeleton h-10 rounded-xl" />
+              <div key={i} className="ui-skeleton h-9 w-32 rounded-lg" />
             ))}
+            <div className="ui-skeleton h-9 w-16 rounded-lg" />
           </div>
           <div className="border-t border-[var(--border-subtle)]">
             {Array.from({ length: 3 }).map((_, i) => (

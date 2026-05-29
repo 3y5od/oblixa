@@ -704,7 +704,7 @@ export default function PricingPage() {
               </div>
 
               <p className="mt-5 text-[14px] leading-[1.55] text-[var(--text-secondary)]">
-                Sized to your team.
+                Need portfolio operations, controls, or assurance workflows?
               </p>
 
               <ul className="mt-4 flex flex-col gap-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">

@@ -21,7 +21,7 @@
     "aliasCount": 37,
     "readyForRemovalCount": 0,
     "blockedCount": 37,
-    "blockedByExternalReferencesCount": 0,
+    "blockedByExternalReferencesCount": 29,
     "byStatus": {
       "alias_added": 37
     },
@@ -30,280 +30,364 @@
         "legacyName": "check:v10-complete-closure",
         "neutralAlias": "check:complete-closure",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:complete-closure"
       },
       {
         "legacyName": "check:v10-inventory-lock",
         "neutralAlias": "check:release-inventory-lock",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:release-inventory-lock"
       },
       {
         "legacyName": "check:v10-migration-smoke",
         "neutralAlias": "check:migration-smoke:current",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:migration-smoke:current"
       },
       {
         "legacyName": "check:v10-migration-smoke:strict",
         "neutralAlias": "check:migration-smoke:current:strict",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:migration-smoke:current:strict"
       },
       {
         "legacyName": "check:v10-privacy-scan",
         "neutralAlias": "check:release-privacy-scan",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:release-privacy-scan"
       },
       {
         "legacyName": "check:v10-promotable",
         "neutralAlias": "check:release-promotable",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:release-promotable"
       },
       {
         "legacyName": "check:v10-promotable:report",
         "neutralAlias": "report:release-promotable",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run report:release-promotable"
       },
       {
         "legacyName": "check:v10-release-evidence",
         "neutralAlias": "check:release-evidence",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:release-evidence"
       },
       {
         "legacyName": "check:v10-runtime-evidence-plan",
         "neutralAlias": "report:runtime-evidence-plan",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run report:runtime-evidence-plan"
       },
       {
         "legacyName": "check:v10-suite",
         "neutralAlias": "check:release-suite-current",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:release-suite-current"
       },
       {
         "legacyName": "check:v10-zero-exclusion-report",
         "neutralAlias": "check:zero-exclusion-report",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:zero-exclusion-report"
       },
       {
         "legacyName": "check:v7-hrefs:strict",
         "neutralAlias": "check:surface-hrefs:compatibility:strict",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface-hrefs:compatibility:strict"
       },
       {
         "legacyName": "check:v7-suite",
         "neutralAlias": "check:surface-suite:compatibility",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface-suite:compatibility"
       },
       {
         "legacyName": "check:v8-acceptance-criteria",
         "neutralAlias": "check:surface:acceptance-criteria",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:acceptance-criteria"
       },
       {
         "legacyName": "check:v8-acceptance-matrix",
         "neutralAlias": "check:surface:acceptance-matrix",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:acceptance-matrix"
       },
       {
         "legacyName": "check:v8-action-eligibility",
         "neutralAlias": "check:surface:action-eligibility",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:action-eligibility"
       },
       {
         "legacyName": "check:v8-action-inventory",
         "neutralAlias": "check:surface:action-inventory",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:action-inventory"
       },
       {
         "legacyName": "check:v8-api-eligibility",
         "neutralAlias": "check:surface:api-eligibility",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:api-eligibility"
       },
       {
         "legacyName": "check:v8-api-inventory",
         "neutralAlias": "check:surface:api-inventory",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:api-inventory"
       },
       {
         "legacyName": "check:v8-denial-mapping",
         "neutralAlias": "check:surface:denial-mapping",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:denial-mapping"
       },
       {
         "legacyName": "check:v8-diagnostics-contract",
         "neutralAlias": "check:surface:diagnostics-contract",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:diagnostics-contract"
       },
       {
         "legacyName": "check:v8-hrefs",
         "neutralAlias": "check:surface:hrefs",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:hrefs"
       },
       {
         "legacyName": "check:v8-hrefs:strict",
         "neutralAlias": "check:surface:hrefs:strict",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:hrefs:strict"
       },
       {
         "legacyName": "check:v8-page-inventory",
         "neutralAlias": "check:surface:page-inventory",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:page-inventory"
       },
       {
         "legacyName": "check:v8-suite",
         "neutralAlias": "check:surface:suite",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:suite"
       },
       {
         "legacyName": "check:v8-supplemental-contracts",
         "neutralAlias": "check:surface:supplemental-contracts",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:supplemental-contracts"
       },
       {
         "legacyName": "check:v8-vocabulary",
         "neutralAlias": "check:surface:vocabulary",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:surface:vocabulary"
       },
       {
         "legacyName": "check:v9-suite",
         "neutralAlias": "check:previous-release-suite",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 2,
+        "externalReferences": [
+          "config/qa-comprehensive-taxonomy.json",
+          "config/qa-tier-coverage-allowlist.json"
+        ],
         "validationCommand": "npm run check:previous-release-suite"
       },
       {
@@ -350,10 +434,12 @@
         "legacyName": "test:e2e:v9",
         "neutralAlias": "test:e2e:compatibility",
         "status": "alias_added",
-        "readinessStatus": "blocked_by_manual_follow_up",
-        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
-        "externalReferenceCount": 0,
-        "externalReferences": [],
+        "readinessStatus": "blocked_by_repo_local_references",
+        "readinessBlocker": "1 repo-local reference(s) still point at the legacy package script.",
+        "externalReferenceCount": 1,
+        "externalReferences": [
+          "config/operational-schema-compatibility.json"
+        ],
         "validationCommand": "npm run test:e2e:compatibility"
       },
       {
@@ -402,12 +488,12 @@
     "categoryCount": 29,
     "completedCoverageCategoryCount": 28,
     "retainedLegacyCategoryCount": 1,
-    "contractCount": 8497,
-    "manualOnlyContractCount": 2602,
+    "contractCount": 8476,
+    "manualOnlyContractCount": 2669,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
     "missingValidationCommandCount": 0,
-    "queueEntryCount": 3183,
+    "queueEntryCount": 3279,
     "allowlistEntryCount": 31
   },
   "categories": [
@@ -422,19 +508,19 @@
         "provider_model_or_eval_version",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 274,
-      "manualOnlyContractCount": 136,
-      "queueCoveredManualCount": 136,
-      "allowlistCoveredManualCount": 133,
+      "contractCount": 269,
+      "manualOnlyContractCount": 133,
+      "queueCoveredManualCount": 133,
+      "allowlistCoveredManualCount": 131,
       "documentationOnlyManualCount": 2,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 274,
+      "validationCommandCoveredCount": 269,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 134,
+      "queueEntryCount": 131,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 134
+        "awaiting_production_cutover": 131
       },
       "allowlistEntryCount": 1,
       "allowlistEntries": [
@@ -446,8 +532,8 @@
         }
       ],
       "ownerCoverage": {
-        "platform-hardening": 138,
-        "platform-security": 136
+        "platform-hardening": 136,
+        "platform-security": 133
       }
     },
     {
@@ -464,27 +550,27 @@
         "source_schema_or_action_contract",
         "test_selector"
       ],
-      "contractCount": 450,
+      "contractCount": 454,
       "manualOnlyContractCount": 4,
       "queueCoveredManualCount": 4,
       "allowlistCoveredManualCount": 4,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 450,
+      "validationCommandCoveredCount": 454,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 63,
+      "queueEntryCount": 64,
       "queueStatusCounts": {
-        "alias_added": 50,
+        "alias_added": 51,
         "awaiting_production_cutover": 13
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
         "platform-api": 4,
-        "platform-hardening": 386,
-        "qa-platform": 60
+        "platform-hardening": 389,
+        "qa-platform": 61
       }
     },
     {
@@ -497,14 +583,14 @@
         "operational_storage_or_queue_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 410,
+      "contractCount": 401,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 410,
+      "validationCommandCoveredCount": 401,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
@@ -512,7 +598,7 @@
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 410
+        "platform-hardening": 401
       }
     },
     {
@@ -526,19 +612,19 @@
         "standards_compliance_reference",
         "telemetry_event_name"
       ],
-      "contractCount": 433,
+      "contractCount": 438,
       "manualOnlyContractCount": 179,
       "queueCoveredManualCount": 179,
       "allowlistCoveredManualCount": 179,
       "documentationOnlyManualCount": 5,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 433,
+      "validationCommandCoveredCount": 438,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 248,
+      "queueEntryCount": 261,
       "queueStatusCounts": {
-        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_analytics_dashboard_cutover": 244,
         "awaiting_production_cutover": 17
       },
       "allowlistEntryCount": 2,
@@ -557,7 +643,7 @@
         }
       ],
       "ownerCoverage": {
-        "platform-hardening": 254,
+        "platform-hardening": 259,
         "platform-security": 22,
         "platform-telemetry": 157
       }
@@ -572,25 +658,25 @@
         "feature_flag_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 197,
-      "manualOnlyContractCount": 65,
-      "queueCoveredManualCount": 63,
-      "allowlistCoveredManualCount": 65,
+      "contractCount": 215,
+      "manualOnlyContractCount": 85,
+      "queueCoveredManualCount": 83,
+      "allowlistCoveredManualCount": 85,
       "documentationOnlyManualCount": 3,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 197,
+      "validationCommandCoveredCount": 215,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 62,
+      "queueEntryCount": 82,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 62
+        "awaiting_production_cutover": 82
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 132,
-        "platform-runtime": 65
+        "platform-hardening": 130,
+        "platform-runtime": 85
       }
     },
     {
@@ -605,19 +691,19 @@
         "provider_signature_version",
         "webhook_or_provider_callback"
       ],
-      "contractCount": 62,
-      "manualOnlyContractCount": 62,
-      "queueCoveredManualCount": 62,
+      "contractCount": 61,
+      "manualOnlyContractCount": 61,
+      "queueCoveredManualCount": 61,
       "allowlistCoveredManualCount": 52,
       "documentationOnlyManualCount": 6,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 62,
+      "validationCommandCoveredCount": 61,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 48,
+      "queueEntryCount": 47,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 48
+        "awaiting_production_cutover": 47
       },
       "allowlistEntryCount": 3,
       "allowlistEntries": [
@@ -642,7 +728,7 @@
       ],
       "ownerCoverage": {
         "platform-api": 1,
-        "platform-security": 61
+        "platform-security": 60
       }
     },
     {
@@ -656,25 +742,25 @@
         "page_route_or_deep_link_contract",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 508,
-      "manualOnlyContractCount": 98,
-      "queueCoveredManualCount": 98,
-      "allowlistCoveredManualCount": 89,
+      "contractCount": 500,
+      "manualOnlyContractCount": 99,
+      "queueCoveredManualCount": 99,
+      "allowlistCoveredManualCount": 91,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 508,
+      "validationCommandCoveredCount": 500,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 98,
+      "queueEntryCount": 99,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 98
+        "awaiting_production_cutover": 99
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "frontend-platform": 98,
-        "platform-hardening": 410
+        "frontend-platform": 99,
+        "platform-hardening": 401
       }
     },
     {
@@ -687,19 +773,19 @@
         "feature_flag_key",
         "standards_compliance_reference"
       ],
-      "contractCount": 87,
-      "manualOnlyContractCount": 87,
-      "queueCoveredManualCount": 85,
-      "allowlistCoveredManualCount": 87,
+      "contractCount": 107,
+      "manualOnlyContractCount": 107,
+      "queueCoveredManualCount": 105,
+      "allowlistCoveredManualCount": 107,
       "documentationOnlyManualCount": 8,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 87,
+      "validationCommandCoveredCount": 107,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 79,
+      "queueEntryCount": 99,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 79
+        "awaiting_production_cutover": 99
       },
       "allowlistEntryCount": 3,
       "allowlistEntries": [
@@ -723,7 +809,7 @@
         }
       ],
       "ownerCoverage": {
-        "platform-runtime": 65,
+        "platform-runtime": 85,
         "platform-security": 22
       }
     },
@@ -737,14 +823,14 @@
         "local_source_literal",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 729,
+      "contractCount": 710,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 729,
+      "validationCommandCoveredCount": 710,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
@@ -752,7 +838,7 @@
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 729
+        "platform-hardening": 710
       }
     },
     {
@@ -770,20 +856,20 @@
         "public_env_key",
         "test_runtime_env_key"
       ],
-      "contractCount": 153,
-      "manualOnlyContractCount": 150,
-      "queueCoveredManualCount": 149,
-      "allowlistCoveredManualCount": 150,
+      "contractCount": 155,
+      "manualOnlyContractCount": 152,
+      "queueCoveredManualCount": 151,
+      "allowlistCoveredManualCount": 152,
       "documentationOnlyManualCount": 7,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 153,
+      "validationCommandCoveredCount": 155,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 170,
+      "queueEntryCount": 172,
       "queueStatusCounts": {
         "alias_added": 24,
-        "awaiting_production_cutover": 146
+        "awaiting_production_cutover": 148
       },
       "allowlistEntryCount": 2,
       "allowlistEntries": [
@@ -801,7 +887,7 @@
         }
       ],
       "ownerCoverage": {
-        "platform-runtime": 137,
+        "platform-runtime": 139,
         "platform-security": 13,
         "release-engineering": 3
       }
@@ -856,14 +942,14 @@
         "audit_evidence_or_diagnostic_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 386,
+      "contractCount": 389,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 386,
+      "validationCommandCoveredCount": 389,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
@@ -871,7 +957,7 @@
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 386
+        "platform-hardening": 389
       }
     },
     {
@@ -885,20 +971,20 @@
         "source_schema_or_action_contract",
         "sql_or_persisted_key"
       ],
-      "contractCount": 781,
-      "manualOnlyContractCount": 52,
-      "queueCoveredManualCount": 52,
-      "allowlistCoveredManualCount": 52,
+      "contractCount": 765,
+      "manualOnlyContractCount": 55,
+      "queueCoveredManualCount": 55,
+      "allowlistCoveredManualCount": 55,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 781,
+      "validationCommandCoveredCount": 765,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 127,
+      "queueEntryCount": 130,
       "queueStatusCounts": {
         "alias_added": 42,
-        "awaiting_linked_verification": 85
+        "awaiting_linked_verification": 88
       },
       "allowlistEntryCount": 1,
       "allowlistEntries": [
@@ -910,8 +996,8 @@
         }
       ],
       "ownerCoverage": {
-        "database-platform": 52,
-        "platform-hardening": 729
+        "database-platform": 55,
+        "platform-hardening": 710
       }
     },
     {
@@ -924,14 +1010,14 @@
         "operational_storage_or_queue_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 410,
+      "contractCount": 401,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 410,
+      "validationCommandCoveredCount": 401,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
@@ -939,7 +1025,7 @@
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 410
+        "platform-hardening": 401
       }
     },
     {
@@ -989,19 +1075,19 @@
         "provider_or_protocol_version",
         "provider_signature_version"
       ],
-      "contractCount": 84,
-      "manualOnlyContractCount": 55,
-      "queueCoveredManualCount": 55,
+      "contractCount": 81,
+      "manualOnlyContractCount": 54,
+      "queueCoveredManualCount": 54,
       "allowlistCoveredManualCount": 45,
       "documentationOnlyManualCount": 3,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 84,
+      "validationCommandCoveredCount": 81,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 47,
+      "queueEntryCount": 46,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 47
+        "awaiting_production_cutover": 46
       },
       "allowlistEntryCount": 2,
       "allowlistEntries": [
@@ -1019,8 +1105,8 @@
         }
       ],
       "ownerCoverage": {
-        "platform-hardening": 29,
-        "platform-security": 55
+        "platform-hardening": 27,
+        "platform-security": 54
       }
     },
     {
@@ -1034,14 +1120,14 @@
         "openapi_or_json_schema_contract",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 149,
+      "contractCount": 147,
       "manualOnlyContractCount": 17,
       "queueCoveredManualCount": 17,
       "allowlistCoveredManualCount": 17,
       "documentationOnlyManualCount": 1,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 149,
+      "validationCommandCoveredCount": 147,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 16,
@@ -1059,7 +1145,7 @@
       ],
       "ownerCoverage": {
         "platform-api": 4,
-        "platform-hardening": 132,
+        "platform-hardening": 130,
         "platform-security": 13
       }
     },
@@ -1075,20 +1161,20 @@
         "operational_storage_or_queue_key",
         "provider_model_or_eval_version"
       ],
-      "contractCount": 496,
-      "manualOnlyContractCount": 218,
-      "queueCoveredManualCount": 216,
-      "allowlistCoveredManualCount": 215,
+      "contractCount": 506,
+      "manualOnlyContractCount": 235,
+      "queueCoveredManualCount": 233,
+      "allowlistCoveredManualCount": 233,
       "documentationOnlyManualCount": 6,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 496,
+      "validationCommandCoveredCount": 506,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 236,
+      "queueEntryCount": 253,
       "queueStatusCounts": {
         "alias_added": 24,
-        "awaiting_production_cutover": 212
+        "awaiting_production_cutover": 229
       },
       "allowlistEntryCount": 1,
       "allowlistEntries": [
@@ -1100,9 +1186,9 @@
         }
       ],
       "ownerCoverage": {
-        "platform-hardening": 278,
-        "platform-runtime": 82,
-        "platform-security": 136
+        "platform-hardening": 271,
+        "platform-runtime": 102,
+        "platform-security": 133
       }
     },
     {
@@ -1149,19 +1235,19 @@
         "provider_signature_version",
         "webhook_or_provider_callback"
       ],
-      "contractCount": 198,
-      "manualOnlyContractCount": 198,
-      "queueCoveredManualCount": 198,
-      "allowlistCoveredManualCount": 185,
+      "contractCount": 194,
+      "manualOnlyContractCount": 194,
+      "queueCoveredManualCount": 194,
+      "allowlistCoveredManualCount": 183,
       "documentationOnlyManualCount": 8,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 198,
+      "validationCommandCoveredCount": 194,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 182,
+      "queueEntryCount": 178,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 182
+        "awaiting_production_cutover": 178
       },
       "allowlistEntryCount": 4,
       "allowlistEntries": [
@@ -1192,7 +1278,7 @@
       ],
       "ownerCoverage": {
         "platform-api": 1,
-        "platform-security": 197
+        "platform-security": 193
       }
     },
     {
@@ -1206,19 +1292,19 @@
         "source_schema_or_action_contract",
         "standards_compliance_reference"
       ],
-      "contractCount": 252,
-      "manualOnlyContractCount": 120,
-      "queueCoveredManualCount": 120,
-      "allowlistCoveredManualCount": 111,
+      "contractCount": 251,
+      "manualOnlyContractCount": 121,
+      "queueCoveredManualCount": 121,
+      "allowlistCoveredManualCount": 113,
       "documentationOnlyManualCount": 5,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 252,
+      "validationCommandCoveredCount": 251,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 115,
+      "queueEntryCount": 116,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 115
+        "awaiting_production_cutover": 116
       },
       "allowlistEntryCount": 3,
       "allowlistEntries": [
@@ -1242,8 +1328,8 @@
         }
       ],
       "ownerCoverage": {
-        "frontend-platform": 98,
-        "platform-hardening": 132,
+        "frontend-platform": 99,
+        "platform-hardening": 130,
         "platform-security": 22
       }
     },
@@ -1258,19 +1344,19 @@
         "public_metadata_or_asset",
         "pwa_or_well_known_contract"
       ],
-      "contractCount": 98,
-      "manualOnlyContractCount": 98,
-      "queueCoveredManualCount": 98,
-      "allowlistCoveredManualCount": 89,
+      "contractCount": 99,
+      "manualOnlyContractCount": 99,
+      "queueCoveredManualCount": 99,
+      "allowlistCoveredManualCount": 91,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 98,
+      "validationCommandCoveredCount": 99,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 98,
+      "queueEntryCount": 99,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 98
+        "awaiting_production_cutover": 99
       },
       "allowlistEntryCount": 2,
       "allowlistEntries": [
@@ -1288,7 +1374,7 @@
         }
       ],
       "ownerCoverage": {
-        "frontend-platform": 98
+        "frontend-platform": 99
       }
     },
     {
@@ -1302,14 +1388,14 @@
         "operational_storage_or_queue_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 616,
+      "contractCount": 607,
       "manualOnlyContractCount": 206,
       "queueCoveredManualCount": 206,
       "allowlistCoveredManualCount": 206,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 616,
+      "validationCommandCoveredCount": 607,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 207,
@@ -1321,7 +1407,7 @@
       "allowlistEntries": [],
       "ownerCoverage": {
         "platform-api": 206,
-        "platform-hardening": 410
+        "platform-hardening": 401
       }
     },
     {
@@ -1335,25 +1421,25 @@
         "cron_route_contract",
         "page_route_or_deep_link_contract"
       ],
-      "contractCount": 453,
-      "manualOnlyContractCount": 453,
-      "queueCoveredManualCount": 453,
-      "allowlistCoveredManualCount": 444,
+      "contractCount": 454,
+      "manualOnlyContractCount": 454,
+      "queueCoveredManualCount": 454,
+      "allowlistCoveredManualCount": 446,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 453,
+      "validationCommandCoveredCount": 454,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 486,
+      "queueEntryCount": 487,
       "queueStatusCounts": {
         "alias_added": 33,
-        "awaiting_production_cutover": 453
+        "awaiting_production_cutover": 454
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "frontend-platform": 98,
+        "frontend-platform": 99,
         "platform-api": 355
       }
     },
@@ -1368,28 +1454,28 @@
         "source_owned_config_or_scanner_id",
         "tooling_or_local_fixture"
       ],
-      "contractCount": 272,
-      "manualOnlyContractCount": 15,
-      "queueCoveredManualCount": 15,
-      "allowlistCoveredManualCount": 15,
+      "contractCount": 284,
+      "manualOnlyContractCount": 25,
+      "queueCoveredManualCount": 25,
+      "allowlistCoveredManualCount": 25,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 272,
+      "validationCommandCoveredCount": 284,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 254,
+      "queueEntryCount": 266,
       "queueStatusCounts": {
         "alias_added": 29,
         "awaiting_linked_verification": 1,
-        "awaiting_production_cutover": 224
+        "awaiting_production_cutover": 236
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
         "database-platform": 1,
-        "platform-hardening": 257,
-        "platform-security": 14
+        "platform-hardening": 259,
+        "platform-security": 24
       }
     },
     {
@@ -1401,14 +1487,14 @@
       "subSurfaceClasses": [
         "source_schema_or_action_contract"
       ],
-      "contractCount": 132,
+      "contractCount": 130,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 132,
+      "validationCommandCoveredCount": 130,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
@@ -1416,7 +1502,7 @@
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
-        "platform-hardening": 132
+        "platform-hardening": 130
       }
     },
     {
@@ -1429,14 +1515,14 @@
         "artifact_schema_version",
         "operational_storage_or_queue_key"
       ],
-      "contractCount": 291,
+      "contractCount": 284,
       "manualOnlyContractCount": 13,
       "queueCoveredManualCount": 13,
       "allowlistCoveredManualCount": 13,
       "documentationOnlyManualCount": 1,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 291,
+      "validationCommandCoveredCount": 284,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 12,
@@ -1453,7 +1539,7 @@
         }
       ],
       "ownerCoverage": {
-        "platform-hardening": 278,
+        "platform-hardening": 271,
         "platform-security": 13
       }
     },
@@ -1468,27 +1554,27 @@
         "source_schema_or_action_contract",
         "telemetry_event_name"
       ],
-      "contractCount": 495,
+      "contractCount": 493,
       "manualOnlyContractCount": 363,
       "queueCoveredManualCount": 363,
       "allowlistCoveredManualCount": 363,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 495,
+      "validationCommandCoveredCount": 493,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 438,
+      "queueEntryCount": 451,
       "queueStatusCounts": {
         "alias_added": 1,
-        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_analytics_dashboard_cutover": 244,
         "awaiting_production_cutover": 206
       },
       "allowlistEntryCount": 0,
       "allowlistEntries": [],
       "ownerCoverage": {
         "platform-api": 206,
-        "platform-hardening": 132,
+        "platform-hardening": 130,
         "platform-telemetry": 157
       }
     },

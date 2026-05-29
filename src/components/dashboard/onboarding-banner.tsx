@@ -113,20 +113,20 @@ export function OnboardingBanner({
   > = {
     setup: {
       done: stepSetup,
-      href: stepSetup ? "/settings/product" : "/onboarding/calibration",
-      actionLabel: stepSetup ? "Review product experience" : "Complete workspace calibration",
+      href: "/onboarding/calibration",
+      actionLabel: stepSetup ? "Review workspace setup" : "Complete workspace calibration",
       detail: stepSetup
-        ? "Workspace calibration is on file and the recommended product defaults can still be adjusted later."
-        : "Complete the workspace calibration so the starting mode, shortcuts, and landing path point to the right operational surfaces.",
+        ? "Workspace calibration is on file. Revisit the setup flow if your contract tracking needs have changed."
+        : "Complete the workspace calibration so Oblixa can focus on the renewals, owners, obligations, evidence, and reports that matter most.",
       el: (
         <span>
           {stepSetup ? (
             <>
               Review{" "}
-              <Link href="/settings/product" className="ui-link">
-                product experience settings
+              <Link href="/onboarding/calibration" className="ui-link">
+                workspace setup
               </Link>{" "}
-              if you want to fine-tune the recommended defaults.
+              if your contract tracking needs have changed.
             </>
           ) : (
             <>

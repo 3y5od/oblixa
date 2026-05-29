@@ -31,6 +31,33 @@ describe("hashExternalPasscode", () => {
     expect(verifyExternalSubmitTicket("tok", ticket, "link-1")).toEqual({ ok: true });
   });
 
+  it("accepts previous submit-ticket secret during bounded rotation", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET", "submit-ticket-old");
+    const ticket = signExternalSubmitTicket({ linkId: "link-1", urlToken: "tok" });
+
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET", "submit-ticket-new");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS", "submit-ticket-old");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT", "2099-01-01T00:00:00.000Z");
+
+    expect(verifyExternalSubmitTicket("tok", ticket, "link-1")).toEqual({ ok: true });
+  });
+
+  it("rejects expired previous submit-ticket secret during rotation", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET", "submit-ticket-old");
+    const ticket = signExternalSubmitTicket({ linkId: "link-1", urlToken: "tok" });
+
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET", "submit-ticket-new");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS", "submit-ticket-old");
+    vi.stubEnv("EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT", "2000-01-01T00:00:00.000Z");
+
+    expect(verifyExternalSubmitTicket("tok", ticket, "link-1")).toEqual({
+      ok: false,
+      reason: "submit_ticket_invalid",
+    });
+  });
+
   it("rejects CRON_SECRET as submit-ticket HMAC key in production", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("CRON_SECRET", "cron-only");

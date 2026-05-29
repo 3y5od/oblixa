@@ -5,6 +5,7 @@
  * be present to avoid half-wired monitors. Non-monitor CI jobs may still expose Supabase env.
  */
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const SLO_MONITOR_KEYS = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "HC_SLO_MONITOR_PING"];
 
@@ -53,9 +54,11 @@ export function analyzeSyntheticSloEnv(env = process.env) {
   };
 }
 
-const report = analyzeSyntheticSloEnv();
-if (!report.ok) {
-  console.error(JSON.stringify(report, null, 2));
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = analyzeSyntheticSloEnv();
+  if (!report.ok) {
+    console.error(JSON.stringify(report, null, 2));
+    process.exit(1);
+  }
+  console.log(JSON.stringify(report, null, 2));
 }
-console.log(JSON.stringify(report, null, 2));

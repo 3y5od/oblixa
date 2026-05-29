@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "source": "playwright-flake-classification",
+  "ok": true,
+  "mode": "no_report",
+  "configuredReportPaths": [
+    "test-results/results.json",
+    "test-results/junit.xml",
+    "playwright-report/results.json"
+  ],
+  "parsedReports": [],
+  "requiredClasses": [
+    "timeout",
+    "locator_failure",
+    "network_failure",
+    "assertion_drift",
+    "visual_drift",
+    "browser_crash",
+    "environment_missing"
+  ],
+  "classCoverage": [
+    {
+      "class": "timeout",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 4
+    },
+    {
+      "class": "locator_failure",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 4
+    },
+    {
+      "class": "network_failure",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 5
+    },
+    {
+      "class": "assertion_drift",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 5
+    },
+    {
+      "class": "visual_drift",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 5
+    },
+    {
+      "class": "browser_crash",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 6
+    },
+    {
+      "class": "environment_missing",
+      "owner": "@test-platform",
+      "nextValidationCommand": "check:operational-test-reliability-governance",
+      "detectorCount": 6
+    }
+  ],
+  "classifiedFailureCount": 0,
+  "unclassifiedCount": 0,
+  "classCounts": {
+    "timeout": 0,
+    "locator_failure": 0,
+    "network_failure": 0,
+    "assertion_drift": 0,
+    "visual_drift": 0,
+    "browser_crash": 0,
+    "environment_missing": 0,
+    "unclassified": 0
+  },
+  "rows": [],
+  "issueCount": 0,
+  "issues": []
+}

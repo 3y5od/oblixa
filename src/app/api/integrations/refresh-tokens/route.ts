@@ -1,10 +1,12 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
+import { isKillIntegrationSync, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { decryptIntegrationToken, encryptIntegrationToken } from "@/lib/security/token-crypto";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { forEachSupabaseRangePage } from "@/lib/supabase/range-pagination";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,6 +67,7 @@ export const GET = withCronRoute({
   healthcheckRoute: "integrations/refresh-tokens",
   rateLimitKey: "cron:integrations:refresh-tokens",
   rateLimit: RATE_LIMITS.integrationRefreshTokens,
+  preflight: () => (isKillIntegrationSync() ? killSwitchJsonResponse("integration_sync") : null),
   handler: async ({ admin }) => {
     const now = Date.now();
     const soonIso = new Date(now + 15 * 60 * 1000).toISOString();
@@ -262,14 +265,14 @@ export const GET = withCronRoute({
               }).catch(() => undefined);
             }
           } catch (err) {
+            const safeError = formatUnknownForServerLog(err);
             failed++;
             await updateConnectionState(
               admin,
               connectionId,
               {
                 status: "error",
-                last_error:
-                  err instanceof Error ? err.message.slice(0, 500) : "token_refresh_error",
+                last_error: safeError.slice(0, 500) || "token_refresh_error",
               },
               errors,
               {
@@ -281,7 +284,7 @@ export const GET = withCronRoute({
             appendRouteError(errors, {
               diagnosticId: "integrations_refresh_failed",
               phase: "source_query",
-              message: err instanceof Error ? err.message.slice(0, 200) : "token_refresh_error",
+              message: safeError.slice(0, 200) || "token_refresh_error",
               connectionId,
               provider,
             });

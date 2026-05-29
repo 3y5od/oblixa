@@ -558,7 +558,9 @@ function formatDateOnly(date: Date) {
 }
 
 function dateLabel(raw: string | null) {
-  return formatBusinessDateAtNoon(raw, "Missing");
+  // §10.12 — an absent date is "no value yet" (em dash), not a warning.
+  // "Missing" is reserved for an actionable status/tone, not a date cell.
+  return formatBusinessDateAtNoon(raw, "—");
 }
 
 function latestByUpdate<T extends { updated_at?: string | null; due_date?: string | null }>(rows: T[]) {

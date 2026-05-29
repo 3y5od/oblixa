@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
+import { isKillCronFamily, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { createAdminClient } from "@/lib/supabase/server";
 import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
 import { pingCronHealthcheck } from "@/lib/observability/cron-healthcheck";
@@ -75,6 +76,138 @@ function statusFor(ok: boolean, partial: boolean, explicit?: number): number {
   return ok ? 200 : 500;
 }
 
+function cronJobId(route: string, startedAtMs: number): string {
+  const routePart = route
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${routePart || "cron"}:${startedAtMs}`;
+}
+
+function finiteMetric(value: unknown): number | null {
+  const numeric = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : null;
+}
+
+function firstMetric(body: Record<string, unknown>, keys: string[]): number | null {
+  for (const key of keys) {
+    const value = finiteMetric(body[key]);
+    if (value !== null) return value;
+  }
+  return null;
+}
+
+function cronEnvelope(
+  options: CronRouteRunnerOptions,
+  startedAtMs: number,
+  body: Record<string, unknown>,
+  input: {
+    ok?: boolean;
+    errorsCount?: number;
+    processedCount?: number;
+    skippedCount?: number;
+    failedCount?: number;
+    retryCount?: number;
+  } = {}
+): Record<string, unknown> {
+  const errorsCount = finiteMetric(input.errorsCount ?? body.errors_count) ?? 0;
+  const skipped = body.skipped === true;
+  const retryCount =
+    finiteMetric(input.retryCount) ?? firstMetric(body, ["retry_count", "retried", "retries", "attempts"]) ?? 0;
+  const processedCount =
+    finiteMetric(input.processedCount) ??
+    firstMetric(body, [
+      "processed_count",
+      "processed",
+      "scanned",
+      "sent",
+      "updated",
+      "generated",
+      "issued",
+      "detected",
+      "evaluated",
+      "reconciledPrograms",
+      "updatedSignals",
+      "campaignsUpdated",
+      "snapshotRunsCreated",
+      "forecastsGenerated",
+      "riskSnapshotsUpserted",
+      "recommendationsCreated",
+      "rollupsRecorded",
+      "checkRuns",
+      "executed",
+      "analyzed",
+      "assuranceRuns",
+      "escalated",
+      "deleted_count",
+      "archived_count",
+    ]) ??
+    0;
+  const skippedCount =
+    finiteMetric(input.skippedCount) ??
+    firstMetric(body, ["skipped_count", "skippedNoEmail", "skipped_no_email", "skippedOther", "orgs_skipped"]) ??
+    (skipped ? 1 : 0);
+  const failedCount =
+    finiteMetric(input.failedCount) ?? firstMetric(body, ["failed_count", "failed", "orgs_failed"]) ?? errorsCount;
+
+  return {
+    ok: input.ok ?? (typeof body.ok === "boolean" ? body.ok : errorsCount === 0),
+    route: options.route,
+    job_id: cronJobId(options.route, startedAtMs),
+    started_at: new Date(startedAtMs).toISOString(),
+    durationMs: Date.now() - startedAtMs,
+    processed_count: processedCount,
+    skipped_count: skippedCount,
+    failed_count: failedCount,
+    retry_count: retryCount,
+    errors_count: errorsCount,
+  };
+}
+
+function cronJsonResponse(
+  options: CronRouteRunnerOptions,
+  startedAtMs: number,
+  body: Record<string, unknown>,
+  init?: ResponseInit,
+  envelopeInput: Parameters<typeof cronEnvelope>[3] = {}
+): NextResponse {
+  return applyResponseHeaders(
+    NextResponse.json({ ...body, ...cronEnvelope(options, startedAtMs, body, envelopeInput) }, init),
+    options.responseHeaders
+  );
+}
+
+async function responseWithCronEnvelope(
+  response: Response,
+  options: CronRouteRunnerOptions,
+  startedAtMs: number,
+  envelopeInput: Parameters<typeof cronEnvelope>[3] = {}
+): Promise<NextResponse> {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!/application\/json/i.test(contentType)) {
+    applyResponseHeaders(response as NextResponse, options.responseHeaders);
+    return response as NextResponse;
+  }
+
+  try {
+    const body = (await response.clone().json()) as Record<string, unknown>;
+    return cronJsonResponse(
+      options,
+      startedAtMs,
+      body,
+      {
+        status: response.status,
+        headers: response.headers,
+      },
+      envelopeInput
+    );
+  } catch {
+    applyResponseHeaders(response as NextResponse, options.responseHeaders);
+    return response as NextResponse;
+  }
+}
+
 function pingIfEnabled(options: CronRouteRunnerOptions, payload: Record<string, unknown>) {
   if (options.pingHealthcheck === false) return;
   pingCronHealthcheck(options.healthcheckRoute ?? options.route, payload);
@@ -140,7 +273,7 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       reason: deny.status === 503 ? "cron_secret_missing" : "cron_unauthorized",
       durationMs: Date.now() - startedAtMs,
     });
-    return deny;
+    return responseWithCronEnvelope(deny, options, startedAtMs, { ok: false, failedCount: 1 });
   }
 
   const duplicate = await enforceIdempotency(request, {
@@ -171,7 +304,11 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       durationMs: Date.now() - startedAtMs,
     };
     pingIfEnabled(options, { ...payload, status: 429, reason: "rate_limited" });
-    return applyResponseHeaders(NextResponse.json(payload, { status: 429 }), options.responseHeaders);
+    return cronJsonResponse(options, startedAtMs, payload, { status: 429 }, {
+      ok: false,
+      failedCount: 1,
+      retryCount: 1,
+    });
   }
 
   const singleFlightKey = await resolveSingleFlightKey(request, options);
@@ -195,16 +332,37 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
         lock_backend: lockResult.backend,
       };
       pingIfEnabled(options, { ...payload, status: 409 });
-      const response = NextResponse.json(payload, {
-        status: 409,
-        headers: { "Retry-After": String(Math.max(1, Math.ceil(lockResult.retryAfterMs / 1000))) },
-      });
-      return applyResponseHeaders(response, options.responseHeaders);
+      const response = cronJsonResponse(
+        options,
+        startedAtMs,
+        payload,
+        {
+          status: 409,
+          headers: { "Retry-After": String(Math.max(1, Math.ceil(lockResult.retryAfterMs / 1000))) },
+        },
+        {
+          ok: false,
+          skippedCount: 1,
+          retryCount: 1,
+        }
+      );
+      return response;
     }
     singleFlightLock = lockResult.lock;
   }
 
   try {
+    if (isKillCronFamily()) {
+      const response = killSwitchJsonResponse("cron_family");
+      pingIfEnabled(options, {
+        ok: false,
+        status: response.status,
+        reason: "kill_switch_active",
+        durationMs: Date.now() - startedAtMs,
+      });
+      return responseWithCronEnvelope(response, options, startedAtMs, { ok: false, failedCount: 1 });
+    }
+
     const preflight = options.preflight ? await options.preflight(request) : null;
     const dependencyPreflight = options.dependencyPreflight ? await options.dependencyPreflight(request) : null;
     if (dependencyPreflight) {
@@ -223,10 +381,10 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
         status: dependencyPreflight.status ?? 503,
         reason: dependencyPreflight.code ?? "dependency_blocked",
       });
-      return applyResponseHeaders(
-        NextResponse.json(payload, { status: dependencyPreflight.status ?? 503 }),
-        options.responseHeaders
-      );
+      return cronJsonResponse(options, startedAtMs, payload, { status: dependencyPreflight.status ?? 503 }, {
+        ok: false,
+        failedCount: 1,
+      });
     }
     if (preflight) {
       const skipTelemetry = await getSkipTelemetryFromResponse(preflight);
@@ -243,7 +401,11 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
         durationMs: Date.now() - startedAtMs,
         ...skipTelemetry,
       });
-      return preflight;
+      return responseWithCronEnvelope(preflight, options, startedAtMs, {
+        ok: preflight.status < 400,
+        skippedCount: skipTelemetry.skipped === true ? 1 : 0,
+        failedCount: preflight.status >= 400 ? 1 : 0,
+      });
     }
 
     let admin: AdminClient;
@@ -261,7 +423,7 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
         durationMs: Date.now() - startedAtMs,
       };
       pingIfEnabled(options, { ...payload, status: 503, reason: "admin_client_unavailable" });
-      return applyResponseHeaders(NextResponse.json(payload, { status: 503 }), options.responseHeaders);
+      return cronJsonResponse(options, startedAtMs, payload, { status: 503 }, { ok: false, failedCount: 1 });
     }
 
     try {
@@ -270,14 +432,11 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
       const errorsCount = Number(result.errorsCount ?? result.body.errors_count ?? 0);
       const ok = result.ok ?? (!partial && errorsCount === 0 && result.body.ok !== false);
       const status = statusFor(ok, partial, result.status);
-      const body = {
-        ok,
-        route: options.route,
-        durationMs: Date.now() - startedAtMs,
-        ...(partial ? { partial: true } : {}),
-        ...(Number.isFinite(errorsCount) ? { errors_count: errorsCount } : {}),
-        ...(result.phase ? { phase: result.phase } : {}),
+      const body: Record<string, unknown> = {
         ...result.body,
+        ...cronEnvelope(options, startedAtMs, result.body, { ok, errorsCount }),
+        ...(partial ? { partial: true } : {}),
+        ...(result.phase ? { phase: result.phase } : {}),
       };
       const skipTelemetry = getSkipTelemetryFromBody(body);
       pingIfEnabled(options, {
@@ -302,7 +461,7 @@ export async function runCronRoute(request: Request, options: CronRouteRunnerOpt
         errors_count: 1,
       };
       pingIfEnabled(options, { ...payload, status: 500, reason: "unhandled_cron_error" });
-      return applyResponseHeaders(NextResponse.json(payload, { status: 500 }), options.responseHeaders);
+      return cronJsonResponse(options, startedAtMs, payload, { status: 500 }, { ok: false, failedCount: 1 });
     }
   } finally {
     if (singleFlightLock) {

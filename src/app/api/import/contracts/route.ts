@@ -6,6 +6,7 @@ import { canEditContracts } from "@/lib/permissions";
 import { getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitV10ObjectiveTelemetryEvent } from "@/lib/product-telemetry";
+import { isKillImportExport, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { MAX_IMPORT_BODY_CHARS, parseCsv, runContractCsvImport } from "@/lib/import-jobs";
 import { buildV10MutationResponse, buildV10MutationResponseInit } from "@/lib/mutation-envelope";
 import { findV10DuplicateImportCandidates, validateV10ImportCandidate } from "@/lib/activation-state";
@@ -114,6 +115,7 @@ export async function POST(request: Request) {
     v10MutationResponse: true,
   });
   if (modeGate) return modeGate;
+  if (isKillImportExport()) return killSwitchJsonResponse("import_export");
 
   const payload = await getImportCsvPayload(request, contentType);
   if ("error" in payload) {

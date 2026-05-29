@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-feature-flags-rollout",
+  "generatedFrom": "config/operational-feature-flags-rollout.json",
+  "featureFlagSource": "src/lib/feature-flags.ts",
+  "contractSource": "src/lib/operational-feature-flags.ts",
+  "killSwitchSource": "src/lib/security/kill-switches.ts",
+  "featureFlagInventory": {
+    "expectedCount": 22,
+    "actualCount": 22,
+    "flags": [
+      {
+        "key": "v3ApprovalsSla",
+        "envName": "ENABLE_APPROVALS_SLA",
+        "legacyAlias": "ENABLE_V3_APPROVALS_SLA"
+      },
+      {
+        "key": "v3AutomationExpansion",
+        "envName": "ENABLE_AUTOMATION_EXPANSION",
+        "legacyAlias": "ENABLE_V3_AUTOMATION_EXPANSION"
+      },
+      {
+        "key": "v3IntakePipeline",
+        "envName": "ENABLE_INTAKE_PIPELINE",
+        "legacyAlias": "ENABLE_V3_INTAKE_PIPELINE"
+      },
+      {
+        "key": "v3ObligationsExecution",
+        "envName": "ENABLE_OBLIGATIONS_EXECUTION",
+        "legacyAlias": "ENABLE_V3_OBLIGATIONS_EXECUTION"
+      },
+      {
+        "key": "v3PersonaDashboards",
+        "envName": "ENABLE_PERSONA_DASHBOARDS",
+        "legacyAlias": "ENABLE_V3_PERSONA_DASHBOARDS"
+      },
+      {
+        "key": "v3RenewalWorkspace",
+        "envName": "ENABLE_RENEWAL_WORKSPACE",
+        "legacyAlias": "ENABLE_V3_RENEWAL_WORKSPACE"
+      },
+      {
+        "key": "v3ReportingHistory",
+        "envName": "ENABLE_REPORTING_HISTORY",
+        "legacyAlias": "ENABLE_V3_REPORTING_HISTORY"
+      },
+      {
+        "key": "v3TasksEngine",
+        "envName": "ENABLE_TASKS_ENGINE",
+        "legacyAlias": "ENABLE_V3_TASKS_ENGINE"
+      },
+      {
+        "key": "v5ControlRoomUx",
+        "envName": "ENABLE_CONTROL_ROOM_UX",
+        "legacyAlias": "ENABLE_V5_CONTROL_ROOM_UX"
+      },
+      {
+        "key": "v5DecisionFoundation",
+        "envName": "ENABLE_DECISION_FOUNDATION",
+        "legacyAlias": "ENABLE_V5_DECISION_FOUNDATION"
+      },
+      {
+        "key": "v5ExternalCollaboration",
+        "envName": "ENABLE_EXTERNAL_COLLABORATION",
+        "legacyAlias": "ENABLE_V5_EXTERNAL_COLLABORATION"
+      },
+      {
+        "key": "v5PortfolioCampaigns",
+        "envName": "ENABLE_PORTFOLIO_CAMPAIGNS",
+        "legacyAlias": "ENABLE_V5_PORTFOLIO_CAMPAIGNS"
+      },
+      {
+        "key": "v5RelationshipLayer",
+        "envName": "ENABLE_RELATIONSHIP_LAYER",
+        "legacyAlias": "ENABLE_V5_RELATIONSHIP_LAYER"
+      },
+      {
+        "key": "v5SimulationAndIntelligence",
+        "envName": "ENABLE_SIMULATION_AND_INTELLIGENCE",
+        "legacyAlias": "ENABLE_V5_SIMULATION_AND_INTELLIGENCE"
+      },
+      {
+        "key": "v6AdaptivePlaybooks",
+        "envName": "ENABLE_ADAPTIVE_PLAYBOOKS",
+        "legacyAlias": "ENABLE_V6_ADAPTIVE_PLAYBOOKS"
+      },
+      {
+        "key": "v6AssuranceCore",
+        "envName": "ENABLE_ASSURANCE_CORE",
+        "legacyAlias": "ENABLE_V6_ASSURANCE_CORE"
+      },
+      {
+        "key": "v6Autopilot",
+        "envName": "ENABLE_AUTOPILOT",
+        "legacyAlias": "ENABLE_V6_AUTOPILOT"
+      },
+      {
+        "key": "v6AutopilotAllowExecution",
+        "envName": "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
+        "legacyAlias": "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION"
+      },
+      {
+        "key": "v6ControlPolicies",
+        "envName": "ENABLE_CONTROL_POLICIES",
+        "legacyAlias": "ENABLE_V6_CONTROL_POLICIES"
+      },
+      {
+        "key": "v6OutcomeIntelligence",
+        "envName": "ENABLE_OUTCOME_INTELLIGENCE",
+        "legacyAlias": "ENABLE_V6_OUTCOME_INTELLIGENCE"
+      },
+      {
+        "key": "v6ReviewBoards",
+        "envName": "ENABLE_REVIEW_BOARDS",
+        "legacyAlias": "ENABLE_V6_REVIEW_BOARDS"
+      },
+      {
+        "key": "v6Segments",
+        "envName": "ENABLE_SEGMENTS",
+        "legacyAlias": "ENABLE_V6_SEGMENTS"
+      }
+    ],
+    "metadataCoverageCount": 22
+  },
+  "killSwitchCoverage": {
+    "requiredCount": 7,
+    "requiredIds": [
+      "billing-mutation-freeze",
+      "cron-family-pause",
+      "extraction-disablement",
+      "import-export-disablement",
+      "integration-sync-pause",
+      "outbound-email-disablement",
+      "webhook-dispatch-pause"
+    ],
+    "runtimeEvidence": {
+      "extraction-disablement": [
+        "src/app/api/extract/route.ts"
+      ],
+      "outbound-email-disablement": [
+        "src/lib/email.ts"
+      ],
+      "webhook-dispatch-pause": [
+        "src/app/api/webhooks/dispatch/route.ts"
+      ],
+      "cron-family-pause": [
+        "src/lib/cron/route-runner.ts"
+      ],
+      "billing-mutation-freeze": [
+        "src/app/api/stripe/checkout/route.ts"
+      ],
+      "import-export-disablement": [
+        "src/app/api/import/contracts/route.ts",
+        "src/app/api/export/contracts/route.ts",
+        "src/app/api/export/reports/route.ts"
+      ],
+      "integration-sync-pause": [
+        "src/app/api/integrations/refresh-tokens/route.ts",
+        "src/app/api/integrations/crm/sync/route.ts",
+        "src/app/api/integrations/calendar/sync/route.ts"
+      ]
+    }
+  },
+  "rolloutSafety": {
+    "requiredCases": [
+      "default-off",
+      "default-on",
+      "partial-rollout",
+      "org-allowlist",
+      "workspace-mode",
+      "stale-calibration"
+    ],
+    "requiredGuardrails": [
+      "auth",
+      "tenant-scope",
+      "billing-state",
+      "workspace-mode"
+    ]
+  },
+  "validationCommands": [
+    "check:operational-feature-flags-rollout",
+    "check:feature-flag-lifecycle",
+    "check:feature-flag-security-bypass",
+    "test:operational-feature-flags"
+  ],
+  "issueCount": 0,
+  "issues": []
+}

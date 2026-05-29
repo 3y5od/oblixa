@@ -1,0 +1,2872 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-repository-artifact-hygiene",
+  "generatedBy": "scripts/check-operational-repository-artifact-hygiene.mjs --write",
+  "generatedFrom": "config/operational-repository-artifact-hygiene.json",
+  "objectives": [
+    {
+      "id": "generated-and-transient-directories",
+      "ownerArea": "platform-hardening",
+      "markerCount": 3
+    },
+    {
+      "id": "large-file-and-binary-checks",
+      "ownerArea": "platform-security",
+      "markerCount": 4
+    },
+    {
+      "id": "line-ending-and-encoding-hygiene",
+      "ownerArea": "platform-hardening",
+      "markerCount": 5
+    },
+    {
+      "id": "workspace-cleanliness-gates",
+      "ownerArea": "platform-governance",
+      "markerCount": 3
+    }
+  ],
+  "transientClassification": {
+    "transientArtifactCount": 19,
+    "ignoredCount": 19,
+    "missingIgnoreCount": 0,
+    "rows": [
+      {
+        "path": ".next/",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "ignored-local-build-output",
+        "gitignorePattern": ".next/",
+        "ignored": true
+      },
+      {
+        "path": "out/",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "ignored-static-export-output",
+        "gitignorePattern": "out/",
+        "ignored": true
+      },
+      {
+        "path": "build/",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "ignored-build-output",
+        "gitignorePattern": "build/",
+        "ignored": true
+      },
+      {
+        "path": "dist/",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "ignored-build-output",
+        "gitignorePattern": "dist/",
+        "ignored": true
+      },
+      {
+        "path": ".turbo",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "ignored-cache",
+        "gitignorePattern": ".turbo",
+        "ignored": true
+      },
+      {
+        "path": ".vercel",
+        "ownerArea": "release-engineering",
+        "cleanupPolicy": "ignored-provider-local-state",
+        "gitignorePattern": ".vercel",
+        "ignored": true
+      },
+      {
+        "path": "coverage/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-coverage-output",
+        "gitignorePattern": "coverage/",
+        "ignored": true
+      },
+      {
+        "path": "test-results/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-test-output",
+        "gitignorePattern": "test-results/",
+        "ignored": true
+      },
+      {
+        "path": "playwright-report/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-playwright-report",
+        "gitignorePattern": "playwright-report/",
+        "ignored": true
+      },
+      {
+        "path": "blob-report/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-playwright-blob-report",
+        "gitignorePattern": "blob-report/",
+        "ignored": true
+      },
+      {
+        "path": "playwright/.cache/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-playwright-cache",
+        "gitignorePattern": "playwright/.cache/",
+        "ignored": true
+      },
+      {
+        "path": "e2e/.auth/",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "ignored-local-auth-state",
+        "gitignorePattern": "e2e/.auth/",
+        "ignored": true
+      },
+      {
+        "path": "artifacts/generated/",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "ignored-ad-hoc-generated-output",
+        "gitignorePattern": "artifacts/generated/",
+        "ignored": true
+      },
+      {
+        "path": "cyclonedx-sbom.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "ignored-regenerable-sbom-output",
+        "gitignorePattern": "cyclonedx-sbom.json",
+        "ignored": true
+      },
+      {
+        "path": "*.log",
+        "ownerArea": "platform-runtime",
+        "cleanupPolicy": "ignored-debug-log",
+        "gitignorePattern": "*.log",
+        "ignored": true
+      },
+      {
+        "path": "logs.zip",
+        "ownerArea": "platform-runtime",
+        "cleanupPolicy": "ignored-debug-archive",
+        "gitignorePattern": "logs.zip",
+        "ignored": true
+      },
+      {
+        "path": "logs_*.zip",
+        "ownerArea": "platform-runtime",
+        "cleanupPolicy": "ignored-debug-archive",
+        "gitignorePattern": "logs_*.zip",
+        "ignored": true
+      },
+      {
+        "path": "supabase/.temp",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "ignored-supabase-local-state",
+        "gitignorePattern": "supabase/.temp",
+        "ignored": true
+      },
+      {
+        "path": "supabase/.branches",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "ignored-supabase-local-state",
+        "gitignorePattern": "supabase/.branches",
+        "ignored": true
+      }
+    ]
+  },
+  "generatedArtifactOwnership": {
+    "generatedArtifactCount": 104,
+    "deterministicArtifactCount": 83,
+    "ownedArtifactCount": 104,
+    "missingOwnerCount": 0,
+    "rows": [
+      {
+        "path": "artifacts/security-route-matrix.json",
+        "ownerArea": "platform-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/security-proxy-matrix.json",
+        "ownerArea": "platform-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/security-control-coverage-matrix.rows.json",
+        "ownerArea": "platform-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/security-report-checksums.json",
+        "ownerArea": "platform-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/operational-ci-enforcement.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-ci-enforcement"
+      },
+      {
+        "path": "artifacts/operational-cron-jobs.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-cron-jobs"
+      },
+      {
+        "path": "artifacts/operational-webhooks-callbacks.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-webhooks-callbacks"
+      },
+      {
+        "path": "artifacts/operational-secrets-configuration.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-secrets-configuration"
+      },
+      {
+        "path": "artifacts/operational-authz-session.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-authz-session"
+      },
+      {
+        "path": "artifacts/operational-api-runtime-contracts.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-api-runtime-contracts"
+      },
+      {
+        "path": "artifacts/operational-rate-limits-abuse-bounds.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-rate-limits-abuse-bounds"
+      },
+      {
+        "path": "artifacts/operational-observability-redaction.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-observability-redaction"
+      },
+      {
+        "path": "artifacts/operational-browser-security.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-browser-security"
+      },
+      {
+        "path": "artifacts/operational-uploads-files-extraction.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-uploads-files-extraction"
+      },
+      {
+        "path": "artifacts/operational-provider-integrations.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-provider-integrations"
+      },
+      {
+        "path": "artifacts/operational-privacy-auditability.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-privacy-auditability"
+      },
+      {
+        "path": "artifacts/operational-supply-chain-risk.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-supply-chain-risk"
+      },
+      {
+        "path": "artifacts/operational-frontend-resilience.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-frontend-resilience"
+      },
+      {
+        "path": "artifacts/operational-performance-load-chaos.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-performance-load-chaos"
+      },
+      {
+        "path": "artifacts/operational-dr-incident-readiness.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:incident-readiness"
+      },
+      {
+        "path": "artifacts/operational-incident-follow-up-template.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:incident-readiness"
+      },
+      {
+        "path": "artifacts/operational-waivers-ratchets.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-waivers-ratchets"
+      },
+      {
+        "path": "artifacts/operational-feature-flags-rollout.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-feature-flags-rollout"
+      },
+      {
+        "path": "artifacts/operational-schema-compatibility.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-schema-compatibility"
+      },
+      {
+        "path": "artifacts/operational-data-quality-invariants.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-data-quality-invariants"
+      },
+      {
+        "path": "artifacts/operational-support-operations.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-support-operations"
+      },
+      {
+        "path": "artifacts/operational-edge-readiness.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-edge-readiness"
+      },
+      {
+        "path": "artifacts/operational-legal-trust-compliance.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-legal-trust-compliance"
+      },
+      {
+        "path": "artifacts/operational-static-architecture-code-health.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-static-architecture-code-health"
+      },
+      {
+        "path": "artifacts/operational-test-reliability-governance.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-test-reliability-governance"
+      },
+      {
+        "path": "artifacts/operational-platform-variant-coverage.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-platform-variant-coverage"
+      },
+      {
+        "path": "artifacts/operational-search-reporting-analytics-exports.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-search-reporting-analytics-exports"
+      },
+      {
+        "path": "artifacts/operational-notifications-messaging.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-notifications-messaging"
+      },
+      {
+        "path": "artifacts/operational-billing-entitlements.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-billing-entitlements"
+      },
+      {
+        "path": "artifacts/operational-oauth-integration-sync.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-oauth-integration-sync"
+      },
+      {
+        "path": "artifacts/operational-public-launch-positioning.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-public-launch-positioning"
+      },
+      {
+        "path": "artifacts/operational-repository-artifact-hygiene.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-repository-artifact-hygiene"
+      },
+      {
+        "path": "artifacts/operational-threat-model-control-traceability.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:control-traceability"
+      },
+      {
+        "path": "artifacts/stride-dread-threat-model.json",
+        "ownerArea": "platform-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:control-traceability"
+      },
+      {
+        "path": "artifacts/operational-environment-isolation.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-environment-isolation"
+      },
+      {
+        "path": "artifacts/operational-governance-ownership.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-governance-ownership"
+      },
+      {
+        "path": "artifacts/operational-hardening-closure.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-hardening-objectives"
+      },
+      {
+        "path": "artifacts/operational-package-pipelines.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-package-pipelines"
+      },
+      {
+        "path": "artifacts/operational-release-readiness.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-release-readiness"
+      },
+      {
+        "path": "artifacts/operational-supabase-database.json",
+        "ownerArea": "platform-hardening",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-supabase-database"
+      },
+      {
+        "path": "artifacts/assurance/dashboard.json",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/assurance/scripts-to-epic-map.json",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/assurance/catalog-script-index.json",
+        "ownerArea": "test-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-universe.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-functionality-matrix.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-runtime-contract.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-provider-matrix.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-db-dependencies.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/page-route-state-matrix.json",
+        "ownerArea": "frontend-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/route-external-contracts.json",
+        "ownerArea": "api-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/dependency-review-policy.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/license-allowlist.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/supply-chain-install-script-allowlist.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/subprocessors-diff.json",
+        "ownerArea": "trust-compliance",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:subprocessors-drift"
+      },
+      {
+        "path": "artifacts/sbom-diff-report.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/sbom-dual-format-evidence.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": "npm run write:sbom-dual-format-evidence"
+      },
+      {
+        "path": "artifacts/spdx-sbom.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": "npm run write:sbom-dual-format-evidence"
+      },
+      {
+        "path": "artifacts/reproducible-build-report.json",
+        "ownerArea": "supply-chain-security",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": false,
+        "writeCommand": null
+      },
+      {
+        "path": "artifacts/supabase/migration-manifest.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-manifest"
+      },
+      {
+        "path": "artifacts/supabase/local-catalog-fingerprint.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:supabase:fingerprint-artifact"
+      },
+      {
+        "path": "artifacts/supabase/migration-domain-index.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-organization"
+      },
+      {
+        "path": "artifacts/supabase/data-retention-inventory.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:supabase:retention-inventory"
+      },
+      {
+        "path": "artifacts/supabase/database-backup-restore-evidence.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:database-backup-restore-evidence"
+      },
+      {
+        "path": "artifacts/supabase/sql-object-reference-inventory.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-object-reference-inventory"
+      },
+      {
+        "path": "artifacts/supabase/sql-object-rename-staging.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-object-rename-staging"
+      },
+      {
+        "path": "artifacts/supabase/sql-neutral-table-view-aliases.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-neutral-table-view-aliases"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-alias-readiness.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-alias-readiness"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-predicate-equivalence.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-predicate-equivalence"
+      },
+      {
+        "path": "supabase/sql/policy-predicate-equivalence.sql",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-predicate-equivalence"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-forward-migration-blueprint.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-forward-migration-blueprint"
+      },
+      {
+        "path": "supabase/sql/policy-forward-migration-blueprint.sql",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-forward-migration-blueprint"
+      },
+      {
+        "path": "artifacts/supabase/sql-rename-verification-sql.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-rename-verification-sql"
+      },
+      {
+        "path": "artifacts/supabase/sql-security-automation-coverage.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-security-automation-coverage"
+      },
+      {
+        "path": "artifacts/supabase/migration-history-version-exceptions.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-history-version-exceptions"
+      },
+      {
+        "path": "artifacts/supabase/seed-versioned-name-queue-coverage.json",
+        "ownerArea": "data-platform",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:seed-versioned-name-queue-coverage"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-naming-safe-rename-manifest.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-naming-safe-renames"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-exported-symbol-inventory.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-exported-symbols"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-content-contract-inventory.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-content-contracts"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-export-download-contracts.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-export-download-contracts"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-local-content-rewrites"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-content-surface-coverage.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-content-surface-coverage"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-remaining-surface-coverage.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-remaining-surface-coverage"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-detailed-objective-coverage.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-detailed-objective-coverage"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-public-runtime-dual-read.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-public-runtime-dual-read"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-forward-migration-readiness.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-forward-migration-readiness"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-package-script-readiness.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-package-script-readiness"
+      },
+      {
+        "path": "artifacts/compatibility/neutral-naming-rules.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:neutral-naming-rules"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-manual-surface-closure.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-manual-surface-closure"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-open-objective-closure.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-open-objective-closure"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-local-surface-regression.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-local-surface-regression"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-alias-usage-neutrality.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-alias-usage-neutrality"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-env-flag-aliases.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-env-flag-aliases"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-code-only-closure.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-code-only-closure"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-additive-alias-preservation.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-additive-alias-preservation"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-remaining-local-contract-closure.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-remaining-local-contract-closure"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-unchecked-objective-readiness.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-unchecked-objective-readiness"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-final-checklist-reconciliation.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-final-checklist-reconciliation"
+      },
+      {
+        "path": "artifacts/compatibility/removal-queue.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:compatibility-removal-queue"
+      },
+      {
+        "path": "scripts/versioned-naming-removal-queue.json",
+        "ownerArea": "compatibility",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-naming-removal-queue"
+      }
+    ]
+  },
+  "fileSafety": {
+    "scannedFileCount": 3748,
+    "largeFileCount": 2,
+    "binaryFileCount": 55,
+    "unexpectedBinaryCount": 0,
+    "archiveFileCount": 0,
+    "executableMasquerade": {
+      "ok": true,
+      "issueCount": 0,
+      "scannedFileCount": 3776
+    },
+    "binaryMetadataStripping": {
+      "ok": true,
+      "issueCount": 0
+    },
+    "rows": [
+      {
+        "path": "artifacts/compatibility/removal-queue.json",
+        "bytes": 5144709,
+        "binary": false,
+        "magic": null,
+        "text": true,
+        "untracked": false,
+        "largeFileAllowance": "Generated compatibility removal queue."
+      },
+      {
+        "path": "artifacts/compatibility/versioned-content-contract-inventory.json",
+        "bytes": 2810853,
+        "binary": false,
+        "magic": null,
+        "text": true,
+        "untracked": false,
+        "largeFileAllowance": null
+      },
+      {
+        "path": "public/oblixa-logo.png",
+        "bytes": 989919,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Public image assets."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-root-chromium-darwin.png",
+        "bytes": 903229,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-privacy-chromium-darwin.png",
+        "bytes": 456563,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-terms-chromium-darwin.png",
+        "bytes": 334256,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-assurance-loading-src-app-dashboard-assurance-loading-tsx-chromium-darwin.png",
+        "bytes": 333229,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.assurance.spec.ts-snapshots/assurance-assurance-chromium-darwin.png",
+        "bytes": 331183,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.advanced.spec.ts-snapshots/advanced-campaigns-chromium-darwin.png",
+        "bytes": 303131,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-privacy-loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 287844,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-analytics-loading-src-app-dashboard-contracts-analytics-loading-tsx-chromium-darwin.png",
+        "bytes": 283180,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-contracts-new-chromium-darwin.png",
+        "bytes": 279846,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-tasks-loading-src-app-dashboard-contracts-tasks-loading-tsx-chromium-darwin.png",
+        "bytes": 276620,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-signup-chromium-darwin.png",
+        "bytes": 275760,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-dashboard-persona-loading-src-app-dashboard-dashboard-persona-loading-tsx-chromium-darwin.png",
+        "bytes": 275612,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-login-chromium-darwin.png",
+        "bytes": 272697,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-security-chromium-darwin.png",
+        "bytes": 269466,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-dashboard-chromium-darwin.png",
+        "bytes": 268995,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.shell.spec.ts-snapshots/shell-dashboard-chromium-darwin.png",
+        "bytes": 268995,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-dashboard-error-src-app-dashboard-error-tsx-chromium-darwin.png",
+        "bytes": 266190,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-dashboard-loading-src-app-dashboard-dashboard-loading-tsx-chromium-darwin.png",
+        "bytes": 266190,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-dashboard-loading-src-app-dashboard-loading-tsx-chromium-darwin.png",
+        "bytes": 266190,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-data-quality-loading-src-app-dashboard-contracts-data-quality-loading-tsx-chromium-darwin.png",
+        "bytes": 264658,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-reports-loading-src-app-dashboard-reports-loading-tsx-chromium-darwin.png",
+        "bytes": 264270,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-forgot-password-chromium-darwin.png",
+        "bytes": 260928,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-reset-password-chromium-darwin.png",
+        "bytes": 259236,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-settings-chromium-darwin.png",
+        "bytes": 258729,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-settings-loading-src-app-dashboard-settings-loading-tsx-chromium-darwin.png",
+        "bytes": 258729,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-reports-loading-src-app-dashboard-contracts-reports-loading-tsx-chromium-darwin.png",
+        "bytes": 248850,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-dashboard-persona-chromium-darwin.png",
+        "bytes": 241310,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-login-error-src-app-auth-error-tsx-chromium-darwin.png",
+        "bytes": 239696,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-login-loading-src-app-auth-loading-tsx-chromium-darwin.png",
+        "bytes": 239696,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-contracts-chromium-darwin.png",
+        "bytes": 239087,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-loading-src-app-dashboard-contracts-loading-tsx-chromium-darwin.png",
+        "bytes": 239087,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.advanced.spec.ts-snapshots/advanced-decisions-chromium-darwin.png",
+        "bytes": 232727,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-decisions-loading-src-app-dashboard-decisions-loading-tsx-chromium-darwin.png",
+        "bytes": 232727,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-reports-chromium-darwin.png",
+        "bytes": 229976,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-terms-loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 225740,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-security-loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 208464,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-work-loading-src-app-dashboard-loading-tsx-chromium-darwin.png",
+        "bytes": 204460,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.core.spec.ts-snapshots/core-work-chromium-darwin.png",
+        "bytes": 204459,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state--error-src-app-error-tsx-chromium-darwin.png",
+        "bytes": 183100,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state--error-src-app-marketing-error-tsx-chromium-darwin.png",
+        "bytes": 183100,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state--loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 183100,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state--not-found-src-app-marketing-not-found-tsx-chromium-darwin.png",
+        "bytes": 183100,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state--not-found-src-app-not-found-tsx-chromium-darwin.png",
+        "bytes": 183100,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-id-loading-src-app-dashboard-contracts-id-loading-tsx-chromium-darwin.png",
+        "bytes": 178001,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-contracts-id-not-found-src-app-dashboard-contracts-id-not-found-tsx-chromium-darwin.png",
+        "bytes": 178001,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-cookies-chromium-darwin.png",
+        "bytes": 169494,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-cookies-loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 166256,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.public.spec.ts-snapshots/public-accessibility-chromium-darwin.png",
+        "bytes": 152846,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-accessibility-loading-src-app-marketing-loading-tsx-chromium-darwin.png",
+        "bytes": 152846,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-onboarding-calibration-loading-src-app-dashboard-onboarding-calibration-loading-tsx-chromium-darwin.png",
+        "bytes": 145589,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-onboarding-calibration-error-src-app-dashboard-onboarding-error-tsx-chromium-darwin.png",
+        "bytes": 145583,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.external.spec.ts-snapshots/external-external-token-chromium-darwin.png",
+        "bytes": 122791,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "e2e/visual.route-states.spec.ts-snapshots/route-state-external-token-error-src-app-external-error-tsx-chromium-darwin.png",
+        "bytes": 122791,
+        "binary": true,
+        "magic": "png",
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": "Visual regression snapshots."
+      },
+      {
+        "path": "src/app/favicon.ico",
+        "bytes": 25931,
+        "binary": true,
+        "magic": null,
+        "text": false,
+        "untracked": false,
+        "largeFileAllowance": null
+      }
+    ]
+  },
+  "sourceHygiene": {
+    "scannedTextFileCount": 3673,
+    "crlfCount": 0,
+    "missingFinalNewlineCount": 96,
+    "controlCharacterCount": 0,
+    "trojanSourceControlCount": 0,
+    "asciiPolicyViolationCount": 0,
+    "issueRows": [
+      {
+        "path": ".augment/rules/documentation.md",
+        "bytes": 109,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "artifacts/github-optional-workflows-dispatch.json",
+        "bytes": 4830,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-auth-cookie-attributes.test.mjs",
+        "bytes": 1700,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-callback-destination-integrity.test.mjs",
+        "bytes": 1903,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-ci-verify-extras.mjs",
+        "bytes": 954,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-ci-verify-extras.test.mjs",
+        "bytes": 697,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-coverage-completeness-bundle.mjs",
+        "bytes": 795,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-critical-bundles.test.mjs",
+        "bytes": 1032,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-evidence-deepening-bundle.mjs",
+        "bytes": 780,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-gitleaks-allowlist.mjs",
+        "bytes": 1727,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-maximal-assurance-scaffolding.mjs",
+        "bytes": 1187,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-open-redirect-guards.test.mjs",
+        "bytes": 2026,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-openapi-spec-contract.mjs",
+        "bytes": 772,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-outbound-domain-allowlist.test.mjs",
+        "bytes": 3230,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-outbound-fetch.test.mjs",
+        "bytes": 2036,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-qa-loading-routes.test.mjs",
+        "bytes": 1387,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-queue-message-authenticity.test.mjs",
+        "bytes": 1719,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-realtime-auth-boundaries.test.mjs",
+        "bytes": 2968,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-route-functionality.mjs",
+        "bytes": 765,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-route-state-coverage.test.mjs",
+        "bytes": 1032,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-security-env-contract.test.mjs",
+        "bytes": 1959,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-session-fixation-defenses.test.mjs",
+        "bytes": 1876,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-synthetic-slo-env.test.mjs",
+        "bytes": 2013,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-ui-surface-consistency.test.mjs",
+        "bytes": 436,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/check-user-facing-interactions.mjs",
+        "bytes": 2989,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/e2e-seed-contract-statuses.sql",
+        "bytes": 834,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/generate-route-universe.mjs",
+        "bytes": 982,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/lib/route-runtime-semantics.mjs",
+        "bytes": 7021,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/lib/route-state-utils.mjs",
+        "bytes": 1331,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/report-db-privilege-surface.test.mjs",
+        "bytes": 5102,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/report-user-facing-interactions.mjs",
+        "bytes": 11633,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/route-runtime-semantics.test.mjs",
+        "bytes": 2376,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/run-script-tests.mjs",
+        "bytes": 1101,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/run-script-tests.test.mjs",
+        "bytes": 1143,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/scheduled-cron-route-wrapper-allowlist.txt",
+        "bytes": 251,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/slo-monitor.test.mjs",
+        "bytes": 1316,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "scripts/user-facing-interactions.test.mjs",
+        "bytes": 1497,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/actions/approvals-helpers.ts",
+        "bytes": 2565,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/actions/contracts-outbound-fetch.test.ts",
+        "bytes": 567,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/actions/workspace-mode-billing-eligibility.test.ts",
+        "bytes": 1450,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/actions/workspace-mode-billing-eligibility.ts",
+        "bytes": 592,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/(dashboard)/settings/product/settings-product-email-section.tsx",
+        "bytes": 3722,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/(dashboard)/settings/product/settings-product-governance-static.test.ts",
+        "bytes": 803,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v5/capacity-forecast-refresh/route.test.ts",
+        "bytes": 1553,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v5/external-followup/route.test.ts",
+        "bytes": 1513,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v5/portfolio-risk-recompute/route.test.ts",
+        "bytes": 1548,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v5/recommendation-refresh/route.test.ts",
+        "bytes": 1538,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v5/simulation-snapshots/route.test.ts",
+        "bytes": 1528,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/assurance-checks/route.test.ts",
+        "bytes": 368,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/autopilot-dry-run/route.test.ts",
+        "bytes": 374,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/autopilot-execution/route.test.ts",
+        "bytes": 351,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/control-policy-reevaluation/route.test.ts",
+        "bytes": 398,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/external-workflow-deadlines/route.test.ts",
+        "bytes": 377,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/finding-refresh/route.test.ts",
+        "bytes": 324,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/health-graph-rollups/route.test.ts",
+        "bytes": 348,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/outcome-effectiveness/route.test.ts",
+        "bytes": 347,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/playbook-follow-up-assurance/route.test.ts",
+        "bytes": 376,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/review-board-packet-generation/route.test.ts",
+        "bytes": 414,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/route-shell-test-helper.ts",
+        "bytes": 5513,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/scorecard-recompute/route.test.ts",
+        "bytes": 341,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/cron/v6/segment-recompute/route.test.ts",
+        "bytes": 347,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/import/contracts/[jobId]/route.test.ts",
+        "bytes": 8817,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/report-runs/[runId]/retry/route.test.ts",
+        "bytes": 9160,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/report-runs/[runId]/retry/route.ts",
+        "bytes": 10080,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/reports/send-summaries/route.test.ts",
+        "bytes": 8412,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/app/api/tasks/run-rules/route.test.ts",
+        "bytes": 4494,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/assurance/review-board-actions.tsx",
+        "bytes": 14758,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/relationship/relationship-key-jump.tsx",
+        "bytes": 2872,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/reports/capacity-reassignment-planner-form.tsx",
+        "bytes": 3035,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/ui/api-json-link.tsx",
+        "bytes": 688,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/ui/async-action-button.tsx",
+        "bytes": 1034,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/ui/confirm-action-button.tsx",
+        "bytes": 750,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/ui/inline-mutation-status.tsx",
+        "bytes": 814,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/ui/live-region.tsx",
+        "bytes": 480,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/components/work/work-inbox-list.test.tsx",
+        "bytes": 11087,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/assurance/cron-jobs.test.ts",
+        "bytes": 2221,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/assurance/cron-jobs.ts",
+        "bytes": 36667,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/assurance/outcomes.test.ts",
+        "bytes": 1459,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/assurance/review-board-notifications.ts",
+        "bytes": 9697,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/contracts.test.ts",
+        "bytes": 2882,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/cron/claim-due-row.ts",
+        "bytes": 1942,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/extraction-job.test.ts",
+        "bytes": 4417,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/integrations/slack-outbound-fetch.test.ts",
+        "bytes": 643,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/job-retry.test.ts",
+        "bytes": 1028,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/job-routing.test.ts",
+        "bytes": 1500,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/mutation-envelope.test.ts",
+        "bytes": 2909,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/navigation/client-navigation.test.ts",
+        "bytes": 1814,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/navigation/client-navigation.ts",
+        "bytes": 1690,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/org-member-profiles.ts",
+        "bytes": 2436,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/qa/ui-quality-sweep.test.ts",
+        "bytes": 5120,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/tasks/run-task-automation-rules-for-org.test.ts",
+        "bytes": 5449,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "src/lib/tasks/run-task-automation-rules-for-org.ts",
+        "bytes": 19569,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "supabase/migrations/065_v10_report_run_family_modes.sql",
+        "bytes": 592,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "supabase/migrations/066_v10_job_visibility_multi_class_upsert.sql",
+        "bytes": 221,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "supabase/migrations/067_runtime_route_dedupe_indexes.sql",
+        "bytes": 595,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": "supabase/migrations/068_scheduled_route_idempotency_indexes.sql",
+        "bytes": 1643,
+        "crlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      }
+    ]
+  },
+  "workspaceCleanliness": {
+    "untrackedFileCount": 216,
+    "requiredUntrackedFileCount": 88,
+    "unregisteredRequiredUntrackedFileCount": 0,
+    "requiredRows": [
+      {
+        "path": "artifacts/operational-api-runtime-contracts.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-authz-session.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-billing-entitlements.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-browser-security.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-ci-enforcement.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-cron-jobs.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-data-quality-invariants.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-dr-incident-readiness.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-edge-readiness.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-environment-isolation.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-feature-flags-rollout.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-frontend-resilience.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-governance-ownership.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-hardening-closure.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-incident-follow-up-template.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-legal-trust-compliance.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-notifications-messaging.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-oauth-integration-sync.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-observability-redaction.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-package-pipelines.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-performance-load-chaos.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-platform-variant-coverage.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-privacy-auditability.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-provider-integrations.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-public-launch-positioning.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-rate-limits-abuse-bounds.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-release-readiness.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-repository-artifact-hygiene.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-schema-compatibility.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-search-reporting-analytics-exports.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-secrets-configuration.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-static-architecture-code-health.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-supabase-database.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-supply-chain-risk.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-support-operations.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-test-reliability-governance.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-threat-model-control-traceability.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-uploads-files-extraction.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-waivers-ratchets.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "artifacts/operational-webhooks-callbacks.json",
+        "registry": "generated-artifact-hygiene",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-api-runtime-contracts.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-authz-session.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-billing-entitlements.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-billing-entitlements.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-browser-security.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-ci-enforcement.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-cron-jobs.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-data-quality-invariants.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-edge-readiness.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-environment-isolation.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-environment-isolation.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-feature-flags-rollout.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-frontend-resilience.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-governance-ownership.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-governance-ownership.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-hardening-objectives.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-legal-trust-compliance.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-notifications-messaging.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-notifications-messaging.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-oauth-integration-sync.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-oauth-integration-sync.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-observability-redaction.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-package-pipelines.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-performance-load-chaos.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-platform-variant-coverage.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-platform-variant-coverage.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-privacy-auditability.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-provider-integrations.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-public-launch-positioning.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-public-launch-positioning.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-rate-limits-abuse-bounds.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-release-readiness.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-repository-artifact-hygiene.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-repository-artifact-hygiene.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-schema-compatibility.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-search-reporting-analytics-exports.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-search-reporting-analytics-exports.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-secrets-configuration.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-static-architecture-code-health.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-static-architecture-code-health.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-supabase-database.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-supply-chain-risk.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-support-operations.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-test-reliability-governance.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-test-reliability-governance.test.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-uploads-files-extraction.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-waivers-ratchets.mjs",
+        "registry": "package.json",
+        "registered": true
+      },
+      {
+        "path": "scripts/check-operational-webhooks-callbacks.mjs",
+        "registry": "package.json",
+        "registered": true
+      }
+    ],
+    "localOnlyReferenceCount": 0,
+    "localOnlyReferences": []
+  },
+  "delegatedChecks": {
+    "generatedArtifactHygiene": {
+      "ok": true,
+      "issueCount": 0
+    },
+    "executableMasquerade": {
+      "ok": true,
+      "issueCount": 0,
+      "scannedFileCount": 3776
+    },
+    "binaryMetadataStripping": {
+      "ok": true,
+      "issueCount": 0
+    }
+  },
+  "issueCount": 0,
+  "issues": []
+}

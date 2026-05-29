@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T21:55:55.300Z",
+  "generatedAt": "2026-05-28T01:18:12.476Z",
   "routes": {
-    "total": 72,
+    "total": 77,
     "byMode": {
-      "authenticated": 61,
-      "public": 10,
+      "authenticated": 62,
+      "public": 14,
       "external": 1
     },
     "byRouteFamily": {
@@ -13,20 +13,20 @@
       "contracts": 11,
       "work": 1,
       "reports": 2,
+      "utilities": 12,
       "settings": 10,
-      "utilities": 11,
       "advanced": 11,
       "assurance": 12,
-      "marketing": 6,
+      "marketing": 10,
       "auth": 4,
       "external": 1
     },
     "byOwner": {
-      "engineering": 37,
+      "engineering": 38,
       "release": 2,
       "security": 15,
       "assurance": 12,
-      "growth": 6
+      "growth": 10
     },
     "withFixtureIds": 8,
     "rows": [
@@ -328,6 +328,24 @@
         "ownerEscalation": "release-oncall"
       },
       {
+        "route": "/search",
+        "mode": "authenticated",
+        "routeFamily": "utilities",
+        "workspaceModeTier": "core",
+        "visitPath": "/search",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y"
+        ],
+        "smokeTier": "standard",
+        "a11yTier": "required",
+        "visualTier": "not_applicable",
+        "owner": "engineering",
+        "ownerExpiry": null,
+        "ownerEscalation": "engineering-oncall"
+      },
+      {
         "route": "/settings",
         "mode": "authenticated",
         "routeFamily": "settings",
@@ -389,24 +407,6 @@
         "routeFamily": "settings",
         "workspaceModeTier": "core",
         "visitPath": "/settings/operations",
-        "fixtureId": null,
-        "coverage": [
-          "smoke",
-          "a11y"
-        ],
-        "smokeTier": "standard",
-        "a11yTier": "required",
-        "visualTier": "not_applicable",
-        "owner": "security",
-        "ownerExpiry": null,
-        "ownerEscalation": "security-oncall"
-      },
-      {
-        "route": "/settings/product",
-        "mode": "authenticated",
-        "routeFamily": "settings",
-        "workspaceModeTier": "core",
-        "visitPath": "/settings/product",
         "fixtureId": null,
         "coverage": [
           "smoke",
@@ -497,6 +497,24 @@
         "routeFamily": "settings",
         "workspaceModeTier": "core",
         "visitPath": "/settings/policy/registry",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y"
+        ],
+        "smokeTier": "standard",
+        "a11yTier": "required",
+        "visualTier": "not_applicable",
+        "owner": "security",
+        "ownerExpiry": null,
+        "ownerEscalation": "security-oncall"
+      },
+      {
+        "route": "/settings/product",
+        "mode": "authenticated",
+        "routeFamily": "settings",
+        "workspaceModeTier": "core",
+        "visitPath": "/settings/product",
         "fixtureId": null,
         "coverage": [
           "smoke",
@@ -1136,6 +1154,63 @@
         "ownerEscalation": "engineering-oncall"
       },
       {
+        "route": "/product",
+        "mode": "public",
+        "routeFamily": "marketing",
+        "workspaceModeTier": "public",
+        "visitPath": "/product",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y",
+          "visual"
+        ],
+        "smokeTier": "core",
+        "a11yTier": "required",
+        "visualTier": "baseline",
+        "owner": "growth",
+        "ownerExpiry": null,
+        "ownerEscalation": "growth-oncall"
+      },
+      {
+        "route": "/pricing",
+        "mode": "public",
+        "routeFamily": "marketing",
+        "workspaceModeTier": "public",
+        "visitPath": "/pricing",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y",
+          "visual"
+        ],
+        "smokeTier": "core",
+        "a11yTier": "required",
+        "visualTier": "baseline",
+        "owner": "growth",
+        "ownerExpiry": null,
+        "ownerEscalation": "growth-oncall"
+      },
+      {
+        "route": "/contact",
+        "mode": "public",
+        "routeFamily": "marketing",
+        "workspaceModeTier": "public",
+        "visitPath": "/contact",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y",
+          "visual"
+        ],
+        "smokeTier": "core",
+        "a11yTier": "required",
+        "visualTier": "baseline",
+        "owner": "growth",
+        "ownerExpiry": null,
+        "ownerEscalation": "growth-oncall"
+      },
+      {
         "route": "/",
         "mode": "public",
         "routeFamily": "marketing",
@@ -1271,6 +1346,25 @@
         "ownerEscalation": "growth-oncall"
       },
       {
+        "route": "/acceptable-use",
+        "mode": "public",
+        "routeFamily": "marketing",
+        "workspaceModeTier": "public",
+        "visitPath": "/acceptable-use",
+        "fixtureId": null,
+        "coverage": [
+          "smoke",
+          "a11y",
+          "visual"
+        ],
+        "smokeTier": "core",
+        "a11yTier": "required",
+        "visualTier": "baseline",
+        "owner": "growth",
+        "ownerExpiry": null,
+        "ownerEscalation": "growth-oncall"
+      },
+      {
         "route": "/security",
         "mode": "public",
         "routeFamily": "marketing",
@@ -1350,19 +1444,19 @@
     ]
   },
   "interactions": {
-    "total": 991,
+    "total": 1023,
     "byKind": {
-      "button": 226,
-      "link": 570,
+      "button": 230,
+      "link": 585,
       "new_tab_link": 22,
-      "form": 111,
+      "form": 112,
+      "imperative_navigation": 36,
       "client_http_helper": 37,
-      "raw_client_fetch": 1,
-      "imperative_navigation": 24
+      "raw_client_fetch": 1
     },
     "byRisk": {
-      "low": 801,
-      "medium": 189,
+      "low": 820,
+      "medium": 202,
       "high": 1
     },
     "rows": [
@@ -1967,10 +2061,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:251:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:265:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 251,
+        "line": 265,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -1979,10 +2073,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:1480:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:1648:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1480,
+        "line": 1648,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -1991,10 +2085,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:1500:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:1668:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1500,
+        "line": 1668,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2003,10 +2097,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1521:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1690:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1521,
+        "line": 1690,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2015,10 +2109,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1524:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1693:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1524,
+        "line": 1693,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2027,10 +2121,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1532:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1701:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1532,
+        "line": 1701,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2039,10 +2133,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1566:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1729:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1566,
+        "line": 1729,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2051,10 +2145,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1641:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1766:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1641,
+        "line": 1766,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2063,10 +2157,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1672:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1830:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1672,
+        "line": 1830,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2075,10 +2169,22 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:1685:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1861:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+        "line": 1861,
+        "route": "/contracts/[id]",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:1874:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1685,
+        "line": 1874,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2087,10 +2193,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:1687:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:1876:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1687,
+        "line": 1876,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2099,10 +2205,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1715:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1908:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1715,
+        "line": 1908,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2111,10 +2217,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1753:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1946:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1753,
+        "line": 1946,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2123,10 +2229,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1777:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1969:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1777,
+        "line": 1969,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2135,10 +2241,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1794:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1987:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1794,
+        "line": 1987,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2147,10 +2253,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1867:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2008:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1867,
+        "line": 2008,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2159,10 +2265,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1907:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2129:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1907,
+        "line": 2129,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2171,10 +2277,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1939:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2169:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1939,
+        "line": 2169,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2183,10 +2289,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:1984:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2201:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 1984,
+        "line": 2201,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2195,10 +2301,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2024:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2246:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2024,
+        "line": 2246,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2207,10 +2313,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2195:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2284:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2195,
+        "line": 2284,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2219,10 +2325,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2218:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2425:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2218,
+        "line": 2425,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2231,10 +2337,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2221:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2474:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2221,
+        "line": 2474,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2243,10 +2349,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2229:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2498:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2229,
+        "line": 2498,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2255,10 +2361,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2266:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2544:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2266,
+        "line": 2544,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2267,10 +2373,46 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2286:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2547:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+        "line": 2547,
+        "route": "/contracts/[id]",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2555:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+        "line": 2555,
+        "route": "/contracts/[id]",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2592:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
+        "line": 2592,
+        "route": "/contracts/[id]",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2612:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2286,
+        "line": 2612,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2279,10 +2421,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2287:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2613:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2287,
+        "line": 2613,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2291,10 +2433,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2292:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2618:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2292,
+        "line": 2618,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2303,10 +2445,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2305:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2631:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2305,
+        "line": 2631,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2315,10 +2457,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2333:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2659:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2333,
+        "line": 2659,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2327,10 +2469,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2392:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2718:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2392,
+        "line": 2718,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2339,10 +2481,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2538:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2864:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2538,
+        "line": 2864,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2351,10 +2493,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2565:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2891:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2565,
+        "line": 2891,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2363,10 +2505,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2594:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2920:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2594,
+        "line": 2920,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2375,10 +2517,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2597:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2923:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2597,
+        "line": 2923,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2387,10 +2529,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2600:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2926:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2600,
+        "line": 2926,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2399,10 +2541,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2640:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2966:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2640,
+        "line": 2966,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2411,10 +2553,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2661:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2987:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2661,
+        "line": 2987,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2423,10 +2565,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2702:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3028:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2702,
+        "line": 3028,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2435,10 +2577,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2712:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3038:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2712,
+        "line": 3038,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2447,10 +2589,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2714:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3040:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2714,
+        "line": 3040,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2459,10 +2601,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2748:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3074:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2748,
+        "line": 3074,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2471,10 +2613,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2797:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3123:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2797,
+        "line": 3123,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2483,10 +2625,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2805:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3131:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2805,
+        "line": 3131,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2495,10 +2637,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:2869:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3195:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2869,
+        "line": 3195,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2507,10 +2649,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:2887:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3213:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2887,
+        "line": 3213,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2519,10 +2661,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2911:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3237:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2911,
+        "line": 3237,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2531,10 +2673,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2936:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3262:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2936,
+        "line": 3262,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2543,10 +2685,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:2968:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3294:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 2968,
+        "line": 3294,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2555,10 +2697,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3029:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3355:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3029,
+        "line": 3355,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2567,10 +2709,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3030:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3356:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3030,
+        "line": 3356,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2579,10 +2721,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3176:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3502:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3176,
+        "line": 3502,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2591,10 +2733,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3205:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3531:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3205,
+        "line": 3531,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2603,10 +2745,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3217:1",
+        "id": "link:src/app/(dashboard)/contracts/[id]/page.tsx:3543:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3217,
+        "line": 3543,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2615,10 +2757,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3292:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3618:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3292,
+        "line": 3618,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2627,10 +2769,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3300:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3626:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3300,
+        "line": 3626,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2639,10 +2781,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3326:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3652:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3326,
+        "line": 3652,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2651,10 +2793,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3354:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3680:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3354,
+        "line": 3680,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2663,10 +2805,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3376:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3702:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3376,
+        "line": 3702,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2675,10 +2817,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3443:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3769:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3443,
+        "line": 3769,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2687,10 +2829,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3451:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3777:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3451,
+        "line": 3777,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2699,10 +2841,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3458:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3784:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3458,
+        "line": 3784,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2711,10 +2853,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3499:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3825:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3499,
+        "line": 3825,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2723,10 +2865,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3530:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3856:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3530,
+        "line": 3856,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2735,10 +2877,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3760:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:4086:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3760,
+        "line": 4086,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2747,10 +2889,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3778:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:4104:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3778,
+        "line": 4104,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2759,10 +2901,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3787:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:4113:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3787,
+        "line": 4113,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2771,10 +2913,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3795:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:4121:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3795,
+        "line": 4121,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2783,10 +2925,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3898:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:4224:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3898,
+        "line": 4224,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2795,10 +2937,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3915:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:4241:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3915,
+        "line": 4241,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -2807,10 +2949,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:3921:1",
+        "id": "form:src/app/(dashboard)/contracts/[id]/page.tsx:4247:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3921,
+        "line": 4247,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "medium",
@@ -2819,10 +2961,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:3933:1",
+        "id": "button:src/app/(dashboard)/contracts/[id]/page.tsx:4259:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "line": 3933,
+        "line": 4259,
         "route": "/contracts/[id]",
         "owner": "engineering",
         "risk": "low",
@@ -3083,10 +3225,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:92:1",
+        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:61:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
-        "line": 92,
+        "line": 61,
         "route": "/contracts/bulk",
         "owner": "engineering",
         "risk": "low",
@@ -3095,10 +3237,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:110:1",
+        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:85:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
-        "line": 110,
+        "line": 85,
         "route": "/contracts/bulk",
         "owner": "engineering",
         "risk": "low",
@@ -3107,22 +3249,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:125:1",
+        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:134:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
-        "line": 125,
-        "route": "/contracts/bulk",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/bulk/page.tsx:179:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
-        "line": 179,
+        "line": 134,
         "route": "/contracts/bulk",
         "owner": "engineering",
         "risk": "low",
@@ -3671,10 +3801,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/new/page.tsx:84:1",
+        "id": "link:src/app/(dashboard)/contracts/new/page.tsx:68:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
-        "line": 84,
+        "line": 68,
         "route": "/contracts/new",
         "owner": "engineering",
         "risk": "low",
@@ -3683,22 +3813,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/new/page.tsx:102:1",
+        "id": "link:src/app/(dashboard)/contracts/new/page.tsx:92:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
-        "line": 102,
-        "route": "/contracts/new",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/new/page.tsx:136:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
-        "line": 136,
+        "line": 92,
         "route": "/contracts/new",
         "owner": "engineering",
         "risk": "low",
@@ -3923,10 +4041,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:503:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:559:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 503,
+        "line": 559,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -3935,10 +4053,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:509:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:566:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 509,
+        "line": 566,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -3947,10 +4065,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:523:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:589:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 523,
+        "line": 589,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -3959,10 +4077,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:530:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:632:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 530,
+        "line": 632,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -3971,34 +4089,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:547:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 547,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:584:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 584,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "form:src/app/(dashboard)/contracts/page.tsx:595:1",
+        "id": "form:src/app/(dashboard)/contracts/page.tsx:643:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 595,
+        "line": 643,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -4007,10 +4101,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/page.tsx:596:1",
+        "id": "form:src/app/(dashboard)/contracts/page.tsx:644:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 596,
+        "line": 644,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -4019,10 +4113,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/page.tsx:600:1",
+        "id": "form:src/app/(dashboard)/contracts/page.tsx:648:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 600,
+        "line": 648,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -4031,10 +4125,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/page.tsx:640:1",
+        "id": "button:src/app/(dashboard)/contracts/page.tsx:699:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 640,
+        "line": 699,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4043,82 +4137,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:667:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:726:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 667,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:681:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 681,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:688:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 688,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:703:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 703,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:710:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 710,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:725:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 725,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:738:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 738,
+        "line": 726,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4139,10 +4161,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:750:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:754:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 750,
+        "line": 754,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4151,10 +4173,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:756:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:775:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 756,
+        "line": 775,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4163,10 +4185,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:762:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:785:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 762,
+        "line": 785,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4175,10 +4197,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:774:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:806:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 774,
+        "line": 806,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4187,34 +4209,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:781:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:819:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 781,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:794:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 794,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:813:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 813,
+        "line": 819,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4235,10 +4233,106 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/contracts/page.tsx:835:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:831:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 831,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:837:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 837,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:843:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 843,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:855:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 855,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:871:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 871,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:886:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 886,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:913:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 913,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:938:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
+        "line": 938,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/app/(dashboard)/contracts/page.tsx:948:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 835,
+        "line": 948,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -4247,10 +4341,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/contracts/page.tsx:838:1",
+        "id": "button:src/app/(dashboard)/contracts/page.tsx:951:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 838,
+        "line": 951,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4259,10 +4353,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:883:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:996:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 883,
+        "line": 996,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4271,10 +4365,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:895:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1008:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 895,
+        "line": 1008,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4283,10 +4377,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:907:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1020:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 907,
+        "line": 1020,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4295,10 +4389,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:919:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1032:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 919,
+        "line": 1032,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4307,10 +4401,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:931:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1044:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 931,
+        "line": 1044,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4319,10 +4413,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:943:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1056:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 943,
+        "line": 1056,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4331,10 +4425,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:955:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1068:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 955,
+        "line": 1068,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4343,10 +4437,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:967:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1080:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 967,
+        "line": 1080,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4355,10 +4449,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:979:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1092:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 979,
+        "line": 1092,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4367,10 +4461,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:991:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1104:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 991,
+        "line": 1104,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4379,10 +4473,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1003:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1116:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1003,
+        "line": 1116,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4391,10 +4485,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1015:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1128:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1015,
+        "line": 1128,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4403,10 +4497,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1027:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1140:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1027,
+        "line": 1140,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4415,10 +4509,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1039:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1152:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1039,
+        "line": 1152,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4427,10 +4521,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1058:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1181:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1058,
+        "line": 1181,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4439,10 +4533,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1067:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1203:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1067,
+        "line": 1203,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4451,10 +4545,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1076:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1212:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1076,
+        "line": 1212,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4463,10 +4557,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1085:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1221:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1085,
+        "line": 1221,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4475,10 +4569,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1094:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1230:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1094,
+        "line": 1230,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4487,10 +4581,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1102:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1239:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1102,
+        "line": 1239,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4499,10 +4593,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1106:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1248:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1106,
+        "line": 1248,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -4511,10 +4605,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/page.tsx:1127:1",
+        "id": "link:src/app/(dashboard)/contracts/page.tsx:1269:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/page.tsx",
-        "line": 1127,
+        "line": 1269,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -5063,10 +5157,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:70:1",
+        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:114:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
-        "line": 70,
+        "line": 114,
         "route": "/contracts/review",
         "owner": "engineering",
         "risk": "low",
@@ -5075,10 +5169,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:93:1",
+        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:151:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
-        "line": 93,
+        "line": 151,
         "route": "/contracts/review",
         "owner": "engineering",
         "risk": "low",
@@ -5087,10 +5181,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:140:1",
+        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:238:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
-        "line": 140,
+        "line": 238,
         "route": "/contracts/review",
         "owner": "engineering",
         "risk": "low",
@@ -5099,10 +5193,22 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:234:1",
+        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:378:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
-        "line": 234,
+        "line": 378,
+        "route": "/contracts/review",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/contracts/review/page.tsx:457:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
+        "line": 457,
         "route": "/contracts/review",
         "owner": "engineering",
         "risk": "low",
@@ -5987,10 +6093,166 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/app/(dashboard)/settings/billing/error.tsx:86:1",
+        "id": "button:src/app/(dashboard)/search/error.tsx:60:1",
+        "kind": "button",
+        "sourcePath": "src/app/(dashboard)/search/error.tsx",
+        "line": 60,
+        "route": "/search",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "button:src/app/(dashboard)/search/error.tsx:67:1",
+        "kind": "button",
+        "sourcePath": "src/app/(dashboard)/search/error.tsx",
+        "line": 67,
+        "route": "/search",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/search/error.tsx:74:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/search/error.tsx",
+        "line": 74,
+        "route": "/search",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(dashboard)/search/page.tsx:61:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/search/page.tsx",
+        "line": 61,
+        "route": "/search",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:244:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 244,
+        "route": null,
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "active.href",
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:245:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 245,
+        "route": null,
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "active.href",
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:246:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 246,
+        "route": null,
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "active.href",
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:247:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 247,
+        "route": null,
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "active.href",
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "button:src/app/(dashboard)/search/search-view.tsx:445:1",
+        "kind": "button",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 445,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "link:src/app/(dashboard)/search/search-view.tsx:793:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 793,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "link:src/app/(dashboard)/search/search-view.tsx:802:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 802,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "button:src/app/(dashboard)/search/search-view.tsx:836:1",
+        "kind": "button",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 836,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "link:src/app/(dashboard)/search/search-view.tsx:856:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+        "line": 856,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "link:src/app/(dashboard)/settings/billing/error.tsx:85:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
-        "line": 86,
+        "line": 85,
         "route": "/settings/billing",
         "owner": "security",
         "risk": "low",
@@ -5999,10 +6261,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/settings/billing/error.tsx:111:1",
+        "id": "button:src/app/(dashboard)/settings/billing/error.tsx:110:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
-        "line": 111,
+        "line": 110,
         "route": "/settings/billing",
         "owner": "security",
         "risk": "low",
@@ -6011,10 +6273,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/settings/billing/error.tsx:118:1",
+        "id": "link:src/app/(dashboard)/settings/billing/error.tsx:117:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
-        "line": 118,
+        "line": 117,
         "route": "/settings/billing",
         "owner": "security",
         "risk": "low",
@@ -6359,10 +6621,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:301:1",
+        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:303:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 301,
+        "line": 303,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -6371,10 +6633,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:308:1",
+        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:310:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 308,
+        "line": 310,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -6383,10 +6645,10 @@
         "e2e_test": false
       },
       {
-        "id": "form:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:366:1",
+        "id": "form:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:368:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 366,
+        "line": 368,
         "route": null,
         "owner": "engineering",
         "risk": "medium",
@@ -6395,10 +6657,10 @@
         "e2e_test": false
       },
       {
-        "id": "button:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:590:1",
+        "id": "button:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:592:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 590,
+        "line": 592,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -6407,10 +6669,10 @@
         "e2e_test": false
       },
       {
-        "id": "button:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:599:1",
+        "id": "button:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:601:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 599,
+        "line": 601,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -6419,10 +6681,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:624:1",
+        "id": "link:src/app/(dashboard)/settings/operations/operations-settings-view.tsx:626:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-        "line": 624,
+        "line": 626,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -6635,22 +6897,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/app/(dashboard)/settings/product/page.tsx:49:1",
+        "id": "link:src/app/(dashboard)/settings/product/page.tsx:53:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 49,
-        "route": "/settings/product",
-        "owner": "security",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/app/(dashboard)/settings/product/page.tsx:119:1",
-        "kind": "link",
-        "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 119,
+        "line": 53,
         "route": "/settings/product",
         "owner": "security",
         "risk": "low",
@@ -6683,10 +6933,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/settings/product/page.tsx:134:1",
+        "id": "link:src/app/(dashboard)/settings/product/page.tsx:131:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 134,
+        "line": 131,
         "route": "/settings/product",
         "owner": "security",
         "risk": "low",
@@ -6695,10 +6945,22 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/settings/product/page.tsx:176:1",
+        "id": "link:src/app/(dashboard)/settings/product/page.tsx:138:1",
+        "kind": "link",
+        "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+        "line": 138,
+        "route": "/settings/product",
+        "owner": "security",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/app/(dashboard)/settings/product/page.tsx:180:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 176,
+        "line": 180,
         "route": "/settings/product",
         "owner": "security",
         "risk": "medium",
@@ -6707,10 +6969,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/settings/product/page.tsx:177:1",
+        "id": "button:src/app/(dashboard)/settings/product/page.tsx:181:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 177,
+        "line": 181,
         "route": "/settings/product",
         "owner": "security",
         "risk": "low",
@@ -6719,10 +6981,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/app/(dashboard)/settings/product/page.tsx:213:1",
+        "id": "form:src/app/(dashboard)/settings/product/page.tsx:217:1",
         "kind": "form",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 213,
+        "line": 217,
         "route": "/settings/product",
         "owner": "security",
         "risk": "medium",
@@ -6731,34 +6993,34 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/settings/product/page.tsx:532:1",
+        "id": "button:src/app/(dashboard)/settings/product/page.tsx:536:1",
         "kind": "button",
-        "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 532,
-        "route": "/settings/product",
-        "owner": "security",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "form:src/app/(dashboard)/settings/product/page.tsx:536:1",
-        "kind": "form",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
         "line": 536,
         "route": "/settings/product",
         "owner": "security",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/app/(dashboard)/settings/product/page.tsx:540:1",
+        "kind": "form",
+        "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
+        "line": 540,
+        "route": "/settings/product",
+        "owner": "security",
         "risk": "medium",
         "target": null,
         "ui_test": false,
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/settings/product/page.tsx:537:1",
+        "id": "button:src/app/(dashboard)/settings/product/page.tsx:541:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/product/page.tsx",
-        "line": 537,
+        "line": 541,
         "route": "/settings/product",
         "owner": "security",
         "risk": "low",
@@ -6815,10 +7077,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/app/(dashboard)/settings/security/error.tsx:83:1",
+        "id": "link:src/app/(dashboard)/settings/security/error.tsx:82:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
-        "line": 83,
+        "line": 82,
         "route": "/settings/security",
         "owner": "security",
         "risk": "low",
@@ -6827,10 +7089,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/app/(dashboard)/settings/security/error.tsx:108:1",
+        "id": "button:src/app/(dashboard)/settings/security/error.tsx:107:1",
         "kind": "button",
         "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
-        "line": 108,
+        "line": 107,
         "route": "/settings/security",
         "owner": "security",
         "risk": "low",
@@ -6839,10 +7101,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/app/(dashboard)/settings/security/error.tsx:115:1",
+        "id": "link:src/app/(dashboard)/settings/security/error.tsx:114:1",
         "kind": "link",
         "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
-        "line": 115,
+        "line": 114,
         "route": "/settings/security",
         "owner": "security",
         "risk": "low",
@@ -7156,11 +7418,11 @@
         "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
         "line": 99,
         "route": "/acceptable-use",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/acceptable-use/page.tsx:103:1",
@@ -7168,19 +7430,43 @@
         "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
         "line": 103,
         "route": "/acceptable-use",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
-        "id": "link:src/app/(marketing)/contact/page.tsx:173:1",
+        "id": "link:src/app/(marketing)/contact/page.tsx:132:1",
         "kind": "link",
         "sourcePath": "src/app/(marketing)/contact/page.tsx",
-        "line": 173,
+        "line": 132,
         "route": "/contact",
-        "owner": "engineering",
+        "owner": "growth",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(marketing)/contact/page.tsx:135:1",
+        "kind": "link",
+        "sourcePath": "src/app/(marketing)/contact/page.tsx",
+        "line": 135,
+        "route": "/contact",
+        "owner": "growth",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/app/(marketing)/contact/page.tsx:182:1",
+        "kind": "link",
+        "sourcePath": "src/app/(marketing)/contact/page.tsx",
+        "line": 182,
+        "route": "/contact",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7240,11 +7526,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 159,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:175:1",
@@ -7252,11 +7538,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 175,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:215:1",
@@ -7264,11 +7550,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 215,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:222:1",
@@ -7276,11 +7562,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 222,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:244:1",
@@ -7288,11 +7574,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 244,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:323:1",
@@ -7300,11 +7586,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 323,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:386:1",
@@ -7312,11 +7598,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 386,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:393:1",
@@ -7324,11 +7610,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 393,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:570:1",
@@ -7336,11 +7622,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 570,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:675:1",
@@ -7348,11 +7634,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 675,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:723:1",
@@ -7360,11 +7646,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 723,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:825:1",
@@ -7372,11 +7658,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 825,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:832:1",
@@ -7384,11 +7670,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 832,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:841:1",
@@ -7396,11 +7682,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 841,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/pricing/page.tsx:849:1",
@@ -7408,11 +7694,11 @@
         "sourcePath": "src/app/(marketing)/pricing/page.tsx",
         "line": 849,
         "route": "/pricing",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
-        "e2e_test": false
+        "e2e_test": true
       },
       {
         "id": "link:src/app/(marketing)/product/page.tsx:133:1",
@@ -7420,7 +7706,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 133,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7432,7 +7718,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 140,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7444,7 +7730,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 150,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7456,7 +7742,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 211,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7468,7 +7754,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 567,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7480,7 +7766,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 584,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7492,7 +7778,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 682,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7504,7 +7790,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 689,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7516,7 +7802,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 699,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -7528,7 +7814,7 @@
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "line": 707,
         "route": "/product",
-        "owner": "engineering",
+        "owner": "growth",
         "risk": "low",
         "target": null,
         "ui_test": false,
@@ -8243,10 +8529,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/auth/auth-form.tsx:384:1",
+        "id": "link:src/components/auth/auth-form.tsx:406:1",
         "kind": "link",
         "sourcePath": "src/components/auth/auth-form.tsx",
-        "line": 384,
+        "line": 406,
         "route": "/login",
         "owner": "security",
         "risk": "low",
@@ -8255,10 +8541,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/auth/auth-form.tsx:390:1",
+        "id": "button:src/components/auth/auth-form.tsx:412:1",
         "kind": "button",
         "sourcePath": "src/components/auth/auth-form.tsx",
-        "line": 390,
+        "line": 412,
         "route": "/login",
         "owner": "security",
         "risk": "low",
@@ -8267,10 +8553,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/auth/auth-form.tsx:409:1",
+        "id": "link:src/components/auth/auth-form.tsx:431:1",
         "kind": "link",
         "sourcePath": "src/components/auth/auth-form.tsx",
-        "line": 409,
+        "line": 431,
         "route": "/login",
         "owner": "security",
         "risk": "low",
@@ -8459,10 +8745,10 @@
         "e2e_test": true
       },
       {
-        "id": "raw_client_fetch:src/components/contracts/bulk-upload-form.tsx:104:1",
+        "id": "raw_client_fetch:src/components/contracts/bulk-upload-form.tsx:155:1",
         "kind": "raw_client_fetch",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 104,
+        "line": 155,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "high",
@@ -8471,10 +8757,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/contracts/bulk-upload-form.tsx:174:1",
+        "id": "form:src/components/contracts/bulk-upload-form.tsx:227:1",
         "kind": "form",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 174,
+        "line": 227,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -8483,10 +8769,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/bulk-upload-form.tsx:187:1",
+        "id": "button:src/components/contracts/bulk-upload-form.tsx:241:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 187,
+        "line": 241,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8495,10 +8781,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/bulk-upload-form.tsx:233:1",
+        "id": "link:src/components/contracts/bulk-upload-form.tsx:285:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 233,
+        "line": 285,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8507,10 +8793,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/bulk-upload-form.tsx:236:1",
+        "id": "link:src/components/contracts/bulk-upload-form.tsx:288:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 236,
+        "line": 288,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8519,10 +8805,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/bulk-upload-form.tsx:257:1",
+        "id": "button:src/components/contracts/bulk-upload-form.tsx:310:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 257,
+        "line": 310,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8531,10 +8817,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/bulk-upload-form.tsx:304:1",
-        "kind": "button",
+        "id": "link:src/components/contracts/bulk-upload-form.tsx:371:1",
+        "kind": "link",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 304,
+        "line": 371,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8543,10 +8829,22 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/bulk-upload-form.tsx:357:1",
+        "id": "button:src/components/contracts/bulk-upload-form.tsx:396:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-        "line": 357,
+        "line": 396,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "button:src/components/contracts/bulk-upload-form.tsx:461:1",
+        "kind": "button",
+        "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
+        "line": 461,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8795,10 +9093,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:287:1",
+        "id": "link:src/components/contracts/contract-table.tsx:99:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 287,
+        "line": 99,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8807,10 +9105,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:295:1",
+        "id": "link:src/components/contracts/contract-table.tsx:120:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 295,
+        "line": 120,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8819,10 +9117,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:303:1",
+        "id": "link:src/components/contracts/contract-table.tsx:126:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 303,
+        "line": 126,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8831,10 +9129,46 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/contract-table.tsx:310:1",
+        "id": "link:src/components/contracts/contract-table.tsx:391:1",
+        "kind": "link",
+        "sourcePath": "src/components/contracts/contract-table.tsx",
+        "line": 391,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/contracts/contract-table.tsx:399:1",
+        "kind": "link",
+        "sourcePath": "src/components/contracts/contract-table.tsx",
+        "line": 399,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/contracts/contract-table.tsx:407:1",
+        "kind": "link",
+        "sourcePath": "src/components/contracts/contract-table.tsx",
+        "line": 407,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "button:src/components/contracts/contract-table.tsx:414:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 310,
+        "line": 414,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8843,10 +9177,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/contracts/contract-table.tsx:318:1",
+        "id": "form:src/components/contracts/contract-table.tsx:422:1",
         "kind": "form",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 318,
+        "line": 422,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -8855,10 +9189,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/contract-table.tsx:348:1",
+        "id": "button:src/components/contracts/contract-table.tsx:459:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 348,
+        "line": 459,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8867,10 +9201,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:441:1",
+        "id": "link:src/components/contracts/contract-table.tsx:628:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 441,
+        "line": 628,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8879,10 +9213,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:451:1",
+        "id": "link:src/components/contracts/contract-table.tsx:648:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 451,
+        "line": 648,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8891,10 +9225,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:485:1",
+        "id": "link:src/components/contracts/contract-table.tsx:693:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 485,
+        "line": 693,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8903,10 +9237,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:499:1",
+        "id": "link:src/components/contracts/contract-table.tsx:746:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 499,
+        "line": 746,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8915,10 +9249,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:538:1",
+        "id": "link:src/components/contracts/contract-table.tsx:798:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 538,
+        "line": 798,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8927,10 +9261,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:553:1",
+        "id": "link:src/components/contracts/contract-table.tsx:816:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 553,
+        "line": 816,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8939,10 +9273,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:571:1",
+        "id": "link:src/components/contracts/contract-table.tsx:861:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 571,
+        "line": 861,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -8951,10 +9285,22 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/contract-table.tsx:578:1",
+        "id": "link:src/components/contracts/contract-table.tsx:869:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/contract-table.tsx",
-        "line": 578,
+        "line": 869,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/contracts/contract-table.tsx:909:1",
+        "kind": "link",
+        "sourcePath": "src/components/contracts/contract-table.tsx",
+        "line": 909,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9251,10 +9597,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/delete-contract-button.tsx:80:1",
+        "id": "button:src/components/contracts/delete-contract-button.tsx:79:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/delete-contract-button.tsx",
-        "line": 80,
+        "line": 79,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9263,10 +9609,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/delete-contract-button.tsx:128:1",
+        "id": "button:src/components/contracts/delete-contract-button.tsx:127:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/delete-contract-button.tsx",
-        "line": 128,
+        "line": 127,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9275,10 +9621,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/delete-contract-button.tsx:137:1",
+        "id": "button:src/components/contracts/delete-contract-button.tsx:136:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/delete-contract-button.tsx",
-        "line": 137,
+        "line": 136,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9479,30 +9825,6 @@
         "e2e_test": true
       },
       {
-        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:34:1",
-        "kind": "imperative_navigation",
-        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 34,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "medium",
-        "target": "nextHref",
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:35:1",
-        "kind": "imperative_navigation",
-        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 35,
-        "route": "/contracts",
-        "owner": "engineering",
-        "risk": "medium",
-        "target": "nextHref",
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
         "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:36:1",
         "kind": "imperative_navigation",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
@@ -9527,10 +9849,82 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/field-review-workspace-actions.tsx:61:1",
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:38:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 38,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "nextHref",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:39:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 39,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "nextHref",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:86:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 86,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "skipTarget",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:87:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 87,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "skipTarget",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:88:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 88,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "skipTarget",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:89:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+        "line": 89,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "skipTarget",
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/contracts/field-review-workspace-actions.tsx:99:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 61,
+        "line": 99,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9539,10 +9933,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:90:1",
+        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:131:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 90,
+        "line": 131,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9551,10 +9945,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:98:1",
+        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:139:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 98,
+        "line": 139,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9563,10 +9957,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:112:1",
+        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:153:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 112,
+        "line": 153,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9575,10 +9969,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:123:1",
+        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:165:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 123,
+        "line": 165,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9587,10 +9981,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:133:1",
+        "id": "button:src/components/contracts/field-review-workspace-actions.tsx:177:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 133,
+        "line": 177,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9599,10 +9993,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/field-review-workspace-actions.tsx:143:1",
+        "id": "link:src/components/contracts/field-review-workspace-actions.tsx:189:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-        "line": 143,
+        "line": 189,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9611,10 +10005,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:324:1",
+        "id": "button:src/components/contracts/field-review.tsx:334:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 324,
+        "line": 334,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9623,10 +10017,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:332:1",
+        "id": "button:src/components/contracts/field-review.tsx:342:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 332,
+        "line": 342,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9635,10 +10029,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:386:1",
+        "id": "button:src/components/contracts/field-review.tsx:389:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 386,
+        "line": 389,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9647,10 +10041,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:400:1",
+        "id": "button:src/components/contracts/field-review.tsx:403:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 400,
+        "line": 403,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9659,10 +10053,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:413:1",
+        "id": "button:src/components/contracts/field-review.tsx:416:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 413,
+        "line": 416,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9671,10 +10065,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/field-review.tsx:423:1",
+        "id": "button:src/components/contracts/field-review.tsx:426:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/field-review.tsx",
-        "line": 423,
+        "line": 426,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9695,10 +10089,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/recent-uploads.tsx:45:1",
+        "id": "link:src/components/contracts/recent-uploads.tsx:36:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/recent-uploads.tsx",
-        "line": 45,
+        "line": 36,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9707,10 +10101,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:216:1",
+        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:217:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/renewal-checkpoints-panel.tsx",
-        "line": 216,
+        "line": 217,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9719,10 +10113,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/contracts/renewal-checkpoints-panel.tsx:305:1",
+        "id": "form:src/components/contracts/renewal-checkpoints-panel.tsx:339:1",
         "kind": "form",
         "sourcePath": "src/components/contracts/renewal-checkpoints-panel.tsx",
-        "line": 305,
+        "line": 339,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -9731,10 +10125,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:319:1",
+        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:353:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/renewal-checkpoints-panel.tsx",
-        "line": 319,
+        "line": 353,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9743,10 +10137,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/contracts/renewal-checkpoints-panel.tsx:335:1",
+        "id": "form:src/components/contracts/renewal-checkpoints-panel.tsx:369:1",
         "kind": "form",
         "sourcePath": "src/components/contracts/renewal-checkpoints-panel.tsx",
-        "line": 335,
+        "line": 369,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -9755,10 +10149,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:342:1",
+        "id": "button:src/components/contracts/renewal-checkpoints-panel.tsx:376:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/renewal-checkpoints-panel.tsx",
-        "line": 342,
+        "line": 376,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9839,10 +10233,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/contracts/upload-form.tsx:279:1",
+        "id": "form:src/components/contracts/upload-form.tsx:308:1",
         "kind": "form",
         "sourcePath": "src/components/contracts/upload-form.tsx",
-        "line": 279,
+        "line": 308,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "medium",
@@ -9851,10 +10245,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/upload-form.tsx:577:1",
+        "id": "button:src/components/contracts/upload-form.tsx:525:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/upload-form.tsx",
-        "line": 577,
+        "line": 525,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9863,10 +10257,22 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/contracts/upload-form.tsx:615:1",
+        "id": "button:src/components/contracts/upload-form.tsx:650:1",
+        "kind": "button",
+        "sourcePath": "src/components/contracts/upload-form.tsx",
+        "line": 650,
+        "route": "/contracts",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/contracts/upload-form.tsx:813:1",
         "kind": "link",
         "sourcePath": "src/components/contracts/upload-form.tsx",
-        "line": 615,
+        "line": 813,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9875,10 +10281,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/contracts/upload-form.tsx:618:1",
+        "id": "button:src/components/contracts/upload-form.tsx:816:1",
         "kind": "button",
         "sourcePath": "src/components/contracts/upload-form.tsx",
-        "line": 618,
+        "line": 816,
         "route": "/contracts",
         "owner": "engineering",
         "risk": "low",
@@ -9899,10 +10305,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:194:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:173:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 194,
+        "line": 173,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9911,10 +10317,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:406:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:333:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 406,
+        "line": 333,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9923,10 +10329,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:443:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:402:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 443,
+        "line": 402,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9935,10 +10341,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:484:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:474:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 484,
+        "line": 474,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9947,10 +10353,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:508:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:544:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 508,
+        "line": 544,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9959,10 +10365,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:549:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:607:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 549,
+        "line": 607,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9971,10 +10377,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:637:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:697:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 637,
+        "line": 697,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9983,10 +10389,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:644:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:805:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 644,
+        "line": 805,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -9995,10 +10401,22 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/dashboard/core-dashboard.tsx:666:1",
+        "id": "link:src/components/dashboard/core-dashboard.tsx:812:1",
         "kind": "link",
         "sourcePath": "src/components/dashboard/core-dashboard.tsx",
-        "line": 666,
+        "line": 812,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/dashboard/core-dashboard.tsx:835:1",
+        "kind": "link",
+        "sourcePath": "src/components/dashboard/core-dashboard.tsx",
+        "line": 835,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11099,10 +11517,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/landing/contact-form.tsx:135:1",
+        "id": "button:src/components/landing/contact-form.tsx:137:1",
         "kind": "button",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 135,
+        "line": 137,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -11111,10 +11529,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/components/landing/contact-form.tsx:296:1",
+        "id": "link:src/components/landing/contact-form.tsx:298:1",
         "kind": "link",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 296,
+        "line": 298,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -11123,10 +11541,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/components/landing/contact-form.tsx:303:1",
+        "id": "link:src/components/landing/contact-form.tsx:305:1",
         "kind": "link",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 303,
+        "line": 305,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -11135,10 +11553,10 @@
         "e2e_test": false
       },
       {
-        "id": "link:src/components/landing/contact-form.tsx:313:1",
+        "id": "link:src/components/landing/contact-form.tsx:315:1",
         "kind": "link",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 313,
+        "line": 315,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -11147,10 +11565,10 @@
         "e2e_test": false
       },
       {
-        "id": "form:src/components/landing/contact-form.tsx:406:1",
+        "id": "form:src/components/landing/contact-form.tsx:408:1",
         "kind": "form",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 406,
+        "line": 408,
         "route": null,
         "owner": "engineering",
         "risk": "medium",
@@ -11159,10 +11577,10 @@
         "e2e_test": false
       },
       {
-        "id": "button:src/components/landing/contact-form.tsx:560:1",
+        "id": "button:src/components/landing/contact-form.tsx:562:1",
         "kind": "button",
         "sourcePath": "src/components/landing/contact-form.tsx",
-        "line": 560,
+        "line": 562,
         "route": null,
         "owner": "engineering",
         "risk": "low",
@@ -11531,10 +11949,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/command-palette.tsx:528:1",
+        "id": "link:src/components/layout/command-palette.tsx:530:1",
         "kind": "link",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 528,
+        "line": 530,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11543,10 +11961,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/command-palette.tsx:556:1",
+        "id": "button:src/components/layout/command-palette.tsx:558:1",
         "kind": "button",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 556,
+        "line": 558,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11555,10 +11973,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/command-palette.tsx:567:1",
+        "id": "link:src/components/layout/command-palette.tsx:569:1",
         "kind": "link",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 567,
+        "line": 569,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11567,10 +11985,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/command-palette.tsx:572:1",
+        "id": "link:src/components/layout/command-palette.tsx:574:1",
         "kind": "link",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 572,
+        "line": 574,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11579,10 +11997,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/command-palette.tsx:582:1",
+        "id": "link:src/components/layout/command-palette.tsx:584:1",
         "kind": "link",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 582,
+        "line": 584,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11591,10 +12009,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/command-palette.tsx:616:1",
+        "id": "link:src/components/layout/command-palette.tsx:618:1",
         "kind": "link",
         "sourcePath": "src/components/layout/command-palette.tsx",
-        "line": 616,
+        "line": 618,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11603,10 +12021,22 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/header.tsx:147:1",
+        "id": "link:src/components/layout/command-palette.tsx:659:1",
+        "kind": "link",
+        "sourcePath": "src/components/layout/command-palette.tsx",
+        "line": 659,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/layout/header.tsx:153:1",
         "kind": "link",
         "sourcePath": "src/components/layout/header.tsx",
-        "line": 147,
+        "line": 153,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11615,10 +12045,10 @@
         "e2e_test": true
       },
       {
-        "id": "form:src/components/layout/header.tsx:162:1",
+        "id": "form:src/components/layout/header.tsx:168:1",
         "kind": "form",
         "sourcePath": "src/components/layout/header.tsx",
-        "line": 162,
+        "line": 168,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "medium",
@@ -11627,10 +12057,58 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/header.tsx:199:1",
+        "id": "imperative_navigation:src/components/layout/header.tsx:176:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/layout/header.tsx",
+        "line": 176,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "q ? `/search?q=${encodeURIComponent(q",
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/layout/header.tsx:177:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/layout/header.tsx",
+        "line": 177,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "q ? `/search?q=${encodeURIComponent(q",
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/layout/header.tsx:178:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/layout/header.tsx",
+        "line": 178,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "q ? `/search?q=${encodeURIComponent(q",
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "imperative_navigation:src/components/layout/header.tsx:179:1",
+        "kind": "imperative_navigation",
+        "sourcePath": "src/components/layout/header.tsx",
+        "line": 179,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "medium",
+        "target": "q ? `/search?q=${encodeURIComponent(q",
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "link:src/components/layout/header.tsx:204:1",
         "kind": "link",
         "sourcePath": "src/components/layout/header.tsx",
-        "line": 199,
+        "line": 204,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11663,10 +12141,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/sidebar.tsx:148:1",
+        "id": "link:src/components/layout/sidebar.tsx:168:1",
         "kind": "link",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 148,
+        "line": 168,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11675,10 +12153,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/layout/sidebar.tsx:274:1",
+        "id": "link:src/components/layout/sidebar.tsx:294:1",
         "kind": "link",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 274,
+        "line": 294,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11687,10 +12165,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/sidebar.tsx:287:1",
+        "id": "button:src/components/layout/sidebar.tsx:307:1",
         "kind": "button",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 287,
+        "line": 307,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11699,22 +12177,22 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/sidebar.tsx:299:1",
+        "id": "button:src/components/layout/sidebar.tsx:319:1",
         "kind": "button",
-        "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 299,
-        "route": "/dashboard",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": true,
-        "e2e_test": true
-      },
-      {
-        "id": "form:src/components/layout/sidebar.tsx:319:1",
-        "kind": "form",
         "sourcePath": "src/components/layout/sidebar.tsx",
         "line": 319,
+        "route": "/dashboard",
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": true,
+        "e2e_test": true
+      },
+      {
+        "id": "form:src/components/layout/sidebar.tsx:339:1",
+        "kind": "form",
+        "sourcePath": "src/components/layout/sidebar.tsx",
+        "line": 339,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "medium",
@@ -11723,10 +12201,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/sidebar.tsx:320:1",
+        "id": "button:src/components/layout/sidebar.tsx:340:1",
         "kind": "button",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 320,
+        "line": 340,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11735,10 +12213,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/sidebar.tsx:336:1",
+        "id": "button:src/components/layout/sidebar.tsx:356:1",
         "kind": "button",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 336,
+        "line": 356,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11747,10 +12225,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/layout/sidebar.tsx:370:1",
+        "id": "button:src/components/layout/sidebar.tsx:390:1",
         "kind": "button",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 370,
+        "line": 390,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11759,10 +12237,10 @@
         "e2e_test": true
       },
       {
-        "id": "client_http_helper:src/components/layout/sidebar.tsx:465:1",
+        "id": "client_http_helper:src/components/layout/sidebar.tsx:485:1",
         "kind": "client_http_helper",
         "sourcePath": "src/components/layout/sidebar.tsx",
-        "line": 465,
+        "line": 485,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -11807,10 +12285,10 @@
         "e2e_test": false
       },
       {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:480:1",
+        "id": "button:src/components/onboarding/calibration-wizard.tsx:347:1",
         "kind": "button",
         "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 480,
+        "line": 347,
         "route": "/onboarding/calibration",
         "owner": "engineering",
         "risk": "low",
@@ -11819,10 +12297,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:497:1",
+        "id": "button:src/components/onboarding/calibration-wizard.tsx:364:1",
         "kind": "button",
         "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 497,
+        "line": 364,
         "route": "/onboarding/calibration",
         "owner": "engineering",
         "risk": "low",
@@ -11831,10 +12309,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:505:1",
+        "id": "button:src/components/onboarding/calibration-wizard.tsx:388:1",
         "kind": "button",
         "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 505,
+        "line": 388,
         "route": "/onboarding/calibration",
         "owner": "engineering",
         "risk": "low",
@@ -11843,58 +12321,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:524:1",
+        "id": "button:src/components/onboarding/calibration-wizard.tsx:392:1",
         "kind": "button",
         "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 524,
-        "route": "/onboarding/calibration",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:528:1",
-        "kind": "button",
-        "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 528,
-        "route": "/onboarding/calibration",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:538:1",
-        "kind": "button",
-        "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 538,
-        "route": "/onboarding/calibration",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "button:src/components/onboarding/calibration-wizard.tsx:546:1",
-        "kind": "button",
-        "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 546,
-        "route": "/onboarding/calibration",
-        "owner": "engineering",
-        "risk": "low",
-        "target": null,
-        "ui_test": false,
-        "e2e_test": true
-      },
-      {
-        "id": "link:src/components/onboarding/calibration-wizard.tsx:561:1",
-        "kind": "link",
-        "sourcePath": "src/components/onboarding/calibration-wizard.tsx",
-        "line": 561,
+        "line": 392,
         "route": "/onboarding/calibration",
         "owner": "engineering",
         "risk": "low",
@@ -12131,6 +12561,54 @@
         "e2e_test": true
       },
       {
+        "id": "link:src/components/search/result-row.tsx:139:1",
+        "kind": "link",
+        "sourcePath": "src/components/search/result-row.tsx",
+        "line": 139,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "form:src/components/search/search-field.tsx:253:1",
+        "kind": "form",
+        "sourcePath": "src/components/search/search-field.tsx",
+        "line": 253,
+        "route": null,
+        "owner": "engineering",
+        "risk": "medium",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "button:src/components/search/search-field.tsx:263:1",
+        "kind": "button",
+        "sourcePath": "src/components/search/search-field.tsx",
+        "line": 263,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
+        "id": "button:src/components/search/search-field.tsx:310:1",
+        "kind": "button",
+        "sourcePath": "src/components/search/search-field.tsx",
+        "line": 310,
+        "route": null,
+        "owner": "engineering",
+        "risk": "low",
+        "target": null,
+        "ui_test": false,
+        "e2e_test": false
+      },
+      {
         "id": "form:src/components/settings/billing-actions.tsx:69:1",
         "kind": "form",
         "sourcePath": "src/components/settings/billing-actions.tsx",
@@ -12143,10 +12621,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/settings/billing-invoices-list.tsx:70:1",
+        "id": "link:src/components/settings/billing-invoices-list.tsx:73:1",
         "kind": "link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 70,
+        "line": 73,
         "route": "/settings",
         "owner": "security",
         "risk": "low",
@@ -12155,10 +12633,10 @@
         "e2e_test": true
       },
       {
-        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:191:1",
+        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:196:1",
         "kind": "new_tab_link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 191,
+        "line": 196,
         "route": "/settings",
         "owner": "security",
         "risk": "medium",
@@ -12167,10 +12645,10 @@
         "e2e_test": true
       },
       {
-        "id": "link:src/components/settings/billing-invoices-list.tsx:192:1",
+        "id": "link:src/components/settings/billing-invoices-list.tsx:197:1",
         "kind": "link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 192,
+        "line": 197,
         "route": "/settings",
         "owner": "security",
         "risk": "low",
@@ -12179,10 +12657,10 @@
         "e2e_test": true
       },
       {
-        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:192:1",
+        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:197:1",
         "kind": "new_tab_link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 192,
+        "line": 197,
         "route": "/settings",
         "owner": "security",
         "risk": "medium",
@@ -12191,10 +12669,10 @@
         "e2e_test": true
       },
       {
-        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:193:1",
+        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:198:1",
         "kind": "new_tab_link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 193,
+        "line": 198,
         "route": "/settings",
         "owner": "security",
         "risk": "medium",
@@ -12203,10 +12681,10 @@
         "e2e_test": true
       },
       {
-        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:194:1",
+        "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:199:1",
         "kind": "new_tab_link",
         "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-        "line": 194,
+        "line": 199,
         "route": "/settings",
         "owner": "security",
         "risk": "medium",
@@ -12983,10 +13461,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/ui/ui-select.tsx:92:1",
+        "id": "button:src/components/ui/ui-select.tsx:97:1",
         "kind": "button",
         "sourcePath": "src/components/ui/ui-select.tsx",
-        "line": 92,
+        "line": 97,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -12995,10 +13473,10 @@
         "e2e_test": true
       },
       {
-        "id": "button:src/components/ui/ui-select.tsx:127:1",
+        "id": "button:src/components/ui/ui-select.tsx:136:1",
         "kind": "button",
         "sourcePath": "src/components/ui/ui-select.tsx",
-        "line": 127,
+        "line": 136,
         "route": "/dashboard",
         "owner": "engineering",
         "risk": "low",
@@ -13268,91 +13746,24 @@
   },
   "checks": {
     "uiSurfaceConsistency": {
-      "issueCount": 1,
-      "issues": [
-        {
-          "issue": "page_routes_missing_from_manifest",
-          "routes": [
-            "/acceptable-use",
-            "/contact",
-            "/pricing",
-            "/product"
-          ]
-        }
-      ],
-      "surfaceCount": 72,
+      "issueCount": 0,
+      "issues": [],
+      "surfaceCount": 77,
       "counts": {
-        "manifestRoutes": 72,
-        "pageRoutes": 76,
-        "authenticatedManifestRoutes": 61,
-        "routeInventoryRoutes": 61,
+        "manifestRoutes": 77,
+        "pageRoutes": 77,
+        "authenticatedManifestRoutes": 62,
+        "routeInventoryRoutes": 62,
         "navigationHrefsChecked": 117
       }
     },
     "routeStateCoverage": {
-      "issueCount": 5,
-      "issues": [
-        {
-          "issue": "state_file_missing_from_manifest",
-          "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx"
-        },
-        {
-          "issue": "state_file_missing_from_manifest",
-          "sourcePath": "src/app/(dashboard)/settings/billing/loading.tsx"
-        },
-        {
-          "issue": "state_file_missing_from_manifest",
-          "sourcePath": "src/app/(dashboard)/settings/security/error.tsx"
-        },
-        {
-          "issue": "state_file_missing_from_manifest",
-          "sourcePath": "src/app/(dashboard)/settings/security/loading.tsx"
-        },
-        {
-          "issue": "state_file_missing_from_manifest",
-          "sourcePath": "src/app/(marketing)/product/loading.tsx"
-        }
-      ],
-      "routeStateCount": 49
+      "issueCount": 0,
+      "issues": [],
+      "routeStateCount": 56
     }
   },
-  "failures": [
-    {
-      "source": "ui_surface_consistency",
-      "issue": "page_routes_missing_from_manifest",
-      "routes": [
-        "/acceptable-use",
-        "/contact",
-        "/pricing",
-        "/product"
-      ]
-    },
-    {
-      "source": "route_state_coverage",
-      "issue": "state_file_missing_from_manifest",
-      "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx"
-    },
-    {
-      "source": "route_state_coverage",
-      "issue": "state_file_missing_from_manifest",
-      "sourcePath": "src/app/(dashboard)/settings/billing/loading.tsx"
-    },
-    {
-      "source": "route_state_coverage",
-      "issue": "state_file_missing_from_manifest",
-      "sourcePath": "src/app/(dashboard)/settings/security/error.tsx"
-    },
-    {
-      "source": "route_state_coverage",
-      "issue": "state_file_missing_from_manifest",
-      "sourcePath": "src/app/(dashboard)/settings/security/loading.tsx"
-    },
-    {
-      "source": "route_state_coverage",
-      "issue": "state_file_missing_from_manifest",
-      "sourcePath": "src/app/(marketing)/product/loading.tsx"
-    }
-  ],
+  "failures": [],
   "openInteractionRisks": [
     {
       "id": "new_tab_link:src/app/(dashboard)/assurance/review-boards/page.tsx:113:1",
@@ -13451,6 +13862,54 @@
       "e2e_test": true
     },
     {
+      "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:244:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+      "line": 244,
+      "route": null,
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "active.href",
+      "ui_test": false,
+      "e2e_test": false
+    },
+    {
+      "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:245:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+      "line": 245,
+      "route": null,
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "active.href",
+      "ui_test": false,
+      "e2e_test": false
+    },
+    {
+      "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:246:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+      "line": 246,
+      "route": null,
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "active.href",
+      "ui_test": false,
+      "e2e_test": false
+    },
+    {
+      "id": "imperative_navigation:src/app/(dashboard)/search/search-view.tsx:247:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/app/(dashboard)/search/search-view.tsx",
+      "line": 247,
+      "route": null,
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "active.href",
+      "ui_test": false,
+      "e2e_test": false
+    },
+    {
       "id": "new_tab_link:src/app/(dashboard)/settings/settings-page-sections.tsx:30:1",
       "kind": "new_tab_link",
       "sourcePath": "src/app/(dashboard)/settings/settings-page-sections.tsx",
@@ -13487,10 +13946,10 @@
       "e2e_test": true
     },
     {
-      "id": "raw_client_fetch:src/components/contracts/bulk-upload-form.tsx:104:1",
+      "id": "raw_client_fetch:src/components/contracts/bulk-upload-form.tsx:155:1",
       "kind": "raw_client_fetch",
       "sourcePath": "src/components/contracts/bulk-upload-form.tsx",
-      "line": 104,
+      "line": 155,
       "route": "/contracts",
       "owner": "engineering",
       "risk": "high",
@@ -13535,30 +13994,6 @@
       "e2e_test": true
     },
     {
-      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:34:1",
-      "kind": "imperative_navigation",
-      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-      "line": 34,
-      "route": "/contracts",
-      "owner": "engineering",
-      "risk": "medium",
-      "target": "nextHref",
-      "ui_test": false,
-      "e2e_test": true
-    },
-    {
-      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:35:1",
-      "kind": "imperative_navigation",
-      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
-      "line": 35,
-      "route": "/contracts",
-      "owner": "engineering",
-      "risk": "medium",
-      "target": "nextHref",
-      "ui_test": false,
-      "e2e_test": true
-    },
-    {
       "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:36:1",
       "kind": "imperative_navigation",
       "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
@@ -13579,6 +14014,78 @@
       "owner": "engineering",
       "risk": "medium",
       "target": "nextHref",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:38:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 38,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "nextHref",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:39:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 39,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "nextHref",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:86:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 86,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "skipTarget",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:87:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 87,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "skipTarget",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:88:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 88,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "skipTarget",
+      "ui_test": false,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/contracts/field-review-workspace-actions.tsx:89:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/contracts/field-review-workspace-actions.tsx",
+      "line": 89,
+      "route": "/contracts",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "skipTarget",
       "ui_test": false,
       "e2e_test": true
     },
@@ -13811,10 +14318,58 @@
       "e2e_test": false
     },
     {
-      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:191:1",
+      "id": "imperative_navigation:src/components/layout/header.tsx:176:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/layout/header.tsx",
+      "line": 176,
+      "route": "/dashboard",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "q ? `/search?q=${encodeURIComponent(q",
+      "ui_test": true,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/layout/header.tsx:177:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/layout/header.tsx",
+      "line": 177,
+      "route": "/dashboard",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "q ? `/search?q=${encodeURIComponent(q",
+      "ui_test": true,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/layout/header.tsx:178:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/layout/header.tsx",
+      "line": 178,
+      "route": "/dashboard",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "q ? `/search?q=${encodeURIComponent(q",
+      "ui_test": true,
+      "e2e_test": true
+    },
+    {
+      "id": "imperative_navigation:src/components/layout/header.tsx:179:1",
+      "kind": "imperative_navigation",
+      "sourcePath": "src/components/layout/header.tsx",
+      "line": 179,
+      "route": "/dashboard",
+      "owner": "engineering",
+      "risk": "medium",
+      "target": "q ? `/search?q=${encodeURIComponent(q",
+      "ui_test": true,
+      "e2e_test": true
+    },
+    {
+      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:196:1",
       "kind": "new_tab_link",
       "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-      "line": 191,
+      "line": 196,
       "route": "/settings",
       "owner": "security",
       "risk": "medium",
@@ -13823,10 +14378,10 @@
       "e2e_test": true
     },
     {
-      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:192:1",
+      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:197:1",
       "kind": "new_tab_link",
       "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-      "line": 192,
+      "line": 197,
       "route": "/settings",
       "owner": "security",
       "risk": "medium",
@@ -13835,10 +14390,10 @@
       "e2e_test": true
     },
     {
-      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:193:1",
+      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:198:1",
       "kind": "new_tab_link",
       "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-      "line": 193,
+      "line": 198,
       "route": "/settings",
       "owner": "security",
       "risk": "medium",
@@ -13847,10 +14402,10 @@
       "e2e_test": true
     },
     {
-      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:194:1",
+      "id": "new_tab_link:src/components/settings/billing-invoices-list.tsx:199:1",
       "kind": "new_tab_link",
       "sourcePath": "src/components/settings/billing-invoices-list.tsx",
-      "line": 194,
+      "line": 199,
       "route": "/settings",
       "owner": "security",
       "risk": "medium",
@@ -13920,10 +14475,10 @@
     }
   ],
   "summary": {
-    "routeCount": 72,
-    "interactionCount": 991,
-    "blockingFailureCount": 6,
-    "openInteractionRiskCount": 47,
+    "routeCount": 77,
+    "interactionCount": 1023,
+    "blockingFailureCount": 0,
+    "openInteractionRiskCount": 59,
     "expiredWaiverCount": 0
   }
 }

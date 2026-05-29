@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { validatePreviousSecretExpiry } from "./rotating-secret";
+import { rotatingSecretCandidates, validatePreviousSecretExpiry } from "./rotating-secret";
 
 describe("rotating-secret", () => {
   it("allows absent previous secrets", () => {
@@ -49,5 +49,36 @@ describe("rotating-secret", () => {
         nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
       })
     ).toEqual({ ok: true, expiresAtMs: Date.parse("2026-01-02T00:00:00.000Z") });
+  });
+
+  it("builds current and previous secret candidates only when previous metadata is valid", () => {
+    expect(
+      rotatingSecretCandidates({
+        currentSecret: "current",
+        previousSecret: "previous",
+        previousSecretExpiresAt: "2026-01-02T00:00:00.000Z",
+        strict: true,
+        nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+      })
+    ).toEqual(["current", "previous"]);
+
+    expect(
+      rotatingSecretCandidates({
+        currentSecret: "current",
+        previousSecret: "previous",
+        previousSecretExpiresAt: "2025-01-02T00:00:00.000Z",
+        strict: true,
+        nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+      })
+    ).toEqual(["current"]);
+
+    expect(
+      rotatingSecretCandidates({
+        currentSecret: "current",
+        previousSecret: "previous",
+        strict: true,
+        nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+      })
+    ).toEqual(["current"]);
   });
 });

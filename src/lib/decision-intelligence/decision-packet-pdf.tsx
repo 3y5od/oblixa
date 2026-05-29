@@ -1,6 +1,15 @@
 import React from "react";
 import { Document, Page, StyleSheet, Text, renderToBuffer } from "@react-pdf/renderer";
 
+export const DECISION_PACKET_SAFE_PDF_METADATA = {
+  title: "Oblixa decision packet",
+  author: "Oblixa",
+  subject: "Decision packet export",
+  keywords: "Oblixa, decision packet",
+  creator: "Oblixa",
+  producer: "Oblixa",
+};
+
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 9, lineHeight: 1.35 },
   h1: { fontSize: 16, marginBottom: 10 },
@@ -20,7 +29,7 @@ export async function renderDecisionPacketPdfBuffer(input: {
     chunks.push(input.bodyText.slice(i, i + 3500));
   }
   const element = (
-    <Document>
+    <Document {...DECISION_PACKET_SAFE_PDF_METADATA}>
       {chunks.map((chunk, index) => (
         <Page size="A4" style={styles.page} key={`${index}`}>
           {index === 0 ? (

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-frontend-resilience",
+  "objectives": [
+    {
+      "id": "route-state-coverage",
+      "ownerArea": "frontend-platform",
+      "commands": [
+        { "command": "check:operational-frontend-resilience", "ciRequired": true, "qaPipelineRequired": false, "covers": ["aggregate_registry", "artifact_drift", "state_scenarios", "route_family_coverage"] },
+        { "command": "check:route-state-coverage", "ciRequired": true, "qaPipelineRequired": false, "covers": ["loading_error_not_found_manifest"] },
+        { "command": "check:qa-loading-routes", "ciRequired": true, "qaPipelineRequired": true, "covers": ["loading_route_matrix"] },
+        { "command": "check:e2e-generated-drift", "ciRequired": true, "qaPipelineRequired": false, "covers": ["generated_e2e_matrices"] },
+        { "command": "test:e2e:resilience:all", "ciRequired": false, "qaPipelineRequired": true, "covers": ["offline", "rate_limited", "provider_outage", "stale_data", "conflict"] }
+      ],
+      "artifacts": ["artifacts/operational-frontend-resilience.json"]
+    },
+    {
+      "id": "critical-workflow-smokes",
+      "ownerArea": "test-platform",
+      "commands": [
+        { "command": "test:e2e:smoke", "ciRequired": true, "qaPipelineRequired": false, "covers": ["public_auth_external_core_smoke"] },
+        { "command": "test:e2e:current-product", "ciRequired": true, "qaPipelineRequired": true, "covers": ["authenticated_core_workflows"] },
+        { "command": "check:onboarding-qa-matrix", "ciRequired": true, "qaPipelineRequired": false, "covers": ["onboarding_static_and_e2e_matrix"] },
+        { "command": "check:e2e-po-route-coverage", "ciRequired": false, "qaPipelineRequired": false, "covers": ["page_object_route_inventory"] }
+      ]
+    },
+    {
+      "id": "accessibility-operations",
+      "ownerArea": "frontend-platform",
+      "commands": [
+        { "command": "test:e2e:a11y", "ciRequired": true, "qaPipelineRequired": true, "covers": ["axe", "keyboard", "landmarks", "dialogs", "forms", "route_states"] },
+        { "command": "test:ui:a11y", "ciRequired": false, "qaPipelineRequired": false, "covers": ["component_axe", "focus_restoration"] },
+        { "command": "check:authenticated-a11y-matrix", "ciRequired": true, "qaPipelineRequired": false, "covers": ["route_family_a11y_matrix"] },
+        { "command": "check:shell-landmarks", "ciRequired": true, "qaPipelineRequired": false, "covers": ["main", "skip_link", "navigation", "footer"] },
+        { "command": "check:suppress-hydration-warning", "ciRequired": false, "qaPipelineRequired": false, "covers": ["hydration_exception_ticketing"] }
+      ]
+    },
+    {
+      "id": "responsive-visual-stability",
+      "ownerArea": "frontend-platform",
+      "commands": [
+        { "command": "test:e2e:visual", "ciRequired": true, "qaPipelineRequired": false, "covers": ["public_visual", "external_visual", "route_state_visual"] },
+        { "command": "test:e2e:visual:auth", "ciRequired": false, "qaPipelineRequired": false, "covers": ["authenticated_shell_visual"] },
+        { "command": "test:e2e:current-product:matrix", "ciRequired": false, "qaPipelineRequired": true, "covers": ["mobile", "tablet", "desktop", "reduced_motion"] },
+        { "command": "test:e2e:i18n-matrix", "ciRequired": false, "qaPipelineRequired": true, "covers": ["rtl", "pseudo_locale", "ime"] },
+        { "command": "check:frontend-component-complexity", "ciRequired": true, "qaPipelineRequired": false, "covers": ["component_blast_radius"] }
+      ]
+    },
+    {
+      "id": "client-recovery-behavior",
+      "ownerArea": "frontend-platform",
+      "commands": [
+        { "command": "test:e2e:resilience:all", "ciRequired": false, "qaPipelineRequired": true, "covers": ["retry", "focus_refetch", "duplicate_submit", "recoverable_copy"] },
+        { "command": "test:e2e:smoke", "ciRequired": true, "qaPipelineRequired": false, "covers": ["ci_recovery_smoke_inclusion"] },
+        { "command": "test:ui", "ciRequired": false, "qaPipelineRequired": false, "covers": ["optimistic_rollback", "inline_status", "form_rejection"] }
+      ]
+    }
+  ],
+  "routeStateScenarios": [
+    { "id": "loading", "path": "src/lib/qa/route-state-manifest.source.mjs", "markers": ["kind: \"loading\"", "src/app/(dashboard)/loading.tsx"] },
+    { "id": "empty", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["data-v10-state='empty'", "/contracts/tasks?status=blocked&team=__v10_empty_probe__"] },
+    { "id": "error", "path": "e2e/ui-resilience.spec.ts", "markers": ["maps HTTP 500 on status read to a visible recovery message", "ui-alert-error"] },
+    { "id": "offline", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["offline status read keeps a visible retry path and reloads the form", "internetdisconnected"] },
+    { "id": "unauthorized", "path": "e2e/auth-flow.spec.ts", "markers": ["dashboard unauthenticated access redirects to login", "contracts unauthenticated access redirects to login"] },
+    { "id": "forbidden", "path": "e2e/authenticated.spec.ts", "markers": ["optional hidden-module probe path returns 403/404 or redirects to dashboard"] },
+    { "id": "not_found", "path": "src/lib/qa/route-state-manifest.source.mjs", "markers": ["kind: \"not_found\"", "src/app/not-found.tsx"] },
+    { "id": "conflict", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["prevents duplicate submit while surfacing conflict recovery copy", "status: 409"] },
+    { "id": "rate_limited", "path": "e2e/ui-resilience.spec.ts", "markers": ["maps HTTP 429 on status read to a visible message", "Too many requests. Try again shortly."] },
+    { "id": "stale_data", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["refetches status on focus without losing typed input", "Status refreshed after focus."] },
+    { "id": "provider_outage", "path": "e2e/ui-qa-http-client-status-mocks.spec.ts", "markers": ["503+JSON error maps to user-visible text", "Service temporarily unavailable"] }
+  ],
+  "workflowScenarios": [
+    { "id": "sign-in", "path": "e2e/auth-flow.spec.ts", "markers": ["dashboard unauthenticated access redirects to login", "authenticated sign out returns to login"] },
+    { "id": "onboarding", "path": "e2e/onboarding-calibration.spec.ts", "markers": ["empty state or wizard on /onboarding/calibration", "keyboard-only advance from step 0 when wizard active"] },
+    { "id": "contract-upload", "path": "src/lib/contracts-upload-release-state.test.ts", "markers": ["Upload contract", "review the extracted fields"] },
+    { "id": "field-review", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["/contracts/review", "Review queue"] },
+    { "id": "owner-assignment", "path": "src/components/work/work-inbox-list.test.tsx", "markers": ["assign selected work to owner", "owner-2"] },
+    { "id": "renewal-checkpoints", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["/contracts/renewals", "Renewals"] },
+    { "id": "obligations", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["/contracts/obligations", "Obligations queue"] },
+    { "id": "reports", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["/reports", "Operational reports|Digest run history|Reports history is disabled"] },
+    { "id": "settings", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["/settings/health", "System health"] },
+    { "id": "billing", "path": "src/app/(dashboard)/settings/billing/page.surface.test.ts", "markers": ["settings/billing", "billing-empty-title"] },
+    { "id": "evidence", "path": "e2e/authenticated.spec.ts", "markers": ["evidence studio saves a template", "/contracts/evidence-studio"] },
+    { "id": "search", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["Search contracts for this query", "v10-keyboard-recovery"] },
+    { "id": "logout", "path": "e2e/auth-flow.spec.ts", "markers": ["authenticated sign out returns to login", "post sign-out endpoint redirects to login"] }
+  ],
+  "accessibilityContracts": [
+    { "id": "axe-route-states", "path": "e2e/a11y.route-states.spec.ts", "markers": ["AxeBuilder", "serious", "critical"] },
+    { "id": "keyboard", "path": "e2e/a11y.keyboard.spec.ts", "markers": ["keyboard", "Tab moves between email, password"] },
+    { "id": "focus-restoration", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["command palette closes with Escape and returns focus", "focus"] },
+    { "id": "landmarks", "path": "scripts/check-shell-landmarks.mjs", "markers": ["<main", "MAIN_CONTENT_ID", "workspace landmark"] },
+    { "id": "accessible-names", "path": "e2e/a11y.forms.spec.ts", "markers": ["login form exposes accessible email and password fields", "signup form exposes accessible fields"] },
+    { "id": "reduced-motion", "path": "e2e/current-product-device-matrix.webkit.spec.ts", "markers": ["reduced motion", "reducedMotion"] },
+    { "id": "timeout-hints", "path": "e2e/a11y-cognitive-timeout-hints.spec.ts", "markers": ["timeout", "cognitive"] },
+    { "id": "skip-links", "path": "e2e/authenticated.spec.ts", "markers": ["skip link moves focus to main landmark", "skip to main content"] },
+    { "id": "dialogs", "path": "e2e/a11y.dialogs.spec.ts", "markers": ["dialog", "command palette"] },
+    { "id": "forms", "path": "e2e/a11y.forms.spec.ts", "markers": ["form exposes", "Email"] },
+    { "id": "tables", "path": "src/components/contracts/contract-table.ui.test.tsx", "markers": ["visible table", "bulk owner assignment"] },
+    { "id": "uploads", "path": "e2e/ui-qa-upload-emulation-perf.spec.ts", "markers": ["protected bulk import route does not show upload UI without a session", "upload"] }
+  ],
+  "responsiveVisualContracts": [
+    { "id": "mobile", "path": "e2e/current-product-core-smoke.spec.ts", "markers": ["mobile viewport", "390", "844"] },
+    { "id": "tablet", "path": "e2e/current-product-device-matrix.chromium.spec.ts", "markers": ["viewport", "1440"] },
+    { "id": "desktop", "path": "e2e/visual.core.spec.ts", "markers": ["visual core surfaces", "matches visual baseline"] },
+    { "id": "long-text", "path": "src/lib/compatibility-long-title-unicode-row.test.ts", "markers": ["long", "unicode"] },
+    { "id": "zoom", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["zoomed public shell has no horizontal overflow", "font-size: 20px"] },
+    { "id": "dark-mode", "path": "e2e/fixtures/theme-fixture.ts", "markers": ["applyTheme", "dark"] },
+    { "id": "reduced-motion", "path": "e2e/current-product-device-matrix.webkit.spec.ts", "markers": ["reduced motion"] },
+    { "id": "rtl", "path": "e2e/rtl-ime-pseudo-locale-smoke.spec.ts", "markers": ["RTL", "dir"] },
+    { "id": "pseudo-locale", "path": "e2e/rtl-ime-pseudo-locale-smoke.spec.ts", "markers": ["pseudo", "locale"] },
+    { "id": "authenticated-shell", "path": "e2e/visual.shell.spec.ts", "markers": ["visual shell", "dashboard"] },
+    { "id": "horizontal-scroll", "path": "e2e/authenticated.spec.ts", "markers": ["horizontal document overflow", "scrollWidth"] }
+  ],
+  "recoveryContracts": [
+    { "id": "retry-button", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["visible retry path", "externalSubmitRetryButton"] },
+    { "id": "refetch-on-focus", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["refetches status on focus without losing typed input", "window.dispatchEvent(new Event(\"focus\"))"] },
+    { "id": "optimistic-rollback", "path": "src/lib/mutation-feedback-surface.test.ts", "markers": ["recoverable mutation helper exports stable vocabulary", "inline UI"] },
+    { "id": "duplicate-submit-prevention", "path": "e2e/frontend-operational-resilience.spec.ts", "markers": ["prevents duplicate submit", "toBeDisabled"] },
+    { "id": "recoverable-copy", "path": "src/lib/recoverable-mutation-error.ts", "markers": ["Refresh the record before trying again", "rate limited"] }
+  ],
+  "manualBoundary": "Full browser/device lab visual approval, production fixture credential availability, and human UX signoff remain outside code-only automation; this registry enforces all local/staging-safe code-owned coverage."
+}

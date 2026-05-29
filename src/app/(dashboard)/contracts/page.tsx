@@ -1,9 +1,6 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
-import {
-  isHrefEligibleForProductSurface,
-  loadProductSurfaceContext,
-} from "@/lib/product-surface";
+import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
 import { RecoverableState } from "@/components/ui/recoverable-state";
@@ -20,11 +17,16 @@ import {
   DEADLINE_PRESET_VALUES,
 } from "@/lib/contract-filters";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import {
+  AlertTriangle,
+  CalendarDays,
   ChevronDown,
   Download,
   Eye,
   Files,
+  FileText,
+  Link2,
   SlidersHorizontal,
   Trash2,
   Upload,
@@ -54,30 +56,18 @@ export const metadata = { title: "Contracts" };
 
 const DEADLINE_OPTIONS: { value: DeadlinePreset; label: string }[] = [
   { value: "", label: "Any date" },
-  { value: "renewal_30", label: "Renewal ≤30d" },
-  { value: "renewal_90", label: "Renewal ≤90d" },
-  { value: "renewal_180", label: "Renewal ≤180d" },
-  { value: "renewal_365", label: "Renewal ≤365d" },
-  { value: "end_30", label: "End date ≤30d" },
-  { value: "end_90", label: "End date ≤90d" },
-  { value: "end_180", label: "End date ≤180d" },
-  { value: "end_365", label: "End date ≤365d" },
-  {
-    value: "notice_deadline_30",
-    label: "Notice deadline ≤30d",
-  },
-  {
-    value: "notice_deadline_90",
-    label: "Notice deadline ≤90d",
-  },
-  {
-    value: "notice_deadline_180",
-    label: "Notice deadline ≤180d",
-  },
-  {
-    value: "notice_deadline_365",
-    label: "Notice deadline ≤365d",
-  },
+  { value: "renewal_30", label: "Renewal in 30d" },
+  { value: "renewal_90", label: "Renewal in 90d" },
+  { value: "renewal_180", label: "Renewal in 180d" },
+  { value: "renewal_365", label: "Renewal in 365d" },
+  { value: "end_30", label: "End date in 30d" },
+  { value: "end_90", label: "End date in 90d" },
+  { value: "end_180", label: "End date in 180d" },
+  { value: "end_365", label: "End date in 365d" },
+  { value: "notice_deadline_30", label: "Notice in 30d" },
+  { value: "notice_deadline_90", label: "Notice in 90d" },
+  { value: "notice_deadline_180", label: "Notice in 180d" },
+  { value: "notice_deadline_365", label: "Notice in 365d" },
 ];
 
 function isDeadlinePreset(v: string | undefined): v is DeadlinePreset {
@@ -110,6 +100,31 @@ function parseHealthFilter(v: string | undefined): "" | "watch" {
 
 const FILTER_PILL_IDLE_CLASS = "ui-filter-pill";
 const FILTER_PILL_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
+// Filter pills no longer differentiate data-quality fallback values
+// ("Tenants", "Other", email-only owners) — the earlier italic + brown
+// treatment created visual noise without an actionable distinction at
+// the filter level. Title attributes on the link still explain the
+// fallback context on hover.
+
+// Mirrors the data-quality token sets in `contract-table.tsx` so the
+// filter dropdown applies the same flagging the row chips use.
+const COUNTERPARTY_FALLBACK_TOKENS = new Set([
+  "tenants",
+  "tenant",
+  "vendor",
+  "counterparty",
+  "supplier",
+  "customer",
+  "party",
+  "other",
+]);
+const CONTRACT_TYPE_FALLBACK_TOKENS = new Set([
+  "other",
+  "unknown",
+  "unclassified",
+  "n/a",
+]);
+const OWNER_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default async function ContractsPage(props: {
   searchParams: Promise<{
@@ -137,21 +152,13 @@ export default async function ContractsPage(props: {
 
   const { orgId, admin } = ctx;
   const productSurface = await loadProductSurfaceContext(admin, orgId, ctx.role as WorkspaceRole);
-  const moreActionLinks: { href: string; label: string }[] = [
-    { href: "/api/export/calendar/feed", label: "Calendar feed token" },
-    { href: "/contracts/intake", label: "Intake" },
-    { href: "/contracts/approvals", label: "Approvals" },
-    { href: "/contracts/renewals", label: "Renewals" },
-    { href: "/contracts/tasks", label: "Tasks" },
-    { href: "/contracts/obligations", label: "Obligations" },
-    { href: "/contracts/exceptions", label: "Exceptions" },
-    { href: "/contracts/review-cadence", label: "Review cadence" },
-    { href: "/contracts/analytics", label: "Analytics" },
-    { href: "/contracts/maintenance", label: "Maintenance" },
-  ];
-  const visibleMoreActionLinks = moreActionLinks.filter((row) =>
-    isHrefEligibleForProductSurface(productSurface, row.href)
-  );
+  // The Export dropdown was previously a hybrid "Export + Navigation"
+  // menu — it spread Approvals / Renewals / Tasks / Obligations /
+  // Exceptions (duplicate sidebar nav) AND non-Core surfaces (Analytics
+  // + Maintenance are Advanced-only per release-state §Product Modes;
+  // Review cadence isn't in the Core spec at all). Those destinations
+  // are reachable via the sidebar + cmd-K palette + their dedicated
+  // routes; the dropdown now surfaces only real export actions.
 
   const parsedPage = parseInt(searchParams.page ?? "1", 10);
   const page =
@@ -304,26 +311,49 @@ export default async function ContractsPage(props: {
     (subscriptionsData ?? []).map((s) => [s.saved_view_id, (s.recipient_emails ?? []).join(", ")])
   );
 
-  const members = (membersData ?? []).map((m) => {
-    return {
+  // Members are sorted so email-only fallbacks (members without a
+  // `full_name`) appear after named members — same pattern as the
+  // counterparty + contract-type fallback ordering.
+  const members = (membersData ?? [])
+    .map((m) => ({
       id: m.user_id,
       label: orgMemberProfileLabel(m.profiles, "Unknown"),
-    };
-  });
+    }))
+    .sort((a, b) => {
+      const aFallback = OWNER_EMAIL_RE.test(a.label);
+      const bFallback = OWNER_EMAIL_RE.test(b.label);
+      if (aFallback !== bFallback) return aFallback ? 1 : -1;
+      return a.label.localeCompare(b.label);
+    });
+  // Fallback values sort to the bottom of the list so real counterparties
+  // / contract types appear first. The sort puts non-fallback values in
+  // alphabetical order, then fallback values in alphabetical order — the
+  // user's eye lands on actionable filter targets first, with the
+  // data-quality flags grouped at the end.
   const counterpartyOptions = [
     ...new Set(
       (filterOptionsData ?? [])
         .map((row) => String(row.counterparty ?? "").trim())
         .filter(Boolean)
     ),
-  ].sort((a, b) => a.localeCompare(b));
+  ].sort((a, b) => {
+    const aFallback = COUNTERPARTY_FALLBACK_TOKENS.has(a.toLowerCase());
+    const bFallback = COUNTERPARTY_FALLBACK_TOKENS.has(b.toLowerCase());
+    if (aFallback !== bFallback) return aFallback ? 1 : -1;
+    return a.localeCompare(b);
+  });
   const contractTypeOptions = [
     ...new Set(
       (filterOptionsData ?? [])
         .map((row) => String(row.contract_type ?? "").trim())
         .filter(Boolean)
     ),
-  ].sort((a, b) => a.localeCompare(b));
+  ].sort((a, b) => {
+    const aFallback = CONTRACT_TYPE_FALLBACK_TOKENS.has(a.toLowerCase());
+    const bFallback = CONTRACT_TYPE_FALLBACK_TOKENS.has(b.toLowerCase());
+    if (aFallback !== bFallback) return aFallback ? 1 : -1;
+    return a.localeCompare(b);
+  });
 
   const [contracts, reviewStats, rowSignals] = await Promise.all([
     attachOwnerProfiles(admin, orgId, contractsData),
@@ -456,10 +486,30 @@ export default async function ContractsPage(props: {
   ].filter((value): value is string => value != null);
 
   const activeFilterCount = activeFilters.length;
-  const exportItems: { href: string; label: string }[] = [
-    { href: `/api/export/contracts?orgId=${encodeURIComponent(orgId)}`, label: "Export CSV" },
-    { href: "/api/export/calendar", label: "Export calendar" },
-    ...visibleMoreActionLinks,
+  // Export dropdown surfaces *only* real export actions. The prior list
+  // merged in navigation links (Approvals, Renewals, Tasks, Analytics,
+  // Maintenance, Review cadence, etc.) under a button labeled "Export" —
+  // which (a) mislabels the items as exports, and (b) leaked non-Core
+  // surfaces (Analytics + Maintenance are Advanced-only per
+  // release-state §Product Modes; Review cadence isn't in the Core spec
+  // at all). Navigation to those surfaces is already available via the
+  // sidebar + cmd-K palette + their dedicated routes.
+  const exportItems: { href: string; label: string; icon: LucideIcon }[] = [
+    {
+      href: `/api/export/contracts?orgId=${encodeURIComponent(orgId)}`,
+      label: "Export CSV",
+      icon: FileText,
+    },
+    {
+      href: "/api/export/calendar",
+      label: "Export calendar",
+      icon: CalendarDays,
+    },
+    {
+      href: "/api/export/calendar/feed",
+      label: "Calendar feed URL",
+      icon: Link2,
+    },
   ];
   const latestExportSummary = latestExportJob
     ? `Latest export: ${latestExportJob.exported_rows ?? 0} rows`
@@ -493,30 +543,16 @@ export default async function ContractsPage(props: {
     <div className="ui-page-stack">
       <DashboardPageHeader
         icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-        eyebrow="Contract inventory"
+        // "Contract tracking" mirrors the parent area name from
+        // oblixa-release-state.md (Dashboard page title) and reads
+        // unambiguously page-specific. "Tracking" alone was too generic.
+        eyebrow="Contract tracking"
+        density="compact"
         title="Contracts"
         lead={
-          contractTotal === 0 ? (
-            "Upload your first signed agreement to start tracking review, dates, owners, work, evidence, and reports."
-          ) : (
-            <span className="inline-flex flex-wrap items-center gap-1.5">
-              <Link
-                href="/contracts?status=pending_review"
-                className="ui-hero-metric-chip ui-hero-metric-chip-tone-warning"
-              >
-                <strong>{pagePendingReview}</strong> Pending
-              </Link>
-              <Link
-                href="/contracts?status=active"
-                className="ui-hero-metric-chip ui-hero-metric-chip-tone-success"
-              >
-                <strong>{pageActive}</strong> Active
-              </Link>
-              <span className="ui-hero-metric-chip">
-                <strong>{contractTotal}</strong> Total
-              </span>
-            </span>
-          )
+          contractTotal === 0
+            ? "Upload your first signed agreement to start tracking review, dates, owners, work, evidence, and reports."
+            : "Track renewals, obligations, owners, and work for signed agreements."
         }
         actions={
           <>
@@ -529,29 +565,41 @@ export default async function ContractsPage(props: {
             </Link>
             <Link
               href="/contracts/bulk"
-              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+              // Outlined secondary — sits between the filled primary
+              // (`Upload contract`) and the ghost dropdown (`Export ▾`).
+              // The earlier ghost styling read identically to Export so
+              // the visual hierarchy collapsed.
+              className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
             >
               <Upload className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               Import CSV
             </Link>
             <details className="relative">
-              <summary className="ui-btn-ghost inline-flex cursor-pointer list-none items-center gap-1.5 px-3 py-1.5 text-[12.5px] [&::-webkit-details-marker]:hidden">
+              <summary className="ui-btn-secondary inline-flex cursor-pointer list-none items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold [&::-webkit-details-marker]:hidden">
                 <Download className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
                 Export
                 <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               </summary>
-              <div className="ui-popover right-0 left-auto w-64 max-w-[calc(100vw-3rem)] p-0">
-                <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] text-[12.5px]">
-                  {exportItems.map((row) => (
-                    <li key={row.href}>
-                      <Link
-                        href={row.href}
-                        className="block px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] hover:text-[var(--accent-strong)]"
-                      >
-                        {row.label}
-                      </Link>
-                    </li>
-                  ))}
+              <div className="ui-popover right-0 left-auto w-60 max-w-[calc(100vw-3rem)] p-0">
+                <ul className="text-[12.5px]">
+                  {exportItems.map((row) => {
+                    const Icon = row.icon;
+                    return (
+                      <li key={row.href}>
+                        <Link
+                          href={row.href}
+                          className="flex items-center gap-2.5 px-3 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] hover:text-[var(--accent-strong)]"
+                        >
+                          <Icon
+                            className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
+                            strokeWidth={1.85}
+                            aria-hidden
+                          />
+                          {row.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
                 {latestExportSummary ? (
                   <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[10.5px] uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
@@ -605,7 +653,11 @@ export default async function ContractsPage(props: {
               type="search"
               placeholder="Search name, counterparty, owner, tag…"
               defaultValue={searchParams.search || ""}
-              className="ui-input-compact h-9 min-w-0 flex-1 lg:max-w-md"
+              // Subtle chrome — faint hairline border + soft inset bg so
+              // the input reads as interactive (defect 2 / iter 18 made
+              // it transparent and it lost click affordance). Lighter
+              // than the canonical .ui-input-compact full-strength bg.
+              className="ui-input-compact h-8 min-w-0 flex-1 text-[12px] lg:max-w-md !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)]"
               autoComplete="off"
             />
             <UiSelect
@@ -613,17 +665,24 @@ export default async function ContractsPage(props: {
               defaultValue={deadline}
               ariaLabel="Date preset"
               placeholder="Any date"
-              buttonClassName="h-9 min-w-[10rem] text-[12.5px]"
+              // Matches the search input's subtle chrome: faint hairline
+              // + soft inset bg. Reads as interactive but doesn't pill-
+              // ify the row the way full .ui-input-compact chrome did.
+              buttonClassName="h-8 min-w-[10rem] text-[12px] !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] hover:!bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]"
               options={DEADLINE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
             />
             <UiSelect
               name="sort"
               defaultValue={searchParams.sort === "created" ? "created" : "activity"}
               ariaLabel="Sort"
-              buttonClassName="h-9 min-w-[10rem] text-[12.5px]"
+              // Shortened labels eliminate the "Recent activi..." truncation
+              // inside the dropdown menu (the menu inherits the trigger's
+              // 8rem width, and "Recent activity" + Check icon exceeded
+              // that width).
+              buttonClassName="h-8 min-w-[10rem] text-[12px] !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] hover:!bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]"
               options={[
-                { value: "activity", label: "Recent activity" },
-                { value: "created", label: "Recently created" },
+                { value: "activity", label: "Last activity" },
+                { value: "created", label: "Last created" },
               ]}
             />
             {searchParams.status ? <input type="hidden" name="status" value={searchParams.status} /> : null}
@@ -640,7 +699,7 @@ export default async function ContractsPage(props: {
             <button
               type="submit"
               aria-label="Apply search, date, and sort"
-              className="ui-btn-secondary inline-flex h-9 items-center px-3 text-[12.5px] font-semibold"
+              className="inline-flex h-8 items-center rounded-md border border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_38%,var(--surface-raised))] px-3 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[var(--accent-strong)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_55%,var(--surface-raised))]"
               title="Apply (or press Enter)"
             >
               Apply
@@ -667,7 +726,11 @@ export default async function ContractsPage(props: {
                     <Link
                       key={`status-${s.value}`}
                       href={buildContractsListHref({ ...baseParams, status: s.value || undefined })}
-                      className={(searchParams.status || "") === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      // "All" (s.value === "") always renders as idle so
+                      // the popover stops showing an accent-tinted pill in
+                      // every section when no filter is set. Active state
+                      // is reserved for non-default selections.
+                      className={s.value && searchParams.status === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                     >
                       {s.label}
                     </Link>
@@ -680,19 +743,28 @@ export default async function ContractsPage(props: {
                   <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
                     <Link
                       href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty: undefined })}
-                      className={!searchParams.counterparty ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      className={FILTER_PILL_IDLE_CLASS}
                     >
                       All
                     </Link>
-                    {counterpartyOptions.slice(0, 24).map((counterparty) => (
-                      <Link
-                        key={`counterparty-${counterparty}`}
-                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty })}
-                        className={searchParams.counterparty === counterparty ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                      >
-                        {counterparty}
-                      </Link>
-                    ))}
+                    {counterpartyOptions.slice(0, 24).map((counterparty) => {
+                      const isFallback = COUNTERPARTY_FALLBACK_TOKENS.has(counterparty.toLowerCase());
+                      const isActive = searchParams.counterparty === counterparty;
+                      return (
+                        <Link
+                          key={`counterparty-${counterparty}`}
+                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty })}
+                          title={
+                            isFallback
+                              ? `Counterparty name missing — currently shows "${counterparty}"`
+                              : undefined
+                          }
+                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                        >
+                          {counterparty}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
@@ -702,19 +774,28 @@ export default async function ContractsPage(props: {
                   <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
                     <Link
                       href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: undefined })}
-                      className={!searchParams.contract_type ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      className={FILTER_PILL_IDLE_CLASS}
                     >
                       All
                     </Link>
-                    {contractTypeOptions.slice(0, 24).map((contractType) => (
-                      <Link
-                        key={`contract-type-${contractType}`}
-                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: contractType })}
-                        className={searchParams.contract_type === contractType ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                      >
-                        {contractType}
-                      </Link>
-                    ))}
+                    {contractTypeOptions.slice(0, 24).map((contractType) => {
+                      const isFallback = CONTRACT_TYPE_FALLBACK_TOKENS.has(contractType.toLowerCase());
+                      const isActive = searchParams.contract_type === contractType;
+                      return (
+                        <Link
+                          key={`contract-type-${contractType}`}
+                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: contractType })}
+                          title={
+                            isFallback
+                              ? `Contract type unclassified — currently shows "${contractType}"`
+                              : undefined
+                          }
+                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                        >
+                          {contractType}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
@@ -725,7 +806,7 @@ export default async function ContractsPage(props: {
                     <Link
                       key={`region-${region || "all"}`}
                       href={buildContractsListHref({ ...baseParams, status: searchParams.status, region: region || undefined })}
-                      className={(searchParams.region || "") === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      className={region && searchParams.region === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                     >
                       {region || "All"}
                     </Link>
@@ -745,7 +826,7 @@ export default async function ContractsPage(props: {
                     href={buildContractsListHref({ ...baseParams, status: searchParams.status, review: reviewFilter === "pending" ? undefined : "pending" })}
                     className={reviewFilter === "pending" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
                   >
-                    Needs review
+                    Pending review
                   </Link>
                   <Link
                     href={buildContractsListHref({ ...baseParams, status: searchParams.status, data_quality: dataQualityFilter === "missing_critical" ? undefined : "missing_critical" })}
@@ -773,19 +854,30 @@ export default async function ContractsPage(props: {
                   <div className="flex flex-wrap gap-1.5">
                     <Link
                       href={buildContractsListHref({ ...baseParams, status: searchParams.status })}
-                      className={!searchParams.owner ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                      className={FILTER_PILL_IDLE_CLASS}
                     >
                       All
                     </Link>
-                    {members.map((m) => (
-                      <Link
-                        key={m.id}
-                        href={buildContractsListHref({ ...baseParams, status: searchParams.status, owner: m.id })}
-                        className={searchParams.owner === m.id ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                      >
-                        {m.label}
-                      </Link>
-                    ))}
+                    {members.map((m) => {
+                      const isEmailOnly = OWNER_EMAIL_RE.test(m.label);
+                      const isActive = searchParams.owner === m.id;
+                      // Email-only labels (member exists but has no
+                      // `full_name` set) render as a visually-flagged
+                      // "Unassigned" filter pill — same data-quality
+                      // pattern as the row-level owner treatment. The
+                      // raw email surfaces via `title`.
+                      const visibleLabel = isEmailOnly ? "Unassigned" : m.label;
+                      return (
+                        <Link
+                          key={m.id}
+                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, owner: m.id })}
+                          title={isEmailOnly ? m.label : undefined}
+                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
+                        >
+                          {visibleLabel}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
@@ -800,26 +892,47 @@ export default async function ContractsPage(props: {
             </div>
           </details>
 
-          {/* Saved views popover */}
+          {/* Saved views popover — trigger shows the current view's name
+              so users can see at a glance which view is active without
+              opening the popover. Defaults to "All contracts" when no
+              saved view matches the current URL params (instead of the
+              ambiguous "Views" trigger label). */}
           <details className="relative">
             <summary className="ui-toolbar-dropdown" aria-haspopup="dialog">
               <Eye className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "Views"}</span>
+              <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "All contracts"}</span>
               <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             </summary>
             <div className="ui-popover left-0 right-auto w-[22rem] max-w-[calc(100vw-3rem)]" role="dialog" aria-label="Saved views">
               <ul className="space-y-1">
-                <li>
-                  <Link
-                    href="/contracts"
-                    className={`flex items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] ${!activeSavedView ? "bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] text-[var(--accent-strong)]" : "text-[var(--text-secondary)]"}`}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <Eye className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-                      All contracts
+                {/* Only show the "All contracts" reset row when a saved
+                    view is currently active — otherwise it duplicates
+                    the trigger label and adds menu noise. */}
+                {activeSavedView ? (
+                  <li>
+                    <Link
+                      href="/contracts"
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)]"
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        <Eye className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+                        Reset to all contracts
+                      </span>
+                    </Link>
+                  </li>
+                ) : null}
+                {!activeSavedView && savedViews.length === 0 ? (
+                  <li className="flex flex-col items-center gap-1 px-2 py-3">
+                    <Eye
+                      className="h-3.5 w-3.5 text-[var(--text-tertiary)]"
+                      strokeWidth={1.85}
+                      aria-hidden
+                    />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                      No saved views
                     </span>
-                  </Link>
-                </li>
+                  </li>
+                ) : null}
                 {savedViews.map((view) => (
                   <li key={view.id} className="group flex items-center gap-1">
                     <Link
@@ -1048,12 +1161,44 @@ export default async function ContractsPage(props: {
           already applied AND the workspace has at least one contract.
           v15: eyebrow demoted to caps-3, renamed "Common filters", separated to its own line. */}
       {activeFilterCount === 0 && contractTotal > 0 ? (
-        <nav aria-label="Common filters" className="space-y-1.5 px-1">
-          <p className="ui-caps-3 inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-            <span className="landing-eyebrow-dot" aria-hidden />
-            Common filters
+        <nav aria-label="Quick filters" className="space-y-1.5 px-1">
+          {/* Dot decoration dropped: the caps-tracked "Common filters" text
+              already reads as an eyebrow. The leading dot was decorative
+              chrome that competed with the filter chip row below. */}
+          <p className="ui-caps-3 inline-flex items-center text-[10px] text-[var(--text-tertiary)]">
+            Quick filters
           </p>
+          {/* Chip order follows the tone gradient — danger → warning →
+              info → success — so the user's eye lands on critical
+              attention items first, operational work in the middle, and
+              current-state filters at the end. */}
           <div className="flex flex-wrap items-center gap-1.5">
+          {/* Only the unambiguously-critical signal keeps a tone tint —
+              "status earns color" per ui-design-principles §10.2. Other
+              filters render as neutral so a wall of tinted chips stops
+              competing with the table itself for attention. */}
+          {signalCounts.openExceptions > 0 ? (
+            <Link
+              href="/contracts?exceptions=open"
+              className="ui-quick-chip ui-quick-chip-tone-danger"
+            >
+              {/* AlertTriangle icon — non-color reinforcement so the
+                  critical signal isn't carried by red ink alone (§7.7).
+                  The icon also visually disambiguates Open exceptions
+                  from the neutral filter chips beside it. */}
+              <AlertTriangle
+                className="h-3 w-3 shrink-0"
+                strokeWidth={2}
+                aria-hidden
+              />
+              Open exceptions
+              <span className="ui-quick-chip-count">{signalCounts.openExceptions}</span>
+            </Link>
+          ) : null}
+          {/* Each chip picks up the tone class for its semantic
+              category — risk / warning / info / success — so the row
+              reads as four differentiated families instead of seven
+              identical neutral chips. */}
           {pagePendingReview > 0 ? (
             <Link
               href="/contracts?status=pending_review"
@@ -1061,15 +1206,6 @@ export default async function ContractsPage(props: {
             >
               Pending review
               <span className="ui-quick-chip-count">{pagePendingReview}</span>
-            </Link>
-          ) : null}
-          {signalCounts.openExceptions > 0 ? (
-            <Link
-              href="/contracts?exceptions=open"
-              className="ui-quick-chip ui-quick-chip-tone-danger"
-            >
-              Open exceptions
-              <span className="ui-quick-chip-count">{signalCounts.openExceptions}</span>
             </Link>
           ) : null}
           {signalCounts.missingDates > 0 ? (
@@ -1093,15 +1229,21 @@ export default async function ContractsPage(props: {
           {signalCounts.openWork > 0 ? (
             <Link
               href="/contracts?work=open"
-              className="ui-quick-chip"
+              className="ui-quick-chip ui-quick-chip-tone-info"
             >
               Open work
               <span className="ui-quick-chip-count">{signalCounts.openWork}</span>
             </Link>
           ) : null}
-          <Link href="/contracts?deadline=renewal_90" className="ui-quick-chip">
-            Renewing in 90d
-          </Link>
+          {signalCounts.renewingSoon > 0 ? (
+            <Link
+              href="/contracts?deadline=renewal_90"
+              className="ui-quick-chip ui-quick-chip-tone-info"
+            >
+              Renewing in 90d
+              <span className="ui-quick-chip-count">{signalCounts.renewingSoon}</span>
+            </Link>
+          ) : null}
           {pageActive > 0 ? (
             <Link
               href="/contracts?status=active"

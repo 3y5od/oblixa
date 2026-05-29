@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-notifications-messaging",
+  "objectives": [
+    {
+      "id": "user-facing-message-inventory",
+      "ownerArea": "notifications",
+      "commands": [
+        { "command": "check:operational-notifications-messaging", "ciRequired": true, "covers": ["message_registry", "artifact_drift", "surface_coverage"] },
+        { "command": "check:user-facing-interactions", "ciRequired": false, "covers": ["route_interactions", "ui_surfaces"] },
+        { "command": "test:vitest:current-product", "ciRequired": false, "covers": ["registry_metadata", "template_inventory"] }
+      ],
+      "artifacts": ["artifacts/operational-notifications-messaging.json"]
+    },
+    {
+      "id": "notification-preference-eligibility",
+      "ownerArea": "notifications",
+      "commands": [
+        { "command": "check:operational-notifications-messaging", "ciRequired": true, "covers": ["eligibility_matrix", "digest_grouping", "rate_limits"] },
+        { "command": "check:notification-payload-scrub-contract", "ciRequired": true, "covers": ["delivery_metadata_scrub", "retry_payload_scrub"] },
+        { "command": "test:vitest:current-product", "ciRequired": false, "covers": ["preference_tests", "workspace_mode_tests"] }
+      ]
+    },
+    {
+      "id": "message-rendering-sanitization",
+      "ownerArea": "frontend-security",
+      "commands": [
+        { "command": "check:operational-notifications-messaging", "ciRequired": true, "covers": ["rendering_policy", "fixture_rendering"] },
+        { "command": "check:outbound-message-safety", "ciRequired": true, "covers": ["html_sanitization", "header_injection", "chat_payloads"] },
+        { "command": "check:email-identity-spoof-guards", "ciRequired": true, "covers": ["sender_identity", "reply_to_spoofing"] }
+      ]
+    },
+    {
+      "id": "retry-dead-letter-behavior",
+      "ownerArea": "notifications",
+      "commands": [
+        { "command": "check:operational-notifications-messaging", "ciRequired": true, "covers": ["retry_dead_letter_matrix"] },
+        { "command": "check:poison-message-containment", "ciRequired": true, "covers": ["poison_payloads", "terminal_failure"] },
+        { "command": "check:queue-message-authenticity", "ciRequired": true, "covers": ["duplicate_delivery", "message_authenticity"] }
+      ]
+    }
+  ],
+  "messageInventory": [
+    {
+      "id": "email",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["return \"email\";", "RELEASE_STATE_EMAIL_TEMPLATE_KEYS.map", "source: \"src/lib/release-state-email-templates.ts\""],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "in-app-notifications",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["surface: isEvidence ? \"evidence_request\" : isReminder ? \"reminder\" : \"in_app_notification\"", "NOTIFICATION_TAXONOMY.map", "source: \"src/lib/notification-taxonomy.ts\""],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "toasts",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["id: \"toast.settings.notifications_saved\"", "notification preference mutation success or failure", "src/actions/notifications.ts"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "alerts",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["id: \"alert.notification_retry_health\"", "notification retry cron partial failure", "src/app/api/notifications/retry-deliveries/route.ts"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "errors",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["id: \"error.notification_provider_failure\"", "email or Slack provider delivery failure", "src/lib/notification-delivery.ts"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "banners",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["id: \"banner.notifications_channel_off\"", "notification channel disabled or read-only settings state", "src/lib/settings/spec-strings.ts"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "reminders",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["key.includes(\"reminder\")", "key.includes(\"renewal\")", "key.includes(\"deadline\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "evidence-requests",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["id: \"evidence.evidence_followup_owner\"", "evidence follow-up cron owner notification", "src/app/api/cron/v4/evidence-followup/route.ts"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "billing-notices",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["key.startsWith(\"trial_\")", "key === \"payment_failed\"", "owner: surface === \"billing_notice\" ? \"@billing\" : \"@notifications\""],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "eligibilityRules": [
+    {
+      "id": "opt-out",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["channelEnabled", "blockedTypes", "reasons.push(\"opt_out\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "disabled-org",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["orgStatus", "reasons.push(\"disabled_org\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "inactive-user",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["recipientStatus", "reasons.push(\"inactive_user\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "billing-state",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["billingState", "allowBillingException", "reasons.push(\"billing_state\")"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "workspace-mode",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["WORKSPACE_TIER_RANK", "notificationTier", "reasons.push(\"workspace_mode\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "duplicate-suppression",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["duplicateKey", "deliveredDeduplicationKeys", "reasons.push(\"duplicate_suppression\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "rate-limits",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["rateLimitRemaining", "reasons.push(\"rate_limited\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "digest-grouping",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["digestGrouping", "pendingCount", "reasons.push(\"digest_grouping\")"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "renderingSafeguards": [
+    {
+      "id": "html-escaping",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["function escapeHtml", ".replace(/</g, \"&lt;\")", "sanitizeOutboundHtml"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "markdown-links",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["markdownBody", ".replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, \"$1\")"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "unsubscribe",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["unsubscribeHref", "Manage notification preferences"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "long-names",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["recipientDisplayName", "redactOutboundMessageText(input.recipientDisplayName?.trim() || \"there\", 120)"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "missing-fields",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["input.entityName?.trim() || \"this workspace item\"", "Date unavailable"],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "locale-dates",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["Intl.DateTimeFormat", "dateStyle: \"medium\"", "timeZone"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "no-secret-payloads",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["redactOutboundMessageText", "safeHref", "sanitizeOutboundHtml"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "retryDeadLetter": [
+    {
+      "id": "provider-failure",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["errorClass: \"none\" | \"provider_failure\" | \"transient_failure\" | \"permanent_failure\"", "outcome: \"retrying\""],
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "transient-failure",
+      "path": "src/lib/notification-delivery.ts",
+      "markers": ["const backoffSeconds = Math.min(3600, Math.pow(2, nextAttempt) * 30);", "status: isFinal ? \"failed\" : \"retrying\""],
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment"
+    },
+    {
+      "id": "permanent-failure",
+      "path": "src/lib/notification-delivery.ts",
+      "markers": ["function isTerminalDeliveryError(message: string): boolean", "const terminal = isTerminalDeliveryError(sanitizedError);", "diagnosticId: isFinal ? \"notification_delivery_terminal_failure\" : undefined"],
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment"
+    },
+    {
+      "id": "duplicate-delivery",
+      "path": "src/lib/notification-delivery.ts",
+      "markers": ["insertErr?.code === \"23505\"", "duplicate_notification_delivery", "duplicate: true"],
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment"
+    },
+    {
+      "id": "stale-notification",
+      "path": "src/lib/notification-delivery.ts",
+      "markers": ["next_attempt_at.is.null,next_attempt_at.lte", "return { delivered: false, error: \"delivery_locked_or_not_due\", skipped: true };"],
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment"
+    },
+    {
+      "id": "poison-payload",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "markers": ["hasRetryPayload", "outcome: \"failed_dead_letter\"", "deadLetter: true"],
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment"
+    }
+  ],
+  "manualBoundary": "Provider deliverability dashboards, recipient mailbox behavior, and live notification destination verification remain external; this artifact enforces repository-owned message inventory, eligibility, rendering, retry, and dead-letter controls."
+}

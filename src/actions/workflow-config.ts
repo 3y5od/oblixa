@@ -25,6 +25,7 @@ import { revalidatePath } from "next/cache";
 import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
 import { hasSensitiveActionProof } from "@/lib/security/sensitive-action-proof";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
+import { buildOperationalIntegrationDisconnectPatch } from "@/lib/integrations/operational-sync";
 
 const WORKFLOW_INTEGRATION_PROVIDERS = ["google_calendar", "outlook_calendar", "slack", "email", "crm"] as const;
 const WORKFLOW_INTEGRATION_STATUSES = ["not_connected", "connected", "error"] as const;
@@ -924,6 +925,71 @@ export async function setIntegrationTokenForm(formData: FormData) {
       expiresAtSet: Boolean(expiresAt.value),
     },
   });
+  return { success: true };
+}
+
+export async function disconnectIntegrationConnectionForm(formData: FormData) {
+  const provider = readWorkflowEnum(formData, "provider", WORKFLOW_INTEGRATION_PROVIDERS);
+  const reasonValidation = readOptionalWorkflowString(formData, "reason", {
+    maxLength: MAX_WORKFLOW_API_KEY_REASON_LEN,
+    allowTextWhitespaceControls: true,
+  });
+  if (!provider) return { error: "Invalid provider" };
+  if (!reasonValidation.ok) return { error: textInputError("Disconnect reason", reasonValidation) };
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!(await hasSensitiveActionProof(supabase, user.id))) {
+    return {
+      error: "Confirm your password under Settings > Security before disconnecting integrations.",
+      needStepUp: true as const,
+    };
+  }
+  const { data: membership } = await getMembership(admin, user);
+  if (!membership || membership.role !== "admin") return { error: "Access denied" };
+  const { data: row, error: loadError } = await admin
+    .from("integration_connections")
+    .select("id, organization_id, provider, status")
+    .eq("organization_id", membership.organization_id)
+    .eq("provider", provider)
+    .maybeSingle();
+  if (loadError) return { error: mapDataSourceError(loadError.message) };
+  if (!row) return { error: "Integration connection not found" };
+
+  const nowIso = new Date().toISOString();
+  const disconnectPatch = buildOperationalIntegrationDisconnectPatch({
+    nowIso,
+    reason: reasonValidation.value,
+  });
+  const { error } = await admin
+    .from("integration_connections")
+    .update(disconnectPatch)
+    .eq("id", row.id)
+    .eq("organization_id", membership.organization_id);
+  if (error) return { error: mapDataSourceError(error.message) };
+  void recordSecurityAuditEvent(admin, {
+    organizationId: membership.organization_id,
+    actorUserId: user.id,
+    action: "security.integration_disconnected",
+    targetType: "integration_connection",
+    targetId: row.id,
+    outcome: "success",
+    safeMetadata: {
+      provider,
+      previousStatus: row.status,
+      reason: reasonValidation.value || "manual_disconnect",
+      localTokenDeletion: true,
+      webhookCleanup: true,
+      staleScheduledJobsBlocked: true,
+      historicalRecordPreserved: true,
+    },
+  });
+  revalidatePath("/settings");
+  revalidatePath("/settings/operations");
   return { success: true };
 }
 

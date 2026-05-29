@@ -52,6 +52,43 @@ describe("Evidence page model", () => {
     ]);
   });
 
+  it("auto-picks the first non-empty section when no explicit section is requested", () => {
+    const model = buildEvidencePageModel(
+      baseInput({
+        section: null,
+        requirements: [
+          {
+            id: "overdue",
+            title: "Upload insurance certificate",
+            status: "required",
+            due_at: "2026-05-10T12:00:00.000Z",
+            contract_id: "contract_a",
+            work_item_type: "obligation",
+            work_item_id: "obligation_a",
+            reviewer_id: "user_1",
+          },
+        ],
+      })
+    );
+    // Open requests is empty, so the page lands on the overdue queue instead of
+    // a blank Open tab while live work exists.
+    expect(model.activeSection).toBe("overdue_requests");
+    expect(model.sections.find((section) => section.key === "open_requests")?.count).toBe(0);
+    expect(model.sections.find((section) => section.key === "overdue_requests")?.count).toBe(1);
+    expect(model.rows.map((row) => row.requestTitle)).toEqual(["Upload insurance certificate"]);
+    // The Open tab carries an explicit, sticky section token (not the bare
+    // path) so clicking it does not re-fire the auto-pick default.
+    expect(model.sections.find((section) => section.key === "open_requests")?.href).toBe(
+      "/contracts/evidence-studio?section=open_requests"
+    );
+  });
+
+  it("falls back to open requests when no section has work", () => {
+    const model = buildEvidencePageModel(baseInput({ section: null }));
+    expect(model.activeSection).toBe("open_requests");
+    expect(model.rows).toEqual([]);
+  });
+
   it("maps evidence request statuses into release-state statuses and sections", () => {
     const model = buildEvidencePageModel(
       baseInput({

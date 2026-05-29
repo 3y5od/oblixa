@@ -41,6 +41,24 @@ describe("GET /api/integrations/oauth/callback", () => {
     expect(createAdminClient).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when provider denied consent without loading oauth state", async () => {
+    const { GET } = await import("@/app/api/integrations/oauth/callback/route");
+    const res = await GET(
+      new Request(
+        "http://localhost:3000/api/integrations/oauth/callback?state=test-state&error=access_denied&error_description=raw%20provider%20secret"
+      )
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      code: "provider_authorization_failed",
+      diagnostic_id: "oauth_callback_provider_error",
+    });
+    expect(JSON.stringify(body)).not.toContain("raw provider secret");
+    expect(createAdminClient).not.toHaveBeenCalled();
+  });
+
   it("rejects unsafe callback state before database lookup", async () => {
     const { GET } = await import("@/app/api/integrations/oauth/callback/route");
     const res = await GET(

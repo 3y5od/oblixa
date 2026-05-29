@@ -193,7 +193,6 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
         "/contracts/reports",
         "/reports",
         "/settings/health",
-        "/settings/product",
         "command_palette",
       ])
     );
@@ -208,9 +207,6 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     );
     expect(V10_ROUTE_STATE_MATRIX.find((entry) => entry.route === "/contracts")?.accessibilityAssertions).toContain(
       "failed_state_announced"
-    );
-    expect(V10_ROUTE_STATE_MATRIX.find((entry) => entry.route === "/settings/product")?.requiredStates).toEqual(
-      expect.arrayContaining(["forbidden", "hidden_module", "mode_gated", "plan_gated", "stale"])
     );
     expect(new Set(V10_ROUTE_STATE_MATRIX.flatMap((entry) => entry.requiredStates)).size).toBe(V10_UI_STATE_CONTRACTS.length);
     expect(

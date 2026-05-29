@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-subprocessor-drift",
+  "artifact": "artifacts/subprocessors.json",
+  "diffArtifact": "artifacts/subprocessors-diff.json",
+  "baseline": "scripts/subprocessors-baseline.sha256",
+  "ok": true,
+  "baselineHash": "12926316e316694028202f075d9a1e28489d61e4f9749fd450a28eac60c7e81c",
+  "currentHash": "12926316e316694028202f075d9a1e28489d61e4f9749fd450a28eac60c7e81c",
+  "changed": false,
+  "integrity": {
+    "schemaVersion": 1,
+    "source": "code-owned-subprocessor-register",
+    "subprocessorCount": 6,
+    "rows": [
+      {
+        "id": "supabase",
+        "name": "Supabase",
+        "owner": "data-platform",
+        "region": "configurable",
+        "dataClasses": [
+          "account_data",
+          "workspace_content",
+          "contract_content",
+          "security_logs"
+        ],
+        "checksum": "sha256-439e3eea95f7a2c4595078c1132e7b5ffaef63a463c69887aca81dfabb073df7"
+      },
+      {
+        "id": "stripe",
+        "name": "Stripe",
+        "owner": "billing",
+        "region": "US/EU",
+        "dataClasses": [
+          "billing_data",
+          "account_data"
+        ],
+        "checksum": "sha256-76a3ca253842931ced915007c2aa4f597332a1c2057894a230a31ed40d823e01"
+      },
+      {
+        "id": "resend",
+        "name": "Resend",
+        "owner": "notifications",
+        "region": "US/EU",
+        "dataClasses": [
+          "email_delivery",
+          "account_data",
+          "workspace_content"
+        ],
+        "checksum": "sha256-5dabcba7b7e6f96c2b8560f8aa2e231439460445a46eb506a79fd6dc329d874f"
+      },
+      {
+        "id": "openai",
+        "name": "OpenAI",
+        "owner": "ai-safety",
+        "region": "provider-managed",
+        "dataClasses": [
+          "ai_extraction",
+          "contract_content",
+          "workspace_content"
+        ],
+        "checksum": "sha256-073f727146e69b990d20cc2f8743d23e26f273485e20a9e05cf0783c85535714"
+      },
+      {
+        "id": "sentry",
+        "name": "Sentry",
+        "owner": "observability",
+        "region": "US/EU",
+        "dataClasses": [
+          "error_telemetry",
+          "security_logs"
+        ],
+        "checksum": "sha256-ffcb7ba13b08c7025e45cdc4f72d227c63afd7844aac09c945fe56e1e9e76085"
+      },
+      {
+        "id": "upstash",
+        "name": "Upstash",
+        "owner": "platform-runtime",
+        "region": "provider-managed",
+        "dataClasses": [
+          "rate_limit_metadata",
+          "security_logs"
+        ],
+        "checksum": "sha256-60f644f126c8f1fe3e43898f5f29cf4a1a575400a1fa4136c4a224a8029831fd"
+      }
+    ]
+  },
+  "drift": [],
+  "issueCount": 0,
+  "issues": []
+}

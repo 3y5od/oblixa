@@ -13,11 +13,20 @@ const idFiltersRaw = read("src/lib/contract-list-id-filters.ts");
 
 describe("contracts page release-state surface", () => {
   it("uses Core contracts copy and stable header CTAs", () => {
-    expect(pageRaw).toContain('eyebrow="Contract inventory"');
+    // Canonical flat-identity header: icon tile + eyebrow + h1 + lead
+    // (ui-design-principles §2.4 / §5.1). "Contract inventory" remains
+    // banned because it reads as accounting/asset vocabulary; the wedge
+    // is "track renewals, obligations, and owners" (oblixa-release-state).
+    expect(pageRaw).toContain('eyebrow="Contract tracking"');
+    expect(pageRaw).not.toContain('eyebrow="Contract inventory"');
+    expect(pageRaw).not.toContain('eyebrow="Portfolio"');
+    // Earlier generic eyebrows that read as page chrome rather than the
+    // page's specific job — both banned now.
+    expect(pageRaw).not.toContain('eyebrow="Workspace"');
+    expect(pageRaw).not.toContain('eyebrow="Tracking"');
     expect(pageRaw).toContain('title="Contracts"');
     expect(pageRaw).toContain("Upload contract");
     expect(pageRaw).toContain("Import CSV");
-    expect(pageRaw).not.toContain('eyebrow="Portfolio"');
     expect(pageRaw).not.toContain(">Bulk import<");
   });
 

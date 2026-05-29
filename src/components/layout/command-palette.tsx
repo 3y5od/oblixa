@@ -496,9 +496,11 @@ export function CommandPalette(props: {
                 className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[14px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
                 placeholder="Search pages, queues, reports, tools"
               />
+              {/* T0.9 — when the overlay is open, the keybind that's relevant
+                  is Esc (close), not ⌘K (toggle). Swap the badge so the
+                  visible kbd hint matches the active surface. */}
               <div className="hidden items-center gap-1 justify-self-end text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)] sm:flex">
-                <span className="ui-kbd">⌘</span>
-                <span className="ui-kbd">K</span>
+                <span className="ui-kbd">Esc</span>
               </div>
             </div>
             {!query && (
@@ -649,10 +651,24 @@ export function CommandPalette(props: {
                 })
               )}
             </ul>
-            <p className="border-t border-[var(--border-subtle)] px-4 py-3 text-[11px] text-[var(--text-tertiary)] sm:px-5">
-              Arrow keys and Enter to open · Esc to close · On tables with checkboxes, use row selection for
-              batch actions where available.
-            </p>
+            {/* T0.10 — overlay footer copy trimmed to the only hints relevant
+                to the search overlay. The "tables with checkboxes" clause
+                was leaked from another surface and is now removed. */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-4 py-3 text-[11px] text-[var(--text-tertiary)] sm:px-5">
+              <p>Arrow keys to move · Enter to open · Esc to close.</p>
+              <Link
+                href={
+                  query.trim().length > 0
+                    ? `/search?q=${encodeURIComponent(query.trim().slice(0, 200))}`
+                    : "/search"
+                }
+                onClick={() => setOpen(false)}
+                className="ui-link inline-flex shrink-0 items-center gap-1 text-[11.5px] font-semibold"
+              >
+                Open full search
+                <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+              </Link>
+            </div>
           </div>
         </div>
       )}

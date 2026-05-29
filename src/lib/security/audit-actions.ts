@@ -10,6 +10,7 @@ export const SECURITY_AUDIT_ACTIONS = [
   "security.integration_api_key_created",
   "security.integration_api_key_policy_updated",
   "security.integration_api_key_revoked",
+  "security.integration_disconnected",
   "security.integration_oauth_start_blocked",
   "security.integration_token_updated",
   "security.session_signed_out",

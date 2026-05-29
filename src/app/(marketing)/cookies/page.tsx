@@ -5,6 +5,7 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 const title = "Cookies — Oblixa";
 const description =
   "How Oblixa uses cookies and similar technologies for sign-in, security, and essential product operation.";
+const LAST_REVIEWED_ISO = "2026-05-28";
 
 export const metadata: Metadata = {
   title,
@@ -43,7 +44,7 @@ export default function CookiesPage() {
                   Cookies
                 </h1>
                 <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                  Storage we set so the product can authenticate and stay secure.
+                  Storage we set so the product can authenticate and stay secure. Last reviewed: {LAST_REVIEWED_ISO}
                 </p>
               </div>
             </div>

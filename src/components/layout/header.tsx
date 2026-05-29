@@ -1,8 +1,17 @@
 "use client";
 
-/** Appendix B — Utilities header link is gated by `showUtilitiesLink` (see `more-index-visibility.ts`) so Core empty `/more` stays honest. */
+/** Appendix B — Utilities header link is gated by `showUtilitiesLink` (see `more-index-visibility.ts`) so Core empty `/more` stays honest.
+ *
+ *  Search entry-point semantics (search-page-maximal-pass T6.5):
+ *  - `⌘K` (anywhere)        → opens the cmd-K overlay via `command-palette-loader.tsx`.
+ *  - Enter on chrome input  → navigates to `/search?q=…` (this file's form `onSubmit`).
+ *  - Overlay footer link    → navigates to `/search?q=…` (`command-palette.tsx`).
+ *  - Click chrome input     → focuses the input; does NOT open the overlay.
+ *  Keep these three callers in sync; the overlay remains the quick-jump
+ *  surface, the page is the committed-search surface.
+ */
 import { useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Command, Search, Sparkles, Wrench } from "lucide-react";
 import {
@@ -13,10 +22,6 @@ import {
   isContractsRoot,
 } from "@/lib/navigation";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import {
-  COMMAND_PALETTE_OPEN_EVENT,
-  type CommandPaletteOpenDetail,
-} from "@/lib/product-surface/command-palette-bridge";
 import { shellTestIds } from "@/lib/qa/test-ids";
 
 interface HeaderProps {
@@ -83,6 +88,7 @@ function safeInitial(fullName?: string | null, email?: string | null): string {
 
 export function Header({ fullName, email, navSurface, showUtilitiesLink = true }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const displayName = safeDisplayName(fullName, email);
   const initial = safeInitial(fullName, email);
   const hasRealFullName =
@@ -166,12 +172,11 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              const q = String(fd.get("q") ?? "").trim();
-              window.dispatchEvent(
-                new CustomEvent<CommandPaletteOpenDetail>(COMMAND_PALETTE_OPEN_EVENT, {
-                  detail: { query: q },
-                })
-              );
+              const q = String(fd.get("q") ?? "").trim().slice(0, 200);
+              // Enter on the header search commits to the dedicated /search
+              // page. ⌘K still opens the quick-jump command palette overlay
+              // (bound in command-palette-loader.tsx).
+              router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
             }}
           >
             <label className="sr-only" htmlFor="workspace-header-search">

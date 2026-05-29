@@ -29,6 +29,9 @@ const BUILDER_MARKERS = [
   "enforcingScriptHashes",
   "Content-Security-Policy",
   "Content-Security-Policy-Report-Only",
+  "appendCspReportingDirectives",
+  "report-uri ${SECURITY_REPORTING_ENDPOINT_PATH}",
+  "report-to ${SECURITY_REPORTING_ENDPOINT_GROUP}",
   "require-trusted-types-for 'script'",
   "script-src-attr 'none'",
   "upgrade-insecure-requests",
@@ -42,6 +45,7 @@ const BUILDER_TEST_MARKERS = [
   "invalid report-only CSP nonce sources fail closed",
   "report-only CSP can use script nonce when provided (staged)",
   "report-only CSP carries script attribute and mixed-content protections",
+  "buildSecurityHeaders wires CSP report-uri and report-to endpoints",
   "optional Trusted Types directive appended to report-only CSP when enabled",
 ];
 
@@ -55,6 +59,8 @@ const E2E_MARKERS = [
   "script-src-attr 'none'",
   "upgrade-insecure-requests",
   "script-src 'self'",
+  "report-uri /api/security/csp-report",
+  "report-to csp-endpoint",
   "not.toContain(\"'unsafe-inline'\")",
 ];
 

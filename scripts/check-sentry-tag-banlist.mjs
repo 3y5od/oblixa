@@ -4,15 +4,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import process from "node:process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const banPath = path.join(root, "src", "lib", "observability", "metric-label-sentry-banlist.json");
-const srcRoot = path.join(root, "src");
-
-const ban = JSON.parse(fs.readFileSync(banPath, "utf8"));
-const keys = Array.isArray(ban.deny_tag_keys) ? ban.deny_tag_keys.map((k) => String(k)) : [];
 
 function walk(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;
@@ -28,22 +24,40 @@ function walk(dir, acc = []) {
   return acc;
 }
 
-const hits = [];
-for (const file of walk(srcRoot)) {
-  const rel = path.relative(root, file);
-  if (rel.includes("metric-label-sentry-banlist.json")) continue;
-  const text = fs.readFileSync(file, "utf8");
-  if (!/\bSentry\.setTags?\s*\(/.test(text)) continue;
-  for (const key of keys) {
-    const re = new RegExp(`Sentry\\.setTags?\\s*\\(\\s*["']${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`, "i");
-    if (re.test(text)) {
-      hits.push(`${rel}: banned Sentry tag key "${key}"`);
+export function analyzeSentryTagBanlist(baseRoot = root) {
+  const baseBanPath = path.join(baseRoot, "src", "lib", "observability", "metric-label-sentry-banlist.json");
+  const baseSrcRoot = path.join(baseRoot, "src");
+  const baseBan = JSON.parse(fs.readFileSync(baseBanPath, "utf8"));
+  const denyTagKeys = Array.isArray(baseBan.deny_tag_keys) ? baseBan.deny_tag_keys.map((k) => String(k)) : [];
+  const issues = [];
+  let sentryTagCallFileCount = 0;
+
+  for (const file of walk(baseSrcRoot)) {
+    const rel = path.relative(baseRoot, file).replace(/\\/g, "/");
+    if (rel.includes("metric-label-sentry-banlist.json")) continue;
+    const text = fs.readFileSync(file, "utf8");
+    if (!/\bSentry\.setTags?\s*\(/.test(text)) continue;
+    sentryTagCallFileCount += 1;
+    for (const key of denyTagKeys) {
+      const re = new RegExp(`Sentry\\.setTags?\\s*\\(\\s*["']${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`, "iu");
+      if (re.test(text)) {
+        issues.push({ issue: "banned_sentry_tag_key", rel, key });
+      }
     }
   }
+
+  return {
+    checkId: "sentry-tag-banlist",
+    ok: issues.length === 0,
+    issueCount: issues.length,
+    denyTagKeyCount: denyTagKeys.length,
+    sentryTagCallFileCount,
+    issues,
+  };
 }
 
-if (hits.length) {
-  console.error("Sentry tag banlist violations:\n" + hits.join("\n"));
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = analyzeSentryTagBanlist();
+  console.log(JSON.stringify(report, null, 2));
+  process.exit(report.ok ? 0 : 1);
 }
-console.log("OK: no banned Sentry.setTag keys in src/.");

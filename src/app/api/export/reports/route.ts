@@ -10,6 +10,7 @@ import { REPORTS_PAGE_TITLE } from "@/lib/reports/spec-strings";
 import type { ReportKey } from "@/lib/reports/types";
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
+import { isKillImportExport, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { parseFixedEnumParam } from "@/lib/security/validation";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 
@@ -58,6 +59,7 @@ export async function GET(request: Request) {
     apiPath: ROUTE,
   });
   if (modeGate) return modeGate;
+  if (isKillImportExport()) return killSwitchJsonResponse("import_export");
 
   const url = new URL(request.url);
   const reportParam = url.searchParams.get("report");

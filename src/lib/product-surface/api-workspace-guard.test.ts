@@ -176,7 +176,7 @@ describe("requireApiWorkspaceEligibility", () => {
     expect(body).toMatchObject({
       outcome: "mode_required",
       diagnostic_id: "v10_api_workspace_gate_insufficient_workspace_mode",
-      next_destination_href: "/settings/product",
+      next_destination_href: "/settings",
     });
   });
 

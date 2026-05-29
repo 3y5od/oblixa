@@ -58,6 +58,7 @@ vi.mock("@/lib/assurance/telemetry", () => ({
 
 describe("/api/workspace/v6-settings", () => {
   beforeEach(() => {
+    process.env.OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS = "1";
     vi.resetModules();
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
@@ -147,5 +148,31 @@ describe("/api/workspace/v6-settings", () => {
       }
     );
     expect(recordApiMutationAuditEvent).not.toHaveBeenCalled();
+  });
+
+  it("PATCH rejects autopilot execution controls when private release controls are disabled", async () => {
+    delete process.env.OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS;
+    requireV6ApiFeature.mockReturnValueOnce(null);
+    getApiAuthContext.mockResolvedValueOnce({ admin: {}, userId: "u1", orgId: "o1", role: "admin" });
+    canManageCapability.mockResolvedValueOnce(true);
+    const { PATCH } = await import("@/app/api/workspace/v6-settings/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/workspace/v6-settings", {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "workspace-settings-private-control-0001",
+          "if-match": "2026-01-01T00:00:00Z",
+        },
+        body: JSON.stringify({ autopilotAllowExecution: true }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body).toMatchObject({
+      code: "private_release_control",
+      diagnostic_id: "workspace_v6_settings_private_release_control",
+    });
   });
 });

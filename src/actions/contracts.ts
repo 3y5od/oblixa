@@ -19,12 +19,15 @@ import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { readApiJson } from "@/lib/parse-api-response";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import {
+  buildContractStoragePath,
   isContractStoragePathSafe,
   isUuid,
+  parseContractStoragePath,
   parseFixedEnumParam,
   parsePositiveIntParam,
   validateBoundedString,
 } from "@/lib/security/validation";
+import { dedupeValidatedUploadedFiles } from "@/lib/security/upload-batch";
 import { sanitizeUploadedFileName, validateUploadedFileName } from "@/lib/security/upload-filename";
 import { scanUploadedFileForMalware, sniffUploadedFileMime } from "@/lib/security/upload-scan";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
@@ -171,18 +174,14 @@ async function getSafeUploadedContractFile(file: File): Promise<
   return { ok: true, safeName };
 }
 
-async function assertUploadedContractFile(file: File): Promise<string> {
-  const validation = await getSafeUploadedContractFile(file);
-  if (!validation.ok) {
-    if (validation.reason === "size") {
-      throw new Error(`${validation.safeName}: exceeds 20 MB limit`);
-    }
-    if (validation.reason === "filename") {
-      throw new Error(`${validation.safeName}: unsafe file name`);
-    }
-    throw new Error(`${validation.safeName}: unsupported file type`);
-  }
-  return validation.safeName;
+function uploadedContractValidationError(validation: {
+  ok: false;
+  safeName: string;
+  reason: "empty" | "size" | "type" | "extension" | "signature" | "filename" | "malware";
+}): string {
+  if (validation.reason === "size") return `${validation.safeName}: exceeds 20 MB limit`;
+  if (validation.reason === "filename") return `${validation.safeName}: unsafe file name`;
+  return `${validation.safeName}: unsupported file type`;
 }
 
 async function recordV10ContractMutation(
@@ -319,7 +318,9 @@ export async function createContract(formData: FormData): Promise<CreateContract
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
   const validatedFiles = await Promise.all(attemptedFiles.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
-  const validFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  const dedupedFiles = dedupeValidatedUploadedFiles(acceptedFiles);
+  const validFiles = dedupedFiles.files;
   if (validFiles.length > MAX_CONTRACT_UPLOAD_FILES) {
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
@@ -365,7 +366,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
   const uploadResults = await Promise.all(
     validFiles.map(async ({ file, validation }) => {
       const safeName = validation.safeName;
-      const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+      const storagePath = buildContractStoragePath(organizationId, contract.id, safeName);
 
       const { error: uploadError } = await admin.storage
         .from("contracts")
@@ -461,6 +462,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
       intake_source: sourceSystem || "manual",
       file_count: uploadedFiles,
       skipped_invalid_files: skippedInvalidFiles,
+      duplicate_files_ignored: dedupedFiles.duplicateCount,
       failed_upload_files: failedUploadFiles,
     },
   });
@@ -1094,13 +1096,22 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
   const writeErr = await requireWriteAccess(admin, user.id, contract.organization_id);
   if (writeErr) return writeErr;
 
-  const files = formData.getAll("files") as File[];
+  const files = formData.getAll("files").filter((entry): entry is File => typeof File !== "undefined" && entry instanceof File).filter((file) => file.size > 0);
+  if (files.length > MAX_CONTRACT_UPLOAD_FILES) {
+    return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
+  }
+  const validatedFiles = await Promise.all(files.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  const invalidErrors = validatedFiles
+    .filter((entry): entry is { file: File; validation: { ok: false; safeName: string; reason: "empty" | "size" | "type" | "extension" | "signature" | "filename" | "malware" } } => !entry.validation.ok)
+    .map((entry) => uploadedContractValidationError(entry.validation));
+  const dedupedFiles = dedupeValidatedUploadedFiles(acceptedFiles);
+  const validFiles = dedupedFiles.files;
   const results = await Promise.allSettled(
-    files
-      .filter((f) => f.size > 0)
-      .map(async (file) => {
-        const safeName = await assertUploadedContractFile(file);
-        const storagePath = `org/${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+    validFiles
+      .map(async ({ file, validation }) => {
+        const safeName = validation.safeName;
+        const storagePath = buildContractStoragePath(contract.organization_id, contract.id, safeName);
 
         const { error: uploadError } = await admin.storage
           .from("contracts")
@@ -1122,9 +1133,12 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
   );
 
   const uploaded = results.filter((r) => r.status === "fulfilled").length;
-  const errors = results
+  const errors = [
+    ...invalidErrors,
+    ...results
     .filter((r): r is PromiseRejectedResult => r.status === "rejected")
-    .map((r) => r.reason?.message ?? "Unknown error");
+    .map((r) => r.reason?.message ?? "Unknown error"),
+  ];
 
   if (uploaded > 0) {
     await admin.from("audit_events").insert({
@@ -1132,7 +1146,7 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
       contract_id: contract.id,
       user_id: user.id,
       action: "files.uploaded",
-      details: { count: uploaded },
+      details: { count: uploaded, duplicate_files_ignored: dedupedFiles.duplicateCount },
     });
   }
 
@@ -1475,7 +1489,8 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
   const validatedFiles = await Promise.all(files.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
-  const validFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
+  const validFiles = dedupeValidatedUploadedFiles(acceptedFiles).files;
 
   if (validFiles.length === 0) {
     return { error: "Add at least one PDF or DOCX under 20 MB." };
@@ -1564,7 +1579,7 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
       continue;
     }
 
-    const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;
+    const storagePath = buildContractStoragePath(organizationId, contract.id, safeName);
 
     const { error: uploadError } = await admin.storage
       .from("contracts")
@@ -1910,7 +1925,8 @@ export async function getFileDownloadUrl(storagePath: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
-  if (!isContractStoragePathSafe(storagePath)) {
+  const parsedPath = parseContractStoragePath(storagePath);
+  if (!parsedPath || !isContractStoragePathSafe(storagePath)) {
     return { error: "Invalid file path" };
   }
 
@@ -1925,6 +1941,10 @@ export async function getFileDownloadUrl(storagePath: string) {
   if (!file) return { error: "File not found" };
 
   const orgId = (file.contracts as unknown as { organization_id: string }).organization_id;
+  const fileContractId = String(file.contract_id ?? "");
+  if (parsedPath.organizationId !== orgId || parsedPath.contractId !== fileContractId) {
+    return { error: "Invalid file path" };
+  }
 
   if (!(await verifyOrgMembership(admin, user.id, orgId))) {
     return { error: "Access denied" };

@@ -10,6 +10,9 @@ export async function seedDemoWorkspace() {
   if (process.env.ENABLE_DEMO_SEED !== "true") {
     return { error: "Demo seed is disabled (set ENABLE_DEMO_SEED=true)." };
   }
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
+    return { error: "Demo seed is not available in production environments." };
+  }
 
   const ctx = await getAuthContext();
   if (!ctx) return { error: "Not authenticated" };

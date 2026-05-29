@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-provider-integrations",
+  "objectives": [
+    {
+      "id": "stripe-integration-hardening",
+      "ownerArea": "billing",
+      "commands": [
+        { "command": "check:operational-provider-integrations", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "provider_fixture_closure"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["stripe_fixture_matrix", "provider_failure_matrix"] },
+        { "command": "check:integration-contract-resilience", "ciRequired": true, "covers": ["route_negative_paths", "route_replay_or_schema_compatibility"] },
+        { "command": "check:idempotency-policy", "ciRequired": true, "covers": ["checkout_portal_webhook_replay_safety"] }
+      ],
+      "artifacts": ["artifacts/operational-provider-integrations.json"]
+    },
+    {
+      "id": "email-integration-hardening",
+      "ownerArea": "notifications",
+      "commands": [
+        { "command": "check:email-dns-fixtures", "ciRequired": true, "covers": ["spf_dkim_dmarc_mx_mta_sts_fixtures"] },
+        { "command": "check:email-identity-spoof-guards", "ciRequired": true, "covers": ["sender_hygiene", "invite_identity_binding", "unsubscribe_header_hygiene"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["bounce_suppression_outage_template_safety"] }
+      ]
+    },
+    {
+      "id": "openai-provider-boundaries",
+      "ownerArea": "ai-safety",
+      "commands": [
+        { "command": "check:ai-boundary-contract", "ciRequired": true, "covers": ["callsite_allowlist", "schema_output", "retry_caps"] },
+        { "command": "check:ai-context-redaction", "ciRequired": true, "covers": ["prompt_and_error_redaction"] },
+        { "command": "check:ai-prompt-injection-guards", "ciRequired": true, "covers": ["untrusted_text_boundaries", "malformed_output"] },
+        { "command": "check:timeout-budget-guards", "ciRequired": true, "covers": ["openai_attempt_timeout_budget"] },
+        { "command": "check:circuit-breaker-policy", "ciRequired": true, "covers": ["bounded_retry_and_backoff"] }
+      ]
+    },
+    {
+      "id": "redis-upstash-rate-limit-hardening",
+      "ownerArea": "platform-runtime",
+      "commands": [
+        { "command": "check:rate-limit-distribution-safety", "ciRequired": true, "covers": ["production_distributed_limiter_fail_closed"] },
+        { "command": "check:rate-limit-key-cardinality", "ciRequired": true, "covers": ["key_prefix_cardinality"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["upstash_success_outage_timeout_malformed_pii_key"] }
+      ]
+    },
+    {
+      "id": "oauth-token-storage-hardening",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:secrets-env-token-quality", "ciRequired": true, "covers": ["token_encryption_env_contract", "key_versioning"] },
+        { "command": "check:token-security-quality", "ciRequired": true, "covers": ["token_generation_hashing_encryption_quality"] },
+        { "command": "tools:reencrypt-integration-tokens", "ciRequired": false, "covers": ["dry_run_reencryption_tooling"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["state_pkce_refresh_failure_revocation"] }
+      ]
+    }
+  ],
+  "stripeContracts": [
+    {
+      "id": "stripe-mode-and-client-policy",
+      "path": "src/lib/stripe.ts",
+      "markers": ["assertStripeEnvironmentConsistency", "getExpectedStripeLivemodeFromEnv", "Stripe test/live key mismatch", "Stripe test mode is not allowed in production", "maxNetworkRetries: 2"]
+    },
+    {
+      "id": "stripe-webhook-replay-mode-and-payment-failure",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markers": ["stripe_webhook_events", "stripe_webhook_livemode_mismatch", "billing.payment_failed", "stripe_subscription_status: \"past_due\"", "checkout customer-org binding mismatch"]
+    },
+    {
+      "id": "stripe-route-fixture-tests",
+      "path": "src/app/api/stripe/webhook/route.test.ts",
+      "markers": ["replayed Stripe event id", "livemode does not match", "marks billing state past_due", "mismatched customer"]
+    }
+  ],
+  "emailContracts": [
+    {
+      "id": "email-provider-policy",
+      "path": "src/lib/email/provider-policy.ts",
+      "markers": ["EMAIL_PROVIDER_TIMEOUT_MS", "EMAIL_AUTH_DNS_EXPECTATION_TYPES", "buildListUnsubscribeHeaders", "sanitizeEmailProviderFailure", "assertValidEmailSender"]
+    },
+    {
+      "id": "email-provider-send-safety",
+      "path": "src/lib/email.ts",
+      "markers": ["safeFetch(RESEND_EMAILS_URL", "timeoutMs: EMAIL_PROVIDER_TIMEOUT_MS", "sanitizeSubject", "sanitizeOutboundHtml", "redactOutboundMessageText"]
+    },
+    {
+      "id": "email-auth-dns-fixtures",
+      "path": "config/email-auth-dns-fixtures.json",
+      "markers": ["\"SPF\"", "\"DKIM\"", "\"DMARC\"", "\"MTA-STS\"", "Live DNS and Resend domain verification remain external"]
+    }
+  ],
+  "openAiContracts": [
+    {
+      "id": "openai-timeout-and-output-budgets",
+      "path": "src/lib/extraction/constants.ts",
+      "markers": ["OPENAI_EXTRACTION_MAX_RETRY_ATTEMPTS", "OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS", "OPENAI_EXTRACTION_ATTEMPT_TIMEOUT_MS", "OPENAI_PDF_OCR_ATTEMPT_TIMEOUT_MS", "EXTRACTION_MODEL_OUTPUT_MAX_CHARS"]
+    },
+    {
+      "id": "openai-prompt-and-schema-boundary",
+      "path": "src/lib/extraction/extract-fields.ts",
+      "markers": ["response_format", "json_schema", "strict: true", "timeoutMs: OPENAI_EXTRACTION_ATTEMPT_TIMEOUT_MS", "formatUnknownForServerLog", "Failed to parse extraction response from OpenAI JSON payload"]
+    },
+    {
+      "id": "openai-pdf-failover-and-cleanup",
+      "path": "src/lib/extraction/openai-pdf-text.ts",
+      "markers": ["OPENAI_PDF_OCR_FALLBACK_MODEL", "timeoutMs: OPENAI_PDF_OCR_ATTEMPT_TIMEOUT_MS", "deleteOpenAiUploadedFile(client, upload.id)", "fallback failed"]
+    }
+  ],
+  "redisContracts": [
+    {
+      "id": "rate-limit-upstash-failure-policy",
+      "path": "src/lib/rate-limit.ts",
+      "markers": ["normalizeUpstashLimitResult", "rate_limit_backend_malformed_response", "rate_limit_backend_timeout", "failing closed", "memory-fallback", "sanitized-rate-limit-key"]
+    },
+    {
+      "id": "rate-limit-provider-outage-tests",
+      "path": "src/lib/rate-limit.provider-outage.test.ts",
+      "markers": ["successful and rejected Upstash responses", "malformed Upstash responses", "times out slow Upstash responses", "sanitizes unsafe rate-limit keys"]
+    }
+  ],
+  "oauthTokenContracts": [
+    {
+      "id": "oauth-state-pkce-callback",
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "markers": ["consumeOAuthStateForTokenExchange", "code_challenge_method !== \"S256\"", "encryptIntegrationToken(tokenPayload.access_token)", "oauth_callback_state_replay"]
+    },
+    {
+      "id": "oauth-start-state-pkce",
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "markers": ["randomBytes(32).toString(\"base64url\")", "code_challenge_method", "S256", "state", "expires_at"]
+    },
+    {
+      "id": "refresh-token-redaction-and-reencryption",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "markers": ["decryptIntegrationToken", "encryptIntegrationToken", "formatUnknownForServerLog(err)", "last_error: safeError.slice(0, 500)", "timeoutMs: 20_000"]
+    },
+    {
+      "id": "reencryption-tooling",
+      "path": "scripts/reencrypt-integration-tokens.mjs",
+      "markers": ["planIntegrationTokenReencryption", "OBLIXA_ACTIVE_TOKEN_ENCRYPTION_KEY_ID", "access_token", "refresh_token", "--write"]
+    }
+  ],
+  "manualBoundary": "Live provider dashboard configuration, DNS publication, Stripe live products, Resend domain verification, OpenAI quota changes, and Upstash database changes remain manual."
+}

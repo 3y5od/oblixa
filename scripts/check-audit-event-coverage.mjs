@@ -57,6 +57,40 @@ const REQUIRED_FILE_MARKERS = {
     "security.dsr_account_delete_requested",
     "security.internal_debugging_sweep_success",
   ],
+  "src/lib/security/audit-event-policy.ts": [
+    "SENSITIVE_AUDIT_EVENT_POLICIES",
+    "AUDIT_APPEND_ONLY_TABLES",
+    "auditPolicyForAction",
+    "validateAuditEventShape",
+    "auditEventPolicyCoverageIssues",
+    "database_default_now",
+    "safe_metadata_only",
+    "appendOnly",
+  ],
+  "src/lib/security/audit-event-policy.test.ts": [
+    "covers sensitive action families with append-only policies",
+    "accepts sanitized, organization-scoped audit events",
+    "rejects missing actor, disallowed target, mutable timestamps, and unsafe metadata",
+  ],
+  "src/lib/security/audit-hash-chain.ts": [
+    "AUDIT_HASH_CHAIN_ENABLED_ENV",
+    "AUDIT_HASH_CHAIN_DISABLED_BY_DEFAULT",
+    "isAuditHashChainEnabled",
+    "canonicalAuditChainPayload",
+    "buildAuditHashChain",
+    "externalSideEffects: false",
+  ],
+  "src/lib/security/audit-hash-chain.test.ts": [
+    "is disabled unless explicitly adopted",
+    "builds deterministic local-only hash-chain links",
+    "changes event hashes when event content is tampered",
+  ],
+  "src/lib/security/data-lifecycle.ts": [
+    "privacy_request.organization_delete_requested",
+    "privacy_request.upload_delete_requested",
+    "privacy_request.report_delete_requested",
+    "preserve_append_only",
+  ],
   "src/actions/workflow-config.ts": [
     "security.integration_api_key_created",
     "security.integration_api_key_revoked",
@@ -213,6 +247,7 @@ export function analyzeAuditEventCoverage(root = ROOT) {
     { family: "report_retry", re: /^report_run\.retry_requested$/ },
     { family: "service_role", re: /^security\.internal_debugging_sweep_success$/ },
     { family: "extraction", re: /^extraction\.completed$/ },
+    { family: "privacy_lifecycle", re: /^privacy_request\./ },
   ];
   for (const family of requiredFamilies) {
     if (!actions.some((action) => family.re.test(action))) {

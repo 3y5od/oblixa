@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-supply-chain-risk",
+  "objectives": [
+    {
+      "id": "dual-format-sbom-evidence",
+      "ownerArea": "supply-chain-security",
+      "commands": [
+        { "command": "check:operational-supply-chain-risk", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "delegated_supply_chain_checks"] },
+        { "command": "check:sbom-dual-format-evidence", "ciRequired": true, "covers": ["cyclonedx_spdx_counts", "hash_evidence", "dependency_drift_gate"] },
+        { "command": "check:sbom-integrity", "ciRequired": true, "covers": ["cyclonedx_schema", "direct_dependency_coverage"] },
+        { "command": "check:sbom-formats-vex-sarif", "ciRequired": true, "covers": ["spdx_cyclonedx_vex_sarif_contracts"] }
+      ],
+      "artifacts": ["artifacts/operational-supply-chain-risk.json", "artifacts/sbom-dual-format-evidence.json", "artifacts/spdx-sbom.json", "cyclonedx-sbom.json"]
+    },
+    {
+      "id": "dependency-policy-enforcement",
+      "ownerArea": "supply-chain-security",
+      "commands": [
+        { "command": "check:supply-chain-dependency-risk", "ciRequired": true, "covers": ["known_vulnerabilities", "denylist", "typosquat", "confusion", "native_wasm_inventory"] },
+        { "command": "check:dependency-policy", "ciRequired": true, "covers": ["dependency_review_policy", "security_pipeline_parity"] },
+        { "command": "check:lockfile-integrity-drift", "ciRequired": true, "covers": ["registry_integrity", "lockfile_drift"] },
+        { "command": "check:license-sbom", "ciRequired": true, "covers": ["license_allowlist"] },
+        { "command": "check:install-script-risk", "ciRequired": true, "covers": ["install_script_allowlist"] },
+        { "command": "check:dependency-confusion-guards", "ciRequired": true, "covers": ["confusion_static_guards"] },
+        { "command": "check:supply-chain-waivers", "ciRequired": true, "covers": ["external_waiver_registry"] },
+        { "command": "report:dependency-risk", "ciRequired": true, "covers": ["npm_audit_summary"] }
+      ],
+      "artifacts": ["config/supply-chain-dependency-risk.json", "artifacts/dependency-review-policy.json", "artifacts/license-allowlist.json", "artifacts/supply-chain-install-script-allowlist.json"]
+    },
+    {
+      "id": "scanner-ci-parity",
+      "ownerArea": "security-engineering",
+      "commands": [
+        { "command": "check:supply-chain-security-matrix", "ciRequired": true, "covers": ["codeql_semgrep_trivy_dependency_review_scorecard_presence"] },
+        { "command": "check:semgrep-rulepack-integrity", "ciRequired": true, "covers": ["semgrep_rulepack_ci_and_sarif_parity"] },
+        { "command": "check:github-workflows-security", "ciRequired": true, "covers": ["workflow_permissions", "pinned_actions"] },
+        { "command": "check:github-actions-permissions", "ciRequired": true, "covers": ["least_privilege_workflow_permissions"] }
+      ],
+      "artifacts": ["config/qa-external-waiver-registry.json"]
+    },
+    {
+      "id": "release-provenance-integrity",
+      "ownerArea": "release-engineering",
+      "commands": [
+        { "command": "check:release-artifact-provenance", "ciRequired": true, "covers": ["release_artifact_inputs", "ci_provenance_signals"] },
+        { "command": "check:reproducible-build-hash", "ciRequired": true, "covers": ["reproducible_build_hash_boundary"] },
+        { "command": "check:security-report-checksums", "ciRequired": true, "covers": ["release_checksum_manifest"] },
+        { "command": "check:container-signing-slsa-stub", "ciRequired": true, "covers": ["slsa_cosign_boundary"] },
+        { "command": "verify-cosign-artifact", "ciRequired": false, "covers": ["env_gated_cosign_verification"] },
+        { "command": "verify-slsa-attestation", "ciRequired": false, "covers": ["env_gated_slsa_verification"] }
+      ],
+      "artifacts": ["artifacts/slsa-build-level-stub.json", "artifacts/security-report-checksums.json", "artifacts/reproducible-build-report.json"]
+    },
+    {
+      "id": "secret-scan-parity",
+      "ownerArea": "security-engineering",
+      "commands": [
+        { "command": "check:static-secret-safety", "ciRequired": true, "covers": ["local_secret_scan_aggregate"] },
+        { "command": "check:gitleaks-allowlist", "ciRequired": true, "covers": ["ci_gitleaks_allowlist_parity"] },
+        { "command": "check:git-history-secret-exposure", "ciRequired": true, "covers": ["history_scan_stub_contract"] },
+        { "command": "check:tracked-secrets-hygiene", "ciRequired": true, "covers": ["tracked_secret_file_hygiene"] },
+        { "command": "check:test-fixture-secrets", "ciRequired": true, "covers": ["fixture_secret_placeholders"] },
+        { "command": "check:ci-artifact-secret-leakage", "ciRequired": true, "covers": ["ci_artifact_secret_outputs"] }
+      ],
+      "artifacts": ["artifacts/assurance/gitleaks-allowlist-inventory.json", "scripts/static-secret-placeholder-allowlist.json"]
+    }
+  ],
+  "scannerPolicies": [
+    {
+      "id": "npm-audit",
+      "workflow": ".github/workflows/ci.yml",
+      "owner": "@security",
+      "threshold": "high",
+      "reportOutput": "report:dependency-risk JSON telemetry",
+      "waiverPolicy": "no waiver for high or critical when audit metadata is available",
+      "markers": ["npm audit --audit-level=high", "npm run report:dependency-risk"]
+    },
+    {
+      "id": "dependency-review",
+      "workflow": ".github/workflows/dependency-review.yml",
+      "owner": "@security",
+      "threshold": "high",
+      "reportOutput": "GitHub dependency review job summary",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#github_dependency_review_high",
+      "markers": ["actions/dependency-review-action", "fail-on-severity: high"]
+    },
+    {
+      "id": "semgrep",
+      "workflow": ".github/workflows/semgrep-sarif.yml",
+      "owner": "@security",
+      "threshold": "ERROR",
+      "reportOutput": "semgrep.sarif artifact",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#semgrep_sarif",
+      "markers": ["--sarif --output semgrep.sarif", "actions/upload-artifact", "github/codeql-action/upload-sarif"]
+    },
+    {
+      "id": "trivy",
+      "workflow": ".github/workflows/trivy-fs.yml",
+      "owner": "@security",
+      "threshold": "CRITICAL,HIGH",
+      "reportOutput": "Trivy workflow report",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#trivy_fs_optional_tier",
+      "markers": ["aquasecurity/trivy-action", "severity: CRITICAL,HIGH", "exit-code: \"0\""]
+    },
+    {
+      "id": "codeql",
+      "workflow": ".github/workflows/codeql.yml",
+      "owner": "@security",
+      "threshold": "default javascript-typescript queries",
+      "reportOutput": "CodeQL SARIF/code scanning analyze step",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#codeql_analysis",
+      "markers": ["github/codeql-action/init", "github/codeql-action/analyze", "upload: never"]
+    },
+    {
+      "id": "openssf-scorecard",
+      "workflow": ".github/workflows/openssf-scorecard.yml",
+      "owner": "@security",
+      "threshold": "SARIF publication",
+      "reportOutput": "results.sarif",
+      "waiverPolicy": "no waiver; scheduled workflow must stay present",
+      "markers": ["ossf/scorecard-action", "results_file: results.sarif", "results_format: sarif"]
+    },
+    {
+      "id": "custom-security-checks",
+      "workflow": ".github/workflows/ci.yml",
+      "owner": "@security-engineering",
+      "threshold": "package script exit code",
+      "reportOutput": "JSON stdout and generated artifacts",
+      "waiverPolicy": "owned allowlists plus config/qa-external-waiver-registry.json",
+      "markers": ["npm run check:security-static:strict:grep", "npm run check:generated-artifact-hygiene", "npm run check:operational-supply-chain-risk"]
+    }
+  ],
+  "sbomContracts": [
+    {
+      "id": "dual-format-sbom-generator",
+      "path": "scripts/check-sbom-dual-format-evidence.mjs",
+      "markers": ["buildSpdxFromPackageLock", "countComparison", "dependencyChangesRequireUpdatedEvidence", "CycloneDX", "SPDX"]
+    },
+    {
+      "id": "cyclonedx-integrity-check",
+      "path": "scripts/check-sbom-integrity.mjs",
+      "markers": ["REQUIRED_BOM_FORMAT", "directDependencyVersions", "direct_dependency_missing_from_sbom", "component_missing_npm_purl"]
+    },
+    {
+      "id": "vex-sarif-format-check",
+      "path": "scripts/check-sbom-formats-vex-sarif.mjs",
+      "markers": ["analyzeSbomDualFormatEvidence", "semgrep.sarif", "results.sarif", "sbom-diff-report.json"]
+    }
+  ],
+  "dependencyPolicyContracts": [
+    {
+      "id": "dependency-risk-policy-config",
+      "path": "config/supply-chain-dependency-risk.json",
+      "markers": ["knownMaliciousDenylist", "typosquatRisk", "dependencyConfusion", "nativeWasmInventory", "allowedFamilies"]
+    },
+    {
+      "id": "dependency-risk-policy-check",
+      "path": "scripts/check-supply-chain-dependency-risk.mjs",
+      "markers": ["deniedPackageIssues", "typosquatIssues", "dependencyConfusionIssues", "nativeWasmRows", "analyzeInstallScriptRisk"]
+    },
+    {
+      "id": "install-script-risk-check",
+      "path": "scripts/check-install-script-risk.mjs",
+      "markers": ["unreviewed_install_script_package", "expired_install_script_allowlist_entry", "HIGH_RISK_NAME_RE"]
+    },
+    {
+      "id": "lockfile-integrity-check",
+      "path": "scripts/check-lockfile-integrity-drift.mjs",
+      "markers": ["EXPECTED_REGISTRY_PREFIX", "missing_lockfile_package_integrity", "weak_or_unexpected_integrity", "non_npm_registry_resolution"]
+    }
+  ],
+  "releaseProvenanceContracts": [
+    {
+      "id": "release-artifact-provenance-check",
+      "path": "scripts/check-release-artifact-provenance.mjs",
+      "markers": ["REQUIRED_CI_SIGNALS", "REQUIRED_RELEASE_STEPS", "REQUIRED_SECURITY_PIPELINE_STEPS"]
+    },
+    {
+      "id": "reproducible-build-hash",
+      "path": "scripts/reproducible-build-hash.mjs",
+      "markers": ["REPRODUCIBLE_BUILD_STRICT", "SOURCE_DATE_EPOCH", "checkId: \"reproducible-build-hash\""]
+    },
+    {
+      "id": "slsa-cosign-boundary",
+      "path": "scripts/check-container-signing-slsa-stub.mjs",
+      "markers": ["verify-cosign-artifact", "verify-slsa-attestation"]
+    },
+    {
+      "id": "slsa-stub-artifact",
+      "path": "artifacts/slsa-build-level-stub.json",
+      "markers": ["targetLevel", "SLSA_NOT_ADOPTED"]
+    }
+  ],
+  "secretScanContracts": [
+    {
+      "id": "gitleaks-allowlist-parity",
+      "path": "scripts/check-gitleaks-allowlist.mjs",
+      "markers": ["gitleaks-allowlist-inventory.json", "paths must exactly match", "disallowed allowlist path scope"]
+    },
+    {
+      "id": "static-secret-safety",
+      "path": "scripts/check-static-secret-safety.mjs",
+      "markers": ["analyzeTrackedSecretsHygiene", "analyzeTestFixtureSecrets", "SECRET_PATTERNS", "secret_placeholder_allowlist"]
+    },
+    {
+      "id": "ci-artifact-secret-leakage",
+      "path": "scripts/check-ci-artifact-secret-leakage.mjs",
+      "markers": ["analyzeCiArtifactSecretLeakage", "artifact", "secret"]
+    },
+    {
+      "id": "secret-scan-workflow",
+      "path": ".github/workflows/ci.yml",
+      "markers": ["gitleaks/gitleaks-action", "npm run check:static-secret-safety", "npm run check:gitleaks-allowlist"]
+    }
+  ],
+  "manualBoundary": "Publishing real signed release artifacts, enabling blocking CodeQL upload, adopting full SLSA attestations, external vulnerability database availability, and production secret rotation remain manual or provider-dependent."
+}

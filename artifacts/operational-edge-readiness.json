@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-edge-readiness",
+  "generatedArtifact": "artifacts/operational-edge-readiness.json",
+  "ok": true,
+  "summary": {
+    "dnsRecordTypeCount": 9,
+    "tlsCheckCount": 7,
+    "emailAuthCheckCount": 9,
+    "publicMetadataCheckCount": 8,
+    "cacheClassificationCount": 4
+  },
+  "requiredValidationCommands": [
+    "check:operational-edge-readiness",
+    "test:operational-edge-readiness",
+    "dns-caa-smoke",
+    "dnssec-privacy-smoke",
+    "cert-expiry-smoke",
+    "email-auth-dns-smoke",
+    "check:email-dns-fixtures",
+    "check:public-seo-surface",
+    "check:robots-crawler-policy",
+    "check:sensitive-cache-controls",
+    "check:cache-poisoning-guards",
+    "check:client-cache-sensitivity",
+    "check:certificate-transparency"
+  ],
+  "dnsReadiness": {
+    "mode": "read-only-env-gated",
+    "strictEnv": "DOMAIN_STRICT",
+    "domainEnv": "PUBLIC_APEX_DOMAIN",
+    "hostsEnv": "PUBLIC_HOSTS",
+    "timeoutMs": 8000,
+    "recordTypes": [
+      "A",
+      "AAAA",
+      "CNAME",
+      "CAA",
+      "TXT",
+      "SPF",
+      "DKIM",
+      "DMARC",
+      "verification"
+    ],
+    "requiredWhenStrict": [
+      "A",
+      "CAA",
+      "TXT"
+    ],
+    "classification": "missing records are reported with provider_manual_boundary and redacted values"
+  },
+  "tlsReadiness": {
+    "mode": "read-only-env-gated",
+    "strictEnv": "CERT_STRICT",
+    "hostsEnv": "PUBLIC_HOSTS",
+    "minimumDaysRemaining": 30,
+    "timeoutMs": 8000,
+    "checks": [
+      "expiry",
+      "issuer",
+      "san",
+      "protocol-minimum",
+      "http-to-https-redirect",
+      "hsts",
+      "mixed-content-risk"
+    ],
+    "minimumProtocol": "TLSv1.2"
+  },
+  "emailAuthReadiness": {
+    "mode": "fixtures-plus-env-gated-live-dns",
+    "strictEnv": "EMAIL_DNS_STRICT",
+    "domainEnv": "EMAIL_DNS_DOMAIN",
+    "fixture": "config/email-auth-dns-fixtures.json",
+    "checks": [
+      "spf",
+      "dkim",
+      "dmarc",
+      "mx",
+      "mta-sts",
+      "sending-domain",
+      "bounce-domain",
+      "reply-to",
+      "staging-production-separation"
+    ]
+  },
+  "publicMetadataReadiness": {
+    "checks": [
+      "robots",
+      "sitemap",
+      "canonical",
+      "open-graph",
+      "twitter",
+      "icon-assets",
+      "security.txt",
+      "private-route-leakage"
+    ],
+    "requiredFiles": [
+      "src/app/layout.tsx",
+      "src/app/robots.ts",
+      "src/app/sitemap.ts",
+      "public/robots.txt",
+      "public/.well-known/security.txt"
+    ],
+    "privatePrefixes": [
+      "/api",
+      "/dashboard",
+      "/work",
+      "/contracts",
+      "/settings",
+      "/onboarding",
+      "/reports",
+      "/search",
+      "/assurance",
+      "/campaigns",
+      "/decisions",
+      "/relationship-workspaces",
+      "/accounts",
+      "/counterparties",
+      "/more"
+    ]
+  },
+  "edgeCacheReadiness": {
+    "checks": [
+      "cache-control",
+      "vary",
+      "stale-while-revalidate",
+      "purge-boundary",
+      "cache-poisoning-guards",
+      "sensitive-no-store"
+    ],
+    "classifications": [
+      {
+        "id": "public-marketing",
+        "pathPattern": "^/(?:$|product|pricing|contact|privacy|terms|security|acceptable-use|accessibility|cookies|sitemap.xml|robots.txt)",
+        "cacheClass": "public-cacheable",
+        "requiredHeaders": [
+          "cache-control",
+          "vary"
+        ]
+      },
+      {
+        "id": "metadata-assets",
+        "pathPattern": "^/(?:opengraph-image|twitter-image|icon|apple-icon)",
+        "cacheClass": "public-metadata-asset",
+        "requiredHeaders": [
+          "cache-control"
+        ]
+      },
+      {
+        "id": "private-app",
+        "pathPattern": "^/(?:dashboard|work|contracts|settings|onboarding|reports|search|assurance|campaigns|decisions|relationship-workspaces|accounts|counterparties|more)",
+        "cacheClass": "private-no-store",
+        "requiredHeaders": [
+          "cache-control",
+          "vary"
+        ]
+      },
+      {
+        "id": "api-sensitive",
+        "pathPattern": "^/api/",
+        "cacheClass": "private-no-store",
+        "requiredHeaders": [
+          "cache-control",
+          "pragma",
+          "surrogate-control",
+          "vary"
+        ]
+      }
+    ]
+  },
+  "scriptMarkerRows": [
+    {
+      "path": "scripts/dns-caa-smoke.mjs",
+      "markerCount": 9,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/email-auth-dns-smoke.mjs",
+      "markerCount": 8,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/cert-expiry-smoke.mjs",
+      "markerCount": 7,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/dnssec-privacy-smoke.mjs",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "fileMarkerRows": [
+    {
+      "path": "src/app/layout.tsx",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/robots.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/sitemap.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/marketing/public-paths.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "public/robots.txt",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "public/.well-known/security.txt",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "next.config.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "delegatedChecks": [
+    {
+      "checkId": "email-dns-fixtures",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "public-seo-surface",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sensitive-cache-controls",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": {
+    "objectiveId": "oph-029-dns-tls-edge",
+    "manualActionIds": [
+      "manual-dns-change"
+    ],
+    "boundary": "DNS, CDN, certificate authority, and email provider dashboard changes remain manual; repository checks are read-only and evidence-only."
+  },
+  "issueCount": 0,
+  "issues": []
+}

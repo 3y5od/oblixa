@@ -37,8 +37,10 @@ const REQUIRED_MARKERS = {
     "before creating API keys",
     "before revoking API keys",
     "before updating API key policy",
+    "before disconnecting integrations",
     "security.integration_token_updated",
     "security.integration_api_key_policy_updated",
+    "security.integration_disconnected",
   ],
   "src/app/api/integrations/oauth/start/route.ts": [
     "hasSensitiveActionProof(supabase, user.id)",
@@ -77,6 +79,7 @@ const REQUIRED_MARKERS = {
   "src/lib/security/audit-actions.ts": [
     "security.integration_token_updated",
     "security.integration_api_key_policy_updated",
+    "security.integration_disconnected",
     "security.integration_oauth_start_blocked",
     "security.sessions_revoke_others",
     "security.maintenance_destructive_action_blocked",

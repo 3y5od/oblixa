@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "baselineDate": "2026-05-28",
+  "owner": "architecture",
+  "purpose": "Ratchet existing alias-aware source dependency cycles without allowing new cycles.",
+  "reviewReason": "Update only after reviewed dependency cleanup or cycle scanner changes.",
+  "cycles": [
+    "lib/assurance/org-settings.ts -> lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/autopilot-executors.ts -> lib/assurance/org-settings.ts",
+    "lib/assurance/org-settings.ts -> lib/product-surface/landing-eligibility.ts -> lib/product-surface/eligibility.ts -> lib/product-surface/context.ts -> lib/assurance/org-settings.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/autopilot-executors.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/policy-evaluator.ts -> lib/assurance/policy-scope.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/policy-evaluator.ts -> lib/assurance/policy-work-objects.ts -> lib/assurance/portfolio-metrics.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/policy-evaluator.ts -> lib/assurance/policy-work-objects.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/policy-evaluator.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/policy-enforcement-router.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/segment-rollups.ts -> lib/assurance/segments.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/segment-rollups.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/assurance-checks.ts -> lib/assurance/telemetry.ts -> lib/assurance/service.ts",
+    "lib/assurance/service.ts -> lib/assurance/scorecards.ts -> lib/assurance/service.ts",
+    "lib/product-surface/landing-eligibility.ts -> lib/product-surface/eligibility.ts -> lib/product-surface/context.ts -> lib/product-surface/landing-eligibility.ts",
+    "lib/supabase/server.ts -> lib/assurance/org-settings.ts -> lib/assurance/service.ts -> lib/supabase/server.ts"
+  ]
+}

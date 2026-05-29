@@ -100,9 +100,25 @@ export type BuildEvidencePageModelInput = EvidenceModelLoadInput & {
 };
 
 export function normalizeEvidenceSection(input: EvidenceModelSearchInput): EvidenceSectionKey {
+  return resolveExplicitSection(input) ?? "open_requests";
+}
+
+// Returns the requested section only when the URL carried a valid section
+// token. A null result means "no explicit choice", which lets the page land on
+// the first section that actually holds work instead of a fixed default tab
+// that could be empty while live requests wait elsewhere.
+function resolveExplicitSection(input: EvidenceModelSearchInput): EvidenceSectionKey | null {
   const section = normalizeToken(input.section);
-  if (isEvidenceSectionKey(section)) return section;
-  return "open_requests";
+  return isEvidenceSectionKey(section) ? section : null;
+}
+
+// Land on the first section (in canonical order) that has work; fall back to
+// open requests when every section is empty so a fresh workspace still opens on
+// the primary queue.
+function pickDefaultSection(
+  counts: ReadonlyArray<{ key: EvidenceSectionKey; count: number }>
+): EvidenceSectionKey {
+  return counts.find((entry) => entry.count > 0)?.key ?? "open_requests";
 }
 
 export function buildEvidenceHref(input: {
@@ -111,7 +127,10 @@ export function buildEvidenceHref(input: {
   create?: boolean;
 }) {
   const params = new URLSearchParams();
-  if (input.section && input.section !== "open_requests") params.set("section", input.section);
+  // Always emit the section token (including open_requests) so a tab click is a
+  // sticky, explicit selection rather than the bare path that re-triggers the
+  // auto-pick default.
+  if (input.section) params.set("section", input.section);
   if (input.contract) params.set("contract", input.contract);
   if (input.create) params.set("create", "1");
   const qs = params.toString();
@@ -119,7 +138,7 @@ export function buildEvidenceHref(input: {
 }
 
 export function buildEvidencePageModel(input: BuildEvidencePageModelInput): EvidencePageModel {
-  const activeSection = normalizeEvidenceSection(input);
+  const explicitSection = resolveExplicitSection(input);
   const selectedContractId = normalizeToken(input.contract);
   const contractById = new Map(input.contracts.map((contract) => [contract.id, contract]));
   const obligationById = new Map(input.obligations.map((obligation) => [obligation.id, obligation]));
@@ -154,10 +173,19 @@ export function buildEvidencePageModel(input: BuildEvidencePageModelInput): Evid
     ? shapedRows.filter((row) => row.contractId === selectedContractId)
     : shapedRows;
 
-  const sections = EVIDENCE_SECTION_ORDER.map((key) => ({
+  const sectionCounts = EVIDENCE_SECTION_ORDER.map((key) => ({
+    key,
+    count: selectedRows.filter((row) => matchesSection(row, key)).length,
+  }));
+  // An explicit ?section= always wins; otherwise open on the first section that
+  // holds work so the page never lands on an empty tab while requests sit in
+  // another section.
+  const activeSection = explicitSection ?? pickDefaultSection(sectionCounts);
+
+  const sections = sectionCounts.map(({ key, count }) => ({
     key,
     label: EVIDENCE_SECTION_LABELS[key],
-    count: selectedRows.filter((row) => matchesSection(row, key)).length,
+    count,
     href: buildEvidenceHref({ section: key, contract: selectedContractId }),
     active: key === activeSection,
   }));

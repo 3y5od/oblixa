@@ -120,6 +120,18 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/search",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/search",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/search/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/campaigns",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/campaigns/loading.tsx",

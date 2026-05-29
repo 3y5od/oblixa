@@ -65,6 +65,8 @@ export type WorkItemRow = {
   dueAt: string | null;
   dueLabel: string;
   dueState: string;
+  /** Calendar days from now to due_at; negative = overdue, 0 = today, null = no due date. */
+  dueInDays: number | null;
   blocker: string;
   lastUpdateAt: string | null;
   lastUpdateLabel: string;

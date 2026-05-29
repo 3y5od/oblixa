@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const createClient = vi.fn();
 const createAdminClient = vi.fn();
@@ -53,9 +53,12 @@ vi.mock("@/lib/product-telemetry", () => ({
 }));
 
 describe("POST /api/import/contracts", () => {
+  const originalKillImportExport = process.env.OBLIXA_KILL_IMPORT_EXPORT;
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    delete process.env.OBLIXA_KILL_IMPORT_EXPORT;
     rateLimitCheck.mockResolvedValue({ ok: true });
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     runContractCsvImport.mockResolvedValue({
@@ -68,6 +71,11 @@ describe("POST /api/import/contracts", () => {
     recordV10AuditEvent.mockResolvedValue("audit_1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true });
     emitV10ObjectiveTelemetryEvent.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    if (originalKillImportExport === undefined) delete process.env.OBLIXA_KILL_IMPORT_EXPORT;
+    else process.env.OBLIXA_KILL_IMPORT_EXPORT = originalKillImportExport;
   });
 
   it("returns 401 when unauthenticated", async () => {
@@ -137,6 +145,34 @@ describe("POST /api/import/contracts", () => {
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body).toMatchObject({ error: "JSON import body must include csv or rows." });
+  });
+
+  it("fails closed after auth and workspace eligibility when import/export kill switch is active", async () => {
+    process.env.OBLIXA_KILL_IMPORT_EXPORT = "1";
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
+
+    const { POST } = await import("@/app/api/import/contracts/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/import/contracts", {
+        method: "POST",
+        headers: { "content-type": "text/csv" },
+        body: "title,counterparty\nMSA,Acme",
+      })
+    );
+    const body = await res.json();
+
+    expect(requireApiWorkspaceEligibility).toHaveBeenCalled();
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      code: "service_temporarily_unavailable",
+      diagnostic_id: "kill_switch_active",
+      details: { subsystem: "import_export" },
+    });
+    expect(runContractCsvImport).not.toHaveBeenCalled();
   });
 
   it("returns V10 validation failures for imports missing required columns", async () => {
@@ -271,4 +307,3 @@ describe("POST /api/import/contracts", () => {
     );
   });
 });
-

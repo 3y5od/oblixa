@@ -1,0 +1,3195 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-authz-session",
+  "generatedBy": "scripts/check-operational-authz-session.mjs --write",
+  "generatedFrom": "config/operational-authz-session.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 19,
+  "markerFileCount": 12,
+  "principalClassCount": 8,
+  "workspaceModeCount": 3,
+  "roleCapabilityRowCount": 7,
+  "apiRouteCount": 225,
+  "protectedApiRouteCount": 221,
+  "serverActionFileCount": 26,
+  "serverActionExportCount": 186,
+  "scenarioGroupCount": 3,
+  "delegatedCheckCount": 5,
+  "commands": [
+    {
+      "objective": "deterministic-organization-resolution",
+      "script": "check:api-route-admin-org-scope",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "admin_client_org_scope"
+      ]
+    },
+    {
+      "objective": "deterministic-organization-resolution",
+      "script": "check:deterministic-org-resolution",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "cross_org_denial",
+        "missing_org",
+        "multi_org_ambiguity",
+        "stale_selected_org"
+      ]
+    },
+    {
+      "objective": "deterministic-organization-resolution",
+      "script": "check:operational-authz-session",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "org_resolution_scenario_registry"
+      ]
+    },
+    {
+      "objective": "deterministic-organization-resolution",
+      "script": "check:server-action-org-scope",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "server_action_org_scope"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:api-route-auth-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "protected_api_auth_signals"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:api-route-auth-route-index",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "api_route_inventory"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:operational-authz-session",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "route_action_matrix"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:role-capability-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "role_capability_literals",
+        "role_negative_tests"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:server-action-auth-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "server_action_auth_signals"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "check:server-action-negative-tests",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "server_action_negative_tests"
+      ]
+    },
+    {
+      "objective": "role-workspace-mode-matrix",
+      "script": "pipeline:surface:suite",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "workspace_mode_api_guards"
+      ]
+    },
+    {
+      "objective": "sensitive-action-step-up",
+      "script": "check:operational-authz-session",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "step_up_inventory"
+      ]
+    },
+    {
+      "objective": "sensitive-action-step-up",
+      "script": "check:sensitive-action-step-up",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "audit_markers",
+        "step_up_required_actions"
+      ]
+    },
+    {
+      "objective": "sensitive-action-step-up",
+      "script": "check:sensitive-url-propagation",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "sensitive_url_boundaries"
+      ]
+    },
+    {
+      "objective": "session-lifecycle-behavior",
+      "script": "check:auth-callback-guardrails",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "callback_safety"
+      ]
+    },
+    {
+      "objective": "session-lifecycle-behavior",
+      "script": "check:auth-cookie-attributes",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "cookie_attributes"
+      ]
+    },
+    {
+      "objective": "session-lifecycle-behavior",
+      "script": "check:auth-error-consistency",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "auth_error_shape"
+      ]
+    },
+    {
+      "objective": "session-lifecycle-behavior",
+      "script": "check:session-fixation-defenses",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "session_rotation",
+        "step_up_cookie_binding"
+      ]
+    },
+    {
+      "objective": "session-lifecycle-behavior",
+      "script": "check:session-lifecycle-security",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "password_reset",
+        "session_revocation",
+        "sign_in",
+        "sign_out"
+      ]
+    }
+  ],
+  "markerFiles": [
+    {
+      "path": "src/actions/auth-actions.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/actions/auth.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/actions/sessions.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/actions/sessions.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/settings/step-up/route.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/access-control.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/access-control.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/product-surface/types.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/sensitive-action-proof.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/sensitive-action-proof.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/supabase/org-scoped-admin.test.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/supabase/org-scoped-admin.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "accessMatrix": {
+    "principalClasses": [
+      "admin",
+      "authenticated",
+      "external_token",
+      "member",
+      "owner",
+      "public",
+      "service_role",
+      "viewer"
+    ],
+    "workspaceModes": [
+      "advanced",
+      "assurance",
+      "core"
+    ],
+    "roleCapabilities": [
+      {
+        "role": "admin",
+        "capabilities": [
+          "approvals_manage",
+          "contracts_edit",
+          "maintenance_manage",
+          "renewals_manage",
+          "settings_manage"
+        ]
+      },
+      {
+        "role": "editor",
+        "capabilities": [
+          "approvals_manage",
+          "contracts_edit",
+          "renewals_manage"
+        ]
+      },
+      {
+        "role": "finance_reviewer",
+        "capabilities": [
+          "approvals_manage",
+          "renewals_manage"
+        ]
+      },
+      {
+        "role": "legal_reviewer",
+        "capabilities": [
+          "approvals_manage"
+        ]
+      },
+      {
+        "role": "manager",
+        "capabilities": [
+          "approvals_manage",
+          "contracts_edit",
+          "maintenance_manage",
+          "renewals_manage"
+        ]
+      },
+      {
+        "role": "ops_manager",
+        "capabilities": [
+          "contracts_edit",
+          "maintenance_manage",
+          "renewals_manage"
+        ]
+      },
+      {
+        "role": "viewer",
+        "capabilities": []
+      }
+    ]
+  },
+  "apiRoutes": [
+    {
+      "route": "accounts/[key]/summary/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "approvals/[id]/[action]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "approvals/sla-metrics/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/analytics/summary/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/check-runs/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/check-runs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/checks/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/external-links/[id]/response-pack/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/findings/[id]/events/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/findings/[id]/resolve/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/findings/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/health-graph/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/scorecards/[id]/snapshots/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/scorecards/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "assurance/workflows/run-all/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "attestations/[id]/respond/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "attestations/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "auth/post-sign-out/route.ts",
+      "publicAllowlisted": true,
+      "protected": false,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "public-auth-flows"
+      ]
+    },
+    {
+      "route": "autopilot/rules/[id]/dry-run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "autopilot/rules/[id]/enable/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "autopilot/rules/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "autopilot/rules/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "autopilot/run-logs/[id]/revert/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "autopilot/runs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/close/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/contracts/[rowId]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/export/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/pause/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/preview/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/resume/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/rollback/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/[id]/start/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "campaigns/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "capacity/forecast/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "capacity/reassignment-plan/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "command-centers/preferences/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "command-palette/contracts/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "contact/route.ts",
+      "publicAllowlisted": true,
+      "protected": false,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "contracts/recompute-signals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "control-policies/[id]/assign/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "control-policies/[id]/publish/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "control-policies/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "control-policies/[id]/simulate/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "control-policies/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "counterparties/[key]/summary/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "cron/approvals-sla/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/assurance-checks/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/attestations-issue/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/autopilot-dry-run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/autopilot-execution/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/campaign-progress/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/capacity-forecast-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/control-policy-reevaluation/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/decision-sla-monitor/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/escalations-dispatch/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/evidence-followup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/exceptions-detect/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/external-followup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/external-workflow-deadlines/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/finding-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/health-graph-rollups/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/idempotency-cleanup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/onboarding-calibration-stale/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/outcome-effectiveness/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/playbook-follow-up-assurance/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/portfolio-risk-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/programs-reconcile/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/read-model-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/recommendation-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/relationship-rollups/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/renewals-recompute-signals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/report-packs-generate/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/review-board-packet-generation/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/runtime-artifact-cleanup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/scorecard-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/security/retention-cleanup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/segment-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/simulation-snapshots/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/stripe-webhook-events/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v10/idempotency-cleanup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v10/read-model-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v10/runtime-artifact-cleanup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/approvals-sla/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/attestations-issue/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/escalations-dispatch/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/evidence-followup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/exceptions-detect/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/programs-reconcile/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/renewals-recompute-signals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v4/report-packs-generate/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/campaign-progress/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/capacity-forecast-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/decision-sla-monitor/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/external-followup/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/portfolio-risk-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/recommendation-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/relationship-rollups/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v5/simulation-snapshots/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/assurance-checks/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/autopilot-dry-run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/autopilot-execution/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/control-policy-reevaluation/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/external-workflow-deadlines/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/finding-refresh/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/health-graph-rollups/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/onboarding-calibration-stale/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/outcome-effectiveness/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/playbook-follow-up-assurance/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/review-board-packet-generation/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/scorecard-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "cron/v6/segment-recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "decisions/[id]/approve/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/close/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/context/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/packet-runs/[runId]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/packet/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/recommend/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/review/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/[id]/stakeholders/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/packet-templates/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/packet-templates/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "decisions/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "events/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 3,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "evidence/[id]/[action]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "evidence/export/[contractId]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "evidence/requests/[id]/remind/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "evidence/requests/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "evidence/submit/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "exceptions/[id]/[action]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "exceptions/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "exceptions/run-detection/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/calendar/feed/[token]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "export/calendar/feed/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/calendar/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/contracts/[jobId]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/contracts/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/renewals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/reports/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "export/review-packet/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "external-actions/[token]/participant/workflow-step/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "external-actions/[token]/status/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "external-actions/[token]/submit/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "external-actions/[token]/workflow-step/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 4,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "external-actions/create-link/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "extract/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "extract/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "health/route.ts",
+      "publicAllowlisted": true,
+      "protected": false,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "import/contracts/[jobId]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "import/contracts/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "integrations/actions/callback/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "integrations/calendar/sync/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "integrations/crm/sync/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "integrations/oauth/callback/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "integrations/oauth/start/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "integrations/refresh-tokens/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "integrations/slack/renewal-summary/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/decision-queue/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/portfolio-by-counterparty/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/portfolio-by-program/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/portfolio-signals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/recommendations/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "intelligence/recommendations/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "internal/debugging-sweep/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/campaigns/[id]/preview/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/campaigns/[id]/rollback/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 3,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/campaigns/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/campaigns/[id]/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 3,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/campaigns/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "maintenance/prune-operational-data/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "me/account/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "me/export/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "notifications/retry-deliveries/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "outcomes/control-effectiveness/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "outcomes/interventions/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "outcomes/program-effectiveness/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "playbooks/[id]/preview/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "playbooks/[id]/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "playbooks/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "playbooks/runs/[id]/approve/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "playbooks/runs/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "policy/simulate/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "product-telemetry/page-load/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "program-evolution/experiments/[id]/advance-rollout/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "program-evolution/experiments/[id]/results/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "program-evolution/experiments/[id]/simulate/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "program-evolution/experiments/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "programs/[id]/[action]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "programs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "reminders/send/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "renewals/[id]/[action]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "renewals/portfolio-signals/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "report-packs/[id]/runs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "report-packs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 2,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "report-runs/[runId]/retry/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "reports/capture-metrics/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "reports/send-summaries/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "reports/track/click/[token]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "reports/track/open/[token]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "external-token-routes"
+      ]
+    },
+    {
+      "route": "review-boards/[id]/generate-run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "review-boards/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "review-boards/[id]/runs/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "review-boards/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "review-boards/runs/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "security/csp-report/route.ts",
+      "publicAllowlisted": true,
+      "protected": false,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "segments/[id]/recompute/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "segments/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "settings/step-up/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "simulations/[id]/promote-to-campaign/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "simulations/[id]/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "simulations/run/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "stripe/checkout/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "stripe/invoices/[id]/pdf/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "stripe/invoices/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "stripe/portal/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "stripe/webhook/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api",
+        "service-provider-callbacks"
+      ]
+    },
+    {
+      "route": "tasks/from-email/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "tasks/from-slack/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "tasks/run-rules/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "templates/preview/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "webhooks/dispatch/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 2,
+      "denySignalCount": 1,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "workspace/nav-badges/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 1,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "workspace/settings/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    },
+    {
+      "route": "workspace/v6-settings/route.ts",
+      "publicAllowlisted": false,
+      "protected": true,
+      "authSignalCount": 0,
+      "denySignalCount": 0,
+      "policyIds": [
+        "authenticated-tenant-api"
+      ]
+    }
+  ],
+  "serverActions": [
+    {
+      "file": "src/actions/approvals.ts",
+      "exportCount": 8,
+      "exports": [
+        "delegateContractApproval",
+        "delegateContractApprovalForm",
+        "requestContractApproval",
+        "requestContractApprovalForm",
+        "updateContractApprovalStatus",
+        "updateContractApprovalStatusForm",
+        "upsertRenewalScenario",
+        "upsertRenewalScenarioForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/auth.ts",
+      "exportCount": 5,
+      "exports": [
+        "forgotPassword",
+        "resetPassword",
+        "signIn",
+        "signOut",
+        "signUp"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/automation.ts",
+      "exportCount": 5,
+      "exports": [
+        "createTaskAutomationRule",
+        "createTaskAutomationRuleForm",
+        "runTaskAutomationRulesForOrg",
+        "toggleTaskAutomationRule",
+        "toggleTaskAutomationRuleForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/bulk-compatible-work.ts",
+      "exportCount": 2,
+      "exports": [
+        "bulkAssignCompatibleV10WorkItems",
+        "bulkCompleteCompatibleV10WorkItems"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/contracts.ts",
+      "exportCount": 27,
+      "exports": [
+        "addManualField",
+        "applyContractTemplatePack",
+        "applyContractTemplatePackForm",
+        "batchApproveReadyFields",
+        "bulkAssignContractOwners",
+        "bulkCreateContractsFromFiles",
+        "createContract",
+        "deleteContract",
+        "getFileDownloadUrl",
+        "runExtraction",
+        "supersedeContractFile",
+        "supersedeContractFileForm",
+        "updateContractExternalLink",
+        "updateContractExternalLinkForm",
+        "updateContractField",
+        "updateContractHandoffChecklistStatus",
+        "updateContractHandoffChecklistStatusForm",
+        "updateContractOperationalState",
+        "updateContractOperationalStateForm",
+        "updateContractOwner",
+        "updateContractSecondaryOwner",
+        "updateContractStatus",
+        "uploadAdditionalFiles",
+        "upsertContractHandoffChecklist",
+        "upsertContractHandoffChecklistForm",
+        "upsertContractIntakeRequest",
+        "upsertContractIntakeRequestForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/dashboard.ts",
+      "exportCount": 1,
+      "exports": [
+        "setDashboardQueuePinForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/demo.ts",
+      "exportCount": 1,
+      "exports": [
+        "seedDemoWorkspace"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/email-verification.ts",
+      "exportCount": 1,
+      "exports": [
+        "resendEmailVerification"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/exceptions.ts",
+      "exportCount": 3,
+      "exports": [
+        "assignException",
+        "reopenException",
+        "resolveException"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/field-comments.ts",
+      "exportCount": 4,
+      "exports": [
+        "addFieldComment",
+        "addFieldCommentForm",
+        "markNotificationRead",
+        "markNotificationReadVoid"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/maintenance.ts",
+      "exportCount": 7,
+      "exports": [
+        "archiveContractAsDuplicateForm",
+        "deleteOrphanFileRecordForm",
+        "logContractChangeEventForm",
+        "processContractChangeEventsForm",
+        "reassignOwnerForm",
+        "runCorrectionCampaignForm",
+        "runDateBackfillCampaignForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/mfa.ts",
+      "exportCount": 4,
+      "exports": [
+        "startTotpEnrollment",
+        "unenrollTotpFactor",
+        "updateOrganizationMfaRequired",
+        "verifyTotpEnrollment"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/notes.ts",
+      "exportCount": 3,
+      "exports": [
+        "createContractNote",
+        "deleteContractNote",
+        "toggleContractNotePin"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/notifications.ts",
+      "exportCount": 1,
+      "exports": [
+        "upsertNotificationSettingsForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/obligations.ts",
+      "exportCount": 7,
+      "exports": [
+        "applyObligationTemplatesToContract",
+        "applyObligationTemplatesToContractForm",
+        "createContractObligation",
+        "createObligationTemplate",
+        "createObligationTemplateForm",
+        "deleteContractObligation",
+        "updateContractObligation"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/onboarding-calibration.ts",
+      "exportCount": 10,
+      "exports": [
+        "beginRecalibration",
+        "completeQuestionnaireAcceptRecommendation",
+        "completeQuestionnaireOpenAdvancedSettings",
+        "completeQuestionnaireSimplerSetup",
+        "exportOnboardingCalibrationSupportJson",
+        "previewCalibrationRecommendation",
+        "recordQuestionnaireStarted",
+        "saveQuestionnaireProgress",
+        "skipQuestionnaireExplicitMinimal",
+        "startRecalibrationFromSettingsForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/policy-operations.ts",
+      "exportCount": 20,
+      "exports": [
+        "applyProgramAction",
+        "createEvidenceTemplateAction",
+        "createExceptionAction",
+        "createProgramAction",
+        "createReportPackAction",
+        "createReportPackSubscriptionAction",
+        "generateRenewalDecisionPacketAction",
+        "generateRenewalDecisionPacketFormAction",
+        "publishProgramAction",
+        "savePolicyRegistryAction",
+        "saveProgramVersionDefinitionAction",
+        "saveReportPackAnnotationsAction",
+        "submitEvidenceNoteAction",
+        "updateProgramAssignmentOverrideAction",
+        "updateProgramAssignmentOverrideFormAction",
+        "updateProgramRoutingAction",
+        "updateRenewalCheckpointRenewalStateAction",
+        "updateRenewalCheckpointRenewalStateFormAction",
+        "updateRenewalCheckpointWorkspaceAction",
+        "updateRenewalCheckpointWorkspaceFormAction"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/product-surface-settings.ts",
+      "exportCount": 3,
+      "exports": [
+        "resetWorkspaceProductSurfaceDefaultsForm",
+        "updateProductEmailNotificationCategoriesForm",
+        "updateWorkspaceProductSurfaceForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/product-telemetry.ts",
+      "exportCount": 7,
+      "exports": [
+        "emitCmdkPaletteOpenedTelemetry",
+        "emitCmdkResultSelectedTelemetry",
+        "emitCmdkSearchFailedTelemetry",
+        "emitCmdkZeroResultsTelemetry",
+        "emitPageLoadMeasuredTelemetry",
+        "emitReviewSaveNextUsedTelemetry",
+        "emitV10EmptyStateCtaClickedTelemetry"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/renewal-playbook.ts",
+      "exportCount": 4,
+      "exports": [
+        "addRenewalWorkspaceNote",
+        "addRenewalWorkspaceNoteForm",
+        "seedRenewalPlaybook",
+        "updateRenewalCheckpointStatus"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/saved-views.ts",
+      "exportCount": 8,
+      "exports": [
+        "createContractsSavedView",
+        "createContractsSavedViewWithFeedback",
+        "createSavedView",
+        "deleteSavedView",
+        "setSavedViewMonthlySummary",
+        "setSavedViewPinned",
+        "setSavedViewWeeklyRecipients",
+        "setSavedViewWeeklySummary"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/sessions.ts",
+      "exportCount": 2,
+      "exports": [
+        "listMySessions",
+        "revokeOtherSessions"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/settings.ts",
+      "exportCount": 6,
+      "exports": [
+        "completeProductOnboarding",
+        "inviteOrgMember",
+        "resendOrgInvite",
+        "revokeOrgInvite",
+        "updateOrganization",
+        "updateProfile"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/tasks.ts",
+      "exportCount": 26,
+      "exports": [
+        "addContractTaskArtifact",
+        "addContractTaskChecklistItem",
+        "addContractTaskComment",
+        "addContractTaskDependency",
+        "assignWorkItemOwner",
+        "autoTransitionTasksForApproval",
+        "autoTransitionTasksForField",
+        "bulkAssignCompatibleContractTasks",
+        "bulkCompleteCompatibleContractTasks",
+        "completeWorkItem",
+        "createCheckpointClarificationTask",
+        "createCheckpointClarificationTaskForm",
+        "createClarificationTask",
+        "createClarificationTaskForm",
+        "createContractTask",
+        "createObligationClarificationTaskForm",
+        "createRuleGeneratedTask",
+        "deleteContractTask",
+        "deleteContractTaskArtifact",
+        "deleteContractTaskChecklistItem",
+        "deleteContractTaskComment",
+        "reorderContractTaskChecklistItem",
+        "toggleContractTaskChecklistItem",
+        "updateContractTaskChecklistItem",
+        "updateContractTaskComment",
+        "updateContractTaskStatus"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/watchlists.ts",
+      "exportCount": 2,
+      "exports": [
+        "removeWatchlistEntry",
+        "upsertWatchlistEntryForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    },
+    {
+      "file": "src/actions/workflow-config.ts",
+      "exportCount": 19,
+      "exports": [
+        "applyPolicyPackForm",
+        "createApprovalPolicyForm",
+        "createFieldTemplateForm",
+        "createIntegrationApiKey",
+        "createIntegrationApiKeyFromOperationsForm",
+        "createReminderTemplateForm",
+        "createRenewalPlaybookTemplateForm",
+        "createTaskTemplateForm",
+        "createWebhookSubscriptionForm",
+        "revokeIntegrationApiKeyForm",
+        "setIntegrationTokenForm",
+        "toggleApprovalPolicyForm",
+        "toggleRenewalPlaybookTemplate",
+        "toggleRenewalPlaybookTemplateForm",
+        "toggleWebhookSubscription",
+        "toggleWebhookSubscriptionForm",
+        "updateIntegrationApiKeyPolicyForm",
+        "upsertIntegrationConnectionForm",
+        "upsertWorkflowSettingsForm"
+      ],
+      "policyIds": [
+        "server-actions"
+      ]
+    }
+  ],
+  "scenarioRegistry": {
+    "groups": [
+      {
+        "group": "orgResolutionScenarios",
+        "count": 8,
+        "values": [
+          "cross_org_path_parameter",
+          "inactive_org",
+          "membership_query_failure",
+          "missing_actor",
+          "missing_org",
+          "multiple_orgs",
+          "stale_selected_org",
+          "suspended_org"
+        ]
+      },
+      {
+        "group": "sessionLifecycleTransitions",
+        "count": 10,
+        "values": [
+          "account_recovery_abuse",
+          "auth_callback",
+          "expired_session",
+          "mfa_required_org",
+          "password_reset",
+          "revoke_other_sessions",
+          "session_fixation",
+          "sign_in",
+          "sign_out",
+          "stale_cookies"
+        ]
+      },
+      {
+        "group": "sensitiveActionProofs",
+        "count": 5,
+        "values": [
+          "aal2_session",
+          "expired_proof",
+          "missing_proof",
+          "valid_step_up_cookie",
+          "wrong_user_or_org_proof"
+        ]
+      }
+    ],
+    "missingMarkerFiles": []
+  },
+  "checks": [
+    {
+      "checkId": "deterministic-org-resolution",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "role-capability-inventory",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sensitive-action-step-up",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "server-action-negative-tests",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "session-lifecycle-security",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -31,6 +31,7 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /campaigns	y	y	v5_surfaces_if_enabled	pending_human	n	0	n	axe_skips_404_403
 /campaigns/compare	n	n	v5_surfaces	pending_human	n	0	n	tier3_axe_candidate
 /reports	y	y	authenticated,v5,v6	pending_human	y	0	n	reports_segment_loading
+/search	y	y	authenticated,current_product_core	pending_human	y	0	n	search_segment_loading
 /contracts	y	y	authenticated,auth-flow,v3	pending_human	y	0	n	
 /contracts/new	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
 /contracts/intake	y	y	authenticated,v3_workflows	pending_human	n	0	n	tier3_axe_candidate

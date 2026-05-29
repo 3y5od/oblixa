@@ -1,0 +1,475 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-uploads-files-extraction",
+  "generatedBy": "scripts/check-operational-uploads-files-extraction.mjs --write",
+  "generatedFrom": "config/operational-uploads-files-extraction.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 20,
+  "uploadValidationContractCount": 4,
+  "parserFaultContractCount": 3,
+  "aiExtractionContractCount": 4,
+  "generatedExportContractCount": 4,
+  "delegatedCheckCount": 19,
+  "commands": [
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:ai-boundary-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "provider_callsite_allowlist",
+        "retry_caps",
+        "structured_output",
+        "tenant_opt_in"
+      ]
+    },
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:ai-context-redaction",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "model_context_redaction",
+        "raw_error_redaction",
+        "source_snippet_bounds"
+      ]
+    },
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:ai-prompt-injection-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "malformed_output",
+        "prompt_injection_corpus",
+        "untrusted_text_delimiters"
+      ]
+    },
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:ai-tool-call-authz",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "role_capability_target_scope",
+        "tool_authz_design"
+      ]
+    },
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:concurrency-cap-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "extraction_concurrency_caps"
+      ]
+    },
+    {
+      "objective": "ai-extraction-hardening",
+      "script": "check:timeout-budget-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "provider_timeout_caps"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:binary-metadata-stripping",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "binary_size_caps",
+        "pdf_download_headers",
+        "pdf_metadata_safety"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:export-security-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "content_disposition",
+        "csv_formula_safety",
+        "private_cache",
+        "tenant_scope"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:response-size-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "large_response_limits"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:sensitive-cache-controls",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "private_no_store_exports"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:signed-link-nonce-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "submit_ticket_nonce",
+        "token_expiry"
+      ]
+    },
+    {
+      "objective": "generated-export-hardening",
+      "script": "check:signed-link-scope-narrowing",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "signed_artifact_scope",
+        "token_scope"
+      ]
+    },
+    {
+      "objective": "parser-fault-corpora",
+      "script": "check:decompression-bomb-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "docx_zip_entry_caps",
+        "unsafe_internal_names",
+        "zip_expansion_ratio"
+      ]
+    },
+    {
+      "objective": "parser-fault-corpora",
+      "script": "check:parser-risk-controls",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "html_script_stripping",
+        "malformed_pdf_docx",
+        "pdf_docx_bounds",
+        "unicode_controls"
+      ]
+    },
+    {
+      "objective": "parser-fault-corpora",
+      "script": "check:regex-dos-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "hot_regex_static_scan"
+      ]
+    },
+    {
+      "objective": "upload-validation-hardening",
+      "script": "check:operational-uploads-files-extraction",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "upload_parser_ai_export_closure"
+      ]
+    },
+    {
+      "objective": "upload-validation-hardening",
+      "script": "check:path-traversal-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "path_separator_and_traversal_rejection"
+      ]
+    },
+    {
+      "objective": "upload-validation-hardening",
+      "script": "check:storage-path-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "cross_org_path_rejection",
+        "org_scoped_storage_keys",
+        "signed_url_scope"
+      ]
+    },
+    {
+      "objective": "upload-validation-hardening",
+      "script": "check:upload-banlist",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "executable_archive_extension_denylist"
+      ]
+    },
+    {
+      "objective": "upload-validation-hardening",
+      "script": "check:upload-security-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "duplicate_uploads",
+        "empty_file",
+        "multipart_caps",
+        "size_mime_extension_signature_malware"
+      ]
+    }
+  ],
+  "uploadValidationContracts": [
+    {
+      "id": "contract-storage-path-scope",
+      "path": "src/lib/security/validation.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contract-upload-server-action",
+      "path": "src/actions/contracts.ts",
+      "markerCount": 7,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "upload-filename-policy",
+      "path": "src/lib/security/upload-filename.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "upload-signature-and-malware-scan",
+      "path": "src/lib/security/upload-scan.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "parserFaultContracts": [
+    {
+      "id": "bounded-document-parser",
+      "path": "src/lib/extraction/parse-document.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "import-parser-fault-tests",
+      "path": "src/lib/import-jobs.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "parser-fault-corpus-tests",
+      "path": "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "aiExtractionContracts": [
+    {
+      "id": "ai-extraction-corpus-tests",
+      "path": "src/lib/extraction/extraction.test.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "prompt-and-output-boundaries",
+      "path": "src/lib/extraction/extract-fields.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-failure-redaction",
+      "path": "src/lib/extraction/run-pipeline.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "source-backed-human-review",
+      "path": "src/actions/contracts.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "generatedExportContracts": [
+    {
+      "id": "csv-formula-policy",
+      "path": "src/lib/csv-formula-safe.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "export-filename-and-disposition-policy",
+      "path": "src/lib/security/export-filename.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "pdf-metadata-safe-defaults",
+      "path": "src/lib/decision-intelligence/decision-packet-pdf.tsx",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "signed-artifact-download-scope",
+      "path": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "ai-boundary-contract",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ai-context-redaction",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ai-prompt-injection-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ai-tool-call-authz",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "binary-metadata-stripping",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "concurrency-cap-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "decompression-bomb-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "export-security-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "parser-risk-controls",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "path-traversal-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "regex-dos-risk",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "response-size-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sensitive-cache-controls",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "signed-link-nonce-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "signed-link-scope-narrowing",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "storage-path-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "timeout-budget-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "upload-banlist",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "upload-security-guards",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

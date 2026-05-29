@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/check-operational-schema-compatibility.mjs --write",
+  "policy": "Aggregate compatibility-sensitive persisted contracts from code-owned route, OpenAPI, telemetry, SQL, export, package-script, and compatibility queue evidence. Checklist docs are not configuration.",
+  "configSource": "config/operational-schema-compatibility.json",
+  "sourceFiles": [
+    "config/operational-schema-compatibility.json",
+    "src/lib/operational-schema-compatibility.ts",
+    "src/lib/operational-schema-compatibility.test.ts",
+    "scripts/check-operational-schema-compatibility.mjs",
+    "openapi.yaml",
+    "artifacts/routes/compatibility-route-inventory.json",
+    "artifacts/compatibility/removal-queue.json"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-schema-compatibility",
+    "test:operational-schema-compatibility",
+    "check:versioned-public-contract-preservation",
+    "check:versioned-public-runtime-dual-read",
+    "check:versioned-forward-migration-readiness",
+    "check:versioned-source-config-preservation",
+    "check:versioned-export-download-contracts",
+    "check:versioned-package-script-readiness",
+    "check:compatibility-route-inventory",
+    "check:compatibility-removal-queue",
+    "check:telemetry-event-inventory",
+    "check:sql-object-reference-inventory",
+    "check:openapi-spec-contract",
+    "check:openapi-route-coverage",
+    "check:openapi-yaml-integrity",
+    "check:api-sunset-deprecation"
+  ],
+  "totals": {
+    "contractSurfaceCount": 14,
+    "additiveGuardrailCount": 6,
+    "dualReadTransitionCaseCount": 6,
+    "deprecationContractCount": 7,
+    "sourceReportCount": 9,
+    "openApiOperationCount": 250,
+    "issueCount": 0
+  },
+  "contractSurfaces": [
+    {
+      "id": "route-paths",
+      "ownerArea": "platform-api",
+      "contractClass": "public-routing",
+      "inventorySource": "artifacts/routes/compatibility-route-inventory.json",
+      "validationCommand": "check:compatibility-route-inventory",
+      "protectionEvidence": [
+        "alias",
+        "queue"
+      ]
+    },
+    {
+      "id": "query-params",
+      "ownerArea": "platform-api",
+      "contractClass": "request-url",
+      "inventorySource": "src/lib/contracts-search-url.ts",
+      "validationCommand": "check:versioned-public-contract-preservation",
+      "protectionEvidence": [
+        "dual-read",
+        "queue"
+      ]
+    },
+    {
+      "id": "request-bodies",
+      "ownerArea": "platform-api",
+      "contractClass": "request-json",
+      "inventorySource": "artifacts/operational-api-runtime-contracts.json",
+      "validationCommand": "check:operational-api-runtime-contracts",
+      "protectionEvidence": [
+        "dual-read",
+        "migration"
+      ]
+    },
+    {
+      "id": "response-fields",
+      "ownerArea": "platform-api",
+      "contractClass": "response-json",
+      "inventorySource": "openapi.yaml",
+      "validationCommand": "check:openapi-spec-contract",
+      "protectionEvidence": [
+        "dual-write",
+        "queue"
+      ]
+    },
+    {
+      "id": "csv-headers",
+      "ownerArea": "reporting",
+      "contractClass": "download-csv",
+      "inventorySource": "artifacts/compatibility/versioned-export-download-contracts.json",
+      "validationCommand": "check:versioned-export-download-contracts",
+      "protectionEvidence": [
+        "alias",
+        "queue"
+      ]
+    },
+    {
+      "id": "pdf-fields",
+      "ownerArea": "reporting",
+      "contractClass": "download-pdf",
+      "inventorySource": "artifacts/compatibility/versioned-export-download-contracts.json",
+      "validationCommand": "check:versioned-export-download-contracts",
+      "protectionEvidence": [
+        "alias",
+        "queue"
+      ]
+    },
+    {
+      "id": "email-template-variables",
+      "ownerArea": "notification",
+      "contractClass": "outbound-email",
+      "inventorySource": "src/lib/email.ts",
+      "validationCommand": "check:notification-payload-scrub-contract",
+      "protectionEvidence": [
+        "alias",
+        "queue"
+      ]
+    },
+    {
+      "id": "telemetry-event-names",
+      "ownerArea": "platform-telemetry",
+      "contractClass": "persisted-event-name",
+      "inventorySource": "artifacts/telemetry/event-inventory.json",
+      "validationCommand": "check:telemetry-event-inventory",
+      "protectionEvidence": [
+        "alias",
+        "queue",
+        "migration"
+      ]
+    },
+    {
+      "id": "sql-objects",
+      "ownerArea": "database-platform",
+      "contractClass": "database-object",
+      "inventorySource": "artifacts/supabase/sql-object-reference-inventory.json",
+      "validationCommand": "check:sql-object-reference-inventory",
+      "protectionEvidence": [
+        "alias",
+        "migration",
+        "queue"
+      ]
+    },
+    {
+      "id": "storage-paths",
+      "ownerArea": "files",
+      "contractClass": "object-storage",
+      "inventorySource": "artifacts/compatibility/versioned-export-download-contracts.json",
+      "validationCommand": "check:versioned-export-download-contracts",
+      "protectionEvidence": [
+        "dual-read",
+        "migration"
+      ]
+    },
+    {
+      "id": "webhook-event-fields",
+      "ownerArea": "integrations",
+      "contractClass": "webhook-payload",
+      "inventorySource": "artifacts/operational-webhooks-callbacks.json",
+      "validationCommand": "check:operational-webhooks-callbacks",
+      "protectionEvidence": [
+        "dual-write",
+        "queue"
+      ]
+    },
+    {
+      "id": "env-keys",
+      "ownerArea": "platform-runtime",
+      "contractClass": "environment",
+      "inventorySource": ".env.example",
+      "validationCommand": "check:env-contract-hygiene",
+      "protectionEvidence": [
+        "alias",
+        "migration"
+      ]
+    },
+    {
+      "id": "package-scripts",
+      "ownerArea": "platform-hardening",
+      "contractClass": "local-automation",
+      "inventorySource": "package.json",
+      "validationCommand": "check:versioned-package-script-readiness",
+      "protectionEvidence": [
+        "alias",
+        "queue"
+      ]
+    },
+    {
+      "id": "dom-test-selectors",
+      "ownerArea": "frontend-platform",
+      "contractClass": "browser-selector",
+      "inventorySource": "artifacts/compatibility/versioned-local-surface-regression.json",
+      "validationCommand": "check:versioned-local-surface-regression",
+      "protectionEvidence": [
+        "alias",
+        "migration",
+        "queue"
+      ]
+    }
+  ],
+  "additiveSchemaGuardrails": [
+    {
+      "id": "destructive-field-removal",
+      "breakingChangeClass": "field-removal",
+      "detection": "contract inventories and OpenAPI parity detect removed request, response, export, and event fields",
+      "requiredEvidence": "dual-read, dual-write, alias, migration, or compatibility queue row",
+      "validationCommand": "check:versioned-public-contract-preservation",
+      "manualBoundaryClassification": "customer-impacting-removal"
+    },
+    {
+      "id": "enum-narrowing",
+      "breakingChangeClass": "enum-narrowing",
+      "detection": "runtime API contract checks preserve old enum values until readers and writers accept both forms",
+      "requiredEvidence": "dual-read transition helper coverage plus deprecation metadata",
+      "validationCommand": "check:operational-api-runtime-contracts",
+      "manualBoundaryClassification": "customer-impacting-narrowing"
+    },
+    {
+      "id": "response-shape-narrowing",
+      "breakingChangeClass": "response-shape-narrowing",
+      "detection": "OpenAPI route coverage compares runtime routes and response envelopes",
+      "requiredEvidence": "additive response artifact and compatibility queue row",
+      "validationCommand": "check:openapi-spec-contract",
+      "manualBoundaryClassification": "external-client-contract"
+    },
+    {
+      "id": "sql-column-drop",
+      "breakingChangeClass": "sql-column-drop",
+      "detection": "forward migration readiness and SQL verification artifacts detect destructive drops",
+      "requiredEvidence": "forward-only migration, compatibility view or alias, verification SQL, and queue row",
+      "validationCommand": "check:versioned-forward-migration-readiness",
+      "manualBoundaryClassification": "data-bearing-schema-change"
+    },
+    {
+      "id": "sql-policy-change",
+      "breakingChangeClass": "sql-policy-change",
+      "detection": "policy predicate equivalence and forward migration blueprint detect policy drift",
+      "requiredEvidence": "predicate equivalence, security automation coverage, and manual policy boundary classification",
+      "validationCommand": "check:sql-policy-forward-migration-blueprint",
+      "manualBoundaryClassification": "authorization-boundary-change"
+    },
+    {
+      "id": "persisted-event-name-change",
+      "breakingChangeClass": "persisted-event-name-change",
+      "detection": "telemetry inventory detects event name changes and requires aliases for consumers",
+      "requiredEvidence": "event alias, dashboard migration, webhook subscriber migration, and queue row",
+      "validationCommand": "check:telemetry-event-inventory",
+      "manualBoundaryClassification": "analytics-or-webhook-consumer-contract"
+    }
+  ],
+  "dualReadTransitionCases": [
+    "old-only-data",
+    "new-only-data",
+    "both-values-present",
+    "conflicting-values",
+    "null-values",
+    "backfill-ready"
+  ],
+  "deprecationContracts": [
+    {
+      "id": "api-field-diagnostic-id",
+      "kind": "api_field",
+      "deprecatedName": "diagnostic_id",
+      "replacement": "diagnosticId",
+      "owner": "platform-api",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:operational-api-runtime-contracts",
+      "customerImpactClass": "external-integrator"
+    },
+    {
+      "id": "route-cron-read-model-refresh",
+      "kind": "route",
+      "deprecatedName": "/api/cron/v10/read-model-refresh",
+      "replacement": "/api/cron/read-model-refresh",
+      "owner": "platform-api",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:compatibility-route-inventory",
+      "customerImpactClass": "operator"
+    },
+    {
+      "id": "package-script-compatibility-e2e",
+      "kind": "package_script_alias",
+      "deprecatedName": "test:e2e:v9",
+      "replacement": "test:e2e:compatibility",
+      "owner": "platform-hardening",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:versioned-package-script-readiness",
+      "customerImpactClass": "internal"
+    },
+    {
+      "id": "telemetry-export-completed",
+      "kind": "telemetry_event",
+      "deprecatedName": "export.completed.legacy",
+      "replacement": "product.export.completed",
+      "owner": "platform-telemetry",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:telemetry-event-inventory",
+      "customerImpactClass": "external-integrator"
+    },
+    {
+      "id": "env-extract-provider",
+      "kind": "env_alias",
+      "deprecatedName": "OBLIXA_LEGACY_EXTRACT_PROVIDER",
+      "replacement": "OBLIXA_EXTRACT_PROVIDER",
+      "owner": "platform-runtime",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:env-contract-hygiene",
+      "customerImpactClass": "operator"
+    },
+    {
+      "id": "sql-contract-fields",
+      "kind": "sql_alias",
+      "deprecatedName": "public.legacy_contract_fields",
+      "replacement": "public.contract_fields",
+      "owner": "database-platform",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:versioned-forward-migration-readiness",
+      "customerImpactClass": "none"
+    },
+    {
+      "id": "export-field-fee-reference",
+      "kind": "export_field",
+      "deprecatedName": "Fee Reference",
+      "replacement": "fee_reference",
+      "owner": "reporting",
+      "firstDeprecatedOn": "2026-05-28",
+      "earliestRemovalBoundary": "2027-06-30",
+      "validationCommand": "check:versioned-export-download-contracts",
+      "customerImpactClass": "customer-visible"
+    }
+  ],
+  "openApiParity": {
+    "specPath": "openapi.yaml",
+    "routeInventoryPath": "artifacts/routes/compatibility-route-inventory.json",
+    "routeCount": 225,
+    "operationCount": 250,
+    "missingOperationCount": 0,
+    "extraOperationCount": 0,
+    "operationMetadataIssueCount": 0,
+    "schemaOperationCount": 0,
+    "exampleOperationCount": 0,
+    "deprecatedOperationCount": 0,
+    "issueCount": 0,
+    "requiredComparisons": [
+      "paths",
+      "methods",
+      "schemas",
+      "examples",
+      "auth-notes",
+      "error-shapes",
+      "deprecation-metadata"
+    ],
+    "validationCommands": [
+      "check:openapi-spec-contract",
+      "check:openapi-route-coverage",
+      "check:openapi-yaml-integrity"
+    ]
+  },
+  "sourceReports": [
+    {
+      "id": "compatibility-route-inventory",
+      "ok": true,
+      "issueCount": 0,
+      "routeCount": 225
+    },
+    {
+      "id": "compatibility-removal-queue",
+      "ok": true,
+      "issueCount": 0,
+      "queueCount": 0
+    },
+    {
+      "id": "telemetry-event-inventory",
+      "ok": true,
+      "issueCount": 0,
+      "eventCount": 370
+    },
+    {
+      "id": "versioned-public-contract-preservation",
+      "ok": true,
+      "issueCount": 0,
+      "contractCount": 458
+    },
+    {
+      "id": "versioned-public-runtime-dual-read",
+      "ok": true,
+      "issueCount": 0,
+      "familyCount": 6
+    },
+    {
+      "id": "versioned-forward-migration-readiness",
+      "ok": true,
+      "issueCount": 0,
+      "rowCount": 75
+    },
+    {
+      "id": "versioned-source-config-preservation",
+      "ok": true,
+      "issueCount": 0,
+      "contractCount": 344
+    },
+    {
+      "id": "versioned-export-download-contracts",
+      "ok": true,
+      "issueCount": 0,
+      "contractCount": 169
+    },
+    {
+      "id": "versioned-package-script-readiness",
+      "ok": true,
+      "issueCount": 0,
+      "aliasCount": 37
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -10,27 +10,26 @@ import { UploadMoreFiles } from "@/components/contracts/upload-more-files";
 import { OwnerAssignmentForm } from "@/components/contracts/owner-assignment-form";
 import { DeleteContractButton } from "@/components/contracts/delete-contract-button";
 import {
-  AlertTriangle,
   ArrowLeft,
-  ArrowRight,
   BadgeCheck,
   Bell,
   Calendar,
   CalendarClock,
-  CheckCircle2,
+  Check,
+  ChevronRight,
+  Paperclip,
   ClipboardCheck,
   FileCheck2,
   FileText,
   FolderOpen,
   ListChecks,
   NotebookPen,
-  ShieldAlert,
   User,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { STATUS_STYLES, STATUS_LABELS } from "@/lib/contracts";
+import { STATUS_STYLES, STATUS_LABELS, STATUS_SEMANTICS } from "@/lib/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
 import { ContractStatusTransition } from "@/components/contracts/contract-status-transition";
 import { ExtractionJobAlert } from "@/components/contracts/extraction-job-alert";
@@ -83,6 +82,14 @@ import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { CountChip } from "@/components/ui/count-chip";
+import { ChipPair } from "@/components/ui/chip-pair";
+import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
+import { RatioChip } from "@/components/ui/ratio-chip";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { TimeChip } from "@/components/ui/time-chip";
+
+export const metadata = { title: "Contract" };
 
 type ContractDetailTab =
   | "overview"
@@ -173,6 +180,18 @@ function coreStatusTone(status: string | null | undefined): CoreSignalTone {
   return "neutral";
 }
 
+const coreSignalToneToSemantic: Record<CoreSignalTone, SemanticStatus> = {
+  healthy: "healthy",
+  attention: "warning",
+  danger: "blocked",
+  info: "info",
+  neutral: "empty",
+};
+
+function coreSemanticStatus(status: string | null | undefined): SemanticStatus {
+  return coreSignalToneToSemantic[coreStatusTone(status)];
+}
+
 function CoreCountPill({
   value,
   label,
@@ -198,6 +217,7 @@ function CorePanelHeader({
   title,
   count,
   countLabel,
+  countNode,
   action,
 }: {
   icon: LucideIcon;
@@ -205,10 +225,12 @@ function CorePanelHeader({
   title: string;
   count?: string | number;
   countLabel?: string;
+  /** Custom chip rendered in place of the default count pill (e.g. a RatioChip). */
+  countNode?: ReactNode;
   action?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+    <header className="flex flex-col gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
         <span className="ui-icon-tile-compact shrink-0" aria-hidden>
           <Icon className="h-4 w-4" strokeWidth={1.85} />
@@ -219,7 +241,9 @@ function CorePanelHeader({
             <h2 className="text-[1.05rem] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
               {title}
             </h2>
-            {count != null ? (
+            {countNode != null ? (
+              countNode
+            ) : count != null ? (
               <CoreCountPill value={count} label={countLabel ?? "shown"} tone="info" />
             ) : null}
           </div>
@@ -231,50 +255,128 @@ function CorePanelHeader({
 }
 
 function CoreSignalCell({
-  icon: Icon,
   label,
   value,
+  unit,
   tone,
   href,
   actionLabel,
 }: {
-  icon: LucideIcon;
   label: string;
   value: string | number;
+  unit?: string;
   tone: CoreSignalTone;
   href: string;
   actionLabel?: string;
 }) {
   const isHealthyZero = tone === "healthy" && value === 0;
   const isNumericValue = typeof value === "number";
+  const numberColor = isHealthyZero
+    ? "color-mix(in oklab, var(--success-ink) 55%, var(--text-tertiary))"
+    : tone === "danger"
+      ? "var(--danger-ink)"
+      : tone === "attention"
+        ? "var(--warning-ink)"
+        : "var(--text-primary)";
   return (
     <Link
       href={href}
       className="group min-w-0 border-t border-[var(--border-subtle)] px-5 py-4 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] lg:border-l lg:border-t-0"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="ui-caps-2 text-[var(--text-tertiary)]">{label}</p>
-          <p
-            className={`mt-2 font-semibold leading-none tabular-nums tracking-tight ${
-              isNumericValue ? "text-[2rem]" : "text-[1.1rem]"
-            } ${
-              isHealthyZero
-                ? "text-[color:color-mix(in_oklab,var(--success-ink)_55%,var(--text-tertiary))]"
-                : "text-[var(--text-primary)]"
-            }`}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span
+            aria-hidden
+            className="inline-flex h-2 w-2 min-w-[0.5rem] shrink-0 items-center justify-center"
           >
-            {value}
-          </p>
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                background: isHealthyZero
+                  ? "color-mix(in oklab, var(--success-ink) 60%, transparent)"
+                  : tone === "danger"
+                    ? "var(--danger-ink)"
+                    : tone === "attention"
+                      ? "var(--warning-ink)"
+                      : tone === "healthy"
+                        ? "var(--success-ink)"
+                        : "var(--border-strong)",
+                boxShadow: isHealthyZero
+                  ? "none"
+                  : `0 0 0 2.5px color-mix(in oklab, ${
+                      tone === "danger"
+                        ? "var(--danger-soft)"
+                        : tone === "attention"
+                          ? "var(--warning-soft)"
+                          : tone === "healthy"
+                            ? "var(--success-soft)"
+                            : "var(--surface-muted)"
+                    } 42%, transparent)`,
+              }}
+            />
+          </span>
+          <p className="ui-caps-2 text-[var(--text-tertiary)]">{label}</p>
         </div>
-        <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${coreSignalToneClasses[tone]}`}>
-          <Icon className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-        </span>
+        {isHealthyZero ? null : (
+          <span className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
+            {actionLabel ?? "Open"}
+            <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
+          </span>
+        )}
       </div>
-      <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)] opacity-75 transition-opacity group-hover:opacity-100">
-        {actionLabel ?? (isHealthyZero ? "Clear" : "Open")}
-        <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-      </span>
+      <div className="mt-2 flex items-baseline gap-2">
+        <p
+          className={`font-semibold leading-none tabular-nums tracking-tight ${
+            isNumericValue ? "text-[1.5rem]" : "text-[1rem]"
+          }`}
+          style={{ color: numberColor }}
+        >
+          {value}
+        </p>
+        {unit ? (
+          (() => {
+            const isToned = tone === "danger" || tone === "attention";
+            const toneInk =
+              tone === "danger"
+                ? "var(--danger-ink)"
+                : tone === "attention"
+                  ? "var(--warning-ink)"
+                  : "var(--text-tertiary)";
+            const toneSoft =
+              tone === "danger"
+                ? "var(--danger-soft)"
+                : tone === "attention"
+                  ? "var(--warning-soft)"
+                  : "var(--surface-muted)";
+            // §2.11: healthy/zero cells keep the unit chip — it switches to a
+            // muted-success tint instead of being suppressed, so the cell
+            // anatomy stays identical to its active siblings.
+            const borderColor = isHealthyZero
+              ? "color-mix(in oklab, var(--success-ink) 22%, var(--border-card))"
+              : isToned
+                ? `color-mix(in oklab, ${toneInk} 24%, var(--border-card))`
+                : "var(--border-card)";
+            const background = isHealthyZero
+              ? "color-mix(in oklab, var(--success-soft) 30%, var(--surface-raised))"
+              : isToned
+                ? `color-mix(in oklab, ${toneSoft} 28%, var(--surface-raised))`
+                : "transparent";
+            const color = isHealthyZero
+              ? "color-mix(in oklab, var(--success-ink) 68%, var(--text-tertiary))"
+              : isToned
+                ? toneInk
+                : "var(--text-tertiary)";
+            return (
+              <span
+                className="inline-flex h-4 items-center self-center rounded-md border px-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none"
+                style={{ borderColor, background, color }}
+              >
+                {unit}
+              </span>
+            );
+          })()
+        ) : null}
+      </div>
     </Link>
   );
 }
@@ -966,7 +1068,7 @@ export default async function ContractDetailPage(props: {
     Number.isFinite(parsedReviewPage) && parsedReviewPage > 0 ? parsedReviewPage : 1;
   const reviewQueueHref = `/contracts/review${reviewPage > 1 ? `?page=${reviewPage}` : ""}`;
   const backHref = fromReview ? reviewQueueHref : "/contracts";
-  const backLabel = fromReview ? "Review queue" : "Contracts";
+  const backLabel = fromReview ? "Back to review queue" : "Back to contracts";
   const uploadedCount = Math.max(0, Number(uploadedParam ?? "0") || 0);
   const invalidCount = Math.max(0, Number(invalidParam ?? "0") || 0);
   const failedCount = Math.max(0, Number(failedParam ?? "0") || 0);
@@ -1308,27 +1410,106 @@ export default async function ContractDetailPage(props: {
   const blockingApprovalCount =
     pendingApprovalsCount || v10ApprovalRecords.filter((item) => item.status === "pending").length;
   const attentionEvidenceCount = outstandingEvidenceCount || activeV10EvidenceCount;
-  const coreAttentionItems = [
-    !hasSourceFiles ? "Signed source file is missing" : null,
-    needsOwner ? "Owner is unassigned" : null,
-    needsCounterparty ? "Counterparty is missing" : null,
-    hasSourceFiles && !hasExtractedFields ? "Extraction has not created review fields yet" : null,
+  type CoreAttentionRow = {
+    key: string;
+    kind: string;
+    count: number;
+    verb: string;
+    href: string;
+    label: string;
+  };
+  const coreAttentionItems: CoreAttentionRow[] = [
+    !hasSourceFiles
+      ? {
+          key: "file",
+          kind: "File",
+          count: 1,
+          verb: "Attach",
+          href: `/contracts/${id}?tab=files`,
+          label: "Signed source file is missing",
+        }
+      : null,
+    needsOwner
+      ? {
+          key: "owner",
+          kind: "Owner",
+          count: 1,
+          verb: "Assign",
+          href: "#ownership-record",
+          label: "Owner is unassigned",
+        }
+      : null,
+    needsCounterparty
+      ? {
+          key: "counterparty",
+          kind: "Counterparty",
+          count: 1,
+          verb: "Add",
+          href: "#ownership-record",
+          label: "Counterparty is missing",
+        }
+      : null,
+    hasSourceFiles && !hasExtractedFields
+      ? {
+          key: "extraction",
+          kind: "Extraction",
+          count: 1,
+          verb: "Run",
+          href: "#extracted-fields",
+          label: "Extraction has not created review fields yet",
+        }
+      : null,
     hasExtractedFields && missingCriticalDateLabels.length > 0
-      ? `Missing key date${missingCriticalDateLabels.length === 1 ? "" : "s"}: ${missingCriticalDateLabels.join(", ")}`
+      ? {
+          key: "dates",
+          kind: missingCriticalDateLabels.length === 1 ? "Date" : "Dates",
+          count: missingCriticalDateLabels.length,
+          verb: "Add",
+          href: "#contract-dates",
+          label: `Missing key date${missingCriticalDateLabels.length === 1 ? "" : "s"}: ${missingCriticalDateLabels.join(", ")}`,
+        }
       : null,
     pendingFieldsCount > 0
-      ? `${pendingFieldsCount} pending field${pendingFieldsCount === 1 ? " needs" : "s need"} review`
+      ? {
+          key: "fields",
+          kind: pendingFieldsCount === 1 ? "Field" : "Fields",
+          count: pendingFieldsCount,
+          verb: "Review",
+          href: "#extracted-fields",
+          label: `${pendingFieldsCount} pending field${pendingFieldsCount === 1 ? " needs" : "s need"} review`,
+        }
       : null,
     hasActiveIssues
-      ? `${activeIssueCount} active issue${activeIssueCount === 1 ? "" : "s"}`
+      ? {
+          key: "issues",
+          kind: activeIssueCount === 1 ? "Exception" : "Exceptions",
+          count: activeIssueCount,
+          verb: "Triage",
+          href: `/contracts/exceptions?status=open&contract=${contract.id}`,
+          label: `${activeIssueCount} active exception${activeIssueCount === 1 ? "" : "s"}`,
+        }
       : null,
     hasBlockingApprovals
-      ? `${blockingApprovalCount} approval${blockingApprovalCount === 1 ? "" : "s"} blocking next action`
+      ? {
+          key: "approvals",
+          kind: blockingApprovalCount === 1 ? "Approval" : "Approvals",
+          count: blockingApprovalCount,
+          verb: "Review",
+          href: "#approval-decisions",
+          label: `${blockingApprovalCount} approval${blockingApprovalCount === 1 ? "" : "s"} blocking next action`,
+        }
       : null,
     attentionEvidenceCount > 0
-      ? `${attentionEvidenceCount} evidence gap${attentionEvidenceCount === 1 ? " needs" : "s need"} follow-up`
+      ? {
+          key: "evidence",
+          kind: attentionEvidenceCount === 1 ? "Gap" : "Gaps",
+          count: attentionEvidenceCount,
+          verb: "Request",
+          href: "#contract-evidence",
+          label: `${attentionEvidenceCount} evidence gap${attentionEvidenceCount === 1 ? " needs" : "s need"} follow-up`,
+        }
       : null,
-  ].filter((item): item is string => Boolean(item));
+  ].filter((item): item is CoreAttentionRow => Boolean(item));
 
   await emitProductTelemetryIfFirstForOrgUser(admin, {
     organizationId: orgId,
@@ -1350,6 +1531,13 @@ export default async function ContractDetailPage(props: {
   const fieldByName = new Map(
     extractedFields.map((field: { field_name: string }) => [field.field_name, field])
   );
+  // Date-typed fields live in the Dates card — exclude them from the
+  // generic Extracted fields list so the same value isn't authored twice
+  // on the same page (§10.4).
+  const coreDateFieldSet = new Set<string>(CORE_CONTRACT_DATE_FIELDS);
+  const nonDateExtractedFields = extractedFields.filter(
+    (field: { field_name: string }) => !coreDateFieldSet.has(field.field_name)
+  );
   const coreDateRows = CORE_CONTRACT_DATE_FIELDS.map((fieldName) => {
     const field = fieldByName.get(fieldName) as
       | { field_name: string; field_value?: string | null; status?: string | null; confidence?: number | null }
@@ -1364,40 +1552,58 @@ export default async function ContractDetailPage(props: {
   });
   const missingCoreDateCount = coreDateRows.filter((row) => row.status !== "approved").length;
   const activeEvidenceCount = outstandingEvidenceCount || activeV10EvidenceCount;
-  const coreOpenWorkCount =
-    v10WorkItems.length + openExceptionsCount + pendingApprovalsCount + activeEvidenceCount;
-  const shouldPrioritizeSourceDocuments = !hasSourceFiles && activeTab === "overview";
-  const primaryActionHref =
-    !hasSourceFiles
-      ? "#source-documents"
-      : needsOwner
-        ? "#ownership-record"
-        : pendingFieldsCount > 0
-          ? "#extracted-fields"
-          : missingCoreDateCount > 0 && hasExtractedFields
-            ? "#contract-dates"
-            : "#contract-notes";
-  const primaryActionLabel =
-    !hasSourceFiles
-      ? "Attach source file"
-      : needsOwner
-        ? "Assign owner"
-        : pendingFieldsCount > 0
-          ? "Review fields"
-          : missingCoreDateCount > 0 && hasExtractedFields
-            ? "Review dates"
-            : "Add note";
-  const nextActionLabel =
-    !hasSourceFiles
-      ? "Attach signed source file"
-      : !hasExtractedFields
-        ? "Run extraction and start review"
-        : needsOwner || needsCounterparty
-          ? "Complete owner and counterparty"
-          : humanizeContractEnumLabel(
-              v10HealthSnapshot?.next_action ?? v10Activation?.next_action ?? contract.required_next_step ?? null,
-              pendingFieldsCount > 0 ? "Review extracted fields" : "No next action recorded"
-            );
+  // Header `Open work` is real tracked work items (v10 work + tasks);
+  // `Needs attention` is the setup-gap + blocker list the rail renders from
+  // `coreAttentionItems`.
+  const openWorkCount = coreWorkRows.length;
+  const needsAttentionCount = coreAttentionItems.length;
+  // Header review-completeness ratio. Prefer the activation read model's
+  // required-field tally; fall back to all extracted fields. Null when there
+  // is nothing to review yet so the header chip is simply omitted.
+  const reviewCompleteness =
+    v10Activation && v10Activation.required_fields_total > 0
+      ? {
+          approved: v10Activation.required_fields_approved,
+          total: v10Activation.required_fields_total,
+        }
+      : fieldsCount > 0
+        ? { approved: approvedFieldsCount, total: fieldsCount }
+        : null;
+  // Open counts shown as subtle wayfinding chips on the section tabs. Kept
+  // neutral (not amber) so the summary strip + rail remain the attention
+  // focal zone — tab chips just tell you where the open items live.
+  const coreTabBadgeCounts: Partial<Record<ContractDetailTab, number>> = {
+    fields: pendingFieldsCount,
+    dates: hasExtractedFields ? missingCoreDateCount : 0,
+    work: coreWorkRows.length,
+    approvals: pendingApprovalsCount,
+    evidence: activeEvidenceCount,
+  };
+  const nextImportantDateRow = coreDateRows.find(
+    (row) => row.status === "approved" && row.value && row.value !== "Missing"
+  );
+  const shouldPrioritizeSourceDocuments = false;
+  // Priority chain for the morphing header CTA. Active blockers (exceptions,
+  // blocking approvals) top the list, then pending review — a record with
+  // extracted fields awaiting sign-off should surface "Review fields", which
+  // is why it outranks the lower-severity setup gaps (missing file, owner,
+  // date). "Attach source file" only wins once there is nothing left to
+  // review.
+  const primaryAction = hasActiveIssues
+    ? { href: `/contracts/exceptions?status=open&contract=${contract.id}`, label: "Triage exception" }
+    : hasBlockingApprovals
+      ? { href: "#approval-decisions", label: "Review approval" }
+      : pendingFieldsCount > 0
+        ? { href: "#extracted-fields", label: "Review fields" }
+        : !hasSourceFiles
+          ? { href: `/contracts/${id}?tab=files`, label: "Attach source file" }
+          : needsOwner
+            ? { href: "#ownership-record", label: "Assign owner" }
+            : missingCoreDateCount > 0 && hasExtractedFields
+              ? { href: "#contract-dates", label: "Add key date" }
+              : { href: "#contract-notes", label: "Add note" };
+  const primaryActionHref = primaryAction.href;
+  const primaryActionLabel = primaryAction.label;
   const coreReviewSignal = hasExtractedFields
     ? {
         value: pendingFieldsCount,
@@ -1424,27 +1630,20 @@ export default async function ContractDetailPage(props: {
       };
 
   const renderCoreSourceDocumentsSection = () => (
-    <section id="source-documents" className="ui-card scroll-mt-28 overflow-hidden">
+    <section
+      id="source-documents"
+      className={`${hasSourceFiles ? "ui-card-quiet" : "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]"} scroll-mt-28 overflow-hidden`}
+    >
       <CorePanelHeader
         icon={FolderOpen}
         eyebrow="Files"
         title="Source documents"
         count={filesCount}
         countLabel="files"
-        action={hasSourceFiles ? <UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="" /> : null}
+        action={<UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="" />}
       />
-      <div className="px-5 py-5 sm:px-6">
-        {!contract.contract_files?.length ? (
-          <div className="grid gap-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-            <span className="ui-icon-tile-compact" aria-hidden>
-              <AlertTriangle className="h-4 w-4" strokeWidth={1.85} />
-            </span>
-            <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
-              Attach the signed agreement
-            </p>
-            <UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="sm:justify-self-end" />
-          </div>
-        ) : (
+      {contract.contract_files?.length ? (
+        <div className="px-5 py-3 sm:px-6">
           <ul className="divide-y divide-[var(--border-subtle)]">
             {contract.contract_files.map(
               (file: {
@@ -1475,34 +1674,34 @@ export default async function ContractDetailPage(props: {
               )
             )}
           </ul>
-        )}
-        {canEdit && contract.contract_files?.length ? (
-          <form action={supersedeContractFileForm} className="mt-5 grid gap-2 border-t border-[var(--border-subtle)] pt-5">
-            <input type="hidden" name="contractId" value={contract.id} />
-            <p className="ui-caps-2 text-[var(--text-tertiary)]">Supersede and re-extract</p>
-            <select name="fileId" className="ui-input text-xs" defaultValue="">
-              <option value="" disabled>
-                Select file to supersede
-              </option>
-              {contract.contract_files.map((file: { id: string; file_name: string }) => (
-                <option key={file.id} value={file.id}>
-                  {file.file_name}
+          {canEdit ? (
+            <form action={supersedeContractFileForm} className="mt-5 grid gap-2 border-t border-[var(--border-subtle)] pt-5">
+              <input type="hidden" name="contractId" value={contract.id} />
+              <p className="ui-caps-2 text-[var(--text-tertiary)]">Supersede and re-extract</p>
+              <select name="fileId" className="ui-input text-xs" defaultValue="">
+                <option value="" disabled>
+                  Select file to supersede
                 </option>
-              ))}
-            </select>
-            <input
-              aria-label="Reason (optional)"
-              name="reason"
-              maxLength={200}
-              placeholder="Reason (optional)"
-              className="ui-input text-xs"
-            />
-            <button type="submit" className="ui-btn-secondary max-w-max px-3 py-2 text-xs">
-              Mark superseded and re-run extraction
-            </button>
-          </form>
-        ) : null}
-      </div>
+                {contract.contract_files.map((file: { id: string; file_name: string }) => (
+                  <option key={file.id} value={file.id}>
+                    {file.file_name}
+                  </option>
+                ))}
+              </select>
+              <input
+                aria-label="Reason (optional)"
+                name="reason"
+                maxLength={200}
+                placeholder="Reason (optional)"
+                className="ui-input text-xs"
+              />
+              <button type="submit" className="ui-btn-secondary max-w-max px-3 py-2 text-xs">
+                Mark superseded and re-run extraction
+              </button>
+            </form>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 
@@ -1531,124 +1730,149 @@ export default async function ContractDetailPage(props: {
         <div className="flex flex-col gap-4">
           <Link
             href={backHref}
-            className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
+            className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
           >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+            <ArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
             {backLabel}
           </Link>
           <DashboardPageHeader
-            icon={<FileText className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+            icon={<FileText className="h-4 w-4" strokeWidth={1.85} />}
             eyebrow="Signed agreement"
             title={contract.title}
+            density="compact"
             metaStrip={
               <>
+                {contract.counterparty ? (
+                  <div>
+                    <dt className="ui-caps-3 text-[var(--text-tertiary)]">Counterparty</dt>
+                    <dd className="mt-0.5 font-medium text-[var(--text-primary)]">{contract.counterparty}</dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt className="ui-caps-3 text-[var(--text-tertiary)]">Owner</dt>
                   <dd className="mt-0.5 font-medium text-[var(--text-primary)]">{ownerLabel ?? "Unassigned"}</dd>
                 </div>
+                {reviewCompleteness ? (
+                  <div>
+                    <dt className="ui-caps-3 text-[var(--text-tertiary)]">Reviewed</dt>
+                    <dd className="mt-0.5">
+                      <RatioChip
+                        numerator={reviewCompleteness.approved}
+                        denominator={reviewCompleteness.total}
+                        tone={reviewCompleteness.approved >= reviewCompleteness.total ? "success" : undefined}
+                      />
+                    </dd>
+                  </div>
+                ) : null}
                 <div>
-                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Updated</dt>
-                  <dd className="mt-0.5 font-medium text-[var(--text-primary)]">
-                    {format(new Date(contract.updated_at), "MMM d, yyyy")}
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Open work</dt>
+                  <dd className="mt-0.5">
+                    {openWorkCount > 0 ? (
+                      <Link href={`/work?contract=${id}`} className="inline-flex">
+                        <CountChip value={openWorkCount} emphasis="strong" />
+                      </Link>
+                    ) : (
+                      <CountChip value={0} />
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Next date</dt>
+                  <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
+                    {nextImportantDateRow
+                      ? (() => {
+                          const parsed = new Date(nextImportantDateRow.value);
+                          return Number.isNaN(parsed.getTime())
+                            ? nextImportantDateRow.value
+                            : format(parsed, "MMM d, yyyy");
+                        })()
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Status</dt>
+                  <dd className="mt-0.5">
+                    <StatusBadge status={STATUS_SEMANTICS[contract.status as keyof typeof STATUS_SEMANTICS]}>
+                      {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
+                    </StatusBadge>
                   </dd>
                 </div>
               </>
             }
             actions={
-              <>
-                <span
-                  className={`ui-badge ${
-                    STATUS_STYLES[contract.status as keyof typeof STATUS_STYLES]
-                  }`}
-                >
-                  {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS]}
-                </span>
-                <Link href={primaryActionHref} className="ui-btn-primary px-4 py-2 text-[13px]">
-                  {primaryActionLabel}
-                </Link>
-              </>
+              <Link
+                href={primaryActionHref}
+                className="ui-btn-primary inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[12.5px]"
+              >
+                {primaryActionLabel === "Attach source file" ? (
+                  <Paperclip className="h-3 w-3" strokeWidth={2} aria-hidden />
+                ) : null}
+                {primaryActionLabel}
+                {primaryActionLabel === "Attach source file" ? null : (
+                  <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                )}
+              </Link>
             }
           />
         </div>
 
-        <section className="ui-card-raised overflow-hidden p-0" aria-label="Contract action summary">
-          <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,0.8fr))]">
-            <div className="px-5 py-5 sm:px-6">
-              <p className="ui-caps-2 text-[var(--accent-strong)]">Next action</p>
-              <h2 className="mt-2 text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">
-                {nextActionLabel}
-              </h2>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <CoreCountPill
-                  value={pendingFieldsCount}
-                  label="pending"
-                  tone={pendingFieldsCount > 0 ? "attention" : "healthy"}
-                />
-                <CoreCountPill
-                  value={hasExtractedFields ? missingCoreDateCount : "blocked"}
-                  label="dates"
-                  tone={hasExtractedFields ? (missingCoreDateCount > 0 ? "attention" : "healthy") : "neutral"}
-                />
-                <CoreCountPill
-                  value={coreOpenWorkCount}
-                  label="open work"
-                  tone={coreOpenWorkCount > 0 ? "danger" : "healthy"}
-                />
-              </div>
-            </div>
+        <section className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]" aria-label="Contract action summary">
+          <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
             <CoreSignalCell
-              icon={ClipboardCheck}
-              label="Review"
+              label="Needs review"
               value={coreReviewSignal.value}
+              unit={typeof coreReviewSignal.value === "number" ? "pending" : undefined}
               tone={coreReviewSignal.tone}
               href={coreReviewSignal.href}
               actionLabel={coreReviewSignal.actionLabel}
             />
             <CoreSignalCell
-              icon={CalendarClock}
               label="Dates"
               value={coreDateSignal.value}
+              unit={typeof coreDateSignal.value === "number" ? "gaps" : undefined}
               tone={coreDateSignal.tone}
               href="#contract-dates"
               actionLabel={coreDateSignal.actionLabel}
             />
             <CoreSignalCell
-              icon={ShieldAlert}
-              label="Issues"
+              label="Exceptions"
               value={openExceptionsCount}
+              unit="open"
               tone={openExceptionsCount > 0 ? "danger" : "healthy"}
               href={openExceptionsCount > 0 ? `/contracts/exceptions?status=open&contract=${contract.id}` : `/contracts/${contract.id}`}
-              actionLabel={openExceptionsCount > 0 ? "Open" : "Clear"}
+              actionLabel={openExceptionsCount > 0 ? "Open" : undefined}
             />
             <CoreSignalCell
-              icon={FileCheck2}
               label="Evidence"
               value={activeEvidenceCount}
+              unit={activeEvidenceCount === 1 ? "request" : "requests"}
               tone={activeEvidenceCount > 0 ? "attention" : "healthy"}
               href={activeEvidenceCount > 0 ? "#contract-evidence" : `/contracts/${contract.id}`}
-              actionLabel={activeEvidenceCount > 0 ? "Open" : "Clear"}
+              actionLabel={activeEvidenceCount > 0 ? "Open" : undefined}
             />
           </div>
         </section>
 
         <nav
           aria-label="Contract detail sections"
-          className="flex flex-wrap gap-2 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] py-3"
+          className="flex flex-wrap gap-x-5 gap-y-1 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)]"
         >
           {coreTabLinks.map(([value, label]) => {
             const active = activeTab === value;
+            const badge = coreTabBadgeCounts[value] ?? 0;
             return (
               <Link
                 key={value}
                 href={`/contracts/${contract.id}?tab=${value}`}
-                className={`rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
+                className={`-mb-px inline-flex items-center gap-1.5 border-b-2 py-2 text-[12.5px] transition-colors ${
                   active
-                    ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)]"
-                    : "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_84%,transparent)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+                    ? "border-[var(--accent-strong)] font-semibold text-[var(--text-primary)]"
+                    : "border-transparent font-medium text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
                 {label}
+                {badge > 0 ? <CountChip value={badge} /> : null}
               </Link>
             );
           })}
@@ -1659,20 +1883,23 @@ export default async function ContractDetailPage(props: {
             {shouldPrioritizeSourceDocuments ? renderCoreSourceDocumentsSection() : null}
 
             {(activeTab === "overview" || activeTab === "fields" || activeTab === "dates") && (
-              <section id="extracted-fields" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="extracted-fields" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={ClipboardCheck}
                   eyebrow="Review"
                   title="Extracted fields"
-                  count={fieldsCount}
-                  countLabel="fields"
+                  countNode={
+                    fieldsCount > 0 ? (
+                      <RatioChip
+                        numerator={approvedFieldsCount}
+                        denominator={fieldsCount}
+                        suffix="reviewed"
+                        tone={approvedFieldsCount >= fieldsCount ? "success" : undefined}
+                      />
+                    ) : undefined
+                  }
                   action={
                     <>
-                      {pendingFieldsCount > 0 ? (
-                        <Link href="/contracts/review" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                          Review queue
-                        </Link>
-                      ) : null}
                       {hasSourceFiles && hasExtractedFields ? (
                         <ExtractButton
                           contractId={contract.id}
@@ -1684,15 +1911,19 @@ export default async function ContractDetailPage(props: {
                       {canEdit && hasExtractedFields ? (
                         <form action={applyContractTemplatePackForm}>
                           <input type="hidden" name="contractId" value={contract.id} />
-                          <button type="submit" className="ui-btn-secondary px-4 py-2 text-[13px]">
-                            Apply template pack
+                          <button
+                            type="submit"
+                            className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+                          >
+                            <BadgeCheck className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+                            Apply field checklist
                           </button>
                         </form>
                       ) : null}
                     </>
                   }
                 />
-                <div className="space-y-5 px-5 py-5 sm:px-6">
+                <div className="space-y-4 px-5 py-3 sm:px-6">
                   <ExtractionJobAlert
                     job={extractionJob}
                     fieldsCount={fieldsCount}
@@ -1704,11 +1935,11 @@ export default async function ContractDetailPage(props: {
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                           <p className="ui-caps-2 text-[var(--text-tertiary)]">Review queue</p>
                           {reviewQueueContinuity.total > 1 ? (
-                            <span className="ui-chip">
-                              <span className="font-mono tabular-nums">
-                                {reviewQueueContinuity.position}/{reviewQueueContinuity.total}
-                              </span>
-                            </span>
+                            <RatioChip
+                              numerator={reviewQueueContinuity.position}
+                              denominator={reviewQueueContinuity.total}
+                              suffix="queue"
+                            />
                           ) : null}
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -1732,8 +1963,19 @@ export default async function ContractDetailPage(props: {
                     pendingCount={pendingFieldsCount}
                     canEdit={canEdit}
                   />
-                  {hasExtractedFields ? (
-                    <FieldReview fields={extractedFields} canEdit={canEdit} />
+                  {nonDateExtractedFields.length > 0 ? (
+                    <FieldReview fields={nonDateExtractedFields} canEdit={canEdit} />
+                  ) : hasExtractedFields ? (
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 py-1">
+                      <p className="ui-caps-3 text-[var(--text-tertiary)]">All extracted fields are dates</p>
+                      <Link
+                        href="#contract-dates"
+                        className="ui-link inline-flex items-center gap-0.5 text-[12.5px]"
+                      >
+                        Review in Key dates
+                        <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                      </Link>
+                    </div>
                   ) : (
                     <div className="grid gap-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
                       <span className="ui-icon-tile-compact" aria-hidden>
@@ -1766,20 +2008,20 @@ export default async function ContractDetailPage(props: {
             )}
 
             {(activeTab === "overview" || activeTab === "dates") && (
-              <section id="contract-dates" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-dates" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={CalendarClock}
                   eyebrow="Dates"
-                  title="Key dates and reminders"
-                  count={hasExtractedFields ? missingCoreDateCount : "blocked"}
-                  countLabel={hasExtractedFields ? "gaps" : "dates"}
+                  title="Key dates"
                   action={
-                    <Link
-                      href={hasExtractedFields || hasSourceFiles ? "#extracted-fields" : "#source-documents"}
-                      className="ui-btn-secondary px-4 py-2 text-[13px]"
-                    >
-                      {hasExtractedFields ? "Approve dates" : hasSourceFiles ? "Run extraction" : "Attach source file"}
-                    </Link>
+                    !hasExtractedFields ? (
+                      <Link
+                        href={hasSourceFiles ? "#extracted-fields" : `/contracts/${id}?tab=files`}
+                        className="ui-btn-secondary px-4 py-2 text-[13px]"
+                      >
+                        {hasSourceFiles ? "Run extraction" : "Attach source file"}
+                      </Link>
+                    ) : null
                   }
                 />
                 {!hasExtractedFields ? (
@@ -1800,63 +2042,120 @@ export default async function ContractDetailPage(props: {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.72fr)]">
-                    <div className="px-5 py-5 sm:px-6">
+                  <>
+                    <div className="px-5 py-2 sm:px-6">
                       <div className="divide-y divide-[var(--border-subtle)]">
                         {coreDateRows.map((row) => {
                           const tone = coreStatusTone(row.status);
+                          const isMissing = row.status === "missing";
+                          const toneInk = isMissing
+                            ? "var(--warning-ink)"
+                            : tone === "healthy"
+                              ? "var(--success-ink)"
+                              : "var(--text-tertiary)";
                           return (
-                            <div key={row.key} className="grid gap-3 py-3 first:pt-0 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto] sm:items-center">
-                              <div>
-                                <p className="ui-caps-3 text-[var(--text-tertiary)]">{row.label}</p>
-                                <p className="mt-1 font-medium text-[var(--text-primary)]">{row.value}</p>
+                            <Link
+                              key={row.key}
+                              href={isMissing ? "#extracted-fields" : `#${row.key}`}
+                              className={`group/date flex items-center justify-between gap-3 py-2.5 first:pt-0 ${
+                                isMissing ? "transition-colors hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_14%,transparent)]" : ""
+                              }`}
+                            >
+                              <div className="flex min-w-0 items-center gap-2.5">
+                                <span
+                                  aria-hidden
+                                  className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full"
+                                  style={{
+                                    background: toneInk,
+                                    boxShadow: `0 0 0 2.5px color-mix(in oklab, ${toneInk} 24%, transparent)`,
+                                  }}
+                                />
+                                <div className="min-w-0">
+                                  <p className="ui-caps-3 text-[var(--text-tertiary)]">{row.label}</p>
+                                  <p className="mt-1 flex flex-wrap items-center gap-2 text-[13.5px] font-semibold tabular-nums text-[var(--text-primary)]">
+                                    {isMissing ? (
+                                      <span className="font-medium text-[var(--text-tertiary)]">—</span>
+                                    ) : (
+                                      <>
+                                        <span>
+                                          {(() => {
+                                            const parsed = new Date(row.value);
+                                            return Number.isNaN(parsed.getTime())
+                                              ? row.value
+                                              : format(parsed, "MMM d, yyyy");
+                                          })()}
+                                        </span>
+                                        {row.confidence != null ? (
+                                          <KeyValueChip
+                                            label="Source"
+                                            value={`${Math.round(row.confidence * 100)}%`}
+                                          />
+                                        ) : null}
+                                      </>
+                                    )}
+                                  </p>
+                                </div>
                               </div>
-                              <p className="text-[12.5px] text-[var(--text-secondary)]">
-                                {row.confidence == null ? "No model signal" : `${Math.round(row.confidence * 100)}% model signal`}
-                              </p>
-                              <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[tone]}`}>
-                                {row.status === "missing" ? "Missing" : humanizeContractEnumLabel(row.status)}
-                              </span>
-                            </div>
+                              {isMissing ? (
+                                <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/date:opacity-100 focus-visible:opacity-100">
+                                  Add date
+                                  <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
+                                </span>
+                              ) : (
+                                <StatusBadge status={coreSemanticStatus(row.status)}>
+                                  {humanizeContractEnumLabel(row.status)}
+                                </StatusBadge>
+                              )}
+                            </Link>
                           );
                         })}
                       </div>
                     </div>
-                    <div className="border-t border-[var(--border-subtle)] px-5 py-5 sm:px-6 lg:border-l lg:border-t-0">
-                      <p className="ui-caps-2 text-[var(--text-tertiary)]">Scheduled reminders</p>
-                      {upcomingReminders.length === 0 ? (
-                        <p className="mt-3 text-[13px] text-[var(--text-secondary)]">
-                          No upcoming reminders are scheduled.
-                        </p>
-                      ) : (
-                        <ul className="mt-3 space-y-2">
-                          {upcomingReminders.map((reminder: { id: string; reminder_type: string; reminder_date: string }) => (
-                            <li key={reminder.id} className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] py-2 first:border-t-0">
-                              <span className="text-[13px] font-medium text-[var(--text-primary)]">
-                                {humanizeContractEnumLabel(reminder.reminder_type)}
-                              </span>
-                              <span className="text-[12px] text-[var(--text-secondary)]">
-                                {formatBusinessDateAtNoon(reminder.reminder_date)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      <div className="mt-5 border-t border-[var(--border-subtle)] pt-5">
-                        <RenewalCheckpointsPanel checkpoints={checkpoints} canEdit={canEdit} />
+                    {(upcomingReminders.length > 0 || checkpoints.length > 0) ? (
+                      <div className="border-t border-[var(--border-subtle)] px-5 py-3 sm:px-6">
+                        {upcomingReminders.length > 0 ? (
+                          <>
+                            <div className="flex items-center gap-1.5">
+                              <Bell className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+                              <p className="ui-caps-3 text-[var(--text-tertiary)]">Scheduled reminders</p>
+                            </div>
+                            <ul className="mt-2 space-y-1">
+                              {upcomingReminders.map((reminder: { id: string; reminder_type: string; reminder_date: string }) => (
+                                <li key={reminder.id} className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] py-2 first:border-t-0 first:pt-0">
+                                  <span className="inline-flex">
+                                    <ChipPair primary={humanizeContractEnumLabel(reminder.reminder_type)} />
+                                  </span>
+                                  <TimeChip date={reminder.reminder_date} format="calendar" />
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        ) : null}
+                        {checkpoints.length > 0 ? (
+                          <div className={upcomingReminders.length > 0 ? "mt-4 border-t border-[var(--border-subtle)] pt-4" : ""}>
+                            <div className="flex items-center gap-1.5">
+                              <ListChecks className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+                              <p className="ui-caps-3 text-[var(--text-tertiary)]">Renewal tasks</p>
+                              <CountChip value={checkpoints.length} />
+                            </div>
+                            <div className="mt-2">
+                              <RenewalCheckpointsPanel checkpoints={checkpoints} canEdit={canEdit} compact />
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
-                    </div>
-                  </div>
+                    ) : null}
+                  </>
                 )}
               </section>
             )}
 
-            {(activeTab === "overview" || activeTab === "files") && !shouldPrioritizeSourceDocuments
+            {activeTab === "files" || (activeTab === "overview" && hasSourceFiles)
               ? renderCoreSourceDocumentsSection()
               : null}
 
             {activeTab === "work" ? (
-              <section id="contract-work" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-work" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={ListChecks}
                   eyebrow="Work"
@@ -1928,7 +2227,7 @@ export default async function ContractDetailPage(props: {
             ) : null}
 
             {activeTab === "approvals" ? (
-              <section id="renewal-approvals" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="renewal-approvals" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={BadgeCheck}
                   eyebrow="Approvals"
@@ -1973,7 +2272,7 @@ export default async function ContractDetailPage(props: {
             ) : null}
 
             {activeTab === "obligations" ? (
-              <section id="contract-obligations" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-obligations" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={ListChecks}
                   eyebrow="Obligations"
@@ -2013,32 +2312,29 @@ export default async function ContractDetailPage(props: {
             ) : null}
 
             {(activeTab === "overview" || activeTab === "evidence") && (activeEvidenceCount > 0 || evidenceRequirements.length > 0 || activeTab === "evidence") ? (
-              <section id="contract-evidence" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-evidence" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader
                   icon={FileCheck2}
                   eyebrow="Evidence"
-                  title="Evidence requests"
-                  count={activeEvidenceCount}
-                  countLabel="active"
+                  title="Pending requests"
                   action={
                     <Link href={`/contracts/evidence-studio?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
                       Request evidence
                     </Link>
                   }
                 />
-                <div className="px-5 py-5 sm:px-6">
+                <div className="px-5 py-1 sm:px-6">
                   {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).length === 0 ? (
-                    <p className="text-[13px] text-[var(--text-secondary)]">No active evidence request needs follow-up.</p>
+                    <p className="py-2 text-[11.5px] text-[var(--text-tertiary)]">No active evidence request needs follow-up.</p>
                   ) : (
                     <ul className="divide-y divide-[var(--border-subtle)]">
-                      {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).slice(0, 6).map((item) => (
-                        <li key={item.id} className="flex items-center justify-between gap-3 py-3">
-                          <span className="font-medium text-[var(--text-primary)]">{item.title}</span>
-                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(item.status)]}`}>
-                            {humanizeContractEnumLabel(item.status)}
-                          </span>
-                        </li>
-                      ))}
+                      {evidenceRequirements.filter((item) => isEvidenceGapStatus(item.status)).slice(0, 6).map((item) => {
+                        return (
+                          <li key={item.id} className="py-2 first:pt-0 last:pb-0 text-[12.5px] font-medium text-[var(--text-primary)]">
+                            {item.title}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
@@ -2046,7 +2342,7 @@ export default async function ContractDetailPage(props: {
             ) : null}
 
             {activeTab === "notes" ? (
-              <section id="contract-notes" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-notes" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader icon={NotebookPen} eyebrow="Notes" title="Notes and handoff context" count={notes.length} countLabel="notes" />
                 <div className="px-5 py-5 sm:px-6">
                   <ContractNotesPanel
@@ -2061,7 +2357,7 @@ export default async function ContractDetailPage(props: {
             ) : null}
 
             {activeTab === "activity" ? (
-              <section id="contract-activity" className="ui-card scroll-mt-28 overflow-hidden">
+              <section id="contract-activity" className="ui-card-quiet scroll-mt-28 overflow-hidden">
                 <CorePanelHeader icon={FileText} eyebrow="Activity" title="Contract activity" count={coreActivityRows.length} countLabel="events" />
                 <div className="px-5 py-5 sm:px-6">
                   {coreActivityRows.length === 0 ? (
@@ -2069,14 +2365,14 @@ export default async function ContractDetailPage(props: {
                   ) : (
                     <ul className="divide-y divide-[var(--border-subtle)]">
                       {coreActivityRows.map((event) => (
-                        <li key={event.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="font-medium text-[var(--text-primary)]">{event.title}</p>
+                        <li key={event.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[var(--text-primary)]">{event.title}</p>
                             <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">{event.detail}</p>
                           </div>
-                          <span className="text-[12px] text-[var(--text-tertiary)]">
-                            {event.occurredAt ? format(new Date(event.occurredAt), "MMM d, yyyy h:mm a") : "Recorded"}
-                          </span>
+                          {event.occurredAt ? (
+                            <TimeChip date={event.occurredAt} format="readable" className="shrink-0 sm:mt-0.5" />
+                          ) : null}
                         </li>
                       ))}
                     </ul>
@@ -2084,40 +2380,57 @@ export default async function ContractDetailPage(props: {
                 </div>
               </section>
             ) : null}
+
+            {activeTab === "overview" && coreActivityRows.length > 0 ? (
+              <section id="contract-recent-activity" className="ui-card-quiet scroll-mt-28 overflow-hidden">
+                <CorePanelHeader
+                  icon={FileText}
+                  eyebrow="Activity"
+                  title="Recent activity"
+                  action={
+                    <Link
+                      href={`/contracts/${contract.id}?tab=activity`}
+                      className="ui-btn-secondary px-4 py-2 text-[13px]"
+                    >
+                      View all
+                    </Link>
+                  }
+                />
+                <div className="px-5 py-2 sm:px-6">
+                  <ul className="divide-y divide-[var(--border-subtle)]">
+                    {coreActivityRows.slice(0, 5).map((event) => (
+                      <li key={event.id} className="flex items-start justify-between gap-3 py-2.5 first:pt-0">
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold leading-snug text-[var(--text-primary)]">
+                            {event.title}
+                          </p>
+                          {event.detail ? (
+                            <p className="mt-0.5 text-[12.5px] text-[var(--text-secondary)]">{event.detail}</p>
+                          ) : null}
+                        </div>
+                        {event.occurredAt ? (
+                          <TimeChip date={event.occurredAt} format="relative" className="mt-0.5 shrink-0" />
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            ) : null}
           </main>
 
           <aside className="space-y-5 xl:sticky xl:top-24">
-            <section id="ownership-record" className="ui-card scroll-mt-28 overflow-hidden">
+            <section id="ownership-record" className="ui-card-quiet scroll-mt-28 overflow-hidden">
               <CorePanelHeader icon={UserRound} eyebrow="Record" title="Owner and status" />
-              <div className="space-y-4 px-5 py-5">
-                <dl className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Status</dt>
-                    <dd className="font-medium text-[var(--text-primary)]">
-                      {STATUS_LABELS[contract.status as keyof typeof STATUS_LABELS] ?? humanizeContractEnumLabel(contract.status)}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Owner</dt>
-                    <dd className="font-medium text-[var(--text-primary)]">{ownerLabel ?? "Unassigned"}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Counterparty</dt>
-                    <dd className="text-right font-medium text-[var(--text-primary)]">
-                      {contract.counterparty || "Missing"}
-                    </dd>
-                  </div>
+              <div className="space-y-3 px-5 py-4">
+                <dl className="space-y-2 text-[12.5px]">
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-[var(--text-tertiary)]">Type</dt>
                     <dd className="text-[var(--text-primary)]">{contract.contract_type || "Not set"}</dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Created</dt>
-                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.created_at), "MMM d, yyyy")}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
                     <dt className="text-[var(--text-tertiary)]">Updated</dt>
-                    <dd className="text-[var(--text-primary)]">{format(new Date(contract.updated_at), "MMM d, yyyy")}</dd>
+                    <dd className="tabular-nums text-[var(--text-primary)]">{format(new Date(contract.updated_at), "MMM d, yyyy")}</dd>
                   </div>
                 </dl>
                 {showContractOwnerAssignment ? (
@@ -2134,12 +2447,16 @@ export default async function ContractDetailPage(props: {
                   <ContractStatusTransition contractId={contract.id} currentStatus={contract.status} canEdit={canEdit} />
                 </div>
                 {canDelete ? (
-                  <details className="group border-t border-[var(--border-subtle)] pt-4">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[12.5px] font-semibold text-[var(--text-secondary)] marker:hidden [&::-webkit-details-marker]:hidden">
-                      Record controls
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" strokeWidth={1.85} aria-hidden />
+                  <details className="group/remove border-t border-[var(--border-subtle)] pt-4">
+                    <summary className="flex cursor-pointer items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] [&::-webkit-details-marker]:hidden">
+                      <ChevronRight
+                        className="h-3 w-3 transition-transform group-open/remove:rotate-90"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                      Remove this record
                     </summary>
-                    <div className="pt-3">
+                    <div className="mt-3">
                       <DeleteContractButton
                         contractId={contract.id}
                         contractTitle={contract.title}
@@ -2151,53 +2468,146 @@ export default async function ContractDetailPage(props: {
               </div>
             </section>
 
-            <section className="ui-card overflow-hidden">
-              <CorePanelHeader icon={ListChecks} eyebrow="Attention" title="Open blockers" count={coreAttentionItems.length} countLabel="items" />
-              <div className="px-5 py-5">
+            <section>
+              <div className="flex items-center gap-1.5 px-1">
+                <ListChecks className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+                <p className="ui-caps-3 text-[var(--text-tertiary)]">Needs attention</p>
+                {needsAttentionCount > 0 ? (
+                  <CountChip value={needsAttentionCount} />
+                ) : null}
+              </div>
+              <div className="mt-2 border-t border-[var(--border-subtle)]">
                 {coreAttentionItems.length === 0 ? (
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--success)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]">
-                      <CheckCircle2 className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+                  <div className="flex items-center gap-2 py-3">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-md border"
+                      style={{
+                        borderColor: "color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle))",
+                        background: "color-mix(in oklab, var(--success-ink) 12%, var(--surface-raised))",
+                        color: "var(--success-ink)",
+                      }}
+                    >
+                      <Check className="h-3 w-3" strokeWidth={2.2} />
                     </span>
-                    <p className="text-[13px] font-medium text-[var(--text-primary)]">No immediate review needed.</p>
+                    <p className="text-[12.5px] font-medium text-[color:color-mix(in_oklab,var(--success-ink)_55%,var(--text-secondary))]">
+                      All clear
+                    </p>
                   </div>
                 ) : (
-                  <ul className="space-y-3">
-                    {coreAttentionItems.map((item) => (
-                      <li
-                        key={item}
-                        className="border-t border-[var(--border-subtle)] pt-3 first:border-t-0 first:pt-0"
-                      >
-                        <p className="text-[13px] font-medium leading-snug text-[var(--text-primary)]">
-                          {item}
-                        </p>
-                      </li>
-                    ))}
+                  <ul className="space-y-1.5 py-1.5">
+                    {coreAttentionItems.map((item) => {
+                      const isDanger = item.key === "issues" || item.key === "approvals";
+                      const toneInkVar = isDanger ? "var(--danger-ink)" : "var(--warning-ink)";
+                      const toneSoftVar = isDanger ? "var(--danger-soft)" : "var(--warning-soft)";
+                      const toneBorder = `color-mix(in oklab, ${toneInkVar} 28%, var(--border-card))`;
+                      const toneHairline = `color-mix(in oklab, ${toneInkVar} 55%, transparent)`;
+                      const leftBg = `color-mix(in oklab, ${toneSoftVar} 18%, var(--surface-raised))`;
+                      const rightBg = `color-mix(in oklab, ${toneSoftVar} 32%, var(--surface-raised))`;
+                      return (
+                        <li key={item.key} className="flex justify-between gap-2">
+                          <Link
+                            href={item.href}
+                            aria-label={item.label}
+                            className="group/blocker ui-chip-focus inline-flex h-[22px] max-w-max items-stretch overflow-hidden rounded-md border text-[10px] font-semibold uppercase tracking-[0.12em] leading-none transition-colors"
+                            style={{ borderColor: toneBorder, color: toneInkVar }}
+                          >
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5"
+                              style={{ background: leftBg }}
+                            >
+                              <span className="tabular-nums">{item.count}</span>
+                              <span>{item.kind}</span>
+                            </span>
+                            <span aria-hidden className="w-px" style={{ background: toneHairline }} />
+                            <span
+                              className="inline-flex items-center gap-0.5 px-1.5 transition-colors group-hover/blocker:brightness-95"
+                              style={{ background: rightBg }}
+                            >
+                              {item.verb}
+                              <ChevronRight
+                                className="h-2.5 w-2.5 transition-transform group-hover/blocker:translate-x-0.5"
+                                strokeWidth={2}
+                                aria-hidden
+                              />
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
             </section>
 
-            {v10WorkItems.length > 0 ? (
-              <section className="ui-card overflow-hidden">
-                <CorePanelHeader icon={ListChecks} eyebrow="Work" title="Linked work" count={v10WorkItems.length} countLabel="items" />
-                <div className="px-5 py-5">
-                  <ul className="space-y-3">
-                    {v10WorkItems.slice(0, 5).map((item) => (
-                      <li key={`${item.type}:${item.source_id}`} className="border-t border-[var(--border-subtle)] pt-3 first:border-t-0 first:pt-0">
-                        <p className="text-[13px] font-semibold leading-snug text-[var(--text-primary)]">{item.title}</p>
-                        <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-                          {humanizeContractEnumLabel(String(item.type))} — {humanizeContractEnumLabel(String(item.status))}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/work" className="ui-link mt-4 inline-flex text-[12.5px]">
-                    Open work
+            {(() => {
+              // Evidence-typed work items live in the Evidence card (§10.4) —
+              // exclude them here so the sidebar Linked Work list doesn't
+              // double-render the same row.
+              const sidebarLinkedWork = v10WorkItems.filter(
+                (item) => !String(item.type ?? "").toLowerCase().includes("evidence")
+              );
+              if (sidebarLinkedWork.length === 0) return null;
+              return (
+              <section className="group/section">
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <div className="flex items-baseline gap-1.5">
+                    <p className="ui-caps-3 text-[var(--text-tertiary)]">Linked work</p>
+                    <CountChip value={sidebarLinkedWork.length} />
+                  </div>
+                  <Link
+                    href="/work"
+                    className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/section:opacity-100 focus-visible:opacity-100"
+                  >
+                    Open all
+                    <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
                   </Link>
                 </div>
+                <div className="mt-1.5 border-t border-[var(--border-subtle)]">
+                  <ul className="divide-y divide-[var(--border-subtle)]">
+                    {sidebarLinkedWork.slice(0, 5).map((item) => {
+                      const statusRaw = String(item.status).toLowerCase();
+                      // BLOCKED outranks OPEN in the linked-work tone
+                      // hierarchy. Blocked rows render warning (amber) so
+                      // they pull the eye first; bare "open" / "in_progress"
+                      // rows render neutral since they're just in flight.
+                      const chipTone =
+                        statusRaw === "blocked" || statusRaw === "failed" || statusRaw === "rejected"
+                          ? ("warning" as const)
+                          : statusRaw === "completed" || statusRaw === "approved"
+                            ? ("success" as const)
+                            : undefined;
+                      return (
+                        <li key={`${item.type}:${item.source_id}`}>
+                          <Link
+                            href="/work"
+                            className="group/work flex items-start justify-between gap-2 py-2 transition-colors"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate text-[12px] font-medium leading-snug text-[var(--text-primary)] group-hover/work:text-[var(--accent-strong)]">
+                                {item.title}
+                              </p>
+                              <span className="mt-1 inline-flex">
+                                <ChipPair
+                                  primary={humanizeContractEnumLabel(String(item.type))}
+                                  secondary={humanizeContractEnumLabel(String(item.status))}
+                                  tone={chipTone}
+                                />
+                              </span>
+                            </div>
+                            <span className="inline-flex shrink-0 items-center gap-0.5 self-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/work:opacity-100 focus-visible:opacity-100">
+                              Open
+                              <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </section>
-            ) : null}
+              );
+            })()}
           </aside>
         </div>
       </div>
@@ -3097,8 +3507,8 @@ export default async function ContractDetailPage(props: {
                 ) : (
                   <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                     {coreAttentionItems.map((item) => (
-                      <li key={item} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
-                        {item}
+                      <li key={item.key} className="rounded-lg border border-[var(--border-subtle)] px-3 py-2">
+                        {item.label}
                       </li>
                     ))}
                   </ul>

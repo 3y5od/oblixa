@@ -3,11 +3,30 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { ChevronDown } from "lucide-react";
+import type { ReactNode } from "react";
+import {
+  CalendarClock,
+  Check,
+  ChevronDown,
+  ChevronsUp,
+  MessageSquare,
+  Paperclip,
+  UserCog,
+} from "lucide-react";
 import { completeWorkItem } from "@/actions/tasks";
 import { updateContractObligation } from "@/actions/obligations";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
-import type { WorkActionCapability, WorkItemRow } from "@/lib/work/types";
+import type { WorkActionCapability, WorkActionKey, WorkItemRow } from "@/lib/work/types";
+
+const MENU_ICONS: Partial<Record<WorkActionKey, ReactNode>> = {
+  reassign: <UserCog className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />,
+  change_due_date: (
+    <CalendarClock className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
+  ),
+  comment: <MessageSquare className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />,
+  link_evidence: <Paperclip className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />,
+  escalate: <ChevronsUp className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />,
+};
 
 export function WorkReleaseActions({
   row,
@@ -49,9 +68,12 @@ export function WorkReleaseActions({
   }
 
   const primaryAction = pickPrimaryAction(row.actions);
+  // The primary control already carries the primary action; the overflow
+  // menu only needs the remaining workflow verbs so it isn't redundant.
+  const menuActions = row.actions.filter((action) => action.key !== primaryAction?.key);
 
   return (
-    <div className="flex min-w-0 flex-col items-start gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-1.5">
       {primaryAction ? (
         <ActionControl
           action={primaryAction}
@@ -61,30 +83,32 @@ export function WorkReleaseActions({
           variant="primary"
         />
       ) : null}
-      <details className="group relative min-w-0">
-        <summary className="ui-btn-ghost inline-flex cursor-pointer list-none items-center gap-1 px-2.5 py-1 text-[11.5px] [&::-webkit-details-marker]:hidden">
-          Actions
-          <ChevronDown
-            className="h-3 w-3 transition-transform group-open:rotate-180"
-            strokeWidth={1.85}
-            aria-hidden
-          />
-        </summary>
-        <div className="absolute right-0 top-full z-20 mt-1.5 grid min-w-[11rem] gap-1 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
-          {row.actions.map((action) => (
-            <ActionControl
-              key={action.key}
-              action={action}
-              rowHref={row.href}
-              disabled={isPending}
-              onMutate={runMutation}
-              variant="menu"
+      {menuActions.length > 0 ? (
+        <details className="group relative">
+          <summary className="ui-btn-secondary inline-flex cursor-pointer list-none items-center gap-1 px-3 py-1.5 text-[11.5px] [&::-webkit-details-marker]:hidden">
+            Actions
+            <ChevronDown
+              className="h-3 w-3 opacity-70 transition-transform group-open:rotate-180"
+              strokeWidth={1.85}
+              aria-hidden
             />
-          ))}
-        </div>
-      </details>
+          </summary>
+          <div className="absolute right-0 top-full z-20 mt-1.5 grid min-w-[12rem] gap-0.5 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
+            {menuActions.map((action) => (
+              <ActionControl
+                key={action.key}
+                action={action}
+                rowHref={row.href}
+                disabled={isPending}
+                onMutate={runMutation}
+                variant="menu"
+              />
+            ))}
+          </div>
+        </details>
+      ) : null}
       {message ? (
-        <span className="basis-full text-[11.5px] text-[var(--danger-ink)]" role="status">
+        <span className="basis-full text-right text-[11.5px] text-[var(--danger-ink)]" role="status">
           {message}
         </span>
       ) : null}
@@ -116,17 +140,20 @@ function ActionControl({
 }) {
   const className =
     variant === "primary"
-      ? "ui-btn-secondary px-3 py-1.5 text-[11.5px] disabled:opacity-60"
-      : "rounded-[0.45rem] px-2.5 py-1.5 text-left text-[11.5px] font-medium text-[var(--text-secondary)] transition hover:bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] hover:text-[var(--text-primary)] disabled:opacity-60";
+      ? "ui-btn-secondary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11.5px] disabled:opacity-60"
+      : "flex items-center gap-2 rounded-[0.45rem] px-2.5 py-1.5 text-left text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_10%,transparent)] hover:text-[var(--text-primary)] disabled:opacity-60";
+
+  const icon =
+    variant === "primary"
+      ? action.kind === "mutation"
+        ? <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
+        : null
+      : MENU_ICONS[action.key] ?? null;
 
   if (action.kind === "mutation") {
     return (
-      <button
-        type="button"
-        className={className}
-        disabled={disabled}
-        onClick={() => onMutate(action)}
-      >
+      <button type="button" className={className} disabled={disabled} onClick={() => onMutate(action)}>
+        {icon}
         {action.label}
       </button>
     );
@@ -134,6 +161,7 @@ function ActionControl({
 
   return (
     <Link href={action.href ?? rowHref} className={className}>
+      {icon}
       {action.label}
     </Link>
   );

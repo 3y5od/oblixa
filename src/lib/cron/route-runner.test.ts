@@ -23,6 +23,7 @@ function deferred<T>() {
 
 describe("runCronRoute", () => {
   const originalCronSecret = process.env.CRON_SECRET;
+  const originalKillCronFamily = process.env.OBLIXA_KILL_CRON_FAMILY;
   const originalUpstashUrl = process.env.UPSTASH_REDIS_REST_URL;
   const originalUpstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   const testRateLimit = RATE_LIMITS.v6CronDefault;
@@ -30,6 +31,7 @@ describe("runCronRoute", () => {
   beforeEach(() => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.OBLIXA_KILL_CRON_FAMILY;
     __clearCronSingleFlightMemoryLocksForTests();
     pingCronHealthcheck.mockReset();
   });
@@ -41,6 +43,8 @@ describe("runCronRoute", () => {
     else process.env.UPSTASH_REDIS_REST_URL = originalUpstashUrl;
     if (originalUpstashToken === undefined) delete process.env.UPSTASH_REDIS_REST_TOKEN;
     else process.env.UPSTASH_REDIS_REST_TOKEN = originalUpstashToken;
+    if (originalKillCronFamily === undefined) delete process.env.OBLIXA_KILL_CRON_FAMILY;
+    else process.env.OBLIXA_KILL_CRON_FAMILY = originalKillCronFamily;
     __clearCronSingleFlightMemoryLocksForTests();
   });
 
@@ -75,7 +79,18 @@ describe("runCronRoute", () => {
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body).toMatchObject({ ok: true, route: "/api/cron/test", processed: 1 });
+    expect(body).toMatchObject({
+      ok: true,
+      route: "/api/cron/test",
+      processed: 1,
+      processed_count: 1,
+      skipped_count: 0,
+      failed_count: 0,
+      retry_count: 0,
+      errors_count: 0,
+    });
+    expect(body.job_id).toMatch(/^api-cron-test:\d+$/);
+    expect(Date.parse(body.started_at)).not.toBeNaN();
     expect(typeof body.durationMs).toBe("number");
   });
 
@@ -97,7 +112,13 @@ describe("runCronRoute", () => {
 
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body).toMatchObject({ ok: false, code: "unhandled_cron_error", diagnostic_id: "cron_unhandled_error" });
+    expect(body).toMatchObject({
+      ok: false,
+      code: "unhandled_cron_error",
+      diagnostic_id: "cron_unhandled_error",
+      failed_count: 1,
+      errors_count: 1,
+    });
     expect(body.error_class).toBe("TypeError");
   });
 
@@ -245,6 +266,41 @@ describe("runCronRoute", () => {
         reason: "skipped",
         skipped: true,
         skip_reason: "disabled",
+      })
+    );
+  });
+
+  it("fails closed when cron family kill switch is active after cron auth", async () => {
+    process.env.CRON_SECRET = "secret";
+    process.env.OBLIXA_KILL_CRON_FAMILY = "1";
+    const handler = vi.fn(async () => ({ processed: 1 }));
+
+    const res = await runCronRoute(
+      new Request("https://example.test/api/cron/test", { headers: { Authorization: "Bearer secret" } }),
+      {
+        route: "/api/cron/test",
+        rateLimitKey: `test:cron-kill:${Date.now()}`,
+        rateLimit: testRateLimit,
+        adminFactory: async () => ({}) as never,
+        handler,
+      }
+    );
+
+    expect(res.status).toBe(503);
+    await expect(res.json()).resolves.toMatchObject({
+      ok: false,
+      code: "service_temporarily_unavailable",
+      diagnostic_id: "kill_switch_active",
+      details: { subsystem: "cron_family" },
+      failed_count: 1,
+    });
+    expect(handler).not.toHaveBeenCalled();
+    expect(pingCronHealthcheck).toHaveBeenCalledWith(
+      "/api/cron/test",
+      expect.objectContaining({
+        ok: false,
+        status: 503,
+        reason: "kill_switch_active",
       })
     );
   });

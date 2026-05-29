@@ -213,7 +213,7 @@ function landingPath(a: CalibrationAnswersRequired, opt?: CalibrationAnswersOpti
     case "organize_work_renewals":
       return "/work";
     case "configure_workflows_advanced":
-      return "/settings/product";
+      return "/settings/operations";
     default:
       return "/dashboard";
   }

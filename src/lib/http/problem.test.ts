@@ -13,6 +13,7 @@ import {
   jsonServiceUnavailable,
   jsonUnauthorized,
   jsonUnhandled,
+  jsonUnprocessableEntity,
   jsonUnsupportedMediaType,
 } from "./problem";
 
@@ -52,6 +53,7 @@ describe("http problem helpers", () => {
       jsonConflict("/api/example"),
       jsonPayloadTooLarge("/api/example"),
       jsonUnsupportedMediaType("/api/example"),
+      jsonUnprocessableEntity("/api/example"),
       jsonRateLimited(1000, "/api/example"),
       jsonUnhandled("/api/example"),
       jsonBadGateway("/api/example"),

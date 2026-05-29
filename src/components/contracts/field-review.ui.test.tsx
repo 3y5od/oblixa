@@ -90,7 +90,7 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     );
     expect(screen.queryByRole("table")).toBeNull();
     expect(screen.getByText(/extracted suggestion/i).className).toContain("leading-snug");
-    expect(screen.getByText(/This Agreement renews/i).closest("blockquote")?.className).toContain("overflow-y-auto");
+    expect(screen.getByText(/This Agreement renews/i).className).toContain("overflow-y-auto");
   });
 
   it("keeps row state in sync when refreshed field props change", () => {

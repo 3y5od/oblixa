@@ -27,6 +27,11 @@ describe("escapeCsvCellForSpreadsheet (V9 §19 / Appendix AP)", () => {
     expect(escapeCsvCellForSpreadsheet(`a"b,c`)).toBe(`"a""b,c"`);
   });
 
+  it("quotes delimiter and newline injection payloads without losing formula neutralization", () => {
+    expect(escapeCsvCellForSpreadsheet("name\r\nX-Bad: yes")).toBe(`"name\r\nX-Bad: yes"`);
+    expect(escapeCsvCellForSpreadsheet("=cmd,still one cell")).toBe(`"'=cmd,still one cell"`);
+  });
+
   it("passes through benign text", () => {
     expect(escapeCsvCellForSpreadsheet("Vendor LLC")).toBe("Vendor LLC");
     expect(escapeCsvCellForSpreadsheet(null)).toBe("");

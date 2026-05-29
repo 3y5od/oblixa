@@ -1,0 +1,2496 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-governance-ownership",
+  "generatedFrom": "config/operational-governance-ownership.json",
+  "generatedArtifact": "artifacts/operational-governance-ownership.json",
+  "ownerAreaCount": 11,
+  "requiredOwnerAreaCount": 11,
+  "ownerAreas": [
+    {
+      "id": "release",
+      "label": "Release Engineering",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "release-engineering"
+      ],
+      "routeOwners": [
+        "release"
+      ],
+      "validationCommands": [
+        "check:operational-release-readiness",
+        "pipeline:release:checklist"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "platform-security",
+        "frontend-security",
+        "supply-chain-security"
+      ],
+      "routeOwners": [
+        "security"
+      ],
+      "validationCommands": [
+        "check:codeowners-security-paths",
+        "check:operational-supply-chain-risk"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data Platform",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "data-platform",
+        "product-data"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:operational-supabase-database",
+        "check:operational-data-quality-invariants"
+      ]
+    },
+    {
+      "id": "auth",
+      "label": "Auth Security",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "auth-security"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:operational-authz-session",
+        "check:auth-callback-guardrails"
+      ]
+    },
+    {
+      "id": "billing",
+      "label": "Billing",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "billing"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:operational-billing-entitlements",
+        "check:webhook-inbound-policy"
+      ]
+    },
+    {
+      "id": "providers",
+      "label": "Provider Integrations",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "integrations",
+        "notifications"
+      ],
+      "routeOwners": [
+        "integrations"
+      ],
+      "validationCommands": [
+        "check:operational-provider-integrations",
+        "check:provider-integration-fixtures"
+      ]
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend Platform",
+      "codeowners": [
+        "@YOUR_ORG/backend",
+        "@YOUR_ORG/frontend-qa"
+      ],
+      "coveredOwnerAreas": [
+        "frontend-platform",
+        "document-pipeline",
+        "product-marketing",
+        "product-operations"
+      ],
+      "routeOwners": [
+        "assurance"
+      ],
+      "validationCommands": [
+        "check:operational-frontend-resilience",
+        "check:operational-platform-variant-coverage"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure And Platform",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "api-platform",
+        "architecture",
+        "compatibility",
+        "edge-operations",
+        "observability",
+        "performance-runtime",
+        "platform-governance",
+        "platform-hardening",
+        "platform-runtime",
+        "test-platform"
+      ],
+      "routeOwners": [
+        "engineering",
+        "operations"
+      ],
+      "validationCommands": [
+        "check:operational-package-pipelines",
+        "check:hardening-ci-wiring"
+      ]
+    },
+    {
+      "id": "privacy",
+      "label": "Privacy And Trust",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "privacy-security",
+        "trust-compliance"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:operational-privacy-auditability",
+        "check:operational-legal-trust-compliance"
+      ]
+    },
+    {
+      "id": "support",
+      "label": "Support Operations",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "support-operations"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:operational-support-operations"
+      ]
+    },
+    {
+      "id": "incident",
+      "label": "Incident Response",
+      "codeowners": [
+        "@YOUR_ORG/backend"
+      ],
+      "coveredOwnerAreas": [
+        "incident-response"
+      ],
+      "routeOwners": [],
+      "validationCommands": [
+        "check:incident-readiness:strict",
+        "check:operational-waivers-ratchets"
+      ]
+    }
+  ],
+  "objectiveOwnerCoverage": {
+    "objectiveCount": 44,
+    "coveredObjectiveCount": 44,
+    "ownerAreaCount": 28,
+    "rows": [
+      {
+        "id": "oph-001-operational-control-registry",
+        "section": "1. Operational Control Registry",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-hardening-objectives"
+      },
+      {
+        "id": "oph-002-operational-closure-manifest",
+        "section": "1. Operational Control Registry",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-hardening-objectives"
+      },
+      {
+        "id": "oph-003-operational-readiness-score",
+        "section": "1. Operational Control Registry",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-hardening-objectives"
+      },
+      {
+        "id": "oph-004-package-script-discovery",
+        "section": "1. Operational Control Registry",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-hardening-objectives"
+      },
+      {
+        "id": "oph-005-release-readiness",
+        "section": "2. Release Readiness",
+        "ownerArea": "release-engineering",
+        "canonicalOwnerArea": "release",
+        "status": "implemented",
+        "validationCommand": "check:operational-release-readiness"
+      },
+      {
+        "id": "oph-006-ci-workflow-enforcement",
+        "section": "3. CI And Workflow Enforcement",
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:operational-ci-enforcement"
+      },
+      {
+        "id": "oph-007-package-pipeline-governance",
+        "section": "4. Package Scripts And Local Pipelines",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-package-pipelines"
+      },
+      {
+        "id": "oph-008-supabase-database-operations",
+        "section": "5. Supabase And Database Operations",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "status": "implemented",
+        "validationCommand": "check:operational-supabase-database"
+      },
+      {
+        "id": "oph-009-cron-jobs-scheduled-work",
+        "section": "6. Cron, Jobs, And Scheduled Work",
+        "ownerArea": "platform-runtime",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-cron-jobs"
+      },
+      {
+        "id": "oph-010-webhooks-callbacks",
+        "section": "7. Webhooks And External Callbacks",
+        "ownerArea": "integrations",
+        "canonicalOwnerArea": "providers",
+        "status": "implemented",
+        "validationCommand": "check:operational-webhooks-callbacks"
+      },
+      {
+        "id": "oph-011-secrets-configuration",
+        "section": "8. Secrets And Configuration Safety",
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:operational-secrets-configuration"
+      },
+      {
+        "id": "oph-012-authz-session-operations",
+        "section": "9. Auth, Authorization, And Session Operations",
+        "ownerArea": "auth-security",
+        "canonicalOwnerArea": "auth",
+        "status": "implemented",
+        "validationCommand": "check:operational-authz-session"
+      },
+      {
+        "id": "oph-013-api-runtime-contracts",
+        "section": "10. API Runtime Contracts",
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-api-runtime-contracts"
+      },
+      {
+        "id": "oph-014-rate-limits-abuse-bounds",
+        "section": "11. Rate Limits, Abuse Controls, And Resource Bounds",
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:operational-rate-limits-abuse-bounds"
+      },
+      {
+        "id": "oph-015-observability-redaction",
+        "section": "12. Observability And Redaction",
+        "ownerArea": "observability",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-observability-redaction"
+      },
+      {
+        "id": "oph-016-browser-security",
+        "section": "13. Security Headers And Browser Isolation",
+        "ownerArea": "frontend-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:operational-browser-security"
+      },
+      {
+        "id": "oph-017-uploads-files-extraction",
+        "section": "14. Uploads, Files, And Extraction",
+        "ownerArea": "document-pipeline",
+        "canonicalOwnerArea": "frontend",
+        "status": "implemented",
+        "validationCommand": "check:operational-uploads-files-extraction"
+      },
+      {
+        "id": "oph-018-provider-integrations",
+        "section": "15. Provider Integrations",
+        "ownerArea": "integrations",
+        "canonicalOwnerArea": "providers",
+        "status": "implemented",
+        "validationCommand": "check:operational-provider-integrations"
+      },
+      {
+        "id": "oph-019-privacy-auditability",
+        "section": "16. Data Lifecycle, Privacy, And Auditability",
+        "ownerArea": "privacy-security",
+        "canonicalOwnerArea": "privacy",
+        "status": "implemented",
+        "validationCommand": "check:operational-privacy-auditability"
+      },
+      {
+        "id": "oph-020-supply-chain",
+        "section": "17. Supply Chain And Dependency Risk",
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:operational-supply-chain-risk"
+      },
+      {
+        "id": "oph-021-frontend-resilience",
+        "section": "18. Frontend Operational Resilience",
+        "ownerArea": "frontend-platform",
+        "canonicalOwnerArea": "frontend",
+        "status": "implemented",
+        "validationCommand": "check:operational-frontend-resilience"
+      },
+      {
+        "id": "oph-022-performance-load-chaos",
+        "section": "19. Performance, Load, And Chaos",
+        "ownerArea": "performance-runtime",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-performance-load-chaos"
+      },
+      {
+        "id": "oph-023-dr-incident-readiness",
+        "section": "20. Disaster Recovery And Incident Readiness",
+        "ownerArea": "incident-response",
+        "canonicalOwnerArea": "incident",
+        "status": "implemented",
+        "validationCommand": "check:incident-readiness:strict"
+      },
+      {
+        "id": "oph-024-waivers-ratchets",
+        "section": "21. Waivers, Exceptions, And Risk Ratchets",
+        "ownerArea": "platform-governance",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-waivers-ratchets"
+      },
+      {
+        "id": "oph-025-feature-flags",
+        "section": "22. Feature Flags, Kill Switches, And Configuration Rollout",
+        "ownerArea": "platform-runtime",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-feature-flags-rollout"
+      },
+      {
+        "id": "oph-026-schema-contract-compatibility",
+        "section": "23. Schema Evolution And Contract Compatibility",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-schema-compatibility"
+      },
+      {
+        "id": "oph-027-data-quality-invariants",
+        "section": "24. Data Quality, Invariants, And Business Rule Safety",
+        "ownerArea": "product-data",
+        "canonicalOwnerArea": "data",
+        "status": "implemented",
+        "validationCommand": "check:operational-data-quality-invariants"
+      },
+      {
+        "id": "oph-028-admin-support",
+        "section": "25. Admin, Support, And Internal Operations",
+        "ownerArea": "support-operations",
+        "canonicalOwnerArea": "support",
+        "status": "implemented",
+        "validationCommand": "check:operational-support-operations"
+      },
+      {
+        "id": "oph-029-dns-tls-edge",
+        "section": "26. DNS, TLS, Email Authentication, And Public Edge Readiness",
+        "ownerArea": "edge-operations",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-edge-readiness"
+      },
+      {
+        "id": "oph-030-legal-trust-compliance",
+        "section": "27. Legal, Trust, And Compliance Artifacts",
+        "ownerArea": "trust-compliance",
+        "canonicalOwnerArea": "privacy",
+        "status": "implemented",
+        "validationCommand": "check:operational-legal-trust-compliance"
+      },
+      {
+        "id": "oph-031-static-architecture-code-health",
+        "section": "28. Static Architecture And Code Health",
+        "ownerArea": "architecture",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-static-architecture-code-health"
+      },
+      {
+        "id": "oph-032-test-reliability",
+        "section": "29. Testing Reliability, Flake Control, And Quarantine Governance",
+        "ownerArea": "test-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "id": "oph-033-platform-variant-coverage",
+        "section": "30. Mobile, Browser, And Platform Variant Coverage",
+        "ownerArea": "frontend-platform",
+        "canonicalOwnerArea": "frontend",
+        "status": "implemented",
+        "validationCommand": "check:operational-platform-variant-coverage"
+      },
+      {
+        "id": "oph-034-search-reporting-exports",
+        "section": "31. Search, Reporting, Analytics, And Export Operations",
+        "ownerArea": "product-operations",
+        "canonicalOwnerArea": "frontend",
+        "status": "implemented",
+        "validationCommand": "check:operational-search-reporting-analytics-exports"
+      },
+      {
+        "id": "oph-035-notifications-messaging",
+        "section": "32. Notifications, Messaging, And User Communication",
+        "ownerArea": "notifications",
+        "canonicalOwnerArea": "providers",
+        "status": "implemented",
+        "validationCommand": "check:operational-notifications-messaging"
+      },
+      {
+        "id": "oph-036-billing-entitlements",
+        "section": "33. Billing, Entitlements, And Commercial Operations",
+        "ownerArea": "billing",
+        "canonicalOwnerArea": "billing",
+        "status": "implemented",
+        "validationCommand": "check:operational-billing-entitlements"
+      },
+      {
+        "id": "oph-037-oauth-integration-sync",
+        "section": "34. Integration Sync And OAuth Operations",
+        "ownerArea": "integrations",
+        "canonicalOwnerArea": "providers",
+        "status": "implemented",
+        "validationCommand": "check:operational-oauth-integration-sync"
+      },
+      {
+        "id": "oph-038-public-launch-positioning",
+        "section": "35. Public Product Surface And Launch Positioning Enforcement",
+        "ownerArea": "product-marketing",
+        "canonicalOwnerArea": "frontend",
+        "status": "implemented",
+        "validationCommand": "check:operational-public-launch-positioning"
+      },
+      {
+        "id": "oph-039-repository-artifact-hygiene",
+        "section": "36. Repository, Artifact, And Workspace Hygiene",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-repository-artifact-hygiene"
+      },
+      {
+        "id": "oph-040-threat-model-control-traceability",
+        "section": "37. Threat Modeling And Control Traceability",
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "status": "implemented",
+        "validationCommand": "check:control-traceability:strict"
+      },
+      {
+        "id": "oph-041-environment-isolation",
+        "section": "38. Environment Isolation And Data Seeding",
+        "ownerArea": "platform-runtime",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-environment-isolation"
+      },
+      {
+        "id": "oph-042-machine-readable-governance",
+        "section": "39. Machine-Readable Governance And Ownership",
+        "ownerArea": "platform-governance",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-governance-ownership"
+      },
+      {
+        "id": "oph-043-manual-boundary-backlog",
+        "section": "40. Explicit Manual Boundary Backlog",
+        "ownerArea": "platform-governance",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:operational-hardening-objectives"
+      },
+      {
+        "id": "oph-044-documentation-independence",
+        "section": "41. Acceptance Criteria For A Complete Code-Only Pass",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "status": "implemented",
+        "validationCommand": "check:documentation-runtime-dependencies"
+      }
+    ]
+  },
+  "routeProviderOwnership": {
+    "routeCount": 624,
+    "routeOwnerCount": 6,
+    "routeFamilyCount": 12,
+    "providerCount": 11,
+    "routeOwners": [
+      {
+        "routeOwner": "assurance",
+        "canonicalOwnerArea": "frontend"
+      },
+      {
+        "routeOwner": "engineering",
+        "canonicalOwnerArea": "infrastructure"
+      },
+      {
+        "routeOwner": "integrations",
+        "canonicalOwnerArea": "providers"
+      },
+      {
+        "routeOwner": "operations",
+        "canonicalOwnerArea": "infrastructure"
+      },
+      {
+        "routeOwner": "release",
+        "canonicalOwnerArea": "release"
+      },
+      {
+        "routeOwner": "security",
+        "canonicalOwnerArea": "security"
+      }
+    ],
+    "routeFamilies": [
+      {
+        "family": "api",
+        "ownerArea": "security",
+        "validationCommand": "check:operational-api-runtime-contracts",
+        "routeCount": 138
+      },
+      {
+        "family": "auth",
+        "ownerArea": "auth",
+        "validationCommand": "check:operational-authz-session",
+        "routeCount": 4
+      },
+      {
+        "family": "authenticated_page",
+        "ownerArea": "frontend",
+        "validationCommand": "check:operational-frontend-resilience",
+        "routeCount": 58
+      },
+      {
+        "family": "cron",
+        "ownerArea": "infrastructure",
+        "validationCommand": "check:operational-cron-jobs",
+        "routeCount": 77
+      },
+      {
+        "family": "external_token",
+        "ownerArea": "auth",
+        "validationCommand": "check:operational-authz-session",
+        "routeCount": 6
+      },
+      {
+        "family": "internal",
+        "ownerArea": "infrastructure",
+        "validationCommand": "check:operational-api-runtime-contracts",
+        "routeCount": 1
+      },
+      {
+        "family": "layout",
+        "ownerArea": "frontend",
+        "validationCommand": "check:operational-frontend-resilience",
+        "routeCount": 23
+      },
+      {
+        "family": "public_page",
+        "ownerArea": "frontend",
+        "validationCommand": "check:operational-public-launch-positioning",
+        "routeCount": 16
+      },
+      {
+        "family": "route_state",
+        "ownerArea": "frontend",
+        "validationCommand": "check:route-state-coverage",
+        "routeCount": 45
+      },
+      {
+        "family": "server_action",
+        "ownerArea": "security",
+        "validationCommand": "check:server-action-auth-contract",
+        "routeCount": 253
+      },
+      {
+        "family": "tracking",
+        "ownerArea": "privacy",
+        "validationCommand": "check:telemetry-event-inventory",
+        "routeCount": 2
+      },
+      {
+        "family": "webhook",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-webhooks-callbacks",
+        "routeCount": 1
+      }
+    ],
+    "providers": [
+      {
+        "provider": "calendar",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-oauth-integration-sync",
+        "routeCount": 36
+      },
+      {
+        "provider": "crm",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-oauth-integration-sync",
+        "routeCount": 24
+      },
+      {
+        "provider": "external_fetch",
+        "ownerArea": "security",
+        "validationCommand": "check:outbound-fetch",
+        "routeCount": 1
+      },
+      {
+        "provider": "openai",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-provider-integrations",
+        "routeCount": 113
+      },
+      {
+        "provider": "resend",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-notifications-messaging",
+        "routeCount": 15
+      },
+      {
+        "provider": "sentry",
+        "ownerArea": "infrastructure",
+        "validationCommand": "check:operational-observability-redaction",
+        "routeCount": 30
+      },
+      {
+        "provider": "storage",
+        "ownerArea": "data",
+        "validationCommand": "check:operational-uploads-files-extraction",
+        "routeCount": 39
+      },
+      {
+        "provider": "stripe",
+        "ownerArea": "billing",
+        "validationCommand": "check:operational-billing-entitlements",
+        "routeCount": 10
+      },
+      {
+        "provider": "supabase",
+        "ownerArea": "data",
+        "validationCommand": "check:operational-supabase-database",
+        "routeCount": 477
+      },
+      {
+        "provider": "upstash_or_memory_rate_limit",
+        "ownerArea": "infrastructure",
+        "validationCommand": "check:operational-rate-limits-abuse-bounds",
+        "routeCount": 126
+      },
+      {
+        "provider": "webhook_outbox",
+        "ownerArea": "providers",
+        "validationCommand": "check:operational-webhooks-callbacks",
+        "routeCount": 110
+      }
+    ]
+  },
+  "generatedArtifactOwnership": {
+    "generatedArtifactCount": 104,
+    "deterministicArtifactCount": 83,
+    "ownedArtifactCount": 104,
+    "canonicalOwnerMappedCount": 104,
+    "rows": [
+      {
+        "path": "artifacts/assurance/catalog-script-index.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "test-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/assurance/dashboard.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "test-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/assurance/scripts-to-epic-map.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "test-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/neutral-naming-rules.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:neutral-naming-rules",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/removal-queue.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:compatibility-removal-queue",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-additive-alias-preservation.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-additive-alias-preservation",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-alias-usage-neutrality.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-alias-usage-neutrality",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-code-only-closure.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-code-only-closure",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-content-contract-inventory.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-content-contracts",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-content-surface-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-content-surface-coverage",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-detailed-objective-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-detailed-objective-coverage",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-env-flag-aliases.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-env-flag-aliases",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-export-download-contracts.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-export-download-contracts",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-exported-symbol-inventory.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-exported-symbols",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-final-checklist-reconciliation.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-final-checklist-reconciliation",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-forward-migration-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-forward-migration-readiness",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-local-content-rewrites",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-local-surface-regression.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-local-surface-regression",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-manual-surface-closure.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-manual-surface-closure",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-naming-safe-rename-manifest.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-naming-safe-renames",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-open-objective-closure.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-open-objective-closure",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-package-script-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-package-script-readiness",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-public-runtime-dual-read.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-public-runtime-dual-read",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-remaining-local-contract-closure.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-remaining-local-contract-closure",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-remaining-surface-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-remaining-surface-coverage",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/compatibility/versioned-unchecked-objective-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-unchecked-objective-readiness",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/dependency-review-policy.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/license-allowlist.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-api-runtime-contracts.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-api-runtime-contracts",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-authz-session.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-authz-session",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-billing-entitlements.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-billing-entitlements",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-browser-security.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-browser-security",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-ci-enforcement.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-ci-enforcement",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-cron-jobs.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-cron-jobs",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-data-quality-invariants.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-data-quality-invariants",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-dr-incident-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:incident-readiness",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-edge-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-edge-readiness",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-environment-isolation.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-environment-isolation",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-feature-flags-rollout.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-feature-flags-rollout",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-frontend-resilience.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-frontend-resilience",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-governance-ownership.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-governance-ownership",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-hardening-closure.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-hardening-objectives",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-incident-follow-up-template.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:incident-readiness",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-legal-trust-compliance.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-legal-trust-compliance",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-notifications-messaging.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-notifications-messaging",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-oauth-integration-sync.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-oauth-integration-sync",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-observability-redaction.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-observability-redaction",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-package-pipelines.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-package-pipelines",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-performance-load-chaos.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-performance-load-chaos",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-platform-variant-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-platform-variant-coverage",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-privacy-auditability.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-privacy-auditability",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-provider-integrations.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-provider-integrations",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-public-launch-positioning.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-public-launch-positioning",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-rate-limits-abuse-bounds.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-rate-limits-abuse-bounds",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-release-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-release-readiness",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-repository-artifact-hygiene.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-repository-artifact-hygiene",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-schema-compatibility.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-schema-compatibility",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-search-reporting-analytics-exports.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-search-reporting-analytics-exports",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-secrets-configuration.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-secrets-configuration",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-static-architecture-code-health.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-static-architecture-code-health",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-supabase-database.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-supabase-database",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-supply-chain-risk.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-supply-chain-risk",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-support-operations.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-support-operations",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-test-reliability-governance.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-test-reliability-governance",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-threat-model-control-traceability.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:control-traceability",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-uploads-files-extraction.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-uploads-files-extraction",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-waivers-ratchets.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-waivers-ratchets",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/operational-webhooks-callbacks.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:operational-webhooks-callbacks",
+        "ownerArea": "platform-hardening",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/page-route-state-matrix.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "frontend-platform",
+        "canonicalOwnerArea": "frontend",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/reproducible-build-report.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-db-dependencies.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-external-contracts.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-functionality-matrix.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-provider-matrix.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-runtime-contract.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/route-universe.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "api-platform",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/sbom-diff-report.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/sbom-dual-format-evidence.json",
+        "deterministic": false,
+        "writeCommand": "npm run write:sbom-dual-format-evidence",
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/security-control-coverage-matrix.rows.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/security-proxy-matrix.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/security-report-checksums.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/security-route-matrix.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/spdx-sbom.json",
+        "deterministic": false,
+        "writeCommand": "npm run write:sbom-dual-format-evidence",
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/stride-dread-threat-model.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:control-traceability",
+        "ownerArea": "platform-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/subprocessors-diff.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:subprocessors-drift",
+        "ownerArea": "trust-compliance",
+        "canonicalOwnerArea": "privacy",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/data-retention-inventory.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:supabase:retention-inventory",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/database-backup-restore-evidence.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:database-backup-restore-evidence",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/local-catalog-fingerprint.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:supabase:fingerprint-artifact",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/migration-domain-index.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-organization",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/migration-history-version-exceptions.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-history-version-exceptions",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/migration-manifest.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:migration-manifest",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/seed-versioned-name-queue-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:seed-versioned-name-queue-coverage",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-neutral-table-view-aliases.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-neutral-table-view-aliases",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-object-reference-inventory.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-object-reference-inventory",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-object-rename-staging.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-object-rename-staging",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-alias-readiness.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-alias-readiness",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-forward-migration-blueprint.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-forward-migration-blueprint",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-policy-predicate-equivalence.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-predicate-equivalence",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-rename-verification-sql.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-rename-verification-sql",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supabase/sql-security-automation-coverage.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-security-automation-coverage",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/supply-chain-install-script-allowlist.json",
+        "deterministic": false,
+        "writeCommand": null,
+        "ownerArea": "supply-chain-security",
+        "canonicalOwnerArea": "security",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "scripts/versioned-naming-removal-queue.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:versioned-naming-removal-queue",
+        "ownerArea": "compatibility",
+        "canonicalOwnerArea": "infrastructure",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "supabase/sql/policy-forward-migration-blueprint.sql",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-forward-migration-blueprint",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "supabase/sql/policy-predicate-equivalence.sql",
+        "deterministic": true,
+        "writeCommand": "npm run write:sql-policy-predicate-equivalence",
+        "ownerArea": "data-platform",
+        "canonicalOwnerArea": "data",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      }
+    ]
+  },
+  "codeownersParity": {
+    "codeownersEntryCount": 42,
+    "sensitivePathCount": 27,
+    "coveredSensitivePathCount": 27,
+    "delegatedSecurityPathCheck": {
+      "ok": true,
+      "issueCount": 0,
+      "checkedPathCount": 24,
+      "allowlistFileCount": 43
+    },
+    "rows": [
+      {
+        "category": "security",
+        "path": "src/lib/security/",
+        "exists": true,
+        "ownerArea": "security",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/security/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "security helpers and privacy/authz controls"
+      },
+      {
+        "category": "security",
+        "path": "semgrep/",
+        "exists": true,
+        "ownerArea": "security",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "semgrep/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "static-analysis policy"
+      },
+      {
+        "category": "security",
+        "path": "src/proxy.ts",
+        "exists": true,
+        "ownerArea": "security",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/proxy.ts"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "request boundary and redirect controls"
+      },
+      {
+        "category": "auth",
+        "path": "src/lib/auth/",
+        "exists": true,
+        "ownerArea": "auth",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/auth/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "auth helper controls"
+      },
+      {
+        "category": "auth",
+        "path": "src/app/(auth)/",
+        "exists": true,
+        "ownerArea": "auth",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/app/(auth)/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "auth pages and callbacks"
+      },
+      {
+        "category": "migrations",
+        "path": "supabase/migrations/",
+        "exists": true,
+        "ownerArea": "data",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "supabase/migrations/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "schema and policy migrations"
+      },
+      {
+        "category": "migrations",
+        "path": "supabase/sql/",
+        "exists": true,
+        "ownerArea": "data",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "supabase/sql/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "generated SQL policy evidence"
+      },
+      {
+        "category": "workflows",
+        "path": ".github/workflows/",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          ".github/workflows/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "CI and release gates"
+      },
+      {
+        "category": "workflows",
+        "path": ".github/CODEOWNERS",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          ".github/CODEOWNERS"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "ownership policy"
+      },
+      {
+        "category": "scripts",
+        "path": "scripts/",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "scripts/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "operational and governance automation"
+      },
+      {
+        "category": "scripts",
+        "path": "package.json",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "package.json"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "package-script control plane"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/stripe.ts",
+        "exists": true,
+        "ownerArea": "billing",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/stripe.ts"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "Stripe SDK wrapper"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/email/",
+        "exists": true,
+        "ownerArea": "providers",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/email/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "email provider policy"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/extraction/",
+        "exists": true,
+        "ownerArea": "providers",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/extraction/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "OpenAI extraction provider boundary"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/integrations/",
+        "exists": true,
+        "ownerArea": "providers",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/integrations/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "OAuth integration provider boundary"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/observability/",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/observability/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "Sentry provider boundary"
+      },
+      {
+        "category": "provider-integration",
+        "path": "src/lib/provider-integration-fixtures.ts",
+        "exists": true,
+        "ownerArea": "providers",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/provider-integration-fixtures.ts"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "provider fixture safety"
+      },
+      {
+        "category": "billing",
+        "path": "src/lib/billing/",
+        "exists": true,
+        "ownerArea": "billing",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/billing/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "billing entitlement and amount logic"
+      },
+      {
+        "category": "billing",
+        "path": "src/app/api/stripe/",
+        "exists": true,
+        "ownerArea": "billing",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/app/api/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "Stripe API routes"
+      },
+      {
+        "category": "billing",
+        "path": "src/components/settings/billing-actions.tsx",
+        "exists": true,
+        "ownerArea": "billing",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/components/settings/billing-actions.tsx"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "billing UI actions"
+      },
+      {
+        "category": "privacy",
+        "path": "src/lib/security/privacy-inventory.ts",
+        "exists": true,
+        "ownerArea": "privacy",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/security/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "privacy inventory"
+      },
+      {
+        "category": "privacy",
+        "path": "src/app/(marketing)/privacy/page.tsx",
+        "exists": true,
+        "ownerArea": "privacy",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/app/(marketing)/privacy/page.tsx"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "public privacy surface"
+      },
+      {
+        "category": "support",
+        "path": "src/lib/operational-support-operations.ts",
+        "exists": true,
+        "ownerArea": "support",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "src/lib/operational-support-operations.ts"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "support operation safeguards"
+      },
+      {
+        "category": "incident",
+        "path": "scripts/check-incident-readiness.mjs",
+        "exists": true,
+        "ownerArea": "incident",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "scripts/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "incident readiness automation"
+      },
+      {
+        "category": "incident",
+        "path": "config/operational-manual-boundaries.json",
+        "exists": true,
+        "ownerArea": "incident",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "config/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "manual boundary and incident response backlog"
+      },
+      {
+        "category": "generated-artifacts",
+        "path": "artifacts/",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "artifacts/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "generated evidence artifacts"
+      },
+      {
+        "category": "generated-artifacts",
+        "path": "config/",
+        "exists": true,
+        "ownerArea": "infrastructure",
+        "expectedOwners": [
+          "@YOUR_ORG/backend"
+        ],
+        "coveringPatterns": [
+          "config/"
+        ],
+        "owners": [
+          "@YOUR_ORG/backend"
+        ],
+        "expectedOwnerCovered": true,
+        "reason": "code-owned governance configuration"
+      }
+    ]
+  },
+  "changeImpactRecommendations": {
+    "riskAreaCount": 14,
+    "requiredRiskAreas": [
+      "migrations",
+      "api_routes",
+      "auth_session",
+      "billing_webhooks",
+      "provider_integrations",
+      "ui_surface",
+      "public_copy",
+      "ci_scripts",
+      "documentation",
+      "generated_artifacts"
+    ],
+    "syntheticChangeCount": 10,
+    "requiredCheckCount": 86,
+    "prSummary": {
+      "markdown": "- Changed files: 10\n- Risk areas: api_routes, auth_session, billing_webhooks, ci_scripts, documentation, generated_artifacts, migrations, provider_integrations, public_copy, rls_sql_functions, ui_surface\n- Recommended validation: npm run audit:marketing-identity:strict; npm run audit:release-state-code-only:strict; npm run check:api-route-auth-contract; npm run check:api-route-auth-route-index; npm run check:api-route-rate-limit-coverage; npm run check:api-route-tests; npm run check:auth-callback-guardrails; npm run check:auth-cookie-attributes; npm run check:baseline-registry; npm run check:checks-integrity-meta; npm run check:compatibility-removal-queue; npm run check:compatibility-route-inventory; npm run check:config-drift; npm run check:documentation-runtime-dependencies; npm run check:generated-artifact-hygiene; npm run check:hardening-ci-wiring; npm run check:migration-history-version-exceptions; npm run check:migration-idempotency; npm run check:migration-manifest; npm run check:migration-organization; npm run check:migrations:strict; npm run check:neutral-naming-rules; npm run check:operational-environment-isolation; npm run check:operational-frontend-resilience; npm run check:operational-hardening-objectives; npm run check:operational-legal-trust-compliance; npm run check:operational-platform-variant-coverage; npm run check:operational-provider-integrations; npm run check:operational-public-launch-positioning; npm run check:provider-integration-fixtures; npm run check:release-security-required-env; npm run check:route-state-coverage; npm run check:runtime-health-probe-contracts; npm run check:security-env-contract; npm run check:seed-versioned-name-queue-coverage; npm run check:session-lifecycle-security; npm run check:sql-definer-invoker-inventory; npm run check:sql-neutral-table-view-aliases; npm run check:sql-object-reference-inventory; npm run check:sql-object-rename-staging; npm run check:sql-policy-alias-readiness; npm run check:sql-policy-forward-migration-blueprint; npm run check:sql-policy-predicate-equivalence; npm run check:sql-rename-verification-sql; npm run check:sql-security-automation-coverage; npm run check:sql-security-migrations-bundle; npm run check:static-secret-safety; npm run check:supabase:fingerprint-artifact; npm run check:supabase:local-reset-harness; npm run check:supabase:ops; npm run check:supabase:release-checklist; npm run check:supabase:retention-inventory; npm run check:supabase:seed-safety; npm run check:telemetry-event-inventory; npm run check:ui-surface-consistency; npm run check:version-reference-allowlist; npm run check:versioned-additive-alias-preservation; npm run check:versioned-alias-usage-neutrality; npm run check:versioned-code-only-closure; npm run check:versioned-compatibility-equivalence; npm run check:versioned-content-contracts; npm run check:versioned-content-surface-coverage; npm run check:versioned-detailed-objective-coverage; npm run check:versioned-env-flag-aliases; npm run check:versioned-export-download-contracts; npm run check:versioned-exported-symbol-aliases; npm run check:versioned-exported-symbols; npm run check:versioned-final-checklist-reconciliation; npm run check:versioned-forward-migration-readiness; npm run check:versioned-local-content-rewrites; npm run check:versioned-local-surface-regression; npm run check:versioned-manual-surface-closure; npm run check:versioned-naming-removal-queue; npm run check:versioned-naming-safe-renames; npm run check:versioned-open-objective-closure; npm run check:versioned-package-script-readiness; npm run check:versioned-public-contract-preservation; npm run check:versioned-public-runtime-dual-read; npm run check:versioned-remaining-local-contract-closure; npm run check:versioned-remaining-surface-coverage; npm run check:versioned-route-aliases; npm run check:versioned-source-config-preservation; npm run check:versioned-unchecked-objective-readiness; npm run check:webhook-inbound-policy; npm run report:migration-rollbacks; npm run test:e2e:ui-qa-plan",
+      "missingEvidenceWarnings": []
+    },
+    "warningSample": {
+      "markdown": "- Changed files: 1\n- Risk areas: unclassified\n- Recommended validation: none\n- Missing evidence warnings: At least one changed file is unclassified; add a change-impact rule or record reviewer-owned evidence. | unclassified/manual-review-required.asset has no targeted validation command; record why existing evidence is sufficient.",
+      "missingEvidenceWarnings": [
+        "At least one changed file is unclassified; add a change-impact rule or record reviewer-owned evidence.",
+        "unclassified/manual-review-required.asset has no targeted validation command; record why existing evidence is sufficient."
+      ]
+    },
+    "rows": [
+      {
+        "path": "supabase/migrations/001_owner.sql",
+        "expectedRiskAreas": [
+          "migrations",
+          "rls_sql_functions"
+        ],
+        "actualRiskAreas": [
+          "migrations",
+          "rls_sql_functions"
+        ],
+        "expectedChecks": [
+          "check:migrations:strict"
+        ],
+        "actualChecks": [
+          "check:migration-history-version-exceptions",
+          "check:migration-idempotency",
+          "check:migration-manifest",
+          "check:migration-organization",
+          "check:migrations:strict",
+          "check:seed-versioned-name-queue-coverage",
+          "check:sql-definer-invoker-inventory",
+          "check:sql-neutral-table-view-aliases",
+          "check:sql-object-reference-inventory",
+          "check:sql-object-rename-staging",
+          "check:sql-policy-alias-readiness",
+          "check:sql-policy-forward-migration-blueprint",
+          "check:sql-policy-predicate-equivalence",
+          "check:sql-rename-verification-sql",
+          "check:sql-security-automation-coverage",
+          "check:sql-security-migrations-bundle",
+          "check:supabase:fingerprint-artifact",
+          "check:supabase:local-reset-harness",
+          "check:supabase:ops",
+          "check:supabase:release-checklist",
+          "check:supabase:retention-inventory",
+          "check:supabase:seed-safety",
+          "check:versioned-forward-migration-readiness",
+          "report:migration-rollbacks"
+        ]
+      },
+      {
+        "path": "src/app/api/contracts/route.ts",
+        "expectedRiskAreas": [
+          "api_routes"
+        ],
+        "actualRiskAreas": [
+          "api_routes"
+        ],
+        "expectedChecks": [
+          "check:api-route-auth-contract"
+        ],
+        "actualChecks": [
+          "check:api-route-auth-contract",
+          "check:api-route-auth-route-index",
+          "check:api-route-rate-limit-coverage",
+          "check:api-route-tests",
+          "check:compatibility-route-inventory",
+          "check:runtime-health-probe-contracts",
+          "check:telemetry-event-inventory",
+          "check:versioned-additive-alias-preservation",
+          "check:versioned-alias-usage-neutrality",
+          "check:versioned-code-only-closure",
+          "check:versioned-compatibility-equivalence",
+          "check:versioned-content-contracts",
+          "check:versioned-content-surface-coverage",
+          "check:versioned-detailed-objective-coverage",
+          "check:versioned-env-flag-aliases",
+          "check:versioned-export-download-contracts",
+          "check:versioned-final-checklist-reconciliation",
+          "check:versioned-forward-migration-readiness",
+          "check:versioned-local-content-rewrites",
+          "check:versioned-local-surface-regression",
+          "check:versioned-manual-surface-closure",
+          "check:versioned-open-objective-closure",
+          "check:versioned-public-contract-preservation",
+          "check:versioned-public-runtime-dual-read",
+          "check:versioned-remaining-local-contract-closure",
+          "check:versioned-remaining-surface-coverage",
+          "check:versioned-unchecked-objective-readiness"
+        ]
+      },
+      {
+        "path": "src/lib/auth/post-auth-redirect.ts",
+        "expectedRiskAreas": [
+          "auth_session"
+        ],
+        "actualRiskAreas": [
+          "auth_session"
+        ],
+        "expectedChecks": [
+          "check:auth-callback-guardrails"
+        ],
+        "actualChecks": [
+          "check:api-route-auth-contract",
+          "check:auth-callback-guardrails",
+          "check:auth-cookie-attributes",
+          "check:session-lifecycle-security"
+        ]
+      },
+      {
+        "path": "src/lib/billing/status.ts",
+        "expectedRiskAreas": [
+          "billing_webhooks"
+        ],
+        "actualRiskAreas": [
+          "billing_webhooks"
+        ],
+        "expectedChecks": [
+          "check:webhook-inbound-policy"
+        ],
+        "actualChecks": [
+          "check:api-route-auth-contract",
+          "check:security-env-contract",
+          "check:static-secret-safety",
+          "check:webhook-inbound-policy"
+        ]
+      },
+      {
+        "path": "src/lib/extraction/openai-pdf-text.ts",
+        "expectedRiskAreas": [
+          "provider_integrations"
+        ],
+        "actualRiskAreas": [
+          "provider_integrations"
+        ],
+        "expectedChecks": [
+          "check:operational-provider-integrations"
+        ],
+        "actualChecks": [
+          "check:operational-environment-isolation",
+          "check:operational-provider-integrations",
+          "check:provider-integration-fixtures",
+          "check:release-security-required-env",
+          "check:webhook-inbound-policy"
+        ]
+      },
+      {
+        "path": "src/components/settings/billing-actions.tsx",
+        "expectedRiskAreas": [
+          "ui_surface",
+          "billing_webhooks"
+        ],
+        "actualRiskAreas": [
+          "billing_webhooks",
+          "ui_surface"
+        ],
+        "expectedChecks": [
+          "check:operational-frontend-resilience"
+        ],
+        "actualChecks": [
+          "check:api-route-auth-contract",
+          "check:operational-frontend-resilience",
+          "check:operational-platform-variant-coverage",
+          "check:route-state-coverage",
+          "check:security-env-contract",
+          "check:static-secret-safety",
+          "check:ui-surface-consistency",
+          "check:webhook-inbound-policy",
+          "test:e2e:ui-qa-plan"
+        ]
+      },
+      {
+        "path": "src/app/(marketing)/privacy/page.tsx",
+        "expectedRiskAreas": [
+          "public_copy",
+          "ui_surface"
+        ],
+        "actualRiskAreas": [
+          "public_copy",
+          "ui_surface"
+        ],
+        "expectedChecks": [
+          "check:operational-public-launch-positioning"
+        ],
+        "actualChecks": [
+          "audit:marketing-identity:strict",
+          "audit:release-state-code-only:strict",
+          "check:operational-frontend-resilience",
+          "check:operational-legal-trust-compliance",
+          "check:operational-platform-variant-coverage",
+          "check:operational-public-launch-positioning",
+          "check:route-state-coverage",
+          "check:ui-surface-consistency",
+          "test:e2e:ui-qa-plan"
+        ]
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "expectedRiskAreas": [
+          "ci_scripts"
+        ],
+        "actualRiskAreas": [
+          "ci_scripts"
+        ],
+        "expectedChecks": [
+          "check:hardening-ci-wiring"
+        ],
+        "actualChecks": [
+          "check:checks-integrity-meta",
+          "check:compatibility-removal-queue",
+          "check:config-drift",
+          "check:hardening-ci-wiring",
+          "check:migration-history-version-exceptions",
+          "check:neutral-naming-rules",
+          "check:seed-versioned-name-queue-coverage",
+          "check:sql-policy-alias-readiness",
+          "check:sql-policy-forward-migration-blueprint",
+          "check:sql-policy-predicate-equivalence",
+          "check:sql-rename-verification-sql",
+          "check:sql-security-automation-coverage",
+          "check:version-reference-allowlist",
+          "check:versioned-additive-alias-preservation",
+          "check:versioned-alias-usage-neutrality",
+          "check:versioned-code-only-closure",
+          "check:versioned-compatibility-equivalence",
+          "check:versioned-content-contracts",
+          "check:versioned-content-surface-coverage",
+          "check:versioned-detailed-objective-coverage",
+          "check:versioned-env-flag-aliases",
+          "check:versioned-exported-symbol-aliases",
+          "check:versioned-exported-symbols",
+          "check:versioned-final-checklist-reconciliation",
+          "check:versioned-forward-migration-readiness",
+          "check:versioned-local-content-rewrites",
+          "check:versioned-local-surface-regression",
+          "check:versioned-manual-surface-closure",
+          "check:versioned-naming-removal-queue",
+          "check:versioned-naming-safe-renames",
+          "check:versioned-open-objective-closure",
+          "check:versioned-package-script-readiness",
+          "check:versioned-public-contract-preservation",
+          "check:versioned-public-runtime-dual-read",
+          "check:versioned-remaining-local-contract-closure",
+          "check:versioned-remaining-surface-coverage",
+          "check:versioned-route-aliases",
+          "check:versioned-source-config-preservation",
+          "check:versioned-unchecked-objective-readiness"
+        ]
+      },
+      {
+        "path": "docs/release.md",
+        "expectedRiskAreas": [
+          "documentation"
+        ],
+        "actualRiskAreas": [
+          "documentation"
+        ],
+        "expectedChecks": [
+          "check:documentation-runtime-dependencies"
+        ],
+        "actualChecks": [
+          "check:documentation-runtime-dependencies",
+          "check:operational-hardening-objectives"
+        ]
+      },
+      {
+        "path": "artifacts/operational-release-readiness.json",
+        "expectedRiskAreas": [
+          "generated_artifacts"
+        ],
+        "actualRiskAreas": [
+          "generated_artifacts"
+        ],
+        "expectedChecks": [
+          "check:generated-artifact-hygiene"
+        ],
+        "actualChecks": [
+          "check:baseline-registry",
+          "check:compatibility-removal-queue",
+          "check:generated-artifact-hygiene",
+          "check:hardening-ci-wiring",
+          "check:migration-history-version-exceptions",
+          "check:neutral-naming-rules",
+          "check:seed-versioned-name-queue-coverage",
+          "check:sql-object-rename-staging",
+          "check:sql-policy-alias-readiness",
+          "check:sql-policy-forward-migration-blueprint",
+          "check:sql-policy-predicate-equivalence",
+          "check:sql-rename-verification-sql",
+          "check:sql-security-automation-coverage",
+          "check:static-secret-safety",
+          "check:versioned-additive-alias-preservation",
+          "check:versioned-alias-usage-neutrality",
+          "check:versioned-code-only-closure",
+          "check:versioned-compatibility-equivalence",
+          "check:versioned-content-contracts",
+          "check:versioned-content-surface-coverage",
+          "check:versioned-detailed-objective-coverage",
+          "check:versioned-env-flag-aliases",
+          "check:versioned-export-download-contracts",
+          "check:versioned-exported-symbol-aliases",
+          "check:versioned-exported-symbols",
+          "check:versioned-final-checklist-reconciliation",
+          "check:versioned-forward-migration-readiness",
+          "check:versioned-local-content-rewrites",
+          "check:versioned-local-surface-regression",
+          "check:versioned-manual-surface-closure",
+          "check:versioned-open-objective-closure",
+          "check:versioned-package-script-readiness",
+          "check:versioned-public-contract-preservation",
+          "check:versioned-public-runtime-dual-read",
+          "check:versioned-remaining-local-contract-closure",
+          "check:versioned-remaining-surface-coverage",
+          "check:versioned-source-config-preservation",
+          "check:versioned-unchecked-objective-readiness"
+        ]
+      }
+    ]
+  },
+  "governanceReportChecksums": {
+    "reportCount": 11,
+    "categoryCount": 6,
+    "categories": [
+      "dependency",
+      "operational",
+      "privacy",
+      "release",
+      "route",
+      "security"
+    ],
+    "volatileKeysIgnored": [
+      "generated",
+      "generated_at",
+      "generatedAt",
+      "traceId"
+    ],
+    "rows": [
+      {
+        "id": "security-report-checksums",
+        "category": "security",
+        "path": "artifacts/security-report-checksums.json",
+        "generator": "npm run generate:security-report-checksums",
+        "stableSha256": "af09cea953bb740bfa8192392a7424954e860352b7813323dd8e78b30cd24c89",
+        "stableBytes": 3485
+      },
+      {
+        "id": "security-control-coverage",
+        "category": "security",
+        "path": "artifacts/security-control-coverage-matrix.rows.json",
+        "generator": "npm run build:security-control-coverage-matrix",
+        "stableSha256": "e7479dd305d8f57c6335bd4523676d407e7847fa15d154d50d25b76230a244a7",
+        "stableBytes": 120927
+      },
+      {
+        "id": "release-readiness",
+        "category": "release",
+        "path": "artifacts/operational-release-readiness.json",
+        "generator": "npm run write:operational-release-readiness",
+        "stableSha256": "ffe525297ab0bed8989347dba12633b9869691e90609f4318b017f574f49cbd1",
+        "stableBytes": 9050
+      },
+      {
+        "id": "privacy-auditability",
+        "category": "privacy",
+        "path": "artifacts/operational-privacy-auditability.json",
+        "generator": "npm run write:operational-privacy-auditability",
+        "stableSha256": "d7e109f5994ccb7bbe967a79ad42ed2646f7f33a154a6feff5268d287623d286",
+        "stableBytes": 8394
+      },
+      {
+        "id": "dependency-review-policy",
+        "category": "dependency",
+        "path": "artifacts/dependency-review-policy.json",
+        "generator": "npm run report:dependency-risk",
+        "stableSha256": "cd33964c8e175598d31aaa4d6cd169aec4ddb55a67f6fe0cb210d0980ef2ac00",
+        "stableBytes": 1157
+      },
+      {
+        "id": "route-universe",
+        "category": "route",
+        "path": "artifacts/route-universe.json",
+        "generator": "npm run generate:route-universe",
+        "stableSha256": "a37428937617e12b0fc91f0f82af1351499c69fd4a9440b190337e3ab9666e6f",
+        "stableBytes": 1035873
+      },
+      {
+        "id": "route-provider-matrix",
+        "category": "route",
+        "path": "artifacts/route-provider-matrix.json",
+        "generator": "npm run generate:route-universe",
+        "stableSha256": "50588797862c7a9b2190f6a76a1894292092a8a9316d27ebaa604cfe8a66ca2e",
+        "stableBytes": 135462
+      },
+      {
+        "id": "operational-hardening-closure",
+        "category": "operational",
+        "path": "artifacts/operational-hardening-closure.json",
+        "generator": "npm run write:operational-hardening-objectives",
+        "stableSha256": "b3eb732a25e674225b9a7c9f4230e700ca357cb94e9a12bc480f2c9d54fe9289",
+        "stableBytes": 26138
+      },
+      {
+        "id": "operational-package-pipelines",
+        "category": "operational",
+        "path": "artifacts/operational-package-pipelines.json",
+        "generator": "npm run write:operational-package-pipelines",
+        "stableSha256": "99047c128a0b4249a6e376dad2d03fdbaa794447c383d84babb76ac024ce5331",
+        "stableBytes": 43305
+      },
+      {
+        "id": "operational-environment-isolation",
+        "category": "operational",
+        "path": "artifacts/operational-environment-isolation.json",
+        "generator": "npm run write:operational-environment-isolation",
+        "stableSha256": "8413c1494ccc0d91c453115adc075150a79864c15d25129d00a4043cc5b7593d",
+        "stableBytes": 137615
+      },
+      {
+        "id": "operational-threat-model-control-traceability",
+        "category": "operational",
+        "path": "artifacts/operational-threat-model-control-traceability.json",
+        "generator": "npm run write:control-traceability",
+        "stableSha256": "182c6ae94ea1472f8a35abf387b6964a279712f1cdd848dba3983b4a35e2d8a5",
+        "stableBytes": 2368931
+      }
+    ]
+  },
+  "issueCount": 0,
+  "issues": []
+}

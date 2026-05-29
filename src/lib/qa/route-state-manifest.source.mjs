@@ -20,6 +20,8 @@ export const routeStateManifest = [
   { route: "/contracts/renewals", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/renewals/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/review", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/review/loading.tsx", shellFamily: "dashboard" },
   { route: "/reports", kind: "loading", sourcePath: "src/app/(dashboard)/reports/loading.tsx", shellFamily: "dashboard" },
+  { route: "/search", kind: "loading", sourcePath: "src/app/(dashboard)/search/loading.tsx", shellFamily: "dashboard" },
+  { route: "/search", kind: "error", sourcePath: "src/app/(dashboard)/search/error.tsx", shellFamily: "dashboard" },
   { route: "/campaigns", kind: "loading", sourcePath: "src/app/(dashboard)/campaigns/loading.tsx", shellFamily: "dashboard" },
   { route: "/assurance", kind: "loading", sourcePath: "src/app/(dashboard)/assurance/loading.tsx", shellFamily: "dashboard" },
   { route: "/decisions", kind: "loading", sourcePath: "src/app/(dashboard)/decisions/loading.tsx", shellFamily: "dashboard" },

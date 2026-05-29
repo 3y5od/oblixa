@@ -58,11 +58,18 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
           onChange={(event) => setDraftName(event.currentTarget.value)}
         />
       </div>
-      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-4">
+      <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-4">
+        {isDirty ? (
+          <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Unsaved changes</span>
+        ) : null}
         <button
           type="submit"
           disabled={pending || !isDirty}
-          className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
+          className={
+            isDirty
+              ? "ui-btn-primary disabled:pointer-events-none disabled:opacity-60"
+              : "ui-btn-secondary disabled:pointer-events-none disabled:opacity-55"
+          }
           aria-busy={pending}
         >
           {pending ? "Saving…" : "Save name"}

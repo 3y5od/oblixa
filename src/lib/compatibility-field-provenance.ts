@@ -7,7 +7,7 @@ export function fieldReviewProvenanceLabel(input: {
   if (st === "approved") {
     const c =
       typeof input.confidence === "number" && Number.isFinite(input.confidence)
-        ? ` · model confidence ${Math.round(Math.min(100, Math.max(0, input.confidence)))}%`
+        ? ` at ${Math.round(Math.min(100, Math.max(0, input.confidence)))}% model confidence`
         : "";
     return `Approved operational value${c}.`;
   }

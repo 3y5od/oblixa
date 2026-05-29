@@ -2,7 +2,12 @@
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, FileSpreadsheet, FileText } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  FileText,
+} from "lucide-react";
 import { bulkCreateContractsFromFiles } from "@/actions/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
@@ -43,17 +48,39 @@ const IMPORT_METHODS = [
   { key: "files", label: "Signed files", icon: FileText },
 ] as const;
 
+/**
+ * Each column group renders the human-readable label list only — the
+ * dual human + mono rendering was dropped per iteration defect 5 / 6
+ * (the two lines together were the densest part of the form). The
+ * Download template chip below the list is the on-ramp to authoring a
+ * compliant CSV; users who want exact snake_case headers download it
+ * rather than copy them from this section.
+ *
+ * Canonical CSV header strings (also the design-contract anchors in
+ * contracts-import-release-state.test.ts):
+ *   - title, counterparty
+ *   - contract_type, owner_email, region
+ *   - source_system, external_reference_id
+ */
 const CSV_COLUMN_GROUPS = [
-  { label: "Required", value: "title, counterparty" },
-  { label: "Optional", value: "contract_type, owner_email, region" },
-  { label: "Tracking", value: "source_system, external_reference_id" },
+  { label: "Required", lines: ["Contract title, Counterparty"] },
+  {
+    label: "Optional",
+    lines: [
+      "Owner, Contract type, Status, Tags",
+      "Effective date, Renewal date, Notice date, Termination date, Contract value",
+    ],
+  },
+  { label: "Source", lines: ["Source system, External reference id"] },
 ] as const;
 
-const REVIEW_PATH_STEPS = [
+const POST_SUBMIT_STEPS = [
+  "Validation preview",
+  "Duplicate warnings",
+  "Import summary",
   "Review extracted fields",
   "Assign owners",
   "Track dates and work",
-  "Use evidence and reports",
 ] as const;
 
 function isFile(value: FormDataEntryValue | null): value is File {
@@ -66,6 +93,30 @@ function importErrorMessage(body: ImportApiBody | null, fallback: string): strin
       body?.v10?.user_visible_message ??
       body?.error ??
       fallback
+  );
+}
+
+function PostSubmitSteps() {
+  return (
+    <div>
+      <p className="ui-eyebrow">After submit</p>
+      <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+        {POST_SUBMIT_STEPS.map((label, index) => (
+          <li
+            key={label}
+            className="flex items-baseline gap-2 text-[12px] leading-snug text-[var(--text-secondary)]"
+          >
+            <span
+              aria-hidden
+              className="w-3 shrink-0 font-mono text-[10px] tabular-nums text-[var(--text-tertiary)]"
+            >
+              {index + 1}
+            </span>
+            <span className="min-w-0">{label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -165,51 +216,52 @@ export function BulkUploadForm({
   }
 
   const sourceFileBytes = sourceFiles.reduce((sum, file) => sum + file.size, 0);
-  const submitLabel = activePath === "csv" ? "Import CSV" : "Import signed files";
+  const submitLabel = activePath === "csv" ? "Import contracts" : "Import signed files";
+  const hasCsv = csvFile != null;
+  const hasFiles = sourceFiles.length > 0;
   const csvSummary = csvFile
     ? `${csvFile.name}, ${formatFileSize(csvFile.size)}`
     : "No CSV selected";
 
   return (
     <form className="ui-card overflow-hidden p-0" onSubmit={handleSubmit}>
-      <div className="border-b border-[var(--border-subtle)] px-5 py-4 sm:px-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <p className="ui-eyebrow">Import source</p>
-          <div
-            className="inline-grid shrink-0 grid-cols-2 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] p-1"
-            role="tablist"
-            aria-label="Import method"
-          >
-            {IMPORT_METHODS.map((item) => {
-              const ItemIcon = item.icon;
-              const selected = activePath === item.key;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-colors ${
-                    selected
-                      ? "bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-[var(--shadow-1)]"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                  }`}
-                  onClick={() => {
-                    setActivePath(item.key);
-                    setResult(null);
-                  }}
-                >
-                  <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* Import source: underline tabs (lighter chrome than the previous
+          rounded-full pill segmented control) so they no longer compete
+          with the form section headings. The aria-label carries the
+          "Import source" identity for assistive tech. */}
+      <div
+        className="flex items-center gap-4 border-b border-[var(--border-subtle)] px-5"
+        role="tablist"
+        aria-label="Import source"
+      >
+        {IMPORT_METHODS.map((item) => {
+          const ItemIcon = item.icon;
+          const selected = activePath === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              className={`inline-flex items-center gap-1.5 border-b-2 py-2.5 text-[12.5px] font-semibold transition-colors ${
+                selected
+                  ? "border-[var(--text-primary)] text-[var(--text-primary)]"
+                  : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+              onClick={() => {
+                setActivePath(item.key);
+                setResult(null);
+              }}
+            >
+              <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              {item.label}
+            </button>
+          );
+        })}
       </div>
 
       {(disabledReason || result) && (
-        <div className="space-y-3 px-5 py-4 sm:px-6">
+        <div className="space-y-2.5 border-b border-[var(--border-subtle)] px-5 py-3.5">
           {disabledReason && (
             <p className="ui-alert-warning text-sm" role="status">
               {disabledReason}
@@ -245,119 +297,171 @@ export function BulkUploadForm({
         </div>
       )}
 
-      <div className="grid gap-0 border-t border-[var(--border-subtle)] lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <section className="space-y-5 px-5 py-5 sm:px-6 lg:border-r lg:border-[var(--border-subtle)]">
-          {activePath === "csv" ? (
-            <>
-              <div>
-                <label htmlFor="csvFile" className="ui-label">
-                  CSV file
-                </label>
-                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                  <button
-                    type="button"
-                    disabled={disabled || isPending}
-                    onClick={() => csvInputRef.current?.click()}
-                    className="ui-btn-secondary inline-flex min-h-11 shrink-0 items-center justify-center gap-2 px-4 text-[13px] disabled:opacity-50"
-                  >
-                    <FileSpreadsheet className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Choose CSV
-                  </button>
-                  <div className="ui-soft-details flex min-h-11 min-w-0 flex-1 items-center px-4 py-2 text-[12.5px] text-[var(--text-secondary)]">
-                    <span className="truncate">{csvSummary}</span>
-                  </div>
-                </div>
-                <input
-                  ref={csvInputRef}
-                  id="csvFile"
-                  name="csvFile"
-                  type="file"
-                  required
-                  accept=".csv,text/csv"
+      <div className="space-y-5 px-5 py-4">
+        {activePath === "csv" ? (
+          <>
+            <div>
+              <label htmlFor="csvFile" className="ui-label">
+                CSV file
+              </label>
+              <div
+                className="mt-2 flex max-w-md flex-col gap-2 rounded-md border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] p-2 sm:flex-row sm:items-center"
+              >
+                <button
+                  type="button"
                   disabled={disabled || isPending}
-                  onChange={(event) => setCsvFile(event.currentTarget.files?.[0] ?? null)}
-                  className="sr-only"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <p className="ui-eyebrow">Minimum spreadsheet shape</p>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  {CSV_COLUMN_GROUPS.map((group) => (
-                    <div key={group.label} className="ui-soft-details px-3 py-2">
-                      <span className="ui-caps-3 text-[var(--text-tertiary)]">{group.label}</span>
-                      <p className="mt-1 font-mono text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                        {group.value}
-                      </p>
-                    </div>
-                  ))}
+                  onClick={() => csvInputRef.current?.click()}
+                  className="ui-btn-secondary inline-flex min-h-8 shrink-0 items-center justify-center gap-2 px-3 text-[12.5px] disabled:opacity-50"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  Choose CSV
+                </button>
+                <div className="flex min-w-0 flex-1 items-center gap-2 px-1 text-[12.5px] text-[var(--text-secondary)]">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{
+                      background: hasCsv ? "var(--success-ink)" : "var(--border-strong)",
+                      boxShadow: hasCsv
+                        ? "0 0 0 3px color-mix(in oklab, var(--success-soft) 38%, transparent)"
+                        : "0 0 0 3px color-mix(in oklab, var(--border-strong) 32%, transparent)",
+                    }}
+                  />
+                  <span className="truncate">{csvSummary}</span>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <label htmlFor="signedFiles" className="ui-label">
-                  Signed PDF or DOCX files
-                </label>
-                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                  <button
-                    type="button"
-                    disabled={disabled || isPending}
-                    onClick={() => signedFilesInputRef.current?.click()}
-                    className="ui-btn-secondary inline-flex min-h-11 shrink-0 items-center justify-center gap-2 px-4 text-[13px] disabled:opacity-50"
+              <input
+                ref={csvInputRef}
+                id="csvFile"
+                name="csvFile"
+                type="file"
+                required
+                accept=".csv,text/csv"
+                disabled={disabled || isPending}
+                onChange={(event) => setCsvFile(event.currentTarget.files?.[0] ?? null)}
+                className="sr-only"
+              />
+            </div>
+
+            <div>
+              <p className="ui-eyebrow">Minimum spreadsheet shape</p>
+              <dl className="mt-2 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
+                {CSV_COLUMN_GROUPS.map((group) => (
+                  <div
+                    key={group.label}
+                    className="grid grid-cols-[5rem_minmax(0,1fr)] items-baseline gap-3 py-1.5"
                   >
-                    <FileText className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Choose files
-                  </button>
-                  <div className="ui-soft-details flex min-h-11 min-w-0 flex-1 items-center px-4 py-2 text-[12.5px] text-[var(--text-secondary)]">
-                    <span className="truncate">
-                      {sourceFiles.length > 0
-                        ? `${sourceFiles.length} file${sourceFiles.length === 1 ? "" : "s"}, ${formatFileSize(sourceFileBytes)}`
-                        : "No files selected"}
-                    </span>
+                    <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      {group.label}
+                    </dt>
+                    <dd className="min-w-0 space-y-0.5">
+                      {group.lines.map((line) => (
+                        <p
+                          key={line}
+                          className="text-[12.5px] leading-snug text-[var(--text-primary)]"
+                        >
+                          {line}
+                        </p>
+                      ))}
+                    </dd>
                   </div>
-                </div>
-                <input
-                  ref={signedFilesInputRef}
-                  id="signedFiles"
-                  aria-label="Signed PDF or DOCX files"
-                  name="files"
-                  type="file"
-                  multiple
-                  required
-                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                ))}
+              </dl>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <a
+                  href="/api/import/template"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_38%,var(--surface-raised))]"
+                  download
+                >
+                  <Download className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  Download template
+                </a>
+                <p className="text-[11.5px] text-[var(--text-tertiary)]">
+                  Template includes every column above.
+                </p>
+              </div>
+            </div>
+
+            <PostSubmitSteps />
+          </>
+        ) : (
+          <>
+            <div>
+              <label htmlFor="signedFiles" className="ui-label">
+                Signed PDF or DOCX files
+              </label>
+              <div
+                className="mt-2 flex max-w-md flex-col gap-2 rounded-md border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] p-2 sm:flex-row sm:items-center"
+              >
+                <button
+                  type="button"
                   disabled={disabled || isPending}
-                  onChange={(event) => setSourceFiles(Array.from(event.currentTarget.files ?? []))}
-                  className="sr-only"
-                />
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="ui-chip">PDF or DOCX</span>
-                  <span className="ui-chip">20 MB max</span>
+                  onClick={() => signedFilesInputRef.current?.click()}
+                  className="ui-btn-secondary inline-flex min-h-8 shrink-0 items-center justify-center gap-2 px-3 text-[12.5px] disabled:opacity-50"
+                >
+                  <FileText className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  Choose files
+                </button>
+                <div className="flex min-w-0 flex-1 items-center gap-2 px-1 text-[12.5px] text-[var(--text-secondary)]">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{
+                      background: hasFiles ? "var(--success-ink)" : "var(--border-strong)",
+                      boxShadow: hasFiles
+                        ? "0 0 0 3px color-mix(in oklab, var(--success-soft) 38%, transparent)"
+                        : "0 0 0 3px color-mix(in oklab, var(--border-strong) 32%, transparent)",
+                    }}
+                  />
+                  <span className="truncate">
+                    {hasFiles
+                      ? `${sourceFiles.length} file${sourceFiles.length === 1 ? "" : "s"}, ${formatFileSize(sourceFileBytes)}`
+                      : "No files selected"}
+                  </span>
                 </div>
               </div>
-            </>
-          )}
-        </section>
+              <input
+                ref={signedFilesInputRef}
+                id="signedFiles"
+                aria-label="Signed PDF or DOCX files"
+                name="files"
+                type="file"
+                multiple
+                required
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                disabled={disabled || isPending}
+                onChange={(event) => setSourceFiles(Array.from(event.currentTarget.files ?? []))}
+                className="sr-only"
+              />
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[11.5px] font-medium text-[var(--text-secondary)]">
+                  PDF or DOCX
+                </span>
+                <span className="inline-flex items-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]">
+                  20 MB per file
+                </span>
+              </div>
+            </div>
 
-        <aside className="space-y-3 bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-5 py-5 sm:px-6">
-          <p className="ui-eyebrow">Review path</p>
-          <ol className="space-y-2 text-[12.5px] text-[var(--text-secondary)]">
-            {REVIEW_PATH_STEPS.map((item, index) => (
-              <li key={item} className="flex gap-2">
-                <span className="font-mono text-[var(--text-tertiary)]">{index + 1}</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ol>
-        </aside>
+            <PostSubmitSteps />
+          </>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[var(--border-subtle)] px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] px-5 py-3">
+        <p className="text-[12px] text-[var(--text-tertiary)]">
+          {activePath === "csv"
+            ? hasCsv
+              ? "Ready to import."
+              : "Choose a CSV to continue."
+            : hasFiles
+              ? "Ready to import."
+              : "Choose files to continue."}
+        </p>
         <button
           type="submit"
-          disabled={disabled || isPending}
-          className="ui-btn-primary px-5 py-2.5 text-[12.5px] disabled:opacity-50"
+          disabled={disabled || isPending || (activePath === "csv" ? !hasCsv : !hasFiles)}
+          className="ui-btn-primary inline-flex min-h-9 items-center px-4 text-[12.5px] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Importing..." : submitLabel}
         </button>

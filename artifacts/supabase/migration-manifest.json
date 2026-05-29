@@ -1066,7 +1066,7 @@
     {
       "version": "089",
       "file": "089_sql_neutral_table_view_aliases.sql",
-      "sha256": "dd2286b2c7b4d873b1720426b76fb5e785a975ea775d6913b243c4cb6751d542",
+      "sha256": "0fe22806d46de2f24e0f6e38f5a05f2d676323b5e2409bb204fc64d2043c57a2",
       "slug": "sql_neutral_table_view_aliases",
       "purpose": "Sql Neutral Table View Aliases",
       "domain": "security",

@@ -1,0 +1,511 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-browser-security",
+  "generatedBy": "scripts/check-operational-browser-security.mjs --write",
+  "generatedFrom": "config/operational-browser-security.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 19,
+  "routeFamilyCount": 5,
+  "cspRolloutContractCount": 4,
+  "clientLeakageSurfaceCount": 5,
+  "browserSmokeContractCount": 2,
+  "delegatedCheckCount": 11,
+  "commands": [
+    {
+      "objective": "browser-isolation-smoke",
+      "script": "test:e2e:maximal-playwright-bundle",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "advanced_browser_headers",
+        "privacy_sandbox_stubs"
+      ]
+    },
+    {
+      "objective": "browser-isolation-smoke",
+      "script": "test:e2e:smoke",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "api_cache",
+        "clickjacking_headers",
+        "dashboard_headers",
+        "public_headers",
+        "public_token_cache"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:client-bundle-secret-leakage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "client_reachable_graph",
+        "server_env_leakage",
+        "service_role_imports"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:client-cache-sensitivity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": false,
+      "covers": [
+        "client_cache_signal_inventory"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:client-storage-sensitivity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "bounded_json",
+        "local_storage",
+        "session_storage",
+        "storage_key_allowlist"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:next-public-surface",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "client_bundle_env_keys",
+        "public_env_allowlist"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:sensitive-url-propagation",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "redirect_stripping",
+        "signed_urls",
+        "url_tokens"
+      ]
+    },
+    {
+      "objective": "client-data-leakage-prevention",
+      "script": "check:xss-client-exposure",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "dangerous_html",
+        "json_ld_serialization",
+        "postmessage",
+        "target_blank"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
+      "script": "check:csp-nonce-hash-consistency",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "hash_normalization",
+        "nonce_normalization",
+        "rollback_flags",
+        "strict_report_only"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
+      "script": "check:next-script-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "next_script_sri"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
+      "script": "check:reporting-endpoints",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "bounded_report_ingest",
+        "csp_report_to",
+        "csp_report_uri",
+        "reporting_endpoints_header"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
+      "script": "check:third-party-script-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": false,
+      "covers": [
+        "script_integrity_signals",
+        "third_party_script_inventory"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
+      "script": "check:unsafe-inline-regressions",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": false,
+      "covers": [
+        "unsafe_inline_regression_signals"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:browser-isolation-headers",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "clickjacking",
+        "coep",
+        "coop",
+        "corp",
+        "csp_report_endpoint"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:content-sniffing-defenses",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": false,
+      "covers": [
+        "content_type_boundaries",
+        "nosniff"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:operational-browser-security",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "browser_isolation",
+        "route_family_headers"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:permissions-policy-security",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "permissions_policy_disabled_features"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:security-headers",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "csp",
+        "frame_restrictions",
+        "hsts",
+        "referrer_policy",
+        "x_content_type_options"
+      ]
+    },
+    {
+      "objective": "security-header-contracts",
+      "script": "check:sensitive-cache-controls",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "api_no_store",
+        "surrogate_no_store",
+        "vary_cookie_authorization"
+      ]
+    }
+  ],
+  "routeFamilies": [
+    {
+      "id": "api",
+      "representativePath": "/api/export/contracts",
+      "requiredHeaders": [
+        "cache-control",
+        "expires",
+        "pragma",
+        "surrogate-control",
+        "vary"
+      ],
+      "requiredHeaderCount": 5,
+      "e2eMarkerCount": 1,
+      "missingMarkerCount": 0,
+      "ok": true
+    },
+    {
+      "id": "auth",
+      "representativePath": "/login",
+      "requiredHeaders": [
+        "content-security-policy",
+        "permissions-policy",
+        "referrer-policy",
+        "x-content-type-options",
+        "x-frame-options"
+      ],
+      "requiredHeaderCount": 5,
+      "e2eMarkerCount": 1,
+      "missingMarkerCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dashboard",
+      "representativePath": "/dashboard",
+      "requiredHeaders": [
+        "content-security-policy",
+        "referrer-policy",
+        "x-content-type-options",
+        "x-frame-options"
+      ],
+      "requiredHeaderCount": 4,
+      "e2eMarkerCount": 1,
+      "missingMarkerCount": 0,
+      "ok": true
+    },
+    {
+      "id": "external-token",
+      "representativePath": "/api/external-actions/not-a-real-token/status",
+      "requiredHeaders": [
+        "cache-control",
+        "pragma",
+        "vary"
+      ],
+      "requiredHeaderCount": 3,
+      "e2eMarkerCount": 1,
+      "missingMarkerCount": 0,
+      "ok": true
+    },
+    {
+      "id": "public",
+      "representativePath": "/",
+      "requiredHeaders": [
+        "content-security-policy",
+        "content-security-policy-report-only",
+        "cross-origin-opener-policy",
+        "cross-origin-resource-policy",
+        "permissions-policy",
+        "referrer-policy",
+        "reporting-endpoints",
+        "x-content-type-options",
+        "x-frame-options"
+      ],
+      "requiredHeaderCount": 9,
+      "e2eMarkerCount": 2,
+      "missingMarkerCount": 0,
+      "ok": true
+    }
+  ],
+  "cspRolloutContracts": [
+    {
+      "id": "reporting-endpoint-csp",
+      "path": "src/lib/security/csp-builders.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "strict-enforcing-csp",
+      "path": "src/lib/security/csp-builders.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "third-party-source-boundary",
+      "path": "src/lib/security/csp-builders.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unsafe-inline-rollback-tests",
+      "path": "src/lib/security/csp-builders.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "clientLeakageSurfaces": [
+    {
+      "id": "client-bundle-graph",
+      "path": "scripts/check-client-bundle-secret-leakage.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "client-storage-helper",
+      "path": "src/lib/security/client-storage.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rsc-cache-boundary",
+      "path": "src/lib/next-cache-rsc.contract.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "safe-inline-json-ld",
+      "path": "src/lib/security/json-ld-inline-script.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "sensitive-url-stripping",
+      "path": "src/lib/security/sensitive-url.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "browserSmokeContracts": [
+    {
+      "id": "advanced-browser-security-smoke",
+      "path": "e2e/browser-security-headers-advanced.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "security-headers-smoke",
+      "path": "e2e/security-headers-smoke.spec.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "reportingEndpoint": {
+    "path": "/api/security/csp-report",
+    "group": "csp-endpoint",
+    "routeFile": "src/app/api/security/csp-report/route.ts",
+    "testFile": "src/app/api/security/csp-report/route.test.ts",
+    "artifact": "artifacts/reporting-endpoints-stub.json",
+    "routeBounded": true,
+    "testsCovered": true,
+    "artifactExists": true
+  },
+  "checks": [
+    {
+      "checkId": "browser-isolation-headers",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "client-bundle-secret-leakage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "client-storage-sensitivity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "csp-nonce-hash-consistency",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "next-public-surface",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "permissions-policy-security",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "reporting-endpoints",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "security-headers",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sensitive-cache-controls",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sensitive-url-propagation",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "xss-client-exposure",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -39,7 +39,7 @@ describe("dashboard spec compliance - Core route structure", () => {
     expect(componentRaw).toContain("{DASHBOARD_PRIMARY_CTA}");
     expect(componentRaw).toContain("{DASHBOARD_SECONDARY_CTA}");
     expect(componentRaw).toContain('href="/contracts/new"');
-    expect(componentRaw).toContain('href="/contracts/intake"');
+    expect(componentRaw).toContain('href="/contracts/bulk"');
     expect(componentRaw).not.toContain("metrics.pendingReview > 0");
   });
 

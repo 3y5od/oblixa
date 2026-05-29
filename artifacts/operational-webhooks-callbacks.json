@@ -1,0 +1,544 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-webhooks-callbacks",
+  "generatedBy": "scripts/check-operational-webhooks-callbacks.mjs --write",
+  "generatedFrom": "config/operational-webhooks-callbacks.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "routeCount": 8,
+  "commandCount": 15,
+  "markerFileCount": 12,
+  "fixtureFamilyCount": 4,
+  "callbackExpectationCount": 4,
+  "delegatedCheckCount": 9,
+  "commands": [
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:auth-callback-guardrails",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "auth_callback_invite_and_redirect_guards"
+      ]
+    },
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:callback-destination-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "post_auth_redirect_safety"
+      ]
+    },
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:callback-domain-strictness",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "oauth_redirect_uri_exact_match"
+      ]
+    },
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:oauth-pkce-enforcement",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "oauth_pkce_s256"
+      ]
+    },
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:oauth-state-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "oauth_state_replay_and_expiry"
+      ]
+    },
+    {
+      "objective": "callback-destination-integrity",
+      "script": "check:origin-referrer-enforcement",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "callback_browser_origin_exemptions"
+      ]
+    },
+    {
+      "objective": "provider-callback-readiness",
+      "script": "check:operational-release-readiness",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "release_blocker_taxonomy"
+      ]
+    },
+    {
+      "objective": "provider-callback-readiness",
+      "script": "check:operational-webhooks-callbacks",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "expected_callback_url_policy"
+      ]
+    },
+    {
+      "objective": "provider-callback-readiness",
+      "script": "check:release-security-required-env",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "provider_env_shape"
+      ]
+    },
+    {
+      "objective": "webhook-branch-fixtures",
+      "script": "check:integration-contract-resilience",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "integration_route_negative_paths"
+      ]
+    },
+    {
+      "objective": "webhook-branch-fixtures",
+      "script": "check:operational-webhooks-callbacks",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "fixture_corpus"
+      ]
+    },
+    {
+      "objective": "webhook-branch-fixtures",
+      "script": "check:webhook-inbound-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "stripe_slack_email_inbound_policy"
+      ]
+    },
+    {
+      "objective": "webhook-idempotency",
+      "script": "check:duplicate-execution-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "durable_event_ids",
+        "idempotency_keys"
+      ]
+    },
+    {
+      "objective": "webhook-idempotency",
+      "script": "check:idempotency-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "idempotency_contracts"
+      ]
+    },
+    {
+      "objective": "webhook-idempotency",
+      "script": "check:operational-webhooks-callbacks",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "route_marker_parity"
+      ]
+    }
+  ],
+  "markerFiles": [
+    {
+      "path": "src/app/api/integrations/actions/callback/route.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/integrations/oauth/start/route.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/stripe/webhook/route.test.ts",
+      "markerCount": 7,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markerCount": 7,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/webhooks/dispatch/route.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/webhooks/dispatch/route.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/auth/refinement-auth-callback.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/webhook-callback-fixtures.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "registry": [
+    {
+      "id": "integration-actions-callback",
+      "path": "/api/integrations/actions/callback",
+      "routeFile": "src/app/api/integrations/actions/callback/route.ts",
+      "testFile": "src/app/api/integrations/actions/callback/route.test.ts",
+      "expectedMethods": [
+        "POST"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "provider": "integration-automation",
+      "direction": "inbound",
+      "idempotencyPolicy": "action_specific_idempotent_updates",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "oauth-callback",
+      "path": "/api/integrations/oauth/callback",
+      "routeFile": "src/app/api/integrations/oauth/callback/route.ts",
+      "testFile": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "expectedMethods": [
+        "GET"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "provider": "oauth",
+      "direction": "inbound-auth",
+      "idempotencyPolicy": "consumed_oauth_state",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "oauth-start",
+      "path": "/api/integrations/oauth/start",
+      "routeFile": "src/app/api/integrations/oauth/start/route.ts",
+      "testFile": "src/app/api/integrations/oauth/start/route.test.ts",
+      "expectedMethods": [
+        "POST"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "provider": "oauth",
+      "direction": "outbound-auth",
+      "idempotencyPolicy": "x_idempotency_key",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "stripe-webhook",
+      "path": "/api/stripe/webhook",
+      "routeFile": "src/app/api/stripe/webhook/route.ts",
+      "testFile": "src/app/api/stripe/webhook/route.test.ts",
+      "expectedMethods": [
+        "POST"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "provider": "stripe",
+      "direction": "inbound",
+      "idempotencyPolicy": "stripe_webhook_events_unique_event_id",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "email-task-inbound",
+      "path": "/api/tasks/from-email",
+      "routeFile": "src/app/api/tasks/from-email/route.ts",
+      "testFile": "src/app/api/tasks/from-email/route.test.ts",
+      "expectedMethods": [
+        "POST"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "provider": "email",
+      "direction": "inbound",
+      "idempotencyPolicy": "external_message_id",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "slack-task-inbound",
+      "path": "/api/tasks/from-slack",
+      "routeFile": "src/app/api/tasks/from-slack/route.ts",
+      "testFile": "src/app/api/tasks/from-slack/route.test.ts",
+      "expectedMethods": [
+        "POST"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "provider": "slack",
+      "direction": "inbound",
+      "idempotencyPolicy": "external_message_id",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "outbound-webhook-dispatch",
+      "path": "/api/webhooks/dispatch",
+      "routeFile": "src/app/api/webhooks/dispatch/route.ts",
+      "testFile": "src/app/api/webhooks/dispatch/route.test.ts",
+      "expectedMethods": [
+        "GET",
+        "POST"
+      ],
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "provider": "customer-webhook",
+      "direction": "outbound",
+      "idempotencyPolicy": "outbound_event_deliveries_unique_event_subscription",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    },
+    {
+      "id": "auth-callback",
+      "path": "/auth/callback",
+      "routeFile": "src/app/auth/callback/route.ts",
+      "testFile": "src/app/auth/refinement-auth-callback.test.ts",
+      "expectedMethods": [
+        "GET"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "provider": "supabase-auth",
+      "direction": "inbound-auth",
+      "idempotencyPolicy": "invite_consumed_at_upsert",
+      "hasRouteFile": true,
+      "hasTestFile": true,
+      "ok": true
+    }
+  ],
+  "fixtureCoverage": [
+    {
+      "family": "auth_callback",
+      "requiredKinds": [
+        "custom_scheme"
+      ],
+      "presentKinds": [
+        "custom_scheme"
+      ],
+      "missingKinds": [],
+      "ok": true
+    },
+    {
+      "family": "oauth_callback",
+      "requiredKinds": [
+        "open_redirect",
+        "private_network_url"
+      ],
+      "presentKinds": [
+        "open_redirect",
+        "private_network_url"
+      ],
+      "missingKinds": [],
+      "ok": true
+    },
+    {
+      "family": "outbound_webhook_dispatch",
+      "requiredKinds": [
+        "provider_outage",
+        "retry"
+      ],
+      "presentKinds": [
+        "provider_outage",
+        "retry"
+      ],
+      "missingKinds": [],
+      "ok": true
+    },
+    {
+      "family": "stripe_webhook",
+      "requiredKinds": [
+        "bad_signature",
+        "duplicate_delivery",
+        "malformed_payload",
+        "provider_outage",
+        "stale_timestamp",
+        "success",
+        "unknown_event",
+        "wrong_content_type"
+      ],
+      "presentKinds": [
+        "bad_signature",
+        "duplicate_delivery",
+        "malformed_payload",
+        "provider_outage",
+        "stale_timestamp",
+        "success",
+        "unknown_event",
+        "wrong_content_type"
+      ],
+      "missingKinds": [],
+      "ok": true
+    }
+  ],
+  "callbackExpectations": [
+    {
+      "provider": "integration-automation",
+      "expectedPath": "/api/integrations/actions/callback",
+      "optionalEnvKeys": [
+        "INTEGRATIONS_ACTIONS_CALLBACK_URL"
+      ],
+      "validationPolicy": "if optional env key is set, it must equal NEXT_PUBLIC_APP_URL plus expectedPath with no query or hash",
+      "manualBoundary": "live provider dashboard callback configuration is external"
+    },
+    {
+      "provider": "oauth",
+      "expectedPath": "/api/integrations/oauth/callback",
+      "optionalEnvKeys": [
+        "OAUTH_CALLBACK_URL",
+        "SLACK_OAUTH_CALLBACK_URL"
+      ],
+      "validationPolicy": "if optional env key is set, it must equal NEXT_PUBLIC_APP_URL plus expectedPath with no query or hash",
+      "manualBoundary": "live provider dashboard callback configuration is external"
+    },
+    {
+      "provider": "stripe",
+      "expectedPath": "/api/stripe/webhook",
+      "optionalEnvKeys": [
+        "STRIPE_WEBHOOK_ENDPOINT_URL",
+        "STRIPE_WEBHOOK_URL"
+      ],
+      "validationPolicy": "if optional env key is set, it must equal NEXT_PUBLIC_APP_URL plus expectedPath with no query or hash",
+      "manualBoundary": "live provider dashboard callback configuration is external"
+    },
+    {
+      "provider": "supabase-auth",
+      "expectedPath": "/auth/callback",
+      "optionalEnvKeys": [
+        "SUPABASE_AUTH_CALLBACK_URL"
+      ],
+      "validationPolicy": "if optional env key is set, it must equal NEXT_PUBLIC_APP_URL plus expectedPath with no query or hash",
+      "manualBoundary": "live provider dashboard callback configuration is external"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "auth-callback-guardrails",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "callback-destination-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "callback-domain-strictness",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "duplicate-execution-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "inbound-identity-boundaries",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "oauth-pkce-enforcement",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "oauth-state-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "origin-referrer-enforcement",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "webhook-inbound-policy",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-feature-flags-rollout",
+  "generatedArtifact": "artifacts/operational-feature-flags-rollout.json",
+  "featureFlagSource": "src/lib/feature-flags.ts",
+  "contractSource": "src/lib/operational-feature-flags.ts",
+  "killSwitchSource": "src/lib/security/kill-switches.ts",
+  "expectedFeatureFlagCount": 22,
+  "requiredValidationCommands": [
+    "check:operational-feature-flags-rollout",
+    "check:feature-flag-lifecycle",
+    "check:feature-flag-security-bypass",
+    "test:operational-feature-flags"
+  ],
+  "requiredKillSwitches": [
+    {
+      "id": "extraction-disablement",
+      "envName": "OBLIXA_KILL_EXTRACTION",
+      "helperName": "isKillExtraction",
+      "subsystem": "extraction",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/app/api/extract/route.test.ts"]
+    },
+    {
+      "id": "outbound-email-disablement",
+      "envName": "OBLIXA_KILL_OUTBOUND_EMAIL",
+      "helperName": "isKillOutboundEmail",
+      "subsystem": "outbound_email",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/lib/email-provider.test.ts"]
+    },
+    {
+      "id": "webhook-dispatch-pause",
+      "envName": "OBLIXA_KILL_WEBHOOK_DISPATCH",
+      "helperName": "isKillWebhookDispatch",
+      "subsystem": "webhook_dispatch",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/app/api/webhooks/dispatch/route.test.ts"]
+    },
+    {
+      "id": "cron-family-pause",
+      "envName": "OBLIXA_KILL_CRON_FAMILY",
+      "helperName": "isKillCronFamily",
+      "subsystem": "cron_family",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/lib/cron/route-runner.test.ts"]
+    },
+    {
+      "id": "billing-mutation-freeze",
+      "envName": "OBLIXA_KILL_BILLING",
+      "helperName": "isKillBilling",
+      "subsystem": "billing",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/app/api/stripe/checkout/route.test.ts"]
+    },
+    {
+      "id": "import-export-disablement",
+      "envName": "OBLIXA_KILL_IMPORT_EXPORT",
+      "helperName": "isKillImportExport",
+      "subsystem": "import_export",
+      "testRefs": [
+        "src/lib/security/kill-switches.test.ts",
+        "src/app/api/import/contracts/route.test.ts",
+        "src/app/api/export/contracts/route.test.ts"
+      ]
+    },
+    {
+      "id": "integration-sync-pause",
+      "envName": "OBLIXA_KILL_INTEGRATION_SYNC",
+      "helperName": "isKillIntegrationSync",
+      "subsystem": "integration_sync",
+      "testRefs": ["src/lib/security/kill-switches.test.ts", "src/app/api/integrations/refresh-tokens/route.test.ts"]
+    }
+  ],
+  "requiredRolloutSafetyCases": [
+    "default-off",
+    "default-on",
+    "partial-rollout",
+    "org-allowlist",
+    "workspace-mode",
+    "stale-calibration"
+  ],
+  "requiredRolloutGuardrails": ["auth", "tenant-scope", "billing-state", "workspace-mode"],
+  "sensitivePublicFlagDenylist": [
+    "auth",
+    "billing",
+    "token",
+    "secret",
+    "bypass",
+    "skip",
+    "disable_auth",
+    "permissive"
+  ]
+}

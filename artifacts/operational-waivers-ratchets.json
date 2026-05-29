@@ -1,0 +1,923 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-waivers-ratchets",
+  "generatedFrom": "config/operational-waivers-ratchets.json",
+  "waiverRegistry": "config/qa-external-waiver-registry.json",
+  "objectiveRegistry": "config/operational-hardening-objectives.json",
+  "manualBoundaryRegistry": "config/operational-manual-boundaries.json",
+  "asOfDate": "2026-05-28",
+  "waiverSchema": {
+    "requiredFields": [
+      "id",
+      "scope",
+      "owner",
+      "reason",
+      "risk",
+      "blockerClass",
+      "expiry",
+      "validationCommand",
+      "replacementObjective",
+      "lastReviewedDate"
+    ],
+    "allowedRiskLevels": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "allowedBlockerClasses": [
+      "automation-gap",
+      "customer-impacting",
+      "data-migration",
+      "dns-change",
+      "external-provider",
+      "legal-approval",
+      "organization-policy",
+      "production-credential",
+      "provider-console",
+      "release-decision",
+      "risk-acceptance"
+    ]
+  },
+  "waiverReport": {
+    "waiverCount": 8,
+    "activeWaiverCount": 8,
+    "preExpiryReport": {
+      "asOfDate": "2026-05-28",
+      "horizons": [
+        7,
+        14,
+        30
+      ],
+      "buckets": {
+        "within7Days": [],
+        "within14Days": [],
+        "within30Days": []
+      }
+    },
+    "waivers": [
+      {
+        "id": "codeql_analysis",
+        "scope": "codeql_sarif_optional_upload",
+        "owner": "@security",
+        "risk": "medium",
+        "blockerClass": "external-provider",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:supply-chain-waivers",
+        "replacementObjective": "oph-020-supply-chain",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "github_dependency_review_high",
+        "scope": "dependency_review_policy_transitive",
+        "owner": "@security",
+        "risk": "medium",
+        "blockerClass": "organization-policy",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:supply-chain-waivers",
+        "replacementObjective": "oph-020-supply-chain",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "infra_only_workflow_no_product_surface",
+        "scope": "allowlisted_github_workflows_infra_only",
+        "owner": "@infra",
+        "risk": "low",
+        "blockerClass": "external-provider",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:qa-waiver-registry",
+        "replacementObjective": "oph-006-ci-workflow-enforcement",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "qa_taxonomy_gap_phase2_feature",
+        "scope": "dimension_and_phase2_tracks_deferred",
+        "owner": "@qa",
+        "risk": "medium",
+        "blockerClass": "automation-gap",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:qa-waiver-registry",
+        "replacementObjective": "oph-033-platform-variant-coverage",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "qa_taxonomy_gap_wcag22_automation",
+        "scope": "wcag22_rows_pending_per_sc_automation",
+        "owner": "@qa",
+        "risk": "medium",
+        "blockerClass": "automation-gap",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:qa-waiver-registry",
+        "replacementObjective": "oph-033-platform-variant-coverage",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "semgrep_sarif",
+        "scope": "semgrep_rulepacks_workflow",
+        "owner": "@security",
+        "risk": "medium",
+        "blockerClass": "organization-policy",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:supply-chain-waivers",
+        "replacementObjective": "oph-020-supply-chain",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "trivy_fs_optional_tier",
+        "scope": "trivy_optional_org_tier",
+        "owner": "@security",
+        "risk": "medium",
+        "blockerClass": "organization-policy",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:supply-chain-waivers",
+        "replacementObjective": "oph-020-supply-chain",
+        "lastReviewedDate": "2026-05-28"
+      },
+      {
+        "id": "zap_dast_optional",
+        "scope": "zap_staging_gated",
+        "owner": "@security",
+        "risk": "medium",
+        "blockerClass": "external-provider",
+        "expiry": "2027-12-31",
+        "validationCommand": "check:qa-waiver-registry",
+        "replacementObjective": "oph-020-supply-chain",
+        "lastReviewedDate": "2026-05-28"
+      }
+    ]
+  },
+  "debtRatchet": {
+    "owner": "platform-governance",
+    "baselineDate": "2026-05-28",
+    "validationCommand": "check:operational-waivers-ratchets",
+    "current": {
+      "optionalChecks": 3,
+      "stubWorkflows": 17,
+      "warnOnlyScripts": 5,
+      "skippedTests": 174,
+      "allowlistRows": 623,
+      "uncoveredRoutes": 0,
+      "waivedObjectives": 8
+    },
+    "baseline": {
+      "optionalChecks": 3,
+      "stubWorkflows": 17,
+      "warnOnlyScripts": 5,
+      "skippedTests": 174,
+      "allowlistRows": 623,
+      "uncoveredRoutes": 0,
+      "waivedObjectives": 8
+    },
+    "checks": [
+      {
+        "metric": "optionalChecks",
+        "baseline": 3,
+        "current": 3,
+        "delta": 0
+      },
+      {
+        "metric": "stubWorkflows",
+        "baseline": 17,
+        "current": 17,
+        "delta": 0
+      },
+      {
+        "metric": "warnOnlyScripts",
+        "baseline": 5,
+        "current": 5,
+        "delta": 0
+      },
+      {
+        "metric": "skippedTests",
+        "baseline": 174,
+        "current": 174,
+        "delta": 0
+      },
+      {
+        "metric": "allowlistRows",
+        "baseline": 623,
+        "current": 623,
+        "delta": 0
+      },
+      {
+        "metric": "uncoveredRoutes",
+        "baseline": 0,
+        "current": 0,
+        "delta": 0
+      },
+      {
+        "metric": "waivedObjectives",
+        "baseline": 8,
+        "current": 8,
+        "delta": 0
+      }
+    ],
+    "regressionCount": 0,
+    "regressions": [],
+    "ratchetCandidateCount": 0,
+    "ratchetCandidates": [],
+    "detail": {
+      "optionalChecks": [
+        "check:eslint-custom-rules-optional",
+        "check:supabase:prod",
+        "check:supabase:prod:deep"
+      ],
+      "stubWorkflows": [
+        "load-smoke-optional.yml",
+        "pr-process-stub.yml",
+        "qa-android-webview.yml",
+        "qa-cdn-purge.yml",
+        "qa-dast-zap.yml",
+        "qa-external-stubs.yml",
+        "qa-helm-lint.yml",
+        "qa-ios-wkwebview.yml",
+        "qa-ipv6-smoke.yml",
+        "qa-k8s-smoke.yml",
+        "qa-macos-a11y-optional.yml",
+        "qa-ofac-hash-verify.yml",
+        "qa-secrets-history-scan-optional.yml",
+        "qa-terraform-plan.yml",
+        "qa-visual-update.yml",
+        "qa-windows-edge-optional.yml",
+        "secretlint-optional.yml"
+      ],
+      "warnOnlyScripts": [
+        "check:performance-static:grep",
+        "check:supabase:prod",
+        "check:supabase:prod:deep",
+        "test:e2e:visual:full:continue",
+        "test:e2e:visual:full:continue:update"
+      ],
+      "waivedObjectiveCount": 0,
+      "waiverRows": [
+        "codeql_analysis",
+        "github_dependency_review_high",
+        "infra_only_workflow_no_product_surface",
+        "qa_taxonomy_gap_phase2_feature",
+        "qa_taxonomy_gap_wcag22_automation",
+        "semgrep_sarif",
+        "trivy_fs_optional_tier",
+        "zap_dast_optional"
+      ],
+      "hardeningDebtSource": {
+        "skipCount": 174,
+        "allowlistEntryCount": 623,
+        "uncoveredApiRoutes": 0
+      }
+    }
+  },
+  "manualBoundaryClassification": {
+    "requiredClasses": [
+      "customer-impacting",
+      "data-migration",
+      "dns-change",
+      "legal-approval",
+      "production-credential",
+      "provider-console",
+      "release-decision"
+    ],
+    "requiredClassCoverage": {
+      "customer-impacting": [
+        "manual-break-glass-approval",
+        "manual-browser-device-lab-approval",
+        "manual-customer-impacting-communication",
+        "manual-production-load-chaos-approval",
+        "manual-stripe-live-configuration"
+      ],
+      "data-migration": [
+        "manual-database-restore-drill",
+        "manual-production-migration-apply"
+      ],
+      "dns-change": [
+        "manual-dns-change"
+      ],
+      "legal-approval": [
+        "manual-legal-approval"
+      ],
+      "production-credential": [
+        "manual-break-glass-approval",
+        "manual-oauth-provider-app-setup",
+        "manual-secret-rotation",
+        "manual-stripe-live-configuration"
+      ],
+      "provider-console": [
+        "manual-branch-protection-change",
+        "manual-browser-device-lab-approval",
+        "manual-database-restore-drill",
+        "manual-dns-change",
+        "manual-monitoring-alert-routing",
+        "manual-oauth-provider-app-setup",
+        "manual-production-migration-apply",
+        "manual-provider-environment-creation",
+        "manual-secret-rotation",
+        "manual-stripe-live-configuration"
+      ],
+      "release-decision": [
+        "manual-owner-assignment",
+        "manual-production-load-chaos-approval",
+        "manual-release-approval",
+        "manual-risk-acceptance"
+      ]
+    },
+    "manualActionCount": 17,
+    "objectiveCoverageCount": 26,
+    "coverage": [
+      {
+        "objectiveId": "oph-005-release-readiness",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-release-approval",
+            "boundaryClasses": [
+              "release-decision"
+            ],
+            "smallestNextAction": "Approve or block the release after all code-owned release evidence is current.",
+            "readinessCommand": "pipeline:release:checklist"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-release-readiness",
+          "artifacts/operational-release-readiness.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-006-ci-workflow-enforcement",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-branch-protection-change",
+            "boundaryClasses": [
+              "provider-console"
+            ],
+            "smallestNextAction": "Apply required-check/ruleset changes in GitHub after local workflow parity passes.",
+            "readinessCommand": "check:github-workflows-security"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-ci-enforcement",
+          "artifacts/operational-ci-enforcement.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-008-supabase-database-operations",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-production-migration-apply",
+            "boundaryClasses": [
+              "data-migration",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm linked production project ref and run only an approved dry-run before any migration application.",
+            "readinessCommand": "check:supabase:prod:deep"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-supabase-database",
+          "artifacts/operational-supabase-database.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-010-webhooks-callbacks",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-stripe-live-configuration",
+            "boundaryClasses": [
+              "customer-impacting",
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm live prices, portal, and webhook events in Stripe dashboard without creating a customer charge.",
+            "readinessCommand": "check:release-security-required-env"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-webhooks-callbacks",
+          "artifacts/operational-webhooks-callbacks.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-011-secrets-configuration",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-secret-rotation",
+            "boundaryClasses": [
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Rotate one named secret in the provider dashboard and verify dual-read or dependent smoke checks.",
+            "readinessCommand": "check:secret-rotation-readiness"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-secrets-configuration",
+          "artifacts/operational-secrets-configuration.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-015-observability-redaction",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-monitoring-alert-routing",
+            "boundaryClasses": [
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm alert recipients, escalation policy, and dashboard routing in the monitoring provider after code-owned SLO checks pass.",
+            "readinessCommand": "test:slo-budgets"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-observability-redaction",
+          "artifacts/operational-observability-redaction.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-018-provider-integrations",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-oauth-provider-app-setup",
+            "boundaryClasses": [
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Configure redirect URLs, scopes, and signing secret rotation in the provider console after local OAuth integrity checks pass.",
+            "readinessCommand": "check:oauth-state-integrity"
+          },
+          {
+            "id": "manual-stripe-live-configuration",
+            "boundaryClasses": [
+              "customer-impacting",
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm live prices, portal, and webhook events in Stripe dashboard without creating a customer charge.",
+            "readinessCommand": "check:release-security-required-env"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-provider-integrations",
+          "artifacts/operational-provider-integrations.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-019-privacy-auditability",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-legal-approval",
+            "boundaryClasses": [
+              "legal-approval"
+            ],
+            "smallestNextAction": "Have an authorized reviewer approve public claims, policies, and compliance language.",
+            "readinessCommand": "audit:release-state-code-only:strict"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-privacy-auditability",
+          "artifacts/operational-privacy-auditability.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-020-supply-chain",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-release-approval",
+            "boundaryClasses": [
+              "release-decision"
+            ],
+            "smallestNextAction": "Approve or block the release after all code-owned release evidence is current.",
+            "readinessCommand": "pipeline:release:checklist"
+          },
+          {
+            "id": "manual-secret-rotation",
+            "boundaryClasses": [
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Rotate one named secret in the provider dashboard and verify dual-read or dependent smoke checks.",
+            "readinessCommand": "check:secret-rotation-readiness"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-supply-chain-risk",
+          "artifacts/operational-supply-chain-risk.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-021-frontend-resilience",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-browser-device-lab-approval",
+            "boundaryClasses": [
+              "customer-impacting",
+              "provider-console"
+            ],
+            "smallestNextAction": "Run or approve representative real-device and assistive-technology coverage after automated browser and visual suites are current.",
+            "readinessCommand": "test:e2e:visual:full"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-frontend-resilience",
+          "artifacts/operational-frontend-resilience.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-022-performance-load-chaos",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-production-load-chaos-approval",
+            "boundaryClasses": [
+              "customer-impacting",
+              "release-decision"
+            ],
+            "smallestNextAction": "Approve any production load, soak, or chaos execution window after local and staging-safe performance gates pass.",
+            "readinessCommand": "check:operational-performance-load-chaos"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-performance-load-chaos",
+          "artifacts/operational-performance-load-chaos.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-023-dr-incident-readiness",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-customer-impacting-communication",
+            "boundaryClasses": [
+              "customer-impacting"
+            ],
+            "smallestNextAction": "Approve customer-facing incident, migration, or release communication through the accountable business owner.",
+            "readinessCommand": "check:incident-readiness:strict"
+          },
+          {
+            "id": "manual-database-restore-drill",
+            "boundaryClasses": [
+              "data-migration",
+              "provider-console"
+            ],
+            "smallestNextAction": "Schedule or record a non-production restore drill using provider-approved backups; repository automation must only verify metadata and readiness evidence.",
+            "readinessCommand": "check:database-backup-restore-evidence"
+          }
+        ],
+        "codeEvidence": [
+          "check:incident-readiness:strict",
+          "artifacts/operational-dr-incident-readiness.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-024-waivers-ratchets",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-risk-acceptance",
+            "boundaryClasses": [
+              "release-decision",
+              "risk-acceptance"
+            ],
+            "smallestNextAction": "Accept, reject, or assign a replacement objective for the bounded risk after waiver and ratchet evidence is current.",
+            "readinessCommand": "check:operational-waivers-ratchets"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-waivers-ratchets",
+          "artifacts/operational-waivers-ratchets.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-026-schema-contract-compatibility",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-customer-impacting-communication",
+            "boundaryClasses": [
+              "customer-impacting"
+            ],
+            "smallestNextAction": "Approve customer-facing incident, migration, or release communication through the accountable business owner.",
+            "readinessCommand": "check:incident-readiness:strict"
+          },
+          {
+            "id": "manual-release-approval",
+            "boundaryClasses": [
+              "release-decision"
+            ],
+            "smallestNextAction": "Approve or block the release after all code-owned release evidence is current.",
+            "readinessCommand": "pipeline:release:checklist"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-schema-compatibility",
+          "artifacts/operational-schema-compatibility.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-028-admin-support",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-break-glass-approval",
+            "boundaryClasses": [
+              "customer-impacting",
+              "production-credential"
+            ],
+            "smallestNextAction": "Approve a named break-glass use through the accountable support and security owner after step-up diagnostics pass.",
+            "readinessCommand": "check:sensitive-action-step-up"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-support-operations",
+          "artifacts/operational-support-operations.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-029-dns-tls-edge",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-dns-change",
+            "boundaryClasses": [
+              "dns-change",
+              "provider-console"
+            ],
+            "smallestNextAction": "Apply DNS record change in the DNS provider and rerun read-only DNS smoke checks.",
+            "readinessCommand": "dns-caa-smoke"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-edge-readiness",
+          "artifacts/operational-edge-readiness.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-030-legal-trust-compliance",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-legal-approval",
+            "boundaryClasses": [
+              "legal-approval"
+            ],
+            "smallestNextAction": "Have an authorized reviewer approve public claims, policies, and compliance language.",
+            "readinessCommand": "audit:release-state-code-only:strict"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-legal-trust-compliance",
+          "artifacts/operational-legal-trust-compliance.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-032-test-reliability",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-browser-device-lab-approval",
+            "boundaryClasses": [
+              "customer-impacting",
+              "provider-console"
+            ],
+            "smallestNextAction": "Run or approve representative real-device and assistive-technology coverage after automated browser and visual suites are current.",
+            "readinessCommand": "test:e2e:visual:full"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-test-reliability-governance",
+          "artifacts/operational-test-reliability-governance.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-033-platform-variant-coverage",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-browser-device-lab-approval",
+            "boundaryClasses": [
+              "customer-impacting",
+              "provider-console"
+            ],
+            "smallestNextAction": "Run or approve representative real-device and assistive-technology coverage after automated browser and visual suites are current.",
+            "readinessCommand": "test:e2e:visual:full"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-platform-variant-coverage",
+          "artifacts/operational-platform-variant-coverage.json"
+        ]
+      },
+      {
+        "objectiveId": "oph-036-billing-entitlements",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-stripe-live-configuration",
+            "boundaryClasses": [
+              "customer-impacting",
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm live prices, portal, and webhook events in Stripe dashboard without creating a customer charge.",
+            "readinessCommand": "check:release-security-required-env"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-billing-entitlements",
+          "artifacts/operational-billing-entitlements.json",
+          "check:release-security-required-env"
+        ]
+      },
+      {
+        "objectiveId": "oph-037-oauth-integration-sync",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-oauth-provider-app-setup",
+            "boundaryClasses": [
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Configure redirect URLs, scopes, and signing secret rotation in the provider console after local OAuth integrity checks pass.",
+            "readinessCommand": "check:oauth-state-integrity"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-oauth-integration-sync",
+          "artifacts/operational-oauth-integration-sync.json",
+          "check:oauth-state-integrity"
+        ]
+      },
+      {
+        "objectiveId": "oph-038-public-launch-positioning",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-legal-approval",
+            "boundaryClasses": [
+              "legal-approval"
+            ],
+            "smallestNextAction": "Have an authorized reviewer approve public claims, policies, and compliance language.",
+            "readinessCommand": "audit:release-state-code-only:strict"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-public-launch-positioning",
+          "artifacts/operational-public-launch-positioning.json",
+          "audit:marketing-identity:strict"
+        ]
+      },
+      {
+        "objectiveId": "oph-040-threat-model-control-traceability",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-risk-acceptance",
+            "boundaryClasses": [
+              "release-decision",
+              "risk-acceptance"
+            ],
+            "smallestNextAction": "Accept, reject, or assign a replacement objective for the bounded risk after waiver and ratchet evidence is current.",
+            "readinessCommand": "check:operational-waivers-ratchets"
+          }
+        ],
+        "codeEvidence": [
+          "check:control-traceability:strict"
+        ]
+      },
+      {
+        "objectiveId": "oph-041-environment-isolation",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-provider-environment-creation",
+            "boundaryClasses": [
+              "provider-console"
+            ],
+            "smallestNextAction": "Create or verify provider environment isolation after operational environment isolation checks pass.",
+            "readinessCommand": "check:operational-environment-isolation"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-environment-isolation",
+          "artifacts/operational-environment-isolation.json",
+          "check:env-matrix"
+        ]
+      },
+      {
+        "objectiveId": "oph-042-machine-readable-governance",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-owner-assignment",
+            "boundaryClasses": [
+              "release-decision"
+            ],
+            "smallestNextAction": "Assign or confirm accountable human owners after governance ownership checks pass.",
+            "readinessCommand": "check:operational-governance-ownership"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-governance-ownership",
+          "artifacts/operational-governance-ownership.json",
+          "check:codeowners-security-paths"
+        ]
+      },
+      {
+        "objectiveId": "oph-043-manual-boundary-backlog",
+        "status": "implemented",
+        "manualActions": [
+          {
+            "id": "manual-branch-protection-change",
+            "boundaryClasses": [
+              "provider-console"
+            ],
+            "smallestNextAction": "Apply required-check/ruleset changes in GitHub after local workflow parity passes.",
+            "readinessCommand": "check:github-workflows-security"
+          },
+          {
+            "id": "manual-customer-impacting-communication",
+            "boundaryClasses": [
+              "customer-impacting"
+            ],
+            "smallestNextAction": "Approve customer-facing incident, migration, or release communication through the accountable business owner.",
+            "readinessCommand": "check:incident-readiness:strict"
+          },
+          {
+            "id": "manual-database-restore-drill",
+            "boundaryClasses": [
+              "data-migration",
+              "provider-console"
+            ],
+            "smallestNextAction": "Schedule or record a non-production restore drill using provider-approved backups; repository automation must only verify metadata and readiness evidence.",
+            "readinessCommand": "check:database-backup-restore-evidence"
+          },
+          {
+            "id": "manual-dns-change",
+            "boundaryClasses": [
+              "dns-change",
+              "provider-console"
+            ],
+            "smallestNextAction": "Apply DNS record change in the DNS provider and rerun read-only DNS smoke checks.",
+            "readinessCommand": "dns-caa-smoke"
+          },
+          {
+            "id": "manual-legal-approval",
+            "boundaryClasses": [
+              "legal-approval"
+            ],
+            "smallestNextAction": "Have an authorized reviewer approve public claims, policies, and compliance language.",
+            "readinessCommand": "audit:release-state-code-only:strict"
+          },
+          {
+            "id": "manual-production-migration-apply",
+            "boundaryClasses": [
+              "data-migration",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm linked production project ref and run only an approved dry-run before any migration application.",
+            "readinessCommand": "check:supabase:prod:deep"
+          },
+          {
+            "id": "manual-release-approval",
+            "boundaryClasses": [
+              "release-decision"
+            ],
+            "smallestNextAction": "Approve or block the release after all code-owned release evidence is current.",
+            "readinessCommand": "pipeline:release:checklist"
+          },
+          {
+            "id": "manual-secret-rotation",
+            "boundaryClasses": [
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Rotate one named secret in the provider dashboard and verify dual-read or dependent smoke checks.",
+            "readinessCommand": "check:secret-rotation-readiness"
+          },
+          {
+            "id": "manual-stripe-live-configuration",
+            "boundaryClasses": [
+              "customer-impacting",
+              "production-credential",
+              "provider-console"
+            ],
+            "smallestNextAction": "Confirm live prices, portal, and webhook events in Stripe dashboard without creating a customer charge.",
+            "readinessCommand": "check:release-security-required-env"
+          }
+        ],
+        "codeEvidence": [
+          "check:operational-hardening-objectives",
+          "artifacts/operational-hardening-closure.json"
+        ]
+      }
+    ]
+  },
+  "issueCount": 0,
+  "issues": []
+}

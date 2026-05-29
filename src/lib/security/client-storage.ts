@@ -40,9 +40,11 @@ export type StoredRecentItem = {
 export type StoredUploadMetadataDraft = {
   title: string;
   counterparty: string;
+  ownerLabel: string;
   contractType: string;
   region: string;
   annualValue: string;
+  tags: string;
   sourceSystem: string;
   externalReferenceId: string;
 };
@@ -370,9 +372,11 @@ export function readUploadMetadataDraft(
   return {
     ...(safeUploadField(raw.title, 160) !== null ? { title: raw.title as string } : {}),
     ...(safeUploadField(raw.counterparty, 160) !== null ? { counterparty: raw.counterparty as string } : {}),
+    ...(safeUploadField(raw.ownerLabel, 160) !== null ? { ownerLabel: raw.ownerLabel as string } : {}),
     ...(safeUploadField(raw.contractType, 80) !== null ? { contractType: raw.contractType as string } : {}),
     ...(safeUploadField(raw.region, 80) !== null ? { region: raw.region as string } : {}),
     ...(safeUploadField(raw.annualValue, 80) !== null ? { annualValue: raw.annualValue as string } : {}),
+    ...(safeUploadField(raw.tags, 240) !== null ? { tags: raw.tags as string } : {}),
     ...(safeUploadField(raw.sourceSystem, 80) !== null ? { sourceSystem: raw.sourceSystem as string } : {}),
     ...(safeUploadField(raw.externalReferenceId, 160) !== null
       ? { externalReferenceId: raw.externalReferenceId as string }
@@ -390,9 +394,11 @@ export function writeUploadMetadataDraft(
   writeStoredJson(storage, key, {
     title: safeUploadField(metadata.title, 160) ?? "",
     counterparty: safeUploadField(metadata.counterparty, 160) ?? "",
+    ownerLabel: safeUploadField(metadata.ownerLabel, 160) ?? "",
     contractType: safeUploadField(metadata.contractType, 80) ?? "",
     region: safeUploadField(metadata.region, 80) ?? "",
     annualValue: safeUploadField(metadata.annualValue, 80) ?? "",
+    tags: safeUploadField(metadata.tags, 240) ?? "",
     sourceSystem: safeUploadField(metadata.sourceSystem, 80) ?? "",
     externalReferenceId: safeUploadField(metadata.externalReferenceId, 160) ?? "",
   });

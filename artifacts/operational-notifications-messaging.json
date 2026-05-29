@@ -1,0 +1,465 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-notifications-messaging",
+  "generatedBy": "scripts/check-operational-notifications-messaging.mjs --write",
+  "generatedFrom": "config/operational-notifications-messaging.json",
+  "commandCount": 12,
+  "messageInventoryCount": 9,
+  "eligibilityRuleCount": 8,
+  "renderingSafeguardCount": 7,
+  "retryDeadLetterCount": 6,
+  "delegatedCheckCount": 5,
+  "runtimeInventory": {
+    "operationalRegistryStaticRows": 5,
+    "releaseEmailTemplateKeys": 21,
+    "notificationTaxonomyRows": 26
+  },
+  "commands": [
+    {
+      "objective": "message-rendering-sanitization",
+      "script": "check:email-identity-spoof-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "reply_to_spoofing",
+        "sender_identity"
+      ]
+    },
+    {
+      "objective": "message-rendering-sanitization",
+      "script": "check:operational-notifications-messaging",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "fixture_rendering",
+        "rendering_policy"
+      ]
+    },
+    {
+      "objective": "message-rendering-sanitization",
+      "script": "check:outbound-message-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "chat_payloads",
+        "header_injection",
+        "html_sanitization"
+      ]
+    },
+    {
+      "objective": "notification-preference-eligibility",
+      "script": "check:notification-payload-scrub-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "delivery_metadata_scrub",
+        "retry_payload_scrub"
+      ]
+    },
+    {
+      "objective": "notification-preference-eligibility",
+      "script": "check:operational-notifications-messaging",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "digest_grouping",
+        "eligibility_matrix",
+        "rate_limits"
+      ]
+    },
+    {
+      "objective": "notification-preference-eligibility",
+      "script": "test:vitest:current-product",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "preference_tests",
+        "workspace_mode_tests"
+      ]
+    },
+    {
+      "objective": "retry-dead-letter-behavior",
+      "script": "check:operational-notifications-messaging",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "retry_dead_letter_matrix"
+      ]
+    },
+    {
+      "objective": "retry-dead-letter-behavior",
+      "script": "check:poison-message-containment",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "poison_payloads",
+        "terminal_failure"
+      ]
+    },
+    {
+      "objective": "retry-dead-letter-behavior",
+      "script": "check:queue-message-authenticity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "duplicate_delivery",
+        "message_authenticity"
+      ]
+    },
+    {
+      "objective": "user-facing-message-inventory",
+      "script": "check:operational-notifications-messaging",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "artifact_drift",
+        "message_registry",
+        "surface_coverage"
+      ]
+    },
+    {
+      "objective": "user-facing-message-inventory",
+      "script": "check:user-facing-interactions",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "route_interactions",
+        "ui_surfaces"
+      ]
+    },
+    {
+      "objective": "user-facing-message-inventory",
+      "script": "test:vitest:current-product",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "registry_metadata",
+        "template_inventory"
+      ]
+    }
+  ],
+  "messageInventory": [
+    {
+      "id": "alerts",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "banners",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "billing-notices",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "email",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "errors",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "evidence-requests",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "in-app-notifications",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reminders",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "toasts",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "eligibilityRules": [
+    {
+      "id": "billing-state",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "digest-grouping",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "disabled-org",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "duplicate-suppression",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "inactive-user",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "opt-out",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rate-limits",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "workspace-mode",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "renderingSafeguards": [
+    {
+      "id": "html-escaping",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "locale-dates",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "long-names",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "markdown-links",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "missing-fields",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-secret-payloads",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unsubscribe",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "retryDeadLetter": [
+    {
+      "id": "duplicate-delivery",
+      "path": "src/lib/notification-delivery.ts",
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "permanent-failure",
+      "path": "src/lib/notification-delivery.ts",
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "poison-payload",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-failure",
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "owner": "@notifications",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stale-notification",
+      "path": "src/lib/notification-delivery.ts",
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "transient-failure",
+      "path": "src/lib/notification-delivery.ts",
+      "owner": "@notifications",
+      "validationCommand": "check:poison-message-containment",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "delegatedChecks": [
+    {
+      "checkId": "notification-payload-scrub-contract",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "outbound-message-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "poison-message-containment",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "queue-message-authenticity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "user-facing-interactions",
+      "ok": true,
+      "issueCount": 0,
+      "routeCount": 77,
+      "interactionCount": 1027,
+      "openInteractionRiskCount": 59
+    }
+  ],
+  "manualBoundary": "Provider deliverability dashboards, recipient mailbox behavior, and live notification destination verification remain external; this artifact enforces repository-owned message inventory, eligibility, rendering, retry, and dead-letter controls.",
+  "issueCount": 0,
+  "issues": []
+}

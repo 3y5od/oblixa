@@ -75,8 +75,7 @@ export function DeleteContractButton({
   }
 
   return (
-    <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
-      <p className="mb-2 text-xs font-medium uppercase text-[var(--text-tertiary)]">Danger zone</p>
+    <div>
       <button
         ref={triggerRef}
         type="button"
@@ -85,12 +84,12 @@ export function DeleteContractButton({
           setConfirmOpen(true);
         }}
         disabled={isPending || confirmOpen}
-        className="ui-btn-danger inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
+        className="inline-flex max-w-max items-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--danger)_28%,var(--border-subtle))] bg-transparent px-2.5 py-1 text-[11.5px] font-medium text-[var(--danger-ink)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_18%,transparent)] disabled:opacity-50"
       >
         {isPending ? (
-          <Loader2 size={16} className="animate-spin" aria-hidden />
+          <Loader2 size={12} className="animate-spin" aria-hidden />
         ) : (
-          <Trash2 size={16} aria-hidden />
+          <Trash2 size={12} aria-hidden />
         )}
         {isPending ? "Deleting…" : "Delete contract"}
       </button>

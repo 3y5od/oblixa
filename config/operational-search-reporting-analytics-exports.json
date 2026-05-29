@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-search-reporting-analytics-exports",
+  "objectives": [
+    {
+      "id": "search-behavior",
+      "ownerArea": "product-operations",
+      "commands": [
+        { "command": "check:operational-search-reporting-analytics-exports", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "search_policy"] },
+        { "command": "check:telemetry-event-inventory", "ciRequired": true, "covers": ["search_telemetry_inventory"] },
+        { "command": "test:vitest:current-product", "ciRequired": false, "covers": ["search_page_surface", "search_url_properties", "command_search_ranking"] }
+      ],
+      "artifacts": ["artifacts/operational-search-reporting-analytics-exports.json"]
+    },
+    {
+      "id": "reporting-workflows",
+      "ownerArea": "product-operations",
+      "commands": [
+        { "command": "check:operational-search-reporting-analytics-exports", "ciRequired": true, "covers": ["report_generation", "report_subscriptions", "retry_governance"] },
+        { "command": "check:report-redaction-contract", "ciRequired": true, "covers": ["redaction", "tracking_token_hashes"] },
+        { "command": "check:export-security-guards", "ciRequired": true, "covers": ["report_exports", "private_cache", "bounded_export_rows"] }
+      ]
+    },
+    {
+      "id": "analytics-event-governance",
+      "ownerArea": "observability",
+      "commands": [
+        { "command": "check:operational-search-reporting-analytics-exports", "ciRequired": true, "covers": ["event_owner", "event_sensitivity", "event_retention", "event_destination"] },
+        { "command": "check:telemetry-event-inventory", "ciRequired": true, "covers": ["event_names", "event_schema_sources"] },
+        { "command": "check:logging-telemetry-redaction", "ciRequired": true, "covers": ["payload_redaction"] }
+      ]
+    },
+    {
+      "id": "spreadsheet-injection",
+      "ownerArea": "frontend-security",
+      "commands": [
+        { "command": "check:operational-search-reporting-analytics-exports", "ciRequired": true, "covers": ["spreadsheet_injection_policy"] },
+        { "command": "check:export-security-guards", "ciRequired": true, "covers": ["csv_formula", "content_disposition", "filename_safety"] },
+        { "command": "check:versioned-export-download-contracts", "ciRequired": true, "covers": ["download_contracts"] }
+      ]
+    }
+  ],
+  "searchBehavior": [
+    {
+      "id": "query-length",
+      "path": "src/lib/contracts-search-url.ts",
+      "markers": ["CONTRACTS_SEARCH_MAX_LENGTH = 200", ".slice(0, CONTRACTS_SEARCH_MAX_LENGTH)"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "special-characters",
+      "path": "src/lib/contracts-search-url.ts",
+      "markers": ["CONTRACTS_SEARCH_STRIP_RE", "replace(CONTRACTS_SEARCH_STRIP_RE, \"\")"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "unicode-normalization",
+      "path": "src/lib/contracts-search-url.ts",
+      "markers": [".normalize(\"NFKC\")", "CONTRACTS_SEARCH_CONTROL_RE"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "empty-query",
+      "path": "src/app/api/command-palette/contracts/route.ts",
+      "markers": ["q.length < 2", "v10_command_search_short_query", "contracts: []"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "pagination",
+      "path": "src/lib/contract-list.ts",
+      "markers": ["CONTRACTS_PAGE_SIZE = 25", ".range(from, to)", "p_limit: CONTRACTS_PAGE_SIZE"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "authorization",
+      "path": "src/app/api/command-palette/contracts/route.ts",
+      "markers": ["getAuthContext", "requireApiWorkspaceEligibility", "jsonUnauthorized(ROUTE)"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "rate-limits",
+      "path": "src/app/api/command-palette/contracts/route.ts",
+      "markers": ["rateLimitCheck(`command-search:${ctx.user.id}:${ip}`", "RATE_LIMITS.commandPaletteSearch", "jsonRateLimited(rl.retryAfterMs, ROUTE)"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "ranking-determinism",
+      "path": "src/app/api/command-palette/contracts/route.ts",
+      "markers": ["selectV10DiverseCommandResults", "a.rank - b.rank || b.updatedAt - a.updatedAt || a.tieBreaker.localeCompare(b.tieBreaker)", "V10_COMMAND_RESPONSE_LIMIT"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "cross-org-isolation",
+      "path": "src/app/api/command-palette/contracts/route.ts",
+      "markers": [".eq(\"organization_id\", ctx.orgId)", "organizationId: ctx.orgId", "applyV10CommandSearchVisibility"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "reportingWorkflows": [
+    {
+      "id": "report-generation",
+      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "markers": ["runSingleReportPackGeneration", "withCronRoute", "RATE_LIMITS.v4ReportPacksCron", "cronMatchesUtc", "extractPriorKpis", "duplicateSkipped"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "scheduled-reports",
+      "path": "src/app/api/reports/send-summaries/route.ts",
+      "markers": ["withCronRoute", "RATE_LIMITS.reportsSummariesCron", "DUE_SUBSCRIPTION_PAGE_SIZE", "MAX_DUE_SUBSCRIPTION_OFFSET_EXCLUSIVE", "nextRunForFrequency"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "report-subscriptions",
+      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "markers": ["report_pack_subscriptions", "recipient_emails", "isNotificationAllowed", "sendReportPackDigestEmail", "last_sent_at"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "stale-report-data",
+      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "markers": ["extractPriorKpis", "prevRun", "report_pack_runs", "refreshV10ReadModelsForOrganization"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "failed-generation",
+      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "markers": ["status: \"failed\"", "failureDiagnosticId", "v10_report_pack_run_insert_failed", "safeErrorMessage"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "retry",
+      "path": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "markers": ["rateLimitCheck", "RATE_LIMITS.reportRunRetryMutation", "executeV10IdempotentMutation", "runSingleReportPackGeneration", ".eq(\"organization_id\", membership.organization_id)"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "redaction",
+      "path": "scripts/check-report-redaction-contract.mjs",
+      "markers": ["sanitizeRetryPayload", "sanitizeMetadata", "engagement_token_hash"],
+      "owner": "@product-operations",
+      "validationCommand": "check:report-redaction-contract"
+    },
+    {
+      "id": "export-limits",
+      "path": "src/app/api/report-packs/[id]/runs/route.ts",
+      "markers": ["RATE_LIMITS.reportPackRunsRead", ".limit(100)", "parseFixedEnumParam", "private, no-store"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "analyticsEventGovernance": {
+    "inventory": "artifacts/telemetry/event-inventory.json",
+    "requiredFields": ["eventName", "payloadSchema", "sensitivityClass", "retentionClass", "owner", "destinations"],
+    "eventClassPolicies": [
+      { "eventClass": "product_telemetry_definition", "owner": "@product-operations", "sensitivityClass": "pseudonymous_behavioral", "retentionClass": "analytics_retention", "destinations": ["analytics_dashboard"] },
+      { "eventClass": "product_telemetry_emit", "owner": "@product-operations", "sensitivityClass": "pseudonymous_behavioral", "retentionClass": "analytics_retention", "destinations": ["analytics_dashboard"] },
+      { "eventClass": "audit_action_reference", "owner": "@security", "sensitivityClass": "audit_metadata", "retentionClass": "audit_retention", "destinations": ["audit_log"] },
+      { "eventClass": "action_event_reference", "owner": "@product-operations", "sensitivityClass": "operational_metadata", "retentionClass": "operational_retention", "destinations": ["analytics_dashboard"] },
+      { "eventClass": "event_type_write", "owner": "@data-platform", "sensitivityClass": "operational_metadata", "retentionClass": "database_retention", "destinations": ["database_persisted_event"] },
+      { "eventClass": "event_type_reference", "owner": "@data-platform", "sensitivityClass": "operational_metadata", "retentionClass": "database_retention", "destinations": ["database_persisted_event"] },
+      { "eventClass": "event_type_query", "owner": "@data-platform", "sensitivityClass": "operational_metadata", "retentionClass": "database_retention", "destinations": ["database_persisted_event"] },
+      { "eventClass": "outbound_event_type", "owner": "@integrations", "sensitivityClass": "integration_metadata", "retentionClass": "integration_retention", "destinations": ["webhook_subscriber"] },
+      { "eventClass": "sql_event_type_constraint", "owner": "@data-platform", "sensitivityClass": "schema_metadata", "retentionClass": "database_retention", "destinations": ["database_persisted_event"] },
+      { "eventClass": "webhook_subscription_default", "owner": "@integrations", "sensitivityClass": "integration_metadata", "retentionClass": "integration_retention", "destinations": ["webhook_subscriber"] },
+      { "eventClass": "telemetry_bridge_source", "owner": "@observability", "sensitivityClass": "compatibility_metadata", "retentionClass": "compatibility_retention", "destinations": ["analytics_dashboard"] },
+      { "eventClass": "telemetry_bridge_target", "owner": "@observability", "sensitivityClass": "compatibility_metadata", "retentionClass": "compatibility_retention", "destinations": ["analytics_dashboard"] }
+    ]
+  },
+  "spreadsheetInjection": [
+    {
+      "id": "formula-prefixes",
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markers": ["neutralizes leading formula characters", "escapeCsvCellForSpreadsheet(\"=1+1\")", "escapeCsvCellForSpreadsheet(\"@SUM(A1)\")"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "delimiter-abuse",
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markers": ["quotes commas and embedded quotes", "a\"b,c"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "newline-injection",
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markers": ["newline injection payloads", "X-Bad: yes"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "unicode-controls",
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markers": ["strips bidi controls before formula neutralization", "Vendor \\u2066LLC\\u2069"],
+      "owner": "@frontend-security",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "malicious-filenames",
+      "path": "src/lib/security/export-filename.test.ts",
+      "markers": ["strips header-breaking and bidi characters", "report%0d%0aX-Bad.csv", "filename*=UTF-8''"],
+      "owner": "@frontend-security",
+      "validationCommand": "check:export-security-guards"
+    },
+    {
+      "id": "export-route-coverage",
+      "path": "scripts/check-export-security-guards.mjs",
+      "markers": ["src/app/api/report-packs/[id]/runs/route.ts", "escapeCsvCellForSpreadsheet", "contentDispositionAttachment(csvFileName)"],
+      "owner": "@frontend-security",
+      "validationCommand": "check:export-security-guards"
+    }
+  ],
+  "manualBoundary": "Manual review of BI dashboards and third-party analytics destinations remains external; this registry enforces repository-owned search, reporting, telemetry inventory, and spreadsheet/export safety controls."
+}

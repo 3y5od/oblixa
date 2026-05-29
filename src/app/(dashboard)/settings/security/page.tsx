@@ -2,14 +2,17 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import {
   ArrowLeft,
+  Check,
   ChevronRight,
   Inbox,
   Mail,
   ShieldCheck,
+  TriangleAlert,
 } from "lucide-react";
 import { getAuthContext, createClient, createAdminClient } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { UiAlert } from "@/components/ui/ui-alert";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ChipCapsule } from "@/components/ui/chip-capsule";
@@ -37,25 +40,7 @@ export const metadata = {
 };
 
 /**
- * V2 §1.13 + §1.49 — mask an email for privacy:
- *  - local: first 3 chars + Unicode ellipsis
- *  - domain: truncated to 12 chars + Unicode ellipsis when longer
- * Output capped ≤ ~20 chars to fit metaStrip without overflow.
- */
-function maskEmail(value: string): string {
-  if (!value || typeof value !== "string") return "";
-  const at = value.indexOf("@");
-  if (at <= 0) return value;
-  const local = value.slice(0, at);
-  const domain = value.slice(at);
-  const localMasked = local.length <= 3 ? local : `${local.slice(0, 3)}…`;
-  const domainMasked =
-    domain.length <= 13 ? domain : `${domain.slice(0, 12)}…`;
-  return `${localMasked}${domainMasked}`;
-}
-
-/**
- * V2 §1.37 — humanize sign-in provider names. Supabase returns
+ * Humanize sign-in provider names. Supabase returns
  * `email`, `google`, `github`, etc. We render Title Case.
  */
 function humanizeProvider(p: string): string {
@@ -183,9 +168,12 @@ export default async function SecuritySettingsPage({
   const isAdmin = ctx.role === "admin";
   const factorCount = totpFactors.length;
   const accountEmail = ctx.user.email ?? "";
-  // V2 §1.50 defensive: fall back to first provider when email empty.
+  // Show the full email so the user can verify the exact account; the
+  // identity strip truncates with a title tooltip rather than masking,
+  // which made long addresses ("alt…@gmail.com") impossible to confirm.
+  // Falls back to the first sign-in provider when no email is present.
   const accountIdentity = accountEmail
-    ? maskEmail(accountEmail)
+    ? accountEmail
     : providers[0]
       ? humanizeProvider(providers[0]).toUpperCase()
       : "—";
@@ -199,17 +187,12 @@ export default async function SecuritySettingsPage({
   const showDevBanner =
     !isProdLike && !process.env.OBLIXA_STEP_UP_SECRET;
 
-  // V2 §3.1 — when factors === 0, MFA is the primary task; reorder
-  // so the Resources card moves below the panel.
-  const factorsEmpty = factorCount === 0;
-  // V2 §1.35 — skip-link target follows the reorder.
-  const skipTargetId = factorsEmpty ? "mfa-card" : "security-resources-title";
-
   return (
     <div className="ui-page-stack mx-auto max-w-4xl gap-5">
-      {/* SPEC: V2 §1.35 + §5.1 — skip-link target adapts to reorder. */}
+      {/* The panel (mfa-card) is always the first interactive surface,
+          so the skip link targets it directly. */}
       <Link
-        href={`#${skipTargetId}`}
+        href="#mfa-card"
         className="ui-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-[var(--surface-raised)] focus:px-3 focus:py-2 focus:text-[var(--text-primary)]"
       >
         Skip to security content
@@ -234,78 +217,80 @@ export default async function SecuritySettingsPage({
           eyebrow={SETTINGS_SECURITY_STRINGS.eyebrow}
           title={SETTINGS_SECURITY_STRINGS.title}
           lead={SETTINGS_SECURITY_STRINGS.lead}
-          // V4 user-report — metaStrip prop dropped. The
-          // DashboardPageHeader primitive wraps metaStrip children in
-          // a `<dl className="flex items-center">` which produced
-          // baseline drift between chips with different value heights
-          // (font-mono email at 12px vs sans values at 11.5px).
-          // Identity chips relocated to a dedicated IdentityStrip
-          // below this header using CSS grid for guaranteed column
-          // alignment + adequate breathing room. V3 §1.25 — `actions`
-          // prop also remains dropped.
+          // Identity-only header — no actions slot. Account context
+          // (MFA, role, workspace, email) renders in the flat identity
+          // strip below rather than being crammed into the header.
         />
 
-        {/* V4 user-report — identity strip with grid layout so all
-            eyebrows align at the TOP of each column (independent of
-            value height), with proper breathing room between chips
-            (gap-x-6 = 24px, up from gap-x-2 = 8px in the dl). At <sm
-            widths the grid degrades to 2 cols; at sm+ it's 4 cols. */}
-        <section
+        {/* Issue #2 — identity strip flattened from a boxed panel to an
+            inline dl on a hairline so it reads as page metadata (§5.1),
+            not a second card competing with the panel below. items-center
+            keeps the MFA StatusBadge aligned with the text values without
+            grid baseline gymnastics. */}
+        <dl
           aria-label="Identity"
-          className="billing-no-print rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-3"
+          className="billing-no-print flex flex-wrap items-center gap-x-6 gap-y-2.5 border-t border-[var(--border-subtle)] pt-3.5"
         >
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
-            <div className="flex min-w-0 flex-col gap-1">
-              <dt className="ui-caps-2 text-[var(--text-tertiary)]">MFA</dt>
-              <dd
-                className={`text-[13px] font-medium ${
-                  factorCount > 0
-                    ? "text-[var(--success-ink)]"
-                    : "text-[var(--warning-ink)]"
-                }`}
-              >
-                {factorCount > 0 ? "Two-factor" : "Single-factor"}
-              </dd>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1">
-              <dt className="ui-caps-2 text-[var(--text-tertiary)]">Role</dt>
-              <dd className="text-[13px] font-medium text-[var(--text-primary)]">
-                {ctx.role.charAt(0).toUpperCase() + ctx.role.slice(1)}
-              </dd>
-            </div>
-            {orgName ? (
-              <div className="flex min-w-0 flex-col gap-1">
-                <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                  {SETTINGS_SECURITY_STRINGS.workspaceLabelChip}
-                </dt>
-                <dd className="min-w-0">
-                  <Link
-                    href="/settings/workspace"
-                    className="ui-link block truncate text-[13px] font-medium"
-                    title={orgName}
-                    aria-label={orgName}
-                  >
-                    {orgName}
-                  </Link>
-                </dd>
-              </div>
-            ) : null}
-            <div className="flex min-w-0 flex-col gap-1">
-              <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                {SETTINGS_SECURITY_STRINGS.accountLabel}
+          {/* Issue #3 — MFA posture carries a StatusBadge + glyph so the
+              state is legible without relying on color alone (§7.7). */}
+          <div className="inline-flex items-center gap-2">
+            <dt className="ui-caps-3 text-[var(--text-tertiary)]">MFA</dt>
+            <dd>
+              {factorCount > 0 ? (
+                <StatusBadge status="healthy" className="gap-1">
+                  <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  {SETTINGS_SECURITY_STRINGS.mfaTwoFactorLabel}
+                </StatusBadge>
+              ) : (
+                <StatusBadge status="warning" className="gap-1">
+                  <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  {SETTINGS_SECURITY_STRINGS.mfaSingleLabel}
+                </StatusBadge>
+              )}
+            </dd>
+          </div>
+          <div className="inline-flex items-center gap-2">
+            <dt className="ui-caps-3 text-[var(--text-tertiary)]">Role</dt>
+            <dd className="text-[13px] font-medium text-[var(--text-primary)]">
+              {ctx.role.charAt(0).toUpperCase() + ctx.role.slice(1)}
+            </dd>
+          </div>
+          {orgName ? (
+            <div className="inline-flex min-w-0 items-center gap-2">
+              <dt className="ui-caps-3 text-[var(--text-tertiary)]">
+                {SETTINGS_SECURITY_STRINGS.workspaceLabelChip}
               </dt>
               <dd className="min-w-0">
                 <Link
-                  href="/settings/account"
-                  className="ui-link block truncate font-mono text-[13px] font-medium"
-                  aria-label={accountEmail || accountIdentity}
+                  href="/settings/workspace"
+                  className="ui-link block max-w-[12rem] truncate text-[13px] font-medium"
+                  title={orgName}
+                  aria-label={orgName}
                 >
-                  {accountIdentity}
+                  {orgName}
                 </Link>
               </dd>
             </div>
-          </dl>
-        </section>
+          ) : null}
+          {/* Issue #4 — full email (mono) with truncate + title so long
+              addresses stay verifiable on hover/focus instead of being
+              masked into ambiguity. The visible email text supplies the
+              link's accessible name, so no separate aria-label. */}
+          <div className="inline-flex min-w-0 items-center gap-2">
+            <dt className="ui-caps-3 text-[var(--text-tertiary)]">
+              {SETTINGS_SECURITY_STRINGS.accountLabel}
+            </dt>
+            <dd className="min-w-0">
+              <Link
+                href="/settings/account"
+                className="ui-link block max-w-[16rem] truncate font-mono text-[12.5px]"
+                title={accountIdentity}
+              >
+                {accountIdentity}
+              </Link>
+            </dd>
+          </div>
+        </dl>
 
         {mfaBanner ? (
           <UiAlert tone={mfaBanner.tone}>{mfaBanner.copy}</UiAlert>
@@ -318,13 +303,12 @@ export default async function SecuritySettingsPage({
           </UiAlert>
         ) : null}
 
-        {/* V2 §1.54 — dev environment marker. V3 §1.4 requested
-            `info` tone but the UiAlert primitive only supports
-            neutral/success/warning/danger (StatTone). Neutral is
-            the canonical "informational, no action required" tone
-            here. Marked verified-by-design. */}
+        {/* Issue #5 — the dev banner flags that step-up cookie
+            validation is mocked, which is security-relevant. Warning
+            tone (amber + TriangleAlert) makes it visibly distinct from
+            neutral informational notices rather than blending in. */}
         {showDevBanner ? (
-          <UiAlert tone="neutral">
+          <UiAlert tone="warning">
             {SETTINGS_SECURITY_STRINGS.devModeCopy}
           </UiAlert>
         ) : null}
@@ -342,67 +326,49 @@ export default async function SecuritySettingsPage({
         ) : null}
       </div>
 
-      {/* V2 §3.1 — render MFA + Sensitive + Sessions + Workspace
-          panel FIRST when factors are empty (primary task); otherwise
-          render Resources card first as the orientation surface. */}
-      {factorsEmpty ? (
-        <>
-          <SecuritySettingsPanel
-            orgId={ctx.orgId}
-            role={ctx.role}
-            orgMfaRequired={ctx.mfaRequired}
-            totpFactors={totpFactors}
-            currentAal={currentAal}
-            nextAal={nextAal}
-            stepUp={stepUp}
-            sessions={sessionRows}
-          />
-          <ResourcesCard
-            ctxRole={ctx.role}
-            providerLabel={signInMethodLabel}
-            emailVerified={emailVerified}
-            emailConfirmedAt={emailConfirmedAt}
-            memberSince={memberSince}
-            lastSignInIso={lastSignInIso}
-          />
-        </>
-      ) : (
-        <>
-          <ResourcesCard
-            ctxRole={ctx.role}
-            providerLabel={signInMethodLabel}
-            emailVerified={emailVerified}
-            emailConfirmedAt={emailConfirmedAt}
-            memberSince={memberSince}
-            lastSignInIso={lastSignInIso}
-          />
-          <SecuritySettingsPanel
-            orgId={ctx.orgId}
-            role={ctx.role}
-            orgMfaRequired={ctx.mfaRequired}
-            totpFactors={totpFactors}
-            currentAal={currentAal}
-            nextAal={nextAal}
-            stepUp={stepUp}
-            sessions={sessionRows}
-          />
-        </>
-      )}
+      {/* Issue #25 — fixed order for consistent rhythm: the interactive
+          security panel always leads (the primary task surface), then the
+          read-only account context, then activity, then the legal note.
+          The previous factorsEmpty reorder produced two different layouts
+          depending on state, which read as uneven hierarchy. */}
+      <SecuritySettingsPanel
+        orgId={ctx.orgId}
+        role={ctx.role}
+        orgMfaRequired={ctx.mfaRequired}
+        totpFactors={totpFactors}
+        currentAal={currentAal}
+        nextAal={nextAal}
+        stepUp={stepUp}
+        sessions={sessionRows}
+      />
 
-      {/* V2 §3.1 activity strip — final element. */}
+      <AccountContext
+        ctxRole={ctx.role}
+        providerLabel={signInMethodLabel}
+        emailVerified={emailVerified}
+        emailConfirmedAt={emailConfirmedAt}
+        memberSince={memberSince}
+        memberSinceIso={userCreatedAt}
+        lastSignInIso={lastSignInIso}
+      />
+
       <ActivityStrip />
+
+      <LegalNote />
     </div>
   );
 }
 
-// V2 §1.1 + §1.28 — Resources card extracted for readability + to
-// fold the new account-identity rows in cleanly.
-function ResourcesCard({
+// Account & workspace context. Issue #6/#17/#18 — flattened from a
+// ui-card-raised panel with a decorative corner ring into a plain
+// grouped list so it stops competing with the interactive panel above.
+function AccountContext({
   ctxRole,
   providerLabel,
   emailVerified,
   emailConfirmedAt,
   memberSince,
+  memberSinceIso,
   lastSignInIso,
 }: {
   ctxRole: string;
@@ -410,196 +376,172 @@ function ResourcesCard({
   emailVerified: boolean;
   emailConfirmedAt: string | null;
   memberSince: string | null;
+  memberSinceIso: string | null;
   lastSignInIso: string | null;
 }) {
-  // V3 §1.11 + §1.1 — canonical date helper.
   const verifiedLabel = emailConfirmedAt ? formatDate(emailConfirmedAt, "date") : null;
-  // V3 §1.10 — when provider is only "email", combine SIGN-IN +
-  // EMAIL into a single row (drop the SIGN-IN METHOD row).
-  const onlyEmailProvider =
-    providerLabel.trim().toLowerCase() === "email";
+  // When the only provider is "email", the EMAIL STATUS row already
+  // conveys sign-in, so the SIGN-IN METHOD row is dropped (§10.4).
+  const onlyEmailProvider = providerLabel.trim().toLowerCase() === "email";
+  // Issue #19 — labels sit at ui-caps-3 (not the oversized ui-caps-2)
+  // so they no longer overpower the values; rows are justify-between
+  // grouped-list lines instead of a 2-col grid with heavy labels.
+  const rowClass =
+    "flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 py-2.5";
+  const labelClass = "ui-caps-3 text-[var(--text-tertiary)]";
   return (
-    <section
-      className="ui-card-raised relative overflow-hidden rounded-2xl border p-0"
-      aria-labelledby="security-resources-title"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,transparent)] opacity-70"
-        style={{
-          top: "-2.25rem",
-          right: "-2.25rem",
-          width: "7rem",
-          height: "7rem",
-        }}
-      />
-      <header className="relative border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-        {/* Resources uses a plain caps eyebrow so public Settings pages avoid
-            landing-page decoration helpers. */}
-        <p className="ui-caps-1 text-[var(--accent)]">
-          <span>{SETTINGS_SECURITY_STRINGS.eyebrows.resources}</span>
-        </p>
-        <h2
-          id="security-resources-title"
-          className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.4rem]"
-        >
-          {SETTINGS_SECURITY_STRINGS.sections.resources}
-        </h2>
-      </header>
-      <div className="relative grid gap-2 px-5 py-4 sm:grid-cols-[minmax(11rem,16rem)_minmax(0,1fr)]">
-        {/* V2 §1.3 — TEAM ROLES row uses ChipPair (drops bare dot). */}
-        <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
-          {SETTINGS_SECURITY_STRINGS.sections.teamRoles}
-        </div>
-        <div className="inline-flex items-center gap-1.5 text-[13.5px]">
-          <ChipPair primary={ctxRole.toUpperCase()} secondary="VIEW ONLY" />
+    <section aria-labelledby="security-context-title">
+      <p className="ui-caps-2 text-[var(--accent-strong)]">
+        {SETTINGS_SECURITY_STRINGS.eyebrows.resources}
+      </p>
+      {/* Issue #18 — heading shrunk from the 1.4rem card title to a
+          15px label so the section reads as supporting context, not a
+          focal surface. */}
+      <h2
+        id="security-context-title"
+        className="mt-0.5 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]"
+      >
+        {SETTINGS_SECURITY_STRINGS.sections.resources}
+      </h2>
+      <dl className="mt-3 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
+        {/* Team roles (release-state §1685-1702 required content). */}
+        <div className={rowClass}>
+          <dt className={labelClass}>
+            {SETTINGS_SECURITY_STRINGS.sections.teamRoles}
+          </dt>
+          <dd className="inline-flex items-center gap-1.5 text-[13px]">
+            <ChipPair primary={ctxRole.toUpperCase()} secondary="VIEW ONLY" />
+          </dd>
         </div>
 
-        {/* V3 §1.10 — when provider is "email" only, drop the
-            SIGN-IN METHOD row (the EMAIL STATUS row carries it).
-            When multiple providers, render via ChipPair cluster
-            per V3 §1.24. */}
         {!onlyEmailProvider ? (
-          <>
-            <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
+          <div className={rowClass}>
+            <dt className={labelClass}>
               {SETTINGS_SECURITY_STRINGS.resources.signInMethod}
-            </div>
-            <div className="inline-flex flex-wrap items-center gap-1.5 text-[13.5px]">
-              {providerLabel.split(" · ").map((p, idx, arr) => (
-                <span key={p} className="inline-flex items-center gap-1.5">
-                  <span className="ui-caps-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[var(--text-secondary)]">
-                    {p.toUpperCase()}
-                  </span>
-                  {idx < arr.length - 1 ? null : null}
+            </dt>
+            <dd className="inline-flex flex-wrap items-center justify-end gap-1.5 text-[13px]">
+              {providerLabel.split(" · ").map((p) => (
+                <span
+                  key={p}
+                  className="ui-caps-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[var(--text-secondary)]"
+                >
+                  {p.toUpperCase()}
                 </span>
               ))}
-            </div>
-          </>
+            </dd>
+          </div>
         ) : null}
 
-        {/* V2 §1.36 / V3 §1.10 — EMAIL STATUS row (also conveys
-            SIGN-IN when provider is only email). */}
-        <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
-          {SETTINGS_SECURITY_STRINGS.resources.emailStatus}
-        </div>
-        <div className="inline-flex flex-wrap items-center gap-1.5 text-[13.5px]">
-          <StatusBadge status={emailVerified ? "healthy" : "warning"}>
-            {emailVerified
-              ? SETTINGS_SECURITY_STRINGS.emailVerifiedLabel
-              : SETTINGS_SECURITY_STRINGS.emailUnverifiedLabel}
-          </StatusBadge>
-          {verifiedLabel ? (
-            <time
-              className="text-[12px] text-[var(--text-tertiary)]"
-              {...timeAttrs(emailConfirmedAt)}
-            >
-              {verifiedLabel}
-            </time>
-          ) : null}
-          {/* V3 §1.15 — Resend verification CTA when unverified. */}
-          {!emailVerified ? (
-            <Link
-              href="/auth/resend-verification"
-              className="ui-link text-[12.5px]"
-            >
-              {SETTINGS_SECURITY_STRINGS.resendVerificationCta}
-            </Link>
-          ) : null}
+        {/* Issue #21 — email status keeps the StatusBadge but adds a
+            glyph (Check / TriangleAlert) so it isn't a color-only chip. */}
+        <div className={rowClass}>
+          <dt className={labelClass}>
+            {SETTINGS_SECURITY_STRINGS.resources.emailStatus}
+          </dt>
+          <dd className="inline-flex flex-wrap items-center justify-end gap-2 text-[13px]">
+            {emailVerified ? (
+              <StatusBadge status="healthy" className="gap-1">
+                <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden />
+                {SETTINGS_SECURITY_STRINGS.emailVerifiedLabel}
+              </StatusBadge>
+            ) : (
+              <StatusBadge status="warning" className="gap-1">
+                <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
+                {SETTINGS_SECURITY_STRINGS.emailUnverifiedLabel}
+              </StatusBadge>
+            )}
+            {verifiedLabel ? (
+              <time
+                className="tabular-nums text-[12px] text-[var(--text-tertiary)]"
+                {...timeAttrs(emailConfirmedAt)}
+              >
+                {verifiedLabel}
+              </time>
+            ) : null}
+            {!emailVerified ? (
+              <Link
+                href="/auth/resend-verification"
+                className="ui-link text-[12.5px]"
+              >
+                {SETTINGS_SECURITY_STRINGS.resendVerificationCta}
+              </Link>
+            ) : null}
+          </dd>
         </div>
 
-        {/* V2 §1.48 / V3 §1.12 — MEMBER SINCE row uses body font
-            (mono dropped). V3 §1.27 — <time> with UTC title. */}
+        {/* Issue #20 — dates use tabular-nums for aligned, scannable
+            figures instead of plain proportional text. */}
         {memberSince ? (
-          <>
-            <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
+          <div className={rowClass}>
+            <dt className={labelClass}>
               {SETTINGS_SECURITY_STRINGS.resources.memberSince}
-            </div>
-            <div className="inline-flex items-center gap-1.5 text-[13.5px] text-[var(--text-primary)]">
-              <time {...timeAttrs(emailConfirmedAt)}>{memberSince}</time>
-            </div>
-          </>
+            </dt>
+            <dd className="text-[13px] text-[var(--text-primary)]">
+              <time className="tabular-nums" {...timeAttrs(memberSinceIso)}>
+                {memberSince}
+              </time>
+            </dd>
+          </div>
         ) : null}
 
-        {/* V4 §1.1 — LAST SIGN-IN row from user.last_sign_in_at. */}
         {lastSignInIso ? (
-          <>
-            <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
+          <div className={rowClass}>
+            <dt className={labelClass}>
               {SETTINGS_SECURITY_STRINGS.lastSignInLabel}
-            </div>
-            <div className="inline-flex items-center gap-1.5 text-[13.5px] text-[var(--text-primary)]">
-              <time {...timeAttrs(lastSignInIso)}>
+            </dt>
+            <dd className="text-[13px] text-[var(--text-primary)]">
+              <time className="tabular-nums" {...timeAttrs(lastSignInIso)}>
                 {formatDate(lastSignInIso, "dateTime")}
               </time>
-            </div>
-          </>
+            </dd>
+          </div>
         ) : null}
 
-        {/* V3 §1.7 — hairline divider between account-scope (above)
-            and workspace-scope (below) rows. Two-scope segmentation
-            without forcing a card split. */}
-        <div
-          aria-hidden
-          className="col-span-full my-1 h-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]"
-        />
-
-        {/* Release-state §1685-1702 explicitly requires an
-            "Audit history link" in this page's content set.
-            V3 §1.14 had dropped the row pending real audit-log
-            backing, but the spec doesn't gate the link on
-            backend readiness — it requires the affordance. The
-            target page reads `?filter` for future filtering. */}
-        <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
-          {SETTINGS_SECURITY_STRINGS.resources.auditHistory}
-        </div>
-        <div className="inline-flex items-center gap-1.5 text-[13.5px]">
-          <Link
-            href="/settings/security?filter=billing"
-            className="ui-link inline-flex items-center gap-1"
-          >
-            View audit history
-            <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-          </Link>
+        {/* Audit history link (release-state §1685-1702 required). */}
+        <div className={rowClass}>
+          <dt className={labelClass}>
+            {SETTINGS_SECURITY_STRINGS.resources.auditHistory}
+          </dt>
+          <dd className="text-[13px]">
+            <Link
+              href="/settings/security?filter=billing"
+              className="ui-link inline-flex items-center gap-1"
+            >
+              View audit history
+              <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+            </Link>
+          </dd>
         </div>
 
-        {/* V2 §1.16 — Request DPA: split icon + text + ChevronRight. */}
-        <div className="ui-caps-2 self-center text-[var(--text-tertiary)]">
-          {SETTINGS_SECURITY_STRINGS.resources.dpaContact}
+        {/* Legal/security contact (release-state §1685-1702 required). */}
+        <div className={rowClass}>
+          <dt className={labelClass}>
+            {SETTINGS_SECURITY_STRINGS.resources.dpaContact}
+          </dt>
+          <dd className="text-[13px]">
+            <Link
+              href={`mailto:${SETTINGS_SECURITY_STRINGS.contactEmail}`}
+              className="ui-link inline-flex items-center gap-1.5"
+            >
+              <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              {SETTINGS_SECURITY_STRINGS.contactCta}
+              <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+            </Link>
+          </dd>
         </div>
-        <div className="inline-flex items-center gap-1.5 text-[13.5px]">
-          <Link
-            href={`mailto:${SETTINGS_SECURITY_STRINGS.contactEmail}`}
-            className="ui-link inline-flex items-center gap-1.5"
-          >
-            <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            {SETTINGS_SECURITY_STRINGS.contactCta}
-            <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-          </Link>
-        </div>
-      </div>
-      {/* V2 §13.1 LEGAL footer — accent eyebrow per §2.10. */}
-      <footer className="relative border-t border-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)] px-5 py-3">
-        <p className="ui-caps-3 text-[var(--accent-strong)]">
-          {SETTINGS_SECURITY_STRINGS.eyebrows.legal}
-        </p>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-          {SETTINGS_SECURITY_STRINGS.legalNote}
-        </p>
-      </footer>
+      </dl>
     </section>
   );
 }
 
-// V2 §3.1 activity strip — extracted for clarity. V2 §1.7 adds hairline
-// separators between every segment.
+// Issue #23/#24 — the activity section was a single plain line behind a
+// raw pipe ("ACTIVITY | 0 events..."). It now renders as a heading plus a
+// compact DashboardEmptyState (icon + caps label), and the pipe is gone.
 function ActivityStrip() {
   return (
-    <section
-      aria-labelledby="security-activity-title"
-      className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-2.5"
-    >
-      {/* V2 §5.1 — render eyebrow as <h2> for SR landmark.
-          V4 §1.12 — retention copy relocated to title attribute
-          (hover-reveal) per spec §10.14 subtraction. */}
+    <section aria-labelledby="security-activity-title">
+      {/* Retention copy lives in the title attribute (hover-reveal) so it
+          doesn't add a second visible line to the empty state. */}
       <h2
         id="security-activity-title"
         title="Events retained for 90 days"
@@ -607,19 +549,32 @@ function ActivityStrip() {
       >
         {SETTINGS_SECURITY_STRINGS.activityEyebrow}
       </h2>
-      <span
-        aria-hidden
-        className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block"
-      />
-      <span className="inline-flex items-center gap-1.5 text-[12.5px] text-[var(--text-secondary)]">
-        <Inbox className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-        {SETTINGS_SECURITY_STRINGS.activityEmptyLabel}
-      </span>
-      {/* V4 §1.6 — visible retention caps dropped; relocated to
-          title attribute above (no more floating right segment).
-          V3 §1.14 — OPEN AUDIT LOG link dropped: it routed to this
-          same page with an unread ?filter param. Will return when
-          a real audit-log surface lands. */}
+      <div className="mt-3">
+        <DashboardEmptyState
+          icon={Inbox}
+          label={SETTINGS_SECURITY_STRINGS.activityEmptyLabel}
+          compact
+        />
+      </div>
+    </section>
+  );
+}
+
+// Issue #22 — the legal note was buried as a footer inside the resources
+// card, reading like an afterthought. It now stands as its own flat
+// section on a hairline so the required disclaimer is unmistakably present.
+function LegalNote() {
+  return (
+    <section
+      aria-label="Legal"
+      className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3"
+    >
+      <p className="ui-caps-3 text-[var(--accent-strong)]">
+        {SETTINGS_SECURITY_STRINGS.eyebrows.legal}
+      </p>
+      <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+        {SETTINGS_SECURITY_STRINGS.legalNote}
+      </p>
     </section>
   );
 }

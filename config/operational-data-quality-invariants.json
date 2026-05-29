@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-data-quality-invariants",
+  "generatedArtifact": "artifacts/operational-data-quality-invariants.json",
+  "sourceFiles": [
+    "src/lib/operational-data-quality-invariants.ts",
+    "src/lib/operational-data-quality-invariants.test.ts",
+    "src/lib/data-quality.ts",
+    "src/lib/read-model-refresh.ts",
+    "src/actions/contracts-lifecycle.ts",
+    "src/actions/approvals.ts",
+    "src/actions/obligations.ts",
+    "src/app/api/import/contracts/route.ts"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-data-quality-invariants",
+    "test:operational-data-quality-invariants",
+    "test:logic",
+    "check:rebuild-read-models-nightly-gate"
+  ],
+  "domainInvariants": [
+    {
+      "id": "contract-ownership",
+      "ownerArea": "product-data",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "validActiveContract",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Assign an organization-scoped owner before activating or approving operational workflows."
+    },
+    {
+      "id": "contract-status-transitions",
+      "ownerArea": "product-data",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidTerminalTransition",
+      "runtimeGuard": "canTransitionContractStatus",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Route status changes through the lifecycle transition table and reject unsupported jumps."
+    },
+    {
+      "id": "renewal-date-ordering",
+      "ownerArea": "renewals",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidRenewalAfterEndDate",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Normalize date-only values and keep effective <= renewal <= end when renewal dates are present."
+    },
+    {
+      "id": "notice-window-ordering",
+      "ownerArea": "renewals",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidNoticeAfterRenewal",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Move notice deadlines on or before renewal dates and before contract end."
+    },
+    {
+      "id": "obligation-lifecycle",
+      "ownerArea": "contract-operations",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidObligationCompletion",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Require completed timestamps for done obligations and prevent active obligations from carrying terminal timestamps."
+    },
+    {
+      "id": "evidence-requirements",
+      "ownerArea": "contract-operations",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidEvidenceReview",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Attach submissions, reviewer, and review timestamps before marking evidence reviewed."
+    },
+    {
+      "id": "approval-quorum",
+      "ownerArea": "approvals",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidApprovalQuorum",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Keep approval quorum at or below active unique approved approver count before final approval."
+    },
+    {
+      "id": "exception-state",
+      "ownerArea": "contract-operations",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidResolvedException",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Resolved exceptions need resolution action and resolved timestamp; open exceptions cannot keep resolved timestamps."
+    },
+    {
+      "id": "task-dependencies",
+      "ownerArea": "workflows",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidTaskDependency",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Reject self-blocking tasks and require a blocking reason or blocker reference for blocked tasks."
+    },
+    {
+      "id": "report-scope",
+      "ownerArea": "reporting",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidReportScope",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Bind generated report rows to the same organization and source contract set used for the report run."
+    },
+    {
+      "id": "billing-status",
+      "ownerArea": "billing",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidBillingMetadata",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Require billing metadata consistency between subscription status, workspace mode, and active entitlements."
+    },
+    {
+      "id": "workspace-mode",
+      "ownerArea": "product-data",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidWorkspaceMode",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Reject unsupported workspace modes and downgrade gated rows to an eligible mode before use."
+    },
+    {
+      "id": "team-membership",
+      "ownerArea": "authz",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidTeamMembership",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Deduplicate user/team membership rows and keep membership organization IDs aligned with the contract organization."
+    },
+    {
+      "id": "counterparty-data",
+      "ownerArea": "product-data",
+      "severity": "P1",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidCounterparty",
+      "runtimeGuard": "validateDomainRecord",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Normalize counterparty names and reject blank, control-character, or duplicate canonical names."
+    },
+    {
+      "id": "financial-fields",
+      "ownerArea": "finance",
+      "severity": "P0",
+      "validationCommand": "test:operational-data-quality-invariants",
+      "fixture": "invalidFinancialField",
+      "runtimeGuard": "parseCurrencyAmount",
+      "testRef": "src/lib/operational-data-quality-invariants.test.ts",
+      "remediationHint": "Parse annual values into bounded minor units with ISO currency codes before persistence."
+    }
+  ],
+  "propertyTestFamilies": [
+    "date-arithmetic",
+    "dst-boundaries",
+    "leap-years",
+    "month-end",
+    "timezone-conversion",
+    "fiscal-boundaries",
+    "money-parsing",
+    "rounding",
+    "integer-overflow",
+    "status-transitions",
+    "workflow-transitions",
+    "pagination",
+    "filtering",
+    "sorting",
+    "deduplication",
+    "search-query",
+    "csv-escaping",
+    "url-state-serialization"
+  ],
+  "dataQualityReportChecks": [
+    "missing-owners",
+    "missing-key-dates",
+    "invalid-renewal-windows",
+    "orphaned-tasks",
+    "orphaned-evidence",
+    "dangling-foreign-keys",
+    "stale-imports",
+    "duplicate-counterparties",
+    "inconsistent-billing-metadata",
+    "invalid-enum-values",
+    "impossible-dates",
+    "stale-derived-fields",
+    "broken-read-models"
+  ],
+  "importReconciliationCases": [
+    "duplicate-files",
+    "duplicate-contracts",
+    "inconsistent-counterparty-names",
+    "bad-dates",
+    "missing-required-fields",
+    "invalid-encodings",
+    "partial-import-retry",
+    "idempotent-normalization"
+  ],
+  "readModelSafetyCases": [
+    "rebuild-idempotency",
+    "partial-rebuild",
+    "stale-source-data",
+    "missing-source-rows",
+    "concurrent-rebuild",
+    "output-drift",
+    "lineage-required"
+  ],
+  "cacheSafetyCases": [
+    "stale-cache-invalidation",
+    "read-after-write-lag",
+    "sensitive-cache-bypass",
+    "concurrent-update-versioning",
+    "fallback-reads"
+  ]
+}

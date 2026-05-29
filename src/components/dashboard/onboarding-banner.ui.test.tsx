@@ -34,7 +34,7 @@ describe("OnboardingBanner", () => {
 
     const calibrationLink = screen.getByRole("link", { name: /complete workspace calibration/i });
     expect(calibrationLink.getAttribute("href")).toBe("/onboarding/calibration");
-    expect(screen.getAllByText(/right operational surfaces/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/right operational path/i).length).toBeGreaterThan(0);
   });
 
   it("shows actionable progress and next-step CTA when onboarding is incomplete", () => {

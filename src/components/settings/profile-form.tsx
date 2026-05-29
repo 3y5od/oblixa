@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateProfile } from "@/actions/settings";
 
 interface ProfileFormProps {
@@ -9,6 +9,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ fullName, email }: ProfileFormProps) {
+  const [draftName, setDraftName] = useState(fullName || "");
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string; success?: boolean } | undefined, formData: FormData) => {
       return updateProfile(formData);
@@ -17,6 +18,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
   );
 
   const errId = "profile-form-error";
+  const isDirty = draftName !== (fullName || "");
 
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
@@ -37,7 +39,9 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             id="fullName"
             name="fullName"
             type="text"
-            defaultValue={fullName || ""}
+            value={draftName}
+            onChange={(event) => setDraftName(event.currentTarget.value)}
+            placeholder="Your full name"
             className="ui-input w-full min-w-0"
             aria-invalid={state?.error ? true : undefined}
             aria-describedby={state?.error ? errId : undefined}
@@ -46,9 +50,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
         <div className="min-w-0">
           <label htmlFor="profile-email-readonly" className="ui-label flex items-baseline gap-2">
             Email
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-              Read-only
-            </span>
+            <span className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Read-only</span>
           </label>
           <input
             id="profile-email-readonly"
@@ -61,11 +63,18 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           />
         </div>
       </div>
-      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-3">
+      <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-3">
+        {isDirty ? (
+          <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Unsaved changes</span>
+        ) : null}
         <button
           type="submit"
-          disabled={pending}
-          className="ui-btn-primary disabled:pointer-events-none disabled:opacity-45"
+          disabled={pending || !isDirty}
+          className={
+            isDirty
+              ? "ui-btn-primary disabled:pointer-events-none disabled:opacity-60"
+              : "ui-btn-secondary disabled:pointer-events-none disabled:opacity-55"
+          }
           aria-busy={pending}
         >
           {pending ? "Saving…" : "Save changes"}

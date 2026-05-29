@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "baselineDate": "2026-05-28",
+  "owner": "architecture",
+  "purpose": "Ratchet oversized repository scripts without increasing current debt.",
+  "reviewReason": "Update only after reviewed script decomposition or scanner threshold changes.",
+  "maxLines": 450,
+  "offenders": [
+    {
+      "file": "scripts/check-versioned-naming-safe-renames.mjs",
+      "lines": 1427
+    },
+    {
+      "file": "scripts/write-debugging-sweep-closure.mjs",
+      "lines": 1046
+    },
+    {
+      "file": "scripts/check-compatibility-removal-queue.mjs",
+      "lines": 1010
+    },
+    {
+      "file": "scripts/seed-local-auth.mjs",
+      "lines": 993
+    },
+    {
+      "file": "scripts/check-release-evidence.mjs",
+      "lines": 952
+    },
+    {
+      "file": "scripts/check-github-workflows-security.test.mjs",
+      "lines": 950
+    },
+    {
+      "file": "scripts/check-versioned-unchecked-objective-readiness.mjs",
+      "lines": 675
+    },
+    {
+      "file": "scripts/check-allowlist-metadata.mjs",
+      "lines": 656
+    },
+    {
+      "file": "scripts/report-qa-closure-manifest.mjs",
+      "lines": 655
+    },
+    {
+      "file": "scripts/check-telemetry-event-inventory.mjs",
+      "lines": 634
+    },
+    {
+      "file": "scripts/check-versioned-remaining-surface-coverage.mjs",
+      "lines": 617
+    },
+    {
+      "file": "scripts/check-versioned-final-checklist-reconciliation.mjs",
+      "lines": 615
+    },
+    {
+      "file": "scripts/check-sql-policy-forward-migration-blueprint.mjs",
+      "lines": 582
+    },
+    {
+      "file": "scripts/check-sql-policy-predicate-equivalence.mjs",
+      "lines": 579
+    },
+    {
+      "file": "scripts/check-versioned-naming.mjs",
+      "lines": 571
+    },
+    {
+      "file": "scripts/check-operational-schema-compatibility.mjs",
+      "lines": 570
+    },
+    {
+      "file": "scripts/generate-debugging-sweep-catalog.mjs",
+      "lines": 569
+    },
+    {
+      "file": "scripts/check-incident-readiness.mjs",
+      "lines": 547
+    },
+    {
+      "file": "scripts/check-sql-policy-alias-readiness.mjs",
+      "lines": 543
+    },
+    {
+      "file": "scripts/check-required-security-checkset.mjs",
+      "lines": 521
+    },
+    {
+      "file": "scripts/check-sql-object-reference-inventory.mjs",
+      "lines": 521
+    },
+    {
+      "file": "scripts/check-versioned-remaining-local-contract-closure.mjs",
+      "lines": 521
+    },
+    {
+      "file": "scripts/check-operational-waivers-ratchets.mjs",
+      "lines": 520
+    },
+    {
+      "file": "scripts/check-versioned-forward-migration-readiness.mjs",
+      "lines": 506
+    },
+    {
+      "file": "scripts/check-public-seo-surface.mjs",
+      "lines": 495
+    },
+    {
+      "file": "scripts/build-qa-comprehensive-taxonomy.mjs",
+      "lines": 490
+    },
+    {
+      "file": "scripts/check-github-workflows-security.mjs",
+      "lines": 483
+    },
+    {
+      "file": "scripts/check-operational-ci-enforcement.mjs",
+      "lines": 482
+    },
+    {
+      "file": "scripts/report-versioned-naming-cleanup.mjs",
+      "lines": 474
+    },
+    {
+      "file": "scripts/check-operational-legal-trust-compliance.mjs",
+      "lines": 457
+    },
+    {
+      "file": "scripts/check-operational-static-architecture-code-health.mjs",
+      "lines": 457
+    },
+    {
+      "file": "scripts/check-ci-change-impact.mjs",
+      "lines": 455
+    }
+  ]
+}

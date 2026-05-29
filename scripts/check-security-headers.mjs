@@ -19,6 +19,7 @@ const REQUIRED_HEADER_KEYS = [
   "Permissions-Policy",
   "Content-Security-Policy",
   "Content-Security-Policy-Report-Only",
+  "Reporting-Endpoints",
   "Strict-Transport-Security",
 ];
 const NEXT_CONFIG_MARKERS = [
@@ -36,6 +37,7 @@ const CSP_TEST_MARKERS = [
   "Permissions-Policy disables payment and capture surfaces unless product opts in later",
   'require-trusted-types-for \'script\'',
   "buildSecurityHeaders rejects unsafe header values sourced from nonce input",
+  "buildSecurityHeaders wires CSP report-uri and report-to endpoints",
   "buildApiNoStoreHeaders emits CDN-resistant private API cache headers",
   "script-src-attr 'none'",
   "upgrade-insecure-requests",

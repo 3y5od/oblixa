@@ -1,0 +1,323 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-privacy-auditability",
+  "generatedBy": "scripts/check-operational-privacy-auditability.mjs --write",
+  "generatedFrom": "config/operational-privacy-auditability.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 14,
+  "privacyInventoryContractCount": 3,
+  "dsarContractCount": 2,
+  "deletionRetentionContractCount": 3,
+  "auditContractCount": 3,
+  "hashChainContractCount": 2,
+  "delegatedCheckCount": 7,
+  "commands": [
+    {
+      "objective": "audit-event-hardening",
+      "script": "check:audit-event-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "append_only_policy",
+        "audit_shape",
+        "sensitive_action_inventory"
+      ]
+    },
+    {
+      "objective": "audit-event-hardening",
+      "script": "test:privacy-auditability",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": null,
+      "covers": [
+        "audit_shape_policy_tests"
+      ]
+    },
+    {
+      "objective": "audit-hash-chain-scaffold",
+      "script": "check:audit-event-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "hash_chain_static_contract"
+      ]
+    },
+    {
+      "objective": "audit-hash-chain-scaffold",
+      "script": "test:privacy-auditability",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": null,
+      "covers": [
+        "disabled_by_default_hash_chain",
+        "tamper_evident_hashes"
+      ]
+    },
+    {
+      "objective": "deletion-retention-cascades",
+      "script": "check:retention-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "legal_hold_guards",
+        "transient_cleanup_classes"
+      ]
+    },
+    {
+      "objective": "deletion-retention-cascades",
+      "script": "check:storage-path-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "upload_delete_storage_scope"
+      ]
+    },
+    {
+      "objective": "deletion-retention-cascades",
+      "script": "check:token-security-quality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "token_revocation_redaction"
+      ]
+    },
+    {
+      "objective": "deletion-retention-cascades",
+      "script": "test:privacy-auditability",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": null,
+      "covers": [
+        "org_user_token_upload_report_legal_hold_cascades"
+      ]
+    },
+    {
+      "objective": "dsar-export-completeness",
+      "script": "check:export-security-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "export_redaction",
+        "tenant_scoped_exports"
+      ]
+    },
+    {
+      "objective": "dsar-export-completeness",
+      "script": "test:privacy-auditability",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": null,
+      "covers": [
+        "deterministic_org_export_fixture",
+        "deterministic_user_export_fixture",
+        "tenant_isolation"
+      ]
+    },
+    {
+      "objective": "privacy-inventory-classification",
+      "script": "check:operational-privacy-auditability",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "delegated_privacy_checks"
+      ]
+    },
+    {
+      "objective": "privacy-inventory-classification",
+      "script": "check:privacy-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "pii_classification",
+        "tables_columns_buckets_telemetry_exports_providers"
+      ]
+    },
+    {
+      "objective": "privacy-inventory-classification",
+      "script": "check:retention-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "cleanup_rpc_policy",
+        "retention_classes"
+      ]
+    },
+    {
+      "objective": "privacy-inventory-classification",
+      "script": "check:supabase:retention-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "retention_inventory_artifact"
+      ]
+    }
+  ],
+  "privacyInventoryContracts": [
+    {
+      "id": "account-delete-request-hook",
+      "path": "src/app/api/me/account/route.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "privacy-inventory-expanded-classifications",
+      "path": "src/lib/security/privacy-inventory.ts",
+      "markerCount": 11,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "self-service-export-and-delete-hooks",
+      "path": "src/app/api/me/export/route.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "dsarContracts": [
+    {
+      "id": "dsar-fixture-builder",
+      "path": "src/lib/security/dsar-fixtures.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dsar-fixture-tests",
+      "path": "src/lib/security/dsar-fixtures.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "deletionRetentionContracts": [
+    {
+      "id": "data-lifecycle-cascade-plans",
+      "path": "src/lib/security/data-lifecycle.ts",
+      "markerCount": 8,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "retention-cleanup-cron",
+      "path": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "retention-policy-runtime",
+      "path": "src/lib/security/retention-policy.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "auditContracts": [
+    {
+      "id": "audit-event-policy",
+      "path": "src/lib/security/audit-event-policy.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "audit-policy-tests",
+      "path": "src/lib/security/audit-event-policy.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "strict-audit-write-runtime",
+      "path": "src/lib/server-contracts.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "hashChainContracts": [
+    {
+      "id": "audit-hash-chain-tests",
+      "path": "src/lib/security/audit-hash-chain.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "disabled-audit-hash-chain-scaffold",
+      "path": "src/lib/security/audit-hash-chain.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "audit-event-coverage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "export-security-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "privacy-inventory",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "retention-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "storage-path-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "supabase-retention-inventory",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "token-security-quality",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": "Legal approval, compliance certification, external provider deletion, production DSAR fulfillment, and production legal-hold decisions remain manual.",
+  "issueCount": 0,
+  "issues": []
+}

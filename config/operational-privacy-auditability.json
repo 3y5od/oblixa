@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-privacy-auditability",
+  "objectives": [
+    {
+      "id": "privacy-inventory-classification",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "check:operational-privacy-auditability", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "delegated_privacy_checks"] },
+        { "command": "check:privacy-inventory", "ciRequired": true, "covers": ["tables_columns_buckets_telemetry_exports_providers", "pii_classification"] },
+        { "command": "check:retention-policy", "ciRequired": true, "covers": ["retention_classes", "cleanup_rpc_policy"] },
+        { "command": "check:supabase:retention-inventory", "ciRequired": true, "covers": ["retention_inventory_artifact"] }
+      ],
+      "artifacts": ["artifacts/operational-privacy-auditability.json"]
+    },
+    {
+      "id": "dsar-export-completeness",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "test:privacy-auditability", "ciRequired": true, "covers": ["deterministic_user_export_fixture", "deterministic_org_export_fixture", "tenant_isolation"] },
+        { "command": "check:export-security-guards", "ciRequired": true, "covers": ["export_redaction", "tenant_scoped_exports"] }
+      ]
+    },
+    {
+      "id": "deletion-retention-cascades",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "test:privacy-auditability", "ciRequired": true, "covers": ["org_user_token_upload_report_legal_hold_cascades"] },
+        { "command": "check:retention-policy", "ciRequired": true, "covers": ["transient_cleanup_classes", "legal_hold_guards"] },
+        { "command": "check:storage-path-safety", "ciRequired": true, "covers": ["upload_delete_storage_scope"] },
+        { "command": "check:token-security-quality", "ciRequired": true, "covers": ["token_revocation_redaction"] }
+      ]
+    },
+    {
+      "id": "audit-event-hardening",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "check:audit-event-coverage", "ciRequired": true, "covers": ["sensitive_action_inventory", "audit_shape", "append_only_policy"] },
+        { "command": "test:privacy-auditability", "ciRequired": true, "covers": ["audit_shape_policy_tests"] }
+      ]
+    },
+    {
+      "id": "audit-hash-chain-scaffold",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "check:audit-event-coverage", "ciRequired": true, "covers": ["hash_chain_static_contract"] },
+        { "command": "test:privacy-auditability", "ciRequired": true, "covers": ["disabled_by_default_hash_chain", "tamper_evident_hashes"] }
+      ]
+    }
+  ],
+  "privacyInventoryContracts": [
+    {
+      "id": "privacy-inventory-expanded-classifications",
+      "path": "src/lib/security/privacy-inventory.ts",
+      "markers": ["PRIVACY_INVENTORY_SCHEMA_VERSION", "privacyInventoryClassificationIssues", "privacyInventoryCoverageSummary", "storage_bucket", "telemetry_event", "export_surface", "provider", "retentionClass", "redactionClass", "accessClass", "deletionClass"]
+    },
+    {
+      "id": "self-service-export-and-delete-hooks",
+      "path": "src/app/api/me/export/route.ts",
+      "markers": ["buildPrivacySafeUserExportPayload", "isLegalHoldProfile(profile)", "security.dsr_self_export_downloaded", "Cache-Control"]
+    },
+    {
+      "id": "account-delete-request-hook",
+      "path": "src/app/api/me/account/route.ts",
+      "markers": ["PRIVACY_SAFE_RECORD_INVENTORY", "hasSensitiveActionProof", "security.dsr_account_delete_requested", "inventory_count", "legal_hold"]
+    }
+  ],
+  "dsarContracts": [
+    {
+      "id": "dsar-fixture-builder",
+      "path": "src/lib/security/dsar-fixtures.ts",
+      "markers": ["buildDsarExportFromFixture", "dsarExportTenantIsolationIssues", "createCanonicalDsarFixtureDataset", "code_owned_fixture", "sanitizeV10AuditMetadata"]
+    },
+    {
+      "id": "dsar-fixture-tests",
+      "path": "src/lib/security/dsar-fixtures.test.ts",
+      "markers": ["deterministic user exports", "deterministic org exports", "detects cross-tenant rows"]
+    }
+  ],
+  "deletionRetentionContracts": [
+    {
+      "id": "data-lifecycle-cascade-plans",
+      "path": "src/lib/security/data-lifecycle.ts",
+      "markers": ["DATA_LIFECYCLE_CASCADE_PLANS", "organization_deletion", "user_deletion", "token_revocation", "upload_deletion", "report_deletion", "legal_hold_exception", "planLifecycleCascade"]
+    },
+    {
+      "id": "retention-policy-runtime",
+      "path": "src/lib/security/retention-policy.ts",
+      "markers": ["CODE_OWNED_RETENTION_POLICIES", "cleanup_code_owned_transient_data", "oauth_callback_state", "calendar_feed_tokens"]
+    },
+    {
+      "id": "retention-cleanup-cron",
+      "path": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "markers": ["withCronRoute", "cleanup_code_owned_transient_data", "CODE_OWNED_RETENTION_POLICIES"]
+    }
+  ],
+  "auditContracts": [
+    {
+      "id": "audit-event-policy",
+      "path": "src/lib/security/audit-event-policy.ts",
+      "markers": ["SENSITIVE_AUDIT_EVENT_POLICIES", "AUDIT_APPEND_ONLY_TABLES", "validateAuditEventShape", "auditEventPolicyCoverageIssues", "database_default_now", "safe_metadata_only"]
+    },
+    {
+      "id": "strict-audit-write-runtime",
+      "path": "src/lib/server-contracts.ts",
+      "markers": ["recordV10AuditEventStrict", "sanitizeV10AuditMetadata", "FORBIDDEN_AUDIT_METADATA_KEY_RE", ".from(\"v10_audit_events\")", "{ ...input, writeMode: \"blocking\" }"]
+    },
+    {
+      "id": "audit-policy-tests",
+      "path": "src/lib/security/audit-event-policy.test.ts",
+      "markers": ["append-only policies", "sanitized, organization-scoped audit events", "unsafe metadata"]
+    }
+  ],
+  "hashChainContracts": [
+    {
+      "id": "disabled-audit-hash-chain-scaffold",
+      "path": "src/lib/security/audit-hash-chain.ts",
+      "markers": ["AUDIT_HASH_CHAIN_ENABLED_ENV", "AUDIT_HASH_CHAIN_DISABLED_BY_DEFAULT", "buildAuditHashChain", "externalSideEffects: false"]
+    },
+    {
+      "id": "audit-hash-chain-tests",
+      "path": "src/lib/security/audit-hash-chain.test.ts",
+      "markers": ["disabled unless explicitly adopted", "deterministic local-only hash-chain links", "event content is tampered"]
+    }
+  ],
+  "manualBoundary": "Legal approval, compliance certification, external provider deletion, production DSAR fulfillment, and production legal-hold decisions remain manual."
+}

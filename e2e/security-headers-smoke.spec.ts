@@ -22,6 +22,8 @@ test.describe("security headers (smoke)", () => {
     expect(csp).toContain("base-uri 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("script-src-attr 'none'");
+    expect(csp).toContain("report-uri /api/security/csp-report");
+    expect(csp).toContain("report-to csp-endpoint");
     if (headers["strict-transport-security"] || test.info().project.use.baseURL?.startsWith("https://")) {
       expect(csp).toContain("upgrade-insecure-requests");
     } else {
@@ -29,6 +31,8 @@ test.describe("security headers (smoke)", () => {
     }
     expect(reportOnly).toContain("script-src 'self'");
     expect(reportOnly).toContain("script-src-attr 'none'");
+    expect(reportOnly).toContain("report-uri /api/security/csp-report");
+    expect(reportOnly).toContain("report-to csp-endpoint");
     expect(reportOnly).not.toContain("'unsafe-inline'");
     if (reportOnly.includes("require-trusted-types-for")) {
       expect(reportOnly).toContain("require-trusted-types-for 'script'");
@@ -74,6 +78,14 @@ test.describe("security headers (smoke)", () => {
     expect(headers["permissions-policy"]).toContain("camera=()");
     expect(headers["permissions-policy"]).toContain("browsing-topics=()");
     expect(headers["permissions-policy"]).toContain("xr-spatial-tracking=()");
+  });
+
+  test("framing defenses are explicit for clickjacking protection", async ({ request }) => {
+    const res = await request.get("/");
+    const headers = res.headers();
+    const csp = headers["content-security-policy"] ?? "";
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(csp).toContain("frame-ancestors 'none'");
   });
 
   test("generated public route matrix carries required browser security headers", async ({ request }) => {

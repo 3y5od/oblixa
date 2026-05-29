@@ -217,9 +217,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
         <h3 className="text-[12.5px] font-semibold tracking-tight text-[var(--text-primary)]">
           Invite teammate
         </h3>
-        <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-          Sends a secure email invite · expires after seven days.
-        </p>
+        <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Expires in 7 days</span>
       </div>
       <form
         className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch"

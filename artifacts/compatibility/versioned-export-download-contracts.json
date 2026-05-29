@@ -4,9 +4,9 @@
   "inventoryPath": "artifacts/compatibility/versioned-content-contract-inventory.json",
   "queuePath": "artifacts/compatibility/removal-queue.json",
   "categoryCount": 6,
-  "contractCount": 171,
-  "manualOnlyContractCount": 109,
-  "queueCoveredManualCount": 109,
+  "contractCount": 169,
+  "manualOnlyContractCount": 107,
+  "queueCoveredManualCount": 107,
   "remainingSafeActionCount": 0,
   "categories": [
     {
@@ -56,12 +56,12 @@
     },
     {
       "id": "export_import_diagnostics",
-      "contractCount": 90,
-      "hitCount": 282,
-      "manualOnlyCount": 65,
-      "queueCoveredManualCount": 65,
+      "contractCount": 88,
+      "hitCount": 279,
+      "manualOnlyCount": 63,
+      "queueCoveredManualCount": 63,
       "remainingSafeActionCount": 0,
-      "validationCommandCoveredCount": 90
+      "validationCommandCoveredCount": 88
     }
   ],
   "contracts": [
@@ -323,40 +323,8 @@
     },
     {
       "category": "export_import_diagnostics",
-      "path": "SECURITY-SPEC-AS-BUILT.md",
-      "contractName": "v10",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "notification_or_export_contract",
-      "owner": "platform-hardening",
-      "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": true,
-      "suggestedNeutralName": null,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "queueCovered": true,
-      "hitCount": 1
-    },
-    {
-      "category": "export_import_diagnostics",
       "path": "semgrep/oblixa-v10-surface.yml",
       "contractName": "V10",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "notification_or_export_contract",
-      "owner": "platform-hardening",
-      "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": true,
-      "suggestedNeutralName": null,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "queueCovered": true,
-      "hitCount": 1
-    },
-    {
-      "category": "export_import_diagnostics",
-      "path": "SPEC-AS-BUILT.md",
-      "contractName": "v10",
       "surfaceClass": "source_content",
       "subSurfaceClass": "notification_or_export_contract",
       "owner": "platform-hardening",
@@ -1119,7 +1087,7 @@
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "queueCovered": true,
-      "hitCount": 2
+      "hitCount": 1
     },
     {
       "category": "export_import_diagnostics",

@@ -1032,7 +1032,7 @@ describe("V10 read model refresh", () => {
       admin.inserted.v10_command_search_index.some(
         (row) =>
           row.record_type === "setting_destination" &&
-          row.href === "/settings/product" &&
+          row.href === "/settings/operations" &&
           row.required_role_minimum === "admin"
       )
     ).toBe(true);
@@ -1476,4 +1476,3 @@ describe("V10 read model refresh", () => {
     expect(plan.sourceObjectCoverageCount).toBeGreaterThanOrEqual(20);
   });
 });
-

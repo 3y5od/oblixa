@@ -14,6 +14,7 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 const title = "Privacy — Oblixa";
 const description =
   "How Oblixa handles account data, workspace content, and operational activity for contract execution.";
+const LAST_REVIEWED_ISO = "2026-05-28";
 
 export const metadata: Metadata = {
   title,
@@ -52,7 +53,7 @@ export default function PrivacyPage() {
                   Privacy
                 </h1>
                 <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                  Last updated: {new Date().toISOString().slice(0, 10)}
+                  Last updated: {LAST_REVIEWED_ISO}
                 </p>
               </div>
             </div>

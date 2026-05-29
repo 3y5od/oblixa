@@ -1,0 +1,1519 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-rate-limits-abuse-bounds",
+  "generatedBy": "scripts/check-operational-rate-limits-abuse-bounds.mjs --write",
+  "generatedFrom": "config/operational-rate-limits-abuse-bounds.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 17,
+  "markerFileCount": 17,
+  "rateLimitCatalogKeyCount": 59,
+  "apiRouteCount": 226,
+  "mutatingRouteCount": 95,
+  "explicitOrSpecialMutatingRouteCount": 25,
+  "documentedSessionMutationCount": 70,
+  "route429TestCount": 39,
+  "delegatedCheckCount": 15,
+  "commands": [
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:callback-destination-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "redirect_safety",
+        "url_canonicalization"
+      ]
+    },
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:decompression-bomb-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "docx_entry_caps",
+        "zip_expansion_caps"
+      ]
+    },
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:json-body-limited-adoption",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "json_byte_limits",
+        "json_shape_limits"
+      ]
+    },
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:parser-risk-controls",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "ai_parser_bounds",
+        "pdf_docx_text_bounds"
+      ]
+    },
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:regex-dos-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "nested_quantifier_scan"
+      ]
+    },
+    {
+      "objective": "parser-dos-risk-controls",
+      "script": "check:request-framing-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "content_length",
+        "stream_byte_limits",
+        "unsafe_json_keys"
+      ]
+    },
+    {
+      "objective": "rate-limit-behavior-tests",
+      "script": "check:api-problem-json",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "429_problem_shape",
+        "retry_after_header"
+      ]
+    },
+    {
+      "objective": "rate-limit-behavior-tests",
+      "script": "test",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "unit_rate_limit_behavior"
+      ]
+    },
+    {
+      "objective": "rate-limit-inventory",
+      "script": "check:api-route-rate-limit-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "ordering_warnings",
+        "privileged_api_route_guardrails"
+      ]
+    },
+    {
+      "objective": "rate-limit-inventory",
+      "script": "check:operational-rate-limits-abuse-bounds",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "route_limit_inventory"
+      ]
+    },
+    {
+      "objective": "rate-limit-inventory",
+      "script": "check:rate-limit-distribution-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "distributed_limiter",
+        "key_normalization",
+        "production_fail_closed"
+      ]
+    },
+    {
+      "objective": "rate-limit-inventory",
+      "script": "check:rate-limit-key-cardinality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "cron_keys",
+        "scoped_keys",
+        "token_hash_keys"
+      ]
+    },
+    {
+      "objective": "resource-bound-guards",
+      "script": "check:concurrency-cap-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "bounded_batch_helpers",
+        "promise_all_caps"
+      ]
+    },
+    {
+      "objective": "resource-bound-guards",
+      "script": "check:export-security-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "csv_formula_safety",
+        "filename_safety",
+        "private_cache_headers"
+      ]
+    },
+    {
+      "objective": "resource-bound-guards",
+      "script": "check:pagination-guardrails",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "offset_caps",
+        "page_size_caps",
+        "row_caps"
+      ]
+    },
+    {
+      "objective": "resource-bound-guards",
+      "script": "check:response-size-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "response_byte_caps",
+        "safe_oversize_errors"
+      ]
+    },
+    {
+      "objective": "resource-bound-guards",
+      "script": "check:timeout-budget-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "fetch_timeouts",
+        "retry_timeouts",
+        "route_max_duration"
+      ]
+    }
+  ],
+  "markerFiles": [
+    {
+      "path": "scripts/check-regex-dos-risk.test.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/csv-formula-safe.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/extraction/parse-document.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/extraction/retry.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/http/problem.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/http/problem.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/product-surface/api-workspace-guard.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/rate-limit.provider-outage.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/rate-limit.take.contract.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/rate-limit.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/rate-limit.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/export-filename.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/safe-fetch.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/supabase/range-pagination.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/supabase/range-pagination.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "rateLimitCatalog": {
+    "path": "src/lib/rate-limit.ts",
+    "keyCount": 59,
+    "requiredKeyCount": 18,
+    "missingRequiredKeys": [],
+    "keys": [
+      "contractsRecomputeSignalsCron",
+      "cspReport",
+      "dsrSelfExport",
+      "eventsRead",
+      "exportCalendar",
+      "exportContractsCsv",
+      "exportContractsJob",
+      "exportReviewPacket",
+      "externalTokenMutate",
+      "externalTokenRead",
+      "externalWorkflowStepInternal",
+      "extract",
+      "extractWorker",
+      "forgotPassword",
+      "importContractsJob",
+      "integrationCalendarSync",
+      "integrationCrmSync",
+      "integrationRefreshTokens",
+      "integrationsActionsInbound",
+      "internalDebuggingSweep",
+      "inviteMember",
+      "maintenancePruneCron",
+      "marketingContact",
+      "notificationsRetryCron",
+      "onboardingCalibrationExport",
+      "onboardingCalibrationGateAdmin",
+      "onboardingCalibrationGateUser",
+      "onboardingCalibrationMutation",
+      "onboardingCalibrationPreview",
+      "productV9Telemetry",
+      "remindersSendCron",
+      "reportRunRetryMutation",
+      "reportsCaptureMetricsCron",
+      "reportsSummariesCron",
+      "reportTrackClick",
+      "reportTrackOpen",
+      "signIn",
+      "signUp",
+      "stepUpPassword",
+      "stripeCheckoutSession",
+      "stripePortalSession",
+      "stripeWebhook",
+      "tasksFromEmailInbound",
+      "tasksFromSlackInbound",
+      "tasksRunRulesCron",
+      "templatesPreview",
+      "v4ApprovalSlaCron",
+      "v4AttestationsIssueCron",
+      "v4EscalationDispatchCron",
+      "v4EvidenceFollowupCron",
+      "v4ExceptionsDetectCron",
+      "v4ProgramReconcileCron",
+      "v4RenewalSignalsCron",
+      "v4ReportPacksCron",
+      "v5CronDefault",
+      "v6CronDefault",
+      "v6OnboardingCalibrationStaleCron",
+      "webhooksDispatchCron",
+      "workspaceApi"
+    ]
+  },
+  "routeInventory": {
+    "apiRouteCount": 226,
+    "mutatingRouteCount": 95,
+    "explicitOrSpecialMutatingRouteCount": 25,
+    "documentedSessionMutationCount": 70,
+    "policyCounts": {
+      "standard_or_not_applicable": 39,
+      "mutation_required": 70,
+      "explicit": 32,
+      "cron": 77,
+      "external_or_token": 7,
+      "webhook": 1
+    },
+    "authCountsForMutationRequired": {
+      "session": 70
+    },
+    "categoryCounts": {
+      "auth": 3,
+      "contact": 1,
+      "upload_import": 5,
+      "export": 15,
+      "search": 1,
+      "reports": 10,
+      "webhooks": 2,
+      "cron": 66,
+      "public_tokens": 7,
+      "expensive_ai": 3
+    },
+    "documentedSessionMutationPolicy": {
+      "policy": "mutation_required",
+      "allowedAuthModels": [
+        "session"
+      ],
+      "reason": "Session-authenticated product mutations rely on auth, tenant scope, idempotency, and workspace policy controls; privileged admin-client routes remain covered by the explicit route-rate-limit guard."
+    },
+    "mutationRows": [
+      {
+        "route": "/api/approvals/[id]/[action]",
+        "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/assurance/checks/run",
+        "sourcePath": "src/app/api/assurance/checks/run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/assurance/external-links/[id]/response-pack",
+        "sourcePath": "src/app/api/assurance/external-links/[id]/response-pack/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/assurance/findings/[id]/resolve",
+        "sourcePath": "src/app/api/assurance/findings/[id]/resolve/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/assurance/workflows/run-all",
+        "sourcePath": "src/app/api/assurance/workflows/run-all/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/attestations/[id]/respond",
+        "sourcePath": "src/app/api/attestations/[id]/respond/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/autopilot/rules",
+        "sourcePath": "src/app/api/autopilot/rules/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/autopilot/rules/[id]",
+        "sourcePath": "src/app/api/autopilot/rules/[id]/route.ts",
+        "methods": [
+          "PATCH",
+          "DELETE"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/autopilot/rules/[id]/dry-run",
+        "sourcePath": "src/app/api/autopilot/rules/[id]/dry-run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/autopilot/rules/[id]/enable",
+        "sourcePath": "src/app/api/autopilot/rules/[id]/enable/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/autopilot/run-logs/[id]/revert",
+        "sourcePath": "src/app/api/autopilot/run-logs/[id]/revert/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns",
+        "sourcePath": "src/app/api/campaigns/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]",
+        "sourcePath": "src/app/api/campaigns/[id]/route.ts",
+        "methods": [
+          "GET",
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/close",
+        "sourcePath": "src/app/api/campaigns/[id]/close/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/contracts/[rowId]",
+        "sourcePath": "src/app/api/campaigns/[id]/contracts/[rowId]/route.ts",
+        "methods": [
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/pause",
+        "sourcePath": "src/app/api/campaigns/[id]/pause/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/preview",
+        "sourcePath": "src/app/api/campaigns/[id]/preview/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/resume",
+        "sourcePath": "src/app/api/campaigns/[id]/resume/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/rollback",
+        "sourcePath": "src/app/api/campaigns/[id]/rollback/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/campaigns/[id]/start",
+        "sourcePath": "src/app/api/campaigns/[id]/start/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/capacity/reassignment-plan",
+        "sourcePath": "src/app/api/capacity/reassignment-plan/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/command-centers/preferences",
+        "sourcePath": "src/app/api/command-centers/preferences/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/contact",
+        "sourcePath": "src/app/api/contact/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/control-policies",
+        "sourcePath": "src/app/api/control-policies/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/control-policies/[id]",
+        "sourcePath": "src/app/api/control-policies/[id]/route.ts",
+        "methods": [
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/control-policies/[id]/assign",
+        "sourcePath": "src/app/api/control-policies/[id]/assign/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/control-policies/[id]/publish",
+        "sourcePath": "src/app/api/control-policies/[id]/publish/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/control-policies/[id]/simulate",
+        "sourcePath": "src/app/api/control-policies/[id]/simulate/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions",
+        "sourcePath": "src/app/api/decisions/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]",
+        "sourcePath": "src/app/api/decisions/[id]/route.ts",
+        "methods": [
+          "GET",
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/approve",
+        "sourcePath": "src/app/api/decisions/[id]/approve/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/close",
+        "sourcePath": "src/app/api/decisions/[id]/close/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/packet",
+        "sourcePath": "src/app/api/decisions/[id]/packet/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/recommend",
+        "sourcePath": "src/app/api/decisions/[id]/recommend/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/review",
+        "sourcePath": "src/app/api/decisions/[id]/review/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/[id]/stakeholders",
+        "sourcePath": "src/app/api/decisions/[id]/stakeholders/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/packet-templates",
+        "sourcePath": "src/app/api/decisions/packet-templates/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/decisions/packet-templates/[id]",
+        "sourcePath": "src/app/api/decisions/packet-templates/[id]/route.ts",
+        "methods": [
+          "GET",
+          "PATCH",
+          "DELETE"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/evidence/[id]/[action]",
+        "sourcePath": "src/app/api/evidence/[id]/[action]/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/evidence/requests",
+        "sourcePath": "src/app/api/evidence/requests/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/evidence/requests/[id]/remind",
+        "sourcePath": "src/app/api/evidence/requests/[id]/remind/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/evidence/submit",
+        "sourcePath": "src/app/api/evidence/submit/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/exceptions/[id]/[action]",
+        "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/exceptions/run-detection",
+        "sourcePath": "src/app/api/exceptions/run-detection/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/export/contracts",
+        "sourcePath": "src/app/api/export/contracts/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "release"
+      },
+      {
+        "route": "/api/export/contracts/[jobId]",
+        "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "release"
+      },
+      {
+        "route": "/api/external-actions/[token]/participant/workflow-step",
+        "sourcePath": "src/app/api/external-actions/[token]/participant/workflow-step/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "external_token",
+        "rateLimitPolicy": "external_or_token",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/external-actions/[token]/submit",
+        "sourcePath": "src/app/api/external-actions/[token]/submit/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "external_token",
+        "rateLimitPolicy": "external_or_token",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/external-actions/[token]/workflow-step",
+        "sourcePath": "src/app/api/external-actions/[token]/workflow-step/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "external_token",
+        "rateLimitPolicy": "external_or_token",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/external-actions/create-link",
+        "sourcePath": "src/app/api/external-actions/create-link/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "external_token",
+        "rateLimitPolicy": "external_or_token",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/extract",
+        "sourcePath": "src/app/api/extract/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/extract/run",
+        "sourcePath": "src/app/api/extract/run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/import/contracts",
+        "sourcePath": "src/app/api/import/contracts/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/import/contracts/[jobId]",
+        "sourcePath": "src/app/api/import/contracts/[jobId]/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/integrations/actions/callback",
+        "sourcePath": "src/app/api/integrations/actions/callback/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "integrations"
+      },
+      {
+        "route": "/api/integrations/oauth/start",
+        "sourcePath": "src/app/api/integrations/oauth/start/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "security"
+      },
+      {
+        "route": "/api/integrations/slack/renewal-summary",
+        "sourcePath": "src/app/api/integrations/slack/renewal-summary/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "integrations"
+      },
+      {
+        "route": "/api/intelligence/recommendations/[id]",
+        "sourcePath": "src/app/api/intelligence/recommendations/[id]/route.ts",
+        "methods": [
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/maintenance/campaigns",
+        "sourcePath": "src/app/api/maintenance/campaigns/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/maintenance/campaigns/[id]/rollback",
+        "sourcePath": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/maintenance/campaigns/[id]/run",
+        "sourcePath": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/me/account",
+        "sourcePath": "src/app/api/me/account/route.ts",
+        "methods": [
+          "DELETE"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/playbooks",
+        "sourcePath": "src/app/api/playbooks/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/playbooks/[id]/preview",
+        "sourcePath": "src/app/api/playbooks/[id]/preview/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/playbooks/[id]/run",
+        "sourcePath": "src/app/api/playbooks/[id]/run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/playbooks/runs/[id]/approve",
+        "sourcePath": "src/app/api/playbooks/runs/[id]/approve/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/policy/simulate",
+        "sourcePath": "src/app/api/policy/simulate/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/product-telemetry/page-load",
+        "sourcePath": "src/app/api/product-telemetry/page-load/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/program-evolution/experiments",
+        "sourcePath": "src/app/api/program-evolution/experiments/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/program-evolution/experiments/[id]/advance-rollout",
+        "sourcePath": "src/app/api/program-evolution/experiments/[id]/advance-rollout/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/program-evolution/experiments/[id]/results",
+        "sourcePath": "src/app/api/program-evolution/experiments/[id]/results/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/program-evolution/experiments/[id]/simulate",
+        "sourcePath": "src/app/api/program-evolution/experiments/[id]/simulate/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/programs",
+        "sourcePath": "src/app/api/programs/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/programs/[id]/[action]",
+        "sourcePath": "src/app/api/programs/[id]/[action]/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/renewals/[id]/[action]",
+        "sourcePath": "src/app/api/renewals/[id]/[action]/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/report-packs",
+        "sourcePath": "src/app/api/report-packs/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "release"
+      },
+      {
+        "route": "/api/report-runs/[runId]/retry",
+        "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "release"
+      },
+      {
+        "route": "/api/review-boards",
+        "sourcePath": "src/app/api/review-boards/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/review-boards/[id]",
+        "sourcePath": "src/app/api/review-boards/[id]/route.ts",
+        "methods": [
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/review-boards/[id]/generate-run",
+        "sourcePath": "src/app/api/review-boards/[id]/generate-run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/review-boards/runs/[id]",
+        "sourcePath": "src/app/api/review-boards/runs/[id]/route.ts",
+        "methods": [
+          "GET",
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "assurance"
+      },
+      {
+        "route": "/api/security/csp-report",
+        "sourcePath": "src/app/api/security/csp-report/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "release"
+      },
+      {
+        "route": "/api/segments",
+        "sourcePath": "src/app/api/segments/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/segments/[id]/recompute",
+        "sourcePath": "src/app/api/segments/[id]/recompute/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/settings/step-up",
+        "sourcePath": "src/app/api/settings/step-up/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "security"
+      },
+      {
+        "route": "/api/simulations/[id]/promote-to-campaign",
+        "sourcePath": "src/app/api/simulations/[id]/promote-to-campaign/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/simulations/run",
+        "sourcePath": "src/app/api/simulations/run/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/stripe/checkout",
+        "sourcePath": "src/app/api/stripe/checkout/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/stripe/portal",
+        "sourcePath": "src/app/api/stripe/portal/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/stripe/webhook",
+        "sourcePath": "src/app/api/stripe/webhook/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "webhook_signature",
+        "rateLimitPolicy": "webhook",
+        "owner": "integrations"
+      },
+      {
+        "route": "/api/tasks/from-email",
+        "sourcePath": "src/app/api/tasks/from-email/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/tasks/from-slack",
+        "sourcePath": "src/app/api/tasks/from-slack/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "explicit",
+        "owner": "engineering"
+      },
+      {
+        "route": "/api/webhooks/dispatch",
+        "sourcePath": "src/app/api/webhooks/dispatch/route.ts",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "authModel": "cron_secret",
+        "rateLimitPolicy": "cron",
+        "owner": "operations"
+      },
+      {
+        "route": "/api/workspace/settings",
+        "sourcePath": "src/app/api/workspace/settings/route.ts",
+        "methods": [
+          "GET",
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "security"
+      },
+      {
+        "route": "/api/workspace/v6-settings",
+        "sourcePath": "src/app/api/workspace/v6-settings/route.ts",
+        "methods": [
+          "GET",
+          "PATCH"
+        ],
+        "authModel": "session",
+        "rateLimitPolicy": "mutation_required",
+        "owner": "security"
+      }
+    ]
+  },
+  "behaviorEvidence": {
+    "routeTestFileCount": 209,
+    "route429TestCount": 39,
+    "minRoute429Tests": 12,
+    "route429Tests": [
+      "src/app/api/contact/route.test.ts",
+      "src/app/api/cron/stripe-webhook-events/route.test.ts",
+      "src/app/api/cron/v4/approvals-sla/route.test.ts",
+      "src/app/api/cron/v4/attestations-issue/route.test.ts",
+      "src/app/api/cron/v4/escalations-dispatch/route.test.ts",
+      "src/app/api/cron/v4/evidence-followup/route.test.ts",
+      "src/app/api/cron/v4/exceptions-detect/route.test.ts",
+      "src/app/api/cron/v4/programs-reconcile/route.test.ts",
+      "src/app/api/cron/v4/renewals-recompute-signals/route.test.ts",
+      "src/app/api/cron/v4/report-packs-generate/route.test.ts",
+      "src/app/api/cron/v5/campaign-progress/route.test.ts",
+      "src/app/api/cron/v5/capacity-forecast-refresh/route.test.ts",
+      "src/app/api/cron/v5/decision-sla-monitor/route.test.ts",
+      "src/app/api/cron/v5/external-followup/route.test.ts",
+      "src/app/api/cron/v5/portfolio-risk-recompute/route.test.ts",
+      "src/app/api/cron/v5/recommendation-refresh/route.test.ts",
+      "src/app/api/cron/v5/relationship-rollups/route.test.ts",
+      "src/app/api/cron/v5/simulation-snapshots/route.test.ts",
+      "src/app/api/cron/v6/onboarding-calibration-stale/route.test.ts",
+      "src/app/api/export/contracts/route.test.ts",
+      "src/app/api/external-actions/[token]/participant/workflow-step/route.test.ts",
+      "src/app/api/external-actions/[token]/status/route.test.ts",
+      "src/app/api/external-actions/[token]/submit/route.test.ts",
+      "src/app/api/external-actions/[token]/workflow-step/route.test.ts",
+      "src/app/api/extract/route.test.ts",
+      "src/app/api/import/contracts/route.test.ts",
+      "src/app/api/integrations/actions/callback/route.test.ts",
+      "src/app/api/internal/debugging-sweep/route.test.ts",
+      "src/app/api/notifications/retry-deliveries/route.test.ts",
+      "src/app/api/report-runs/[runId]/retry/route.test.ts",
+      "src/app/api/reports/track/click/[token]/route.test.ts",
+      "src/app/api/reports/track/open/[token]/route.test.ts",
+      "src/app/api/settings/step-up/route.test.ts",
+      "src/app/api/stripe/webhook/route.test.ts",
+      "src/app/api/tasks/from-email/route.test.ts",
+      "src/app/api/tasks/from-slack/route.test.ts",
+      "src/app/api/tasks/run-rules/route.test.ts",
+      "src/app/api/templates/preview/route.test.ts",
+      "src/app/api/webhooks/dispatch/route.test.ts"
+    ]
+  },
+  "checks": [
+    {
+      "checkId": "api-problem-json",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "api-route-rate-limit-coverage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "callback-destination-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "concurrency-cap-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "decompression-bomb-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "export-security-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "json-body-limited-adoption",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "pagination-guardrails",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "parser-risk-controls",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "rate-limit-distribution-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "rate-limit-key-cardinality",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "regex-dos-risk",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "request-framing-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "response-size-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "timeout-budget-guards",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

@@ -1,0 +1,44 @@
+{
+  "baselineDate": "2026-05-28",
+  "owner": "api-platform",
+  "purpose": "Ratchet oversized route handler files.",
+  "reviewReason": "Section 28 static architecture and code health ratchet baseline; future line-count growth requires reviewed cleanup or baseline update.",
+  "offenders": [
+    {
+      "file": "src/app/api/approvals/[id]/[action]/route.ts",
+      "lines": 508
+    },
+    {
+      "file": "src/app/api/command-palette/contracts/route.ts",
+      "lines": 571
+    },
+    {
+      "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "lines": 637
+    },
+    {
+      "file": "src/app/api/evidence/submit/route.ts",
+      "lines": 522
+    },
+    {
+      "file": "src/app/api/exceptions/[id]/[action]/route.ts",
+      "lines": 542
+    },
+    {
+      "file": "src/app/api/export/contracts/route.ts",
+      "lines": 536
+    },
+    {
+      "file": "src/app/api/integrations/crm/sync/route.ts",
+      "lines": 604
+    },
+    {
+      "file": "src/app/api/renewals/[id]/[action]/route.ts",
+      "lines": 455
+    },
+    {
+      "file": "src/app/api/reports/send-summaries/route.ts",
+      "lines": 858
+    }
+  ]
+}

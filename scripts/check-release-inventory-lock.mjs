@@ -133,6 +133,7 @@ function classifyRouteBoundary(routePath) {
     [/^\/api\/tasks\//, "work", "core", "work_ingest_boundary"],
     [/^\/api\/webhooks\//, "advanced", "advanced", "webhook_provider_boundary"],
     [/^\/api\/workspace\//, "settings", "core", "workspace_settings_boundary"],
+    [/^\/search\b/, "command_search", "core", "command_search_dashboard_catalog_promotion"],
     [/^\/dashboard\/persona\b|^\/more\b|^\/settings\/(billing|health\/diagnostics|operations|policy|security)\b/, "settings", "core", "settings_dashboard_catalog_promotion"],
   ];
   for (const [pattern, surface, minimumMode, promotionPath] of policies) {

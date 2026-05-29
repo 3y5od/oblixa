@@ -1,6 +1,11 @@
 {
-  "generatedAt": "2026-05-24T20:51:40.422Z",
+  "schemaVersion": 1,
+  "source": "code-owned-rpo-rto-status",
+  "generatedFrom": "config/database-backup-restore-evidence.json",
+  "manualBoundaryId": "manual-database-restore-drill",
   "rpoMinutes": 240,
   "rtoMinutes": 60,
-  "source": "placeholder"
+  "reviewedOn": "2026-05-28",
+  "expiresOn": "2027-05-28",
+  "evidencePolicy": "metadata-only"
 }

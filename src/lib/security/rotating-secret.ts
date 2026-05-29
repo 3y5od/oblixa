@@ -31,3 +31,25 @@ export function validatePreviousSecretExpiry(input: {
   if (expiresAtMs <= (input.nowMs ?? Date.now())) return { ok: false, reason: "previous_secret_expired" };
   return { ok: true, expiresAtMs };
 }
+
+export function rotatingSecretCandidates(input: {
+  currentSecret?: string | null;
+  previousSecret?: string | null;
+  previousSecretExpiresAt?: string | null;
+  nowMs?: number;
+  strict?: boolean;
+}): string[] {
+  const currentSecret = input.currentSecret?.trim();
+  const previousSecret = input.previousSecret?.trim();
+  const candidates = currentSecret ? [currentSecret] : [];
+  if (!previousSecret) return candidates;
+
+  const previousStatus = validatePreviousSecretExpiry({
+    previousSecret,
+    previousSecretExpiresAt: input.previousSecretExpiresAt,
+    nowMs: input.nowMs,
+    strict: input.strict,
+  });
+  if (previousStatus.ok) candidates.push(previousSecret);
+  return candidates;
+}

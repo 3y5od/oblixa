@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-test-reliability-governance",
+  "generatedArtifact": "artifacts/operational-test-reliability-governance.json",
+  "sourceFiles": [
+    "config/operational-test-reliability-governance.json",
+    "scripts/check-operational-test-reliability-governance.mjs",
+    "scripts/check-operational-test-reliability-governance.test.mjs",
+    "scripts/classify-playwright-flakes.mjs",
+    "scripts/check-e2e-quarantine.mjs",
+    "scripts/report-test-skip-governance.mjs",
+    "scripts/check-e2e-skip-baseline.mjs",
+    "scripts/check-playwright-stability-threshold.mjs",
+    "scripts/e2e-skip-baseline.json",
+    "scripts/playwright-stability-baseline.json",
+    "e2e-quarantine.json",
+    "playwright.config.ts",
+    "e2e/global-setup-auth-storage.ts",
+    "e2e/global-teardown.ts",
+    "e2e/fixtures/app-fixture.ts",
+    "e2e/fixtures/fail-on-request-errors.ts",
+    "e2e/fixtures/route-state-fixture.ts",
+    "e2e/fixtures/theme-fixture.ts",
+    "e2e/fixtures/workspace-mode-fixture.ts",
+    "e2e/visual-helpers.ts",
+    "e2e/generated/visual-routes.ts",
+    "e2e/generated/public-routes.ts",
+    "e2e/generated/authenticated-routes.ts",
+    "e2e/generated/route-states.ts",
+    "e2e/visual.public.spec.ts",
+    "e2e/visual.external.spec.ts",
+    "e2e/visual.route-states.spec.ts",
+    "e2e/visual.shell.spec.ts",
+    "e2e/visual.core.spec.ts",
+    "e2e/visual.advanced.spec.ts",
+    "e2e/visual.assurance.spec.ts",
+    "e2e/persona-dashboard-visual-qa.spec.ts",
+    "e2e/compatibility-visual-optional.spec.ts"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-test-reliability-governance",
+    "write:operational-test-reliability-governance",
+    "test:operational-test-reliability-governance",
+    "classify:playwright-flakes",
+    "check:e2e-quarantine:strict",
+    "check:test-skip-governance",
+    "check:e2e:skip-baseline",
+    "check:e2e:stability-threshold",
+    "check:e2e-generated-drift",
+    "check:api-tenant-isolation",
+    "check:deterministic-org-resolution",
+    "check:e2e-env-matrix",
+    "check:env-matrix",
+    "check:playwright-project-matrix",
+    "test:rls-smoke",
+    "test:e2e:teardown"
+  ],
+  "flakeClassification": {
+    "owner": "@test-platform",
+    "nextValidationCommand": "check:operational-test-reliability-governance",
+    "reportPaths": ["test-results/results.json", "test-results/junit.xml", "playwright-report/results.json"],
+    "requiredClasses": [
+      "timeout",
+      "locator_failure",
+      "network_failure",
+      "assertion_drift",
+      "visual_drift",
+      "browser_crash",
+      "environment_missing"
+    ],
+    "reportArtifact": "artifacts/flake-summary.json"
+  },
+  "quarantine": {
+    "manifest": "e2e-quarantine.json",
+    "requiredFields": ["id", "path", "reason", "owner", "expiry", "issue", "replacementCoverage", "reenableCommand"],
+    "idPattern": "qnt-<slug>",
+    "linkedIssuePattern": "GH-<number> or https://...",
+    "strictCommand": "check:e2e-quarantine:strict"
+  },
+  "skipGovernance": {
+    "scanTargets": ["e2e", "src"],
+    "baseline": "scripts/e2e-skip-baseline.json",
+    "maxDelta": 0,
+    "requiredDetectors": [
+      "test.skip",
+      "test.fixme",
+      "test.describe.skip",
+      "describe.skip",
+      "it.skip",
+      "file-name.skip",
+      "environment-skip",
+      "browser-skip",
+      "ci-only-skip"
+    ],
+    "strictCommand": "check:test-skip-governance",
+    "ratchetCommand": "check:e2e:skip-baseline"
+  },
+  "testDataIsolation": {
+    "requiredFixtures": [
+      "e2e/fixtures/app-fixture.ts",
+      "e2e/fixtures/fail-on-request-errors.ts",
+      "e2e/fixtures/route-state-fixture.ts",
+      "e2e/fixtures/theme-fixture.ts",
+      "e2e/fixtures/workspace-mode-fixture.ts"
+    ],
+    "requiredCommands": [
+      "check:api-tenant-isolation",
+      "check:deterministic-org-resolution",
+      "check:e2e-env-matrix",
+      "check:env-matrix",
+      "test:rls-smoke",
+      "test:e2e:teardown"
+    ],
+    "requiredPlaywrightMarkers": [
+      "globalSetup",
+      "globalTeardown",
+      "PLAYWRIGHT_REUSE_AUTH_STORAGE",
+      "E2E_RANDOM_SEED",
+      "retries",
+      "workers"
+    ],
+    "allowedMutableStateFiles": ["e2e/global-setup-auth-storage.ts", "e2e/global-teardown.ts"],
+    "allowedTestEmailDomains": [
+      "example.com",
+      "example.test",
+      "example.invalid",
+      "*.test",
+      "app.test",
+      "dashboards.example.test",
+      "b.co",
+      "b.com",
+      "y.zz",
+      "oblixa.com",
+      "oblixa.io",
+      "*.sentry.io",
+      "oblixa.local"
+    ]
+  },
+  "visualBaselineGovernance": {
+    "routeMatrices": [
+      "e2e/generated/visual-routes.ts",
+      "e2e/generated/public-routes.ts",
+      "e2e/generated/authenticated-routes.ts",
+      "e2e/generated/route-states.ts"
+    ],
+    "helper": "e2e/visual-helpers.ts",
+    "requiredBrowser": "chromium",
+    "requiredDevice": "Desktop Chrome",
+    "requiredOsAssumption": "darwin",
+    "suites": [
+      {
+        "spec": "e2e/visual.public.spec.ts",
+        "snapshotRoot": "e2e/visual.public.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual",
+        "updateCommand": "test:e2e:visual:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.external.spec.ts",
+        "snapshotRoot": "e2e/visual.external.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual",
+        "updateCommand": "test:e2e:visual:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.route-states.spec.ts",
+        "snapshotRoot": "e2e/visual.route-states.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual",
+        "updateCommand": "test:e2e:visual:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.shell.spec.ts",
+        "snapshotRoot": "e2e/visual.shell.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual:auth",
+        "updateCommand": "test:e2e:visual:auth:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.core.spec.ts",
+        "snapshotRoot": "e2e/visual.core.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual:auth",
+        "updateCommand": "test:e2e:visual:auth:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.advanced.spec.ts",
+        "snapshotRoot": "e2e/visual.advanced.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual:advanced",
+        "updateCommand": "test:e2e:visual:advanced:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/visual.assurance.spec.ts",
+        "snapshotRoot": "e2e/visual.assurance.spec.ts-snapshots",
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual:assurance",
+        "updateCommand": "test:e2e:visual:assurance:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/persona-dashboard-visual-qa.spec.ts",
+        "snapshotRoot": null,
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:visual:persona",
+        "updateCommand": "test:e2e:visual:persona:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      },
+      {
+        "spec": "e2e/compatibility-visual-optional.spec.ts",
+        "snapshotRoot": null,
+        "owner": "@test-platform",
+        "runCommand": "test:e2e:compatibility:visual",
+        "updateCommand": "test:e2e:compatibility:visual:update",
+        "browser": "chromium",
+        "device": "Desktop Chrome",
+        "osAssumption": "darwin",
+        "diffThreshold": "playwright-default",
+        "reviewEvidenceCommand": "check:operational-test-reliability-governance"
+      }
+    ]
+  },
+  "manualBoundary": {
+    "objectiveId": "oph-032-test-reliability",
+    "boundary": "human review still decides whether a visual change is intentional, but update commands, owners, route matrices, and snapshot metadata are code-gated",
+    "readinessCommand": "check:operational-test-reliability-governance"
+  }
+}

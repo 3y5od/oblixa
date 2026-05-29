@@ -3,11 +3,22 @@
 
 supabase/migrations/ @YOUR_ORG/backend
 supabase/tests/ @YOUR_ORG/backend
+supabase/sql/ @YOUR_ORG/backend
 src/app/api/ @YOUR_ORG/backend
 src/actions/ @YOUR_ORG/backend
 src/lib/auth/ @YOUR_ORG/backend
 src/app/(auth)/ @YOUR_ORG/backend
 src/components/auth/ @YOUR_ORG/backend
+src/app/(marketing)/privacy/page.tsx @YOUR_ORG/backend
+src/lib/billing/ @YOUR_ORG/backend
+src/lib/email/ @YOUR_ORG/backend
+src/lib/extraction/ @YOUR_ORG/backend
+src/lib/integrations/ @YOUR_ORG/backend
+src/lib/observability/ @YOUR_ORG/backend
+src/lib/provider-integration-fixtures.ts @YOUR_ORG/backend
+src/lib/stripe.ts @YOUR_ORG/backend
+src/lib/operational-support-operations.ts @YOUR_ORG/backend
+src/components/settings/billing-actions.tsx @YOUR_ORG/backend
 src/lib/env/ @YOUR_ORG/backend
 src/lib/security/ @YOUR_ORG/backend
 src/lib/debugging-sweep/ @YOUR_ORG/backend

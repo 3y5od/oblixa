@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-cron-jobs",
+  "maxAllowedDurationSeconds": 300,
+  "objectives": [
+    {
+      "id": "scheduled-route-inventory",
+      "ownerArea": "platform-runtime",
+      "commands": [
+        { "command": "check:operational-cron-jobs", "ciRequired": true, "covers": ["registry", "route_files", "route_tests", "slo_budget"] },
+        { "command": "check:vercel-cron", "ciRequired": true, "covers": ["vercel_schedule_alignment", "route_handlers"] },
+        { "command": "check:vercel-cron-canary-parity", "ciRequired": true, "covers": ["canary_contract_alignment"] },
+        { "command": "check:api-route-tests", "ciRequired": true, "covers": ["route_test_coverage"] }
+      ],
+      "artifacts": ["artifacts/operational-cron-jobs.json"]
+    },
+    {
+      "id": "cron-authentication",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:cron-route-auth", "ciRequired": true, "covers": ["auth_helper_presence"] },
+        { "command": "check:scheduled-cron-route-wrappers", "ciRequired": true, "covers": ["shared_wrapper_enforcement"] },
+        { "command": "check:cron-canary", "ciRequired": false, "covers": ["signed_unsigned_runtime_probe"] }
+      ]
+    },
+    {
+      "id": "idempotency-locks",
+      "ownerArea": "platform-runtime",
+      "commands": [
+        { "command": "check:idempotency-policy", "ciRequired": true, "covers": ["idempotency_key_contract"] },
+        { "command": "check:job-lock-guards", "ciRequired": true, "covers": ["single_flight_locks"] },
+        { "command": "check:duplicate-execution-policy", "ciRequired": true, "covers": ["durable_duplicate_guards"] }
+      ]
+    },
+    {
+      "id": "cron-observability",
+      "ownerArea": "observability",
+      "commands": [
+        { "command": "check:operational-cron-jobs", "ciRequired": true, "covers": ["standard_envelope"] },
+        { "command": "check:observability-contracts", "ciRequired": false, "covers": ["redaction_and_request_id_baseline"] },
+        { "command": "check:cron-canary", "ciRequired": false, "covers": ["runtime_json_shape"] }
+      ]
+    },
+    {
+      "id": "schedule-drift",
+      "ownerArea": "platform-runtime",
+      "commands": [
+        { "command": "check:vercel-cron", "ciRequired": true, "covers": ["schedule_to_route_alignment"] },
+        { "command": "check:vercel-cron-canary-parity", "ciRequired": true, "covers": ["canary_map_parity"] },
+        { "command": "check:operational-cron-jobs", "ciRequired": true, "covers": ["registry_drift", "duration_budget"] }
+      ]
+    }
+  ],
+  "sourceMarkers": [
+    {
+      "path": "src/lib/cron/route-runner.ts",
+      "markers": [
+        "gateCronRequest",
+        "enforceIdempotency",
+        "rateLimitCheck",
+        "acquireCronSingleFlightLock",
+        "releaseCronSingleFlightLock",
+        "pingCronHealthcheck",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "cron_job_already_running",
+        "error_class"
+      ]
+    },
+    {
+      "path": "src/lib/assurance/cron-route-runner.ts",
+      "markers": [
+        "withCronRoute",
+        "rateLimitKey",
+        "RATE_LIMITS.v6CronDefault",
+        "requireV6CronFeature",
+        "v6CronRunMetadata"
+      ]
+    },
+    {
+      "path": "src/lib/cron/single-flight-lock.ts",
+      "markers": [
+        "Redis.fromEnv",
+        "nx: true",
+        "px:",
+        "memoryLocks",
+        "releaseCronSingleFlightLock"
+      ]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/security/cron-route-gate.test.ts",
+      "markers": [
+        "gateCronRequest returns 503 when CRON_SECRET is missing",
+        "gateCronRequest returns 401 when secret set but request unsigned",
+        "gateCronRequest returns null when Bearer matches",
+        "cron_secret_missing",
+        "cron_unauthorized"
+      ]
+    },
+    {
+      "path": "src/lib/security/cron-auth.test.ts",
+      "markers": [
+        "accepts Authorization Bearer match",
+        "rejects wrong bearer",
+        "accepts x-cron-secret header",
+        "accepts x-vercel-cron-secret header",
+        "rejects missing credentials"
+      ]
+    },
+    {
+      "path": "e2e/cron-routes-smoke.spec.ts",
+      "markers": [
+        "rejects request without cron credentials",
+        "rejects wrong bearer secret",
+        "rejects wrong x-cron-secret header",
+        "rejects replay-style POST without valid cron credentials"
+      ]
+    },
+    {
+      "path": "e2e/cron-bearer-parity.spec.ts",
+      "markers": [
+        "accepts Authorization Bearer",
+        "accepts x-cron-secret"
+      ]
+    },
+    {
+      "path": "scripts/lib/cron-http-probe.mjs",
+      "markers": [
+        "cronStrictNoSkip404",
+        "fetchCronWithMethodDiscovery",
+        "POST on 405"
+      ]
+    },
+    {
+      "path": "src/lib/cron/route-runner.test.ts",
+      "markers": [
+        "duration and route metadata",
+        "job_id",
+        "started_at",
+        "processed_count",
+        "blocks overlapping runs",
+        "Retry-After",
+        "emits skipped telemetry fields"
+      ]
+    },
+    {
+      "path": "src/lib/cron/single-flight-lock.test.ts",
+      "markers": [
+        "blocks a second acquire until the owner releases",
+        "lets expired in-memory locks be reclaimed"
+      ]
+    },
+    {
+      "path": "src/app/api/notifications/retry-deliveries/route.test.ts",
+      "markers": [
+        "returns partial payload when signed and inserts audit entries",
+        "partial: true",
+        "failed"
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "markers": [
+        "blocks duplicate replay of refresh-tokens cron runs with x-idempotency-key",
+        "retryAfterMs"
+      ]
+    }
+  ],
+  "standardTelemetryFields": [
+    "ok",
+    "route",
+    "job_id",
+    "started_at",
+    "durationMs",
+    "processed_count",
+    "skipped_count",
+    "failed_count",
+    "retry_count",
+    "errors_count"
+  ]
+}

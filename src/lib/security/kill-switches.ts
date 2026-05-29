@@ -15,6 +15,22 @@ export function isKillExtraction(): boolean {
   return process.env.OBLIXA_KILL_EXTRACTION === "1";
 }
 
+export function isKillOutboundEmail(): boolean {
+  return process.env.OBLIXA_KILL_OUTBOUND_EMAIL === "1";
+}
+
+export function isKillCronFamily(): boolean {
+  return process.env.OBLIXA_KILL_CRON_FAMILY === "1";
+}
+
+export function isKillImportExport(): boolean {
+  return process.env.OBLIXA_KILL_IMPORT_EXPORT === "1";
+}
+
+export function isKillIntegrationSync(): boolean {
+  return process.env.OBLIXA_KILL_INTEGRATION_SYNC === "1";
+}
+
 export function isKillInvites(): boolean {
   return process.env.OBLIXA_KILL_INVITES === "1";
 }
@@ -35,4 +51,22 @@ export function killSwitchJsonResponse(subsystem: string): NextResponse {
     diagnostic_id: "kill_switch_active",
     details: { subsystem },
   });
+}
+
+export function killSwitchOperationalTelemetry(subsystem: string) {
+  return {
+    event: "operational.kill_switch_active",
+    subsystem,
+    severity: "warning",
+    redaction: "metadata-only",
+  } as const;
+}
+
+export function killSwitchAccessibleState(subsystem: string) {
+  return {
+    status: "paused",
+    heading: "Temporarily unavailable",
+    reason: "operator_kill_switch",
+    subsystem,
+  } as const;
 }

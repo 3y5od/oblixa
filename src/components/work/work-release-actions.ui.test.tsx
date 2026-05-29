@@ -41,6 +41,7 @@ function baseRow(overrides: Partial<WorkItemRow> = {}): WorkItemRow {
     dueAt: "2026-05-20",
     dueLabel: "May 20, 2026",
     dueState: "due_soon",
+    dueInDays: 3,
     blocker: "—",
     lastUpdateAt: "2026-05-17T10:00:00.000Z",
     lastUpdateLabel: "2 days ago",

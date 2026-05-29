@@ -11,6 +11,22 @@ export type WorkspaceRole =
   | "finance_reviewer"
   | "manager";
 
+/** Public taxonomy buckets surfaced in the search UI (overlay + /search page).
+ *  Matches the placeholder copy "Search pages, queues, reports, tools" so the
+ *  user-visible language stays aligned with the input prompt. */
+export type SearchGroup = "pages" | "queues" | "reports" | "tools";
+
+export const SEARCH_GROUP_LABELS: Record<SearchGroup, string> = {
+  pages: "Pages",
+  queues: "Queues",
+  reports: "Reports",
+  tools: "Tools",
+};
+
+/** Render order for search groups. Page-level destinations first, then work
+ *  queues, then reporting, then settings/admin tools. */
+export const SEARCH_GROUP_ORDER: SearchGroup[] = ["pages", "queues", "reports", "tools"];
+
 export type NavItem = {
   name: string;
   href: string;
@@ -32,7 +48,17 @@ export type NavItem = {
     | "programs"
     | "settings"
     | "billing"
-    | "more";
+    | "more"
+    // Per-destination icons for cmd-K extras + finer settings differentiation.
+    // Mapped in `src/components/search/nav-icon.tsx`.
+    | "profile"
+    | "workspace-identity"
+    | "team"
+    | "imports"
+    | "security-account"
+    | "notifications"
+    | "export"
+    | "review-fields";
   minRole?: WorkspaceRole;
   badgeKey?: "reviewQueue" | "approvals" | "obligations" | "watchlists";
   /**
@@ -44,9 +70,31 @@ export type NavItem = {
   navChildren?: {
     name: string;
     href: string;
+    /** Per-child description shown in search results. Must NOT be inherited
+     *  from the parent — search results would otherwise show identical copy
+     *  on parent + child rows. */
+    description?: string;
     v5FlagsAnyOf?: FeatureFlagKey[];
     badgeKey?: "reviewQueue" | "approvals" | "obligations" | "watchlists";
+    /** Synonyms used by the search matcher in addition to name/description. */
+    searchSynonyms?: readonly string[];
+    /** Search group override for the child (otherwise inherits parent). */
+    searchGroup?: SearchGroup;
+    /** Per-child icon override. Without this, navChildren would inherit the
+     *  parent's icon (e.g., "Review fields" would show the Contracts icon),
+     *  which collapses visual distinction in search results. */
+    icon?: NonNullable<NavItem["icon"]>;
   }[];
+  /** Public-taxonomy search bucket. Defaults derived in
+   *  `resolveSearchGroupForNavItem()` so every NavItem maps to exactly one. */
+  searchGroup?: SearchGroup;
+  /** Optional sub-bucket inside the search group (e.g. Tools → account /
+   *  workspace / operations). Renders as a hairline-divided subgroup
+   *  within a single group card. V2 search pass T1.2. */
+  searchSubgroup?: "account" | "workspace" | "operations";
+  /** Synonyms used by the search matcher in addition to name + description.
+   *  Lower-case, no punctuation; matched as substring tokens. */
+  searchSynonyms?: readonly string[];
 };
 
 export type WorkflowArea =
@@ -92,16 +140,32 @@ export const NAV_ITEMS: NavItem[] = [
     description: "What needs action, what is due, and what you own.",
     section: "primary",
     icon: "dashboard",
+    searchGroup: "pages",
+    searchSynonyms: ["home", "overview"],
   },
   {
     name: "Contracts",
     href: "/contracts",
-    description: "Contract records and portfolio context.",
+    description: "Every contract you've added, with renewal and notice dates.",
     section: "primary",
     icon: "contracts",
+    searchGroup: "pages",
+    searchSynonyms: ["contract", "agreement", "agreements", "inventory"],
     navChildren: [
-      { name: "All contracts", href: "/contracts" },
-      { name: "Review fields", href: "/contracts/review", badgeKey: "reviewQueue" },
+      {
+        name: "All contracts",
+        href: "/contracts",
+        description: "Every contract in the workspace with filters and search.",
+      },
+      {
+        name: "Review fields",
+        href: "/contracts/review",
+        description: "Pending field approvals on extracted contract data.",
+        badgeKey: "reviewQueue",
+        searchGroup: "queues",
+        searchSynonyms: ["review", "approve", "approval", "fields", "extraction"],
+        icon: "review-fields",
+      },
     ],
   },
   /**
@@ -111,9 +175,11 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Work",
     href: "/work",
-    description: "Contract work across tasks, approvals, obligations, and exceptions.",
+    description: "Tasks, approvals, obligations, and exceptions.",
     section: "primary",
     icon: "tasks",
+    searchGroup: "queues",
+    searchSynonyms: ["tasks", "approvals", "obligations", "queue"],
     navChildren: [],
   },
   {
@@ -122,6 +188,8 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Upcoming renewal and notice dates.",
     section: "primary",
     icon: "renewals",
+    searchGroup: "pages",
+    searchSynonyms: ["renew", "renewal", "rollover", "notice", "deadline"],
   },
   {
     name: "Evidence",
@@ -129,6 +197,8 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Evidence requests, collection, and audit trail.",
     section: "primary",
     icon: "evidence",
+    searchGroup: "queues",
+    searchSynonyms: ["evidence", "proof", "audit", "documents"],
   },
   {
     name: "Decisions",
@@ -212,9 +282,11 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Reports",
     href: "/reports",
-    description: "Core operational report exports.",
+    description: "Operational reports and exports.",
     section: "primary",
     icon: "reports",
+    searchGroup: "reports",
+    searchSynonyms: ["report", "export", "csv", "inventory"],
   },
   {
     name: "Tools",
@@ -222,6 +294,8 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Secondary tools, maintenance, and admin-only destinations.",
     section: "primary",
     icon: "more",
+    searchGroup: "tools",
+    searchSynonyms: ["more", "admin", "utility", "utilities"],
   },
   {
     name: "Intake",
@@ -271,7 +345,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Analytics",
     href: "/contracts/analytics",
-    description: "Portfolio trends and operational KPIs.",
+    description: "Contract trends and operational KPIs.",
     section: "operations",
   },
   {
@@ -305,8 +379,32 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Profile, workspace, team, billing, notifications, security, and export settings.",
     section: "primary",
     icon: "settings",
+    searchGroup: "tools",
+    searchSynonyms: ["settings", "preferences", "config", "configuration"],
   },
 ];
+
+/** Resolve the search bucket for a NavItem. Explicit `searchGroup` wins;
+ *  otherwise fall back to a workflow-area-based default mapping. */
+export function resolveSearchGroupForNavItem(item: { searchGroup?: SearchGroup; href: string; section?: NavItem["section"] }): SearchGroup {
+  if (item.searchGroup) return item.searchGroup;
+  const path = item.href.split("?")[0]?.split("#")[0] ?? item.href;
+  if (path === "/reports" || path.startsWith("/reports/") || path.startsWith("/contracts/reports")) return "reports";
+  if (
+    path === "/work" ||
+    path.startsWith("/work/") ||
+    path === "/contracts/review" ||
+    path === "/contracts/approvals" ||
+    path === "/contracts/obligations" ||
+    path === "/contracts/exceptions" ||
+    path === "/contracts/tasks" ||
+    path === "/contracts/evidence-studio"
+  ) {
+    return "queues";
+  }
+  if (path === "/more" || path.startsWith("/settings") || path === "/contracts/bulk") return "tools";
+  return "pages";
+}
 
 // Routes that remain live but are not surfaced as public Core sidebar lanes.
 // Keep them in the subroutes set so isContractsRoot() still distinguishes

@@ -19,12 +19,13 @@ function withFixture(files, fn) {
       root,
       "src/lib/http/problem.ts",
       `
-        export const SUPPORT_SAFE_PROBLEM_STATUSES = [400, 401, 403, 404, 405, 409, 413, 415, 429, 500, 502, 503] as const;
+        export const SUPPORT_SAFE_PROBLEM_STATUSES = [400, 401, 403, 404, 405, 409, 413, 415, 422, 429, 500, 502, 503] as const;
         export function jsonBadRequest() {}
         export function jsonMethodNotAllowed() {}
         export function jsonConflict() {}
         export function jsonPayloadTooLarge() {}
         export function jsonUnsupportedMediaType() {}
+        export function jsonUnprocessableEntity() {}
         export function jsonRateLimited() {}
         export function jsonUnhandled() {}
         export function jsonBadGateway() {}
@@ -45,6 +46,7 @@ function withFixture(files, fn) {
           jsonConflict("/api/example");
           jsonPayloadTooLarge("/api/example");
           jsonUnsupportedMediaType("/api/example");
+          jsonUnprocessableEntity("/api/example");
           jsonBadGateway("/api/example");
           jsonServiceUnavailable("/api/example");
         });

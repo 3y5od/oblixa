@@ -10,7 +10,7 @@ describe("dashboard Core header actions", () => {
     expect(raw.includes("DASHBOARD_PRIMARY_CTA")).toBe(true);
     expect(raw.includes("DASHBOARD_SECONDARY_CTA")).toBe(true);
     expect(raw.includes('href="/contracts/new"')).toBe(true);
-    expect(raw.includes('href="/contracts/intake"')).toBe(true);
+    expect(raw.includes('href="/contracts/bulk"')).toBe(true);
     expect(raw.includes("metrics.pendingReview > 0")).toBe(false);
   });
 });

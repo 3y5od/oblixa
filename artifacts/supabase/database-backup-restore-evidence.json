@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-database-backup-restore-evidence",
+  "generatedBy": "scripts/check-database-backup-restore-evidence.mjs --write",
+  "generatedFrom": "config/database-backup-restore-evidence.json",
+  "manualBoundariesSource": "config/operational-manual-boundaries.json",
+  "manualBoundary": {
+    "id": "manual-database-restore-drill",
+    "ownerArea": "data-platform",
+    "externalSystem": "Supabase",
+    "productionOnly": true,
+    "readinessCommand": "check:database-backup-restore-evidence"
+  },
+  "rpoRto": {
+    "rpoMinutes": 240,
+    "rtoMinutes": 60,
+    "source": "code-owned-placeholder",
+    "reviewedOn": "2026-05-28",
+    "expiresOn": "2027-05-28"
+  },
+  "commandCount": 2,
+  "commands": [
+    {
+      "command": "check:dr-drill-smoke",
+      "packageCommand": "node scripts/dr-drill-smoke.mjs",
+      "sourcePath": "scripts/dr-drill-smoke.mjs",
+      "purpose": "Run an explicitly enabled read-only vendor status drill smoke.",
+      "strictEnvKeys": [
+        "DR_DRILL_STRICT",
+        "DR_VENDOR_STATUS_URL"
+      ],
+      "mutatesProduction": false,
+      "ok": true
+    },
+    {
+      "command": "report:rpo-rto-status",
+      "packageCommand": "node scripts/report-rpo-rto-status.mjs",
+      "sourcePath": "scripts/report-rpo-rto-status.mjs",
+      "purpose": "Emit code-owned RPO/RTO placeholder status for release evidence.",
+      "strictEnvKeys": [],
+      "mutatesProduction": false,
+      "ok": true
+    }
+  ],
+  "redactionPolicy": {
+    "mode": "metadata-only",
+    "forbiddenKeys": [
+      "password",
+      "secret",
+      "token",
+      "serviceRoleKey",
+      "connectionString"
+    ],
+    "allowedEnvEvidence": "presence-only"
+  },
+  "manualActions": [
+    "Confirm Supabase PITR or backup status in the provider console.",
+    "Record production restore decisions outside repository automation.",
+    "Run any restore drill against approved non-production infrastructure only."
+  ],
+  "issueCount": 0,
+  "issues": []
+}

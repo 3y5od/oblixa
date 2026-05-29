@@ -18,7 +18,7 @@ export type ProblemBody = {
 
 type ProblemDetails = Record<string, unknown>;
 
-export const SUPPORT_SAFE_PROBLEM_STATUSES = [400, 401, 403, 404, 405, 409, 413, 415, 429, 500, 502, 503] as const;
+export const SUPPORT_SAFE_PROBLEM_STATUSES = [400, 401, 403, 404, 405, 409, 413, 415, 422, 429, 500, 502, 503] as const;
 
 const SENSITIVE_PROBLEM_DETAIL_KEY_RE =
   /(^|[_-])(stack|stacktrace|stack_trace|trace|exception|cause|sql|query|statement|provider_payload|provider_response|provider_error|raw_error|raw_message|raw_body)([_-]|$)/i;
@@ -189,6 +189,16 @@ export function jsonUnsupportedMediaType(route?: string, details?: ProblemDetail
     error: "Unsupported media type",
     code: "unsupported_media_type",
     diagnostic_id: "route_unsupported_media_type",
+    ...routeField(route),
+    ...detailsField(details),
+  });
+}
+
+export function jsonUnprocessableEntity(route?: string, details?: ProblemDetails): NextResponse<ProblemBody> {
+  return jsonProblem(422, {
+    error: "Unprocessable entity",
+    code: "unprocessable_entity",
+    diagnostic_id: "route_unprocessable_entity",
     ...routeField(route),
     ...detailsField(details),
   });

@@ -1,0 +1,1200 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-frontend-resilience",
+  "generatedBy": "scripts/check-operational-frontend-resilience.mjs --write",
+  "generatedFrom": "config/operational-frontend-resilience.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 22,
+  "routeFamilyCount": 11,
+  "routeStateCount": 56,
+  "routeStateScenarioCount": 11,
+  "workflowScenarioCount": 13,
+  "accessibilityContractCount": 12,
+  "responsiveVisualContractCount": 11,
+  "recoveryContractCount": 5,
+  "delegatedCheckCount": 3,
+  "commands": [
+    {
+      "objective": "accessibility-operations",
+      "script": "check:authenticated-a11y-matrix",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "route_family_a11y_matrix"
+      ]
+    },
+    {
+      "objective": "accessibility-operations",
+      "script": "check:shell-landmarks",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "footer",
+        "main",
+        "navigation",
+        "skip_link"
+      ]
+    },
+    {
+      "objective": "accessibility-operations",
+      "script": "check:suppress-hydration-warning",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "hydration_exception_ticketing"
+      ]
+    },
+    {
+      "objective": "accessibility-operations",
+      "script": "test:e2e:a11y",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "axe",
+        "dialogs",
+        "forms",
+        "keyboard",
+        "landmarks",
+        "route_states"
+      ]
+    },
+    {
+      "objective": "accessibility-operations",
+      "script": "test:ui:a11y",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "component_axe",
+        "focus_restoration"
+      ]
+    },
+    {
+      "objective": "client-recovery-behavior",
+      "script": "test:e2e:resilience:all",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "duplicate_submit",
+        "focus_refetch",
+        "recoverable_copy",
+        "retry"
+      ]
+    },
+    {
+      "objective": "client-recovery-behavior",
+      "script": "test:e2e:smoke",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "ci_recovery_smoke_inclusion"
+      ]
+    },
+    {
+      "objective": "client-recovery-behavior",
+      "script": "test:ui",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "form_rejection",
+        "inline_status",
+        "optimistic_rollback"
+      ]
+    },
+    {
+      "objective": "critical-workflow-smokes",
+      "script": "check:e2e-po-route-coverage",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "page_object_route_inventory"
+      ]
+    },
+    {
+      "objective": "critical-workflow-smokes",
+      "script": "check:onboarding-qa-matrix",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "onboarding_static_and_e2e_matrix"
+      ]
+    },
+    {
+      "objective": "critical-workflow-smokes",
+      "script": "test:e2e:current-product",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "authenticated_core_workflows"
+      ]
+    },
+    {
+      "objective": "critical-workflow-smokes",
+      "script": "test:e2e:smoke",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "public_auth_external_core_smoke"
+      ]
+    },
+    {
+      "objective": "responsive-visual-stability",
+      "script": "check:frontend-component-complexity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "component_blast_radius"
+      ]
+    },
+    {
+      "objective": "responsive-visual-stability",
+      "script": "test:e2e:current-product:matrix",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "desktop",
+        "mobile",
+        "reduced_motion",
+        "tablet"
+      ]
+    },
+    {
+      "objective": "responsive-visual-stability",
+      "script": "test:e2e:i18n-matrix",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "ime",
+        "pseudo_locale",
+        "rtl"
+      ]
+    },
+    {
+      "objective": "responsive-visual-stability",
+      "script": "test:e2e:visual",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "external_visual",
+        "public_visual",
+        "route_state_visual"
+      ]
+    },
+    {
+      "objective": "responsive-visual-stability",
+      "script": "test:e2e:visual:auth",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "authenticated_shell_visual"
+      ]
+    },
+    {
+      "objective": "route-state-coverage",
+      "script": "check:e2e-generated-drift",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "generated_e2e_matrices"
+      ]
+    },
+    {
+      "objective": "route-state-coverage",
+      "script": "check:operational-frontend-resilience",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "route_family_coverage",
+        "state_scenarios"
+      ]
+    },
+    {
+      "objective": "route-state-coverage",
+      "script": "check:qa-loading-routes",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "loading_route_matrix"
+      ]
+    },
+    {
+      "objective": "route-state-coverage",
+      "script": "check:route-state-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "loading_error_not_found_manifest"
+      ]
+    },
+    {
+      "objective": "route-state-coverage",
+      "script": "test:e2e:resilience:all",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "conflict",
+        "offline",
+        "provider_outage",
+        "rate_limited",
+        "stale_data"
+      ]
+    }
+  ],
+  "routeFamilies": [
+    {
+      "family": "advanced",
+      "routeCount": 11,
+      "smokeRouteCount": 11,
+      "a11yRouteCount": 4,
+      "visualRouteCount": 2,
+      "routeStateRouteCount": 11,
+      "ok": true
+    },
+    {
+      "family": "assurance",
+      "routeCount": 12,
+      "smokeRouteCount": 12,
+      "a11yRouteCount": 10,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 12,
+      "ok": true
+    },
+    {
+      "family": "auth",
+      "routeCount": 4,
+      "smokeRouteCount": 4,
+      "a11yRouteCount": 4,
+      "visualRouteCount": 4,
+      "routeStateRouteCount": 4,
+      "ok": true
+    },
+    {
+      "family": "contracts",
+      "routeCount": 11,
+      "smokeRouteCount": 11,
+      "a11yRouteCount": 10,
+      "visualRouteCount": 2,
+      "routeStateRouteCount": 11,
+      "ok": true
+    },
+    {
+      "family": "dashboard",
+      "routeCount": 3,
+      "smokeRouteCount": 3,
+      "a11yRouteCount": 3,
+      "visualRouteCount": 2,
+      "routeStateRouteCount": 3,
+      "ok": true
+    },
+    {
+      "family": "external",
+      "routeCount": 1,
+      "smokeRouteCount": 1,
+      "a11yRouteCount": 1,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 1,
+      "ok": true
+    },
+    {
+      "family": "marketing",
+      "routeCount": 10,
+      "smokeRouteCount": 10,
+      "a11yRouteCount": 10,
+      "visualRouteCount": 10,
+      "routeStateRouteCount": 10,
+      "ok": true
+    },
+    {
+      "family": "reports",
+      "routeCount": 2,
+      "smokeRouteCount": 2,
+      "a11yRouteCount": 2,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 2,
+      "ok": true
+    },
+    {
+      "family": "settings",
+      "routeCount": 10,
+      "smokeRouteCount": 10,
+      "a11yRouteCount": 10,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 10,
+      "ok": true
+    },
+    {
+      "family": "utilities",
+      "routeCount": 12,
+      "smokeRouteCount": 12,
+      "a11yRouteCount": 12,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 12,
+      "ok": true
+    },
+    {
+      "family": "work",
+      "routeCount": 1,
+      "smokeRouteCount": 1,
+      "a11yRouteCount": 1,
+      "visualRouteCount": 1,
+      "routeStateRouteCount": 1,
+      "ok": true
+    }
+  ],
+  "routeStates": [
+    {
+      "route": "/",
+      "kind": "error",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/",
+      "kind": "error",
+      "shellFamily": "root",
+      "sourcePath": "src/app/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/",
+      "kind": "not_found",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/not-found.tsx",
+      "exists": true
+    },
+    {
+      "route": "/",
+      "kind": "not_found",
+      "shellFamily": "root",
+      "sourcePath": "src/app/not-found.tsx",
+      "exists": true
+    },
+    {
+      "route": "/accessibility",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/accounts/[key]",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/accounts/[key]/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/assurance",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/assurance/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/campaigns",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/campaigns/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/[id]",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/[id]",
+      "kind": "not_found",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/[id]/not-found.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/analytics",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/analytics/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/bulk",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/bulk/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/data-quality",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/data-quality/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/exceptions",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/exceptions/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/renewals",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/renewals/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/reports",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/review",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/contracts/tasks",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/cookies",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/counterparties/[key]",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/dashboard",
+      "kind": "error",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/dashboard",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/dashboard",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/dashboard/persona",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/dashboard/persona/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/decisions",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/decisions/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/external/[token]",
+      "kind": "error",
+      "shellFamily": "external",
+      "sourcePath": "src/app/external/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/external/[token]",
+      "kind": "loading",
+      "shellFamily": "external",
+      "sourcePath": "src/app/external/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/forgot-password",
+      "kind": "error",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/forgot-password",
+      "kind": "loading",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/login",
+      "kind": "error",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/login",
+      "kind": "loading",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/more",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/more/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/onboarding/calibration",
+      "kind": "error",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/onboarding/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/onboarding/calibration",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/onboarding/calibration/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/privacy",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/product",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/product/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/relationship-workspaces",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/relationship-workspaces/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/reports",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/reset-password",
+      "kind": "error",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/reset-password",
+      "kind": "loading",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/search",
+      "kind": "error",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/search",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/security",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings/billing",
+      "kind": "error",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/billing/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings/billing",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/billing/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings/security",
+      "kind": "error",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/security/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings/security",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/settings/security",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/settings/security/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/signup",
+      "kind": "error",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/error.tsx",
+      "exists": true
+    },
+    {
+      "route": "/signup",
+      "kind": "loading",
+      "shellFamily": "auth",
+      "sourcePath": "src/app/(auth)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/terms",
+      "kind": "loading",
+      "shellFamily": "marketing",
+      "sourcePath": "src/app/(marketing)/loading.tsx",
+      "exists": true
+    },
+    {
+      "route": "/work",
+      "kind": "loading",
+      "shellFamily": "dashboard",
+      "sourcePath": "src/app/(dashboard)/work/loading.tsx",
+      "exists": true
+    }
+  ],
+  "routeStateScenarios": [
+    {
+      "id": "conflict",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "empty",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "error",
+      "path": "e2e/ui-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "forbidden",
+      "path": "e2e/authenticated.spec.ts",
+      "markerCount": 1,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "loading",
+      "path": "src/lib/qa/route-state-manifest.source.mjs",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "not_found",
+      "path": "src/lib/qa/route-state-manifest.source.mjs",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "offline",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider_outage",
+      "path": "e2e/ui-qa-http-client-status-mocks.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rate_limited",
+      "path": "e2e/ui-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stale_data",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unauthorized",
+      "path": "e2e/auth-flow.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "workflowScenarios": [
+    {
+      "id": "billing",
+      "path": "src/app/(dashboard)/settings/billing/page.surface.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contract-upload",
+      "path": "src/lib/contracts-upload-release-state.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "evidence",
+      "path": "e2e/authenticated.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "field-review",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "logout",
+      "path": "e2e/auth-flow.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "obligations",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "onboarding",
+      "path": "e2e/onboarding-calibration.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "owner-assignment",
+      "path": "src/components/work/work-inbox-list.test.tsx",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "renewal-checkpoints",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reports",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "search",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "settings",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "sign-in",
+      "path": "e2e/auth-flow.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "accessibilityContracts": [
+    {
+      "id": "accessible-names",
+      "path": "e2e/a11y.forms.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "axe-route-states",
+      "path": "e2e/a11y.route-states.spec.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dialogs",
+      "path": "e2e/a11y.dialogs.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "focus-restoration",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "forms",
+      "path": "e2e/a11y.forms.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "keyboard",
+      "path": "e2e/a11y.keyboard.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "landmarks",
+      "path": "scripts/check-shell-landmarks.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reduced-motion",
+      "path": "e2e/current-product-device-matrix.webkit.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "skip-links",
+      "path": "e2e/authenticated.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "tables",
+      "path": "src/components/contracts/contract-table.ui.test.tsx",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "timeout-hints",
+      "path": "e2e/a11y-cognitive-timeout-hints.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "uploads",
+      "path": "e2e/ui-qa-upload-emulation-perf.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "responsiveVisualContracts": [
+    {
+      "id": "authenticated-shell",
+      "path": "e2e/visual.shell.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dark-mode",
+      "path": "e2e/fixtures/theme-fixture.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "desktop",
+      "path": "e2e/visual.core.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "horizontal-scroll",
+      "path": "e2e/authenticated.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "long-text",
+      "path": "src/lib/compatibility-long-title-unicode-row.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "path": "e2e/current-product-core-smoke.spec.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "pseudo-locale",
+      "path": "e2e/rtl-ime-pseudo-locale-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reduced-motion",
+      "path": "e2e/current-product-device-matrix.webkit.spec.ts",
+      "markerCount": 1,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rtl",
+      "path": "e2e/rtl-ime-pseudo-locale-smoke.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "tablet",
+      "path": "e2e/current-product-device-matrix.chromium.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "zoom",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "recoveryContracts": [
+    {
+      "id": "duplicate-submit-prevention",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "optimistic-rollback",
+      "path": "src/lib/mutation-feedback-surface.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "recoverable-copy",
+      "path": "src/lib/recoverable-mutation-error.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "refetch-on-focus",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "retry-button",
+      "path": "e2e/frontend-operational-resilience.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "e2e-generated-drift",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "route-state-coverage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ui-surface-consistency",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": "Full browser/device lab visual approval, production fixture credential availability, and human UX signoff remain outside code-only automation; this registry enforces all local/staging-safe code-owned coverage.",
+  "issueCount": 0,
+  "issues": []
+}

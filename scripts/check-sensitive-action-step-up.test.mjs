@@ -36,7 +36,7 @@ test("analyzeSensitiveActionStepUp validates step-up and audit markers", () => {
   write(
     root,
     "src/actions/workflow-config.ts",
-    "hasSensitiveActionProof(supabase, user.id)\nbefore updating integration tokens\nbefore creating API keys\nbefore revoking API keys\nbefore updating API key policy\nsecurity.integration_token_updated\nsecurity.integration_api_key_policy_updated\n"
+    "hasSensitiveActionProof(supabase, user.id)\nbefore updating integration tokens\nbefore creating API keys\nbefore revoking API keys\nbefore updating API key policy\nbefore disconnecting integrations\nsecurity.integration_token_updated\nsecurity.integration_api_key_policy_updated\nsecurity.integration_disconnected\n"
   );
   write(
     root,
@@ -66,7 +66,7 @@ test("analyzeSensitiveActionStepUp validates step-up and audit markers", () => {
   write(
     root,
     "src/lib/security/audit-actions.ts",
-    "security.integration_token_updated\nsecurity.integration_api_key_policy_updated\nsecurity.integration_oauth_start_blocked\nsecurity.sessions_revoke_others\nsecurity.maintenance_destructive_action_blocked\n"
+    "security.integration_token_updated\nsecurity.integration_api_key_policy_updated\nsecurity.integration_disconnected\nsecurity.integration_oauth_start_blocked\nsecurity.sessions_revoke_others\nsecurity.maintenance_destructive_action_blocked\n"
   );
   write(
     root,

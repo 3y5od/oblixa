@@ -55,4 +55,10 @@ describe("/api/stripe/invoices/[id]/pdf — proxy pins (§14.21)", () => {
   it("logs Stripe error.requestId for support traceability", () => {
     expect(SRC).toContain("requestId: stripeErr.requestId");
   });
+
+  it("preserves the redirect payload shape for compatibility with existing invoice links", () => {
+    expect(SRC).toContain("status: 302");
+    expect(SRC).toContain("Location: invoice.invoice_pdf");
+    expect(SRC).toContain("invoice_pdf");
+  });
 });

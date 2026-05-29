@@ -2,25 +2,21 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("V9 §25.3 / §26 — contract inventory semantics + responsive cards", () => {
-  it("uses readable card-list semantics without a horizontal scroll or spreadsheet-header dependency", () => {
-    const src = readFileSync(join(process.cwd(), "src/components/contracts/contract-table.tsx"), "utf8");
-    expect(src).toContain('role="list"');
-    expect(src).toContain('role="listitem"');
-    expect(src).toContain("signalGridClass");
-    expect(src).toContain("md:grid-cols-2 xl:grid-cols-4");
-    expect(src).toContain("signalCellClass");
-    expect(src).not.toContain('role="table"');
-    expect(src).not.toContain('role="columnheader"');
-    expect(src).not.toContain('role="cell"');
-    expect(src).not.toContain("detailListClass");
-    expect(src).not.toContain("inventoryGridClass");
-    expect(src).not.toContain("laneGridClass");
-    expect(src).not.toContain("factGridClass");
-    expect(src).not.toContain("signalItemClass");
-    expect(src).not.toContain("flex flex-wrap items-center gap-x-5");
-    expect(src).not.toContain('<div className="overflow-x-auto">');
-    expect(src).not.toMatch(/<table[\s\n]/);
+describe("contract inventory uses a real table with release-state columns", () => {
+  it("renders a semantic <table> with the spec-prescribed column headers and hover-revealed row actions", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/components/contracts/contract-table.tsx"),
+      "utf8"
+    );
+
+    // Real table semantics — release-state spec calls for table columns.
+    expect(src).toContain("<table");
+    expect(src).toContain("<thead");
+    expect(src).toContain("<tbody");
+    expect(src).toContain('aria-label="Contracts in this workspace"');
+    expect(src).toContain('aria-label="Select all contracts on this page"');
+
+    // Eight canonical column labels from oblixa-release-state.md §Contracts.
     expect(src).toContain("Contract");
     for (const label of [
       "Counterparty",
@@ -30,13 +26,43 @@ describe("V9 §25.3 / §26 — contract inventory semantics + responsive cards",
       "Review state",
       "Open work",
       "Last updated",
-      "Actions",
     ]) {
       expect(src).toContain(label);
     }
-    expect(src).toContain("Open contract");
-    expect(src).toContain("Select all on page");
-    expect(src).toContain('aria-label="Select all contracts on this page"');
-    expect(src).toContain('aria-label="Contracts in this workspace"');
+
+    // The four row actions from oblixa-release-state.md §Contracts. Now
+    // bundled into a hover-revealed kebab menu instead of inline buttons.
+    for (const action of [
+      "Open contract",
+      "Assign owner",
+      "Add reminder",
+      "Create work",
+    ]) {
+      expect(src).toContain(action);
+    }
+    expect(src).toContain('aria-label="Row actions"');
+
+    // The card-per-row architecture and its grid-class anchors are gone.
+    expect(src).not.toContain("signalGridClass");
+    expect(src).not.toContain("signalCellClass");
+    expect(src).not.toContain("md:grid-cols-2 xl:grid-cols-4");
+    expect(src).not.toContain('role="list"');
+    expect(src).not.toContain('role="listitem"');
+    // The detached per-row "Open contract" button is gone (defect #10) —
+    // the title link is the primary affordance, and the kebab menu carries
+    // the same verb for the secondary path. Sanity check: the verb appears
+    // in source only inside the kebab menu, not as a standalone ui-btn-*.
+    expect(src).not.toMatch(/ui-btn-secondary[^"]*"\s*>\s*Open contract/);
+  });
+
+  it("avoids row virtualization libraries so render order matches `contracts.map`", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/components/contracts/contract-table.tsx"),
+      "utf8"
+    );
+    expect(src).toContain("contracts.map(");
+    expect(src).not.toMatch(
+      /@tanstack\/react-virtual|react-window|virtua|useVirtual/i
+    );
   });
 });

@@ -1,7 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireServiceRoleOrgId } from "@/lib/supabase/org-scoped-admin";
-
-const PAID_UP_STATUSES = new Set(["active", "trialing"]);
+import {
+  isOperationalBillingPaidUp,
+  resolveOperationalBillingState,
+} from "@/lib/billing/operational-entitlements";
 
 /**
  * Billing / Stripe enforcement is separate from workspace **product mode** (Core / Advanced /
@@ -24,16 +26,15 @@ export async function orgHasActivePlan(
 ): Promise<boolean> {
   const { data } = await admin
     .from("organizations")
-    .select("stripe_subscription_id, stripe_subscription_status")
+    .select("stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
     .eq("id", requireServiceRoleOrgId(orgId))
     .single();
 
-  if (!data?.stripe_subscription_id) return false;
-
-  const status = data.stripe_subscription_status;
-  if (status == null || status === "") {
-    return true;
-  }
-
-  return PAID_UP_STATUSES.has(status);
+  return isOperationalBillingPaidUp(
+    resolveOperationalBillingState({
+      stripeCustomerId: data?.stripe_customer_id,
+      stripeSubscriptionId: data?.stripe_subscription_id,
+      stripeSubscriptionStatus: data?.stripe_subscription_status,
+    })
+  );
 }

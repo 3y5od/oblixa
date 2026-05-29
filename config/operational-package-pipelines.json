@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-package-pipeline-governance",
+  "requiredCommands": [
+    {
+      "id": "script-registry-integrity",
+      "objective": "check-owned script registry coverage",
+      "command": "check:script-registry-integrity"
+    },
+    {
+      "id": "tier-coverage",
+      "objective": "package-script tier ownership",
+      "command": "check:tier-coverage:strict"
+    },
+    {
+      "id": "workflow-tier-coverage",
+      "objective": "workflow to package-script parity",
+      "command": "check:workflow-tier-coverage:strict"
+    },
+    {
+      "id": "static-check-determinism",
+      "objective": "deterministic operational scripts",
+      "command": "check:static-check-determinism"
+    },
+    {
+      "id": "generated-artifact-hygiene",
+      "objective": "generated artifact ownership and redaction",
+      "command": "check:generated-artifact-hygiene"
+    },
+    {
+      "id": "ci-parity-pipeline",
+      "objective": "local CI parity pipeline",
+      "command": "pipeline:ci-parity"
+    },
+    {
+      "id": "static-ci-pipeline",
+      "objective": "static CI pipeline",
+      "command": "pipeline:ci:static"
+    },
+    {
+      "id": "security-pipeline",
+      "objective": "security pipeline",
+      "command": "pipeline:security:comprehensive"
+    },
+    {
+      "id": "surface-pipeline",
+      "objective": "surface pipeline",
+      "command": "pipeline:surface:suite"
+    },
+    {
+      "id": "release-pipeline",
+      "objective": "release pipeline",
+      "command": "pipeline:release:checklist"
+    },
+    {
+      "id": "maximal-pipeline",
+      "objective": "maximal QA pipeline",
+      "command": "pipeline:qa-max"
+    },
+    {
+      "id": "ultimate-pipeline",
+      "objective": "ultimate QA pipeline",
+      "command": "pipeline:qa-ultimate"
+    }
+  ],
+  "pipelineTiers": [
+    {
+      "id": "quick",
+      "ownerArea": "platform-hardening",
+      "script": "check:quick"
+    },
+    {
+      "id": "static",
+      "ownerArea": "platform-hardening",
+      "script": "pipeline:ci:static",
+      "workflow": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "security",
+      "ownerArea": "platform-security",
+      "script": "security:sweep:comprehensive",
+      "manifestTiers": ["nightly", "nightly_fast", "nightly_deep"]
+    },
+    {
+      "id": "surface",
+      "ownerArea": "api-platform",
+      "script": "pipeline:surface:suite",
+      "workflow": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "integration",
+      "ownerArea": "test-platform",
+      "script": "test:integration:ai-webhook",
+      "manifestTiers": ["nightly", "nightly_fast", "nightly_deep"]
+    },
+    {
+      "id": "e2e",
+      "ownerArea": "test-platform",
+      "script": "test:e2e:smoke",
+      "workflow": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "release",
+      "ownerArea": "release-engineering",
+      "script": "pipeline:release:checklist",
+      "manifestTiers": ["release"]
+    },
+    {
+      "id": "maximal",
+      "ownerArea": "test-platform",
+      "script": "pipeline:qa-ultimate",
+      "workflow": ".github/workflows/reusable-qa-ultimate.yml"
+    }
+  ],
+  "scriptOwnerRules": [
+    { "prefix": "check:", "ownerArea": "platform-hardening", "coverage": "tier-or-allowlist" },
+    { "prefix": "write:", "ownerArea": "platform-hardening", "coverage": "generated-artifact-write-command" },
+    { "prefix": "pipeline:", "ownerArea": "platform-hardening", "coverage": "pipeline-tier" },
+    { "prefix": "qa:", "ownerArea": "test-platform", "coverage": "qa-tier-manifest" },
+    { "prefix": "test:e2e", "ownerArea": "test-platform", "coverage": "qa-tier-manifest" },
+    { "prefix": "test:integration", "ownerArea": "test-platform", "coverage": "qa-tier-manifest" },
+    { "prefix": "test:", "ownerArea": "test-platform", "coverage": "package-script-graph" },
+    { "prefix": "report:", "ownerArea": "platform-governance", "coverage": "artifact-or-report" },
+    { "prefix": "audit:", "ownerArea": "platform-governance", "coverage": "package-script-graph" },
+    { "prefix": "security:", "ownerArea": "platform-security", "coverage": "security-pipeline" },
+    { "prefix": "perf:", "ownerArea": "performance-runtime", "coverage": "performance-pipeline" },
+    { "prefix": "release:", "ownerArea": "release-engineering", "coverage": "release-pipeline" },
+    { "prefix": "verify", "ownerArea": "platform-hardening", "coverage": "package-script-graph" },
+    { "prefix": "build", "ownerArea": "frontend-platform", "coverage": "package-script-graph" },
+    { "prefix": "lint", "ownerArea": "frontend-platform", "coverage": "package-script-graph" },
+    { "prefix": "typecheck", "ownerArea": "frontend-platform", "coverage": "package-script-graph" }
+  ],
+  "dangerousShellPatterns": [
+    { "id": "curl_pipe_shell", "regex": "\\b(?:curl|wget)\\b[^\\n|]*\\|\\s*(?:sh|bash|zsh)\\b" },
+    { "id": "destructive_git_reset", "regex": "\\bgit\\s+reset\\s+--hard\\b" },
+    { "id": "destructive_git_clean", "regex": "\\bgit\\s+clean\\s+-[^\\n]*[fd]" },
+    { "id": "unsafe_rm_root", "regex": "\\brm\\s+-[A-Za-z]*r[A-Za-z]*f?\\s+(?:/|\\.|\\*|~)(?:\\s|$)" },
+    { "id": "world_writable_chmod", "regex": "\\bchmod\\s+(?:777|a\\+w)\\b" },
+    { "id": "sudo_in_package_script", "regex": "(?:^|\\s)sudo\\s+" },
+    { "id": "disk_destroyer", "regex": "\\b(?:mkfs|dd)\\b\\s+" }
+  ],
+  "generatedArtifactOwnerRules": [
+    { "prefix": "artifacts/operational-", "ownerArea": "platform-hardening", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/security", "ownerArea": "platform-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/stride-dread-threat-model.json", "ownerArea": "platform-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/assurance/", "ownerArea": "test-platform", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/route", "ownerArea": "api-platform", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/page", "ownerArea": "frontend-platform", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/dependency", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/license", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/supply-chain", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/subprocessors-diff.json", "ownerArea": "trust-compliance", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/sbom", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/spdx", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/reproducible", "ownerArea": "supply-chain-security", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/supabase/", "ownerArea": "data-platform", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "supabase/sql/", "ownerArea": "data-platform", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/compatibility/", "ownerArea": "compatibility", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "scripts/versioned-naming-removal-queue.json", "ownerArea": "compatibility", "cleanupPolicy": "regenerate-on-check-drift" }
+  ]
+}

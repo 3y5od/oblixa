@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildContractStoragePath,
   containsControlOrBidi,
   hasUnsafeJsonKey,
   isContractStoragePathSafe,
@@ -9,6 +10,7 @@ import {
   isSafeRouteParam,
   isUuid,
   parseBooleanParam,
+  parseContractStoragePath,
   parseFixedEnumParam,
   parseFixedSortKey,
   parseFutureIsoTimestamp,
@@ -45,10 +47,35 @@ describe("validation", () => {
   });
 
   describe("isContractStoragePathSafe", () => {
-    it("accepts valid three-segment path with uuid-uuid-filename", () => {
+    it("accepts namespaced contract storage paths with uuid-uuid-filename", () => {
       const tailUuid = "660e8400-e29b-41d4-a716-446655440001";
-      const path = `${validUuid}/${validUuid}/${tailUuid}-report.pdf`;
+      const path = `org/${validUuid}/${validUuid}/${tailUuid}-report.pdf`;
       expect(isContractStoragePathSafe(path)).toBe(true);
+      expect(parseContractStoragePath(path)).toMatchObject({
+        organizationId: validUuid,
+        contractId: validUuid,
+        objectId: tailUuid,
+        fileName: "report.pdf",
+        legacyShape: false,
+      });
+    });
+
+    it("keeps legacy three-segment storage paths readable", () => {
+      const tailUuid = "660e8400-e29b-41d4-a716-446655440001";
+      const path = `${validUuid}/${validUuid}/${tailUuid}-legacy.pdf`;
+      expect(isContractStoragePathSafe(path)).toBe(true);
+      expect(parseContractStoragePath(path)).toMatchObject({
+        organizationId: validUuid,
+        contractId: validUuid,
+        legacyShape: true,
+      });
+    });
+
+    it("builds namespaced org-scoped storage paths", () => {
+      const tailUuid = "660e8400-e29b-41d4-a716-446655440001";
+      expect(buildContractStoragePath(validUuid, validUuid, "report.pdf", tailUuid)).toBe(
+        `org/${validUuid}/${validUuid}/${tailUuid}-report.pdf`
+      );
     });
 
     it("rejects null, empty, non-string, length overflow", () => {
@@ -58,12 +85,13 @@ describe("validation", () => {
     });
 
     it("rejects traversal, backslash, null byte", () => {
-      expect(isContractStoragePathSafe(`${validUuid}/${validUuid}/../x`)).toBe(false);
-      expect(isContractStoragePathSafe(`${validUuid}\\${validUuid}/u-f`)).toBe(false);
-      expect(isContractStoragePathSafe(`${validUuid}/${validUuid}/\0`)).toBe(false);
+      expect(isContractStoragePathSafe(`org/${validUuid}/${validUuid}/../x`)).toBe(false);
+      expect(isContractStoragePathSafe(`org/${validUuid}\\${validUuid}/u-f`)).toBe(false);
+      expect(isContractStoragePathSafe(`org/${validUuid}/${validUuid}/\0`)).toBe(false);
     });
 
     it("rejects wrong segment count or bad tail shape", () => {
+      expect(isContractStoragePathSafe(`other/${validUuid}/${validUuid}/660e8400-e29b-41d4-a716-446655440001-x.pdf`)).toBe(false);
       expect(isContractStoragePathSafe(`${validUuid}/${validUuid}`)).toBe(false);
       expect(isContractStoragePathSafe(`${validUuid}/${validUuid}/nope`)).toBe(false);
       expect(isContractStoragePathSafe(`${validUuid}/${validUuid}/660e8400-e29b-41d4-a716-446655440001-`)).toBe(

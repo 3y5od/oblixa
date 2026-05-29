@@ -292,6 +292,42 @@ function loadUltimateTierKeys(root) {
   return Object.keys(manifest.tiers || {}).sort();
 }
 
+function loadAutonomousCodeOnlyQaObjectives(root, packageJsonScriptsKeys) {
+  const p = path.join(root, "config", "autonomous-code-only-qa-objectives.json");
+  const data = JSON.parse(fs.readFileSync(p, "utf8"));
+  if (data.schemaVersion !== 1 || !Array.isArray(data.objectives)) {
+    throw new Error("config/autonomous-code-only-qa-objectives.json must contain schemaVersion 1 and objectives[]");
+  }
+
+  const knownScripts = new Set(packageJsonScriptsKeys);
+  const seenIds = new Set();
+  const seenTitles = new Set();
+  const normalized = [];
+  for (const objective of data.objectives) {
+    const id = String(objective.id || "");
+    const title = String(objective.title || "");
+    const npmScripts = Array.isArray(objective.npmScripts)
+      ? objective.npmScripts.map(String).sort()
+      : [];
+    if (!/^qa-\d{3}-[a-z0-9-]+$/.test(id)) {
+      throw new Error(`Invalid autonomous QA objective id: ${id}`);
+    }
+    if (seenIds.has(id)) throw new Error(`Duplicate autonomous QA objective id: ${id}`);
+    if (!title || seenTitles.has(title)) throw new Error(`Invalid or duplicate autonomous QA objective title: ${title}`);
+    if (npmScripts.length === 0) throw new Error(`Autonomous QA objective has no npm evidence scripts: ${id}`);
+    for (const script of npmScripts) {
+      if (!knownScripts.has(script)) throw new Error(`Unknown npm evidence script for ${id}: ${script}`);
+    }
+    seenIds.add(id);
+    seenTitles.add(title);
+    normalized.push({ id, title, npmScripts });
+  }
+  if (normalized.length !== 96) {
+    throw new Error(`Expected 96 autonomous code-only QA objectives, found ${normalized.length}`);
+  }
+  return normalized.sort((a, b) => a.id.localeCompare(b.id));
+}
+
 function parseE2eQuarantine(root, files) {
   const rel = "e2e-quarantine.json";
   if (!files.includes(rel)) return { path: rel, parsed: null, error: "not_tracked" };
@@ -424,6 +460,7 @@ function buildManifest() {
 
   const generatedAt = new Date().toISOString();
   const ultimateTierKeys = loadUltimateTierKeys(ROOT);
+  const autonomousCodeOnlyQaObjectives = loadAutonomousCodeOnlyQaObjectives(ROOT, packageJsonScriptsKeys);
 
   return {
     schemaVersion: 1,
@@ -450,6 +487,7 @@ function buildManifest() {
     ultimateTierKeys,
     qaUniverseFastSteps: QA_UNIVERSE_FAST_STEPS,
     qaUniverseFullSteps: QA_UNIVERSE_FULL_STEPS,
+    autonomousCodeOnlyQaObjectives,
     comprehensivePassContract: {
       requiredEnv: COMPREHENSIVE_PASS_REQUIRED_ENV,
       optionalEnv: COMPREHENSIVE_PASS_OPTIONAL_ENV,
@@ -537,6 +575,7 @@ function buildManifest() {
       e2ePlaywrightSpecFiles: e2ePlaywrightSpecFiles.length,
       productSurfaceTestFiles: productSurfaceTestFiles.length,
       serverActionModules: serverActionModules.length,
+      autonomousCodeOnlyQaObjectives: autonomousCodeOnlyQaObjectives.length,
     },
   };
 }

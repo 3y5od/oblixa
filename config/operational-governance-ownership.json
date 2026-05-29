@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-governance-ownership",
+  "generatedArtifact": "artifacts/operational-governance-ownership.json",
+  "requiredCommands": [
+    "check:operational-governance-ownership",
+    "write:operational-governance-ownership",
+    "test:operational-governance-ownership",
+    "check:codeowners-security-paths",
+    "check:ci-change-impact",
+    "check:security-report-checksums"
+  ],
+  "requiredOwnerAreaIds": [
+    "release",
+    "security",
+    "data",
+    "auth",
+    "billing",
+    "providers",
+    "frontend",
+    "infrastructure",
+    "privacy",
+    "support",
+    "incident"
+  ],
+  "ownerAreas": [
+    {
+      "id": "release",
+      "label": "Release Engineering",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["release-engineering"],
+      "routeOwners": ["release"],
+      "validationCommands": ["check:operational-release-readiness", "pipeline:release:checklist"]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["platform-security", "frontend-security", "supply-chain-security"],
+      "routeOwners": ["security"],
+      "validationCommands": ["check:codeowners-security-paths", "check:operational-supply-chain-risk"]
+    },
+    {
+      "id": "data",
+      "label": "Data Platform",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["data-platform", "product-data"],
+      "routeOwners": [],
+      "validationCommands": ["check:operational-supabase-database", "check:operational-data-quality-invariants"]
+    },
+    {
+      "id": "auth",
+      "label": "Auth Security",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["auth-security"],
+      "routeOwners": [],
+      "validationCommands": ["check:operational-authz-session", "check:auth-callback-guardrails"]
+    },
+    {
+      "id": "billing",
+      "label": "Billing",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["billing"],
+      "routeOwners": [],
+      "validationCommands": ["check:operational-billing-entitlements", "check:webhook-inbound-policy"]
+    },
+    {
+      "id": "providers",
+      "label": "Provider Integrations",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["integrations", "notifications"],
+      "routeOwners": ["integrations"],
+      "validationCommands": ["check:operational-provider-integrations", "check:provider-integration-fixtures"]
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend Platform",
+      "codeowners": ["@YOUR_ORG/backend", "@YOUR_ORG/frontend-qa"],
+      "coveredOwnerAreas": ["frontend-platform", "document-pipeline", "product-marketing", "product-operations"],
+      "routeOwners": ["assurance"],
+      "validationCommands": ["check:operational-frontend-resilience", "check:operational-platform-variant-coverage"]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure And Platform",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": [
+        "api-platform",
+        "architecture",
+        "compatibility",
+        "edge-operations",
+        "observability",
+        "performance-runtime",
+        "platform-governance",
+        "platform-hardening",
+        "platform-runtime",
+        "test-platform"
+      ],
+      "routeOwners": ["engineering", "operations"],
+      "validationCommands": ["check:operational-package-pipelines", "check:hardening-ci-wiring"]
+    },
+    {
+      "id": "privacy",
+      "label": "Privacy And Trust",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["privacy-security", "trust-compliance"],
+      "routeOwners": [],
+      "validationCommands": ["check:operational-privacy-auditability", "check:operational-legal-trust-compliance"]
+    },
+    {
+      "id": "support",
+      "label": "Support Operations",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["support-operations"],
+      "routeOwners": [],
+      "validationCommands": ["check:operational-support-operations"]
+    },
+    {
+      "id": "incident",
+      "label": "Incident Response",
+      "codeowners": ["@YOUR_ORG/backend"],
+      "coveredOwnerAreas": ["incident-response"],
+      "routeOwners": [],
+      "validationCommands": ["check:incident-readiness:strict", "check:operational-waivers-ratchets"]
+    }
+  ],
+  "routeFamilyOwners": [
+    { "family": "api", "ownerArea": "security", "validationCommand": "check:operational-api-runtime-contracts" },
+    { "family": "auth", "ownerArea": "auth", "validationCommand": "check:operational-authz-session" },
+    { "family": "authenticated_page", "ownerArea": "frontend", "validationCommand": "check:operational-frontend-resilience" },
+    { "family": "cron", "ownerArea": "infrastructure", "validationCommand": "check:operational-cron-jobs" },
+    { "family": "external_token", "ownerArea": "auth", "validationCommand": "check:operational-authz-session" },
+    { "family": "internal", "ownerArea": "infrastructure", "validationCommand": "check:operational-api-runtime-contracts" },
+    { "family": "layout", "ownerArea": "frontend", "validationCommand": "check:operational-frontend-resilience" },
+    { "family": "public_page", "ownerArea": "frontend", "validationCommand": "check:operational-public-launch-positioning" },
+    { "family": "route_state", "ownerArea": "frontend", "validationCommand": "check:route-state-coverage" },
+    { "family": "server_action", "ownerArea": "security", "validationCommand": "check:server-action-auth-contract" },
+    { "family": "tracking", "ownerArea": "privacy", "validationCommand": "check:telemetry-event-inventory" },
+    { "family": "webhook", "ownerArea": "providers", "validationCommand": "check:operational-webhooks-callbacks" }
+  ],
+  "providerOwners": [
+    { "provider": "calendar", "ownerArea": "providers", "validationCommand": "check:operational-oauth-integration-sync" },
+    { "provider": "crm", "ownerArea": "providers", "validationCommand": "check:operational-oauth-integration-sync" },
+    { "provider": "external_fetch", "ownerArea": "security", "validationCommand": "check:outbound-fetch" },
+    { "provider": "openai", "ownerArea": "providers", "validationCommand": "check:operational-provider-integrations" },
+    { "provider": "resend", "ownerArea": "providers", "validationCommand": "check:operational-notifications-messaging" },
+    { "provider": "sentry", "ownerArea": "infrastructure", "validationCommand": "check:operational-observability-redaction" },
+    { "provider": "storage", "ownerArea": "data", "validationCommand": "check:operational-uploads-files-extraction" },
+    { "provider": "stripe", "ownerArea": "billing", "validationCommand": "check:operational-billing-entitlements" },
+    { "provider": "supabase", "ownerArea": "data", "validationCommand": "check:operational-supabase-database" },
+    { "provider": "upstash_or_memory_rate_limit", "ownerArea": "infrastructure", "validationCommand": "check:operational-rate-limits-abuse-bounds" },
+    { "provider": "webhook_outbox", "ownerArea": "providers", "validationCommand": "check:operational-webhooks-callbacks" }
+  ],
+  "requiredSensitivePathCategories": [
+    "security",
+    "migrations",
+    "workflows",
+    "scripts",
+    "provider-integration",
+    "billing",
+    "privacy",
+    "support",
+    "incident",
+    "generated-artifacts"
+  ],
+  "sensitivePathOwners": [
+    { "category": "security", "path": "src/lib/security/", "ownerArea": "security", "reason": "security helpers and privacy/authz controls" },
+    { "category": "security", "path": "semgrep/", "ownerArea": "security", "reason": "static-analysis policy" },
+    { "category": "security", "path": "src/proxy.ts", "ownerArea": "security", "reason": "request boundary and redirect controls" },
+    { "category": "auth", "path": "src/lib/auth/", "ownerArea": "auth", "reason": "auth helper controls" },
+    { "category": "auth", "path": "src/app/(auth)/", "ownerArea": "auth", "reason": "auth pages and callbacks" },
+    { "category": "migrations", "path": "supabase/migrations/", "ownerArea": "data", "reason": "schema and policy migrations" },
+    { "category": "migrations", "path": "supabase/sql/", "ownerArea": "data", "reason": "generated SQL policy evidence" },
+    { "category": "workflows", "path": ".github/workflows/", "ownerArea": "infrastructure", "reason": "CI and release gates" },
+    { "category": "workflows", "path": ".github/CODEOWNERS", "ownerArea": "infrastructure", "reason": "ownership policy" },
+    { "category": "scripts", "path": "scripts/", "ownerArea": "infrastructure", "reason": "operational and governance automation" },
+    { "category": "scripts", "path": "package.json", "ownerArea": "infrastructure", "reason": "package-script control plane" },
+    { "category": "provider-integration", "path": "src/lib/stripe.ts", "ownerArea": "billing", "reason": "Stripe SDK wrapper" },
+    { "category": "provider-integration", "path": "src/lib/email/", "ownerArea": "providers", "reason": "email provider policy" },
+    { "category": "provider-integration", "path": "src/lib/extraction/", "ownerArea": "providers", "reason": "OpenAI extraction provider boundary" },
+    { "category": "provider-integration", "path": "src/lib/integrations/", "ownerArea": "providers", "reason": "OAuth integration provider boundary" },
+    { "category": "provider-integration", "path": "src/lib/observability/", "ownerArea": "infrastructure", "reason": "Sentry provider boundary" },
+    { "category": "provider-integration", "path": "src/lib/provider-integration-fixtures.ts", "ownerArea": "providers", "reason": "provider fixture safety" },
+    { "category": "billing", "path": "src/lib/billing/", "ownerArea": "billing", "reason": "billing entitlement and amount logic" },
+    { "category": "billing", "path": "src/app/api/stripe/", "ownerArea": "billing", "reason": "Stripe API routes" },
+    { "category": "billing", "path": "src/components/settings/billing-actions.tsx", "ownerArea": "billing", "reason": "billing UI actions" },
+    { "category": "privacy", "path": "src/lib/security/privacy-inventory.ts", "ownerArea": "privacy", "reason": "privacy inventory" },
+    { "category": "privacy", "path": "src/app/(marketing)/privacy/page.tsx", "ownerArea": "privacy", "reason": "public privacy surface" },
+    { "category": "support", "path": "src/lib/operational-support-operations.ts", "ownerArea": "support", "reason": "support operation safeguards" },
+    { "category": "incident", "path": "scripts/check-incident-readiness.mjs", "ownerArea": "incident", "reason": "incident readiness automation" },
+    { "category": "incident", "path": "config/operational-manual-boundaries.json", "ownerArea": "incident", "reason": "manual boundary and incident response backlog" },
+    { "category": "generated-artifacts", "path": "artifacts/", "ownerArea": "infrastructure", "reason": "generated evidence artifacts" },
+    { "category": "generated-artifacts", "path": "config/", "ownerArea": "infrastructure", "reason": "code-owned governance configuration" }
+  ],
+  "changeImpact": {
+    "requiredRiskAreas": [
+      "migrations",
+      "api_routes",
+      "auth_session",
+      "billing_webhooks",
+      "provider_integrations",
+      "ui_surface",
+      "public_copy",
+      "ci_scripts",
+      "documentation",
+      "generated_artifacts"
+    ],
+    "syntheticChanges": [
+      { "path": "supabase/migrations/001_owner.sql", "expectedRiskAreas": ["migrations", "rls_sql_functions"], "expectedChecks": ["check:migrations:strict"] },
+      { "path": "src/app/api/contracts/route.ts", "expectedRiskAreas": ["api_routes"], "expectedChecks": ["check:api-route-auth-contract"] },
+      { "path": "src/lib/auth/post-auth-redirect.ts", "expectedRiskAreas": ["auth_session"], "expectedChecks": ["check:auth-callback-guardrails"] },
+      { "path": "src/lib/billing/status.ts", "expectedRiskAreas": ["billing_webhooks"], "expectedChecks": ["check:webhook-inbound-policy"] },
+      { "path": "src/lib/extraction/openai-pdf-text.ts", "expectedRiskAreas": ["provider_integrations"], "expectedChecks": ["check:operational-provider-integrations"] },
+      { "path": "src/components/settings/billing-actions.tsx", "expectedRiskAreas": ["ui_surface", "billing_webhooks"], "expectedChecks": ["check:operational-frontend-resilience"] },
+      { "path": "src/app/(marketing)/privacy/page.tsx", "expectedRiskAreas": ["public_copy", "ui_surface"], "expectedChecks": ["check:operational-public-launch-positioning"] },
+      { "path": ".github/workflows/ci.yml", "expectedRiskAreas": ["ci_scripts"], "expectedChecks": ["check:hardening-ci-wiring"] },
+      { "path": "docs/release.md", "expectedRiskAreas": ["documentation"], "expectedChecks": ["check:documentation-runtime-dependencies"] },
+      { "path": "artifacts/operational-release-readiness.json", "expectedRiskAreas": ["generated_artifacts"], "expectedChecks": ["check:generated-artifact-hygiene"] }
+    ]
+  },
+  "reportChecksums": {
+    "volatileKeysIgnored": ["generated", "generatedAt", "generated_at", "traceId"],
+    "requiredCategories": ["security", "release", "privacy", "dependency", "route", "operational"],
+    "reports": [
+      { "id": "security-report-checksums", "category": "security", "path": "artifacts/security-report-checksums.json", "generator": "npm run generate:security-report-checksums" },
+      { "id": "security-control-coverage", "category": "security", "path": "artifacts/security-control-coverage-matrix.rows.json", "generator": "npm run build:security-control-coverage-matrix" },
+      { "id": "release-readiness", "category": "release", "path": "artifacts/operational-release-readiness.json", "generator": "npm run write:operational-release-readiness" },
+      { "id": "privacy-auditability", "category": "privacy", "path": "artifacts/operational-privacy-auditability.json", "generator": "npm run write:operational-privacy-auditability" },
+      { "id": "dependency-review-policy", "category": "dependency", "path": "artifacts/dependency-review-policy.json", "generator": "npm run report:dependency-risk" },
+      { "id": "route-universe", "category": "route", "path": "artifacts/route-universe.json", "generator": "npm run generate:route-universe" },
+      { "id": "route-provider-matrix", "category": "route", "path": "artifacts/route-provider-matrix.json", "generator": "npm run generate:route-universe" },
+      { "id": "operational-hardening-closure", "category": "operational", "path": "artifacts/operational-hardening-closure.json", "generator": "npm run write:operational-hardening-objectives" },
+      { "id": "operational-package-pipelines", "category": "operational", "path": "artifacts/operational-package-pipelines.json", "generator": "npm run write:operational-package-pipelines" },
+      { "id": "operational-environment-isolation", "category": "operational", "path": "artifacts/operational-environment-isolation.json", "generator": "npm run write:operational-environment-isolation" },
+      { "id": "operational-threat-model-control-traceability", "category": "operational", "path": "artifacts/operational-threat-model-control-traceability.json", "generator": "npm run write:control-traceability" }
+    ]
+  }
+}

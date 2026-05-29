@@ -537,6 +537,17 @@
       linear-gradient(180deg, color-mix(in oklab, var(--info-soft) 74%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
   }
 
+  /* Subordinate variant for transient, non-blocking notices (e.g. a reports
+     data-freshness warning). Defined after the tone modifiers so it overrides
+     their filled gradient: a hairline-tinted strip with no raised shadow, so
+     the notice annotates the surface without competing with it as a focal
+     panel (§10.2 — color is a signal, not a backdrop). */
+  .ui-status-panel-quiet {
+    border-color: color-mix(in oklab, var(--warning-soft) 46%, var(--border-subtle));
+    background: color-mix(in oklab, var(--warning-soft) 20%, var(--surface-raised));
+    box-shadow: none;
+  }
+
   .ui-loading-card-grid {
     @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
   }
@@ -1123,9 +1134,9 @@
 
   .ui-status-badge-empty,
   .ui-status-badge-disabled {
-    border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
-    background: color-mix(in oklab, var(--surface-muted) 76%, transparent);
-    color: var(--text-tertiary);
+    border-color: var(--border-strong);
+    background: color-mix(in oklab, var(--surface-muted) 88%, transparent);
+    color: var(--text-secondary);
   }
 
   .ui-status-badge-pulse {
@@ -1177,22 +1188,27 @@
   }
 
   .ui-filter-pill-active {
+    /* Toned down from accent 14% / inset 22% — the earlier active state
+       read as a primary CTA mid-popover; quieter ring + 8% bg keeps it
+       clearly selected without shouting in non-primary action contexts. */
     color: var(--accent-strong);
-    background: color-mix(in oklab, var(--accent) 14%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 22%, transparent);
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 16%, transparent);
     border-color: transparent;
   }
 
-  /* Filter toolbar — horizontal bar above the table holding chip cloud + search + presets.
-     v13: slimmer padding, softer border so the toolbar reads as a control surface, not a section. */
+  /* Filter toolbar — flex row with no surrounding chrome. The earlier
+     rounded-2xl + surface-raised bg + border read as a "giant rounded
+     capsule" that competed with the table as a focal surface. Now the
+     row is just gap + flow; individual controls carry their own light
+     chrome. */
   .ui-filter-toolbar {
-    @apply flex flex-wrap items-center gap-2 rounded-2xl border bg-[var(--surface-raised)] px-2.5 py-2;
-    border-color: color-mix(in oklab, var(--border-subtle) 70%, transparent);
+    @apply flex flex-wrap items-center gap-2;
   }
 
   /* v13 — Toolbar dropdown trigger (Filters / Saved views / Export). Uniform silhouette. */
   .ui-toolbar-dropdown {
-    @apply inline-flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md border px-2.5 text-[12.5px] font-semibold transition-colors;
+    @apply inline-flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-md border px-2.5 text-[12px] font-semibold transition-colors;
     border-color: color-mix(in oklab, var(--border-subtle) 70%, transparent);
     background: color-mix(in oklab, var(--surface) 84%, white);
     color: var(--text-secondary);
@@ -1271,28 +1287,69 @@
      v15: softer border tier (suggestion, not control); count badge tones de-saturated so
      they hint at tone without screaming. */
   .ui-quick-chip {
-    @apply inline-flex h-8 items-center gap-2 rounded-full border px-3 text-[12px] font-semibold leading-none transition-colors;
+    @apply inline-flex h-7 items-center gap-1 rounded-md border px-2 text-[11.5px] font-medium leading-none transition-colors;
     border-color: color-mix(in oklab, var(--border-subtle) 55%, transparent);
-    background: color-mix(in oklab, var(--surface-raised) 92%, transparent);
+    background: transparent;
     color: var(--text-secondary);
   }
   .ui-quick-chip:hover {
     color: var(--text-primary);
-    border-color: color-mix(in oklab, var(--accent) 28%, var(--border-strong));
-    background: color-mix(in oklab, var(--accent) 6%, var(--surface-raised));
+    border-color: color-mix(in oklab, var(--accent) 30%, var(--border-strong));
+    background: color-mix(in oklab, var(--accent) 5%, transparent);
   }
   .ui-quick-chip-count {
-    @apply inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10.5px] font-bold tabular-nums leading-none;
-    background: color-mix(in oklab, var(--surface) 80%, transparent);
-    color: var(--text-primary);
+    @apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-[10.5px] font-bold tabular-nums leading-none;
+    background: color-mix(in oklab, var(--surface-muted) 70%, transparent);
+    color: var(--text-tertiary);
+  }
+  /* Tone variants — each chip carries a border tint + ink in its tone
+     so the row reads as differentiated categories (risk / warning /
+     info / success), not seven identical neutral chips. Count pills
+     pick up a matching low-alpha bg so the count reads as a structured
+     token, not loose text. */
+  .ui-quick-chip-tone-danger {
+    border-color: color-mix(in oklab, var(--danger-ink) 30%, var(--border-subtle));
+    color: var(--danger-ink);
+  }
+  .ui-quick-chip-tone-danger:hover {
+    border-color: var(--danger-ink);
+    background: color-mix(in oklab, var(--danger-soft) 22%, transparent);
+  }
+  .ui-quick-chip-tone-danger .ui-quick-chip-count {
+    background: color-mix(in oklab, var(--danger-ink) 14%, transparent);
+    color: var(--danger-ink);
+  }
+  .ui-quick-chip-tone-warning {
+    border-color: color-mix(in oklab, var(--warning-ink) 26%, var(--border-subtle));
+    color: var(--warning-ink);
+  }
+  .ui-quick-chip-tone-warning:hover {
+    border-color: var(--warning-ink);
+    background: color-mix(in oklab, var(--warning-soft) 22%, transparent);
   }
   .ui-quick-chip-tone-warning .ui-quick-chip-count {
     background: color-mix(in oklab, var(--warning-ink) 14%, transparent);
     color: var(--warning-ink);
   }
-  .ui-quick-chip-tone-danger .ui-quick-chip-count {
-    background: color-mix(in oklab, var(--danger-ink) 14%, transparent);
-    color: var(--danger-ink);
+  .ui-quick-chip-tone-info {
+    border-color: color-mix(in oklab, var(--accent) 28%, var(--border-subtle));
+    color: var(--accent-strong);
+  }
+  .ui-quick-chip-tone-info:hover {
+    border-color: var(--accent-strong);
+    background: color-mix(in oklab, var(--accent) 7%, transparent);
+  }
+  .ui-quick-chip-tone-info .ui-quick-chip-count {
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    color: var(--accent-strong);
+  }
+  .ui-quick-chip-tone-success {
+    border-color: color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle));
+    color: var(--success-ink);
+  }
+  .ui-quick-chip-tone-success:hover {
+    border-color: var(--success-ink);
+    background: color-mix(in oklab, var(--success-soft) 22%, transparent);
   }
   .ui-quick-chip-tone-success .ui-quick-chip-count {
     background: color-mix(in oklab, var(--success-ink) 14%, transparent);
@@ -1459,14 +1516,12 @@
   }
 
   .ui-source-quote {
-    @apply rounded-r-[1rem] border-l-[3px] py-2 pl-3 pr-2 text-[13px] leading-snug;
-    border-left-color: var(--accent);
-    background: color-mix(in oklab, var(--accent-soft) 44%, transparent);
-    color: var(--text-secondary);
+    @apply py-0.5 pl-0 pr-0 text-[12px] leading-snug;
+    color: var(--text-tertiary);
   }
 
   .ui-kbd {
-    @apply inline-flex min-w-[1.4rem] items-center justify-center rounded-[0.55rem] border px-1.5 py-0.5 font-mono text-[10px] font-medium;
+    @apply inline-flex min-h-[1.25rem] min-w-[1.6rem] items-center justify-center rounded-[0.55rem] border px-1.5 py-0.5 font-mono text-[11px] font-medium leading-none;
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
     background: color-mix(in oklab, var(--surface) 86%, white);
     color: var(--text-secondary);
@@ -3529,6 +3584,13 @@
 /* Bottom accent flourish — small thin line at the very bottom of the footer */
 .landing-root {
   position: relative;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  .landing-root {
+    overflow-x: hidden;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -4724,4 +4786,3 @@ html {
     border-color: var(--border-subtle);
   }
 }
-

@@ -33,7 +33,8 @@ test("classifyChangedEntries treats docs-only changes as non-production", () => 
 
   assert.equal(report.documentationOnly, true);
   assert.equal(report.productionRelevant, false);
-  assert.deepEqual(report.requiredChecks, []);
+  assert.ok(report.requiredChecks.includes("check:documentation-runtime-dependencies"));
+  assert.ok(report.requiredChecks.includes("check:operational-hardening-objectives"));
 });
 
 test("classifyChangedEntries maps route-only changes to route checks", () => {
@@ -83,6 +84,7 @@ test("classifyChangedEntries flags Supabase-affecting changes in mixed changes",
   assert.ok(report.requiredChecks.includes("check:versioned-forward-migration-readiness"));
   assert.ok(report.requiredChecks.includes("check:webhook-inbound-policy"));
   assert.ok(report.requiredChecks.includes("check:static-secret-safety"));
+  assert.ok(report.requiredChecks.includes("check:operational-provider-integrations"));
 });
 
 test("classifyChangedEntries maps env changes to env contract hygiene", () => {
@@ -133,4 +135,25 @@ test("analyzeChangeImpact bounds detailed output while preserving counts", () =>
   assert.equal(report.changed.length, 2);
   assert.equal(report.omittedChangedCount, 1);
   assert.equal(report.riskAreas.find((row) => row.area === "api_routes").omittedPathCount, 2);
+  assert.match(report.prSummary.markdown, /Recommended validation:/u);
+});
+
+test("classifyChangedEntries maps UI public copy and provider changes to targeted recommendations", () => {
+  const report = analyzeChangeImpact({
+    entries: [
+      { status: "M", path: "src/components/settings/billing-actions.tsx" },
+      { status: "M", path: "src/app/(marketing)/privacy/page.tsx" },
+      { status: "M", path: "src/lib/extraction/openai-pdf-text.ts" },
+      { status: "M", path: "misc/unknown.asset" },
+    ],
+  });
+
+  assert.ok(report.riskAreas.some((row) => row.area === "ui_surface"));
+  assert.ok(report.riskAreas.some((row) => row.area === "public_copy"));
+  assert.ok(report.riskAreas.some((row) => row.area === "provider_integrations"));
+  assert.ok(report.riskAreas.some((row) => row.area === "unclassified"));
+  assert.ok(report.requiredChecks.includes("check:operational-frontend-resilience"));
+  assert.ok(report.requiredChecks.includes("check:operational-public-launch-positioning"));
+  assert.ok(report.requiredChecks.includes("check:operational-provider-integrations"));
+  assert.match(report.prSummary.markdown, /Missing evidence warnings:/u, "PR summary should surface evidence gaps for targeted review when needed");
 });

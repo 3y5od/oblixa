@@ -777,7 +777,7 @@ export const WORKFLOW_DESTINATIONS = [
     featureFamily: "settings",
     workflowArea: "workspace",
     minWorkspaceMode: "core",
-    placementsByMode: placements(["hidden"], ["admin_contextual", "cmdk"], ["admin_contextual", "cmdk"]),
+    placementsByMode: placements(["hidden"], ["hidden"], ["hidden"]),
     copyByMode: copies(copy("Product experience", "Workspace mode and destination visibility.", "Open product experience")),
   },
   {

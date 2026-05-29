@@ -11,8 +11,8 @@
   "totals": {
     "groupCount": 6,
     "guardedGroupCount": 6,
-    "contractCount": 1460,
-    "manualOnlyContractCount": 15,
+    "contractCount": 1463,
+    "manualOnlyContractCount": 25,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
     "missingValidationCommandCount": 0
@@ -34,8 +34,8 @@
         "static_text_fixtures_snapshots"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 628,
-      "hitCount": 3739,
+      "contractCount": 611,
+      "hitCount": 3686,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -44,7 +44,7 @@
       "queueStatusCounts": {},
       "ownerCoverage": {
         "docs-platform": 18,
-        "platform-hardening": 610
+        "platform-hardening": 593
       }
     },
     {
@@ -62,8 +62,8 @@
         "api_payload_metric_dom_selector_contracts"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 60,
-      "hitCount": 101,
+      "contractCount": 61,
+      "hitCount": 103,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -74,7 +74,7 @@
         "awaiting_production_cutover": 13
       },
       "ownerCoverage": {
-        "qa-platform": 60
+        "qa-platform": 61
       }
     },
     {
@@ -93,8 +93,8 @@
         "audit_security_evidence_governance_ids"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 469,
-      "hitCount": 2462,
+      "contractCount": 476,
+      "hitCount": 2472,
       "manualOnlyContractCount": 1,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -102,13 +102,13 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {
         "alias_added": 29,
-        "awaiting_analytics_dashboard_cutover": 231,
+        "awaiting_analytics_dashboard_cutover": 244,
         "awaiting_linked_verification": 1,
         "awaiting_production_cutover": 241
       },
       "ownerCoverage": {
         "database-platform": 1,
-        "platform-hardening": 468
+        "platform-hardening": 475
       }
     },
     {
@@ -127,9 +127,9 @@
         "deployment_runtime_config"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 274,
-      "hitCount": 1221,
-      "manualOnlyContractCount": 14,
+      "contractCount": 286,
+      "hitCount": 1325,
+      "manualOnlyContractCount": 24,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
       "remainingSafeActionCount": 0,
@@ -140,8 +140,8 @@
         "awaiting_production_cutover": 370
       },
       "ownerCoverage": {
-        "platform-hardening": 257,
-        "platform-security": 14,
+        "platform-hardening": 259,
+        "platform-security": 24,
         "release-engineering": 3
       }
     },

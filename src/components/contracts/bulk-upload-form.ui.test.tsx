@@ -41,9 +41,15 @@ describe("BulkUploadForm", () => {
     // The form is now anchored by the eyebrow + tab buttons +
     // surviving section eyebrows ("Minimum spreadsheet shape") +
     // column-group values.
-    expect(screen.getByText(/import source/i)).toBeTruthy();
+    // "Import source" is now the aria-label on the underline-tab strip
+    // (the visible eyebrow was dropped — defect 3, segmented control
+    // chrome competed with the eyebrow).
+    expect(screen.getByRole("tablist", { name: /import source/i })).toBeTruthy();
     expect(screen.getByText(/minimum spreadsheet shape/i)).toBeTruthy();
-    expect(screen.getByText(/title, counterparty/i)).toBeTruthy();
+    // The column list renders both the human label ("Contract title,
+    // Counterparty") and the technical mono name ("title, counterparty")
+    // so the row shows what to author in the CSV header.
+    expect(screen.getAllByText(/title, counterparty/i).length).toBeGreaterThan(0);
 
     fireEvent.change(screen.getByLabelText(/csv file/i), {
       target: {

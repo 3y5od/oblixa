@@ -62,6 +62,22 @@ describe("POST /api/contact", () => {
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
+  it("accepts the release-state assurance workflows interest value", async () => {
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "valid-assurance@example.com",
+            interested: "assurance_workflows",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+  });
+
   it("rejects malformed JSON", async () => {
     const { POST } = await import("@/app/api/contact/route");
     const res = await POST(contactRequest("{not-json"));
@@ -139,5 +155,36 @@ describe("POST /api/contact", () => {
     expect(logText).not.toContain("private-contact@example.com");
     expect(logText).not.toContain("This free text should never appear");
     info.mockRestore();
+  });
+
+  it("does not log submitted email, message content, or provider secrets when notification delivery fails", async () => {
+    process.env.RESEND_API_KEY = "re_private_contact_key";
+    process.env.EMAIL_FROM = "hello@oblixa.test";
+    process.env.CONTACT_NOTIFY_EMAIL = "sales@oblixa.test";
+    safeFetch.mockRejectedValueOnce(
+      new Error("delivery failed for provider-failure@example.com with re_private_contact_key")
+    );
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "provider-failure@example.com",
+            message: "Sensitive free-text launch inquiry.",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(safeFetch).toHaveBeenCalledOnce();
+    const logText = JSON.stringify(error.mock.calls);
+    expect(logText).toContain("[contact] notification email failed");
+    expect(logText).not.toContain("provider-failure@example.com");
+    expect(logText).not.toContain("Sensitive free-text launch inquiry.");
+    expect(logText).not.toContain("re_private_contact_key");
+    error.mockRestore();
   });
 });

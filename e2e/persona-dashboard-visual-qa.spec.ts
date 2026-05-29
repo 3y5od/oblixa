@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures/app-fixture";
 import { VISUAL_ADVANCED_ENABLED, VISUAL_AUTH_ENABLED, snapshotName } from "./visual-helpers";
+// skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=visual_persona_baselines_feature_flag_gated
 
 const CORE_PERSONA_STATES = [
   {

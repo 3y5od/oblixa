@@ -1,15 +1,15 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-05-24T23:20:58.886Z",
+  "generatedAt": "2026-05-28T22:05:45.869Z",
   "counts": {
-    "route_state": 43,
+    "route_state": 45,
     "layout": 23,
-    "page": 76,
+    "page": 77,
     "api_route": 226,
-    "server_action": 252
+    "server_action": 253
   },
-  "total": 620,
+  "total": 624,
   "routes": [
     {
       "id": "route_state:/:src/app/(auth)/error.tsx",
@@ -19220,6 +19220,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -19917,7 +19918,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
         "openai",
         "supabase"
       ],
@@ -20698,9 +20698,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [
-        "supabase"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -20774,6 +20772,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -23567,6 +23566,192 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "route_state:/search:src/app/(dashboard)/search/error.tsx",
+      "route": "/search",
+      "samplePath": "/search",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "sentry"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "route_state:/search:src/app/(dashboard)/search/loading.tsx",
+      "route": "/search",
+      "samplePath": "/search",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/search:src/app/(dashboard)/search/page.tsx",
+      "route": "/search",
+      "samplePath": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "page:/security:src/app/(marketing)/security/page.tsx",
       "route": "/security",
       "samplePath": "/security",
@@ -24769,7 +24954,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "openai",
         "resend",
         "supabase"
       ],
@@ -34036,6 +34220,66 @@
         "timeoutClass": "default"
       },
       "owner": "security",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:product-telemetry.test:src/actions/product-telemetry.test.ts",
+      "route": "action:product-telemetry.test",
+      "samplePath": "action:product-telemetry.test",
+      "sourcePath": "src/actions/product-telemetry.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "explicit",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
       "riskTier": "P1",
       "expectedStatuses": [
         200,

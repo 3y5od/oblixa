@@ -59,65 +59,67 @@ export function EvidenceReleaseActions({
   }
 
   const primaryAction = pickPrimaryAction(row.actions);
+  // The overflow lists the remaining evidence verbs (Accept / Reject / Send
+  // reminder / Request evidence) without repeating the contextual primary —
+  // so #13's "required actions" are named, not hidden behind a generic label.
+  const menuActions = primaryAction
+    ? row.actions.filter((action) => action.key !== primaryAction.key)
+    : row.actions;
+
+  function handleAction(action: EvidenceActionCapability) {
+    if (action.mutation === "upload_evidence") {
+      setUploadOpen((value) => !value);
+      setRejectOpen(false);
+      return;
+    }
+    if (action.mutation === "reject") {
+      setRejectOpen((value) => !value);
+      setUploadOpen(false);
+      return;
+    }
+    runMutation(action);
+  }
 
   return (
     <div className="flex min-w-0 flex-col items-start gap-2">
-      {primaryAction ? (
-        <ActionControl
-          action={primaryAction}
-          rowHref={row.href}
-          disabled={isPending}
-          onMutate={() => {
-            if (primaryAction.mutation === "upload_evidence") {
-              setUploadOpen((value) => !value);
-              setRejectOpen(false);
-              return;
-            }
-            if (primaryAction.mutation === "reject") {
-              setRejectOpen((value) => !value);
-              setUploadOpen(false);
-              return;
-            }
-            runMutation(primaryAction);
-          }}
-          variant="primary"
-        />
-      ) : null}
-
-      <details className="group relative min-w-0">
-        <summary className="ui-btn-ghost inline-flex cursor-pointer list-none items-center gap-1 px-2.5 py-1 text-[11.5px] [&::-webkit-details-marker]:hidden">
-          Actions
-          <ChevronDown
-            className="h-3 w-3 transition-transform group-open:rotate-180"
-            strokeWidth={1.85}
-            aria-hidden
+      {/* #12: the contextual primary action and the overflow read as one
+          coherent pill group, not a button stacked above a loose text link. */}
+      <div className="inline-flex flex-wrap items-center gap-1.5">
+        {primaryAction ? (
+          <ActionControl
+            action={primaryAction}
+            rowHref={row.href}
+            disabled={isPending}
+            onMutate={() => handleAction(primaryAction)}
+            variant="primary"
           />
-        </summary>
-        <div className="absolute right-0 top-full z-20 mt-1.5 grid min-w-[12rem] gap-1 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
-          {row.actions.map((action) => (
-            <ActionControl
-              key={action.key}
-              action={action}
-              rowHref={row.href}
-              disabled={isPending}
-              onMutate={() => {
-                if (action.mutation === "upload_evidence") {
-                  setUploadOpen((value) => !value);
-                  setRejectOpen(false);
-                  return;
-                }
-                if (action.mutation === "reject") {
-                  setRejectOpen((value) => !value);
-                  setUploadOpen(false);
-                  return;
-                }
-                runMutation(action);
-              }}
-              variant="menu"
-            />
-          ))}
-        </div>
-      </details>
+        ) : null}
+
+        {menuActions.length > 0 ? (
+          <details className="group relative min-w-0">
+            <summary className="ui-btn-ghost inline-flex cursor-pointer list-none items-center gap-1 rounded-full px-3 py-1.5 text-[11.5px] [&::-webkit-details-marker]:hidden">
+              More
+              <ChevronDown
+                className="h-3 w-3 transition-transform group-open:rotate-180"
+                strokeWidth={1.85}
+                aria-hidden
+              />
+            </summary>
+            <div className="absolute right-0 top-full z-20 mt-1.5 grid min-w-[12rem] gap-1 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
+              {menuActions.map((action) => (
+                <ActionControl
+                  key={action.key}
+                  action={action}
+                  rowHref={row.href}
+                  disabled={isPending}
+                  onMutate={() => handleAction(action)}
+                  variant="menu"
+                />
+              ))}
+            </div>
+          </details>
+        ) : null}
+      </div>
 
       {uploadOpen ? (
         <div className="w-full min-w-[15rem] space-y-2 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] p-3">
@@ -238,7 +240,7 @@ function ActionControl({
 }) {
   const className =
     variant === "primary"
-      ? "ui-btn-secondary px-3 py-1.5 text-[11.5px] disabled:opacity-60"
+      ? "ui-btn-secondary rounded-full px-3 py-1.5 text-[11.5px] disabled:opacity-60"
       : "rounded-[0.45rem] px-2.5 py-1.5 text-left text-[11.5px] font-medium text-[var(--text-secondary)] transition hover:bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] hover:text-[var(--text-primary)] disabled:opacity-60";
 
   if (action.kind === "mutation") {

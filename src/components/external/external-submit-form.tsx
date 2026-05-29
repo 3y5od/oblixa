@@ -117,14 +117,15 @@ export function ExternalSubmitForm({ token }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  const refreshStatus = useCallback(async () => {
-    setLoading(true);
+  const refreshStatus = useCallback(async (options?: { mode?: "blocking" | "background" }) => {
+    const blocking = options?.mode !== "background";
+    if (blocking) setLoading(true);
     setLoadError(null);
     try {
       const parsed = await fetchJson(`/api/external-actions/${encodeURIComponent(token)}/status`);
       if (!parsed.ok) {
         setLoadError(parsed.message);
-        setStatus(null);
+        if (blocking) setStatus(null);
         return;
       }
       const data = parsed.data as {
@@ -133,23 +134,37 @@ export function ExternalSubmitForm({ token }: Props) {
       const ex = data.externalAction;
       if (!ex) {
         setLoadError("Invalid status response");
-        setStatus(null);
+        if (blocking) setStatus(null);
         return;
       }
       setStatus(ex);
       setSubmitTicket(ex.submitTicket);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load");
-      setStatus(null);
+      if (blocking) setStatus(null);
       captureClientException(err, { extra: { surface: "ExternalSubmitForm", phase: "status" } });
     } finally {
-      setLoading(false);
+      if (blocking) setLoading(false);
     }
   }, [token]);
 
   useEffect(() => {
     void refreshStatus();
   }, [refreshStatus]);
+
+  useEffect(() => {
+    function refreshOnFocus() {
+      if (document.hidden || loading || busy || done) return;
+      void refreshStatus({ mode: "background" });
+    }
+
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnFocus);
+    return () => {
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnFocus);
+    };
+  }, [busy, done, loading, refreshStatus]);
 
   const fields = {
     message,
@@ -224,7 +239,7 @@ export function ExternalSubmitForm({ token }: Props) {
     );
   }
 
-  if (loadError || !status) {
+  if (!status) {
     return (
       <div className="ui-page-shell mx-auto max-w-lg p-6 text-center sm:p-8">
         <p className="ui-eyebrow">External workflow</p>
@@ -235,6 +250,14 @@ export function ExternalSubmitForm({ token }: Props) {
         <p className="ui-alert-error mt-3" data-testid={surfaceTestIds.externalSubmitLoadError}>
           {loadError || "Unable to load this link."}
         </p>
+        <button
+          type="button"
+          className="ui-btn-secondary mt-4 px-4 py-2 text-sm"
+          data-testid={surfaceTestIds.externalSubmitRetryButton}
+          onClick={() => void refreshStatus()}
+        >
+          Try again
+        </button>
       </div>
     );
   }
@@ -305,6 +328,7 @@ export function ExternalSubmitForm({ token }: Props) {
           </div>
         ) : null}
       </div>
+      <InlineMutationStatus message={loadError ? `Latest status could not be refreshed: ${loadError}` : null} variant="warning" />
       <InlineMutationStatus message={error} variant="error" />
 
       <label className="block text-xs font-medium text-[var(--text-secondary)]">

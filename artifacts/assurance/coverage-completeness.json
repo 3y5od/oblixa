@@ -1,7 +1,7 @@
 {
   "version": 2,
   "program": "maximal-assurance-epic64",
-  "generatedAt": "2026-05-24T22:01:35.994Z",
+  "generatedAt": "2026-05-28T01:34:23.596Z",
   "coverageScore": 80.64,
   "subscores": {
     "threatEvidenceScore": 100,

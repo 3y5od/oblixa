@@ -1,5 +1,5 @@
-import { jsonOk, jsonProblem, jsonRateLimited } from "@/lib/http/problem";
-import { getStripeClient } from "@/lib/stripe";
+import { jsonOk, jsonProblem, jsonRateLimited, jsonUnsupportedMediaType } from "@/lib/http/problem";
+import { getExpectedStripeLivemodeFromEnv, getStripeClient } from "@/lib/stripe";
 import {
   RATE_LIMITS,
   getClientIpFromRequest,
@@ -12,6 +12,8 @@ import {
   captureServerMessage,
 } from "@/lib/observability/sentry";
 import { readTextBodyLimited } from "@/lib/security/read-json-body-limited";
+import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
+import { rotatingSecretCandidates } from "@/lib/security/rotating-secret";
 
 const ROUTE = "/api/stripe/webhook";
 const STRIPE_WEBHOOK_BODY_MAX = 262_144;
@@ -70,6 +72,14 @@ export async function POST(request: Request) {
   }
   const stripe = stripeClient.stripe;
 
+  const contentTypeRejection = jsonContentTypeRejection(request);
+  if (contentTypeRejection) {
+    return jsonUnsupportedMediaType(ROUTE, {
+      ...contentTypeRejection.details,
+      diagnostic_id: "stripe_webhook_wrong_content_type",
+    });
+  }
+
   const _lb_body = await readTextBodyLimited(request, STRIPE_WEBHOOK_BODY_MAX);
   if (!_lb_body.ok) return _lb_body.response;
   const body = _lb_body.body;
@@ -84,9 +94,22 @@ export async function POST(request: Request) {
     });
   }
 
-  let event: Stripe.Event;
+  let event: Stripe.Event | null = null;
+  let signatureError: unknown = null;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret, STRIPE_WEBHOOK_TOLERANCE_SEC);
+    for (const candidateSecret of rotatingSecretCandidates({
+      currentSecret: webhookSecret,
+      previousSecret: process.env.STRIPE_WEBHOOK_SECRET_PREVIOUS,
+      previousSecretExpiresAt: process.env.STRIPE_WEBHOOK_SECRET_PREVIOUS_EXPIRES_AT,
+    })) {
+      try {
+        event = stripe.webhooks.constructEvent(body, signature, candidateSecret, STRIPE_WEBHOOK_TOLERANCE_SEC);
+        break;
+      } catch (err) {
+        signatureError = err;
+      }
+    }
+    if (!event) throw signatureError ?? new Error("Stripe signature verification failed");
   } catch (err) {
     console.error("[stripe/webhook] signature verification failed:", err);
     captureServerException(err, { extra: { phase: "constructEvent" } });
@@ -94,6 +117,24 @@ export async function POST(request: Request) {
       error: "Invalid signature",
       code: "invalid_signature",
       diagnostic_id: "stripe_webhook_invalid_signature",
+      route: ROUTE,
+    });
+  }
+
+  const expectedLivemode = getExpectedStripeLivemodeFromEnv();
+  if (
+    expectedLivemode !== null &&
+    typeof event.livemode === "boolean" &&
+    event.livemode !== expectedLivemode
+  ) {
+    captureServerMessage("stripe webhook livemode mismatch", {
+      level: "error",
+      extra: { eventId: event.id, eventType: event.type, expectedLivemode },
+    });
+    return jsonProblem(400, {
+      error: "Stripe webhook mode does not match configured billing mode",
+      code: "stripe_mode_mismatch",
+      diagnostic_id: "stripe_webhook_livemode_mismatch",
       route: ROUTE,
     });
   }
@@ -308,11 +349,58 @@ export async function POST(request: Request) {
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
-        console.error(`Payment failed for customer ${invoice.customer}`);
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : invoice.customer && typeof invoice.customer === "object" && "id" in invoice.customer
+              ? (invoice.customer as Stripe.Customer).id
+              : null;
+        if (customerId) {
+          const { data: orgRow, error: orgErr } = await supabase
+            .from("organizations")
+            .select("id")
+            .eq("stripe_customer_id", customerId)
+            .maybeSingle();
+          if (orgErr) {
+            processingFailed = true;
+            console.error("[stripe/webhook] invoice.payment_failed org lookup:", orgErr.message);
+            captureServerMessage(orgErr.message, {
+              level: "error",
+              extra: { event: event.type },
+            });
+            break;
+          }
+          if (orgRow?.id) {
+            const { error: upErr } = await supabase
+              .from("organizations")
+              .update({ stripe_subscription_status: "past_due" })
+              .eq("id", orgRow.id);
+            if (upErr) {
+              processingFailed = true;
+              console.error("[stripe/webhook] invoice.payment_failed DB update:", upErr.message);
+              captureServerMessage(upErr.message, {
+                level: "error",
+                extra: { event: event.type },
+              });
+              break;
+            }
+            await supabase.from("audit_events").insert({
+              organization_id: orgRow.id,
+              contract_id: null,
+              user_id: null,
+              action: "billing.payment_failed",
+              details: {
+                stripe_event_id: event.id,
+                invoice_id: invoice.id,
+              },
+            });
+          }
+        }
+        console.error(`Payment failed for Stripe customer ${customerId ?? "unknown"}`);
         captureServerMessage("invoice.payment_failed", {
           level: "warning",
           extra: {
-            customer: invoice.customer,
+            customer: customerId ?? "unknown",
             invoiceId: invoice.id,
           },
         });

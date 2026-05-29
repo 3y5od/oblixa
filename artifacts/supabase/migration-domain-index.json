@@ -175,6 +175,11 @@
       "file": "057_v10_runtime_contracts.sql",
       "lineCount": 2174,
       "byteCount": 97565
+    },
+    {
+      "file": "089_sql_neutral_table_view_aliases.sql",
+      "lineCount": 350,
+      "byteCount": 13161
     }
   ],
   "highRiskMigrations": [
@@ -3006,9 +3011,9 @@
         "public.verification_command_results",
         "public.work_items"
       ],
-      "lineCount": 300,
-      "byteCount": 11145,
-      "large": false,
+      "lineCount": 350,
+      "byteCount": 13161,
+      "large": true,
       "descriptiveSlug": true,
       "verificationQueries": [
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'activation_state' order by policyname;",

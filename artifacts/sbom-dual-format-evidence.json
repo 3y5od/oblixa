@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-sbom-dual-format-evidence",
+  "generatedBy": "scripts/check-sbom-dual-format-evidence.mjs --write",
+  "formats": [
+    {
+      "name": "CycloneDX",
+      "path": "cyclonedx-sbom.json",
+      "specVersion": "1.6",
+      "componentCount": 865,
+      "dependencyGraphCount": 942,
+      "sha256": "fb766ca4310bfd0139caca7b9fbb584472588c960435c91a187b0a23044c37b2"
+    },
+    {
+      "name": "SPDX",
+      "path": "artifacts/spdx-sbom.json",
+      "specVersion": "SPDX-2.3",
+      "packageCount": 947,
+      "relationshipCount": 947,
+      "sha256": "801d52113e1afbc17e8ac69382ecbdc75666b8f3d00791782a9870b8bd0ece7f"
+    },
+    {
+      "name": "npm-package-lock",
+      "path": "package-lock.json",
+      "lockfileVersion": 3,
+      "packageCount": 947,
+      "rootDependencyCount": 19,
+      "rootDevDependencyCount": 23,
+      "sha256": "b750917e16cb98a625d32ac2a7d5ab4b760a7abc3d78a730f2ce7bc1a6faee0b"
+    }
+  ],
+  "countComparison": {
+    "lockfilePackageCount": 947,
+    "cyclonedxComponentCount": 865,
+    "cyclonedxDependencyGraphCount": 942,
+    "spdxPackageCount": 947,
+    "cyclonedxToLockfileDelta": 82,
+    "spdxToLockfileDelta": 0
+  },
+  "driftPolicy": {
+    "dependencyChangesRequireUpdatedEvidence": true,
+    "evidenceArtifact": "artifacts/sbom-dual-format-evidence.json",
+    "spdxArtifact": "artifacts/spdx-sbom.json",
+    "checkCommand": "npm run check:sbom-dual-format-evidence",
+    "writeCommand": "npm run write:sbom-dual-format-evidence"
+  },
+  "issueCount": 0,
+  "issues": []
+}

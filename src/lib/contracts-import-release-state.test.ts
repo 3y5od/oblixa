@@ -11,20 +11,18 @@ const formRaw = read("src/components/contracts/bulk-upload-form.tsx");
 
 describe("contract import release-state surface", () => {
   it("keeps the import page focused on Core contract tracking", () => {
-    // v23 aesthetic pass: the verbose page lead ("Bring in an existing
-    // tracking spreadsheet or a batch of signed PDF/DOCX agreements...
-    // extracted fields, owners, dates, obligations, evidence, and
-    // reports.") was dropped per §10.7 (no small plain text) + §10.4
-    // (eliminate redundancy). The sidebar lead ("Confirm created
-    // records...") + empty-state lead were also dropped — the eyebrows
-    // + h2 + link targets carry the structure. Release-state spec
-    // mandates that survive: page eyebrow + title + sidebar status
-    // anchors + Open job details link.
+    // The sidebar h2 "Recent import jobs" was dropped — defect 18
+    // flagged it as competing with the trailing "Open contracts" link.
+    // The eyebrow "Import status" + CountChip + structured empty state
+    // (icon + "No import jobs yet" + caps hint) now carry the section
+    // identity. Release-state spec anchors that survive: page eyebrow,
+    // page title, sidebar status eyebrow, "Review imported records"
+    // affordance, and per-job "Open job details" links.
     for (const copy of [
       'eyebrow="Contract import"',
       'title="Import contracts"',
       "Import status",
-      "Recent import jobs",
+      "Review imported records",
       "Open job details",
     ]) {
       expect(pageRaw).toContain(copy);

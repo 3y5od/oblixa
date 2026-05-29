@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-post-incident-follow-up-template",
+  "generatedBy": "scripts/check-incident-readiness.mjs --write",
+  "generatedFrom": "config/operational-dr-incident-readiness.json",
+  "templateId": "code-owned-post-incident-follow-up",
+  "deterministic": true,
+  "redactionPolicy": "metadata-only",
+  "defaultSeverity": "unclassified-until-owner-review",
+  "fields": [
+    {
+      "name": "affectedControls",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "dueDates",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "evidenceArtifacts",
+      "required": true,
+      "evidencePolicy": "metadata-only"
+    },
+    {
+      "name": "failedChecks",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "incidentId",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "newTests",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "owners",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "redactionReview",
+      "required": true,
+      "evidencePolicy": "metadata-only"
+    },
+    {
+      "name": "severity",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    },
+    {
+      "name": "timeline",
+      "required": true,
+      "evidencePolicy": "metadata-only"
+    },
+    {
+      "name": "validationCommands",
+      "required": true,
+      "evidencePolicy": "owner-reviewed"
+    }
+  ],
+  "emptyRecord": {
+    "affectedControls": null,
+    "dueDates": null,
+    "evidenceArtifacts": null,
+    "failedChecks": null,
+    "incidentId": null,
+    "newTests": null,
+    "owners": null,
+    "redactionReview": null,
+    "severity": null,
+    "timeline": [],
+    "validationCommands": null
+  }
+}

@@ -68,20 +68,24 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("RenewalRowFactGrid");
     expect(page).toContain("RenewalRowStateGrid");
     expect(page).toContain("xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)]");
-    expect(page).toContain("xl:grid-cols-[minmax(10rem,0.85fr)_minmax(10rem,0.85fr)]");
+    // The status column is widened (and the action column tightened) so the
+    // longest actionable label ("Notice window open") fits on one line at the
+    // canonical pill scale — no font shrink required.
+    expect(page).toContain("xl:grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)]");
     expect(page).toContain("RenewalStatusBadge");
-    // v23 aesthetic pass: the previous compact-pill treatment used
-    // wrap-based fit (text-[9.5px] + max-w-[9.25rem] + whitespace-normal)
-    // which produced an awkward 2-line "NEEDED" below "NO RENEWAL ACTION".
-    // Replaced with a single-line uppercase pill at smaller font (9px) +
-    // tight tracking (0.04em) so the full label fits horizontally while
-    // remaining visually consistent with the canonical uppercase-caps
-    // pill treatment used for the other shorter statuses.
-    expect(page).toContain("text-[9px]");
-    expect(page).toContain("tracking-[0.04em]");
     expect(page).toContain("whitespace-nowrap");
     expect(page).toContain("xl:sr-only");
     expect(page).not.toContain("grid-cols-[minmax(12rem,1.15fr)_minmax(9rem,0.8fr)");
+  });
+
+  it("reinforces status with a glyph and reserves coloured pills for actionable states", () => {
+    // §7.7 — status must not rely on colour alone, so each state maps to a
+    // Lucide glyph rendered inside/alongside the label.
+    expect(page).toContain("RENEWAL_STATUS_ICON");
+    // §12 — the prior fit hack (font shrink + tight tracking to cram long
+    // labels into a pill) is retired; resting states drop the pill entirely.
+    expect(page).not.toContain("text-[9px]");
+    expect(page).not.toContain("tracking-[0.04em]");
   });
 
   it("does not render the old horizon, ledger, saved queue, or diagnostic framing", () => {

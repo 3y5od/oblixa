@@ -47,14 +47,11 @@ const FORBIDDEN_PHRASES = [
   "Trust and controls",
   "Create free account", // legacy CTA
   "audit-friendly",
-  // v4 additions — voice rules in memory take precedence over spec verbatim:
+  // v4 additions — broad public language remains banned unless a focused
+  // release-state section explicitly requires the phrase.
   "Trust & operations",
   "Trust and operations",
   "accountable contract execution",
-  "portfolio operations",
-  "Portfolio operations",
-  "Assurance workflows",
-  "assurance workflows",
   "Operational overview",
   "operational overview",
   "operational data",
@@ -223,24 +220,24 @@ describe("public marketing voice sweep", () => {
     expect(links).toContain("/acceptable-use");
   });
 
-  // v4: positive pins — pricing page must not reintroduce banned words.
-  it("pricing page custom-plans copy does not contain banned vocabulary", () => {
+  // release-state: custom plan copy names the contact path for larger-team
+  // operations without presenting it as the Core self-serve product.
+  it("pricing page custom-plans copy includes release-state contact language", () => {
     const raw = readFileSync(
       join(process.cwd(), "src", "app", "(marketing)", "pricing", "page.tsx"),
       "utf8"
     );
-    expect(raw.toLowerCase()).not.toContain("portfolio");
-    expect(raw.toLowerCase()).not.toContain("assurance workflow");
+    expect(raw).toContain("Need portfolio operations, controls, or assurance workflows?");
   });
 
-  // v4: contact form options must not include "Assurance workflows".
-  it("contact form interested-in options do not include assurance workflows", () => {
+  // release-state: contact form routes selected prospects into the private
+  // assurance-workflow conversation without exposing it as self-serve Core.
+  it("contact form interested-in options include assurance workflows", () => {
     const raw = readFileSync(
       join(process.cwd(), "src", "components", "landing", "contact-form.tsx"),
       "utf8"
     );
-    expect(raw).not.toContain("Assurance workflows");
-    expect(raw).not.toContain("assurance workflows");
+    expect(raw).toContain("Assurance workflows");
   });
 
   // v4: security page must reflect spec hero + drop "contract execution".
@@ -617,9 +614,9 @@ describe("public marketing voice sweep", () => {
       "utf8"
     );
 
-    // Registration components removed (Tier 0).
-    expect(raw).not.toContain("Start free trial"); // page-level (was in quickLinks[0])
-    expect(raw).not.toContain('href="/signup"'); // no signup hrefs on /contact
+    // Release-state secondary CTA.
+    expect(raw).toContain("Start free trial");
+    expect(raw).toContain('href="/signup"');
     expect(raw).not.toContain("21-day free trial"); // no trial mentions
 
     // Cross-page chrome parity (Tier 2).

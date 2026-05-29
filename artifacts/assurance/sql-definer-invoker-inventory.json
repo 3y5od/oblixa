@@ -703,7 +703,7 @@
     {
       "view": "audit_events",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 29,
+      "line": 50,
       "tenant_references": [
         "audit_events",
         "v10_audit_events"
@@ -713,7 +713,7 @@
     {
       "view": "command_search_index",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 38,
+      "line": 63,
       "tenant_references": [
         "v10_command_search_index"
       ],
@@ -722,7 +722,7 @@
     {
       "view": "contract_activity_events",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 47,
+      "line": 72,
       "tenant_references": [
         "v10_contract_activity_events"
       ],
@@ -741,7 +741,7 @@
     {
       "view": "contract_health_snapshots",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 56,
+      "line": 81,
       "tenant_references": [
         "v10_contract_health_snapshots"
       ],
@@ -760,7 +760,7 @@
     {
       "view": "denominator_locks",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 65,
+      "line": 90,
       "tenant_references": [
         "v10_denominator_locks"
       ],
@@ -769,7 +769,7 @@
     {
       "view": "evidence_request_statuses",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 74,
+      "line": 99,
       "tenant_references": [
         "v10_evidence_request_statuses"
       ],
@@ -778,7 +778,7 @@
     {
       "view": "exception_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 83,
+      "line": 108,
       "tenant_references": [
         "v10_exception_records"
       ],
@@ -787,7 +787,7 @@
     {
       "view": "external_blocker_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 92,
+      "line": 117,
       "tenant_references": [
         "v10_external_blocker_records"
       ],
@@ -796,7 +796,7 @@
     {
       "view": "external_evidence_submissions",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 101,
+      "line": 126,
       "tenant_references": [
         "v10_external_evidence_submissions"
       ],
@@ -805,7 +805,7 @@
     {
       "view": "field_provenance_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 110,
+      "line": 135,
       "tenant_references": [
         "v10_field_provenance_records"
       ],
@@ -814,7 +814,7 @@
     {
       "view": "fixture_manifests",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 119,
+      "line": 144,
       "tenant_references": [
         "v10_fixture_manifests"
       ],
@@ -823,7 +823,7 @@
     {
       "view": "fixture_teardown_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 128,
+      "line": 153,
       "tenant_references": [
         "v10_fixture_teardown_records"
       ],
@@ -832,7 +832,7 @@
     {
       "view": "job_run_visibility",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 137,
+      "line": 162,
       "tenant_references": [
         "v10_job_run_visibility"
       ],
@@ -841,7 +841,7 @@
     {
       "view": "metric_runs",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 146,
+      "line": 171,
       "tenant_references": [
         "v10_metric_runs"
       ],
@@ -850,7 +850,7 @@
     {
       "view": "mutation_idempotency",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 155,
+      "line": 180,
       "tenant_references": [
         "v10_mutation_idempotency"
       ],
@@ -859,7 +859,7 @@
     {
       "view": "notification_deliveries",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 163,
+      "line": 209,
       "tenant_references": [
         "notification_deliveries",
         "v10_notification_deliveries"
@@ -869,7 +869,7 @@
     {
       "view": "obligation_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 172,
+      "line": 222,
       "tenant_references": [
         "v10_obligation_records"
       ],
@@ -887,7 +887,7 @@
     {
       "view": "promotion_decisions",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 181,
+      "line": 231,
       "tenant_references": [
         "v10_promotion_decisions"
       ],
@@ -896,7 +896,7 @@
     {
       "view": "read_model_lineage",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 190,
+      "line": 240,
       "tenant_references": [
         "v10_read_model_lineage"
       ],
@@ -905,7 +905,7 @@
     {
       "view": "read_model_refresh_jobs",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 199,
+      "line": 249,
       "tenant_references": [
         "v10_read_model_refresh_jobs"
       ],
@@ -914,7 +914,7 @@
     {
       "view": "read_model_rows",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 208,
+      "line": 258,
       "tenant_references": [
         "v10_read_model_rows"
       ],
@@ -923,7 +923,7 @@
     {
       "view": "release_evidence_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 217,
+      "line": 267,
       "tenant_references": [
         "v10_release_evidence_records"
       ],
@@ -932,7 +932,7 @@
     {
       "view": "release_waivers",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 226,
+      "line": 276,
       "tenant_references": [
         "v10_release_waivers"
       ],
@@ -941,7 +941,7 @@
     {
       "view": "renewal_checkpoint_records",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 235,
+      "line": 285,
       "tenant_references": [
         "v10_renewal_checkpoint_records"
       ],
@@ -950,7 +950,7 @@
     {
       "view": "renewal_posture_snapshots",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 244,
+      "line": 294,
       "tenant_references": [
         "v10_renewal_posture_snapshots"
       ],
@@ -959,7 +959,7 @@
     {
       "view": "report_run_visibility",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 253,
+      "line": 303,
       "tenant_references": [
         "v10_report_run_visibility"
       ],
@@ -968,7 +968,7 @@
     {
       "view": "runtime_artifacts",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 262,
+      "line": 312,
       "tenant_references": [
         "v10_runtime_artifacts"
       ],
@@ -977,7 +977,7 @@
     {
       "view": "runtime_coverage_ledger",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 271,
+      "line": 321,
       "tenant_references": [
         "v10_runtime_coverage_ledger"
       ],
@@ -986,7 +986,7 @@
     {
       "view": "verification_command_results",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 280,
+      "line": 330,
       "tenant_references": [
         "v10_verification_command_results"
       ],
@@ -995,7 +995,7 @@
     {
       "view": "work_items",
       "file": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "line": 289,
+      "line": 339,
       "tenant_references": [
         "v10_work_items"
       ],

@@ -2,14 +2,29 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { ReactNode } from "react";
-import { ArrowUpRight, CalendarClock, ChevronRight, Download, MoreHorizontal, Plus, Sparkles } from "lucide-react";
+import {
+  BellRing,
+  CalendarClock,
+  CheckCircle2,
+  ChevronRight,
+  CircleDashed,
+  CircleUserRound,
+  Clock,
+  Download,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { createContractTask } from "@/actions/tasks";
 import { updateRenewalCheckpointStatus } from "@/actions/renewal-playbook";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
+import { CountChip } from "@/components/ui/count-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
-import { UiTabs } from "@/components/ui/ui-tabs";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -30,7 +45,7 @@ import {
   RENEWALS_PARTIAL_DATA_REASON,
   RENEWALS_PARTIAL_DATA_TITLE,
 } from "@/lib/renewals/spec-strings";
-import type { RenewalActionCapability, RenewalFilterState, RenewalRow } from "@/lib/renewals/types";
+import type { RenewalActionCapability, RenewalFilterState, RenewalRow, RenewalStatus, RenewalWindowSummary } from "@/lib/renewals/types";
 
 export const metadata = { title: RENEWALS_PAGE_TITLE };
 
@@ -132,6 +147,7 @@ export default async function RenewalsPage(props: {
         icon={<CalendarClock className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow={model.eyebrow}
         title={model.title}
+        lead={model.lead}
         actions={
           <>
             {showDecisionsCta ? (
@@ -145,8 +161,14 @@ export default async function RenewalsPage(props: {
                 <ChevronRight className="h-3 w-3 opacity-60" aria-hidden />
               </Link>
             ) : null}
-            <Link href={model.exportHref} className="ui-btn-secondary inline-flex items-center gap-2 px-4 py-2">
-              <Download className="h-4 w-4" aria-hidden />
+            {/* §3 weight ladder — the report export is a secondary escape hatch,
+                so it rides as a ghost action and lets the solid primary own the
+                page's single loudest CTA. */}
+            <Link
+              href={model.exportHref}
+              className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+            >
+              <Download className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               {RENEWAL_ACTION_LABELS.export_renewal_report}
             </Link>
             <Link href={createHref} className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
@@ -172,48 +194,34 @@ export default async function RenewalsPage(props: {
         />
       ) : null}
 
-      <section className="ui-card p-0" aria-labelledby="renewals-surface-title">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
+      {/* §10.1 calmer cousin — a dense work surface rides the quiet card tier
+          (no accent wash, no deep shadow) so the data, not the container, is
+          the focal object. overflow-hidden clips the stacked row borders to
+          the rounded corner. */}
+      <section className="ui-card-quiet overflow-hidden" aria-labelledby="renewals-surface-title">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
             <h2 id="renewals-surface-title" className="sr-only">
               {model.title}
             </h2>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-              Upcoming decisions
-            </p>
-            <span className="ui-chip">
-              <span className="font-mono tabular-nums">{model.summary.visible}</span>
-              <span className="ml-1">visible</span>
-            </span>
+            <p className="ui-caps-2 pr-0.5 text-[11px] text-[var(--text-tertiary)]">Upcoming decisions</p>
+            <KeyValueChip label="Visible" value={model.summary.visible} />
             {model.summary.noticeWindowOpen > 0 ? (
-              <span className="ui-chip">
-                <span className="font-mono tabular-nums">{model.summary.noticeWindowOpen}</span>
-                <span className="ml-1">notice window open</span>
-              </span>
+              <KeyValueChip label="Notice window open" value={model.summary.noticeWindowOpen} tone="warning" />
             ) : null}
             {model.summary.needsReview > 0 ? (
-              <span className="ui-chip">
-                <span className="font-mono tabular-nums">{model.summary.needsReview}</span>
-                <span className="ml-1">needs review</span>
-              </span>
+              <KeyValueChip label="Needs review" value={model.summary.needsReview} />
             ) : null}
           </div>
-          <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]">
+          {/* §21 — internal navigation reads with a forward chevron, not the
+              ↗ external-link glyph that implies a new tab / outside surface. */}
+          <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1 px-3 py-1.5 text-[12.5px]">
             All contracts
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+            <ChevronRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
           </Link>
         </div>
 
-        <UiTabs
-          ariaLabel="Renewal date windows"
-          items={model.windows.map((window) => ({
-            href: window.href,
-            label: window.label,
-            active: window.active,
-            count: window.count,
-          }))}
-          className="px-5"
-        />
+        <RenewalWindowControl windows={model.windows} />
 
         <RenewalFilters filters={model.filters} model={model} keepCreateOpen={model.create.open} />
 
@@ -235,6 +243,31 @@ export default async function RenewalsPage(props: {
   );
 }
 
+function RenewalWindowControl({ windows }: { windows: RenewalWindowSummary[] }) {
+  // §6/§7 — the windows are cumulative (60 includes 30, etc.), so a "Due
+  // within" label + segmented control reads as one horizon dial rather than
+  // four mutually-exclusive buckets. Counts ride the canonical CountChip
+  // vocabulary instead of filled circular bubbles.
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-3">
+      <span className="ui-caps-2 text-[11px] text-[var(--text-tertiary)]">Due within</span>
+      <div className="ui-segmented max-w-full overflow-x-auto" role="group" aria-label="Renewal date windows">
+        {windows.map((window) => (
+          <Link
+            key={window.key}
+            href={window.href}
+            aria-current={window.active ? "true" : undefined}
+            className={`ui-segmented-item gap-2 ${window.active ? "ui-segmented-item-active" : ""}`}
+          >
+            {window.label}
+            <CountChip value={window.count} emphasis={window.active ? "strong" : "subtle"} />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function RenewalFilters({
   filters,
   model,
@@ -246,26 +279,30 @@ function RenewalFilters({
 }) {
   const hasFilters = Boolean(filters.owner || filters.counterparty || filters.status);
   return (
-    <form method="get" className="grid gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto]">
+    // §8 — a single flat toolbar row instead of a full label-over-field band.
+    // The label-less comboboxes default to their "Any …" option, so the row
+    // reads as filters without a stack of redundant field captions; each
+    // control keeps an ariaLabel for assistive tech.
+    <form
+      method="get"
+      className="ui-filter-toolbar border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-3"
+    >
       {model.activeWindow !== "90" ? <input type="hidden" name="window" value={model.activeWindow} /> : null}
       {keepCreateOpen ? <input type="hidden" name="create" value="1" /> : null}
+      <span className="ui-caps-2 pr-0.5 text-[11px] text-[var(--text-tertiary)]">Filter</span>
       <FilterSelect name="owner" label={RENEWAL_FILTER_LABELS.owner} value={filters.owner} options={model.filterOptions.owners} />
       <FilterSelect name="counterparty" label={RENEWAL_FILTER_LABELS.counterparty} value={filters.counterparty} options={model.filterOptions.counterparties} />
       <FilterSelect name="status" label={RENEWAL_FILTER_LABELS.status} value={filters.status} options={model.filterOptions.statuses} />
-      <div className="flex items-end">
-        <button type="submit" className="ui-btn-secondary h-10 w-full px-4">
-          Apply
-        </button>
-      </div>
+      <button type="submit" className="ui-btn-secondary inline-flex h-9 items-center px-3.5 text-[12.5px]">
+        Apply
+      </button>
       {hasFilters ? (
-        <div className="flex items-end">
-          <Link
-            href={buildRenewalsHref({ window: model.activeWindow, create: keepCreateOpen })}
-            className="ui-btn-ghost h-10 px-3"
-          >
-            Clear filters
-          </Link>
-        </div>
+        <Link
+          href={buildRenewalsHref({ window: model.activeWindow, create: keepCreateOpen })}
+          className="ui-btn-ghost inline-flex h-9 items-center px-2.5 text-[12.5px]"
+        >
+          Clear
+        </Link>
       ) : null}
     </form>
   );
@@ -369,20 +406,16 @@ function FilterSelect({
     label: option.label,
   }));
   return (
-    <div className="block min-w-0">
-      <p className="mb-1.5 block text-[12.5px] font-medium text-[var(--text-secondary)]">
-        {label}
-      </p>
-      <UiSelect
-        className="block w-full"
-        buttonClassName="h-10 w-full"
-        name={name}
-        defaultValue={value}
-        options={uiOptions}
-        placeholder={uiOptions[0]?.label ?? label}
-        ariaLabel={label}
-      />
-    </div>
+    <UiSelect
+      className="min-w-0"
+      buttonClassName="h-9 min-w-[8.5rem]"
+      menuWidth="fit"
+      name={name}
+      defaultValue={value}
+      options={uiOptions}
+      placeholder={uiOptions[0]?.label ?? label}
+      ariaLabel={label}
+    />
   );
 }
 
@@ -415,14 +448,34 @@ function RenewalRows({
           className="grid gap-4 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 last:border-b-0 xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)] xl:items-center"
         >
           <RenewalFact label={RENEWAL_ROW_LABELS.contract} titleId={`renewal-row-${row.id}`}>
-            <Link href={row.href} className="ui-link break-words text-[14px] font-semibold">
+            {/* §15 — the contract title is the row's heading, so it reads as
+                primary text and only reveals the link affordance (accent +
+                underline) on hover. It no longer out-shouts the dates/status
+                it labels. */}
+            <Link
+              href={row.href}
+              className="ui-chip-focus break-words text-[14px] font-semibold text-[var(--text-primary)] underline-offset-[3px] decoration-from-font transition-colors hover:text-[var(--accent-strong)] hover:underline"
+            >
               {row.title}
             </Link>
-            <ContractContinuityLinks
-              contractId={row.id}
-              omit={["contract", "renewals"]}
-              className="mt-2 flex max-w-[18rem] flex-wrap items-center gap-x-1 gap-y-1 text-[12.5px] text-[var(--text-tertiary)]"
-            />
+            {/* §13/§14/§20 — the cross-object links collapse behind a single
+                "Related work" disclosure so they stop repeating on every row,
+                stop duplicating the word against a "Work" chip, and stop
+                making column one taller than its neighbours. The blank inner
+                label keeps the chips while letting the summary own the
+                wording. */}
+            <details className="group mt-1.5">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] [&::-webkit-details-marker]:hidden">
+                <ChevronRight className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90" strokeWidth={2} aria-hidden />
+                Related work
+              </summary>
+              <ContractContinuityLinks
+                contractId={row.id}
+                omit={["contract", "renewals"]}
+                label=" "
+                className="mt-2 flex max-w-[18rem] flex-wrap items-center gap-x-1 gap-y-1 text-[12.5px] text-[var(--text-tertiary)]"
+              />
+            </details>
           </RenewalFact>
 
           <RenewalRowFactGrid row={row} />
@@ -448,7 +501,7 @@ function RenewalRowsHeader() {
         <RenewalColumnLabel>{RENEWAL_ROW_LABELS.noticeDate}</RenewalColumnLabel>
         <RenewalColumnLabel>{RENEWAL_ROW_LABELS.owner}</RenewalColumnLabel>
       </div>
-      <div className="grid min-w-0 grid-cols-[minmax(10rem,0.85fr)_minmax(10rem,0.85fr)] gap-4">
+      <div className="grid min-w-0 grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)] gap-3">
         <RenewalColumnLabel>{RENEWAL_ROW_LABELS.status}</RenewalColumnLabel>
         <RenewalColumnLabel align="right">{RENEWAL_ROW_LABELS.nextAction}</RenewalColumnLabel>
       </div>
@@ -495,7 +548,7 @@ function RenewalRowStateGrid({
   returnTo: string;
 }) {
   return (
-    <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(10rem,0.85fr)_minmax(10rem,0.85fr)] xl:items-center xl:gap-4">
+    <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)] xl:items-center xl:gap-3">
       <RenewalFact label={RENEWAL_ROW_LABELS.status}>
         <RenewalStatusBadge row={row} />
       </RenewalFact>
@@ -503,17 +556,19 @@ function RenewalRowStateGrid({
         <p className="mb-1.5 block text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)] xl:sr-only">
           {RENEWAL_ROW_LABELS.nextAction}
         </p>
-        {/* Inline layout: primary next-action link + icon-only kebab menu
-            trigger. Keeping both on a single line means the NEXT ACTION cell
-            is the same vertical height as the other row cells (counterparty,
-            dates, owner, status pill) — every row cell now occupies one
-            text line and centers cleanly against the row baseline. The
-            kebab trigger fits horizontally regardless of how long the
-            next-action label is, so CTAs (Mark reviewed / Complete /
-            Reopen / Create renewal task / etc.) all position identically. */}
-        <div className="flex min-w-0 items-center gap-2 xl:justify-end">
-          <Link href={row.nextActionHref} className="ui-link min-w-0 truncate text-[13px] font-semibold">
-            {row.nextActionLabel}
+        {/* §16/§17 — the primary next-action and the overflow trigger now share
+            one ghost-action vocabulary (rounded-md, hover-tinted, no persistent
+            border) so they read as a single cohesive cluster on one line. The
+            cluster keeps every row's action cell at the same height as the
+            other cells. */}
+        <div className="flex min-w-0 items-center gap-1 xl:justify-end">
+          <Link
+            href={row.nextActionHref}
+            title={row.nextActionLabel}
+            className="ui-chip-focus inline-flex min-w-0 items-center gap-1 rounded-md px-2 py-1 text-[12.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_10%,transparent)]"
+          >
+            <span className="truncate">{row.nextActionLabel}</span>
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" strokeWidth={2} aria-hidden />
           </Link>
           <RenewalActionCluster actions={row.actions} canMutate={canMutate} returnTo={returnTo} />
         </div>
@@ -522,24 +577,36 @@ function RenewalRowStateGrid({
   );
 }
 
+const RENEWAL_STATUS_ICON: Record<RenewalStatus, LucideIcon> = {
+  needs_owner: CircleUserRound,
+  needs_review: Eye,
+  notice_window_open: BellRing,
+  in_progress: Clock,
+  completed: CheckCircle2,
+  no_renewal_action_needed: CircleDashed,
+};
+
 function RenewalStatusBadge({ row }: { row: RenewalRow }) {
-  // Long-label statuses ("No renewal action needed", "Notice window open")
-  // don't fit on one line at the canonical 11px uppercase + 0.14em tracking
-  // in the constrained STATUS column. Shrink the font (9px) and tighten the
-  // tracking (0.04em) so the full label fits horizontally on one line while
-  // keeping uppercase caps consistent with every other status pill on the
-  // page. The enclosure (border + bg from the StatusBadge base class) is
-  // preserved — only the type recipe shrinks for the long-label cases.
-  const longLabel = row.status === "no_renewal_action_needed" || row.status === "notice_window_open";
+  // §7.7 — every status carries a glyph, so the state is legible without
+  // relying on colour alone. §10.2/§12 — resting states (completed / no action
+  // needed) shed the coloured pill and read as a quiet icon + caps label, so
+  // the loud pills stay reserved for rows that actually need a decision. This
+  // also retires the old font-shrink fit hack: with the longest label off the
+  // pill track, the remaining pills fit one line at the canonical scale.
+  const Icon = RENEWAL_STATUS_ICON[row.status];
+  const resting = row.status === "completed" || row.status === "no_renewal_action_needed";
+  if (resting) {
+    const ink = row.status === "completed" ? "var(--success-ink)" : "var(--text-tertiary)";
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase leading-tight tracking-[0.1em] text-[var(--text-tertiary)]">
+        <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} style={{ color: ink }} aria-hidden />
+        <span>{row.statusLabel}</span>
+      </span>
+    );
+  }
   return (
-    <StatusBadge
-      status={row.statusTone}
-      className={
-        longLabel
-          ? "whitespace-nowrap text-[9px] tracking-[0.04em]"
-          : "max-w-full whitespace-nowrap"
-      }
-    >
+    <StatusBadge status={row.statusTone} className="gap-1.5 whitespace-nowrap">
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
       {row.statusLabel}
     </StatusBadge>
   );
@@ -559,7 +626,7 @@ function RenewalFact({
   /** Apply `tabular-nums` to the rendered value — for date/numeric columns. */
   tabular?: boolean;
 }) {
-  const empty = value === "Missing" || value === "Unassigned";
+  const empty = value === "—" || value === "Unassigned";
   return (
     <div className="min-w-0">
       <p className="mb-1.5 block text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)] xl:sr-only">
@@ -589,10 +656,11 @@ function RenewalActionCluster({
   return (
     <details className="group relative shrink-0">
       <summary
-        className="inline-flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] [&::-webkit-details-marker]:hidden"
-        aria-label="Row actions"
+        className="ui-chip-focus inline-flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_70%,transparent)] hover:text-[var(--text-primary)] group-open:bg-[color:color-mix(in_oklab,var(--surface-muted)_70%,transparent)] group-open:text-[var(--text-primary)] [&::-webkit-details-marker]:hidden"
+        aria-label="More actions"
+        title="More actions"
       >
-        <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+        <MoreHorizontal className="h-4 w-4" strokeWidth={1.85} aria-hidden />
       </summary>
       <div className="absolute right-0 top-full z-20 mt-1.5 flex w-max max-w-[18rem] flex-col gap-1 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
         {actions.map((action) => {

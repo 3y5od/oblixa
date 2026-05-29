@@ -45,6 +45,9 @@ function writeValidFixture(root) {
       "export function buildStrictCspReportOnly() {",
       "  return [\"default-src 'self'\", \"script-src 'self'\", \"script-src-attr 'none'\", \"style-src 'self'\", \"upgrade-insecure-requests\"].join('; ');",
       "}",
+      "function appendCspReportingDirectives() {",
+      "  return `report-uri ${SECURITY_REPORTING_ENDPOINT_PATH}; report-to ${SECURITY_REPORTING_ENDPOINT_GROUP}`;",
+      "}",
       "let memoCspKey = '';",
       "const headers = ['Content-Security-Policy', 'Content-Security-Policy-Report-Only'];",
       "const tt = \"require-trusted-types-for 'script'\";",
@@ -63,6 +66,7 @@ function writeValidFixture(root) {
       "invalid report-only CSP nonce sources fail closed",
       "report-only CSP can use script nonce when provided (staged)",
       "report-only CSP carries script attribute and mixed-content protections",
+      "buildSecurityHeaders wires CSP report-uri and report-to endpoints",
       "optional Trusted Types directive appended to report-only CSP when enabled",
     ].join("\n")
   );
@@ -79,6 +83,8 @@ function writeValidFixture(root) {
       "script-src-attr 'none'",
       "upgrade-insecure-requests",
       "script-src 'self'",
+      "report-uri /api/security/csp-report",
+      "report-to csp-endpoint",
       "not.toContain(\"'unsafe-inline'\")",
     ].join("\n")
   );
@@ -112,6 +118,9 @@ test("analyzeCspNonceHashConsistency rejects report-only unsafe-inline regressio
       "}",
       "export function buildStrictCspReportOnly() {",
       "  return \"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'\";",
+      "}",
+      "function appendCspReportingDirectives() {",
+      "  return `report-uri ${SECURITY_REPORTING_ENDPOINT_PATH}; report-to ${SECURITY_REPORTING_ENDPOINT_GROUP}`;",
       "}",
       "let memoCspKey = '';",
       "Content-Security-Policy Content-Security-Policy-Report-Only require-trusted-types-for 'script'",

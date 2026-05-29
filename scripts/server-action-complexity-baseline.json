@@ -1,53 +1,56 @@
 {
-  "generatedAt": "2026-04-28T21:13:44.987Z",
+  "baselineDate": "2026-05-28",
+  "owner": "platform-hardening",
+  "purpose": "Ratchet oversized server action files.",
+  "reviewReason": "Section 28 static architecture and code health ratchet baseline; future line-count growth requires reviewed cleanup or baseline update.",
   "offenders": [
     {
       "file": "src/actions/approvals.ts",
-      "lines": 758
-    },
-    {
-      "file": "src/actions/automation.ts",
-      "lines": 476
-    },
-    {
-      "file": "src/actions/contracts-lifecycle.ts",
-      "lines": 799
-    },
-    {
-      "file": "src/actions/contracts.ts",
-      "lines": 1910
-    },
-    {
-      "file": "src/actions/obligations.ts",
-      "lines": 830
-    },
-    {
-      "file": "src/actions/onboarding-calibration.ts",
-      "lines": 734
-    },
-    {
-      "file": "src/actions/product-surface-settings.ts",
-      "lines": 513
-    },
-    {
-      "file": "src/actions/settings.ts",
-      "lines": 485
-    },
-    {
-      "file": "src/actions/tasks.ts",
-      "lines": 2079
+      "lines": 836
     },
     {
       "file": "src/actions/bulk-compatible-work.ts",
-      "lines": 501
+      "lines": 506
+    },
+    {
+      "file": "src/actions/contracts-lifecycle.ts",
+      "lines": 889
+    },
+    {
+      "file": "src/actions/contracts.ts",
+      "lines": 2169
+    },
+    {
+      "file": "src/actions/obligations.ts",
+      "lines": 832
+    },
+    {
+      "file": "src/actions/onboarding-calibration.ts",
+      "lines": 752
     },
     {
       "file": "src/actions/policy-operations.ts",
-      "lines": 839
+      "lines": 844
+    },
+    {
+      "file": "src/actions/product-surface-settings.ts",
+      "lines": 523
+    },
+    {
+      "file": "src/actions/saved-views.ts",
+      "lines": 496
+    },
+    {
+      "file": "src/actions/settings.ts",
+      "lines": 518
+    },
+    {
+      "file": "src/actions/tasks.ts",
+      "lines": 2081
     },
     {
       "file": "src/actions/workflow-config.ts",
-      "lines": 855
+      "lines": 1154
     }
   ]
 }

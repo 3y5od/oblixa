@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-repository-artifact-hygiene",
+  "objectives": [
+    {
+      "id": "generated-and-transient-directories",
+      "ownerArea": "platform-hardening",
+      "markers": ["transientArtifacts", "generatedArtifactOwnership", "cleanupPolicy"],
+      "acceptance": "Reports, logs, coverage, Playwright output, SBOM outputs, and Supabase local state are ignored or intentionally tracked with ownership."
+    },
+    {
+      "id": "large-file-and-binary-checks",
+      "ownerArea": "platform-security",
+      "markers": ["largeFilePolicy", "binaryFilePolicy", "archivePolicy", "executableMasquerade"],
+      "acceptance": "Oversized files, unexpected binaries, archive payloads, executable bits, and masqueraded executables fail unless registered."
+    },
+    {
+      "id": "line-ending-and-encoding-hygiene",
+      "ownerArea": "platform-hardening",
+      "markers": ["utf8Policy", "finalNewlinePolicy", "controlCharacterPolicy", "trojanSourcePolicy", "asciiRequiredPathPrefixes"],
+      "acceptance": "Text files decode as UTF-8, use LF endings, end with a newline, and contain no unsafe controls or Trojan Source marks."
+    },
+    {
+      "id": "workspace-cleanliness-gates",
+      "ownerArea": "platform-governance",
+      "markers": ["untrackedRequiredFilePolicy", "localOnlyReferencePolicy", "artifactDriftPolicy"],
+      "acceptance": "Generated artifacts are current, new required operational files are registered, and scripts do not reference local debug files."
+    }
+  ],
+  "transientArtifacts": [
+    { "path": ".next/", "gitignorePattern": ".next/", "ownerArea": "frontend-platform", "cleanupPolicy": "ignored-local-build-output" },
+    { "path": "out/", "gitignorePattern": "out/", "ownerArea": "frontend-platform", "cleanupPolicy": "ignored-static-export-output" },
+    { "path": "build/", "gitignorePattern": "build/", "ownerArea": "frontend-platform", "cleanupPolicy": "ignored-build-output" },
+    { "path": "dist/", "gitignorePattern": "dist/", "ownerArea": "frontend-platform", "cleanupPolicy": "ignored-build-output" },
+    { "path": ".turbo", "gitignorePattern": ".turbo", "ownerArea": "frontend-platform", "cleanupPolicy": "ignored-cache" },
+    { "path": ".vercel", "gitignorePattern": ".vercel", "ownerArea": "release-engineering", "cleanupPolicy": "ignored-provider-local-state" },
+    { "path": "coverage/", "gitignorePattern": "coverage/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-coverage-output" },
+    { "path": "test-results/", "gitignorePattern": "test-results/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-test-output" },
+    { "path": "playwright-report/", "gitignorePattern": "playwright-report/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-report" },
+    { "path": "blob-report/", "gitignorePattern": "blob-report/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-blob-report" },
+    { "path": "playwright/.cache/", "gitignorePattern": "playwright/.cache/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-cache" },
+    { "path": "e2e/.auth/", "gitignorePattern": "e2e/.auth/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-local-auth-state" },
+    { "path": "artifacts/generated/", "gitignorePattern": "artifacts/generated/", "ownerArea": "platform-hardening", "cleanupPolicy": "ignored-ad-hoc-generated-output" },
+    { "path": "cyclonedx-sbom.json", "gitignorePattern": "cyclonedx-sbom.json", "ownerArea": "supply-chain-security", "cleanupPolicy": "ignored-regenerable-sbom-output" },
+    { "path": "*.log", "gitignorePattern": "*.log", "ownerArea": "platform-runtime", "cleanupPolicy": "ignored-debug-log" },
+    { "path": "logs.zip", "gitignorePattern": "logs.zip", "ownerArea": "platform-runtime", "cleanupPolicy": "ignored-debug-archive" },
+    { "path": "logs_*.zip", "gitignorePattern": "logs_*.zip", "ownerArea": "platform-runtime", "cleanupPolicy": "ignored-debug-archive" },
+    { "path": "supabase/.temp", "gitignorePattern": "supabase/.temp", "ownerArea": "data-platform", "cleanupPolicy": "ignored-supabase-local-state" },
+    { "path": "supabase/.branches", "gitignorePattern": "supabase/.branches", "ownerArea": "data-platform", "cleanupPolicy": "ignored-supabase-local-state" }
+  ],
+  "largeFilePolicy": {
+    "maxTrackedTextBytes": 6000000,
+    "maxTrackedBinaryBytes": 2000000,
+    "maxUntrackedBytes": 2000000,
+    "allowlist": [
+      { "path": "artifacts/compatibility/removal-queue.json", "maxBytes": 6000000, "ownerArea": "compatibility", "reason": "Generated compatibility removal queue." },
+      { "pathPattern": "e2e/**/*.png", "maxBytes": 1500000, "ownerArea": "test-platform", "reason": "Visual regression snapshots." },
+      { "pathPattern": "public/*.png", "maxBytes": 2000000, "ownerArea": "frontend-platform", "reason": "Public image assets." }
+    ]
+  },
+  "binaryFilePolicy": {
+    "allowedPathPatterns": ["public/*.png", "public/*.ico", "src/app/favicon.ico", "e2e/**/*.png"],
+    "archiveExtensions": [".zip", ".tar", ".tgz", ".gz", ".7z", ".rar"],
+    "allowedArchivePathPatterns": []
+  },
+  "sourceHygiene": {
+    "scanRoots": ["src", "scripts", "config", ".github", "supabase", "e2e", "playwright.config.ts", "vitest.config.ts", "vitest.ui.config.ts", "next.config.ts", "package.json", "tsconfig.json"],
+    "textExtensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".yml", ".yaml", ".md", ".txt", ".sql", ".css", ".html", ".csv"],
+    "excludePathPrefixes": [".git/", ".next/", ".turbo/", ".vercel/", "coverage/", "node_modules/", "playwright-report/", "blob-report/", "test-results/", "supabase/.temp", "supabase/.branches"],
+    "finalNewlineExemptions": [],
+    "finalNewlineEnforcedPathPrefixes": ["artifacts/operational-", "config/operational-", "scripts/check-operational-"],
+    "asciiRequiredPathPrefixes": ["artifacts/operational-", "config/operational-", "scripts/check-operational-"]
+  },
+  "workspaceCleanliness": {
+    "requiredUntrackedPatterns": [
+      "artifacts/operational-*.json",
+      "scripts/check-operational-*.mjs"
+    ],
+    "localOnlyReferencePatterns": [".claude/", ".idea/", ".DS_Store", ".next/dev/", "node_modules/.cache/"],
+    "referenceScanRoots": ["package.json", ".github", "scripts"]
+  },
+  "requiredPackageScripts": [
+    "check:operational-repository-artifact-hygiene",
+    "write:operational-repository-artifact-hygiene",
+    "test:operational-repository-artifact-hygiene",
+    "check:generated-artifact-hygiene",
+    "check:executable-masquerade-guards",
+    "check:binary-metadata-stripping"
+  ],
+  "requiredCiCommands": [
+    "npm run check:operational-repository-artifact-hygiene"
+  ]
+}

@@ -73,11 +73,10 @@ describe("Security page — voice + release-state compliance (§4)", () => {
 });
 
 describe("Security page — page structure + primitives (§1, §2)", () => {
-  it("§5.1 skip-to-content link renders with canonical target", () => {
-    // V2 §1.35 — target adapts to factorsEmpty (computed via skipTargetId).
-    expect(pageSrc).toContain("skipTargetId");
-    expect(pageSrc).toContain("mfa-card");
-    expect(pageSrc).toContain("security-resources-title");
+  it("§5.1 skip-to-content link targets the first interactive surface", () => {
+    // The panel (mfa-card) always leads, so the skip link points at it
+    // directly — no state-dependent target.
+    expect(pageSrc).toContain('href="#mfa-card"');
     expect(pageSrc).toContain("Skip to security content");
   });
 
@@ -104,16 +103,20 @@ describe("Security page — page structure + primitives (§1, §2)", () => {
     expect(panelSrc).toMatch(/h-8 w-8/);
   });
 
-  it("§2.6 metaStrip surfaces MFA + Role + Account chips on page-header", () => {
-    expect(pageSrc).toContain("metaStrip");
+  it("§2.6 identity strip surfaces MFA + Role + Account on a hairline dl", () => {
+    // Issue #2 — chips live in a flat <dl aria-label="Identity"> rather
+    // than the page-header metaStrip slot.
+    expect(pageSrc).toContain('aria-label="Identity"');
     // ACCOUNT label comes from spec-strings.accountLabel.
     expect(pageSrc).toContain("SETTINGS_SECURITY_STRINGS.accountLabel");
     expect(pageSrc).toMatch(/dt[^>]*>MFA/);
   });
 
-  it("§2.7 local Resources card decoration avoids landing helpers", () => {
-    expect(pageSrc).toContain("rounded-full border border-[color:color-mix");
+  it("§2.7 / Issue #17 account context drops landing-grade corner ring", () => {
+    // Flattened to a grouped list — no decorative absolute-positioned
+    // ring borders left behind.
     expect(pageSrc).not.toContain("landing-corner-ring");
+    expect(pageSrc).not.toMatch(/pointer-events-none absolute rounded-full border/);
   });
 
   it("§2.9 UiToggle primitive replaces raw checkbox", () => {
@@ -211,8 +214,10 @@ describe("Security page — defects (§1.x)", () => {
     expect(mfaActionsSrc).toContain("export type MfaActionError");
   });
 
-  it("§1.44 ctx.user.email surfaced via masked KeyValueChip-style dt/dd", () => {
-    expect(pageSrc).toContain("maskEmail");
+  it("§1.44 / Issue #4 ctx.user.email surfaced in full (no masking)", () => {
+    // Long addresses ("alt…@gmail.com") were impossible to verify when
+    // masked; the strip now shows the full email and truncates via CSS.
+    expect(pageSrc).toContain("accountEmail");
     expect(pageSrc).toContain("ctx.user.email");
   });
 
@@ -339,8 +344,9 @@ describe("Security page — V2 pass surface pins", () => {
   });
 
   it("V2 §1.2 + §1.20 MFA card uses count-chip, no duplicate badge", () => {
-    // Card-level SINGLE-FACTOR/TWO-FACTOR badge dropped; metaStrip carries it.
-    // KeyValueChip ENROLLED count surfaces when factors > 0.
+    // Card-level SINGLE-FACTOR/TWO-FACTOR badge dropped; the identity
+    // strip carries MFA posture. KeyValueChip ENROLLED count surfaces
+    // in-card when factors > 0.
     expect(panelSrc).toContain('<KeyValueChip');
     expect(panelSrc).toContain('"ENROLLED"');
   });
@@ -371,22 +377,20 @@ describe("Security page — V2 pass surface pins", () => {
     expect(panelSrc).not.toMatch(/toLocaleString\(\)/);
   });
 
-  it("V2 §1.7 / V4 §1.6 activity strip has at least one hairline separator", () => {
-    // V4 §1.6 — retention chip dropped; strip now has 2 segments
-    // (eyebrow + count) with one hairline pipe between. The 2-pipe
-    // pattern from V2 §1.7 became 1 pipe after the V4 subtraction.
-    const matches = pageSrc.match(/h-3 w-px[^>]*sm:inline-block/g);
-    expect(matches?.length ?? 0).toBeGreaterThanOrEqual(1);
+  it("V2 §1.7 / Issue #24 activity strip drops raw pipe separators", () => {
+    // The strip is no longer a single line stitched with hairline pipes;
+    // it renders a heading + compact DashboardEmptyState (Issue #23).
+    expect(pageSrc).not.toMatch(/h-3 w-px[^>]*sm:inline-block/);
+    expect(pageSrc).toMatch(/<DashboardEmptyState[\s\S]{0,200}activityEmptyLabel/);
   });
 
   it("V2 §1.11 WORKSPACE divider hr dropped from panel", () => {
     expect(panelSrc).not.toMatch(/<hr[^>]*w-32/);
   });
 
-  it("V2 §1.13 email mask uses … (single ellipsis) not ··· (three middots)", () => {
+  it("V2 §1.13 / Issue #4 email shown in full — no mask ellipsis or middots", () => {
     expect(pageSrc).not.toContain("···");
-    // Verify mask helper uses Unicode ellipsis.
-    expect(pageSrc).toMatch(/`[^`]*…[^`]*`/);
+    expect(pageSrc).not.toContain("maskEmail");
   });
 
   it("V2 §1.17 MFA empty-state uses different icon than header (Smartphone vs KeyRound)", () => {
@@ -403,7 +407,7 @@ describe("Security page — V2 pass surface pins", () => {
     expect(SETTINGS_SECURITY_STRINGS.mfaEmptyBodyRequired).toContain("workspace requires MFA");
   });
 
-  it("V2 §1.22 WORKSPACE chip in metaStrip from org.name", () => {
+  it("V2 §1.22 WORKSPACE chip in identity strip from org.name", () => {
     expect(pageSrc).toContain("workspaceLabelChip");
     expect(pageSrc).toMatch(/orgName/);
   });
@@ -423,8 +427,10 @@ describe("Security page — V2 pass surface pins", () => {
     expect(SETTINGS_SECURITY_STRINGS.passwordPlaceholder).toBe("");
   });
 
-  it("V2 §1.34 + §2.6 stepUpEmptyLabel is INACTIVE (not 'NOT REQUIRED')", () => {
-    expect(SETTINGS_SECURITY_STRINGS.stepUpEmptyLabel).toBe("INACTIVE");
+  it("V2 §1.34 + §2.6 / Issue #9 stepUpEmptyLabel is LOCKED (consistent with the unlock form)", () => {
+    // "LOCKED + enabled Confirm-password form" reads as a call to act;
+    // the old "INACTIVE" badge over active controls looked contradictory.
+    expect(SETTINGS_SECURITY_STRINGS.stepUpEmptyLabel).toBe("LOCKED");
   });
 
   it("V2 §1.34 stepUpMfaSessionLabel exists for AAL2 path", () => {
@@ -455,9 +461,11 @@ describe("Security page — V2 pass surface pins", () => {
     expect(pageSrc).not.toContain("ShieldAlert");
   });
 
-  it("V2 §1.47 Sign out this device link in Sessions card", () => {
+  it("V2 §1.47 / Issue #14 Sign out this device renders as a ghost pill (no arrow)", () => {
+    // The pill shape carries the affordance, so the trailing arrow glyph
+    // is dropped — all three Devices actions share one pill vocabulary.
     expect(panelSrc).toContain("signOutSelfCta");
-    expect(SETTINGS_SECURITY_STRINGS.signOutSelfCta).toBe("Sign out this device →");
+    expect(SETTINGS_SECURITY_STRINGS.signOutSelfCta).toBe("Sign out this device");
   });
 
   it("V2 §1.48 MEMBER SINCE row with user.created_at", () => {
@@ -465,8 +473,8 @@ describe("Security page — V2 pass surface pins", () => {
     expect(SETTINGS_SECURITY_STRINGS.resources.memberSince).toBe("Member since");
   });
 
-  it("V2 §1.49 maskEmail caps output length", () => {
-    expect(pageSrc).toMatch(/localMasked[\s\S]{0,300}domainMasked/);
+  it("V2 §1.49 / Issue #4 account email truncates via CSS, not masking", () => {
+    expect(pageSrc).toMatch(/truncate font-mono/);
   });
 
   it("V2 §1.50 defensive accountIdentity falls back when email empty", () => {
@@ -492,9 +500,12 @@ describe("Security page — V2 pass surface pins", () => {
     expect(panelSrc).toMatch(/name="idempotency_key"/);
   });
 
-  it("V2 §3.1 page order branches on factorsEmpty", () => {
-    expect(pageSrc).toContain("factorsEmpty");
-    expect(pageSrc).toMatch(/factorsEmpty\s*\?[\s\S]{0,2000}SecuritySettingsPanel[\s\S]{0,2000}ResourcesCard/);
+  it("V2 §3.1 / Issue #25 fixed page order: panel → context → activity → legal", () => {
+    // The factorsEmpty reorder produced two different layouts depending
+    // on state, which read as uneven hierarchy. Order is now fixed.
+    expect(pageSrc).toMatch(
+      /<SecuritySettingsPanel[\s\S]{0,3000}<AccountContext[\s\S]{0,2000}<ActivityStrip[\s\S]{0,2000}<LegalNote/
+    );
   });
 
   it("V2 §3.4 Sessions + Workspace MFA in 2-col grid at lg+", () => {
@@ -603,8 +614,10 @@ describe("Security page — V3 pass surface pins", () => {
     expect(panelSrc).not.toContain("lg:items-stretch");
   });
 
-  it("V3 §1.7 Resources card has hairline divider between scopes", () => {
-    expect(pageSrc).toMatch(/col-span-full[^"]*h-px/);
+  it("V3 §1.7 / Issue #6 account context uses a grouped divide-y list", () => {
+    // Flattened from a 2-col grid with col-span hairlines into a single
+    // grouped list whose rows are separated by divide-y (§7.5).
+    expect(pageSrc).toMatch(/divide-y divide-\[/);
   });
 
   it("V3 §1.10 SIGN-IN row dropped when provider is only email", () => {
@@ -635,10 +648,10 @@ describe("Security page — V3 pass surface pins", () => {
     expect(pageSrc).toMatch(/aria-label=\{orgName\}/);
   });
 
-  it("V3 §1.25 page-header actions prop dropped (no longer passed)", () => {
-    // The header no longer passes an actions slot; the comment
-    // documents the decision.
-    expect(pageSrc).toContain("V3 §1.25");
+  it("V3 §1.25 page-header receives no actions slot", () => {
+    // Identity-only header — account context renders in the flat strip
+    // below, so no actions prop is passed to DashboardPageHeader.
+    expect(pageSrc).not.toMatch(/actions=\{/);
   });
 });
 
@@ -660,7 +673,9 @@ describe("Security page — V4 pass surface pins", () => {
     );
     expect(sessionsSrc).toContain("expiresAt: string | null");
     expect(panelSrc).toContain("expiresAt: string | null");
-    expect(panelSrc).toContain("EXPIRES");
+    // Issue #12/#13 — sentence-case "Expires {relative}" replaced the
+    // oversized "EXPIRES" caps + bare pipe in the session row.
+    expect(panelSrc).toContain("Expires");
     expect(panelSrc).toContain("fmtRelative");
   });
 
@@ -669,10 +684,10 @@ describe("Security page — V4 pass surface pins", () => {
     expect(pageSrc).toMatch(/title="Events retained for 90 days"/);
   });
 
-  it("V4 §1.5 / user-report §1.C Sign out this device + Change password share a secondary row", () => {
-    // V4 user-report §1.C — re-ordered: signOutSelfCta comes BEFORE
-    // passwordChangeCta on the secondary action row, separated by
-    // a hairline pipe. (Sign-out actions grouped semantically.)
+  it("V4 §1.5 / Issue #14 Sign out this device precedes Change password in the pill cluster", () => {
+    // signOutSelfCta comes BEFORE passwordChangeCta (sign-out actions
+    // grouped first). All three share one ghost-pill vocabulary — no
+    // pipe separator between them.
     expect(panelSrc).toMatch(
       /signOutSelfCta[\s\S]{0,500}passwordChangeCta/
     );
@@ -687,9 +702,13 @@ describe("Security page — V4 pass surface pins", () => {
     // chars, forced h2 wrap) to "AT RISK" (7 chars, matches the
     // width-class of REQUIRED / OPTIONAL). Workspace context is
     // implicit from the card identity.
+    // Issue #16 — each policy badge now carries a leading glyph
+    // (ShieldCheck / TriangleAlert) for non-color reinforcement (§7.7),
+    // so the orgMfa ternary → factorsEmpty branch spans more markup;
+    // distance relaxed accordingly.
     expect(panelSrc).toContain("AT RISK");
     expect(panelSrc).not.toContain("WORKSPACE EXPOSED");
-    expect(panelSrc).toMatch(/orgMfa\s*\?[\s\S]{0,200}factorsEmpty/);
+    expect(panelSrc).toMatch(/orgMfa\s*\?[\s\S]{0,400}factorsEmpty/);
   });
 
   it("V4 §1.9 medallion variety: ShieldCheck on MFA, KeyRound on STEP-UP", () => {
@@ -725,22 +744,26 @@ describe("Security page — V4 pass surface pins", () => {
     expect(panelSrc).toMatch(/tabular-nums/);
   });
 
-  it("V4 §2.3 THIS DEVICE row uses hairline pipe (not middle-dot) between caps + chip", () => {
-    // EXPIRES <time> follows the THIS DEVICE caps span via a
-    // sm:inline-block hairline (distance relaxed for JSX bulk).
+  it("V4 §2.3 / Issue #12+#13 THIS DEVICE row: StatusBadge + sentence-case Expires, no pipe", () => {
+    // Issue #12 — bare tone-dot + oversized caps replaced by a
+    // StatusBadge. Issue #13 — the raw pipe separator is gone; expiry
+    // is a compact sentence-case tabular <time> ("Expires {relative}").
     expect(panelSrc).toMatch(
-      /sessionsCurrentLabel[\s\S]{0,800}h-3 w-px[\s\S]{0,500}EXPIRES/
+      /sessionsCurrentLabel[\s\S]{0,800}Expires \{fmtRelative/
     );
+    expect(panelSrc).not.toMatch(/sessionsCurrentLabel[\s\S]{0,500}h-3 w-px/);
   });
 
-  it("V4 §6.1 'What is two-factor sign-in?' disclosure beneath MFA empty state", () => {
-    expect(SETTINGS_SECURITY_STRINGS.mfaExplainerSummary).toContain("TWO-FACTOR");
+  it("V4 §6.1 / Issue #8 'What is two-factor sign-in?' disclosure beneath MFA empty state", () => {
+    // Issue #8 — sentence-case accent link (not an oversized caps
+    // heading) so it reads as a secondary "learn more" affordance.
+    expect(SETTINGS_SECURITY_STRINGS.mfaExplainerSummary).toContain("two-factor");
     expect(panelSrc).toContain("mfaExplainerSummary");
     expect(panelSrc).toContain("mfaExplainerBody");
   });
 
   it("V4 §6.2 'What changes for members?' disclosure beneath POLICY toggle", () => {
-    expect(SETTINGS_SECURITY_STRINGS.policyExplainerSummary).toContain("MEMBERS");
+    expect(SETTINGS_SECURITY_STRINGS.policyExplainerSummary).toContain("members");
     expect(panelSrc).toContain("policyExplainerSummary");
     expect(panelSrc).toContain("policyExplainerBody");
   });
@@ -778,39 +801,31 @@ describe("Security page — V4 pass surface pins", () => {
     expect(fmtSrc).toContain("export function fmtRelative");
   });
 
-  it("V4 user-report: MFA value is tone-colored text (no StatusBadge in identity strip)", () => {
-    // The IdentityStrip's `dd` for MFA must NOT wrap the value in
-    // StatusBadge — the badge's internal padding caused baseline
-    // drift in the prior metaStrip implementation.
-    expect(pageSrc).toMatch(
-      /MFA[\s\S]{0,200}factorCount > 0\s*\?[\s\S]{0,200}var\(--success-ink\)[\s\S]{0,200}var\(--warning-ink\)/
-    );
-    expect(pageSrc).toContain('"Single-factor"');
-    expect(pageSrc).toContain('"Two-factor"');
+  it("Issue #3 MFA posture uses a StatusBadge + glyph, not color-only text", () => {
+    // The flat items-center strip aligns a StatusBadge with the text
+    // values cleanly, so the MFA `dd` reinforces state with a badge +
+    // icon (ShieldCheck / TriangleAlert) rather than amber/green text
+    // alone (§7.7 — never a bare colored signal).
+    expect(pageSrc).toMatch(/factorCount > 0[\s\S]{0,400}StatusBadge status="healthy"/);
+    expect(pageSrc).toContain("mfaTwoFactorLabel");
+    expect(pageSrc).toContain("mfaSingleLabel");
+    expect(pageSrc).toMatch(/<TriangleAlert/);
   });
 
-  it("V4 user-report-2: identity chips moved out of metaStrip into a CSS grid", () => {
-    // Structural refactor: chips no longer live in the
-    // DashboardPageHeader metaStrip slot (which used items-center
-    // flex). They render in a dedicated <section aria-label="Identity">
-    // with `grid grid-cols-2 sm:grid-cols-4` for guaranteed column
-    // alignment + gap-x-6 breathing room.
+  it("Issue #2 identity is a flat hairline dl, not a boxed grid panel", () => {
+    // Issue #2 — the boxed identity grid competed with the panel below.
+    // It is now a flat <dl aria-label="Identity"> on a top hairline, so
+    // it reads as page metadata (§5.1) rather than a second card.
     expect(pageSrc).toContain('aria-label="Identity"');
-    expect(pageSrc).toMatch(/grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4/);
-    // DashboardPageHeader no longer receives a metaStrip prop on
-    // this page (kept on billing per cross-page audit).
+    // DashboardPageHeader no longer receives a metaStrip prop here.
     expect(pageSrc).not.toMatch(/metaStrip=\{/);
-    // Each chip uses flex flex-col so the dt sits at the TOP of its
-    // grid cell — alignment is now structural, not vertical-center.
-    expect(pageSrc).toMatch(/flex min-w-0 flex-col gap-1/);
+    expect(pageSrc).toMatch(/aria-label="Identity"[\s\S]{0,160}border-t/);
   });
 
-  it("V4 user-report-2: all identity values use text-[13px] for uniform line-height", () => {
-    // Uniform value font-size ensures each grid cell has the same
-    // baseline. The dl's items-center is no longer in play because
-    // chips live in a grid not a flex row.
-    const tcount = (pageSrc.match(/text-\[13px\] font-medium/g) ?? []).length;
-    expect(tcount).toBeGreaterThanOrEqual(4);
+  it("Issue #2 identity strip aligns chips with items-center", () => {
+    // The flat strip uses items-center so a 22px StatusBadge lines up
+    // with 13px text values without grid baseline gymnastics.
+    expect(pageSrc).toMatch(/aria-label="Identity"[\s\S]{0,160}items-center/);
   });
 
   it("V4 user-report-3 (Sessions): body prose dropped; h2 + row + actions self-describe", () => {
@@ -821,11 +836,12 @@ describe("Security page — V4 pass surface pins", () => {
     expect(panelSrc).not.toMatch(/sessionsBody/);
   });
 
-  it("V4 user-report-3 (Sessions): primary destructive button is row 1, links row 2", () => {
-    // Action cluster is `flex flex-col gap-3`: button alone in row 1,
-    // links share row 2 with a hairline pipe between.
+  it("V4 user-report-3 / Issue #14 (Sessions): destructive + sign-out + change-password share one pill cluster", () => {
+    // Issue #14 — all three actions render as pills in a single
+    // flex-wrap cluster (danger-tinted secondary + two ghost pills),
+    // no mixed link/button weights and no pipe separator (§10.4).
     expect(panelSrc).toMatch(
-      /Sign out other devices[\s\S]{0,2000}signOutSelfCta[\s\S]{0,500}h-3 w-px[\s\S]{0,500}passwordChangeCta/
+      /Sign out other devices[\s\S]{0,800}signOutSelfCta[\s\S]{0,500}passwordChangeCta/
     );
   });
 

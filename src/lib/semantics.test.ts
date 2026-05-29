@@ -731,7 +731,7 @@ describe("V10 autonomous semantics", () => {
       requiredPlan: "core",
     });
     expect(denied.outcome).toBe("mode_required");
-    expect(getV10EligibleFallbackDestination(denied)).toBe("/settings/product");
+    expect(getV10EligibleFallbackDestination(denied)).toBe("/settings");
     expect(getV10GovernanceHealthState({ eligibility: denied })).toBe("configuration_required");
     expect(getV10GovernanceHealthState({ failedJobCount: 1 })).toBe("recovery_visible");
     expect(getV10GovernanceHealthState({})).toBe("healthy");

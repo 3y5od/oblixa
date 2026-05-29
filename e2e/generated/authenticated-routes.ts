@@ -185,6 +185,17 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
     ]
   },
   {
+    "route": "/search",
+    "visitPath": "/search",
+    "fixtureId": null,
+    "routeFamily": "utilities",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y"
+    ]
+  },
+  {
     "route": "/settings",
     "visitPath": "/settings",
     "fixtureId": null,
@@ -222,17 +233,6 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
   {
     "route": "/settings/operations",
     "visitPath": "/settings/operations",
-    "fixtureId": null,
-    "routeFamily": "settings",
-    "workspaceModeTier": "core",
-    "coverage": [
-      "smoke",
-      "a11y"
-    ]
-  },
-  {
-    "route": "/settings/product",
-    "visitPath": "/settings/product",
     "fixtureId": null,
     "routeFamily": "settings",
     "workspaceModeTier": "core",
@@ -288,6 +288,17 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
   {
     "route": "/settings/policy/registry",
     "visitPath": "/settings/policy/registry",
+    "fixtureId": null,
+    "routeFamily": "settings",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y"
+    ]
+  },
+  {
+    "route": "/settings/product",
+    "visitPath": "/settings/product",
     "fixtureId": null,
     "routeFamily": "settings",
     "workspaceModeTier": "core",

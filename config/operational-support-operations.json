@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-support-operations",
+  "generatedArtifact": "artifacts/operational-support-operations.json",
+  "sourceFiles": [
+    "src/lib/operational-support-operations.ts",
+    "src/lib/operational-support-operations.test.ts",
+    "src/actions/demo.ts",
+    "src/actions/sessions.ts",
+    "src/actions/mfa.ts",
+    "src/actions/workflow-config.ts",
+    "src/actions/maintenance.ts",
+    "src/app/api/settings/step-up/route.ts",
+    "src/app/api/me/account/route.ts",
+    "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+    "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+    "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+    "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+    "scripts/check-sensitive-action-step-up.mjs",
+    "scripts/check-server-lib-admin.mjs",
+    "scripts/check-role-capability-inventory.mjs",
+    "scripts/check-supabase-seed-safety.mjs",
+    "scripts/check-test-fixture-secrets.mjs",
+    "scripts/check-test-fixture-pii-policy.mjs"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-support-operations",
+    "test:operational-support-operations",
+    "check:sensitive-action-step-up",
+    "check:server-lib-admin",
+    "check:role-capability-inventory",
+    "check:supabase:seed-safety",
+    "check:test-fixture-secrets",
+    "check:test-fixture-pii-policy"
+  ],
+  "supportCapabilities": [
+    {
+      "id": "step-up-password-confirmation",
+      "capabilityName": "Confirm sensitive action proof",
+      "routeOrAction": "src/app/api/settings/step-up/route.ts",
+      "requiredRole": "authenticated",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.step_up_password",
+      "tenantBoundary": "user-session",
+      "readWriteClass": "credential-verification",
+      "supportSafeAlternative": "Explain step-up status from the settings security page without reading passwords or cookies.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/app/api/settings/step-up/route.test.ts"]
+    },
+    {
+      "id": "session-revoke-others",
+      "capabilityName": "Revoke other sessions",
+      "routeOrAction": "src/actions/sessions.ts",
+      "requiredRole": "authenticated",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.sessions_revoke_others",
+      "tenantBoundary": "current-user",
+      "readWriteClass": "security-mutation",
+      "supportSafeAlternative": "Read redacted session status and ask the user to perform the revocation.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/actions/sessions.test.ts"]
+    },
+    {
+      "id": "organization-mfa-policy",
+      "capabilityName": "Change organization MFA policy",
+      "routeOrAction": "src/actions/mfa.ts",
+      "requiredRole": "admin",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.org_mfa_policy_updated",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "security-mutation",
+      "supportSafeAlternative": "Use policy diagnostics to report current policy state without changing enforcement.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/actions/mfa.test.ts"]
+    },
+    {
+      "id": "integration-token-management",
+      "capabilityName": "Manage integration tokens and API keys",
+      "routeOrAction": "src/actions/workflow-config.ts",
+      "requiredRole": "admin",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.integration_token_updated",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "secret-bearing-mutation",
+      "supportSafeAlternative": "Return token age, prefix, and status only; never return token values.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/actions/workflow-config.ts"]
+    },
+    {
+      "id": "maintenance-campaign-run",
+      "capabilityName": "Run maintenance campaign",
+      "routeOrAction": "src/app/api/maintenance/campaigns/[id]/run/route.ts",
+      "requiredRole": "admin",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.maintenance_destructive_action_blocked",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "destructive-mutation",
+      "supportSafeAlternative": "Use campaign preview and redacted run diagnostics before any execution.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/app/api/maintenance/campaigns/[id]/run/route.test.ts"]
+    },
+    {
+      "id": "maintenance-campaign-rollback",
+      "capabilityName": "Rollback maintenance campaign",
+      "routeOrAction": "src/app/api/maintenance/campaigns/[id]/rollback/route.ts",
+      "requiredRole": "admin",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "security.maintenance_destructive_action_blocked",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "destructive-mutation",
+      "supportSafeAlternative": "Inspect rollback preview and redacted campaign lineage before approval.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/app/api/maintenance/campaigns/[id]/rollback/route.test.ts"]
+    },
+    {
+      "id": "account-deletion-request",
+      "capabilityName": "Record account deletion request",
+      "routeOrAction": "src/app/api/me/account/route.ts",
+      "requiredRole": "authenticated",
+      "stepUpRequirement": "password-or-aal2",
+      "auditEvent": "account.delete.request",
+      "tenantBoundary": "current-user",
+      "readWriteClass": "customer-impacting-mutation",
+      "supportSafeAlternative": "Provide deletion status and next steps without initiating deletion on behalf of the user.",
+      "validationCommand": "check:sensitive-action-step-up",
+      "evidenceRefs": ["src/app/api/me/account/route.test.ts"]
+    },
+    {
+      "id": "internal-health-diagnostics",
+      "capabilityName": "View internal health diagnostics",
+      "routeOrAction": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "requiredRole": "admin",
+      "stepUpRequirement": "not-required-read-only",
+      "auditEvent": "diagnostic.view",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "read-only-diagnostic",
+      "supportSafeAlternative": "Use the redacted support bundle generated from the current organization.",
+      "validationCommand": "check:surface:diagnostics-contract",
+      "evidenceRefs": ["src/lib/product-surface/diagnostics-contract.test.ts"]
+    },
+    {
+      "id": "demo-workspace-seed",
+      "capabilityName": "Load demo workspace data",
+      "routeOrAction": "src/actions/demo.ts",
+      "requiredRole": "admin",
+      "stepUpRequirement": "environment-gated",
+      "auditEvent": "contract.created",
+      "tenantBoundary": "organization_id",
+      "readWriteClass": "fixture-mutation",
+      "supportSafeAlternative": "Use generated screenshots or static demo fixtures instead of mutating customer workspaces.",
+      "validationCommand": "test:operational-support-operations",
+      "evidenceRefs": ["src/actions/demo-action-scope.test.ts", "src/lib/operational-support-operations.test.ts"]
+    }
+  ],
+  "supportDiagnosticSurfaces": [
+    {
+      "id": "health-diagnostics-page",
+      "path": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
+      "requiredRole": "admin",
+      "redactionRequired": true,
+      "tenantBoundary": "organization_id",
+      "validationCommand": "check:surface:diagnostics-contract"
+    },
+    {
+      "id": "policy-diagnostics-page",
+      "path": "src/app/(dashboard)/settings/policy/diagnostics/page.tsx",
+      "requiredRole": "admin",
+      "redactionRequired": true,
+      "tenantBoundary": "organization_id",
+      "validationCommand": "check:surface:diagnostics-contract"
+    },
+    {
+      "id": "org-scoped-admin-helper",
+      "path": "src/lib/supabase/org-scoped-admin.ts",
+      "requiredRole": "server-only",
+      "redactionRequired": false,
+      "tenantBoundary": "organization_id",
+      "validationCommand": "check:server-lib-admin"
+    }
+  ],
+  "breakGlassControls": [
+    "disabled-by-default",
+    "explicit-enable",
+    "reason-capture",
+    "expiry-required",
+    "audit-event-required",
+    "step-up-required",
+    "customer-impact-warning"
+  ],
+  "demoSeedControls": [
+    "env-flag-required",
+    "admin-role-required",
+    "organization-scope-required",
+    "production-refusal",
+    "audit-event-required",
+    "fixture-data-only",
+    "local-seed-secret-scan",
+    "fixture-pii-policy"
+  ],
+  "redactionFields": [
+    "contract-text",
+    "uploaded-file-name",
+    "email-address",
+    "token",
+    "org-id",
+    "user-id",
+    "provider-id",
+    "billing-id",
+    "cookie",
+    "authorization-header"
+  ]
+}

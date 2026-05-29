@@ -1,38 +1,84 @@
 import { format } from "date-fns";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { OrgForm } from "@/components/settings/org-form";
 import { InviteMemberForm } from "@/components/settings/invite-member-form";
 import { PendingInvitesList, type PendingInviteRow } from "@/components/settings/pending-invites";
 import { ExternalLink } from "@/components/ui/external-link";
+import { CountChip } from "@/components/ui/count-chip";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
 import type { OrganizationMember } from "@/lib/types";
 import { SETTINGS_PAGE_STRINGS } from "@/lib/settings/spec-strings";
 import type { SettingsDestination, SettingsDestinationGroup, SettingsStatusSummary } from "@/lib/workspace-settings-model";
 import { SettingsAnchorLink } from "./settings-anchor-link";
 
-function DestinationAction({ destination, className = "ui-link" }: { destination: SettingsDestination; className?: string }) {
+// §2.6 structured action chip — a bordered accent pill with a trailing arrow,
+// replacing the bare underlined `ui-link`. Quiet at rest; the parent row
+// (`.group`) brightens the border and nudges the arrow on hover so the whole
+// row reads as one affordance (right-edge intent without a chevron column).
+const ACTION_CHIP_CLASS =
+  "ui-chip-focus inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-2.5 py-1 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_40%,var(--surface-raised))] group-hover:border-[color:color-mix(in_oklab,var(--accent)_42%,var(--border-subtle))]";
+
+const QUIET_STATE_CLASS = "ui-caps-2 shrink-0 text-[10.5px] text-[var(--text-tertiary)]";
+
+function ActionArrow() {
+  return (
+    <ArrowRight
+      className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
+      strokeWidth={2}
+      aria-hidden
+    />
+  );
+}
+
+function DestinationAction({ destination }: { destination: SettingsDestination }) {
   if (destination.state === "read_only") {
-    return <span className="shrink-0 text-xs font-semibold text-[var(--text-secondary)]">Read-only</span>;
+    return <span className={QUIET_STATE_CLASS}>Read-only</span>;
   }
   if (destination.state === "unavailable") {
     const label = destination.fallbackActionLabel ?? destination.actionLabel;
     const href = destination.fallbackHref ?? destination.href;
     if (!destination.fallbackHref && !href.startsWith("#")) {
-      return <span className="shrink-0 text-xs font-semibold text-[var(--text-secondary)]">{label}</span>;
+      return <span className={QUIET_STATE_CLASS}>{label}</span>;
     }
     if (href.startsWith("#")) {
-      return <SettingsAnchorLink href={href as `#${string}`} className={className}>{label}</SettingsAnchorLink>;
+      return (
+        <SettingsAnchorLink href={href as `#${string}`} className={ACTION_CHIP_CLASS}>
+          {label}
+          <ActionArrow />
+        </SettingsAnchorLink>
+      );
     }
-    return <Link href={href} className={className}>{label}</Link>;
+    return (
+      <Link href={href} className={ACTION_CHIP_CLASS}>
+        {label}
+        <ActionArrow />
+      </Link>
+    );
   }
   if (destination.href.startsWith("/api/")) {
-    return <ExternalLink href={destination.href} className={className}>{destination.actionLabel}</ExternalLink>;
+    return (
+      <ExternalLink href={destination.href} className={ACTION_CHIP_CLASS}>
+        {destination.actionLabel}
+      </ExternalLink>
+    );
   }
   if (destination.href.startsWith("#")) {
-    return <SettingsAnchorLink href={destination.href as `#${string}`} className={className}>{destination.actionLabel}</SettingsAnchorLink>;
+    return (
+      <SettingsAnchorLink href={destination.href as `#${string}`} className={ACTION_CHIP_CLASS}>
+        {destination.actionLabel}
+        <ActionArrow />
+      </SettingsAnchorLink>
+    );
   }
-  return <Link href={destination.href} className={className}>{destination.actionLabel}</Link>;
+  return (
+    <Link href={destination.href} className={ACTION_CHIP_CLASS}>
+      {destination.actionLabel}
+      <ActionArrow />
+    </Link>
+  );
 }
 
 function SettingsActionLink({ href, children, className }: { href: string; children: ReactNode; className: string }) {
@@ -49,7 +95,7 @@ function statusClass(tone: SettingsDestination["statusTone"]) {
   if (tone === "healthy") {
     return "border-[color:color-mix(in_oklab,var(--success)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_28%,var(--surface-raised))] text-[var(--success-ink)]";
   }
-  return "border-[color:color-mix(in_oklab,var(--accent)_10%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_8%,var(--surface-raised))] text-[var(--text-secondary)]";
+  return "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)]";
 }
 
 export function SettingsDirectory({ groups }: { groups: SettingsDestinationGroup[] }) {
@@ -62,10 +108,13 @@ export function SettingsDirectory({ groups }: { groups: SettingsDestinationGroup
         >
           {SETTINGS_PAGE_STRINGS.directoryTitle}
         </h2>
-        <p className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-          {groups.reduce((total, group) => total + group.destinations.length, 0)} settings ·{" "}
-          {groups.length} {groups.length === 1 ? "group" : "groups"}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <KeyValueChip
+            label="Settings"
+            value={groups.reduce((total, group) => total + group.destinations.length, 0)}
+          />
+          <KeyValueChip label="Groups" value={groups.length} />
+        </div>
       </header>
       <div className="space-y-7">
         {groups.map((group) => (
@@ -73,13 +122,11 @@ export function SettingsDirectory({ groups }: { groups: SettingsDestinationGroup
             <header className="mb-2 flex items-baseline gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] pb-2.5">
               <h3
                 id={`settings-group-${group.key}`}
-                className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]"
+                className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]"
               >
                 {group.title}
               </h3>
-              <span className="ml-auto font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                {group.destinations.length}
-              </span>
+              <CountChip className="ml-auto" value={group.destinations.length} />
             </header>
             <ul className="flex flex-col">
               {group.destinations.map((destination) => (
@@ -105,10 +152,7 @@ export function SettingsDirectory({ groups }: { groups: SettingsDestinationGroup
                     </p>
                   </div>
                   <div className="shrink-0 pt-0.5">
-                    <DestinationAction
-                      destination={destination}
-                      className="ui-link inline-flex shrink-0 items-center gap-1 text-[12.5px] font-semibold"
-                    />
+                    <DestinationAction destination={destination} />
                   </div>
                 </li>
               ))}
@@ -146,7 +190,7 @@ export function WorkspaceIdentitySection(props: { organizationId: string; orgNam
     <section id="workspace-identity" tabIndex={-1} className="ui-card scroll-mt-6 overflow-hidden p-0 outline-none">
       <header className="flex flex-col gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+          <p className="ui-caps-1 text-[11px] text-[var(--accent-strong)]">
             Workspace
           </p>
           <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">
@@ -172,7 +216,7 @@ export function AccessManagementSection(props: { members: OrganizationMember[]; 
     <section id="team-access" tabIndex={-1} className="ui-card scroll-mt-6 overflow-hidden p-0 outline-none">
       <header className="flex flex-col gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+          <p className="ui-caps-1 text-[11px] text-[var(--accent-strong)]">
             Access
           </p>
           <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">
@@ -186,40 +230,41 @@ export function AccessManagementSection(props: { members: OrganizationMember[]; 
           {props.members.length} {props.members.length === 1 ? "member" : "members"}
         </span>
       </header>
-      <div className="space-y-4 p-5">
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)]">
-          <div className="grid grid-cols-1 gap-2 border-b border-[var(--border-subtle)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.35fr)_auto]">
-            <span>Name</span>
-            <span>Email</span>
-            <span>Role</span>
+      <div className="space-y-5 p-5">
+        {/* §10.5 — flat hairline ledger, not a nested card. Header rule + row
+            dividers carry the structure so the member list sits directly on
+            the section surface instead of a card-within-a-card. */}
+        <div>
+          <div className="hidden gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] pb-2 sm:grid sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.35fr)_auto]">
+            <span className="ui-caps-3 text-[10.5px] text-[var(--text-tertiary)]">Name</span>
+            <span className="ui-caps-3 text-[10.5px] text-[var(--text-tertiary)]">Email</span>
+            <span className="ui-caps-3 text-[10.5px] text-[var(--text-tertiary)]">Role</span>
           </div>
-          <div className="divide-y divide-[var(--border-subtle)]/70">
+          <div className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
             {props.members.map((m) => (
               <div
                 key={m.id}
-                className="grid grid-cols-1 gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.35fr)_auto] sm:items-center"
+                className="grid grid-cols-1 gap-x-4 gap-y-1.5 py-2.5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.35fr)_auto] sm:items-center"
               >
                 <div>
-                  <p className="sm:hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-                    Name
-                  </p>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">
-                    {m.profiles?.full_name || m.profiles?.email || "Member"}
-                  </p>
+                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)] sm:hidden">Name</p>
+                  {m.profiles?.full_name ? (
+                    <p className="text-[13.5px] font-medium text-[var(--text-primary)]">
+                      {m.profiles.full_name}
+                    </p>
+                  ) : (
+                    <p className="text-[13.5px] text-[var(--text-tertiary)]">—</p>
+                  )}
                 </div>
                 <div className="min-w-0">
-                  <p className="sm:hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-                    Email
-                  </p>
+                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)] sm:hidden">Email</p>
                   <p className="break-words font-mono text-[12.5px] text-[var(--text-secondary)]">
-                    {m.profiles?.email || "Not provided"}
+                    {m.profiles?.email || "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="sm:hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-                    Role
-                  </p>
-                  <span className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)] sm:hidden">Role</p>
+                  <span className="ui-caps-2 inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10.5px] text-[var(--text-secondary)]">
                     {props.roleLabels[m.role] || m.role}
                   </span>
                 </div>
@@ -243,7 +288,7 @@ export function ProfileSettingsSection({ fullName, email, joinedAt }: { fullName
     <section id="profile" tabIndex={-1} className="ui-card scroll-mt-6 overflow-hidden p-0 outline-none">
       <header className="flex flex-col gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+          <p className="ui-caps-1 text-[11px] text-[var(--accent-strong)]">
             Account
           </p>
           <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">

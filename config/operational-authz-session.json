@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-authz-session",
+  "objectives": [
+    {
+      "id": "role-workspace-mode-matrix",
+      "ownerArea": "auth-security",
+      "commands": [
+        { "command": "check:operational-authz-session", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "route_action_matrix"] },
+        { "command": "check:role-capability-inventory", "ciRequired": true, "covers": ["role_capability_literals", "role_negative_tests"] },
+        { "command": "check:api-route-auth-contract", "ciRequired": true, "covers": ["protected_api_auth_signals"] },
+        { "command": "check:api-route-auth-route-index", "ciRequired": true, "covers": ["api_route_inventory"] },
+        { "command": "check:server-action-auth-contract", "ciRequired": true, "covers": ["server_action_auth_signals"] },
+        { "command": "check:server-action-negative-tests", "ciRequired": true, "covers": ["server_action_negative_tests"] },
+        { "command": "pipeline:surface:suite", "ciRequired": true, "covers": ["workspace_mode_api_guards"] }
+      ],
+      "artifacts": ["artifacts/operational-authz-session.json"]
+    },
+    {
+      "id": "deterministic-organization-resolution",
+      "ownerArea": "auth-security",
+      "commands": [
+        { "command": "check:deterministic-org-resolution", "ciRequired": true, "covers": ["missing_org", "multi_org_ambiguity", "stale_selected_org", "cross_org_denial"] },
+        { "command": "check:server-action-org-scope", "ciRequired": true, "covers": ["server_action_org_scope"] },
+        { "command": "check:api-route-admin-org-scope", "ciRequired": true, "covers": ["admin_client_org_scope"] },
+        { "command": "check:operational-authz-session", "ciRequired": true, "covers": ["org_resolution_scenario_registry"] }
+      ]
+    },
+    {
+      "id": "session-lifecycle-behavior",
+      "ownerArea": "auth-security",
+      "commands": [
+        { "command": "check:session-lifecycle-security", "ciRequired": true, "covers": ["sign_in", "sign_out", "password_reset", "session_revocation"] },
+        { "command": "check:session-fixation-defenses", "ciRequired": true, "covers": ["session_rotation", "step_up_cookie_binding"] },
+        { "command": "check:auth-cookie-attributes", "ciRequired": true, "covers": ["cookie_attributes"] },
+        { "command": "check:auth-callback-guardrails", "ciRequired": true, "covers": ["callback_safety"] },
+        { "command": "check:auth-error-consistency", "ciRequired": true, "covers": ["auth_error_shape"] }
+      ]
+    },
+    {
+      "id": "sensitive-action-step-up",
+      "ownerArea": "auth-security",
+      "commands": [
+        { "command": "check:sensitive-action-step-up", "ciRequired": true, "covers": ["step_up_required_actions", "audit_markers"] },
+        { "command": "check:sensitive-url-propagation", "ciRequired": true, "covers": ["sensitive_url_boundaries"] },
+        { "command": "check:operational-authz-session", "ciRequired": true, "covers": ["step_up_inventory"] }
+      ]
+    }
+  ],
+  "principalClasses": [
+    "public",
+    "authenticated",
+    "owner",
+    "admin",
+    "member",
+    "viewer",
+    "external_token",
+    "service_role"
+  ],
+  "workspaceModes": ["core", "advanced", "assurance"],
+  "roleCapabilities": [
+    { "role": "admin", "capabilities": ["contracts_edit", "approvals_manage", "renewals_manage", "maintenance_manage", "settings_manage"] },
+    { "role": "editor", "capabilities": ["contracts_edit", "approvals_manage", "renewals_manage"] },
+    { "role": "viewer", "capabilities": [] },
+    { "role": "ops_manager", "capabilities": ["contracts_edit", "renewals_manage", "maintenance_manage"] },
+    { "role": "legal_reviewer", "capabilities": ["approvals_manage"] },
+    { "role": "finance_reviewer", "capabilities": ["approvals_manage", "renewals_manage"] },
+    { "role": "manager", "capabilities": ["contracts_edit", "approvals_manage", "renewals_manage", "maintenance_manage"] }
+  ],
+  "surfacePolicies": [
+    {
+      "id": "public-auth-flows",
+      "surface": "auth routes and post-sign-out redirect",
+      "principal": "public",
+      "routeMatch": "^auth/",
+      "expectations": ["public_allowlist_metadata", "safe_redirects", "error_shape"]
+    },
+    {
+      "id": "external-token-routes",
+      "surface": "tokenized external participant routes",
+      "principal": "external_token",
+      "routeMatch": "\\[token\\]|external-actions",
+      "expectations": ["signed_or_stored_token", "expiry", "scope_binding"]
+    },
+    {
+      "id": "service-provider-callbacks",
+      "surface": "provider callbacks, webhooks, and cron callbacks",
+      "principal": "service_role",
+      "routeMatch": "stripe/webhook|cron|inbound|integrations/.*/callback|maintenance/prune-operational-data",
+      "expectations": ["machine_auth", "replay_or_idempotency", "redacted_errors"]
+    },
+    {
+      "id": "authenticated-tenant-api",
+      "surface": "tenant API routes",
+      "principal": "authenticated",
+      "routeMatch": ".*",
+      "expectations": ["session_or_machine_auth", "deny_path", "organization_scope", "workspace_mode_gate_when_applicable"]
+    },
+    {
+      "id": "server-actions",
+      "surface": "server actions",
+      "principal": "authenticated",
+      "actionMatch": "src/actions/",
+      "expectations": ["auth_context", "org_scope", "negative_test_or_static_guard"]
+    }
+  ],
+  "orgResolutionScenarios": [
+    "missing_actor",
+    "missing_org",
+    "multiple_orgs",
+    "inactive_org",
+    "suspended_org",
+    "stale_selected_org",
+    "cross_org_path_parameter",
+    "membership_query_failure"
+  ],
+  "sessionLifecycleTransitions": [
+    "sign_in",
+    "sign_out",
+    "password_reset",
+    "auth_callback",
+    "expired_session",
+    "stale_cookies",
+    "session_fixation",
+    "mfa_required_org",
+    "account_recovery_abuse",
+    "revoke_other_sessions"
+  ],
+  "sensitiveActionProofs": [
+    "valid_step_up_cookie",
+    "aal2_session",
+    "missing_proof",
+    "expired_proof",
+    "wrong_user_or_org_proof"
+  ],
+  "sourceMarkers": [
+    {
+      "path": "src/lib/access-control.ts",
+      "markers": ["RoleCapability", "hasRoleCapability", "rolePolicyJson"]
+    },
+    {
+      "path": "src/lib/product-surface/types.ts",
+      "markers": ["core", "advanced", "assurance"]
+    },
+    {
+      "path": "src/lib/supabase/org-scoped-admin.ts",
+      "markers": [
+        "resolveExplicitOrSingleMembership",
+        "resolveSensitiveOrgContext",
+        "orgOperationalStatusFromRow",
+        "organization_membership_ambiguous",
+        "organization_inactive",
+        "organization_suspended"
+      ]
+    },
+    {
+      "path": "src/actions/auth.ts",
+      "markers": ["signIn", "forgotPassword", "resetPassword", "signOut", "redirect(\"/api/auth/post-sign-out\")"]
+    },
+    {
+      "path": "src/actions/sessions.ts",
+      "markers": ["revokeOtherSessions", "hasSensitiveActionProof", "security.sessions_revoke_others"]
+    },
+    {
+      "path": "src/lib/security/sensitive-action-proof.ts",
+      "markers": ["hasSensitiveActionProof", "isStepUpCookieValidForUser", "getAuthenticatorAssuranceLevel"]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/access-control.test.ts",
+      "markers": ["exhaustive baseline matrix", "viewer has no baseline mutation capabilities", "unknown roles never grant"]
+    },
+    {
+      "path": "src/lib/supabase/org-scoped-admin.test.ts",
+      "markers": [
+        "allows implicit org fallback only for exactly one membership",
+        "does not fall back from a stale selected org to an implicit membership",
+        "rejects inactive and suspended organizations for sensitive org context",
+        "resolves explicit org membership and rejects cross-org requests"
+      ]
+    },
+    {
+      "path": "src/actions/auth-actions.test.ts",
+      "markers": ["signIn", "forgotPassword", "resetPassword"]
+    },
+    {
+      "path": "src/actions/sessions.test.ts",
+      "markers": ["revokeOtherSessions requires step-up or AAL2 before sign-out", "revokeOtherSessions audits with organization_id when org present"]
+    },
+    {
+      "path": "src/lib/security/sensitive-action-proof.test.ts",
+      "markers": ["accepts a valid step-up cookie before checking AAL", "accepts current AAL2 when the step-up cookie is absent", "fails closed when neither proof is available"]
+    },
+    {
+      "path": "src/app/api/settings/step-up/route.test.ts",
+      "markers": ["rate limits authenticated step-up attempts by user and IP before password verification", "audits failed password step-up attempts without storing password material"]
+    }
+  ]
+}

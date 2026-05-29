@@ -2,13 +2,13 @@
   "version": 1,
   "reportingEndpoints": [
     {
-      "group": "default",
+      "group": "csp-endpoint",
       "max_age": 86400,
-      "endpoints": [{ "url": "https://oblixa.example/csp-report", "priority": 1 }]
+      "endpoints": [{ "url": "https://oblixa.example/api/security/csp-report", "priority": 1 }]
     }
   ],
   "nel": {
-    "report_to": "default",
+    "report_to": "csp-endpoint",
     "max_age": 86400,
     "include_subdomains": false,
     "failure_fraction": 1.0

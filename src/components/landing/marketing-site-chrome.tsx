@@ -24,7 +24,7 @@ export function MarketingSiteHeader({ secondaryNav }: MarketingSiteHeaderProps) 
   return (
     <header className="ui-footer-shell sticky top-0 z-20 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex min-h-[4.4rem] flex-wrap items-center justify-between gap-4 py-2 sm:flex-nowrap sm:py-0">
+        <div className="flex min-h-[4.4rem] flex-wrap items-center justify-between gap-3 py-2 sm:gap-4 sm:py-0">
           <Link
             href="/"
             className="flex items-center gap-3 no-underline"
@@ -36,7 +36,7 @@ export function MarketingSiteHeader({ secondaryNav }: MarketingSiteHeaderProps) 
               Oblixa
             </span>
           </Link>
-          <nav className="flex shrink-0 flex-wrap items-center justify-end gap-x-1 gap-y-0 sm:flex-nowrap sm:gap-x-2" aria-label="Site">
+          <nav className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1 gap-y-0 sm:gap-x-2" aria-label="Site">
             <Link
               href="/product"
               prefetch={false}

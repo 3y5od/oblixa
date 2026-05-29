@@ -148,7 +148,7 @@ export async function POST(request: Request) {
         outcome: "mode_required",
         message: "Feature not available in workspace mode.",
         diagnosticId: "v10_report_pack_workspace_mode_required",
-        nextDestinationHref: "/settings/product",
+        nextDestinationHref: "/settings",
       })
     );
   }

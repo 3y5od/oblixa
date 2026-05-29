@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-rate-limits-abuse-bounds",
+  "objectives": [
+    {
+      "id": "rate-limit-inventory",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:operational-rate-limits-abuse-bounds", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "route_limit_inventory"] },
+        { "command": "check:api-route-rate-limit-coverage", "ciRequired": true, "covers": ["privileged_api_route_guardrails", "ordering_warnings"] },
+        { "command": "check:rate-limit-key-cardinality", "ciRequired": true, "covers": ["scoped_keys", "token_hash_keys", "cron_keys"] },
+        { "command": "check:rate-limit-distribution-safety", "ciRequired": true, "covers": ["distributed_limiter", "production_fail_closed", "key_normalization"] }
+      ],
+      "artifacts": [
+        "artifacts/route-universe.json",
+        "artifacts/operational-rate-limits-abuse-bounds.json"
+      ]
+    },
+    {
+      "id": "rate-limit-behavior-tests",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:api-problem-json", "ciRequired": true, "covers": ["429_problem_shape", "retry_after_header"] },
+        { "command": "test", "ciRequired": false, "covers": ["unit_rate_limit_behavior"] }
+      ]
+    },
+    {
+      "id": "resource-bound-guards",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:timeout-budget-guards", "ciRequired": true, "covers": ["route_max_duration", "fetch_timeouts", "retry_timeouts"] },
+        { "command": "check:concurrency-cap-guards", "ciRequired": true, "covers": ["promise_all_caps", "bounded_batch_helpers"] },
+        { "command": "check:pagination-guardrails", "ciRequired": true, "covers": ["page_size_caps", "row_caps", "offset_caps"] },
+        { "command": "check:response-size-guards", "ciRequired": true, "covers": ["response_byte_caps", "safe_oversize_errors"] },
+        { "command": "check:export-security-guards", "ciRequired": true, "covers": ["csv_formula_safety", "filename_safety", "private_cache_headers"] }
+      ]
+    },
+    {
+      "id": "parser-dos-risk-controls",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:parser-risk-controls", "ciRequired": true, "covers": ["pdf_docx_text_bounds", "ai_parser_bounds"] },
+        { "command": "check:decompression-bomb-guards", "ciRequired": true, "covers": ["docx_entry_caps", "zip_expansion_caps"] },
+        { "command": "check:regex-dos-risk", "ciRequired": true, "covers": ["nested_quantifier_scan"] },
+        { "command": "check:json-body-limited-adoption", "ciRequired": true, "covers": ["json_byte_limits", "json_shape_limits"] },
+        { "command": "check:request-framing-guards", "ciRequired": true, "covers": ["content_length", "stream_byte_limits", "unsafe_json_keys"] },
+        { "command": "check:callback-destination-integrity", "ciRequired": true, "covers": ["url_canonicalization", "redirect_safety"] }
+      ]
+    }
+  ],
+  "surfaceCategories": [
+    { "id": "auth", "routeIncludes": ["/auth", "/settings/step-up"] },
+    { "id": "contact", "routeIncludes": ["/contact"] },
+    { "id": "upload_import", "routeIncludes": ["/import", "/extract", "/evidence/submit"] },
+    { "id": "export", "routeIncludes": ["/export", "/report-packs"] },
+    { "id": "search", "routeIncludes": ["/search", "/command-palette"] },
+    { "id": "reports", "routeIncludes": ["/reports", "/report-runs", "/report-packs"] },
+    { "id": "webhooks", "routeIncludes": ["/webhooks", "/stripe/webhook"] },
+    { "id": "cron", "routeIncludes": ["/cron"] },
+    { "id": "public_tokens", "routeIncludes": ["/external-actions", "/reports/track"] },
+    { "id": "expensive_ai", "routeIncludes": ["/extract", "/templates/preview"] }
+  ],
+  "acceptedRateLimitPolicies": [
+    {
+      "policy": "explicit",
+      "meaning": "Route source invokes rateLimitCheck or uses a RATE_LIMITS bucket."
+    },
+    {
+      "policy": "cron",
+      "meaning": "Route is behind cron auth and cron wrappers with a route-specific rate-limit key."
+    },
+    {
+      "policy": "webhook",
+      "meaning": "Route is signature-gated and separately covered by webhook replay/idempotency controls."
+    },
+    {
+      "policy": "external_or_token",
+      "meaning": "Route is token/tracking scoped and covered by token-hash or public-ingress rate-limit markers."
+    },
+    {
+      "policy": "standard_or_not_applicable",
+      "meaning": "Read path or route where the generated inventory does not require a mutation limit."
+    },
+    {
+      "policy": "mutation_required",
+      "meaning": "Session-authenticated mutation without a route-local limiter; privileged/admin-client routes still fail check:api-route-rate-limit-coverage."
+    }
+  ],
+  "documentedSessionMutationPolicy": {
+    "policy": "mutation_required",
+    "allowedAuthModels": ["session"],
+    "reason": "Session-authenticated product mutations rely on auth, tenant scope, idempotency, and workspace policy controls; privileged admin-client routes remain covered by the explicit route-rate-limit guard."
+  },
+  "requiredRateLimitCatalogKeys": [
+    "signIn",
+    "signUp",
+    "forgotPassword",
+    "stepUpPassword",
+    "marketingContact",
+    "extract",
+    "extractWorker",
+    "importContractsJob",
+    "exportContractsCsv",
+    "exportContractsJob",
+    "exportCalendar",
+    "exportReviewPacket",
+    "stripeWebhook",
+    "workspaceApi",
+    "cspReport",
+    "templatesPreview",
+    "externalTokenMutate",
+    "externalTokenRead"
+  ],
+  "minRoute429Tests": 12,
+  "sourceMarkers": [
+    {
+      "path": "src/lib/rate-limit.ts",
+      "markers": ["RATE_LIMITS", "normalizeRateLimitKey", "withRateLimitTimeout", "Distributed limiter is required in production; failing closed", "Upstash limit() failed in production; failing closed"]
+    },
+    {
+      "path": "src/lib/http/problem.ts",
+      "markers": ["jsonRateLimited", "retryAfterMs", "\"Retry-After\""]
+    },
+    {
+      "path": "src/lib/product-surface/api-workspace-guard.ts",
+      "markers": ["rateLimitCheck(`workspace-api:${input.orgId}:${input.apiPath}`", "RATE_LIMITS.workspaceApi"]
+    },
+    {
+      "path": "src/lib/security/safe-fetch.ts",
+      "markers": ["SAFE_FETCH_DEFAULT_TIMEOUT_MS", "SAFE_FETCH_MAX_TIMEOUT_MS", "new AbortController()", "clearTimeout("]
+    },
+    {
+      "path": "src/lib/extraction/retry.ts",
+      "markers": ["RETRY_DEFAULT_ATTEMPT_TIMEOUT_MS", "RETRY_MAX_ATTEMPT_TIMEOUT_MS", "withAttemptTimeout", "combineAbortSignals"]
+    },
+    {
+      "path": "src/lib/supabase/range-pagination.ts",
+      "markers": ["DEFAULT_PAGE_SIZE", "DEFAULT_MAX_ROWS", "DEFAULT_MAX_OFFSET_EXCLUSIVE", "truncated"]
+    },
+    {
+      "path": "src/lib/extraction/parse-document.ts",
+      "markers": ["DOCUMENT_PARSER_TIMEOUT_MS", "DOCUMENT_PARSER_MAX_DOCX_UNCOMPRESSED_BYTES", "DOCUMENT_PARSER_MAX_PDF_PAGES", "assertDocxZipExpansionWithinParserLimits"]
+    },
+    {
+      "path": "src/lib/csv-formula-safe.ts",
+      "markers": ["escapeCsvCellForSpreadsheet", "stripCsvBidiControlCharacters", "trimStart"]
+    },
+    {
+      "path": "src/lib/security/export-filename.ts",
+      "markers": ["sanitizeExportFileName", "sanitizeExportFileNameToken", "contentDispositionAttachment", "filename*=UTF-8''"]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/rate-limit.test.ts",
+      "markers": ["allows up to max requests in the window", "hashes empty, malformed, and overlong keys", "fails closed in production when distributed limiter config is missing"]
+    },
+    {
+      "path": "src/lib/rate-limit.provider-outage.test.ts",
+      "markers": ["fails closed in production when Upstash limit() fails", "uses the in-process fallback outside production when Upstash limit() fails"]
+    },
+    {
+      "path": "src/lib/rate-limit.take.contract.test.ts",
+      "markers": ["exhausts after max requests for the same key", "retryAfterMs"]
+    },
+    {
+      "path": "src/lib/http/problem.test.ts",
+      "markers": ["jsonRateLimited(1234, \"/api/private\")", "Retry-After", "route_rate_limited"]
+    },
+    {
+      "path": "scripts/check-regex-dos-risk.test.mjs",
+      "markers": ["rejects nested quantified groups", "BAD_LITERAL_RE", "BAD_CONSTRUCTOR_RE"]
+    },
+    {
+      "path": "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts",
+      "markers": ["rejects PDF page counts above the parser ceiling", "rejects docx zip expansion before mammoth parsing", "rejects docx archives with suspicious compression ratios"]
+    },
+    {
+      "path": "src/lib/csv-formula-safe.test.ts",
+      "markers": ["neutralizes leading formula characters", "strips bidi controls before formula neutralization"]
+    },
+    {
+      "path": "src/lib/supabase/range-pagination.test.ts",
+      "markers": ["maxRows", "truncated", "stoppedByOffsetCap"]
+    }
+  ]
+}

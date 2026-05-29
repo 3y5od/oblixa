@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const createAdminClient = vi.hoisted(() => vi.fn());
 const rateLimitCheck = vi.hoisted(() => vi.fn<typeof import("@/lib/rate-limit").rateLimitCheck>());
@@ -65,10 +65,13 @@ function createRefreshAdmin(rows: Array<Record<string, unknown>>) {
 }
 
 describe("GET /api/integrations/refresh-tokens", () => {
+  const originalKillIntegrationSync = process.env.OBLIXA_KILL_INTEGRATION_SYNC;
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
     process.env.CRON_SECRET = "cronsecret";
+    delete process.env.OBLIXA_KILL_INTEGRATION_SYNC;
     rateLimitCheck.mockResolvedValue({ ok: true });
     decryptIntegrationToken.mockReturnValue("decrypted-refresh-token");
     encryptIntegrationToken.mockImplementation((value: string) => `enc:${value}`);
@@ -85,6 +88,11 @@ describe("GET /api/integrations/refresh-tokens", () => {
     });
     const { admin } = createRefreshAdmin([]);
     createAdminClient.mockResolvedValue(admin as never);
+  });
+
+  afterEach(() => {
+    if (originalKillIntegrationSync === undefined) delete process.env.OBLIXA_KILL_INTEGRATION_SYNC;
+    else process.env.OBLIXA_KILL_INTEGRATION_SYNC = originalKillIntegrationSync;
   });
 
   it("returns 401 when cron auth header is missing", async () => {
@@ -160,6 +168,219 @@ describe("GET /api/integrations/refresh-tokens", () => {
     expect(encryptIntegrationToken).toHaveBeenNthCalledWith(2, "new-refresh");
   });
 
+  it("fails closed when integration sync kill switch is active after cron auth", async () => {
+    process.env.OBLIXA_KILL_INTEGRATION_SYNC = "1";
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      ok: false,
+      code: "service_temporarily_unavailable",
+      diagnostic_id: "kill_switch_active",
+      details: { subsystem: "integration_sync" },
+    });
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("redacts provider failure details before persisting refresh-token errors", async () => {
+    const row = {
+      id: "conn_1",
+      provider: "slack",
+      refresh_token: "encrypted-refresh-token",
+      token_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      config_json: {
+        tokenRefreshUrl: "https://slack.com/api/oauth.v2.access",
+        clientId: "client-id",
+        clientSecret: "client-secret",
+      },
+    };
+    const updateSpy = vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
+    }));
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table !== "integration_connections") throw new Error(`Unexpected table: ${table}`);
+        return {
+          update: updateSpy,
+        };
+      }),
+    } as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
+    safeFetch.mockRejectedValueOnce(
+      new Error("provider_error access_token=tok_secret_12345 responder@example.com")
+    );
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body.failed).toBe(1);
+    expect(JSON.stringify(body)).not.toContain("tok_secret_12345");
+    expect(JSON.stringify(body)).not.toContain("responder@example.com");
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "error",
+        last_error: expect.stringContaining("[redacted]"),
+      })
+    );
+  });
+
+  it("handles expired or revoked refresh tokens as terminal bounded failures", async () => {
+    const row = {
+      id: "conn_1",
+      provider: "slack",
+      refresh_token: "encrypted-refresh-token",
+      token_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      config_json: {
+        tokenRefreshUrl: "https://slack.com/api/oauth.v2.access",
+        clientId: "client-id",
+        clientSecret: "client-secret",
+      },
+    };
+    const updateSpy = vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
+    }));
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table !== "integration_connections") throw new Error(`Unexpected table: ${table}`);
+        return { update: updateSpy };
+      }),
+    } as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
+    safeFetch.mockResolvedValueOnce(new Response(JSON.stringify({ error: "invalid_grant" }), { status: 401 }));
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body.failed).toBe(1);
+    expect(safeFetch).toHaveBeenCalledTimes(1);
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "error",
+        last_error: "Token refresh failed: 401",
+      })
+    );
+  });
+
+  it("contains malformed provider responses and encryption rotation failures without retries", async () => {
+    const row = {
+      id: "conn_1",
+      provider: "slack",
+      refresh_token: "encrypted-refresh-token",
+      token_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      config_json: {
+        tokenRefreshUrl: "https://slack.com/api/oauth.v2.access",
+        clientId: "client-id",
+        clientSecret: "client-secret",
+      },
+    };
+    const updateSpy = vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
+    }));
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table !== "integration_connections") throw new Error(`Unexpected table: ${table}`);
+        return { update: updateSpy };
+      }),
+    } as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
+    safeFetch.mockResolvedValueOnce(new Response("{malformed", { status: 200 }));
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body.failed).toBe(1);
+    expect(safeFetch).toHaveBeenCalledTimes(1);
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "error",
+        last_error: expect.stringMatching(/JSON|token_refresh_error|redacted/i),
+      })
+    );
+  });
+
+  it("treats rotated encryption-key failures as sanitized bounded refresh failures", async () => {
+    const row = {
+      id: "conn_1",
+      provider: "slack",
+      refresh_token: "encrypted-refresh-token",
+      token_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      config_json: {
+        tokenRefreshUrl: "https://slack.com/api/oauth.v2.access",
+        clientId: "client-id",
+        clientSecret: "client-secret",
+      },
+    };
+    const updateSpy = vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
+    }));
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table !== "integration_connections") throw new Error(`Unexpected table: ${table}`);
+        return { update: updateSpy };
+      }),
+    } as never);
+    forEachSupabaseRangePage.mockImplementationOnce(async (_fetchPage, consume) => {
+      await consume([row]);
+      return { error: null, stoppedByOffsetCap: false, rowsSeen: 1, nextOffset: null };
+    });
+    encryptIntegrationToken.mockImplementationOnce(() => {
+      throw new Error("encryption key rotation failed access_token=tok_secret");
+    });
+
+    const { GET } = await import("@/app/api/integrations/refresh-tokens/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/integrations/refresh-tokens", {
+        headers: { authorization: "Bearer cronsecret" },
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(207);
+    expect(body.failed).toBe(1);
+    expect(JSON.stringify(body)).not.toContain("tok_secret");
+    expect(safeFetch).toHaveBeenCalledTimes(1);
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "error",
+        last_error: expect.stringContaining("[redacted]"),
+      })
+    );
+  });
+
   it("blocks duplicate replay of refresh-tokens cron runs with x-idempotency-key", async () => {
     let idempotencySeen = false;
     rateLimitCheck.mockImplementation(async (key: string, config: unknown) => {
@@ -229,4 +450,3 @@ describe("GET /api/integrations/refresh-tokens", () => {
     expect(body).toMatchObject({ diagnostic_id: "integrations_refresh_connections_load_failed" });
   });
 });
-

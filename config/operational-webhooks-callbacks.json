@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-webhooks-callbacks",
+  "objectives": [
+    {
+      "id": "webhook-branch-fixtures",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:operational-webhooks-callbacks", "ciRequired": true, "covers": ["aggregate_registry", "fixture_corpus", "artifact_drift"] },
+        { "command": "check:webhook-inbound-policy", "ciRequired": true, "covers": ["stripe_slack_email_inbound_policy"] },
+        { "command": "check:integration-contract-resilience", "ciRequired": true, "covers": ["integration_route_negative_paths"] }
+      ],
+      "artifacts": ["artifacts/operational-webhooks-callbacks.json"]
+    },
+    {
+      "id": "webhook-idempotency",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:duplicate-execution-policy", "ciRequired": true, "covers": ["durable_event_ids", "idempotency_keys"] },
+        { "command": "check:idempotency-policy", "ciRequired": true, "covers": ["idempotency_contracts"] },
+        { "command": "check:operational-webhooks-callbacks", "ciRequired": true, "covers": ["route_marker_parity"] }
+      ]
+    },
+    {
+      "id": "callback-destination-integrity",
+      "ownerArea": "auth-security",
+      "commands": [
+        { "command": "check:callback-destination-integrity", "ciRequired": true, "covers": ["post_auth_redirect_safety"] },
+        { "command": "check:callback-domain-strictness", "ciRequired": true, "covers": ["oauth_redirect_uri_exact_match"] },
+        { "command": "check:auth-callback-guardrails", "ciRequired": true, "covers": ["auth_callback_invite_and_redirect_guards"] },
+        { "command": "check:oauth-state-integrity", "ciRequired": true, "covers": ["oauth_state_replay_and_expiry"] },
+        { "command": "check:oauth-pkce-enforcement", "ciRequired": true, "covers": ["oauth_pkce_s256"] },
+        { "command": "check:origin-referrer-enforcement", "ciRequired": true, "covers": ["callback_browser_origin_exemptions"] }
+      ]
+    },
+    {
+      "id": "provider-callback-readiness",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:release-security-required-env", "ciRequired": true, "covers": ["provider_env_shape"] },
+        { "command": "check:operational-release-readiness", "ciRequired": true, "covers": ["release_blocker_taxonomy"] },
+        { "command": "check:operational-webhooks-callbacks", "ciRequired": true, "covers": ["expected_callback_url_policy"] }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "stripe-webhook",
+      "path": "/api/stripe/webhook",
+      "routeFile": "src/app/api/stripe/webhook/route.ts",
+      "testFile": "src/app/api/stripe/webhook/route.test.ts",
+      "methods": ["POST"],
+      "provider": "stripe",
+      "direction": "inbound",
+      "idempotencyPolicy": "stripe_webhook_events_unique_event_id"
+    },
+    {
+      "id": "outbound-webhook-dispatch",
+      "path": "/api/webhooks/dispatch",
+      "routeFile": "src/app/api/webhooks/dispatch/route.ts",
+      "testFile": "src/app/api/webhooks/dispatch/route.test.ts",
+      "methods": ["GET", "POST"],
+      "provider": "customer-webhook",
+      "direction": "outbound",
+      "idempotencyPolicy": "outbound_event_deliveries_unique_event_subscription"
+    },
+    {
+      "id": "integration-actions-callback",
+      "path": "/api/integrations/actions/callback",
+      "routeFile": "src/app/api/integrations/actions/callback/route.ts",
+      "testFile": "src/app/api/integrations/actions/callback/route.test.ts",
+      "methods": ["POST"],
+      "provider": "integration-automation",
+      "direction": "inbound",
+      "idempotencyPolicy": "action_specific_idempotent_updates"
+    },
+    {
+      "id": "oauth-start",
+      "path": "/api/integrations/oauth/start",
+      "routeFile": "src/app/api/integrations/oauth/start/route.ts",
+      "testFile": "src/app/api/integrations/oauth/start/route.test.ts",
+      "methods": ["POST"],
+      "provider": "oauth",
+      "direction": "outbound-auth",
+      "idempotencyPolicy": "x_idempotency_key"
+    },
+    {
+      "id": "oauth-callback",
+      "path": "/api/integrations/oauth/callback",
+      "routeFile": "src/app/api/integrations/oauth/callback/route.ts",
+      "testFile": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "methods": ["GET"],
+      "provider": "oauth",
+      "direction": "inbound-auth",
+      "idempotencyPolicy": "consumed_oauth_state"
+    },
+    {
+      "id": "auth-callback",
+      "path": "/auth/callback",
+      "routeFile": "src/app/auth/callback/route.ts",
+      "testFile": "src/app/auth/refinement-auth-callback.test.ts",
+      "methods": ["GET"],
+      "provider": "supabase-auth",
+      "direction": "inbound-auth",
+      "idempotencyPolicy": "invite_consumed_at_upsert"
+    },
+    {
+      "id": "slack-task-inbound",
+      "path": "/api/tasks/from-slack",
+      "routeFile": "src/app/api/tasks/from-slack/route.ts",
+      "testFile": "src/app/api/tasks/from-slack/route.test.ts",
+      "methods": ["POST"],
+      "provider": "slack",
+      "direction": "inbound",
+      "idempotencyPolicy": "external_message_id"
+    },
+    {
+      "id": "email-task-inbound",
+      "path": "/api/tasks/from-email",
+      "routeFile": "src/app/api/tasks/from-email/route.ts",
+      "testFile": "src/app/api/tasks/from-email/route.test.ts",
+      "methods": ["POST"],
+      "provider": "email",
+      "direction": "inbound",
+      "idempotencyPolicy": "external_message_id"
+    }
+  ],
+  "fixtureRequirements": [
+    {
+      "family": "stripe_webhook",
+      "requiredKinds": [
+        "success",
+        "duplicate_delivery",
+        "bad_signature",
+        "stale_timestamp",
+        "unknown_event",
+        "malformed_payload",
+        "wrong_content_type",
+        "provider_outage"
+      ]
+    },
+    {
+      "family": "outbound_webhook_dispatch",
+      "requiredKinds": ["retry", "provider_outage"]
+    },
+    {
+      "family": "oauth_callback",
+      "requiredKinds": ["open_redirect", "private_network_url"]
+    },
+    {
+      "family": "auth_callback",
+      "requiredKinds": ["custom_scheme"]
+    }
+  ],
+  "callbackExpectations": [
+    {
+      "provider": "stripe",
+      "expectedPath": "/api/stripe/webhook",
+      "optionalEnvKeys": ["STRIPE_WEBHOOK_ENDPOINT_URL", "STRIPE_WEBHOOK_URL"]
+    },
+    {
+      "provider": "supabase-auth",
+      "expectedPath": "/auth/callback",
+      "optionalEnvKeys": ["SUPABASE_AUTH_CALLBACK_URL"]
+    },
+    {
+      "provider": "oauth",
+      "expectedPath": "/api/integrations/oauth/callback",
+      "optionalEnvKeys": ["OAUTH_CALLBACK_URL", "SLACK_OAUTH_CALLBACK_URL"]
+    },
+    {
+      "provider": "integration-automation",
+      "expectedPath": "/api/integrations/actions/callback",
+      "optionalEnvKeys": ["INTEGRATIONS_ACTIONS_CALLBACK_URL"]
+    }
+  ],
+  "sourceMarkers": [
+    {
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markers": [
+        "jsonContentTypeRejection(request)",
+        "stripe_webhook_wrong_content_type",
+        "STRIPE_WEBHOOK_TOLERANCE_SEC = 300",
+        ".insert({ id: event.id, status: \"processing\" })",
+        "if (claimErr.code === \"23505\")",
+        "return jsonOk({ received: true, duplicate: true });",
+        ".update({ status: \"completed\" })"
+      ]
+    },
+    {
+      "path": "src/app/api/webhooks/dispatch/route.ts",
+      "markers": [
+        "signPayload(signingSecret, payload)",
+        "x-oblixa-signature",
+        "claimDueRow",
+        "next_attempt_at",
+        "attemptStatusCounts.network",
+        "enforceIdempotency(request"
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "markers": [
+        "validateOAuthCallbackText(state, MAX_OAUTH_STATE_LEN)",
+        "if (authState.consumed_at)",
+        ".is(\"consumed_at\", null)",
+        "diagnostic_id: \"oauth_callback_state_replay\"",
+        "redirect.pathname === \"/api/integrations/oauth/callback\"",
+        "authState.code_challenge_method !== \"S256\""
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "markers": [
+        "const state = randomBytes(16).toString(\"hex\")",
+        "const verifier = randomBytes(32).toString(\"base64url\")",
+        "url.searchParams.set(\"code_challenge\", challenge)",
+        "redirect.search === \"\"",
+        "redirect.hash === \"\"",
+        "enforceIdempotency(request"
+      ]
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "markers": [
+        "const next = getSafeRedirectPath(searchParams.get(\"next\"))",
+        "getTrustedPublicOriginFromRequest(request)",
+        ".update({ consumed_at: new Date().toISOString() })",
+        "resolveDestinationWithBlockingCalibration(destination, calibrationPath)"
+      ]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/security/webhook-callback-fixtures.test.ts",
+      "markers": [
+        "covers required webhook fixture branches",
+        "records replay-safety and destination-abuse fixtures"
+      ]
+    },
+    {
+      "path": "src/app/api/stripe/webhook/route.test.ts",
+      "markers": [
+        "returns duplicate payload shape for replayed Stripe event id",
+        "returns 415 when Stripe webhook content type is not JSON",
+        "returns 400 when constructEvent rejects (invalid signature)",
+        "returns 400 when Stripe signature timestamp is stale",
+        "returns 400 when the signed Stripe payload is malformed",
+        "returns 503 provider outage when Stripe client is misconfigured",
+        "accepts an unknown Stripe event family after durable claim without organization mutation"
+      ]
+    },
+    {
+      "path": "src/app/api/webhooks/dispatch/route.test.ts",
+      "markers": [
+        "signs webhook deliveries with HMAC and dedupes delivery rows",
+        "skips a webhook delivery row when another worker already claimed it",
+        "blocks duplicate replay_event requests before resetting delivery state"
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "markers": [
+        "returns 400 when oauth state redirect_uri is not the callback route",
+        "returns 400 when oauth state redirect_uri contains a query string",
+        "returns 400 and skips token exchange when state was consumed concurrently",
+        "returns 502 upstream_failed when token exchange rejects upstream"
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/oauth/start/route.test.ts",
+      "markers": [
+        "rejects same-origin redirectUri values that are not the OAuth callback route",
+        "rejects OAuth callback redirectUri values with query strings",
+        "blocks duplicate replay of oauth start with x-idempotency-key"
+      ]
+    },
+    {
+      "path": "src/app/api/integrations/actions/callback/route.test.ts",
+      "markers": [
+        "returns 400 for malformed JSON when authorized",
+        "rejects create_task when contract is not in the claimed organization",
+        "handles duplicate replay of approve_evidence callback idempotently"
+      ]
+    },
+    {
+      "path": "src/app/auth/refinement-auth-callback.test.ts",
+      "markers": [
+        "uses the trusted canonical origin when the callback request host is untrusted in production",
+        "rejects invite callbacks when the invite is expired",
+        "rejects invite callbacks when the signed-in email does not match the invite target"
+      ]
+    }
+  ]
+}

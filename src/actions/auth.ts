@@ -30,6 +30,7 @@ const MAX_AUTH_EMAIL_LEN = 254;
 const MAX_AUTH_PASSWORD_LEN = 128;
 const MIN_AUTH_PASSWORD_LEN = 8;
 const MAX_AUTH_NAME_LEN = 200;
+const MAX_AUTH_COMPANY_LEN = 200;
 
 function readAuthEmail(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
   const validation = validateBoundedString(formData.get("email") ?? "", { maxLength: MAX_AUTH_EMAIL_LEN });
@@ -47,6 +48,18 @@ function readAuthDisplayName(formData: FormData): { ok: true; value: string } | 
   if (!validation.ok) {
     if (validation.error === "string_too_long") return { ok: false, error: "Name is too long." };
     return { ok: false, error: "Name contains unsupported characters." };
+  }
+  return { ok: true, value: validation.value };
+}
+
+function readAuthCompanyName(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
+  const validation = validateBoundedString(formData.get("companyName") ?? "", {
+    maxLength: MAX_AUTH_COMPANY_LEN,
+    allowEmpty: true,
+  });
+  if (!validation.ok) {
+    if (validation.error === "string_too_long") return { ok: false, error: "Company name is too long." };
+    return { ok: false, error: "Company name contains unsupported characters." };
   }
   return { ok: true, value: validation.value };
 }
@@ -85,6 +98,7 @@ async function resolvePostAuthRedirectForUser(user: {
   id: string;
   user_metadata?: {
     full_name?: unknown;
+    company_name?: unknown;
   } | null;
 }) {
   const admin = await createAdminClient();
@@ -117,6 +131,8 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
   if (!password.ok) return { error: password.error };
   const fullName = readAuthDisplayName(formData);
   if (!fullName.ok) return { error: fullName.error };
+  const companyName = readAuthCompanyName(formData);
+  if (!companyName.ok) return { error: companyName.error };
 
   const supabase = await createClient();
 
@@ -126,7 +142,7 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     email: email.value,
     password: password.value,
     options: {
-      data: { full_name: fullName.value },
+      data: { full_name: fullName.value, company_name: companyName.value },
       emailRedirectTo: `${appUrl}/auth/callback`,
     },
   });

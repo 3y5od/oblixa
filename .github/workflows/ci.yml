@@ -40,6 +40,9 @@ jobs:
       - name: SBOM (CycloneDX, package-lock)
         run: npm run sbom
 
+      - name: Dual SBOM evidence (CycloneDX + SPDX)
+        run: npm run check:sbom-dual-format-evidence
+
       - name: SBOM license allowlist spot-check
         run: npm run check:license-sbom
 
@@ -47,7 +50,7 @@ jobs:
         run: npm run check:sbom-diff
 
       - name: Supply-chain static enforcement contracts
-        run: npm run check:dependency-policy && npm run check:npm-script-integrity && npm run check:npm-lifecycle && npm run check:install-script-risk && npm run check:executable-masquerade-guards && npm run check:dynamic-import-specifiers && npm run check:test-fixture-secrets && npm run check:ci-artifact-secret-leakage && npm run check:codeowners-security-paths
+        run: npm run check:supply-chain-dependency-risk && npm run check:dependency-policy && npm run check:dependency-confusion-guards && npm run check:npm-script-integrity && npm run check:npm-lifecycle && npm run check:install-script-risk && npm run check:executable-masquerade-guards && npm run check:dynamic-import-specifiers && npm run check:test-fixture-secrets && npm run check:ci-artifact-secret-leakage && npm run check:supply-chain-waivers && npm run check:codeowners-security-paths
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -189,7 +192,7 @@ jobs:
         run: npm run check:path-traversal-guards
 
       - name: Upload security guard contract
-        run: npm run check:upload-security-guards
+        run: npm run check:upload-security-guards && npm run check:upload-banlist
 
       - name: Parser risk controls
         run: npm run check:parser-risk-controls
@@ -197,8 +200,14 @@ jobs:
       - name: Decompression bomb guards
         run: npm run check:decompression-bomb-guards
 
+      - name: Regex DoS risk
+        run: npm run check:regex-dos-risk
+
       - name: Export security guard contract
         run: npm run check:export-security-guards
+
+      - name: Binary metadata stripping contract
+        run: npm run check:binary-metadata-stripping
 
       - name: Account recovery abuse guard contract
         run: npm run check:account-recovery-abuse-guards
@@ -206,8 +215,14 @@ jobs:
       - name: Lockout / reset safety contract
         run: npm run check:lockout-reset-safety
 
+      - name: Email DNS fixture contract
+        run: npm run check:email-dns-fixtures
+
       - name: Email identity spoof guard contract
         run: npm run check:email-identity-spoof-guards
+
+      - name: Provider integration fixture contract
+        run: npm run check:provider-integration-fixtures
 
       - name: Inbound identity boundary contract
         run: npm run check:inbound-identity-boundaries
@@ -257,6 +272,9 @@ jobs:
       - name: Logging telemetry redaction contract
         run: npm run check:logging-telemetry-redaction
 
+      - name: Sentry tag banlist contract
+        run: npm run check:sentry-tag-banlist
+
       - name: Persistence redaction contract
         run: npm run check:persistence-redaction
 
@@ -265,6 +283,9 @@ jobs:
 
       - name: Security headers contract
         run: npm run check:security-headers && npm run check:csp-nonce-hash-consistency
+
+      - name: Browser security drift and reporting endpoints
+        run: npm run check:content-sniffing-defenses && npm run check:unsafe-inline-regressions && npm run check:third-party-script-integrity && npm run check:next-script-integrity && npm run check:reporting-endpoints
 
       - name: Security audit event contract
         run: npm run check:security-event-contract
@@ -294,7 +315,7 @@ jobs:
         run: npm run check:dangerously-set-inner-html
 
       - name: XSS and client exposure contract
-        run: npm run check:xss-client-exposure && npm run check:client-storage-sensitivity
+        run: npm run check:xss-client-exposure && npm run check:client-storage-sensitivity && npm run check:client-cache-sensitivity
 
       - name: Supply-chain external waiver registry
         run: npm run check:supply-chain-waivers
@@ -366,6 +387,9 @@ jobs:
 
       - name: Supabase data retention inventory
         run: npm run check:supabase:retention-inventory
+
+      - name: Database backup and restore evidence
+        run: npm run check:database-backup-restore-evidence
 
       - name: Runtime health probe contracts
         run: npm run check:runtime-health-probe-contracts
@@ -520,6 +544,123 @@ jobs:
       - name: Seed versioned-name queue coverage
         run: npm run check:seed-versioned-name-queue-coverage
 
+      - name: Operational Supabase and database readiness
+        run: npm run check:operational-supabase-database
+
+      - name: Operational cron and scheduled work readiness
+        run: npm run check:operational-cron-jobs
+
+      - name: Operational webhooks and callbacks readiness
+        run: npm run check:operational-webhooks-callbacks
+
+      - name: Operational secrets and configuration readiness
+        run: npm run check:operational-secrets-configuration
+
+      - name: Operational authz and session readiness
+        run: npm run check:operational-authz-session
+
+      - name: Operational API runtime contracts
+        run: npm run check:operational-api-runtime-contracts
+
+      - name: Operational rate limits and abuse bounds
+        run: npm run check:operational-rate-limits-abuse-bounds
+
+      - name: Operational observability and redaction
+        run: npm run check:operational-observability-redaction
+
+      - name: Operational browser security and isolation
+        run: npm run check:operational-browser-security
+
+      - name: Operational uploads, files, and extraction
+        run: npm run check:operational-uploads-files-extraction
+
+      - name: Operational provider integrations
+        run: npm run check:operational-provider-integrations
+
+      - name: Operational privacy auditability
+        run: npm run check:operational-privacy-auditability
+
+      - name: Operational supply chain and dependency risk
+        run: npm run check:operational-supply-chain-risk
+
+      - name: Operational frontend resilience
+        run: npm run check:operational-frontend-resilience
+
+      - name: Operational performance, load, and chaos
+        run: npm run check:operational-performance-load-chaos
+
+      - name: Operational DR and incident readiness
+        run: npm run check:incident-readiness:strict
+
+      - name: Operational waivers and risk ratchets
+        run: npm run check:operational-waivers-ratchets
+
+      - name: Operational feature flags and rollout safety
+        run: npm run check:operational-feature-flags-rollout
+
+      - name: Operational schema and contract compatibility
+        run: npm run check:operational-schema-compatibility
+
+      - name: Operational data quality and invariants
+        run: npm run check:operational-data-quality-invariants
+
+      - name: Operational support operations
+        run: npm run check:operational-support-operations
+
+      - name: Operational edge readiness
+        run: npm run check:operational-edge-readiness
+
+      - name: Operational legal trust compliance
+        run: npm run check:operational-legal-trust-compliance
+
+      - name: Operational static architecture code health
+        run: npm run check:operational-static-architecture-code-health
+
+      - name: Operational test reliability governance
+        run: npm run check:operational-test-reliability-governance
+
+      - name: Operational platform variant coverage
+        run: npm run check:operational-platform-variant-coverage
+
+      - name: Operational search reporting analytics exports
+        run: npm run check:operational-search-reporting-analytics-exports
+
+      - name: Operational notifications messaging
+        run: npm run check:operational-notifications-messaging
+
+      - name: Operational billing entitlements
+        run: npm run check:operational-billing-entitlements
+
+      - name: Operational OAuth integration sync
+        run: npm run check:operational-oauth-integration-sync
+
+      - name: Operational public launch positioning
+        run: npm run check:operational-public-launch-positioning
+
+      - name: Operational repository artifact hygiene
+        run: npm run check:operational-repository-artifact-hygiene
+
+      - name: Operational threat model and control traceability
+        run: npm run check:control-traceability:strict && npm run check:threat-row-coverage && npm run check:qa-waiver-registry
+
+      - name: Operational environment isolation
+        run: npm run check:operational-environment-isolation
+
+      - name: Operational governance ownership
+        run: npm run check:operational-governance-ownership
+
+      - name: Operational CI enforcement
+        run: npm run check:operational-ci-enforcement
+
+      - name: Operational package and pipeline governance
+        run: npm run check:operational-package-pipelines
+
+      - name: Operational release readiness
+        run: npm run check:operational-release-readiness
+
+      - name: Operational hardening objective closure
+        run: npm run check:operational-hardening-objectives
+
       - name: Hardening CI wiring parity
         run: npm run check:hardening-ci-wiring
 
@@ -622,6 +763,9 @@ jobs:
       - name: Secrets env token quality contract
         run: npm run check:secrets-env-token-quality
 
+      - name: Secret rotation readiness
+        run: npm run check:secret-rotation-readiness
+
       - name: Required security checkset
         run: npm run check:required-security-checkset
 
@@ -672,6 +816,9 @@ jobs:
 
       - name: Privacy inventory contract
         run: npm run check:privacy-inventory
+
+      - name: Privacy auditability fixture tests
+        run: npm run test:privacy-auditability
 
       - name: Concurrency cap guards
         run: npm run check:concurrency-cap-guards
@@ -730,8 +877,8 @@ jobs:
       - name: Chaos readiness report (telemetry)
         run: npm run report:chaos-readiness
 
-      - name: Incident readiness checks
-        run: npm run check:incident-readiness:strict
+      - name: SLO budget comparison
+        run: npm run test:slo-budgets
 
       - name: Change-impact check mapping (telemetry)
         run: npm run report:ci-change-impact
@@ -749,8 +896,14 @@ jobs:
       - name: SBOM integrity
         run: npm run check:sbom-integrity
 
+      - name: Dual SBOM format, VEX, and SARIF evidence
+        run: npm run check:sbom-formats-vex-sarif
+
       - name: Release artifact provenance
         run: npm run check:release-artifact-provenance
+
+      - name: Release provenance optional boundaries
+        run: npm run check:reproducible-build-hash && npm run check:container-signing-slsa-stub
 
       - name: Outbound events + client hash + copy audits (verify parity)
         run: npm run check:ci-verify-extras
@@ -1015,7 +1168,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Governance checks
-        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:static-check-determinism && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity && npm run check:gitleaks-allowlist
+        run: npm run check:owner-metadata && npm run check:checks-integrity-meta && npm run check:static-check-determinism && npm run check:branch-protection-drift && npm run check:config-drift && npm run check:semgrep-rulepack-integrity && npm run check:supply-chain-security-matrix && npm run check:gitleaks-allowlist && npm run check:git-history-secret-exposure && npm run check:github-actions-permissions
       - name: Workflow and command integrity
         run: npm run check:command-reference-integrity && npm run check:script-registry-integrity && npm run check:unused-script-files && npm run check:wrapper-reintroduction && npm run check:tier-coverage:strict && npm run check:workflow-tier-coverage:strict
 

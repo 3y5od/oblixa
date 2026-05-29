@@ -58,13 +58,15 @@ describe("onboarding spec acceptance (§22)", () => {
     expect(patch.advanced_modules_hidden?.length).toBeGreaterThan(0);
   });
 
-  it("§22.5 — review copy uses Recommended wording (wizard ties label to recommendation)", () => {
+  it("§22.5 — review copy uses Core-safe ready wording", () => {
     expect(reviewStepTitle.length).toBeGreaterThan(0);
     const wizard = readFileSync(
       join(process.cwd(), "src/components/onboarding/calibration-wizard.tsx"),
       "utf8"
     );
-    expect(wizard).toMatch(/\(recommended\)/);
+    expect(reviewStepTitle).toBe("Your workspace is ready to track contracts");
+    expect(wizard).not.toMatch(/\(recommended\)/);
+    expect(wizard).toContain("/contracts/new");
   });
 
   it("§22.6 — beginRecalibration sets in_progress and merges via mergeOrgSettingsJson", () => {

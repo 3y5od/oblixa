@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T23:20:58.887Z",
+  "generatedAt": "2026-05-28T22:05:45.870Z",
   "rows": [
     {
       "route": "/",
@@ -2293,6 +2293,7 @@
       "route": "/contracts/evidence-studio",
       "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
       "providers": [
+        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2358,7 +2359,6 @@
       "route": "/contracts/new",
       "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
       "providers": [
-        "calendar",
         "openai",
         "supabase"
       ],
@@ -2436,15 +2436,14 @@
     {
       "route": "/contracts/review",
       "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
-      "providers": [
-        "supabase"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/contracts/review",
       "sourcePath": "src/app/(dashboard)/contracts/review/page.tsx",
       "providers": [
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2738,6 +2737,30 @@
       "fallbackRequired": false
     },
     {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/security",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "providers": [
@@ -2868,7 +2891,6 @@
       "route": "/settings/security",
       "sourcePath": "src/app/(dashboard)/settings/security/page.tsx",
       "providers": [
-        "openai",
         "resend",
         "supabase"
       ],
@@ -4147,6 +4169,15 @@
       "sourcePath": "src/actions/product-surface-settings.test.ts",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:product-telemetry.test",
+      "sourcePath": "src/actions/product-telemetry.test.ts",
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },

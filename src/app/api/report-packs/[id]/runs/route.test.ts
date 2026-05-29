@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getApiAuthContext = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn();
 const getOrgSettingsJson = vi.fn();
+const rateLimitCheck = vi.fn();
 
 vi.mock("@/lib/contract-operations/api-auth", () => ({
   getApiAuthContext,
@@ -14,6 +15,12 @@ vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
 
 vi.mock("@/lib/assurance/org-settings", () => ({
   getOrgSettingsJson: (...args: unknown[]) => getOrgSettingsJson(...args),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  RATE_LIMITS: { reportPackRunsRead: { max: 60, windowMs: 60_000 } },
+  getClientIpFromRequest: () => "127.0.0.1",
+  rateLimitCheck: (...args: unknown[]) => rateLimitCheck(...args),
 }));
 
 function adminForRuns(packReportType: string, runs: Array<Record<string, unknown>> = []) {
@@ -62,6 +69,7 @@ describe("GET /api/report-packs/[id]/runs", () => {
     vi.clearAllMocks();
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     getOrgSettingsJson.mockResolvedValue({ workspace_mode: "core" });
+    rateLimitCheck.mockResolvedValue({ ok: true });
   });
 
   it("returns 401 when unauthenticated", async () => {
@@ -101,6 +109,28 @@ describe("GET /api/report-packs/[id]/runs", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.runs).toEqual([]);
+  });
+
+  it("returns 429 when report-run export reads are rate limited", async () => {
+    rateLimitCheck.mockResolvedValueOnce({ ok: false, retryAfterMs: 5_000 });
+    getApiAuthContext.mockResolvedValue({
+      admin: adminForRuns("weekly_execution_health"),
+      userId: "u1",
+      orgId: "org-1",
+      role: "admin",
+    });
+    const { GET } = await import("@/app/api/report-packs/[id]/runs/route");
+    const res = await GET(new Request("http://localhost/api/report-packs/p1/runs?format=csv"), {
+      params: Promise.resolve({ id: "p1" }),
+    });
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("5");
+    await expect(res.json()).resolves.toMatchObject({
+      code: "rate_limited",
+      diagnostic_id: "route_rate_limited",
+      route: "/api/report-packs/[id]/runs",
+    });
   });
 
   it("neutralizes spreadsheet formulas in CSV export", async () => {

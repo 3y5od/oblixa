@@ -1,0 +1,440 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-provider-integrations",
+  "generatedBy": "scripts/check-operational-provider-integrations.mjs --write",
+  "generatedFrom": "config/operational-provider-integrations.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 19,
+  "stripeContractCount": 3,
+  "emailContractCount": 3,
+  "openAiContractCount": 3,
+  "redisContractCount": 2,
+  "oauthTokenContractCount": 4,
+  "delegatedCheckCount": 13,
+  "commands": [
+    {
+      "objective": "email-integration-hardening",
+      "script": "check:email-dns-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "spf_dkim_dmarc_mx_mta_sts_fixtures"
+      ]
+    },
+    {
+      "objective": "email-integration-hardening",
+      "script": "check:email-identity-spoof-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "invite_identity_binding",
+        "sender_hygiene",
+        "unsubscribe_header_hygiene"
+      ]
+    },
+    {
+      "objective": "email-integration-hardening",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "bounce_suppression_outage_template_safety"
+      ]
+    },
+    {
+      "objective": "oauth-token-storage-hardening",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "state_pkce_refresh_failure_revocation"
+      ]
+    },
+    {
+      "objective": "oauth-token-storage-hardening",
+      "script": "check:secrets-env-token-quality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "key_versioning",
+        "token_encryption_env_contract"
+      ]
+    },
+    {
+      "objective": "oauth-token-storage-hardening",
+      "script": "check:token-security-quality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "token_generation_hashing_encryption_quality"
+      ]
+    },
+    {
+      "objective": "oauth-token-storage-hardening",
+      "script": "tools:reencrypt-integration-tokens",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "dry_run_reencryption_tooling"
+      ]
+    },
+    {
+      "objective": "openai-provider-boundaries",
+      "script": "check:ai-boundary-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "callsite_allowlist",
+        "retry_caps",
+        "schema_output"
+      ]
+    },
+    {
+      "objective": "openai-provider-boundaries",
+      "script": "check:ai-context-redaction",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "prompt_and_error_redaction"
+      ]
+    },
+    {
+      "objective": "openai-provider-boundaries",
+      "script": "check:ai-prompt-injection-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "malformed_output",
+        "untrusted_text_boundaries"
+      ]
+    },
+    {
+      "objective": "openai-provider-boundaries",
+      "script": "check:circuit-breaker-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "bounded_retry_and_backoff"
+      ]
+    },
+    {
+      "objective": "openai-provider-boundaries",
+      "script": "check:timeout-budget-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "openai_attempt_timeout_budget"
+      ]
+    },
+    {
+      "objective": "redis-upstash-rate-limit-hardening",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "upstash_success_outage_timeout_malformed_pii_key"
+      ]
+    },
+    {
+      "objective": "redis-upstash-rate-limit-hardening",
+      "script": "check:rate-limit-distribution-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "production_distributed_limiter_fail_closed"
+      ]
+    },
+    {
+      "objective": "redis-upstash-rate-limit-hardening",
+      "script": "check:rate-limit-key-cardinality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "key_prefix_cardinality"
+      ]
+    },
+    {
+      "objective": "stripe-integration-hardening",
+      "script": "check:idempotency-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "checkout_portal_webhook_replay_safety"
+      ]
+    },
+    {
+      "objective": "stripe-integration-hardening",
+      "script": "check:integration-contract-resilience",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "route_negative_paths",
+        "route_replay_or_schema_compatibility"
+      ]
+    },
+    {
+      "objective": "stripe-integration-hardening",
+      "script": "check:operational-provider-integrations",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "provider_fixture_closure"
+      ]
+    },
+    {
+      "objective": "stripe-integration-hardening",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "provider_failure_matrix",
+        "stripe_fixture_matrix"
+      ]
+    }
+  ],
+  "stripeContracts": [
+    {
+      "id": "stripe-mode-and-client-policy",
+      "path": "src/lib/stripe.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stripe-route-fixture-tests",
+      "path": "src/app/api/stripe/webhook/route.test.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stripe-webhook-replay-mode-and-payment-failure",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "emailContracts": [
+    {
+      "id": "email-auth-dns-fixtures",
+      "path": "config/email-auth-dns-fixtures.json",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "email-provider-policy",
+      "path": "src/lib/email/provider-policy.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "email-provider-send-safety",
+      "path": "src/lib/email.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "openAiContracts": [
+    {
+      "id": "openai-pdf-failover-and-cleanup",
+      "path": "src/lib/extraction/openai-pdf-text.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "openai-prompt-and-schema-boundary",
+      "path": "src/lib/extraction/extract-fields.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "openai-timeout-and-output-budgets",
+      "path": "src/lib/extraction/constants.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "redisContracts": [
+    {
+      "id": "rate-limit-provider-outage-tests",
+      "path": "src/lib/rate-limit.provider-outage.test.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rate-limit-upstash-failure-policy",
+      "path": "src/lib/rate-limit.ts",
+      "markerCount": 6,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "oauthTokenContracts": [
+    {
+      "id": "oauth-start-state-pkce",
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "oauth-state-pkce-callback",
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reencryption-tooling",
+      "path": "scripts/reencrypt-integration-tokens.mjs",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "refresh-token-redaction-and-reencryption",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "ai-boundary-contract",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ai-context-redaction",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "ai-prompt-injection-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "circuit-breaker-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "email-dns-fixtures",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "email-identity-spoof-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "integration-contract-resilience",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "provider-integration-fixtures",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "rate-limit-distribution-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "rate-limit-key-cardinality",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "secrets-env-token-quality",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "timeout-budget-guards",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "token-security-quality",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": "Live provider dashboard configuration, DNS publication, Stripe live products, Resend domain verification, OpenAI quota changes, and Upstash database changes remain manual.",
+  "issueCount": 0,
+  "issues": []
+}

@@ -6,6 +6,7 @@ import {
   getExplicitOrgIdFromInput,
   getExplicitOrgIdFromRequest,
   getExplicitOrgIdFromRequestWithBody,
+  orgOperationalStatusFromRow,
   orgResolutionHttpStatus,
   requireServiceRoleOrgId,
   resolveExplicitOrSingleMembership,
@@ -137,6 +138,60 @@ describe("service-role org-scoped admin helpers", () => {
     });
   });
 
+  it("does not fall back from a stale selected org to an implicit membership", async () => {
+    let implicitFallbackQueried = false;
+    const admin = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
+            }),
+            order: () => {
+              implicitFallbackQueried = true;
+              return {
+                limit: async () => ({
+                  data: [{ organization_id: "org_current", role: "admin" }],
+                  error: null,
+                }),
+              };
+            },
+          }),
+        }),
+      }),
+    };
+
+    await expect(resolveExplicitOrSingleMembership(admin, "user_1", "org_stale")).resolves.toEqual({
+      ok: false,
+      reason: "organization_membership_missing",
+    });
+    expect(implicitFallbackQueried).toBe(false);
+  });
+
+  it("fails closed for missing actor and membership query errors", async () => {
+    const admin = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              limit: async () => ({ data: null, error: { message: "db unavailable" } }),
+            }),
+          }),
+        }),
+      }),
+    };
+
+    await expect(resolveExplicitOrSingleMembership(admin, "   ")).resolves.toEqual({
+      ok: false,
+      reason: "organization_membership_missing",
+    });
+    await expect(resolveExplicitOrSingleMembership(admin, "user_1")).resolves.toEqual({
+      ok: false,
+      reason: "organization_membership_query_failed",
+      detail: "db unavailable",
+    });
+  });
+
   it("allows implicit org fallback only for exactly one membership", async () => {
     function adminWithRows(rows: unknown[]) {
       return {
@@ -199,6 +254,65 @@ describe("service-role org-scoped admin helpers", () => {
     });
     expect(orgResolutionHttpStatus("organization_membership_missing")).toBe(403);
     expect(orgResolutionHttpStatus("organization_membership_query_failed")).toBe(403);
+  });
+
+  it("rejects inactive and suspended organizations for sensitive org context", async () => {
+    function adminWithOrgStatus(operationalStatus: "active" | "inactive" | "suspended") {
+      return {
+        from: (table: string) => {
+          if (table === "organization_members") {
+            return {
+              select: () => ({
+                eq: () => ({
+                  eq: () => ({
+                    maybeSingle: async () => ({
+                      data: { organization_id: "org_1", role: "admin" },
+                      error: null,
+                    }),
+                  }),
+                }),
+              }),
+            };
+          }
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { id: "org_1", v6_org_settings_json: { operational_status: operationalStatus } },
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        },
+      };
+    }
+
+    await expect(resolveSensitiveOrgContext(adminWithOrgStatus("active"), { id: "user_1" }, "org_1")).resolves.toEqual({
+      ok: true,
+      organizationId: "org_1",
+      role: "admin",
+      membership: { organization_id: "org_1", role: "admin" },
+    });
+    await expect(resolveSensitiveOrgContext(adminWithOrgStatus("inactive"), { id: "user_1" }, "org_1")).resolves.toEqual({
+      ok: false,
+      reason: "organization_inactive",
+      status: 403,
+      detail: undefined,
+    });
+    await expect(resolveSensitiveOrgContext(adminWithOrgStatus("suspended"), { id: "user_1" }, "org_1")).resolves.toEqual({
+      ok: false,
+      reason: "organization_suspended",
+      status: 403,
+      detail: undefined,
+    });
+  });
+
+  it("normalizes operational org status rows for authz evidence", () => {
+    expect(orgOperationalStatusFromRow({ v6_org_settings_json: { operational_status: "inactive" } })).toBe("inactive");
+    expect(orgOperationalStatusFromRow({ v6_org_settings_json: { operational_status: "suspended" } })).toBe("suspended");
+    expect(orgOperationalStatusFromRow({ v6_org_settings_json: { operational_status: "invalid" } })).toBe("active");
+    expect(orgOperationalStatusFromRow(null)).toBeNull();
   });
 
   it("creates an org-scoped admin context that binds predicates and payloads", () => {

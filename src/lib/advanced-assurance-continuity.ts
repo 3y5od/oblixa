@@ -393,8 +393,8 @@ export function buildV10AdvancedAssuranceNotificationPolicy(input: {
   });
   const signal = V10_ADVANCED_ASSURANCE_CONTINUITY_SIGNALS.find((row) => row.recordType === input.recordType);
   const auditAction = signal?.auditAction ?? `${input.recordType}.hidden`;
-  const workDestination = projection.include_in_work ? `/work?type=${input.recordType}` : "/settings/product";
-  const commandSearchDestination = projection.include_in_command_search ? `cmdk:${input.recordType}` : "/settings/product";
+  const workDestination = projection.include_in_work ? `/work?type=${input.recordType}` : "/settings";
+  const commandSearchDestination = projection.include_in_command_search ? `cmdk:${input.recordType}` : "/settings";
   if (projection.visibility_state === "hidden_by_mode") {
     return {
       recordType: input.recordType,
@@ -597,7 +597,7 @@ export function buildV10LinkedRecordContinuityEvidence(input: {
       visible: false,
       visibility_state: "hidden_by_module",
       outcome: "hidden_module",
-      fallback_destination: "/settings/product",
+      fallback_destination: "/settings",
       required_linkage: [],
       present_linkage: input.presentLinkage ?? [],
       missing_linkage: [],

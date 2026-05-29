@@ -1,0 +1,427 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-legal-trust-compliance",
+  "generatedArtifact": "artifacts/operational-legal-trust-compliance.json",
+  "ok": true,
+  "summary": {
+    "trustSurfaceCount": 10,
+    "publicClaimCount": 4,
+    "capabilityEvidenceCount": 4,
+    "subprocessorCount": 6,
+    "consentInventoryCount": 4,
+    "complianceMappingCount": 5
+  },
+  "requiredValidationCommands": [
+    "check:operational-legal-trust-compliance",
+    "test:operational-legal-trust-compliance",
+    "check:subprocessors-drift:strict",
+    "check:subprocessor-change-sla",
+    "check:subprocessors-privacy-alignment",
+    "check:privacy-inventory",
+    "check:public-seo-surface",
+    "audit:release-state-code-only:strict",
+    "check:control-traceability:strict"
+  ],
+  "trustSurfaces": [
+    {
+      "id": "terms",
+      "surfaceType": "public-legal-page",
+      "route": "/terms",
+      "path": "src/app/(marketing)/terms/page.tsx",
+      "ownerArea": "trust-compliance",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 365,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "LegalPageJsonLd",
+        "does not provide legal advice",
+        "commercial terms"
+      ],
+      "contactPath": "/contact",
+      "manualBoundary": "legal approval remains manual"
+    },
+    {
+      "id": "privacy",
+      "surfaceType": "public-legal-page",
+      "route": "/privacy",
+      "path": "src/app/(marketing)/privacy/page.tsx",
+      "ownerArea": "privacy-security",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 365,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "LegalPageJsonLd",
+        "What we process",
+        "Your rights"
+      ],
+      "contactPath": "/contact",
+      "manualBoundary": "privacy counsel approval remains manual"
+    },
+    {
+      "id": "security",
+      "surfaceType": "public-trust-page",
+      "route": "/security",
+      "path": "src/app/(marketing)/security/page.tsx",
+      "ownerArea": "platform-security",
+      "lastReviewed": "2026-05-14",
+      "freshnessWindowDays": 180,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "SECURITY_EMAIL",
+        "security.txt",
+        "DPA",
+        "Subprocessors"
+      ],
+      "contactPath": "mailto:[redacted]",
+      "manualBoundary": "security assurance approval remains manual"
+    },
+    {
+      "id": "cookies",
+      "surfaceType": "public-legal-page",
+      "route": "/cookies",
+      "path": "src/app/(marketing)/cookies/page.tsx",
+      "ownerArea": "privacy-security",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 365,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "LegalPageJsonLd",
+        "Essential cookies",
+        "third-party advertising cookies"
+      ],
+      "contactPath": "/privacy",
+      "manualBoundary": "consent/legal approval remains manual"
+    },
+    {
+      "id": "acceptable-use",
+      "surfaceType": "public-legal-page",
+      "route": "/acceptable-use",
+      "path": "src/app/(marketing)/acceptable-use/page.tsx",
+      "ownerArea": "trust-compliance",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 365,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "LegalPageJsonLd",
+        "Prohibited uses",
+        "not a law firm"
+      ],
+      "contactPath": "/contact",
+      "manualBoundary": "acceptable-use enforcement decisions remain manual"
+    },
+    {
+      "id": "accessibility",
+      "surfaceType": "public-trust-page",
+      "route": "/accessibility",
+      "path": "src/app/(marketing)/accessibility/page.tsx",
+      "ownerArea": "frontend-platform",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 365,
+      "requiredMarkers": [
+        "LAST_REVIEWED_ISO",
+        "LegalPageJsonLd",
+        "Keyboard navigation",
+        "Visible focus"
+      ],
+      "contactPath": "/contact",
+      "manualBoundary": "real assistive technology validation remains manual"
+    },
+    {
+      "id": "contact",
+      "surfaceType": "public-contact-page",
+      "route": "/contact",
+      "path": "src/app/(marketing)/contact/page.tsx",
+      "ownerArea": "product-operations",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 180,
+      "requiredMarkers": [
+        "LegalPageJsonLd",
+        "1-day reply",
+        "No marketing list",
+        "security and DPA requests"
+      ],
+      "contactPath": "/contact",
+      "manualBoundary": "support response and sales qualification remain manual"
+    },
+    {
+      "id": "security-txt",
+      "surfaceType": "well-known-trust-artifact",
+      "route": "/.well-known/security.txt",
+      "path": "public/.well-known/security.txt",
+      "ownerArea": "platform-security",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 180,
+      "requiredMarkers": [
+        "Contact:",
+        "Expires:",
+        "Canonical:",
+        "Policy:"
+      ],
+      "contactPath": "mailto:[redacted]",
+      "manualBoundary": "vulnerability triage remains manual"
+    },
+    {
+      "id": "subprocessors",
+      "surfaceType": "machine-readable-trust-artifact",
+      "path": "artifacts/subprocessors.json",
+      "ownerArea": "trust-compliance",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 180,
+      "requiredMarkers": [
+        "code-owned-subprocessor-register",
+        "notificationSlaDays",
+        "checksum"
+      ],
+      "contactPath": "/security#subprocessors",
+      "manualBoundary": "subprocessor notice and legal review remain manual"
+    },
+    {
+      "id": "dpa-request",
+      "surfaceType": "public-trust-path",
+      "route": "/contact?interested=dpa",
+      "path": "src/app/(marketing)/security/page.tsx",
+      "ownerArea": "trust-compliance",
+      "lastReviewed": "2026-05-28",
+      "freshnessWindowDays": 180,
+      "requiredMarkers": [
+        "Request a Data Processing Addendum (DPA)",
+        "/contact?interested=dpa"
+      ],
+      "contactPath": "/contact?interested=dpa",
+      "manualBoundary": "DPA negotiation and signature remain manual"
+    }
+  ],
+  "publicClaims": [
+    {
+      "id": "post-signature-contract-tracking",
+      "claim": "Oblixa is a contract tracking workspace for signed agreements.",
+      "sourcePath": "src/app/(marketing)/product/page.tsx",
+      "capabilityRefs": [
+        "contract-tracking-workspace"
+      ],
+      "allowedScope": "post-signature contract operations",
+      "validationCommand": "audit:release-state-code-only:strict"
+    },
+    {
+      "id": "security-practices",
+      "claim": "Oblixa documents permissions, audit history, exportability, transport, tenant isolation, and vulnerability disclosure.",
+      "sourcePath": "src/app/(marketing)/security/page.tsx",
+      "capabilityRefs": [
+        "permissions-audit-export",
+        "dpa-security-contact"
+      ],
+      "allowedScope": "security practice description, not certification",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "id": "no-legal-advice",
+      "claim": "Oblixa does not provide legal advice.",
+      "sourcePath": "src/app/(marketing)/terms/page.tsx",
+      "capabilityRefs": [
+        "no-legal-advice-boundary"
+      ],
+      "manualBoundary": "legal decisions remain with the customer and counsel",
+      "allowedScope": "product boundary disclaimer",
+      "validationCommand": "audit:release-state-code-only:strict"
+    },
+    {
+      "id": "dpa-on-request",
+      "claim": "DPA available on request.",
+      "sourcePath": "src/app/(marketing)/security/page.tsx",
+      "capabilityRefs": [
+        "dpa-security-contact"
+      ],
+      "manualBoundary": "DPA negotiation and signature remain manual",
+      "allowedScope": "request channel only",
+      "validationCommand": "check:public-seo-surface"
+    }
+  ],
+  "claimFindings": [],
+  "subprocessorIntegrity": {
+    "artifact": "artifacts/subprocessors.json",
+    "diffArtifact": "artifacts/subprocessors-diff.json",
+    "baseline": "scripts/subprocessors-baseline.sha256",
+    "minimumNoticeLeadTimeDays": 30,
+    "requiredFields": [
+      "id",
+      "name",
+      "purpose",
+      "dataClasses",
+      "region",
+      "owner",
+      "changeDate",
+      "checksum",
+      "notificationSlaDays"
+    ],
+    "requiredDataClasses": [
+      "account_data",
+      "workspace_content",
+      "contract_content",
+      "billing_data",
+      "email_delivery",
+      "error_telemetry",
+      "ai_extraction",
+      "rate_limit_metadata"
+    ]
+  },
+  "consentObservations": [
+    {
+      "path": "src/app/api/reports/track/click/[token]/route.ts",
+      "pattern": "/\\bTRACKING_STATUS_HEADER\\b/u",
+      "covered": true
+    },
+    {
+      "path": "src/app/api/reports/track/open/[token]/route.ts",
+      "pattern": "/\\bpixelResponse\\b/u",
+      "covered": true
+    },
+    {
+      "path": "src/app/api/reports/track/open/[token]/route.ts",
+      "pattern": "/\\bTRACKING_STATUS_HEADER\\b/u",
+      "covered": true
+    },
+    {
+      "path": "src/lib/security/client-storage.ts",
+      "pattern": "/\\bwindow\\.localStorage\\b/u",
+      "covered": true
+    },
+    {
+      "path": "src/lib/security/client-storage.ts",
+      "pattern": "/\\bwindow\\.sessionStorage\\b/u",
+      "covered": true
+    }
+  ],
+  "complianceTraceability": {
+    "frameworks": [
+      "SOC 2",
+      "ISO 27001",
+      "OWASP ASVS",
+      "privacy",
+      "internal"
+    ],
+    "certificationClaimPolicy": "evidence-links-only-no-certification-claim",
+    "mappings": [
+      {
+        "id": "soc2-cc6-logical-access",
+        "framework": "SOC 2",
+        "controlId": "CC6.1",
+        "evidenceRefs": [
+          "artifacts/gdpr-soc2-control-map.json",
+          "src/lib/auth/post-auth-redirect.test.ts"
+        ],
+        "certificationClaim": false,
+        "manualBoundary": "SOC 2 audit and certification remain external"
+      },
+      {
+        "id": "iso27001-access-control",
+        "framework": "ISO 27001",
+        "controlId": "A.5.15",
+        "evidenceRefs": [
+          "scripts/check-role-capability-inventory.mjs",
+          "src/lib/operational-support-operations.ts"
+        ],
+        "certificationClaim": false,
+        "manualBoundary": "ISO certification remains external"
+      },
+      {
+        "id": "owasp-asvs-target",
+        "framework": "OWASP ASVS",
+        "controlId": "ASVS-L2",
+        "evidenceRefs": [
+          "config/compliance/asvs-level-target.json",
+          "scripts/check-api-route-auth-contract.mjs"
+        ],
+        "certificationClaim": false,
+        "manualBoundary": "ASVS review signoff remains manual"
+      },
+      {
+        "id": "privacy-by-design",
+        "framework": "privacy",
+        "controlId": "GDPR-ART25",
+        "evidenceRefs": [
+          "artifacts/gdpr-soc2-control-map.json",
+          "src/lib/security/privacy-inventory.ts"
+        ],
+        "certificationClaim": false,
+        "manualBoundary": "legal interpretation remains manual"
+      },
+      {
+        "id": "internal-claim-boundary",
+        "framework": "internal",
+        "controlId": "LEGAL-CLAIM-BOUNDARY",
+        "evidenceRefs": [
+          "config/operational-legal-trust-compliance.json",
+          "scripts/check-operational-legal-trust-compliance.mjs"
+        ],
+        "certificationClaim": false,
+        "manualBoundary": "public claim approval remains manual"
+      }
+    ]
+  },
+  "markerRows": [
+    {
+      "path": "scripts/check-subprocessors-drift.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/check-subprocessor-change-sla.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/check-subprocessors-privacy-alignment.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/operational-legal-trust-compliance.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/operational-legal-trust-compliance.test.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "delegatedChecks": [
+    {
+      "checkId": "privacy-inventory",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "public-seo-surface",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "subprocessors-drift",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "subprocessor-change-sla",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "subprocessors-privacy-alignment",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": {
+    "objectiveId": "oph-030-legal-trust-compliance",
+    "boundary": "legal approval and certification claims remain manual",
+    "readinessCommand": "check:operational-legal-trust-compliance"
+  },
+  "issueCount": 0,
+  "issues": []
+}

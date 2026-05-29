@@ -2,6 +2,44 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type Stripe from "stripe";
 
 describe("stripe helpers", () => {
+  describe("mode consistency", () => {
+    it("derives expected livemode from explicit mode or secret-key prefix", async () => {
+      const {
+        assertStripeEnvironmentConsistency,
+        getExpectedStripeLivemodeFromEnv,
+        stripeCredentialMode,
+      } = await import("@/lib/stripe");
+
+      expect(stripeCredentialMode("sk_test_123")).toBe("test");
+      expect(stripeCredentialMode("sk_live_123")).toBe("live");
+      expect(getExpectedStripeLivemodeFromEnv({ STRIPE_EXPECTED_MODE: "live" })).toBe(true);
+      expect(getExpectedStripeLivemodeFromEnv({ STRIPE_SECRET_KEY: "sk_test_123" })).toBe(false);
+      expect(() =>
+        assertStripeEnvironmentConsistency({
+          STRIPE_EXPECTED_MODE: "live",
+          STRIPE_SECRET_KEY: "sk_test_123",
+        })
+      ).toThrow(/test\/live/i);
+    });
+
+    it("rejects Stripe test mode in production unless explicitly allowed", async () => {
+      const { assertStripeEnvironmentConsistency } = await import("@/lib/stripe");
+      expect(() =>
+        assertStripeEnvironmentConsistency({
+          NODE_ENV: "production",
+          STRIPE_SECRET_KEY: "sk_test_123",
+        })
+      ).toThrow(/test mode/i);
+      expect(() =>
+        assertStripeEnvironmentConsistency({
+          NODE_ENV: "production",
+          STRIPE_SECRET_KEY: "sk_test_123",
+          ALLOW_STRIPE_TEST_MODE_IN_PRODUCTION: "1",
+        })
+      ).not.toThrow();
+    });
+  });
+
   describe("resolveSubscriptionStatus", () => {
     it("maps Stripe subscription statuses", async () => {
       const { resolveSubscriptionStatus } = await import("@/lib/stripe");

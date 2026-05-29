@@ -5,14 +5,14 @@
     "src",
     "supabase/migrations"
   ],
-  "eventCount": 338,
-  "compatibilitySensitiveCount": 338,
-  "versionedEventNameCount": 74,
-  "neutralAliasCount": 74,
+  "eventCount": 370,
+  "compatibilitySensitiveCount": 370,
+  "versionedEventNameCount": 87,
+  "neutralAliasCount": 87,
   "bridgeCount": 8,
   "neutralAliasCoverage": {
-    "productVersionedEventCount": 72,
-    "productNeutralAliasCount": 72,
+    "productVersionedEventCount": 85,
+    "productNeutralAliasCount": 85,
     "normalizerExport": "normalizeProductTelemetryAction"
   },
   "versionedNameExceptions": [
@@ -28,6 +28,16 @@
     },
     {
       "eventName": "product.v10.approval_sla_breached",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.calibration_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.cancellation_recorded",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
@@ -77,6 +87,11 @@
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
+      "eventName": "product.v10.evidence_requested",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
       "eventName": "product.v10.evidence_review_decision_recorded",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
@@ -97,6 +112,11 @@
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
+      "eventName": "product.v10.extraction_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
       "eventName": "product.v10.failed_job_retry_succeeded",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
@@ -107,12 +127,37 @@
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
+      "eventName": "product.v10.field_reviewed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.first_contract_uploaded",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
       "eventName": "product.v10.first_work_item_generated",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
       "eventName": "product.v10.import_extraction_failure_rate_sampled",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.key_date_added",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.owner_assigned",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.pilot_converted",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
@@ -142,6 +187,11 @@
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
+      "eventName": "product.v10.report_exported",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
       "eventName": "product.v10.report_run_completed",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
@@ -157,7 +207,22 @@
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
     {
+      "eventName": "product.v10.signup_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.trial_converted",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
       "eventName": "product.v10.work_item_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
+    },
+    {
+      "eventName": "product.v10.work_item_created",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land."
     },
@@ -416,6 +481,24 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.calibration_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.calibration_completed",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.cancellation_recorded",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.cancellation_recorded",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.command_palette_opened",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
@@ -497,6 +580,15 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.evidence_requested",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.evidence_requested",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.evidence_review_decision_recorded",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
@@ -533,6 +625,15 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.extraction_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.extraction_completed",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.failed_job_retry_succeeded",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
@@ -551,6 +652,24 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.field_reviewed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.field_reviewed",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.first_contract_uploaded",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.first_contract_uploaded",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.first_work_item_generated",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
@@ -564,6 +683,33 @@
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
       "neutralAlias": "product.import_extraction_failure_rate_sampled",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.key_date_added",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.key_date_added",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.owner_assigned",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.owner_assigned",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.pilot_converted",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.pilot_converted",
       "status": "legacy_retained",
       "validationCommand": "npm run check:telemetry-event-inventory",
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
@@ -614,6 +760,15 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.report_exported",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.report_exported",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.report_run_completed",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
@@ -641,10 +796,37 @@
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
     },
     {
+      "eventName": "product.v10.signup_completed",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.signup_completed",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.trial_converted",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.trial_converted",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
       "eventName": "product.v10.work_item_completed",
       "owner": "platform",
       "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
       "neutralAlias": "product.work_item_completed",
+      "status": "legacy_retained",
+      "validationCommand": "npm run check:telemetry-event-inventory",
+      "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
+    },
+    {
+      "eventName": "product.v10.work_item_created",
+      "owner": "platform",
+      "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+      "neutralAlias": "product.work_item_created",
       "status": "legacy_retained",
       "validationCommand": "npm run check:telemetry-event-inventory",
       "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label."
@@ -1060,56 +1242,56 @@
       "from": "product.v9.cmdk_palette_opened",
       "to": "product.v10.command_palette_opened",
       "file": "src/lib/product-telemetry.ts",
-      "line": 102,
+      "line": 115,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.cmdk_result_selected",
       "to": "product.v10.command_palette_result_selected",
       "file": "src/lib/product-telemetry.ts",
-      "line": 103,
+      "line": 116,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.cmdk_zero_results",
       "to": "product.v10.command_palette_zero_result",
       "file": "src/lib/product-telemetry.ts",
-      "line": 104,
+      "line": 117,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.evidence_requested",
       "to": "product.v10.evidence_request_created",
       "file": "src/lib/product-telemetry.ts",
-      "line": 99,
+      "line": 112,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.evidence_review_decision_recorded",
       "to": "product.v10.evidence_review_decision_recorded",
       "file": "src/lib/product-telemetry.ts",
-      "line": 101,
+      "line": 114,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.evidence_submitted",
       "to": "product.v10.evidence_submitted",
       "file": "src/lib/product-telemetry.ts",
-      "line": 100,
+      "line": 113,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.review_save_next_used",
       "to": "product.v10.review_save_next_used",
       "file": "src/lib/product-telemetry.ts",
-      "line": 106,
+      "line": 119,
       "compatibilitySensitive": true
     },
     {
       "from": "product.v9.work_action_succeeded",
       "to": "product.v10.work_item_completed",
       "file": "src/lib/product-telemetry.ts",
-      "line": 105,
+      "line": 118,
       "compatibilitySensitive": true
     }
   ],
@@ -1219,7 +1401,7 @@
         },
         {
           "file": "src/app/api/integrations/refresh-tokens/route.ts",
-          "line": 261,
+          "line": 264,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -1314,20 +1496,14 @@
           "property": "action"
         },
         {
-          "file": "src/app/api/export/contracts/route.ts",
-          "line": 155,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
           "file": "src/app/api/export/renewals/route.ts",
-          "line": 49,
+          "line": 60,
           "eventClass": "action_event_reference",
           "property": "action"
         },
         {
           "file": "src/app/api/export/reports/route.ts",
-          "line": 63,
+          "line": 83,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -1345,7 +1521,7 @@
         },
         {
           "file": "src/app/api/report-packs/[id]/runs/route.ts",
-          "line": 40,
+          "line": 41,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -1357,7 +1533,7 @@
         },
         {
           "file": "src/app/api/workspace/v6-settings/route.ts",
-          "line": 41,
+          "line": 42,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1861,7 +2037,29 @@
       "sources": [
         {
           "file": "src/app/api/stripe/webhook/route.ts",
-          "line": 216,
+          "line": 257,
+          "eventClass": "audit_action_reference",
+          "property": "action"
+        }
+      ]
+    },
+    {
+      "eventName": "billing.payment_failed",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log",
+        "operations_alert"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/app/api/stripe/webhook/route.ts",
+          "line": 391,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -1883,25 +2081,25 @@
       "sources": [
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 150,
+          "line": 152,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 193,
+          "line": 195,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 253,
+          "line": 255,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 332,
+          "line": 334,
           "eventClass": "event_type_reference",
           "property": "eventType"
         }
@@ -1922,7 +2120,7 @@
       "sources": [
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 287,
+          "line": 289,
           "eventClass": "event_type_reference",
           "property": "eventType"
         }
@@ -2237,7 +2435,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1941,
+          "line": 1961,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -2283,31 +2481,31 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 432,
+          "line": 433,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 445,
+          "line": 446,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 455,
+          "line": 456,
           "eventClass": "action_event_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 1600,
+          "line": 1615,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/demo.ts",
-          "line": 100,
+          "line": 103,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -2394,13 +2592,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1201,
+          "line": 1215,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 1212,
+          "line": 1226,
           "eventClass": "event_type_reference",
           "property": "eventType"
         }
@@ -2462,19 +2660,19 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1801,
+          "line": 1816,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 1807,
+          "line": 1822,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 1815,
+          "line": 1830,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -2503,13 +2701,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 822,
+          "line": 824,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 829,
+          "line": 831,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -2576,16 +2774,24 @@
     {
       "eventName": "contract.updated",
       "eventClasses": [
+        "action_event_reference",
         "webhook_subscription_default"
       ],
       "compatibilitySensitive": true,
       "compatibilityConsumers": [
+        "analytics_dashboard",
         "webhook_subscriber"
       ],
       "versioned": false,
       "pattern": false,
       "neutralAlias": null,
       "sources": [
+        {
+          "file": "src/lib/security/dsar-fixtures.ts",
+          "line": 281,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
         {
           "file": "supabase/migrations/014_v2_workflow_expansion.sql",
           "line": 180,
@@ -2764,25 +2970,25 @@
       "sources": [
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 294,
+          "line": 296,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 347,
+          "line": 349,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 427,
+          "line": 429,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 546,
+          "line": 548,
           "eventClass": "event_type_reference",
           "property": "eventType"
         }
@@ -2805,13 +3011,13 @@
       "sources": [
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 463,
+          "line": 465,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/app/api/integrations/crm/sync/route.ts",
-          "line": 487,
+          "line": 489,
           "eventClass": "event_type_reference",
           "property": "eventType"
         }
@@ -3358,7 +3564,7 @@
         },
         {
           "file": "src/app/api/evidence/requests/[id]/remind/route.ts",
-          "line": 155,
+          "line": 158,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -3788,7 +3994,7 @@
         },
         {
           "file": "src/app/api/export/contracts/route.ts",
-          "line": 470,
+          "line": 460,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -4139,7 +4345,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1383,
+          "line": 1397,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -4184,7 +4390,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1353,
+          "line": 1367,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -4205,7 +4411,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 658,
+          "line": 660,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -4226,7 +4432,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1053,
+          "line": 1055,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -4386,7 +4592,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1134,
+          "line": 1148,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -4564,7 +4770,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1675,
+          "line": 1690,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -4650,7 +4856,7 @@
         },
         {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
-          "line": 388,
+          "line": 390,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -4972,7 +5178,7 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 495,
+          "line": 504,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -5190,7 +5396,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 485,
+          "line": 503,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5211,7 +5417,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 550,
+          "line": 568,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5232,7 +5438,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 728,
+          "line": 746,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5253,7 +5459,7 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 195,
+          "line": 200,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5274,13 +5480,13 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 478,
+          "line": 496,
           "eventClass": "action_event_reference",
           "property": "action"
         },
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 676,
+          "line": 694,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -5349,13 +5555,13 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 169,
+          "line": 168,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 178,
+          "line": 177,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5376,7 +5582,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 263,
+          "line": 262,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5397,7 +5603,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 471,
+          "line": 489,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5418,7 +5624,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 461,
+          "line": 479,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5439,7 +5645,7 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 669,
+          "line": 687,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5551,6 +5757,384 @@
       ]
     },
     {
+      "eventName": "privacy_request.integration_token_redacted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 152,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.legal_hold_preserved",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 256,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.oauth_state_deleted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 160,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.organization_audit_preserved",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 88,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.organization_delete_requested",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 56,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.organization_product_rows_deleted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 72,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.organization_storage_deleted",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 80,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.organization_tokens_revoked",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 64,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.report_artifacts_deleted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 232,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.report_delete_requested",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 216,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.report_tokens_revoked",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 224,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.upload_delete_requested",
+      "eventClasses": [
+        "audit_action_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "audit_log"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 176,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.upload_parser_state_redacted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 200,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.upload_row_deleted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 192,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.upload_storage_deleted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 184,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.user_membership_reviewed",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 120,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.user_profile_redacted",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 112,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
+      "eventName": "privacy_request.user_tokens_revoked",
+      "eventClasses": [
+        "action_event_reference"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": false,
+      "pattern": false,
+      "neutralAlias": null,
+      "sources": [
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 128,
+          "eventClass": "action_event_reference",
+          "property": "auditAction"
+        }
+      ]
+    },
+    {
       "eventName": "product.v10.activation_completed",
       "eventClasses": [
         "product_telemetry_definition",
@@ -5566,13 +6150,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 472,
+          "line": 474,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/import/contracts/route.ts",
-          "line": 220,
+          "line": 222,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -5618,7 +6202,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 27,
+          "line": 40,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5640,7 +6224,49 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 28,
+          "line": 41,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.calibration_completed",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.calibration_completed",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 11,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.cancellation_recorded",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.cancellation_recorded",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 22,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5663,19 +6289,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 39,
+          "line": 51,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 18,
+          "line": 31,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 102,
+          "line": 115,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -5697,13 +6323,13 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 104,
+          "line": 135,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 19,
+          "line": 32,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5726,19 +6352,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 63,
+          "line": 81,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 20,
+          "line": 33,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 103,
+          "line": 116,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -5761,19 +6387,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 86,
+          "line": 116,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 21,
+          "line": 34,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 104,
+          "line": 117,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -5795,13 +6421,13 @@
       "sources": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "line": 531,
+          "line": 633,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 34,
+          "line": 47,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5823,13 +6449,13 @@
       "sources": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "line": 1337,
+          "line": 1518,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 35,
+          "line": 48,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5851,13 +6477,13 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 149,
+          "line": 180,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 22,
+          "line": 35,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5885,13 +6511,13 @@
         },
         {
           "file": "src/app/api/evidence/requests/[id]/remind/route.ts",
-          "line": 172,
+          "line": 175,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 13,
+          "line": 26,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -5921,15 +6547,36 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 14,
+          "line": 27,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 99,
+          "line": 112,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.evidence_requested",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.evidence_requested",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 18,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
       ]
     },
@@ -5963,13 +6610,13 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 26,
+          "line": 39,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 101,
+          "line": 114,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6004,13 +6651,13 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 15,
+          "line": 28,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 100,
+          "line": 113,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6038,7 +6685,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 29,
+          "line": 42,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6061,7 +6708,7 @@
       "sources": [
         {
           "file": "src/app/api/export/contracts/route.ts",
-          "line": 459,
+          "line": 449,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6085,7 +6732,28 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 17,
+          "line": 30,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.extraction_completed",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.extraction_completed",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 13,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6126,7 +6794,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 23,
+          "line": 36,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6148,19 +6816,61 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 709,
+          "line": 711,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 754,
+          "line": 756,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 36,
+          "line": 49,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.field_reviewed",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.field_reviewed",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 14,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.first_contract_uploaded",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.first_contract_uploaded",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 12,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6181,7 +6891,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 10,
+          "line": 23,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6203,13 +6913,76 @@
       "sources": [
         {
           "file": "src/app/api/import/contracts/route.ts",
-          "line": 234,
+          "line": 236,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 33,
+          "line": 46,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.key_date_added",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.key_date_added",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 16,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.owner_assigned",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.owner_assigned",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 15,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.pilot_converted",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.pilot_converted",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 21,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6230,7 +7003,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 24,
+          "line": 37,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6251,7 +7024,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 30,
+          "line": 43,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6272,7 +7045,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 31,
+          "line": 44,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6300,7 +7073,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 32,
+          "line": 45,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6321,7 +7094,28 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 12,
+          "line": 25,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.report_exported",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.report_exported",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 19,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6367,7 +7161,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 16,
+          "line": 29,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6389,13 +7183,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 771,
+          "line": 773,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 25,
+          "line": 38,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6418,21 +7212,63 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 126,
+          "line": 157,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 37,
+          "line": 50,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 106,
+          "line": 119,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.signup_completed",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.signup_completed",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 10,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.trial_converted",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.trial_converted",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 20,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
       ]
     },
@@ -6465,15 +7301,36 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 11,
+          "line": 24,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 105,
+          "line": 118,
           "eventClass": "telemetry_bridge_target",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
+        }
+      ]
+    },
+    {
+      "eventName": "product.v10.work_item_created",
+      "eventClasses": [
+        "product_telemetry_definition"
+      ],
+      "compatibilitySensitive": true,
+      "compatibilityConsumers": [
+        "analytics_dashboard"
+      ],
+      "versioned": true,
+      "pattern": false,
+      "neutralAlias": "product.work_item_created",
+      "sources": [
+        {
+          "file": "src/lib/product-telemetry.ts",
+          "line": 17,
+          "eventClass": "product_telemetry_definition",
+          "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
       ]
     },
@@ -6493,13 +7350,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1897,
+          "line": 1912,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 38,
+          "line": 51,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6522,19 +7379,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 33,
+          "line": 45,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 44,
+          "line": 57,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 102,
+          "line": 115,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6557,19 +7414,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 57,
+          "line": 75,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 45,
+          "line": 58,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 103,
+          "line": 116,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6592,19 +7449,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 80,
+          "line": 110,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 46,
+          "line": 59,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 104,
+          "line": 117,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6633,7 +7490,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 76,
+          "line": 89,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6662,13 +7519,13 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 74,
+          "line": 87,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 99,
+          "line": 112,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6689,7 +7546,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 77,
+          "line": 90,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6724,13 +7581,13 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 78,
+          "line": 91,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 101,
+          "line": 114,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6752,13 +7609,13 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 75,
+          "line": 88,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 100,
+          "line": 113,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -6786,13 +7643,13 @@
         },
         {
           "file": "src/app/api/export/renewals/route.ts",
-          "line": 114,
+          "line": 126,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/export/reports/route.ts",
-          "line": 133,
+          "line": 153,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6810,7 +7667,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 53,
+          "line": 66,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6839,19 +7696,19 @@
         },
         {
           "file": "src/app/api/export/contracts/route.ts",
-          "line": 449,
+          "line": 439,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/export/renewals/route.ts",
-          "line": 134,
+          "line": 146,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/export/reports/route.ts",
-          "line": 156,
+          "line": 176,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6875,7 +7732,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 55,
+          "line": 68,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6909,7 +7766,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 54,
+          "line": 67,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -6937,19 +7794,19 @@
         },
         {
           "file": "src/app/api/export/contracts/route.ts",
-          "line": 383,
+          "line": 373,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/export/renewals/route.ts",
-          "line": 60,
+          "line": 72,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/app/api/export/reports/route.ts",
-          "line": 73,
+          "line": 93,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6967,7 +7824,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 52,
+          "line": 65,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7002,7 +7859,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 58,
+          "line": 71,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7030,7 +7887,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 56,
+          "line": 69,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7058,7 +7915,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 57,
+          "line": 70,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7080,19 +7937,19 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 501,
+          "line": 503,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 1667,
+          "line": 1682,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 43,
+          "line": 56,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7120,7 +7977,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 67,
+          "line": 80,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7154,7 +8011,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 71,
+          "line": 84,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7175,7 +8032,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 48,
+          "line": 61,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7197,7 +8054,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 50,
+          "line": 63,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7218,7 +8075,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 49,
+          "line": 62,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7246,7 +8103,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 51,
+          "line": 64,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7268,7 +8125,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1517,
+          "line": 1532,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -7280,7 +8137,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 47,
+          "line": 60,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7302,25 +8159,25 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 505,
+          "line": 523,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 614,
+          "line": 632,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 687,
+          "line": 705,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 40,
+          "line": 53,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7343,13 +8200,13 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 512,
+          "line": 530,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 42,
+          "line": 55,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7371,19 +8228,19 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 226,
+          "line": 225,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 273,
+          "line": 272,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 39,
+          "line": 52,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7405,13 +8262,13 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 560,
+          "line": 578,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 41,
+          "line": 54,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7433,7 +8290,7 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 170,
+          "line": 201,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -7445,7 +8302,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 79,
+          "line": 92,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7473,7 +8330,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 59,
+          "line": 72,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7495,7 +8352,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 61,
+          "line": 74,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7516,7 +8373,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 62,
+          "line": 75,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7545,7 +8402,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 60,
+          "line": 73,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7579,7 +8436,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 72,
+          "line": 85,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7613,7 +8470,7 @@
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 73,
+          "line": 86,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7635,13 +8492,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 717,
+          "line": 719,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 64,
+          "line": 77,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7663,13 +8520,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 725,
+          "line": 727,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 65,
+          "line": 78,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7692,19 +8549,19 @@
       "sources": [
         {
           "file": "src/actions/product-telemetry.ts",
-          "line": 120,
+          "line": 151,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 66,
+          "line": 79,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 106,
+          "line": 119,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -7726,13 +8583,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 702,
+          "line": 704,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 63,
+          "line": 76,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7754,13 +8611,13 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 80,
+          "line": 93,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 260,
+          "line": 273,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         }
@@ -7781,7 +8638,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 68,
+          "line": 81,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7803,7 +8660,7 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 70,
+          "line": 83,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         }
@@ -7825,13 +8682,13 @@
       "sources": [
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 69,
+          "line": 82,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
         },
         {
           "file": "src/lib/product-telemetry.ts",
-          "line": 105,
+          "line": 118,
           "eventClass": "telemetry_bridge_source",
           "property": "V10_TELEMETRY_COMPATIBILITY_BRIDGES"
         }
@@ -8036,7 +8893,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1759,
+          "line": 1774,
           "eventClass": "event_type_write",
           "property": "event_type"
         },
@@ -8376,7 +9233,7 @@
       "sources": [
         {
           "file": "src/lib/final-gap-audit.ts",
-          "line": 1943,
+          "line": 1951,
           "eventClass": "action_event_reference",
           "property": "auditAction"
         }
@@ -9202,6 +10059,12 @@
           "line": 79,
           "eventClass": "audit_action_reference",
           "property": "action"
+        },
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 248,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
         }
       ]
     },
@@ -9230,6 +10093,12 @@
           "line": 97,
           "eventClass": "audit_action_reference",
           "property": "action"
+        },
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 104,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
         }
       ]
     },
@@ -9258,10 +10127,12 @@
     {
       "eventName": "security.dsr_self_export_downloaded",
       "eventClasses": [
+        "action_event_reference",
         "audit_action_reference"
       ],
       "compatibilitySensitive": true,
       "compatibilityConsumers": [
+        "analytics_dashboard",
         "audit_log",
         "security_audit"
       ],
@@ -9273,6 +10144,18 @@
           "file": "src/app/api/me/export/route.ts",
           "line": 92,
           "eventClass": "audit_action_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/security/dsar-fixtures.ts",
+          "line": 271,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/security/dsar-fixtures.ts",
+          "line": 291,
+          "eventClass": "action_event_reference",
           "property": "action"
         }
       ]
@@ -9362,6 +10245,12 @@
           "line": 1087,
           "eventClass": "audit_action_reference",
           "property": "action"
+        },
+        {
+          "file": "src/lib/security/data-lifecycle.ts",
+          "line": 144,
+          "eventClass": "audit_action_reference",
+          "property": "auditAction"
         }
       ]
     },
@@ -9577,7 +10466,7 @@
       "sources": [
         {
           "file": "src/actions/auth.ts",
-          "line": 211,
+          "line": 227,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -10237,13 +11126,13 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 245,
+          "line": 250,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 372,
+          "line": 381,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -10272,13 +11161,13 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 268,
+          "line": 273,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 390,
+          "line": 399,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -10305,7 +11194,7 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 482,
+          "line": 491,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10326,7 +11215,7 @@
       "sources": [
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 361,
+          "line": 370,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10349,13 +11238,13 @@
       "sources": [
         {
           "file": "src/actions/onboarding-calibration.ts",
-          "line": 313,
+          "line": 312,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/product-surface-settings.ts",
-          "line": 211,
+          "line": 216,
           "eventClass": "action_event_reference",
           "property": "action"
         },

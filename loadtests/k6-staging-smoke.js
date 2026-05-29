@@ -3,6 +3,16 @@ import { check } from "k6";
 
 const base = __ENV.STAGING_BASE_URL || "";
 const root = base.replace(/\/+$/, "");
+const allowProduction = __ENV.OBLIXA_ALLOW_PRODUCTION_LOAD === "1";
+
+function assertSafeBaseUrl() {
+  if (!root) return;
+  const host = new URL(root).hostname;
+  const productionHost = host === "oblixa.app" || host === "www.oblixa.app";
+  if (productionHost && !allowProduction) {
+    throw new Error("production_load_opt_in_required");
+  }
+}
 
 export const options = {
   vus: 1,
@@ -20,6 +30,7 @@ export default function () {
   if (!root) {
     return;
   }
+  assertSafeBaseUrl();
 
   const health = http.get(`${root}/api/health`, {
     tags: { route: "health" },

@@ -3,10 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { parse } from "yaml";
+import { methodsFromSource, readEffectiveRouteSource } from "./lib/build-route-universe.mjs";
 
 const ROOT = process.cwd();
 const apiRoot = path.join(ROOT, "src", "app", "api");
-const HTTP_METHODS = ["get", "post", "put", "patch", "delete", "head", "options"];
 
 function routeFiles(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;
@@ -22,16 +22,10 @@ function routePathForFile(abs) {
   const rel = path.relative(apiRoot, path.dirname(abs)).replace(/\\/g, "/");
   const parts = rel.split("/").filter(Boolean);
   const converted = parts.map((part) => {
-    const match = /^\[([^\]]+)]$/.exec(part);
-    return match ? `{${match[1]}}` : part;
+    const match = /^\[\[?\.\.\.([^\]]+)\]\]$|^\[([^\]]+)]$/.exec(part);
+    return match ? `{${match[1] ?? match[2]}}` : part;
   });
   return `/api/${converted.join("/")}`.replace(/\/+$/, "");
-}
-
-function methodsFromSource(source) {
-  return HTTP_METHODS.filter((method) =>
-    new RegExp(`export\\s+async\\s+function\\s+${method.toUpperCase()}\\b`).test(source)
-  );
 }
 
 const routes = routeFiles(apiRoot);
@@ -41,7 +35,7 @@ const openapiPaths = openapi?.paths && typeof openapi.paths === "object" ? opena
 const expected = routes
   .map((abs) => ({
     path: routePathForFile(abs),
-    methods: methodsFromSource(fs.readFileSync(abs, "utf8")),
+    methods: methodsFromSource(readEffectiveRouteSource(abs)).map((method) => method.toLowerCase()),
     file: path.relative(ROOT, abs).replace(/\\/g, "/"),
   }))
   .sort((a, b) => a.path.localeCompare(b.path));

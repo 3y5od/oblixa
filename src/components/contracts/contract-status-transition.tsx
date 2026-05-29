@@ -10,7 +10,7 @@ const transitions: Record<ContractStatus, { label: string; target: ContractStatu
   pending_review: [{ label: "Mark as Active", target: "active" }],
   active: [
     { label: "Mark Expired", target: "expired" },
-    { label: "Terminate", target: "terminated" },
+    { label: "Mark Terminated", target: "terminated" },
   ],
   expired: [{ label: "Reactivate", target: "active" }],
   terminated: [{ label: "Reactivate", target: "active" }],
@@ -22,9 +22,9 @@ const buttonStyles: Record<string, string> = {
   pending_review:
     "border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)] hover:border-[var(--warning)] hover:bg-[color:color-mix(in_oklab,var(--warning)_28%,var(--surface))] hover:shadow-[var(--shadow-1)]",
   expired:
-    "border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-primary)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_85%,var(--canvas))] hover:shadow-[var(--shadow-1)]",
+    "border border-[color:color-mix(in_oklab,var(--warning)_32%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,var(--surface))] text-[var(--warning-ink)] hover:border-[var(--warning)] hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_42%,var(--surface))] hover:shadow-[var(--shadow-1)]",
   terminated:
-    "border border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)] hover:border-[var(--danger)] hover:bg-[color:color-mix(in_oklab,var(--danger)_24%,var(--surface))] hover:shadow-[var(--shadow-1)]",
+    "border border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_22%,var(--surface))] text-[var(--danger-ink)] hover:border-[var(--danger)] hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_42%,var(--surface))] hover:shadow-[var(--shadow-1)]",
 };
 
 interface ContractStatusTransitionProps {

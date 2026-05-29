@@ -33,6 +33,7 @@ const ALLOWED_INTERESTED = [
   "founding_customer",
   "guided_pilot",
   "larger_team",
+  "assurance_workflows",
   "custom",
   "dpa",
   "general",
@@ -108,6 +109,11 @@ function escapeHtml(s: string): string {
 
 const RESEND_EMAILS_URL = validateOutboundHttpUrl("https://api.resend.com/emails");
 
+function formatContactDeliveryError(err: unknown): { name: string } {
+  if (err instanceof Error) return { name: err.name || "Error" };
+  return { name: typeof err };
+}
+
 async function sendNotificationEmail(payload: {
   name: string;
   email: string;
@@ -134,6 +140,7 @@ async function sendNotificationEmail(payload: {
       founding_customer: "Founding Customer offer",
       guided_pilot: "Guided pilot",
       larger_team: "Larger-team workflows",
+      assurance_workflows: "Assurance workflows",
       custom: "Custom workflows",
       dpa: "Data Processing Addendum (DPA)",
     }[payload.interested] ?? payload.interested;
@@ -184,7 +191,7 @@ async function sendNotificationEmail(payload: {
     });
   } catch (err) {
     // Swallow — we already accepted the submission. Log and move on.
-    console.error("[contact] notification email failed", err);
+    console.error("[contact] notification email failed", formatContactDeliveryError(err));
   }
 }
 

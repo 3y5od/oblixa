@@ -123,14 +123,20 @@ describe("ContractTable", () => {
       />
     );
 
-    expect(screen.getAllByText(/2 pending/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/3\/5 fields/i)).toBeTruthy();
+    // Review chip uses parallel "X/Y verb" format: pending shows
+    // `${pending}/${total} pending`, complete shows
+    // `${approved}/${total} reviewed`. The aria-label stays stable.
     expect(screen.getByRole("link", { name: /continue field review/i }).getAttribute("href")).toBe(
       "/contracts/contract-1#extracted-fields"
     );
-    expect(screen.getByText(/renewal due today/i)).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /continue field review/i }).textContent ?? ""
+    ).toMatch(/pending/i);
+    // Two-line "Next important date" cell: primary line "Renewal Apr 19"
+    // (urgency-coloured) + secondary "Due today" caption from nextHorizonDays === 0.
+    expect(screen.getByText(/due today/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /2 exceptions/i }).getAttribute("href")).toContain("/contracts/exceptions");
-    expect(screen.getByText(/1 evidence request/i)).toBeTruthy();
+    expect(screen.getByText(/1 evidence/i)).toBeTruthy();
   });
 
   it("renders the dates gap row action when no next important date is available", () => {
@@ -151,7 +157,7 @@ describe("ContractTable", () => {
       />
     );
 
-    expect(screen.getByRole("link", { name: /dates gap/i }).getAttribute("href")).toBe("/contracts/contract-1#dates");
+    expect(screen.getByRole("link", { name: /critical contract dates missing/i }).getAttribute("href")).toBe("/contracts/contract-1#dates");
   });
 
   it("keeps the contracts empty state actionable with a direct upload CTA", () => {

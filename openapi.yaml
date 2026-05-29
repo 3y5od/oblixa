@@ -1071,7 +1071,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/contracts/recompute-signals: {}
+  /api/contracts/recompute-signals:
+    get:
+      operationId: get_contracts_recompute_signals
+      summary: GET /api/contracts/recompute-signals
+      description: Generated route contract for src/app/api/contracts/recompute-signals/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/control-policies/{id}/assign:
     post:
       operationId: post_control_policies_by_id_assign
@@ -1245,72 +1266,1722 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/cron/approvals-sla: {}
-  /api/cron/assurance-checks: {}
-  /api/cron/attestations-issue: {}
-  /api/cron/autopilot-dry-run: {}
-  /api/cron/autopilot-execution: {}
-  /api/cron/campaign-progress: {}
-  /api/cron/capacity-forecast-refresh: {}
-  /api/cron/control-policy-reevaluation: {}
-  /api/cron/decision-sla-monitor: {}
-  /api/cron/escalations-dispatch: {}
-  /api/cron/evidence-followup: {}
-  /api/cron/exceptions-detect: {}
-  /api/cron/external-followup: {}
-  /api/cron/external-workflow-deadlines: {}
-  /api/cron/finding-refresh: {}
-  /api/cron/health-graph-rollups: {}
-  /api/cron/idempotency-cleanup: {}
-  /api/cron/onboarding-calibration-stale: {}
-  /api/cron/outcome-effectiveness: {}
-  /api/cron/playbook-follow-up-assurance: {}
-  /api/cron/portfolio-risk-recompute: {}
-  /api/cron/programs-reconcile: {}
-  /api/cron/read-model-refresh: {}
-  /api/cron/recommendation-refresh: {}
-  /api/cron/relationship-rollups: {}
-  /api/cron/renewals-recompute-signals: {}
-  /api/cron/report-packs-generate: {}
-  /api/cron/review-board-packet-generation: {}
-  /api/cron/runtime-artifact-cleanup: {}
-  /api/cron/scorecard-recompute: {}
-  /api/cron/security/retention-cleanup: {}
-  /api/cron/segment-recompute: {}
-  /api/cron/simulation-snapshots: {}
-  /api/cron/stripe-webhook-events: {}
-  /api/cron/v10/idempotency-cleanup: {}
-  /api/cron/v10/read-model-refresh: {}
-  /api/cron/v10/runtime-artifact-cleanup: {}
-  /api/cron/v4/approvals-sla: {}
-  /api/cron/v4/attestations-issue: {}
-  /api/cron/v4/escalations-dispatch: {}
-  /api/cron/v4/evidence-followup: {}
-  /api/cron/v4/exceptions-detect: {}
-  /api/cron/v4/programs-reconcile: {}
-  /api/cron/v4/renewals-recompute-signals: {}
-  /api/cron/v4/report-packs-generate: {}
-  /api/cron/v5/campaign-progress: {}
-  /api/cron/v5/capacity-forecast-refresh: {}
-  /api/cron/v5/decision-sla-monitor: {}
-  /api/cron/v5/external-followup: {}
-  /api/cron/v5/portfolio-risk-recompute: {}
-  /api/cron/v5/recommendation-refresh: {}
-  /api/cron/v5/relationship-rollups: {}
-  /api/cron/v5/simulation-snapshots: {}
-  /api/cron/v6/assurance-checks: {}
-  /api/cron/v6/autopilot-dry-run: {}
-  /api/cron/v6/autopilot-execution: {}
-  /api/cron/v6/control-policy-reevaluation: {}
-  /api/cron/v6/external-workflow-deadlines: {}
-  /api/cron/v6/finding-refresh: {}
-  /api/cron/v6/health-graph-rollups: {}
-  /api/cron/v6/onboarding-calibration-stale: {}
-  /api/cron/v6/outcome-effectiveness: {}
-  /api/cron/v6/playbook-follow-up-assurance: {}
-  /api/cron/v6/review-board-packet-generation: {}
-  /api/cron/v6/scorecard-recompute: {}
-  /api/cron/v6/segment-recompute: {}
+  /api/cron/approvals-sla:
+    get:
+      operationId: get_cron_approvals_sla
+      summary: GET /api/cron/approvals-sla
+      description: Generated route contract for src/app/api/cron/approvals-sla/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/assurance-checks:
+    get:
+      operationId: get_cron_assurance_checks
+      summary: GET /api/cron/assurance-checks
+      description: Generated route contract for src/app/api/cron/assurance-checks/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/attestations-issue:
+    get:
+      operationId: get_cron_attestations_issue
+      summary: GET /api/cron/attestations-issue
+      description: Generated route contract for src/app/api/cron/attestations-issue/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/autopilot-dry-run:
+    get:
+      operationId: get_cron_autopilot_dry_run
+      summary: GET /api/cron/autopilot-dry-run
+      description: Generated route contract for src/app/api/cron/autopilot-dry-run/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/autopilot-execution:
+    get:
+      operationId: get_cron_autopilot_execution
+      summary: GET /api/cron/autopilot-execution
+      description: Generated route contract for src/app/api/cron/autopilot-execution/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/campaign-progress:
+    get:
+      operationId: get_cron_campaign_progress
+      summary: GET /api/cron/campaign-progress
+      description: Generated route contract for src/app/api/cron/campaign-progress/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/capacity-forecast-refresh:
+    get:
+      operationId: get_cron_capacity_forecast_refresh
+      summary: GET /api/cron/capacity-forecast-refresh
+      description: Generated route contract for src/app/api/cron/capacity-forecast-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/control-policy-reevaluation:
+    get:
+      operationId: get_cron_control_policy_reevaluation
+      summary: GET /api/cron/control-policy-reevaluation
+      description: Generated route contract for src/app/api/cron/control-policy-reevaluation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/decision-sla-monitor:
+    get:
+      operationId: get_cron_decision_sla_monitor
+      summary: GET /api/cron/decision-sla-monitor
+      description: Generated route contract for src/app/api/cron/decision-sla-monitor/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/escalations-dispatch:
+    get:
+      operationId: get_cron_escalations_dispatch
+      summary: GET /api/cron/escalations-dispatch
+      description: Generated route contract for src/app/api/cron/escalations-dispatch/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/evidence-followup:
+    get:
+      operationId: get_cron_evidence_followup
+      summary: GET /api/cron/evidence-followup
+      description: Generated route contract for src/app/api/cron/evidence-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/exceptions-detect:
+    get:
+      operationId: get_cron_exceptions_detect
+      summary: GET /api/cron/exceptions-detect
+      description: Generated route contract for src/app/api/cron/exceptions-detect/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/external-followup:
+    get:
+      operationId: get_cron_external_followup
+      summary: GET /api/cron/external-followup
+      description: Generated route contract for src/app/api/cron/external-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/external-workflow-deadlines:
+    get:
+      operationId: get_cron_external_workflow_deadlines
+      summary: GET /api/cron/external-workflow-deadlines
+      description: Generated route contract for src/app/api/cron/external-workflow-deadlines/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/finding-refresh:
+    get:
+      operationId: get_cron_finding_refresh
+      summary: GET /api/cron/finding-refresh
+      description: Generated route contract for src/app/api/cron/finding-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/health-graph-rollups:
+    get:
+      operationId: get_cron_health_graph_rollups
+      summary: GET /api/cron/health-graph-rollups
+      description: Generated route contract for src/app/api/cron/health-graph-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/idempotency-cleanup:
+    get:
+      operationId: get_cron_idempotency_cleanup
+      summary: GET /api/cron/idempotency-cleanup
+      description: Generated route contract for src/app/api/cron/idempotency-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/onboarding-calibration-stale:
+    get:
+      operationId: get_cron_onboarding_calibration_stale
+      summary: GET /api/cron/onboarding-calibration-stale
+      description: Generated route contract for src/app/api/cron/onboarding-calibration-stale/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/outcome-effectiveness:
+    get:
+      operationId: get_cron_outcome_effectiveness
+      summary: GET /api/cron/outcome-effectiveness
+      description: Generated route contract for src/app/api/cron/outcome-effectiveness/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/playbook-follow-up-assurance:
+    get:
+      operationId: get_cron_playbook_follow_up_assurance
+      summary: GET /api/cron/playbook-follow-up-assurance
+      description: Generated route contract for src/app/api/cron/playbook-follow-up-assurance/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/portfolio-risk-recompute:
+    get:
+      operationId: get_cron_portfolio_risk_recompute
+      summary: GET /api/cron/portfolio-risk-recompute
+      description: Generated route contract for src/app/api/cron/portfolio-risk-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/programs-reconcile:
+    get:
+      operationId: get_cron_programs_reconcile
+      summary: GET /api/cron/programs-reconcile
+      description: Generated route contract for src/app/api/cron/programs-reconcile/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/read-model-refresh:
+    get:
+      operationId: get_cron_read_model_refresh
+      summary: GET /api/cron/read-model-refresh
+      description: Generated route contract for src/app/api/cron/read-model-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/recommendation-refresh:
+    get:
+      operationId: get_cron_recommendation_refresh
+      summary: GET /api/cron/recommendation-refresh
+      description: Generated route contract for src/app/api/cron/recommendation-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/relationship-rollups:
+    get:
+      operationId: get_cron_relationship_rollups
+      summary: GET /api/cron/relationship-rollups
+      description: Generated route contract for src/app/api/cron/relationship-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/renewals-recompute-signals:
+    get:
+      operationId: get_cron_renewals_recompute_signals
+      summary: GET /api/cron/renewals-recompute-signals
+      description: Generated route contract for src/app/api/cron/renewals-recompute-signals/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/report-packs-generate:
+    get:
+      operationId: get_cron_report_packs_generate
+      summary: GET /api/cron/report-packs-generate
+      description: Generated route contract for src/app/api/cron/report-packs-generate/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/review-board-packet-generation:
+    get:
+      operationId: get_cron_review_board_packet_generation
+      summary: GET /api/cron/review-board-packet-generation
+      description: Generated route contract for src/app/api/cron/review-board-packet-generation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/runtime-artifact-cleanup:
+    get:
+      operationId: get_cron_runtime_artifact_cleanup
+      summary: GET /api/cron/runtime-artifact-cleanup
+      description: Generated route contract for src/app/api/cron/runtime-artifact-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/scorecard-recompute:
+    get:
+      operationId: get_cron_scorecard_recompute
+      summary: GET /api/cron/scorecard-recompute
+      description: Generated route contract for src/app/api/cron/scorecard-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/security/retention-cleanup:
+    get:
+      operationId: get_cron_security_retention_cleanup
+      summary: GET /api/cron/security/retention-cleanup
+      description: Generated route contract for src/app/api/cron/security/retention-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/segment-recompute:
+    get:
+      operationId: get_cron_segment_recompute
+      summary: GET /api/cron/segment-recompute
+      description: Generated route contract for src/app/api/cron/segment-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/simulation-snapshots:
+    get:
+      operationId: get_cron_simulation_snapshots
+      summary: GET /api/cron/simulation-snapshots
+      description: Generated route contract for src/app/api/cron/simulation-snapshots/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/stripe-webhook-events:
+    get:
+      operationId: get_cron_stripe_webhook_events
+      summary: GET /api/cron/stripe-webhook-events
+      description: Generated route contract for src/app/api/cron/stripe-webhook-events/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/idempotency-cleanup:
+    get:
+      operationId: get_cron_v10_idempotency_cleanup
+      summary: GET /api/cron/v10/idempotency-cleanup
+      description: Generated route contract for src/app/api/cron/v10/idempotency-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/read-model-refresh:
+    get:
+      operationId: get_cron_v10_read_model_refresh
+      summary: GET /api/cron/v10/read-model-refresh
+      description: Generated route contract for src/app/api/cron/v10/read-model-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v10/runtime-artifact-cleanup:
+    get:
+      operationId: get_cron_v10_runtime_artifact_cleanup
+      summary: GET /api/cron/v10/runtime-artifact-cleanup
+      description: Generated route contract for src/app/api/cron/v10/runtime-artifact-cleanup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/approvals-sla:
+    get:
+      operationId: get_cron_v4_approvals_sla
+      summary: GET /api/cron/v4/approvals-sla
+      description: Generated route contract for src/app/api/cron/v4/approvals-sla/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/attestations-issue:
+    get:
+      operationId: get_cron_v4_attestations_issue
+      summary: GET /api/cron/v4/attestations-issue
+      description: Generated route contract for src/app/api/cron/v4/attestations-issue/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/escalations-dispatch:
+    get:
+      operationId: get_cron_v4_escalations_dispatch
+      summary: GET /api/cron/v4/escalations-dispatch
+      description: Generated route contract for src/app/api/cron/v4/escalations-dispatch/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/evidence-followup:
+    get:
+      operationId: get_cron_v4_evidence_followup
+      summary: GET /api/cron/v4/evidence-followup
+      description: Generated route contract for src/app/api/cron/v4/evidence-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/exceptions-detect:
+    get:
+      operationId: get_cron_v4_exceptions_detect
+      summary: GET /api/cron/v4/exceptions-detect
+      description: Generated route contract for src/app/api/cron/v4/exceptions-detect/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/programs-reconcile:
+    get:
+      operationId: get_cron_v4_programs_reconcile
+      summary: GET /api/cron/v4/programs-reconcile
+      description: Generated route contract for src/app/api/cron/v4/programs-reconcile/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/renewals-recompute-signals:
+    get:
+      operationId: get_cron_v4_renewals_recompute_signals
+      summary: GET /api/cron/v4/renewals-recompute-signals
+      description: Generated route contract for src/app/api/cron/v4/renewals-recompute-signals/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v4/report-packs-generate:
+    get:
+      operationId: get_cron_v4_report_packs_generate
+      summary: GET /api/cron/v4/report-packs-generate
+      description: Generated route contract for src/app/api/cron/v4/report-packs-generate/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/campaign-progress:
+    get:
+      operationId: get_cron_v5_campaign_progress
+      summary: GET /api/cron/v5/campaign-progress
+      description: Generated route contract for src/app/api/cron/v5/campaign-progress/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/capacity-forecast-refresh:
+    get:
+      operationId: get_cron_v5_capacity_forecast_refresh
+      summary: GET /api/cron/v5/capacity-forecast-refresh
+      description: Generated route contract for src/app/api/cron/v5/capacity-forecast-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/decision-sla-monitor:
+    get:
+      operationId: get_cron_v5_decision_sla_monitor
+      summary: GET /api/cron/v5/decision-sla-monitor
+      description: Generated route contract for src/app/api/cron/v5/decision-sla-monitor/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/external-followup:
+    get:
+      operationId: get_cron_v5_external_followup
+      summary: GET /api/cron/v5/external-followup
+      description: Generated route contract for src/app/api/cron/v5/external-followup/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/portfolio-risk-recompute:
+    get:
+      operationId: get_cron_v5_portfolio_risk_recompute
+      summary: GET /api/cron/v5/portfolio-risk-recompute
+      description: Generated route contract for src/app/api/cron/v5/portfolio-risk-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/recommendation-refresh:
+    get:
+      operationId: get_cron_v5_recommendation_refresh
+      summary: GET /api/cron/v5/recommendation-refresh
+      description: Generated route contract for src/app/api/cron/v5/recommendation-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/relationship-rollups:
+    get:
+      operationId: get_cron_v5_relationship_rollups
+      summary: GET /api/cron/v5/relationship-rollups
+      description: Generated route contract for src/app/api/cron/v5/relationship-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v5/simulation-snapshots:
+    get:
+      operationId: get_cron_v5_simulation_snapshots
+      summary: GET /api/cron/v5/simulation-snapshots
+      description: Generated route contract for src/app/api/cron/v5/simulation-snapshots/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/assurance-checks:
+    get:
+      operationId: get_cron_v6_assurance_checks
+      summary: GET /api/cron/v6/assurance-checks
+      description: Generated route contract for src/app/api/cron/v6/assurance-checks/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/autopilot-dry-run:
+    get:
+      operationId: get_cron_v6_autopilot_dry_run
+      summary: GET /api/cron/v6/autopilot-dry-run
+      description: Generated route contract for src/app/api/cron/v6/autopilot-dry-run/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/autopilot-execution:
+    get:
+      operationId: get_cron_v6_autopilot_execution
+      summary: GET /api/cron/v6/autopilot-execution
+      description: Generated route contract for src/app/api/cron/v6/autopilot-execution/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/control-policy-reevaluation:
+    get:
+      operationId: get_cron_v6_control_policy_reevaluation
+      summary: GET /api/cron/v6/control-policy-reevaluation
+      description: Generated route contract for src/app/api/cron/v6/control-policy-reevaluation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/external-workflow-deadlines:
+    get:
+      operationId: get_cron_v6_external_workflow_deadlines
+      summary: GET /api/cron/v6/external-workflow-deadlines
+      description: Generated route contract for src/app/api/cron/v6/external-workflow-deadlines/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/finding-refresh:
+    get:
+      operationId: get_cron_v6_finding_refresh
+      summary: GET /api/cron/v6/finding-refresh
+      description: Generated route contract for src/app/api/cron/v6/finding-refresh/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/health-graph-rollups:
+    get:
+      operationId: get_cron_v6_health_graph_rollups
+      summary: GET /api/cron/v6/health-graph-rollups
+      description: Generated route contract for src/app/api/cron/v6/health-graph-rollups/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/onboarding-calibration-stale:
+    get:
+      operationId: get_cron_v6_onboarding_calibration_stale
+      summary: GET /api/cron/v6/onboarding-calibration-stale
+      description: Generated route contract for src/app/api/cron/v6/onboarding-calibration-stale/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/outcome-effectiveness:
+    get:
+      operationId: get_cron_v6_outcome_effectiveness
+      summary: GET /api/cron/v6/outcome-effectiveness
+      description: Generated route contract for src/app/api/cron/v6/outcome-effectiveness/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/playbook-follow-up-assurance:
+    get:
+      operationId: get_cron_v6_playbook_follow_up_assurance
+      summary: GET /api/cron/v6/playbook-follow-up-assurance
+      description: Generated route contract for src/app/api/cron/v6/playbook-follow-up-assurance/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/review-board-packet-generation:
+    get:
+      operationId: get_cron_v6_review_board_packet_generation
+      summary: GET /api/cron/v6/review-board-packet-generation
+      description: Generated route contract for src/app/api/cron/v6/review-board-packet-generation/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/scorecard-recompute:
+    get:
+      operationId: get_cron_v6_scorecard_recompute
+      summary: GET /api/cron/v6/scorecard-recompute
+      description: Generated route contract for src/app/api/cron/v6/scorecard-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
+  /api/cron/v6/segment-recompute:
+    get:
+      operationId: get_cron_v6_segment_recompute
+      summary: GET /api/cron/v6/segment-recompute
+      description: Generated route contract for src/app/api/cron/v6/segment-recompute/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "207":
+          description: Partial batch success
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+        "503":
+          description: Server misconfigured or unavailable
   /api/decisions/{id}/approve:
     post:
       operationId: post_decisions_by_id_approve
@@ -2481,8 +4152,50 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/integrations/calendar/sync: {}
-  /api/integrations/crm/sync: {}
+  /api/integrations/calendar/sync:
+    get:
+      operationId: get_integrations_calendar_sync
+      summary: GET /api/integrations/calendar/sync
+      description: Generated route contract for src/app/api/integrations/calendar/sync/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/integrations/crm/sync:
+    get:
+      operationId: get_integrations_crm_sync
+      summary: GET /api/integrations/crm/sync
+      description: Generated route contract for src/app/api/integrations/crm/sync/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/integrations/oauth/callback:
     get:
       operationId: get_integrations_oauth_callback
@@ -2531,7 +4244,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/integrations/refresh-tokens: {}
+  /api/integrations/refresh-tokens:
+    get:
+      operationId: get_integrations_refresh_tokens
+      summary: GET /api/integrations/refresh-tokens
+      description: Generated route contract for src/app/api/integrations/refresh-tokens/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/integrations/slack/renewal-summary:
     post:
       operationId: post_integrations_slack_renewal_summary
@@ -2838,7 +4572,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/maintenance/prune-operational-data: {}
+  /api/maintenance/prune-operational-data:
+    get:
+      operationId: get_maintenance_prune_operational_data
+      summary: GET /api/maintenance/prune-operational-data
+      description: Generated route contract for src/app/api/maintenance/prune-operational-data/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/me/account:
     delete:
       operationId: delete_me_account
@@ -2883,7 +4638,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/notifications/retry-deliveries: {}
+  /api/notifications/retry-deliveries:
+    get:
+      operationId: get_notifications_retry_deliveries
+      summary: GET /api/notifications/retry-deliveries
+      description: Generated route contract for src/app/api/notifications/retry-deliveries/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/outcomes/control-effectiveness:
     get:
       operationId: get_outcomes_control_effectiveness
@@ -3347,7 +5123,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/reminders/send: {}
+  /api/reminders/send:
+    get:
+      operationId: get_reminders_send
+      summary: GET /api/reminders/send
+      description: Generated route contract for src/app/api/reminders/send/route.ts.
+      security:
+        - CronSecret: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/renewals/{id}/{action}:
     post:
       operationId: post_renewals_by_id_by_action
@@ -3491,8 +5288,50 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/reports/capture-metrics: {}
-  /api/reports/send-summaries: {}
+  /api/reports/capture-metrics:
+    get:
+      operationId: get_reports_capture_metrics
+      summary: GET /api/reports/capture-metrics
+      description: Generated route contract for src/app/api/reports/capture-metrics/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+  /api/reports/send-summaries:
+    get:
+      operationId: get_reports_send_summaries
+      summary: GET /api/reports/send-summaries
+      description: Generated route contract for src/app/api/reports/send-summaries/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/reports/track/click/{token}:
     get:
       operationId: get_reports_track_click_by_token
@@ -4076,7 +5915,28 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/tasks/run-rules: {}
+  /api/tasks/run-rules:
+    get:
+      operationId: get_tasks_run_rules
+      summary: GET /api/tasks/run-rules
+      description: Generated route contract for src/app/api/tasks/run-rules/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/templates/preview:
     get:
       operationId: get_templates_preview
@@ -4100,6 +5960,27 @@ paths:
         "500":
           description: Unexpected server error
   /api/webhooks/dispatch:
+    get:
+      operationId: get_webhooks_dispatch
+      summary: GET /api/webhooks/dispatch
+      description: Generated route contract for src/app/api/webhooks/dispatch/route.ts.
+      security:
+        - WebhookSignature: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
     post:
       operationId: post_webhooks_dispatch
       summary: POST /api/webhooks/dispatch
@@ -4147,7 +6028,53 @@ paths:
           description: Rate limited
         "500":
           description: Unexpected server error
-  /api/workspace/settings: {}
+  /api/workspace/settings:
+    get:
+      operationId: get_workspace_settings
+      summary: GET /api/workspace/settings
+      description: Generated route contract for src/app/api/workspace/settings/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
+    patch:
+      operationId: patch_workspace_settings
+      summary: PATCH /api/workspace/settings
+      description: Generated route contract for src/app/api/workspace/settings/route.ts.
+      security:
+        - SessionCookie: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "409":
+          description: Conflict
+        "413":
+          description: Payload too large
+        "429":
+          description: Rate limited
+        "500":
+          description: Unexpected server error
   /api/workspace/v6-settings:
     get:
       operationId: get_workspace_v6_settings

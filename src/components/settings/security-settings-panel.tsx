@@ -16,8 +16,10 @@ import {
   ChevronRight,
   Copy,
   KeyRound,
+  Lock,
   ShieldCheck,
   Smartphone,
+  TriangleAlert,
 } from "lucide-react";
 import { formatDate, timeAttrs, fmtRelative } from "@/lib/format/date";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
@@ -186,18 +188,24 @@ export function SecuritySettingsPanel({
   // source of truth on the next mutation. Acceptable trade-off.
   const stepUpActive = optimisticStepUpActive || stepUp.active;
 
-  // V2 §1.34 + §2.6 — step-up badge label varies by via.
+  // Step-up badge label + tone vary by via. Each badge carries a
+  // leading glyph so the state is legible without relying on color
+  // alone (§7.7): ShieldCheck when unlocked, Lock when locked.
   let stepUpLabel: string;
   let stepUpTone: "healthy" | "warning" | "empty";
+  let stepUpIcon: React.ReactNode;
   if (stepUpActive && stepUp.via === "aal2") {
     stepUpLabel = SETTINGS_SECURITY_STRINGS.stepUpMfaSessionLabel;
     stepUpTone = "healthy";
+    stepUpIcon = <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />;
   } else if (stepUpActive) {
     stepUpLabel = SETTINGS_SECURITY_STRINGS.stepUpActiveLabel;
     stepUpTone = "healthy";
+    stepUpIcon = <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />;
   } else {
     stepUpLabel = SETTINGS_SECURITY_STRINGS.stepUpEmptyLabel;
     stepUpTone = "empty";
+    stepUpIcon = <Lock className="h-3 w-3" strokeWidth={2} aria-hidden />;
   }
 
   // V2 §9.18 focus the QR section heading when enrollment populates.
@@ -424,7 +432,11 @@ export function SecuritySettingsPanel({
                       <Smartphone className="h-4 w-4" strokeWidth={1.85} />
                     </CardMedallion>
                   )}
-                  <p className="ui-caps-1 text-[var(--text-tertiary)]">
+                  {/* Status label sits at caps-2, not caps-1: it states
+                      the current condition, so the primary "Enroll
+                      authenticator" button below stays the loudest
+                      element in the empty state (§8.1 / §10.7). */}
+                  <p className="ui-caps-2 text-[var(--text-tertiary)]">
                     {SETTINGS_SECURITY_STRINGS.mfaEmptyLabel}
                   </p>
                 </div>
@@ -672,7 +684,11 @@ export function SecuritySettingsPanel({
                 marker:hidden + rotating ChevronRight. */}
             {factorsEmpty && !enroll ? (
               <details className="group mt-4">
-                <summary className="ui-caps-3 inline-flex cursor-pointer items-center gap-1.5 text-[var(--text-tertiary)] marker:hidden [&::-webkit-details-marker]:hidden">
+                {/* Disclosure trigger reads as a secondary accent link
+                    (sentence case + chevron), not a caps heading, so it
+                    sits clearly below the primary "Enroll authenticator"
+                    action rather than competing with it. */}
+                <summary className="inline-flex cursor-pointer items-center gap-1 text-[12.5px] font-medium text-[var(--accent-strong)] marker:hidden hover:underline [&::-webkit-details-marker]:hidden">
                   {SETTINGS_SECURITY_STRINGS.mfaExplainerSummary}
                   <ChevronRight
                     className="h-3 w-3 transition-transform group-open:rotate-90 motion-reduce:transition-none"
@@ -711,7 +727,10 @@ export function SecuritySettingsPanel({
               </div>
             </div>
             <span className="shrink-0">
-              <StatusBadge status={stepUpTone}>{stepUpLabel}</StatusBadge>
+              <StatusBadge status={stepUpTone} className="gap-1">
+                {stepUpIcon}
+                {stepUpLabel}
+              </StatusBadge>
             </span>
           </header>
 
@@ -767,23 +786,33 @@ export function SecuritySettingsPanel({
                 <label htmlFor="stepup-pass" className="ui-label">
                   Account password
                 </label>
-                <input
-                  id="stepup-pass"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  className="ui-input mt-1 w-full"
-                  placeholder={SETTINGS_SECURITY_STRINGS.passwordPlaceholder}
-                  aria-describedby={stepUpHelpId}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <p
-                  id={stepUpHelpId}
-                  className="mt-1 text-[12.5px] leading-snug text-[var(--text-secondary)]"
-                >
+                {/* Leading lock glyph gives the field a clear password
+                    affordance instead of reading as an empty box. */}
+                <div className="relative mt-1">
+                  <Lock
+                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-tertiary)]"
+                    strokeWidth={1.85}
+                    aria-hidden
+                  />
+                  <input
+                    id="stepup-pass"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    className="ui-input w-full pl-9"
+                    placeholder={SETTINGS_SECURITY_STRINGS.passwordPlaceholder}
+                    aria-describedby={stepUpHelpId}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                {/* Intent ("unlock sensitive changes") is carried by the
+                    "Password confirmation" heading + LOCKED badge, so the
+                    helper is screen-reader-only — no prose sits between the
+                    field and its action button (§10.7 / §11.15). */}
+                <span id={stepUpHelpId} className="sr-only">
                   {SETTINGS_SECURITY_STRINGS.stepUpFormHelp}
-                </p>
+                </span>
               </div>
               <AsyncActionButton
                 type="submit"
@@ -851,86 +880,65 @@ export function SecuritySettingsPanel({
                     key={s.id}
                     // V2 §5.10 aria-current on current session.
                     aria-current={s.current ? "true" : undefined}
-                    className="group flex flex-wrap items-center gap-x-2 gap-y-1 py-3"
+                    className="group flex flex-wrap items-center gap-2 py-2.5"
                   >
-                    <span
-                      aria-hidden
-                      className="inline-block h-2 w-2 shrink-0 rounded-full"
-                      style={{
-                        background: s.current
-                          ? "var(--success-ink)"
-                          : "var(--text-tertiary)",
-                      }}
-                    />
-                    <span className="ui-caps-3 text-[var(--success-ink)]">
+                    {/* StatusBadge replaces the bare dot + raw caps span:
+                        border + tint + label carry the state without a
+                        color-only signal (§7.7). */}
+                    <StatusBadge status={s.current ? "healthy" : "disabled"}>
                       {s.current
                         ? SETTINGS_SECURITY_STRINGS.sessionsCurrentLabel
                         : "DEVICE"}
-                    </span>
-                    {/* V4 §2.3 — hairline pipe instead of middle-dot
-                        between caps token + expiry chip. */}
+                    </StatusBadge>
+                    {/* Expiry is compact sentence-case tabular time — no
+                        pipe separator, no oversized caps. <time> carries
+                        dateTime + UTC title; sr-only adds the absolute
+                        timestamp. */}
                     {s.expiresAt ? (
-                      <>
-                        <span
-                          aria-hidden
-                          className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block"
-                        />
-                        {/* V4 §1.2 — surface session expiry as caps chip;
-                            <time> carries dateTime + UTC title attrs. */}
-                        <time
-                          className="ui-caps-3 text-[var(--text-tertiary)]"
-                          {...timeAttrs(s.expiresAt)}
-                        >
-                          EXPIRES {fmtRelative(s.expiresAt)}
-                          <span className="sr-only">
-                            {" "}
-                            ({formatDate(s.expiresAt, "dateTime")})
-                          </span>
-                        </time>
-                      </>
+                      <time
+                        className="text-[11.5px] tabular-nums text-[var(--text-tertiary)]"
+                        {...timeAttrs(s.expiresAt)}
+                      >
+                        Expires {fmtRelative(s.expiresAt)}
+                        <span className="sr-only">
+                          {" "}
+                          ({formatDate(s.expiresAt, "dateTime")})
+                        </span>
+                      </time>
                     ) : null}
                   </li>
                 ))}
               </ul>
             ) : null}
-            {/* V4 user-report §1.C — restructure action cluster.
-                Three affordances with mixed visual weight (button +
-                two links) were wrapping unpredictably, orphaning
-                "Sign out this device" on its own row. Fix: primary
-                destructive action (button) gets its own row; the
-                two text-link affordances share a secondary row
-                separated by a hairline pipe. No orphans regardless
-                of card width. */}
-            <div className="mt-4 flex flex-col gap-3">
+            {/* All three affordances share one pill vocabulary so they
+                read as a single action cluster (§10.4). The destructive
+                action is a danger-tinted secondary pill; the two
+                navigations are ghost pills. No mixed link/button weights,
+                no pipe separator. */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="ui-btn-secondary inline-flex max-w-max items-center gap-1 rounded-full border-[color:color-mix(in_oklab,var(--danger-ink)_28%,var(--border-subtle))] px-4 py-2 text-sm text-[var(--danger-ink)] billing-no-print"
+                className="ui-btn-secondary rounded-full border-[color:color-mix(in_oklab,var(--danger-ink)_28%,var(--border-subtle))] text-[var(--danger-ink)] billing-no-print"
                 disabled={pending}
                 onClick={() => setSignOutConfirmOpen(true)}
               >
                 Sign out other devices
               </button>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                {/* V2 §1.47 sign out current device. Placed before
-                    Change password since both are sign-out related;
-                    Change password is the maintenance affordance. */}
-                <Link
-                  href="/auth/sign-out"
-                  className="ui-link text-[12.5px]"
-                >
-                  {SETTINGS_SECURITY_STRINGS.signOutSelfCta}
-                </Link>
-                <span
-                  aria-hidden
-                  className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block"
-                />
-                <Link
-                  href="/settings/account?action=change-password"
-                  className="ui-link text-[12.5px]"
-                >
-                  {SETTINGS_SECURITY_STRINGS.passwordChangeCta}
-                </Link>
-              </div>
+              {/* Sign-out of the current device precedes Change password:
+                  both are sign-out adjacent, Change password is the
+                  maintenance affordance. */}
+              <Link
+                href="/auth/sign-out"
+                className="ui-btn-ghost rounded-full billing-no-print"
+              >
+                {SETTINGS_SECURITY_STRINGS.signOutSelfCta}
+              </Link>
+              <Link
+                href="/settings/account?action=change-password"
+                className="ui-btn-ghost rounded-full billing-no-print"
+              >
+                {SETTINGS_SECURITY_STRINGS.passwordChangeCta}
+              </Link>
             </div>
           </div>
         </section>
@@ -978,18 +986,30 @@ export function SecuritySettingsPanel({
                   now fits on a single line at 2-col grid widths.
                   "Workspace" context is implicit (this is the
                   workspace policy card). */}
+              {/* Each state badge carries a glyph so the policy posture
+                  is legible without color alone (§7.7): ShieldCheck when
+                  required, TriangleAlert when the workspace is exposed. */}
               <span className="shrink-0">
                 {orgMfa ? (
-                  <StatusBadge status="healthy">REQUIRED</StatusBadge>
+                  <StatusBadge status="healthy" className="gap-1">
+                    <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />
+                    REQUIRED
+                  </StatusBadge>
                 ) : factorsEmpty ? (
-                  <StatusBadge status="warning">AT RISK</StatusBadge>
+                  <StatusBadge status="warning" className="gap-1">
+                    <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
+                    AT RISK
+                  </StatusBadge>
                 ) : (
                   <StatusBadge status="empty">OPTIONAL</StatusBadge>
                 )}
               </span>
             </header>
             <div className="px-5 py-5">
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-3 billing-no-print">
+              {/* Toggle sits flat in the card body — no nested box
+                  (§10.5). The header state badge + this control read as
+                  one state/action pair. */}
+              <div className="billing-no-print">
                 <UiToggle
                   name="org-mfa"
                   label="Require MFA for all members"
@@ -1020,7 +1040,9 @@ export function SecuritySettingsPanel({
               {/* V4 §6.2 — "What changes for members?" disclosure.
                   Resolves §1.4 height asymmetry beneath the toggle. */}
               <details className="group mt-3">
-                <summary className="ui-caps-3 inline-flex cursor-pointer items-center gap-1.5 text-[var(--text-tertiary)] marker:hidden [&::-webkit-details-marker]:hidden">
+                {/* Sentence-case accent link + chevron — secondary to the
+                    policy toggle above it. */}
+                <summary className="inline-flex cursor-pointer items-center gap-1 text-[12.5px] font-medium text-[var(--accent-strong)] marker:hidden hover:underline [&::-webkit-details-marker]:hidden">
                   {SETTINGS_SECURITY_STRINGS.policyExplainerSummary}
                   <ChevronRight
                     className="h-3 w-3 transition-transform group-open:rotate-90 motion-reduce:transition-none"

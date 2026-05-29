@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-observability-redaction",
+  "objectives": [
+    {
+      "id": "structured-logging-coverage",
+      "ownerArea": "observability",
+      "commands": [
+        { "command": "check:operational-observability-redaction", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "structured_log_fields", "slo_readiness"] },
+        { "command": "check:observability-contracts", "ciRequired": false, "covers": ["request_id_contract", "log_redaction_contract"] }
+      ],
+      "artifacts": ["artifacts/operational-observability-redaction.json"]
+    },
+    {
+      "id": "telemetry-redaction-coverage",
+      "ownerArea": "security",
+      "commands": [
+        { "command": "check:logging-telemetry-redaction", "ciRequired": true, "covers": ["logs", "sentry_payloads", "route_console_redaction"] },
+        { "command": "check:sentry-tag-banlist", "ciRequired": true, "covers": ["sentry_tags"] },
+        { "command": "check:persistence-redaction", "ciRequired": true, "covers": ["database_metadata", "telemetry_details"] },
+        { "command": "check:notification-payload-scrub-contract", "ciRequired": true, "covers": ["notification_retry_payloads", "webhook_urls"] },
+        { "command": "check:report-redaction-contract", "ciRequired": true, "covers": ["report_tracking", "engagement_token_hashes"] },
+        { "command": "check:ai-context-redaction", "ciRequired": true, "covers": ["model_bound_context", "provider_errors"] },
+        { "command": "check:telemetry-event-inventory", "ciRequired": true, "covers": ["telemetry_event_names", "compatibility_consumers"] },
+        { "command": "check:ci-artifact-secret-leakage", "ciRequired": true, "covers": ["har_files", "screenshots", "ci_artifact_paths"] },
+        { "command": "check:generated-artifact-hygiene", "ciRequired": true, "covers": ["generated_reports", "artifact_secret_values"] }
+      ]
+    },
+    {
+      "id": "sentry-release-source-map-coverage",
+      "ownerArea": "observability",
+      "commands": [
+        { "command": "check:operational-observability-redaction", "ciRequired": true, "covers": ["sentry_release", "dsn_disabled_state", "source_map_upload_settings"] }
+      ]
+    },
+    {
+      "id": "opentelemetry-wrapper-contracts",
+      "ownerArea": "observability",
+      "commands": [
+        { "command": "test", "ciRequired": false, "covers": ["api_route_spans", "cron_spans", "webhook_spans", "provider_spans", "background_job_spans"] }
+      ]
+    },
+    {
+      "id": "alert-slo-readiness-report",
+      "ownerArea": "operations",
+      "commands": [
+        { "command": "check:synthetic-slo-env", "ciRequired": true, "covers": ["slo_monitor_env", "strict_synthetic_base_url"] },
+        { "command": "test:slo-budgets", "ciRequired": false, "covers": ["slo_budget_shape"] }
+      ],
+      "artifacts": ["artifacts/operational-observability-redaction.json"]
+    }
+  ],
+  "structuredLoggingSurfaces": [
+    {
+      "id": "api-route-telemetry-wrapper",
+      "path": "src/lib/observability/api-route-instrumentation.ts",
+      "requiredFields": ["request_id", "correlation_id", "route_id", "duration_ms", "status_class", "error_class"],
+      "markers": ["x-request-id", "x-correlation-id", "x-oblixa-route-id", "x-oblixa-route-duration-ms", "x-oblixa-route-status-class", "x-oblixa-error-class", "captureServerException"]
+    },
+    {
+      "id": "api-route-contract-runner",
+      "path": "src/lib/http/route-runner.ts",
+      "requiredFields": ["route", "duration_ms", "status", "phase", "error_class", "errors_count"],
+      "markers": ["route: options.route", "durationMs: Date.now() - startedAtMs", "errors_count", "phase", "error_class: safeErrorClass(error)"]
+    },
+    {
+      "id": "cron-route-runner",
+      "path": "src/lib/cron/route-runner.ts",
+      "requiredFields": ["route", "job_id", "duration_ms", "processed_count", "skipped_count", "failed_count", "retry_count", "errors_count", "error_class"],
+      "markers": ["job_id: cronJobId(options.route, startedAtMs)", "durationMs: Date.now() - startedAtMs", "processed_count", "skipped_count", "failed_count", "retry_count", "errors_count", "error_class: safeErrorClass(error)"]
+    },
+    {
+      "id": "opentelemetry-operational-span",
+      "path": "src/lib/observability/operational-span.ts",
+      "requiredFields": ["operation_id", "org_id_hash", "user_id_hash", "job_id", "provider", "status", "duration_ms", "error_class"],
+      "markers": ["OPERATIONAL_SPAN_KINDS", "buildOperationalSpanContract", "withOperationalSpan", "sanitizeOperationalSpanAttributes", "hashOperationalIdentifier", "org_id_hash", "user_id_hash", "operation_id", "duration_ms", "error_class"]
+    }
+  ],
+  "redactionSurfaces": [
+    { "id": "logs", "command": "check:logging-telemetry-redaction", "ciRequired": true },
+    { "id": "sentry-tags", "command": "check:sentry-tag-banlist", "ciRequired": true },
+    { "id": "sentry-events", "command": "check:logging-telemetry-redaction", "ciRequired": true },
+    { "id": "telemetry-events", "command": "check:telemetry-event-inventory", "ciRequired": true },
+    { "id": "reports", "command": "check:report-redaction-contract", "ciRequired": true },
+    { "id": "traces", "command": "check:operational-observability-redaction", "ciRequired": true },
+    { "id": "har-screenshots-ci-artifacts", "command": "check:ci-artifact-secret-leakage", "ciRequired": true },
+    { "id": "generated-reports", "command": "check:generated-artifact-hygiene", "ciRequired": true }
+  ],
+  "sentryContracts": [
+    {
+      "id": "server-config",
+      "path": "sentry.server.config.ts",
+      "markers": ["if (dsn)", "release: getSentryRelease()", "beforeSend: scrubSentryEvent", "tracesSampleRate: parseSampleRate", "profilesSampleRate: parseSampleRate", "sendDefaultPii: process.env.SENTRY_SEND_DEFAULT_PII === \"true\""]
+    },
+    {
+      "id": "edge-config",
+      "path": "sentry.edge.config.ts",
+      "markers": ["if (dsn)", "release: getSentryRelease()", "beforeSend: scrubSentryEvent", "tracesSampleRate: parseSampleRate", "profilesSampleRate: parseSampleRate", "sendDefaultPii: process.env.SENTRY_SEND_DEFAULT_PII === \"true\""]
+    },
+    {
+      "id": "client-config",
+      "path": "src/instrumentation-client.ts",
+      "markers": ["NEXT_PUBLIC_SENTRY_DSN", "release: getSentryRelease()", "beforeSend: scrubSentryEvent", "tracesSampleRate: parseSampleRate", "sendDefaultPii: false", "replayIntegration"]
+    },
+    {
+      "id": "source-map-upload-settings",
+      "path": "next.config.ts",
+      "markers": ["withSentryConfig", "sentryRelease", "NEXT_PUBLIC_SENTRY_RELEASE", "silent: !process.env.CI", "widenClientFileUpload: Boolean(process.env.CI)", "automaticVercelMonitors: true"]
+    },
+    {
+      "id": "release-helper-tests",
+      "path": "src/lib/observability/sentry-release.test.ts",
+      "markers": ["prefers SENTRY_RELEASE", "falls back to NEXT_PUBLIC_SENTRY_RELEASE", "falls back to VERCEL_GIT_COMMIT_SHA", "returns undefined when unset"]
+    },
+    {
+      "id": "disabled-state-tests",
+      "path": "src/lib/observability/sentry.test.ts",
+      "markers": ["captureServerException no-ops without server DSN", "captureClientException no-ops without client DSN"]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/observability/operational-span.test.ts",
+      "markers": ["OpenTelemetry operational span wrapper contract", "api_route", "cron_route", "webhook", "provider_call", "background_job", "hashes org and user ids", "emits sanitized spans for success and error paths"]
+    },
+    {
+      "path": "src/lib/observability/log-redaction.test.ts",
+      "markers": ["redacts tokens, signed URL secrets, API keys, and raw payload keys", "formats route and job errors without secret material", "request_id"]
+    },
+    {
+      "path": "src/lib/observability/sentry-scrub.test.ts",
+      "markers": ["drops banlisted Sentry tag keys entirely", "redacts signed URLs, bearer secrets, OAuth codes, and raw text in deep payloads", "redacts email-like strings in breadcrumb data"]
+    },
+    {
+      "path": "src/lib/slo-dashboard-descriptors.test.ts",
+      "markers": ["exports one descriptor per SLO evidence row", "uses HTTPS URL templates without secrets"]
+    }
+  ],
+  "expectedMonitors": [
+    {
+      "id": "login",
+      "ownerArea": "growth",
+      "diagnosticId": "monitor_login_flow",
+      "sloKey": "activation_first_work_item",
+      "codeCoverage": [
+        { "path": "src/app/(auth)/login/page.tsx", "markers": ["AuthForm", "mode=\"login\""] },
+        { "path": "src/lib/observability/api-route-instrumentation.ts", "markers": ["request_id", "correlation_id"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Synthetic login monitor destination and credentials are external."
+    },
+    {
+      "id": "dashboard",
+      "ownerArea": "product",
+      "diagnosticId": "monitor_dashboard_load",
+      "sloKey": "work_reachability",
+      "codeCoverage": [
+        { "path": "src/app/(dashboard)/dashboard/page.tsx", "markers": ["loadCoreDashboardModel", "CoreDashboard"] },
+        { "path": "src/lib/slo-dashboard-descriptors.ts", "markers": ["V10_SLO_DASHBOARD_DESCRIPTORS", "dashboardUrlTemplate"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Dashboard uptime and latency alert routing are configured in the external monitoring provider."
+    },
+    {
+      "id": "api-errors",
+      "ownerArea": "api-platform",
+      "diagnosticId": "monitor_api_errors",
+      "sloKey": "api_contracts",
+      "codeCoverage": [
+        { "path": "src/lib/http/problem.ts", "markers": ["jsonProblem", "diagnostic_id"] },
+        { "path": "src/lib/observability/api-route-instrumentation.ts", "markers": ["x-oblixa-route-status-class", "x-oblixa-error-class"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "API error alert thresholds and destinations are external."
+    },
+    {
+      "id": "cron-misses",
+      "ownerArea": "platform-runtime",
+      "diagnosticId": "monitor_cron_misses",
+      "sloKey": "post_ga_operational_window",
+      "codeCoverage": [
+        { "path": "src/lib/cron/route-runner.ts", "markers": ["pingCronHealthcheck", "job_id", "errors_count"] },
+        { "path": ".github/workflows/slo-monitor.yml", "markers": ["node scripts/slo-monitor.mjs", "HC_SLO_MONITOR_PING"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Cron heartbeat endpoint and paging policy are provider-owned."
+    },
+    {
+      "id": "webhook-failures",
+      "ownerArea": "integrations",
+      "diagnosticId": "monitor_webhook_failures",
+      "sloKey": "provider_readiness",
+      "codeCoverage": [
+        { "path": "src/app/api/stripe/webhook/route.ts", "markers": ["stripe_webhook_secret_missing", "stripe_webhook_provider_missing", "readTextBodyLimited"] },
+        { "path": "src/lib/security/webhook-callback-fixtures.ts", "markers": ["stripe-provider-outage", "outbound-webhook-provider-outage"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Stripe and outbound webhook delivery dashboards are external provider surfaces."
+    },
+    {
+      "id": "extraction-failures",
+      "ownerArea": "document-pipeline",
+      "diagnosticId": "monitor_extraction_failures",
+      "sloKey": "activation_first_work_item",
+      "codeCoverage": [
+        { "path": "src/app/api/extract/route.ts", "markers": ["captureServerException", "RATE_LIMITS.extract", "runExtractionPipeline"] },
+        { "path": "src/lib/extraction/run-pipeline.ts", "markers": ["durationMs", "formatUnknownForServerLog"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "AI provider incident signals and alert routing remain external."
+    },
+    {
+      "id": "billing-failures",
+      "ownerArea": "billing",
+      "diagnosticId": "monitor_billing_failures",
+      "sloKey": "provider_readiness",
+      "codeCoverage": [
+        { "path": "src/app/api/stripe/webhook/route.ts", "markers": ["dependency_blocked", "stripe_provider", "captureServerMessage"] },
+        { "path": "src/lib/billing/runtime.ts", "markers": ["stripe", "billing"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Stripe dashboard alerts and invoice-provider health are external."
+    },
+    {
+      "id": "email-failures",
+      "ownerArea": "notifications",
+      "diagnosticId": "monitor_email_failures",
+      "sloKey": "provider_readiness",
+      "codeCoverage": [
+        { "path": "src/lib/email.ts", "markers": ["RESEND_API_KEY", "Email provider is not configured", "redactOutboundMessageText"] },
+        { "path": "src/lib/notification-delivery.ts", "markers": ["sanitizeRetryPayload", "sanitizeMetadata", "last_error"] }
+      ],
+      "providerVerified": false,
+      "manualBoundary": "Resend deliverability alerting and recipient-domain health are external."
+    }
+  ]
+}

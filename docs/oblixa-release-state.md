@@ -2,209 +2,420 @@
 
 This document describes the recommended release state for Oblixa in plain language.
 
-It is not a build spec. It is meant to decide what the product should say, what users should see, what pages should exist, what should be included at launch, what should stay private, and how the business should present the product.
+It is not a build spec. It is not runtime configuration. Product code, tests, scripts,
+and CI must not depend on this document.
 
-## The Short Version
+The purpose of this document is to decide what Oblixa should say, who it should be
+for, what should be public at launch, what should stay private, and how outreach
+should be handled while the product is still founder-led.
 
-Oblixa should launch publicly as **Oblixa Core**.
+## Short Version
 
-Core should feel complete, useful, and paid-product ready. Advanced should be available only for selected early users. Assurance should remain private for design partners or enterprise conversations.
+Oblixa should not launch as a broad public self-serve SaaS product yet.
 
-The public product should not try to look like a complete CLM, legal AI platform, GRC system, or autonomous agent. It should be clearer and sharper than that:
+Oblixa should launch as **gated early access with founder-observed onboarding**
+for small teams that currently track signed contracts in spreadsheets, folders,
+inboxes, calendar reminders, or someone's memory.
 
-> Oblixa helps teams track renewals, obligations, owners, evidence, and reports from signed contracts without relying on spreadsheets.
+The public promise should be:
 
-That is the release promise.
+> Replace your contract-tracking spreadsheet.
+
+The supporting promise should be:
+
+> Oblixa helps small teams track renewals, obligations, owners, evidence, and
+> reports from signed contracts, with AI-assisted extraction that stays
+> source-backed and human-reviewed.
+
+This keeps the wedge intact while lowering the trust, support, and domain-authority
+burden of a broad public launch.
+
+## Strategic Decision
+
+The right first release is:
+
+- Public website
+- Public explanation of the product
+- Public early-access request path
+- Invite-only or manually approved workspaces
+- 3 to 5 bounded early-access evaluations
+- Core product only
+- Founder-observed, not founder-delivered, onboarding
+- Async-first support
+- No public Advanced or Assurance launch
+- No public self-serve trial as the primary motion
+- No broad enterprise or compliance positioning
+
+The wrong first release is:
+
+- Open signup positioned as a mature self-serve product
+- Published enterprise-style pricing matrix
+- Public claims around assurance, governance, controls, autonomy, or full CLM
+- A promise of standard support, SLAs, or 24-hour issue response
+- Messaging that implies a large company, security team, legal team, or customer
+  success organization behind the product
+
+Oblixa can still be serious. It should be serious by being focused, honest, and
+useful, not by pretending to be institutionally mature.
+
+## Decision Hierarchy
+
+When product, website, pricing, or outreach decisions conflict, use this order:
+
+1. Protect trust.
+2. Keep the wedge narrow.
+3. Learn from real contract-tracking workflows.
+4. Reduce support burden.
+5. Convert to revenue after value is proven.
+6. Expand product breadth only after repeated evidence.
+
+Practical consequences:
+
+- If a phrase attracts a buyer who expects enterprise maturity, remove or soften it.
+- If a feature is impressive but creates support or trust risk, hide it from public
+  copy until it is needed by a real evaluation.
+- If a buyer wants drafting, negotiation, e-signature, legal advice, or compliance
+  certification, do not force-fit Oblixa.
+- If a prospect cannot show the current process, they are less useful than a
+  smaller prospect with a real spreadsheet and visible pain.
+- If a paid conversion would create a support obligation the founder cannot
+  handle, delay or narrow the commitment.
+
+## Founder Operating Reality
+
+The launch posture must fit the actual operating capacity.
+
+Current constraints:
+
+- Oblixa is a one-person operation.
+- Budget is limited.
+- Domain knowledge is developing but not yet deep contract-operations experience.
+- Customer calls are possible but should not be the default dependency.
+- Support can be attentive but should not promise guaranteed response times.
+- Revenue matters eventually, but immediate survival does not depend on charging
+  every early user.
+
+Implications:
+
+- The product should not attract enterprise procurement.
+- The first users should tolerate early-stage founder involvement.
+- The product should avoid regulated or high-security buyers at first.
+- Support should be best-effort and explicit.
+- Public copy should not claim legal, compliance, or operational authority beyond
+  what the product actually does.
+- The first commercial goal is evidence of real workflow value, then revenue.
+
+Do not mention the founder's age in public positioning. The public posture should
+be "founder-led early access," not "student project."
+
+## Operating Model
+
+The first operating model should be closer to a bounded evaluation program than a
+normal SaaS funnel or services engagement.
+
+Recommended model:
+
+- Website explains the product and collects early-access requests.
+- Founder reviews each request manually.
+- Qualified prospects receive discovery questions.
+- A call is optional, not mandatory.
+- The first workspace uses a small contract subset.
+- Support is async-first.
+- The evaluation has a defined start, goal, and review point.
+- Paid conversion is discussed only after the product has created value.
+
+Do not optimize for anonymous signups yet. Anonymous signups are weaker than
+learning from a team that can explain what the current tracker fails to do.
+
+Founder-led does not mean founder-delivered.
+
+Founder-led means the founder selects users, observes workflows, answers limited
+async product questions, and uses feedback to improve Oblixa. It does not mean the
+founder manually sets up every workspace, cleans customer data, reviews contracts,
+interprets legal terms, builds custom reports, or manages the customer's tracker.
+
+## Risk Register
+
+The main launch risks are not technical completeness alone.
+
+| Risk | Why It Matters | Mitigation |
+| --- | --- | --- |
+| Overclaiming maturity | Attracts enterprise expectations the founder cannot meet | Use early-access and founder-supported language |
+| Domain overreach | Contract workflows vary and legal/compliance expectations can be high | Focus on tracking, not legal judgment |
+| Security burden | Real contracts contain sensitive information | Start with small, low-procurement evaluations and allow redacted data |
+| Support overload | A one-person operation cannot support many urgent customers | Gate access and avoid SLAs |
+| Wrong buyer | CLM/e-signature/legal-review buyers will churn or demand missing features | Be explicit about what Oblixa is not |
+| Weak proof | Public claims without customer evidence will sound inflated | Use product proof first, customer proof only when real |
+| Pricing too early | Fixed pricing can create commitments before support burden is known | Discuss pricing after evaluation value |
 
 ## What Oblixa Is At Launch
 
 Oblixa is a contract tracking workspace for signed agreements.
 
-The first public version is for teams that already have signed contracts, but do not have a reliable way to track what those contracts require next.
-
-It helps teams answer:
+It starts after signature, when contract details have to become operational:
 
 - What contracts do we have?
 - Which renewal, notice, termination, and effective dates matter?
 - Who owns each contract?
 - Which obligations need follow-up?
-- Which approvals, tasks, or exceptions are open?
+- What work is overdue, blocked, or unassigned?
 - What evidence has been requested or received?
 - What can we report without rebuilding a spreadsheet?
 
-The product starts after a contract is signed. It is not trying to manage negotiation, redlines, legal drafting, or e-signature at launch.
+The first release should help a team move from a static tracker to an operational
+workspace:
+
+1. Import or upload a small set of signed contracts.
+2. Review source-backed suggested fields.
+3. Assign owners and key dates.
+4. Turn obligations and follow-up into work.
+5. Track renewals, evidence, exceptions, and reports.
+
+The product should make contract tracking more reliable. It should not claim to
+make legal or business decisions for the customer.
 
 ## What Oblixa Is Not At Launch
 
 Oblixa should not publicly claim to be:
 
 - A full contract lifecycle management system
+- An e-signature product
+- A contract drafting or redlining product
 - A legal advice product
 - A replacement for lawyers
 - A GRC platform
+- A compliance automation product
 - A fully autonomous contract agent
 - A guarantee that no renewal will ever be missed
-- A complete enterprise assurance system
+- A mature enterprise assurance system
 
-Those claims either create unnecessary trust risk or make the product sound broader than it needs to be.
+These claims create unnecessary trust risk, attract the wrong buyer, and make the
+product sound broader than it needs to be.
+
+## Market Position
+
+Oblixa should be clear about overlap without adopting the wrong category.
+
+### Compared With CLM
+
+CLM usually covers creation, intake, drafting, review, negotiation, approvals,
+signature, storage, and lifecycle management.
+
+Oblixa should say:
+
+> Oblixa is not trying to replace a full CLM. It starts after contracts are signed,
+> when teams need to track dates, owners, obligations, evidence, and reports.
+
+### Compared With E-Signature
+
+E-signature tools help get agreements signed.
+
+Oblixa should say:
+
+> Oblixa starts after signature. It helps teams act on what the signed agreement
+> requires next.
+
+### Compared With A Contract Repository
+
+Repositories store and search agreements.
+
+Oblixa should say:
+
+> Oblixa keeps files and records together, but the main job is operational
+> tracking: dates, owners, obligations, evidence, and reports.
+
+### Compared With Spreadsheets
+
+Spreadsheets are flexible but fragile.
+
+Oblixa should say:
+
+> Oblixa replaces the contract-tracking spreadsheet with reviewed contract data,
+> owners, reminders, work, evidence, and exportable reports.
 
 ## Recommended Public Positioning
 
-### Category
+### Headline
 
-Contract tracking for renewals, obligations, owners, evidence, and reports.
+> Replace your contract-tracking spreadsheet.
 
-"Post-signature contract operations" can still be used as a category explanation, but it should not be the first thing most buyers see. It is accurate, but too abstract for a cold visitor.
+### Subheadline
 
-### Main Headline
+> Oblixa helps small teams track renewals, obligations, owners, evidence, and
+> reports from signed contracts, with AI-assisted extraction that stays
+> source-backed and human-reviewed.
 
-Track renewals, obligations, and owners from signed contracts.
+### One-Sentence Explanation
 
-### Main Subheadline
+> Oblixa starts after signature, turning signed contracts into reviewed fields,
+> accountable work, renewal tracking, evidence requests, and reports.
 
-Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.
+### Category Line
 
-### Simple Explanation
+> Post-signature contract operations for teams outgrowing spreadsheets.
 
-Most teams already have signed contracts. The problem is that renewal dates, notice windows, obligations, owners, evidence, and reports end up scattered across PDFs, folders, inboxes, spreadsheets, and calendar reminders.
+This line is useful as a category explanation, but it should not be the first thing
+a cold visitor has to understand.
 
-Oblixa gives teams one place to review the important terms, assign owners, track upcoming dates, manage obligations, request evidence, and export reports.
+### Early Access Line
 
-## Specificity Rule
-
-Oblixa should not speak to "everyone with contracts."
-
-The first release should speak to teams that are currently doing contract tracking manually.
-
-The clearest wedge is:
-
-> We help teams replace contract tracking spreadsheets for renewals, obligations, owners, evidence, and reports.
-
-This is more specific than "contract operations" and easier for a buyer to recognize.
-
-The product can still expand later. The launch message should not.
+> Gated early access for a small number of teams replacing manual contract
+> trackers, with founder-observed onboarding.
 
 ## Target Customer
 
-The first public customer should be a team with enough signed contracts to feel operational pain, but not so much complexity that they need a heavy enterprise implementation.
+The first customer should not be "everyone with contracts."
 
-Best-fit customers:
+Best-fit first users:
 
-- 10 to 250 person companies
-- 50 to 500 active signed contracts
-- A founder, COO, finance lead, legal ops lead, contract manager, or operations lead owns the problem
-- Contracts are currently managed in Drive, email, spreadsheets, calendar reminders, or shared folders
-- The team worries about renewals, notice windows, obligations, approvals, ownership, or reporting
+- Small B2B companies
+- Agencies and consultancies
+- Founder-led or operations-led teams
+- Teams without formal legal operations
+- Teams using spreadsheets, shared folders, email, or calendar reminders
+- Teams with enough signed agreements to feel tracking pain
+- Teams that can make a decision without enterprise procurement
+- Teams willing to use an early product with founder support
 
-Best-fit contract types:
+Good first buyer roles:
+
+- Founder
+- COO
+- Operations lead
+- Finance lead
+- Admin or business operations owner
+- Legal-adjacent operator
+- Procurement owner in a small team
+
+Good first contract sets:
 
 - Vendor agreements
 - Customer agreements
 - Service agreements
+- SOWs
+- Agency/client agreements
 - Leases
-- Financing agreements
 - Partnership agreements
+- Financing agreements
 - Renewal-heavy agreements
-- Agreements with recurring obligations or evidence requirements
 
-Best-fit pain points:
+Recommended first evaluation account range:
 
-- "We do not trust our contract spreadsheet."
-- "We are not sure who owns each agreement."
-- "Renewal and notice dates are easy to miss."
-- "Obligations are buried in PDFs."
-- "Reports take too long to prepare."
-- "Evidence is scattered across email and folders."
-- "Nobody knows which contracts need review."
+- 20 to 200 signed agreements overall
+- 5 to 25 records in the first evaluation
+- Manual or semi-manual tracking today
+- At least one real renewal, owner, obligation, evidence, or reporting pain
+- Low procurement burden
+- Willing to share current process or a redacted tracker
 
-The best short buyer description is:
+This is not a hard product limit. It is an outreach filter. A company may have
+200 agreements, but the first evaluation should not start by migrating 200.
 
-> Operations, finance, and legal-adjacent teams tracking 50 to 500 signed agreements in spreadsheets.
+## Customers To Avoid At First
 
-Less ideal for launch:
+Do not proactively target:
 
-- Very small teams with only a few contracts
-- Large enterprises expecting a full CLM migration
-- Teams that mainly need contract drafting or redlining
-- Teams that mainly need e-signature
-- Teams that need formal compliance automation before basic contract tracking
+- Large enterprises expecting full CLM migration
+- Public companies
+- Healthcare organizations
+- Financial institutions with formal vendor-security review
+- Government or education buyers with procurement requirements
+- Buyers who require SOC 2, ISO, HIPAA, custom DPA negotiation, or detailed
+  security questionnaires before an evaluation
+- Teams that primarily need drafting, negotiation, redlining, or e-signature
+- Teams that expect legal interpretation or compliance certification
+- Teams with urgent mission-critical deadlines that cannot tolerate early-product
+  risk
 
-## Market Wedge
+These customers may be viable later. They are not optimal for the first release.
 
-The wedge is not "all contract management."
+## First ICP Hypotheses
 
-The wedge is:
+The first ideal-customer profile is a hypothesis, not a permanent market decision.
+Use early outreach to test which group has the clearest pain and lowest adoption
+friction.
 
-> Replace the contract tracking spreadsheet.
+### Hypothesis A: B2B Service Firms
 
-That is specific enough for buyers to understand quickly.
+Examples:
 
-It also fits what Oblixa can actually do at launch:
+- Agencies
+- Consultancies
+- Fractional service providers
+- B2B pipeline or growth firms
+- Managed service providers
 
-- Bring in signed agreements
-- Review key fields
-- Track renewal and notice dates
-- Assign contract owners
-- Turn obligations into work
-- Request evidence
-- Export reports
+Why they may fit:
 
-Do not make the first public release industry-specific unless the product is ready to serve that industry's exact workflow.
+- They often have customer agreements, SOWs, vendor agreements, and renewals.
+- They may be operationally mature enough to feel contract-tracking pain.
+- They may not have formal legal operations.
+- The buyer may be a founder or operations lead.
 
-For example, Oblixa should not present itself as mortgage banking software unless it supports mortgage-specific workflows such as loan applications, rate locks, disclosures, underwriting conditions, closing packages, title, escrow, servicing, and mortgage compliance.
+What to test:
 
-Instead, use industry examples only when they fit the actual product:
+- Do they track client renewals, SOW dates, cancellation windows, or deliverable
+  obligations manually?
+- Does leadership ask for contract status reports?
+- Are agreements scattered across Drive, email, and spreadsheets?
 
-- A finance team tracking vendor and financing agreements
-- An operations team tracking customer and service agreements
-- A property team tracking leases and renewal dates
-- A procurement team tracking vendor obligations and evidence
-- A legal ops team cleaning up ownership, dates, and reporting
+### Hypothesis B: Small SaaS Or Tech Startups
 
-This keeps the product specific without making promises it cannot yet support.
+Why they may fit:
 
-## Primary Use Cases To Name Publicly
+- They may have customer agreements, vendor agreements, security addenda, and
+  renewal-heavy subscriptions.
+- They may understand software and tolerate early-access products.
+- A founder, COO, or finance lead may own contract operations.
 
-The release should name specific use cases instead of only describing a broad product category.
+What to test:
 
-Lead with:
+- Is contract tracking already painful before they have legal ops?
+- Do renewals, owners, and notice periods matter enough to justify a tool?
+- Are they blocked by security review even at small size?
 
-- Renewal and notice date tracking
-- Contract owner tracking
-- Obligation follow-up
-- Evidence requests
-- Missing-field cleanup
-- Operational reporting
+### Hypothesis C: Small Operations Or Finance Teams
 
-Good page and section titles:
+Why they may fit:
 
-- Track upcoming renewals
-- Find contracts missing owners
-- Turn obligations into work
-- Collect evidence for contract follow-up
-- Export contract reports without rebuilding spreadsheets
+- They care about dates, owners, obligations, spend, and reporting.
+- They are less likely to demand full legal workflow tooling.
 
-Avoid leading with:
+What to test:
 
-- Digital transformation
-- Contract intelligence
-- End-to-end lifecycle management
-- Governance automation
-- Autonomous contract operations
+- Are they currently using a spreadsheet to track vendors, leases, financing, or
+  service contracts?
+- Do they have recurring reporting needs?
+- Does contract data affect finance or operational planning?
+
+### Deprioritized For First Outreach
+
+Deprioritize:
+
+- Legal departments at larger companies
+- Procurement-heavy enterprises
+- Regulated teams
+- Teams shopping for full CLM
+- Teams looking for AI legal review
+
+They may validate market interest, but they are less likely to be feasible first
+customers.
 
 ## Product Modes
 
-Oblixa has three workspace modes: Core, Advanced, and Assurance.
+Only Core should be public.
 
-Only Core should be public self-serve at release.
+The public product should not expose workspace mode switching, Advanced modules,
+Assurance modules, autopilot controls, or enterprise-style product configuration.
 
 ### Core
 
-Core is the public product.
+Core is the early-access product.
 
 It should include:
 
-- Contract upload and import
+- Contract upload
+- Spreadsheet or CSV import
 - AI-assisted extraction
 - Human review of important fields
 - Source-backed field confirmation
@@ -212,195 +423,227 @@ It should include:
 - Dates
 - Renewals
 - Obligations
-- Approvals
+- Approvals where they support contract follow-up
 - Work items
 - Exceptions
 - Evidence requests
 - Reports
-- Billing
-- Security basics
 - Team settings
+- Data export
 
-Core should feel like a complete product, not a stripped-down trial.
+Core should feel useful and coherent, but it does not need to pretend to be a
+fully self-serve mature business.
 
 ### Advanced
 
-Advanced should be early access only.
+Advanced should remain private.
 
-It is for teams that need portfolio operations across many contracts, owners, counterparties, programs, and recurring workflows.
+It can exist in the product and be used selectively, but it should not be a public
+website promise during early access.
 
-Advanced may include:
+Do not lead with:
 
 - Programs
-- Decisions
 - Campaigns
 - Relationship workspaces
 - Advanced analytics
-- Maintenance workflows
-- Collaboration enhancements
-- Compare views
-
-Advanced should not be shown as a normal public product mode during the first release.
+- Large portfolio operations
+- Complex collaboration workflows
 
 ### Assurance
 
-Assurance should be private only.
+Assurance should remain private.
 
-It is for hand-held design partners or enterprise customers that need controls, findings, review boards, scorecards, playbooks, and assurance workflows.
+Do not publicly sell:
 
-Assurance may include:
-
+- Controls
 - Findings
-- Control policies
 - Scorecards
 - Playbooks
 - Review boards
-- Segments
 - Health graph
 - Program evolution
-- Autopilot dry runs
+- Autopilot
 
-Autopilot execution should not be public at release.
+Autopilot execution should not be public.
 
-## Pricing
+## AI Positioning
 
-The public pricing should be simple.
+AI should be helpful but not magical.
 
-Recommended pricing:
+Prefer:
 
-| Offer | Price | Public? | Purpose |
-| --- | ---: | --- | --- |
-| Free trial | 21 days | Yes | Lets users upload, review, and feel value before paying |
-| Core Monthly | $299/month | Yes | Simple month-to-month option |
-| Core Annual | $249/month, billed annually | Yes | Main plan, $2,988/year |
-| Founding Customer Annual | $2,400 for the first year | Yes, limited | First 25 customers only |
-| Guided Pilot | $1,500 for 60 days | Optional | Assisted setup for serious teams, credited toward annual plan |
-| Advanced | From $9,000/year | No | Quote-only early access |
-| Assurance | From $24,000/year | No | Private design-partner or enterprise offer |
+- AI-assisted extraction
+- Suggested fields
+- Source-backed review
+- Human-approved values
+- Review before relying on a field
 
-The public pricing page should focus on Core.
+Avoid:
 
-Advanced and Assurance should be described only as:
+- AI lawyer
+- Autonomous contract management
+- Fully automated review
+- Guaranteed extraction
+- Legal analysis
+- Risk scoring as authority
+- Compliance decisions
 
-> Need portfolio operations, controls, or assurance workflows? Contact us.
+Required principle:
 
-Do not publish detailed Advanced or Assurance pricing yet.
-
-## Plan Limits
-
-The public Core plan should avoid confusing usage math.
-
-Recommended Core Annual limits:
-
-- Up to 500 active contracts included
-- Up to 10 team members included
-- Fair-use AI extraction included
-- CSV export included
-- Email reminders included
-- Audit history included
-- Standard support included
-
-Recommended overage language:
-
-> Larger teams and higher contract volumes are available on custom plans.
-
-Avoid saying "unlimited AI" or "unlimited everything."
-
-## Trial
-
-The free trial should last 21 days.
-
-The trial should not require a card.
-
-Trial limits:
-
-- Up to 25 contracts
-- Up to 3 team members
-- Fair-use extraction
-- Export available
-
-The trial should be long enough for a user to upload a few contracts, review fields, create reminders or work items, and see the dashboard become useful.
-
-## Founding Customer Offer
-
-Offer:
-
-> Founding customers get the first year of Oblixa Core for $2,400.
-
-Rules:
-
-- Limited to the first 25 customers
-- Includes one setup call
-- Includes reasonable import help
-- Renews at the normal annual price unless otherwise agreed
-- Should be shown as a limited launch offer, not a permanent discount
-
-This gives the product a clear early revenue path without making it feel cheap.
-
-## Guided Pilot
-
-Offer:
-
-> A 60-day guided pilot for teams that want help replacing their contract tracking spreadsheet.
-
-Price:
-
-- $1,500
-- Credited toward the first annual subscription if they continue
-
-Includes:
-
-- Setup call
-- Import planning
-- Help choosing the first contract set
-- Help defining owners and key dates
-- Review of first reports
-
-This is useful for serious buyers who are not ready to self-serve immediately.
+> Important AI-suggested fields should not become trusted operational data until a
+> human reviews them.
 
 ## Public Website
 
-The launch website should be small and strong.
+The launch website should be small, direct, and honest.
 
 Recommended public pages:
 
 - Home
 - Product
-- Pricing
+- Early Access
 - Security
 - Contact
-- Login / Signup
+- Login
 - Legal
 
-Do not launch thin pages just to look bigger. A small site with clear copy is better than a large site with weak content.
+Pricing may exist later, but it should not be the main early-access page until
+there is evidence from bounded evaluations.
+
+Do not launch thin pages just to look bigger.
+
+## Not Included In Early Access
+
+Early access is a product evaluation, not a managed implementation.
+
+Early access does not include:
+
+- Full contract repository migration
+- Manual contract review by Oblixa
+- Legal interpretation
+- Manual customer spreadsheet cleanup
+- Custom workflow building
+- Custom report building
+- Custom security questionnaires
+- Guaranteed support response times
+- Production-critical deadline reliance
+
+The goal is to test whether a small contract set can move from manual tracking to
+reviewed fields, owners, dates, work, evidence, and reports with limited founder
+support.
+
+## Public Surface Revision Priority
+
+If the current product surfaces are revised, do the work in this order.
+
+### Priority 1: Homepage
+
+Change the homepage from public self-serve SaaS launch framing to early-access
+design-partner framing.
+
+Required changes:
+
+- H1 becomes "Replace your contract-tracking spreadsheet."
+- Primary CTA becomes "Request early access."
+- Secondary CTA becomes "See how it works" or "Review fit criteria."
+- Remove self-serve trial emphasis.
+- Remove any broad Advanced or Assurance promotion.
+- Add an explicit "not CLM, not e-signature" explanation.
+- Add a small "best fit" section for spreadsheet-based tracking.
+
+### Priority 2: Pricing
+
+Pricing should not lead with a polished self-serve plan matrix yet.
+
+Required changes:
+
+- Replace fixed public plan cards with early-access guidance.
+- Explain that pricing is being finalized during early-access evaluations.
+- Keep any paid continuation language broad, such as "founding monthly plan."
+- Do not sell annual contracts publicly yet.
+- Do not publish Advanced or Assurance pricing.
+
+### Priority 3: Signup And Access
+
+Signup should support the early-access motion.
+
+Required changes:
+
+- If signup is open, set expectations that access is early and founder-supported.
+- If feasible, gate workspace creation or route new users through an access request.
+- Avoid language that implies a normal no-touch trial.
+
+### Priority 4: Security
+
+Security copy should be factual and modest.
+
+Required changes:
+
+- Keep role, audit, export, deletion, and AI-review controls visible.
+- Add early-access limits.
+- Do not imply formal certification or enterprise procurement readiness.
+- Make the no-legal-advice statement visible.
+
+### Priority 5: In-App Product Exposure
+
+The in-app shell should keep users focused on Core.
+
+Required changes:
+
+- Core nav remains Dashboard, Contracts, Work, Renewals, Evidence, Reports, Settings.
+- Hide or suppress Advanced and Assurance surfaces for ordinary early-access users.
+- Do not expose workspace mode switching as a normal customer setting.
+- Keep billing subdued until paid conversion is proven.
+
+### Priority 6: Email And Lifecycle Copy
+
+Email should match early access.
+
+Required changes:
+
+- Welcome email says "early access."
+- Payment lifecycle emails are secondary until public billing is active.
+- Extraction emails emphasize source-backed review.
+- Support language remains best-effort.
 
 ## Home Page
 
 Purpose:
 
-Explain the spreadsheet/manual-tracking problem, show the product promise, and drive users to start a trial or book a setup call.
+Explain the spreadsheet/manual-tracking problem, show the product promise, and
+send serious visitors to early access.
 
 ### Hero
 
 Headline:
 
-> Track renewals, obligations, and owners from signed contracts.
+> Replace your contract-tracking spreadsheet.
 
 Subheadline:
 
-> Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.
+> Oblixa helps small teams track renewals, obligations, owners, evidence, and
+> reports from signed contracts, with AI-assisted extraction that stays
+> source-backed and human-reviewed.
 
 Primary button:
 
-> Start free trial
+> Request early access
 
 Secondary button:
 
-> Book setup call
+> See how it works
+
+Do not use:
+
+- Start free trial
+- Buy now
+- Talk to sales
+- Enterprise demo
 
 ### Problem Section
 
-Message:
+Title:
 
 > Your contracts are signed. The follow-up is scattered.
 
@@ -409,7 +652,7 @@ Bullets:
 - Renewal and notice dates live in spreadsheets
 - Obligations are buried in PDFs
 - Owners are unclear or outdated
-- Approvals and follow-up happen over email
+- Follow-up happens over email
 - Evidence is hard to request and collect
 - Reports take hours to rebuild
 
@@ -417,79 +660,51 @@ Bullets:
 
 Title:
 
-> From contract spreadsheet to contract tracking workspace
+> From tracker to workspace
 
 Steps:
 
-1. Upload signed contracts or import a contract spreadsheet
-2. Review key dates, terms, and obligations with source evidence
-3. Assign owners, reminders, approvals, and work
-4. Track renewals, evidence, exceptions, and reports
-
-### Outcomes Section
-
-Title:
-
-> Know what needs attention before it becomes a problem
-
-Content:
-
-- See contracts that need review
-- Catch upcoming renewal and notice dates
-- Assign work to the right owner
-- Track obligations and evidence
-- Export reports without rebuilding the spreadsheet again
+1. Import a tracker or upload signed contracts.
+2. Review suggested fields with source snippets.
+3. Assign owners, dates, reminders, and work.
+4. Track renewals, evidence, exceptions, and reports.
 
 ### Best-Fit Section
 
 Title:
 
-> Built for teams outgrowing contract spreadsheets
+> Built for small teams outgrowing contract spreadsheets
 
 Content:
 
-- 50 to 500 active agreements
-- Vendor, customer, service, lease, financing, partnership, or renewal-heavy contracts
-- Shared responsibility across operations, finance, legal, procurement, or account teams
-- A need to track dates, owners, obligations, evidence, and reports in one place
+- Signed contracts already exist
+- Tracking is manual today
+- Owners, dates, obligations, or reports are unreliable
+- The team wants a focused workspace, not a full CLM rollout
 
 ### Proof Section
 
-If there are no customer testimonials yet, do not fake social proof.
+Do not fake customer proof.
 
-Use product proof instead:
+Use product proof:
 
 - Screenshots
-- Example contract tracking workflow
 - Sample dashboard
 - Sample renewal report
 - Sample missing-owner report
 - Sample obligation and evidence queue
-- Plain explanation of how the review flow works
+- Plain explanation of source-backed review
 
-### Pricing CTA Section
+### CTA Section
 
 Message:
 
-> Start by replacing the spreadsheet. Add larger-team workflows only when you need them.
+> I am onboarding a small number of early users who currently track signed
+> contracts manually.
 
-Buttons:
+Button:
 
-- Start free trial
-- View pricing
-
-### FAQ Section
-
-Include:
-
-- Is Oblixa a CLM?
-- Does Oblixa provide legal advice?
-- Can I start without migrating every contract?
-- Can Oblixa replace our contract spreadsheet?
-- What file types are supported?
-- How does AI extraction work?
-- Can I export my data?
-- What happens when the trial ends?
+> Request early access
 
 ## Product Page
 
@@ -501,224 +716,277 @@ Recommended sections:
 
 ### Replace The Contract Spreadsheet
 
-Message:
+> Move from a static tracker to a workspace that connects contracts, dates,
+> owners, obligations, evidence, and reports.
 
-> Move from a static spreadsheet to a workspace that connects contracts, dates, owners, obligations, evidence, and reports.
+### Upload Or Import
 
-Content:
-
-- Start with a spreadsheet import or a small contract set
-- Keep contract records and files together
-- See missing owners, dates, and key fields
-- Turn reviewed contract information into reminders, work, and reports
-
-### Upload And Import
-
-Message:
-
-> Add signed contracts from PDFs, DOCX files, or your existing spreadsheet.
-
-Content:
-
-- Upload individual agreements
-- Import contract records by CSV
-- Track files and metadata together
-- Start with a small contract set instead of migrating everything
+> Start with a small contract set. Upload signed agreements or import existing
+> contract records from a spreadsheet.
 
 ### Review Key Terms
 
-Message:
-
 > Confirm important fields before they drive reminders, work, or reports.
 
-Content:
+Include:
 
 - Suggested extracted terms
 - Source snippets
-- Confidence indicators
+- Confidence indicators where available
 - Human approval
 - Manual correction
 
 ### Track Dates
 
-Message:
-
 > Keep renewal, notice, termination, and effective dates visible.
-
-Content:
-
-- Upcoming deadlines
-- Notice windows
-- Owner assignment
-- Reminder support
-- Renewal status
 
 ### Assign Work
 
-Message:
-
 > Turn contract obligations and follow-up into accountable work.
-
-Content:
-
-- Tasks
-- Approvals
-- Obligations
-- Exceptions
-- Due dates
-- Owners
 
 ### Collect Evidence
 
-Message:
-
 > Request and attach proof when contract work needs evidence.
-
-Content:
-
-- Evidence requests
-- Due dates
-- Status tracking
-- Linked contracts and obligations
 
 ### Report And Export
 
-Message:
-
 > Produce operational reports without rebuilding spreadsheets.
 
-Content:
-
-- Upcoming renewals
-- Missing owners
-- Missing key fields
-- Open obligations
-- Overdue work
-- Exceptions
-- Contract inventory
-
-## Pricing Page
+## Early Access Page
 
 Purpose:
 
-Make buying simple.
-
-Recommended sections:
-
-### Pricing Header
+Qualify potential early users and route them into a bounded evaluation.
 
 Headline:
 
-> Simple pricing for contract tracking.
+> Early access for teams replacing contract spreadsheets.
 
 Subheadline:
 
-> Start with Core. Add larger-team workflows when you need them.
+> I am onboarding a small number of teams that already track signed contracts
+> manually and want a focused workspace for renewals, owners, obligations,
+> evidence, and reports.
 
-### Plan Card
+Form fields:
 
-Plan:
+- Name
+- Work email
+- Company
+- Role
+- Approximate number of signed contracts
+- How contracts are tracked today
+- Main tracking pain
+- Whether there is an existing spreadsheet or tracker
+- Whether a redacted sample can be shared
+- Preference: async only, call if needed, or either
+- Message
 
-> Oblixa Core
+Confirmation message:
 
-Monthly:
+> Thanks. If there is a fit, I will follow up with a few questions about your
+> current tracking process. You do not need to migrate every contract to start.
 
-> $299/month
+## Pricing
 
-Annual:
+Do not lead with public self-serve pricing yet.
 
-> $249/month, billed annually
+Early-access pricing should optimize for learning and trust, not immediate scale.
 
-Included:
+Recommended approach:
 
-- 21-day free trial
-- Up to 500 active contracts
-- Up to 10 team members
-- Contract upload and import
-- AI-assisted extraction
-- Source-backed field review
-- Renewals and deadlines
-- Work, approvals, obligations, and exceptions
-- Evidence requests
-- Reports and CSV export
-- Email reminders
-- Team roles
-- Standard support
+| Offer | Price | Public? | Purpose |
+| --- | ---: | --- | --- |
+| Early-access evaluation | Free or low-cost for a limited period | Yes, limited | Learn from real workflows and prove value |
+| Founding Core | $100 to $300/month | Not fixed publicly yet | Convert teams after value is proven |
+| Advanced | Quote-only | No | Private only |
+| Assurance | Quote-only | No | Private only |
 
-Primary button:
+Public pricing page recommendation:
 
-> Start free trial
+- Replace the current pricing-first framing with an Early Access page.
+- If a Pricing page remains, it should say pricing is being finalized during
+  early access.
+- Do not publish Advanced or Assurance prices.
+- Do not promise annual plans until support and retention are proven.
 
-Secondary button:
+Suggested public copy:
 
-> Book setup call
+> Early access may be free during a limited evaluation period. Continued use after
+> evaluation will require a paid founding plan. Pricing is being finalized during
+> early access, but teams should expect paid continuation if Oblixa becomes part
+> of their workflow.
 
-### Founding Customer Offer
+Internal rule:
 
-Message:
+> No free workspace should remain active indefinitely unless it is producing
+> unusually valuable learning.
 
-> First 25 customers: $2,400 for the first year.
+## Early-Access Evaluation
 
-Details:
+The first evaluation should be small and bounded.
 
-- Includes one setup call
-- Includes reasonable import help
-- Renews at the standard annual price
+Recommended scope:
 
-### Guided Pilot
+- 14 to 30 days
+- 5 to 25 contracts or a redacted tracker sample
+- Async-first support
+- One optional 30-minute call only if needed
+- No full migration
+- No manual contract review by Oblixa
+- No production-critical reliance during evaluation
+- Clear export path
+- Clear deletion path
 
-Message:
+Evaluation goal:
 
-> Want help setting up your first contract tracking workspace?
+> Determine whether Oblixa can materially improve one current tracking workflow,
+> such as renewal tracking, missing-owner cleanup, obligation follow-up, evidence
+> tracking, or reporting.
 
-Offer:
+Evaluation success criteria:
 
-> 60-day guided pilot for $1,500, credited toward your first annual plan.
+- The user imports or uploads a small contract set.
+- The user reviews at least one source-backed field.
+- The user assigns an owner or key date.
+- The user sees a useful dashboard, work item, renewal view, evidence request, or
+  report.
+- The user can explain what Oblixa did better than the current tracker.
+- Founder support required was low enough to repeat.
 
-### Custom Plans
+## Evaluation Terms
 
-Message:
+Use plain expectations before starting an evaluation. These are product-positioning
+terms, not legal drafting instructions.
 
-> Need portfolio operations, controls, or assurance workflows?
+The prospect should understand:
 
-Button:
+- Oblixa is early access.
+- The evaluation is for workflow validation.
+- Oblixa is not providing legal advice.
+- AI-suggested fields require human review.
+- Support is founder-supported and best-effort.
+- The first contract set should be small enough to manage safely.
+- Redacted or sample documents are acceptable for evaluation.
+- The customer can export records and request deletion.
+- Feedback is expected.
+- Continued use after evaluation is paid unless explicitly extended for unusually
+  valuable learning.
 
-> Contact us
+Recommended evaluation summary:
 
-### Pricing FAQ
+> We will use a limited contract set to test whether Oblixa can replace or improve
+> your current contract tracker. Oblixa will help organize and track contract
+> information, but your team remains responsible for reviewing extracted fields
+> and making business or legal decisions.
 
-Include:
+## Evaluation Operating Checklist
 
-- Is a credit card required for the trial?
-- What happens after the trial?
-- Can I export my data?
-- What counts as an active contract?
-- What if we have more than 500 contracts?
-- Can we add more team members?
-- Do you offer annual billing?
-- Do you offer setup help?
+Before evaluation:
+
+- Confirm the current tracking process exists.
+- Identify the owner of the current tracker.
+- Collect a redacted tracker or describe its columns.
+- Choose the first contract subset.
+- Confirm whether real or redacted documents will be used.
+- Confirm the main success question.
+- Confirm support expectations.
+
+During evaluation:
+
+- Import or upload the initial contract set.
+- Review suggested fields for at least 3 to 5 contracts.
+- Assign owners and at least one key date.
+- Create at least one work item, obligation, evidence request, or renewal action.
+- Export or view at least one report.
+- Record every confusion point.
+- Track how much founder support was required.
+
+End of evaluation:
+
+- Ask what replaced spreadsheet work.
+- Ask what remained easier in the spreadsheet.
+- Ask what would block continued use.
+- Ask what they would pay, if anything, and why.
+- Ask whether they would be disappointed if access ended.
+- Decide whether to convert, extend, pause, or disqualify.
+
+## Data Handling Boundaries For Early Evaluations
+
+Early evaluations should minimize sensitive-data risk.
+
+Recommended boundaries:
+
+- Start with a small contract set.
+- Prefer redacted documents when the prospect is unsure.
+- Avoid regulated data.
+- Avoid contracts with unusually sensitive personal information.
+- Avoid production-critical deadline reliance during evaluation.
+- Keep export and deletion paths clear.
+- Do not ask for more documents than needed to test the workflow.
+
+Public copy should make this sound practical, not alarming:
+
+> You can start with a small or redacted contract set. The goal is to test whether
+> Oblixa improves the tracking workflow before you migrate everything.
+
+## Founder Support Boundaries
+
+During early access, support is limited to product usage questions, bug reports,
+import guidance, and workflow feedback.
+
+Oblixa will not provide:
+
+- Manual contract review
+- Legal interpretation
+- Manual spreadsheet cleanup
+- Full repository migration
+- Custom workflow implementation
+- Custom report building
+- Guaranteed response times
+- Production-critical deadline monitoring
+- Custom security questionnaires
+
+If an evaluation requires these services to reach value, that is evidence the
+current motion is not yet feasible for a one-person operation.
+
+## Support Promise
+
+Do not promise standard business-day support, 24-hour support, or SLAs.
+
+Recommended public language:
+
+> Oblixa early access is founder-supported. Critical blockers are prioritized,
+> but response times are best-effort during this phase.
+
+Operational rule:
+
+- Acknowledge serious blockers as quickly as practical.
+- Do not promise a guaranteed resolution time.
+- Keep routine support async by default.
+- Use calls only when the workflow is unclear or a blocker cannot be solved
+  asynchronously.
 
 ## Security Page
 
 Purpose:
 
-Reduce trust concerns without overclaiming.
-
-Recommended sections:
-
-### Security Header
+Reduce trust concerns without sounding like an enterprise security program.
 
 Headline:
 
-> Built for sensitive contract records.
+> Contract-record security basics, with early-access limits.
 
 Subheadline:
 
-> Oblixa helps teams manage signed contract records with permissions, audit history, exportability, and security controls.
+> Oblixa helps teams manage signed contract records with role-based access,
+> audit history, exportability, and security-conscious defaults. Early access is
+> not intended for teams that require formal enterprise security review before a
+> limited evaluation.
+
+Recommended sections:
 
 ### Access And Roles
-
-Content:
 
 - Team member roles
 - Admin controls
@@ -727,98 +995,74 @@ Content:
 
 ### Audit History
 
-Content:
-
 - Track important changes
 - See who changed key records
 - Review contract activity
 
-### Data Export
+### Data Export And Deletion
 
-Content:
-
-- Export reports
-- Export contract records
-- Keep control of your data
+- Export contract records and reports
+- Request deletion
+- Keep evaluation sets small at first
 
 ### Account Security
 
-Content:
-
-- MFA where available
 - Secure sessions
-- Password-based login
+- MFA where available
 - Team access management
+
+### AI And Review
+
+- AI suggestions require review before operational reliance
+- Source snippets help users verify extracted values
+- Users remain responsible for decisions
 
 ### Legal And Compliance Note
 
 Required language:
 
-> Oblixa is not a law firm and does not provide legal advice. Users are responsible for reviewing contract information and making business or legal decisions.
+> Oblixa is not a law firm and does not provide legal advice. Users are
+> responsible for reviewing contract information and making business or legal
+> decisions.
 
-### DPA And Security Contact
+Do not claim:
 
-Content:
-
-- Link to request a DPA
-- Contact email for security questions
-- Link to privacy policy
-
-Do not claim SOC 2, HIPAA, ISO certification, or compliance guarantees unless those are actually complete.
+- SOC 2
+- ISO certification
+- HIPAA readiness
+- Compliance guarantees
+- Enterprise procurement readiness
+- Dedicated security team
 
 ## Contact Page
 
 Purpose:
 
-Capture serious prospects and guide them to the right path.
-
-Form fields:
-
-- Name
-- Work email
-- Company
-- Role
-- Approximate number of contracts
-- Main pain
-- Interested in: Core, guided pilot, larger-team workflows, assurance workflows
-- Message
+Capture serious prospects and learn how they currently track contracts.
 
 Primary CTA:
 
-> Book setup call
+> Request early access
 
 Secondary CTA:
 
-> Start free trial
+> See the workflow
+
+Form fields should match the Early Access page. Avoid "Book setup call" as the
+primary action because async onboarding is more realistic.
 
 ## Login And Signup Pages
 
-Purpose:
+The public site may have login, but signup should be gated or clearly early-access
+oriented until the evaluation phase is complete.
 
-Get users into the product with minimal friction.
+Recommended signup message:
 
-Signup content:
+> Oblixa is currently in founder-led early access. Request access if your team is
+> replacing a contract-tracking spreadsheet.
 
-- Name
-- Email
-- Password
-- Optional company name if available
-
-Signup message:
-
-> Start by uploading a few signed agreements. You do not need to migrate everything at once.
-
-Login message:
-
-> Continue managing contract deadlines, owners, work, evidence, and reports.
-
-Primary CTA:
-
-> Start free trial
-
-Secondary CTA:
-
-> Book setup call
+If open signup remains technically available, public copy should still avoid
+promising a normal self-serve trial.
 
 ## Legal Pages
 
@@ -827,8 +1071,8 @@ Required pages:
 - Terms of Service
 - Privacy Policy
 - Acceptable Use Policy
-- Data Processing Addendum request page or contact path
 - Cookie Policy if needed
+- DPA request path only if supportable
 
 Plain-language principles:
 
@@ -838,11 +1082,12 @@ Plain-language principles:
 - Say who to contact
 - Avoid promises the product or company cannot yet support
 
-## In-App Pages
+## In-App Product
 
-The in-app product should be focused. Users should not feel like they are wandering through a large enterprise platform.
+The in-app product should be focused. Users should not feel like they are wandering
+through a large enterprise suite.
 
-Recommended public Core navigation:
+Recommended Core navigation:
 
 - Dashboard
 - Contracts
@@ -853,6 +1098,14 @@ Recommended public Core navigation:
 - Settings
 
 Other pages may exist, but they should support this main flow.
+
+Do not expose:
+
+- Product mode switching
+- Advanced modules for every user
+- Assurance modules
+- Autopilot controls
+- Enterprise governance language
 
 ## Calibration Page
 
@@ -866,31 +1119,20 @@ Page title:
 
 Intro copy:
 
-> Answer a few questions so Oblixa can focus your workspace on the renewals, owners, obligations, evidence, and reports that matter most.
+> Answer a few questions so Oblixa can focus your workspace on the renewals,
+> owners, obligations, evidence, and reports that matter most.
 
-Questions:
+Recommended questions:
 
 - What is your role?
-- How many active contracts do you manage?
-- What types of contracts do you manage most?
-- What is the biggest problem today?
-- How do you track contract dates now?
-- Do multiple people need to own contract work?
-- Do you need reports for leadership or finance?
+- How many signed contracts do you manage?
+- How do you track contracts today?
+- Do you have a spreadsheet or tracker now?
+- What is the biggest tracking problem?
+- Which dates matter most?
+- Do multiple people own contract follow-up?
+- Do you need reports for leadership, finance, or operations?
 - Do you need to collect evidence for obligations?
-- Do you need formal controls or review boards?
-
-Result message:
-
-> Your workspace is ready to track contracts.
-
-Primary CTA:
-
-> Upload first contract
-
-Secondary CTA:
-
-> Go to dashboard
 
 Do not show:
 
@@ -928,73 +1170,11 @@ Top cards:
 
 Main sections:
 
-### Review Queue
-
-Shows:
-
-- Contracts with unreviewed extracted fields
-- Number of fields waiting
-- Last updated time
-- Owner if assigned
-
-Primary action:
-
-> Review fields
-
-### Upcoming Deadlines
-
-Shows:
-
-- Renewal dates
-- Notice deadlines
-- Termination dates
-- Effective-date milestones
-- Owner
-- Days remaining
-
-Primary action:
-
-> Create reminder
-
-### Work Needing Action
-
-Shows:
-
-- Overdue work
-- Blocked work
-- Pending approvals
-- Open obligations
-- Exceptions
-
-Primary action:
-
-> Open work
-
-### Data Gaps
-
-Shows contracts missing:
-
-- Owner
-- Counterparty
-- Renewal date
-- Notice date
-- Contract value
-- Status
-
-Primary action:
-
-> Fix missing data
-
-### Recent Activity
-
-Shows:
-
-- Uploads
-- Field approvals
-- Owner changes
-- Work completed
-- Evidence received
-- Reports exported
+- Review Queue
+- Upcoming Deadlines
+- Work Needing Action
+- Data Gaps
+- Recent Activity
 
 Empty state:
 
@@ -1006,26 +1186,12 @@ Purpose:
 
 Provide the main contract inventory.
 
-Page title:
+Primary actions:
 
-> Contracts
+- Upload contract
+- Import CSV
 
-Primary CTA:
-
-> Upload contract
-
-Secondary CTA:
-
-> Import CSV
-
-Search:
-
-- Search by contract name
-- Search by counterparty
-- Search by owner
-- Search by tag
-
-Filters:
+Important filters:
 
 - Status
 - Owner
@@ -1036,327 +1202,9 @@ Filters:
 - Missing data
 - Open work
 
-Table columns:
-
-- Contract
-- Counterparty
-- Owner
-- Status
-- Next important date
-- Review state
-- Open work
-- Last updated
-
-Bulk actions:
-
-- Assign owner
-- Export
-- Archive
-- Request review
-
-Row actions:
-
-- Open contract
-- Assign owner
-- Add reminder
-- Create work
-
 Empty state:
 
 > Add signed contracts to build your operational record.
-
-## Upload Contract Page
-
-Purpose:
-
-Get the first contract into Oblixa quickly.
-
-Page title:
-
-> Upload contract
-
-Content:
-
-- File upload
-- Supported file types
-- Maximum file size
-- Contract title
-- Optional counterparty
-- Optional owner
-- Optional contract type
-- Optional tags
-- Checkbox to run extraction after upload
-
-Primary CTA:
-
-> Upload contract
-
-After upload:
-
-- Show extraction status
-- Show next step
-- Link to review fields
-
-Success message:
-
-> Contract uploaded. Review the suggested fields when extraction is ready.
-
-If extraction is not available:
-
-> Contract uploaded. You can add and review key fields manually.
-
-## Import Page
-
-Purpose:
-
-Help users bring in spreadsheet-based contract records.
-
-Page title:
-
-> Import contracts
-
-Content:
-
-- CSV upload
-- Download template
-- Required columns
-- Optional columns
-- Validation preview
-- Duplicate warnings
-- Import summary
-
-Required columns:
-
-- Contract title
-- Counterparty
-
-Optional columns:
-
-- Owner
-- Contract type
-- Effective date
-- Renewal date
-- Notice date
-- Termination date
-- Contract value
-- Status
-- Tags
-
-Primary CTA:
-
-> Import contracts
-
-Empty state:
-
-> Already tracking contracts in a spreadsheet? Import the basics, then attach files over time.
-
-## Contract Detail Page
-
-Purpose:
-
-Show the operational truth for one contract.
-
-Page title:
-
-Contract name.
-
-Header content:
-
-- Contract name
-- Counterparty
-- Owner
-- Status
-- Next important date
-- Review completeness
-- Open work count
-
-Primary CTA should change based on state:
-
-- Review fields
-- Assign owner
-- Create work
-- Add reminder
-- Request evidence
-
-Core tabs:
-
-- Overview
-- Fields
-- Dates
-- Work
-- Approvals
-- Obligations
-- Evidence
-- Files
-- Notes
-- Activity
-
-### Overview Tab
-
-Shows:
-
-- Key fields
-- Key dates
-- Owner
-- Counterparty
-- Current status
-- Open work
-- Open exceptions
-- Missing data
-- Recent activity
-
-### Fields Tab
-
-Shows:
-
-- Extracted fields
-- Approved fields
-- Unknown fields
-- Source-backed fields
-- Fields needing review
-
-Actions:
-
-- Review
-- Edit
-- Mark unknown
-
-### Dates Tab
-
-Shows:
-
-- Effective date
-- Renewal date
-- Notice deadline
-- Termination date
-- Custom dates
-- Reminder status
-
-Actions:
-
-- Add date
-- Add reminder
-- Create renewal task
-
-### Work Tab
-
-Shows:
-
-- Tasks
-- Approvals
-- Obligations
-- Exceptions
-- Owners
-- Due dates
-- Status
-
-Actions:
-
-- Create work
-- Complete
-- Reassign
-- Change due date
-
-### Approvals Tab
-
-Shows:
-
-- Pending approvals
-- Approved items
-- Rejected items
-- Requested changes
-- Approver
-- Due date
-
-Actions:
-
-- Approve
-- Reject
-- Request changes
-- Delegate
-
-### Obligations Tab
-
-Shows:
-
-- Obligation name
-- Owner
-- Due date or cadence
-- Evidence requirement
-- Status
-
-Actions:
-
-- Complete
-- Request evidence
-- Create task
-- Edit
-
-### Evidence Tab
-
-Shows:
-
-- Evidence requests
-- Attached evidence
-- Due dates
-- Request owner
-- Status
-
-Actions:
-
-- Request evidence
-- Upload evidence
-- Accept
-- Reject
-
-### Files Tab
-
-Shows:
-
-- Uploaded contract files
-- Supporting files
-- File status
-- Upload date
-
-Actions:
-
-- Upload file
-- Download
-- Replace if allowed
-
-### Notes Tab
-
-Shows:
-
-- Internal notes
-- Comments
-- Mentions if available
-
-Actions:
-
-- Add note
-- Reply
-
-### Activity Tab
-
-Shows:
-
-- Uploads
-- Field changes
-- Owner changes
-- Work changes
-- Approval decisions
-- Evidence changes
-- Report/export activity where relevant
-
-Do not show in Core:
-
-- Programs
-- Campaigns
-- Health graph
-- Scorecards
-- Review boards
-- Autopilot
 
 ## Field Review Page
 
@@ -1364,19 +1212,9 @@ Purpose:
 
 Make contract data trustworthy.
 
-Page title:
+Required principle:
 
-> Review fields
-
-Content:
-
-- Field name
-- Suggested value
-- Source snippet
-- Document preview
-- Confidence indicator
-- Current approved value if any
-- Review progress
+> Suggested fields are not trusted operational data until reviewed.
 
 Actions:
 
@@ -1384,24 +1222,6 @@ Actions:
 - Edit
 - Mark unknown
 - Skip
-
-Important fields:
-
-- Counterparty
-- Effective date
-- Renewal date
-- Notice deadline
-- Termination date
-- Contract value
-- Payment terms
-- Governing law
-- Auto-renewal
-- Owner
-- Obligations
-
-Required principle:
-
-Important AI-suggested fields should not become trusted operational data until a human approves them.
 
 Empty state:
 
@@ -1413,14 +1233,6 @@ Purpose:
 
 Show all contract-related work in one place.
 
-Page title:
-
-> Work
-
-Primary CTA:
-
-> Create work item
-
 Tabs:
 
 - All
@@ -1430,34 +1242,6 @@ Tabs:
 - Approvals
 - Obligations
 - Exceptions
-
-Filters:
-
-- Owner
-- Due date
-- Contract
-- Status
-- Type
-
-Work item content:
-
-- Title
-- Linked contract
-- Owner
-- Due date
-- Status
-- Type
-- Blocker
-- Last update
-
-Actions:
-
-- Complete
-- Reassign
-- Change due date
-- Comment
-- Link evidence
-- Escalate
 
 Empty state:
 
@@ -1469,14 +1253,6 @@ Purpose:
 
 Prevent missed renewal and notice dates.
 
-Page title:
-
-> Renewals
-
-Primary CTA:
-
-> Create renewal task
-
 Filters:
 
 - 30 days
@@ -1486,33 +1262,6 @@ Filters:
 - Owner
 - Counterparty
 - Status
-
-Table columns:
-
-- Contract
-- Counterparty
-- Renewal date
-- Notice date
-- Owner
-- Status
-- Next action
-
-Statuses:
-
-- Needs owner
-- Needs review
-- Notice window open
-- In progress
-- Completed
-- No renewal action needed
-
-Actions:
-
-- Mark reviewed
-- Create renewal task
-- Complete
-- Reopen
-- Export renewal report
 
 Empty state:
 
@@ -1524,46 +1273,12 @@ Purpose:
 
 Track proof that contract work was completed.
 
-Page title:
-
-> Evidence
-
-Primary CTA:
-
-> Request evidence
-
 Sections:
 
 - Open requests
 - Overdue requests
 - Received evidence
 - Evidence linked to obligations
-
-Evidence request content:
-
-- Request title
-- Linked contract
-- Linked obligation
-- Request owner
-- Due date
-- Status
-- Attached files
-
-Statuses:
-
-- Requested
-- Received
-- Overdue
-- Accepted
-- Rejected
-
-Actions:
-
-- Request evidence
-- Upload evidence
-- Accept
-- Reject
-- Send reminder
 
 Empty state:
 
@@ -1574,14 +1289,6 @@ Empty state:
 Purpose:
 
 Help users produce useful operational reports quickly.
-
-Page title:
-
-> Reports
-
-Primary CTA:
-
-> Export report
 
 Core reports:
 
@@ -1596,14 +1303,6 @@ Core reports:
 - Contract inventory
 - Review completeness
 
-Each report should include:
-
-- Plain-language description
-- Filters
-- Preview table
-- Export button
-- Last generated timestamp
-
 Do not include:
 
 - Outcome intelligence
@@ -1611,158 +1310,28 @@ Do not include:
 - Assurance scorecards
 - Autopilot results
 
-Empty state:
-
-> Reports become more useful as you review fields, assign owners, and track work.
-
-## Settings Page
-
-Purpose:
-
-Let admins manage the workspace without exposing product complexity.
-
-Sections:
-
-- Profile
-- Workspace
-- Team
-- Billing
-- Notifications
-- Security
-- Imports and exports
-- API access only if stable
-- Data export
-
-Do not expose to public self-serve users:
-
-- Workspace mode switching
-- Advanced module visibility
-- Assurance module visibility
-- Autopilot controls
-
-Those are internal or private-beta controls.
-
 ## Billing Page
 
-Purpose:
+During early access, billing should be secondary.
 
-Make conversion and account status clear.
+Recommended state:
 
-Page title:
+- Show current access status
+- Show whether the workspace is in evaluation or founding access
+- Link to contact support for billing questions
+- Do not push checkout as the main in-app conversion until the first evaluations
+  prove willingness to pay and support burden
 
-> Billing
-
-Content:
-
-- Trial status
-- Current plan
-- Billing interval
-- Renewal date
-- Contract limit
-- Team member limit
-- Checkout button
-- Customer portal link
-- Invoice access
-- Cancellation path
-
-Primary CTA:
-
-> Choose annual plan
-
-Secondary CTA:
-
-> Continue monthly
-
-Billing FAQ:
-
-- What happens when the trial ends?
-- Can I export before cancelling?
-- Can I change plans?
-- Can I add more contracts?
-- Can I add more team members?
-- Do you offer setup help?
-
-## Security Settings Page
-
-Purpose:
-
-Let admins manage access and reduce risk.
-
-Content:
-
-- MFA status
-- Team roles
-- Active sessions if available
-- Recent security activity
-- Audit history link
-- DPA/security contact link
-
-Required note:
-
-> Oblixa helps organize contract information, but it does not provide legal advice.
-
-## Notification Settings Page
-
-Purpose:
-
-Make reminders useful without being noisy.
-
-Content:
-
-- Renewal reminders
-- Notice deadline reminders
-- Field review reminders
-- Work assignment reminders
-- Evidence request reminders
-- Weekly digest
-- Per-user settings
-- Workspace defaults
-
-Recommended default:
-
-Important reminders should be on by default.
-
-## Search Page
-
-Purpose:
-
-Help users find contracts and related work.
-
-Content:
-
-- Search across contract names
-- Search by counterparty
-- Search by owner
-- Search by field
-- Search by tag
-- Search notes if available
-
-Filters:
-
-- Date
-- Owner
-- Type
-- Status
-
-Results grouped by:
-
-- Contracts
-- Fields
-- Work
-- Evidence
-
-Do not make broad AI chat the main search experience at launch.
+When paid conversion begins, month-to-month plans are safer than annual plans until
+retention and support expectations are understood.
 
 ## Email And Notification Content
 
-The product should send helpful operational emails.
+Emails should be operational, plain, and careful.
 
-Required emails:
+Required early emails:
 
-- Verify email
-- Welcome after signup
 - Invite teammate
-- Calibration completed
 - First contract uploaded
 - Extraction ready
 - Extraction failed or manual review needed
@@ -1773,23 +1342,21 @@ Required emails:
 - Work item overdue
 - Evidence requested
 - Evidence overdue
-- Weekly digest
-- Trial day 3
-- Trial day 10
-- Trial ending in 2 days
-- Payment succeeded
-- Payment failed
-- Cancellation confirmation
+- Weekly digest if stable
+
+Do not prioritize payment lifecycle emails until public billing is part of the
+active motion.
 
 ### Welcome Email
 
 Subject:
 
-> Welcome to Oblixa
+> Welcome to Oblixa early access
 
 Message:
 
-> Start by uploading a few signed agreements. Oblixa will help you review key terms, assign owners, track dates, and turn contract obligations into work.
+> Start by uploading a small set of signed agreements. Oblixa will help you review
+> key terms, assign owners, track dates, and turn contract obligations into work.
 
 Primary CTA:
 
@@ -1803,127 +1370,446 @@ Subject:
 
 Message:
 
-> Oblixa found suggested fields for your contract. Review the source-backed suggestions before relying on them for deadlines, work, or reports.
+> Oblixa found suggested fields for your contract. Review the source-backed
+> suggestions before relying on them for deadlines, work, or reports.
 
 Primary CTA:
 
 > Review fields
 
-### Renewal Reminder Email
+## Outreach Strategy
 
-Subject:
+The first outreach goal is not immediate sales. It is workflow discovery and design
+partner qualification.
 
-> Renewal date approaching
+Primary outreach ask:
 
-Message:
+> Show me how you currently track signed contracts.
 
-> A contract renewal or notice deadline is coming up. Review the contract, confirm the owner, and create any needed work.
+Good outreach targets:
 
-Primary CTA:
+- Known warm connections
+- Small B2B companies
+- Agencies
+- Consultancies
+- Founder-led teams
+- Teams with recurring customer/vendor agreements
+- Teams likely to use spreadsheets for operational tracking
 
-> Review renewal
+Avoid cold-pitching legal departments at mature companies.
 
-### Trial Ending Email
+## First 30 Days
 
-Subject:
+The first month should be narrower than a launch push. The goal is to prove
+whether one qualified user can reach value without heavy founder labor.
 
-> Your Oblixa trial ends soon
+### Week 1: Prepare The Offer
 
-Message:
+Actions:
 
-> Keep your reviewed terms, deadlines, owners, work, evidence, and reports active by choosing a plan.
+- Change homepage hero and CTA.
+- Add the early-access form.
+- Add clear "not CLM / not legal advice / early access" copy.
+- Prepare one demo workflow.
+- Prepare the warm outreach message.
+- Prepare one async questionnaire.
+- Define evaluation boundaries.
 
-Primary CTA:
+Output:
 
-> Choose plan
+- One clear public CTA.
+- One warm outreach message.
+- One discovery questionnaire.
+- One product walkthrough path.
 
-## In-App Empty States
+### Week 2: Warm Outreach
 
-Empty states should always point to a concrete next action.
+Actions:
 
-Examples:
+- Contact warm leads only.
+- Ask for workflow walkthroughs, not purchases.
+- Ask for a redacted tracker if a call is inconvenient.
+- Record the current process in detail.
+- Do not cold outreach yet unless warm leads are exhausted.
 
-- No contracts: "Upload your first signed agreement."
-- No reviewed fields: "Review extracted fields to make contract data trustworthy."
-- No renewals: "Add renewal and notice dates to track upcoming decisions."
-- No work: "Create work from a deadline, obligation, approval, or exception."
-- No evidence: "Request evidence when contract work needs proof."
-- No reports: "Reports become useful after contracts have owners, dates, and reviewed fields."
+Output:
 
-Avoid empty states that only explain the feature.
+- Up to 3 workflow conversations or async walkthroughs.
+- A list of current spreadsheet columns or tracking steps.
+- A clearer answer to whether the wedge is painful for those teams.
 
-## Voice And Language
+### Week 3: First Evaluation Or Refinement
 
-Use plain operational language.
+Actions:
 
-Prefer:
+- Start one evaluation workspace only if there is a qualified user.
+- Otherwise refine copy, qualification, and outreach targets.
+- Fix only activation blockers.
 
-- Contracts
-- Contract spreadsheet
-- Work
-- Deadlines
-- Renewals
-- Notice dates
-- Approvals
-- Obligations
-- Evidence
-- Reports
-- Owners
-- Contract tracking
-- Missing data
-- Needs review
+Output:
 
-Avoid in the public Core experience:
+- One evaluation started or a stronger ICP hypothesis.
+- Better language from real prospects.
 
-- Portfolio
-- Assurance
-- Governance
-- Controls
-- Autopilot
-- Intelligence
-- Program evolution
-- Health graph
-- Autonomous
-- Platform
-- Transformation
+### Week 4: Add At Most One More Evaluation
 
-AI language should be careful.
+Actions:
 
-Prefer:
+- Add at most one additional evaluation workspace.
+- If no qualified evaluation exists, begin targeted cold outreach.
+- Fix only activation blockers or severe trust issues.
+- Measure founder support time.
 
-- Suggested extraction
-- Source-backed review
-- Review before relying on this field
+Output:
 
-Avoid:
+- One or two bounded evaluations, or a clearer reason why prospects are not
+  qualified.
+- A decision about whether the current website copy attracts the right buyer.
 
-- Fully automated review
-- Guaranteed extraction
-- Autonomous contract management
-- Legal analysis
+## Outreach Cadence
+
+Use a small, disciplined cadence instead of high-volume generic outreach.
+
+Warm lead cadence:
+
+- Day 0: Intro message.
+- Day 3 or 4: Short follow-up with async option.
+- Day 10: Final note, no pressure.
+
+Cold lead cadence:
+
+- Day 0: Short question about contract tracking.
+- Day 4: Follow-up with the "not CLM, spreadsheet replacement" framing.
+- Day 11: Final note asking whether someone else owns the tracker.
+
+Stop after two follow-ups unless they engage.
+
+Track:
+
+- Company
+- Contact
+- Role
+- Segment
+- Current tracking method
+- Contract count estimate
+- Pain mentioned
+- Security/procurement burden
+- Response status
+- Fit verdict
+- Next action
+
+## Warm Outreach Template
+
+Use this for the first UpSpiral-style warm contact.
+
+```text
+Hi [Name],
+
+I am building Oblixa, a focused workspace for teams that track signed contracts
+in spreadsheets.
+
+It is not a CLM or e-signature tool. It starts after contracts are signed:
+renewals, owners, obligations, evidence, and simple reporting.
+
+I am looking for a few early users who can show me how they currently track
+agreements, even if the current system is just a spreadsheet, Drive folder, or
+someone's memory.
+
+Would you be open to a short walkthrough of how [Company] tracks signed customer
+or vendor agreements today? I am not asking you to buy anything. I am trying to
+learn whether Oblixa solves a real operational problem, and if there is a fit I
+can give you early access to test a small workspace around your current process.
+
+If a call is inconvenient, I can send a few questions and review a redacted
+tracker asynchronously.
+
+Best,
+[Name]
+```
+
+## Warm Follow-Up Template
+
+```text
+Hi [Name],
+
+Just following up on this. The useful thing for me would be seeing how signed
+agreements are tracked today, even if the answer is "we do not really have a
+system."
+
+If a call is not convenient, I can send a few questions instead. A redacted
+tracker or rough description would be enough.
+
+Best,
+[Name]
+```
+
+## Cold Outreach Template
+
+```text
+Subject: Quick question about your contract tracker
+
+Hi [Name],
+
+Do you track signed contracts in a spreadsheet today?
+
+I am building Oblixa for small teams that need to track renewals, owners,
+obligations, evidence, and reports after contracts are signed.
+
+It is deliberately not a full CLM, drafting tool, or e-signature product. The
+goal is to replace the contract-tracking spreadsheet with reviewed fields,
+owners, dates, work, evidence, and reports.
+
+I am looking for a few early users who can show me how contract tracking works
+today and test a small early-access workspace.
+
+If contract tracking is manual at [Company], would you be open to sharing how you
+handle it today?
+
+Best,
+[Name]
+```
+
+## Cold Follow-Up Template
+
+```text
+Hi [Name],
+
+Quick follow-up. Oblixa is not for drafting or signing contracts; it is for the
+mess after signature: renewal dates, owners, obligations, evidence, and reports.
+
+If [Company] already has this handled, no worries. If it lives in a spreadsheet
+or shared folder, I would be grateful to learn how you track it today.
+
+Best,
+[Name]
+```
+
+## Final Follow-Up Template
+
+```text
+Hi [Name],
+
+Last note from me. Is there someone else at [Company] who owns the contract
+tracker, renewals, vendor agreements, or signed customer agreements?
+
+If not relevant, I will leave it here.
+
+Best,
+[Name]
+```
+
+## Discovery Questions
+
+Use concrete questions. Do not ask prospects to invent product strategy.
+
+Ask:
+
+1. Where do signed contracts live today?
+2. Do you have a spreadsheet or tracker for them?
+3. Who updates the tracker after signature?
+4. Who owns renewal dates and notice deadlines?
+5. What happens when someone asks, "Which contracts renew in the next 90 days?"
+6. What contract detail is most annoying to find?
+7. Have you ever missed, almost missed, or manually chased a renewal or obligation?
+8. What reports or summaries do leadership, finance, customers, or auditors ask for?
+9. What would make the current process break as you grow?
+10. Would you trust AI-suggested contract fields if every value had a source snippet
+    and required review?
+
+## Discovery Notes Template
+
+Use the same note shape for every conversation.
+
+```text
+Company:
+Contact:
+Role:
+Segment:
+Contract types:
+Estimated contract count:
+Current system:
+Tracker owner:
+Spreadsheet columns:
+Most painful tracking job:
+Renewal / notice process:
+Owner assignment process:
+Obligation follow-up process:
+Reporting needs:
+Evidence needs:
+Security/procurement concerns:
+What would make them switch:
+What would block adoption:
+Exact phrases they used:
+Fit verdict:
+Next action:
+```
+
+## Qualification Rules
+
+A prospect is a good early-access fit if:
+
+- They already track signed contracts manually.
+- They can show the current process.
+- They have at least one recurring tracking pain.
+- They can start with a subset of contracts.
+- They do not require enterprise procurement.
+- They understand the product is early-access.
+- They are willing to give feedback.
+
+A prospect is a poor fit if:
+
+- They mainly need drafting, redlining, negotiation, or e-signature.
+- They require formal security review before any evaluation.
+- They need legal advice.
+- They need an SLA.
+- They want a full CLM migration.
+- They cannot tolerate early-product risk.
+
+## Objection Handling
+
+### "Is this a CLM?"
+
+Answer:
+
+> Not a full CLM. Oblixa starts after signature and focuses on replacing the
+> tracker for renewals, owners, obligations, evidence, and reports.
+
+### "Can it draft, redline, or negotiate contracts?"
+
+Answer:
+
+> No. Oblixa is intentionally focused on signed contracts and post-signature
+> tracking.
+
+### "Does it provide legal advice?"
+
+Answer:
+
+> No. Oblixa helps organize and track contract information. Your team remains
+> responsible for reviewing fields and making business or legal decisions.
+
+### "Can it guarantee we never miss a renewal?"
+
+Answer:
+
+> No system should promise that. Oblixa is designed to make renewal and notice
+> tracking more visible and accountable, especially compared with spreadsheets.
+
+### "Can you pass our security questionnaire?"
+
+Answer:
+
+> Oblixa has security-conscious defaults, roles, audit history, and exportability,
+> but early access is not intended for teams that require formal enterprise
+> security review before evaluation.
+
+### "Do we have to migrate every contract?"
+
+Answer:
+
+> No. The recommended evaluation starts with a small subset or a redacted sample
+> set. The goal is to validate the workflow before migrating everything.
+
+### "What does it cost?"
+
+Answer:
+
+> Early-access pricing is being shaped through evaluations. The first step is to
+> see whether Oblixa improves the current tracking workflow. If it becomes part
+> of your workflow, continued use should be expected to move to a paid founding
+> plan.
+
+### "Why not just keep using a spreadsheet?"
+
+Answer:
+
+> If the spreadsheet is reliable, owned, and easy to report from, keep it. Oblixa
+> is for teams where the tracker is becoming unreliable: missing owners, buried
+> obligations, unclear renewal dates, scattered evidence, or reports that take too
+> long to rebuild.
 
 ## Success Metrics
 
-The most important release question is whether users reach value.
+Early-access metrics should measure learning and repeatable value, not only
+self-serve conversion.
 
-Primary activation event:
-
-> A user uploads a contract, approves at least one source-backed field, assigns an owner or date, and sees dashboard or work state update.
-
-Recommended launch targets:
+Recommended first milestone:
 
 | Metric | Target |
 | --- | ---: |
-| Signup to calibration complete | 70% or higher |
-| Calibration to first upload | 50% or higher |
-| First upload to reviewed field | 40% or higher |
-| Activation complete | 25% or higher |
-| Self-serve trial to paid | 5% to 8% early |
-| Guided pilot to paid | 30% or higher |
-| First-month paid retention | 85% or higher |
-| Support response time | Same business day |
+| Qualified workflow interviews | 10 |
+| Current trackers or tracker descriptions reviewed | 5 |
+| Evaluation workspaces started | 1 to 2 |
+| Users reaching activation | 1 |
+| Founder support required per activated workspace | Under 2 hours total |
 
-These targets should be adjusted after real usage data exists.
+Product activation event:
+
+> A user imports or uploads contracts, approves at least one source-backed field,
+> assigns an owner or key date, and sees dashboard or work state update.
+
+Support metric:
+
+> Support burden per activated workspace should be low enough that the founder can
+> repeat the evaluation without becoming the customer's implementation team.
+
+Non-activation rule:
+
+> If a user does not import or upload, review a field, assign an owner or date, or
+> produce a useful dashboard or report within the evaluation window, the workspace
+> should be paused, closed, or treated as non-qualified unless there is a clear
+> product blocker.
+
+Do not optimize for website conversion before proving this.
+
+## Product Decision Triggers
+
+Use repeated evidence before changing the product roadmap.
+
+### Build Or Emphasize A Feature When
+
+- At least 2 qualified prospects describe the same pain without being prompted.
+- An evaluation reaches the same blocker more than once.
+- The feature helps the spreadsheet-replacement wedge directly.
+- The feature reduces support burden.
+- The feature improves activation: import/upload, review, owner/date assignment,
+  work tracking, evidence, or reporting.
+
+### Do Not Build Or Emphasize A Feature When
+
+- It mainly helps enterprise procurement.
+- It mainly helps full CLM replacement.
+- It requires domain authority the founder does not yet have.
+- It creates a support commitment without clear evaluation demand.
+- It belongs to Advanced or Assurance rather than Core.
+- It is impressive but not needed to replace the tracker.
+
+### Copy Change Trigger
+
+Change public copy when prospects repeatedly use clearer language than the
+website. Exact customer phrases should outrank internal terminology.
+
+### Pricing Change Trigger
+
+Introduce public pricing only after at least one qualified evaluation says the
+product is valuable enough to continue and the support burden is understood.
+
+## Graduation Criteria
+
+Move from early access to broader paid self-serve only after:
+
+- At least 3 evaluations have used the product with real or realistic contract
+  tracking workflows.
+- At least 2 evaluations reach activation.
+- At least 1 user would be disappointed to lose the product.
+- The same pain repeats across multiple prospects.
+- Onboarding can be completed mostly async.
+- Support issues are understandable and bounded.
+- Public copy reflects observed customer language.
+- Pricing has been tested with real buyers.
+- Security and deletion/export expectations are clear.
+
+Until then, the public website should drive early access, not instant checkout.
 
 ## What To Keep Out Of Public Release
 
@@ -1938,40 +1824,65 @@ Do not publicly launch:
 - A complex pricing matrix
 - Fake customer proof
 - Compliance claims that are not complete
+- Standard support or SLA promises
+- Security questionnaire readiness
 
-## Release Readiness Checklist
+## Voice And Language
 
-The product is ready to release when a normal new user can:
+Use plain operational language.
 
-- Sign up
-- Complete calibration
-- Upload a contract
-- See extraction status
-- Review suggested fields
-- Approve or edit at least one important field
-- Assign an owner
-- Add or confirm a key date
-- Create or receive work
-- See the dashboard update
-- Export a useful report
-- Understand what to do next without reading documentation
+Prefer:
 
-The release is not ready if users land in a broad workspace and have to figure out which module matters.
+- Contracts
+- Contract spreadsheet
+- Tracker
+- Work
+- Deadlines
+- Renewals
+- Notice dates
+- Approvals
+- Obligations
+- Evidence
+- Reports
+- Owners
+- Contract tracking
+- Missing data
+- Needs review
+- Early access
+- Founder-supported
+
+Avoid in the public Core experience:
+
+- Enterprise platform
+- Governance
+- Controls
+- Assurance
+- Autopilot
+- Autonomous
+- Legal AI
+- Compliance automation
+- Transformation
+- Guaranteed
+- Always-on support
+- Dedicated success team
 
 ## Final Recommendation
 
-Release Core publicly.
+Launch Oblixa as a public early-access product, not a broad self-serve SaaS.
 
-Make Core feel finished.
+Keep the wedge:
 
-Keep the website small.
+> Replace the contract-tracking spreadsheet.
 
-Keep pricing simple.
+Keep the product focused:
 
-Keep Advanced controlled.
+> Signed contracts, reviewed fields, renewals, owners, obligations, evidence, and
+> reports.
 
-Keep Assurance private.
+Keep the motion realistic:
 
-Do not sell autonomy before users trust the data.
+> 3 to 5 bounded early-access evaluations before public paid self-serve.
 
-The first version should win by making signed contracts operational, not by showing every possible future product surface.
+The first release should win by helping real teams make signed contracts
+operational, then using that evidence to decide pricing, onboarding, support, and
+the next product surface.

@@ -190,7 +190,9 @@ function destinationCurrentStateLabel(
       input.pendingInviteCount > 0 ? ` · ${input.pendingInviteCount} pending` : ""
     }`;
   }
-  if (dest.key === "billing") return input.planLabel ?? "No plan";
+  if (dest.key === "billing") {
+    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Free";
+  }
   return dest.currentStateLabel;
 }
 

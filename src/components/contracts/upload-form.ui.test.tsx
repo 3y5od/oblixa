@@ -32,8 +32,8 @@ describe("UploadForm", () => {
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
     expect(screen.getByText(/record metadata/i)).toBeTruthy();
     expect(screen.getByText(/source documents/i)).toBeTruthy();
-    expect(screen.getByText(/no source attached/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^create contract$/i })).toBeTruthy();
+    expect(screen.getByText(/no source yet/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^create record$/i })).toBeTruthy();
   });
 
   it("summarizes accepted, unsupported, oversized, and duplicate files", async () => {
@@ -69,7 +69,7 @@ describe("UploadForm", () => {
     expect(screen.getAllByText(/1 duplicate/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/1 unsupported/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/1 over size limit/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /create contract and upload files/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^upload contract$/i })).toBeTruthy();
   });
 
   it("keeps typed metadata when creation returns an error", async () => {
@@ -80,7 +80,7 @@ describe("UploadForm", () => {
 
     const title = screen.getByLabelText(/contract title/i);
     await user.type(title, "Hold my title");
-    await user.click(screen.getByRole("button", { name: /^create contract$/i }));
+    await user.click(screen.getByRole("button", { name: /^create record$/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalled());
     expect((screen.getByRole("alert").textContent ?? "").toLowerCase()).toMatch(/session/);
@@ -126,7 +126,7 @@ describe("UploadForm", () => {
     const file = new File(["dummy pdf content"], "agreement.pdf", { type: "application/pdf" });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
-    await user.click(screen.getByRole("button", { name: /create contract/i }));
+    await user.click(screen.getByRole("button", { name: /upload contract/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalledTimes(1));
     await waitFor(() =>

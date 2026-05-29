@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-manual-boundaries",
+  "manualActions": [
+    {
+      "id": "manual-production-migration-apply",
+      "category": "production-data",
+      "ownerArea": "data-platform",
+      "externalSystem": "Supabase",
+      "smallestNextAction": "Confirm linked production project ref and run only an approved dry-run before any migration application.",
+      "readinessCommand": "check:supabase:prod:deep",
+      "boundaryClasses": ["data-migration", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-database-restore-drill",
+      "category": "production-data",
+      "ownerArea": "data-platform",
+      "externalSystem": "Supabase",
+      "smallestNextAction": "Schedule or record a non-production restore drill using provider-approved backups; repository automation must only verify metadata and readiness evidence.",
+      "readinessCommand": "check:database-backup-restore-evidence",
+      "boundaryClasses": ["data-migration", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-secret-rotation",
+      "category": "credentialed",
+      "ownerArea": "platform-security",
+      "externalSystem": "Vercel provider env vars",
+      "smallestNextAction": "Rotate one named secret in the provider dashboard and verify dual-read or dependent smoke checks.",
+      "readinessCommand": "check:secret-rotation-readiness",
+      "boundaryClasses": ["production-credential", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-branch-protection-change",
+      "category": "external-authority",
+      "ownerArea": "platform-security",
+      "externalSystem": "GitHub",
+      "smallestNextAction": "Apply required-check/ruleset changes in GitHub after local workflow parity passes.",
+      "readinessCommand": "check:github-workflows-security",
+      "boundaryClasses": ["provider-console"],
+      "productionOnly": false
+    },
+    {
+      "id": "manual-dns-change",
+      "category": "external-authority",
+      "ownerArea": "edge-operations",
+      "externalSystem": "DNS provider",
+      "smallestNextAction": "Apply DNS record change in the DNS provider and rerun read-only DNS smoke checks.",
+      "readinessCommand": "dns-caa-smoke",
+      "boundaryClasses": ["dns-change", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-stripe-live-configuration",
+      "category": "credentialed",
+      "ownerArea": "billing",
+      "externalSystem": "Stripe",
+      "smallestNextAction": "Confirm live prices, portal, and webhook events in Stripe dashboard without creating a customer charge.",
+      "readinessCommand": "check:release-security-required-env",
+      "boundaryClasses": ["customer-impacting", "production-credential", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-legal-approval",
+      "category": "legal",
+      "ownerArea": "trust-compliance",
+      "externalSystem": "Legal review",
+      "smallestNextAction": "Have an authorized reviewer approve public claims, policies, and compliance language.",
+      "readinessCommand": "audit:release-state-code-only:strict",
+      "boundaryClasses": ["legal-approval"],
+      "productionOnly": false
+    },
+    {
+      "id": "manual-release-approval",
+      "category": "release-decision",
+      "ownerArea": "release-engineering",
+      "externalSystem": "Release owner",
+      "smallestNextAction": "Approve or block the release after all code-owned release evidence is current.",
+      "readinessCommand": "pipeline:release:checklist",
+      "boundaryClasses": ["release-decision"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-customer-impacting-communication",
+      "category": "customer-impacting",
+      "ownerArea": "support-operations",
+      "externalSystem": "Customer communication channel",
+      "smallestNextAction": "Approve customer-facing incident, migration, or release communication through the accountable business owner.",
+      "readinessCommand": "check:incident-readiness:strict",
+      "boundaryClasses": ["customer-impacting"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-monitoring-alert-routing",
+      "category": "external-authority",
+      "ownerArea": "observability",
+      "externalSystem": "Monitoring provider",
+      "smallestNextAction": "Confirm alert recipients, escalation policy, and dashboard routing in the monitoring provider after code-owned SLO checks pass.",
+      "readinessCommand": "test:slo-budgets",
+      "boundaryClasses": ["provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-browser-device-lab-approval",
+      "category": "external-authority",
+      "ownerArea": "frontend-platform",
+      "externalSystem": "Device lab and assistive technology review",
+      "smallestNextAction": "Run or approve representative real-device and assistive-technology coverage after automated browser and visual suites are current.",
+      "readinessCommand": "test:e2e:visual:full",
+      "boundaryClasses": ["customer-impacting", "provider-console"],
+      "productionOnly": false
+    },
+    {
+      "id": "manual-production-load-chaos-approval",
+      "category": "customer-impacting",
+      "ownerArea": "performance-runtime",
+      "externalSystem": "Production traffic and provider quotas",
+      "smallestNextAction": "Approve any production load, soak, or chaos execution window after local and staging-safe performance gates pass.",
+      "readinessCommand": "check:operational-performance-load-chaos",
+      "boundaryClasses": ["customer-impacting", "release-decision"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-risk-acceptance",
+      "category": "release-decision",
+      "ownerArea": "platform-governance",
+      "externalSystem": "Risk owner",
+      "smallestNextAction": "Accept, reject, or assign a replacement objective for the bounded risk after waiver and ratchet evidence is current.",
+      "readinessCommand": "check:operational-waivers-ratchets",
+      "boundaryClasses": ["release-decision", "risk-acceptance"],
+      "productionOnly": false
+    },
+    {
+      "id": "manual-break-glass-approval",
+      "category": "credentialed",
+      "ownerArea": "support-operations",
+      "externalSystem": "Break-glass approval process",
+      "smallestNextAction": "Approve a named break-glass use through the accountable support and security owner after step-up diagnostics pass.",
+      "readinessCommand": "check:sensitive-action-step-up",
+      "boundaryClasses": ["customer-impacting", "production-credential"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-oauth-provider-app-setup",
+      "category": "credentialed",
+      "ownerArea": "integrations",
+      "externalSystem": "OAuth provider console",
+      "smallestNextAction": "Configure redirect URLs, scopes, and signing secret rotation in the provider console after local OAuth integrity checks pass.",
+      "readinessCommand": "check:oauth-state-integrity",
+      "boundaryClasses": ["production-credential", "provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-provider-environment-creation",
+      "category": "external-authority",
+      "ownerArea": "platform-runtime",
+      "externalSystem": "Hosting and provider environments",
+      "smallestNextAction": "Create or verify provider environment isolation after operational environment isolation checks pass.",
+      "readinessCommand": "check:operational-environment-isolation",
+      "boundaryClasses": ["provider-console"],
+      "productionOnly": true
+    },
+    {
+      "id": "manual-owner-assignment",
+      "category": "release-decision",
+      "ownerArea": "platform-governance",
+      "externalSystem": "Human owner assignment",
+      "smallestNextAction": "Assign or confirm accountable human owners after governance ownership checks pass.",
+      "readinessCommand": "check:operational-governance-ownership",
+      "boundaryClasses": ["release-decision"],
+      "productionOnly": true
+    }
+  ],
+  "providerConsoleVerification": [
+    {
+      "provider": "Vercel",
+      "ownerArea": "release-engineering",
+      "codeCanVerify": ["environment variable shape", "cron path parity", "deployment command evidence"],
+      "manualMustVerify": ["production env values", "domain assignment", "rollback target"],
+      "readinessCommand": "pipeline:release:checklist"
+    },
+    {
+      "provider": "Supabase",
+      "ownerArea": "data-platform",
+      "codeCanVerify": ["migration manifest", "local RLS smoke", "linked dry-run command path"],
+      "manualMustVerify": ["production project ref", "Auth redirect URLs", "PITR/backup status"],
+      "readinessCommand": "check:operational-supabase-database"
+    },
+    {
+      "provider": "Stripe",
+      "ownerArea": "billing",
+      "codeCanVerify": ["key mode shape", "price id shape", "webhook fixture behavior"],
+      "manualMustVerify": ["live price correctness", "portal settings", "live webhook endpoint"],
+      "readinessCommand": "check:release-security-required-env"
+    },
+    {
+      "provider": "Resend",
+      "ownerArea": "notifications",
+      "codeCanVerify": ["sender env format", "template rendering", "payload redaction"],
+      "manualMustVerify": ["domain verification", "SPF/DKIM/DMARC records", "suppression policy"],
+      "readinessCommand": "email-auth-dns-smoke"
+    },
+    {
+      "provider": "Sentry",
+      "ownerArea": "observability",
+      "codeCanVerify": ["release id derivation", "DSN presence rules", "redaction checks"],
+      "manualMustVerify": ["project routing", "alert policies", "source map ingestion"],
+      "readinessCommand": "check:logging-telemetry-redaction"
+    },
+    {
+      "provider": "Upstash",
+      "ownerArea": "platform-runtime",
+      "codeCanVerify": ["env shape", "rate-limit fallback policy", "mocked outage behavior"],
+      "manualMustVerify": ["production database selection", "token scope", "quota/alerting"],
+      "readinessCommand": "check:rate-limit-distribution-safety"
+    },
+    {
+      "provider": "GitHub",
+      "ownerArea": "platform-security",
+      "codeCanVerify": ["workflow syntax", "required command names", "action permissions"],
+      "manualMustVerify": ["branch ruleset enforcement", "merge queue settings", "CODEOWNERS enforcement"],
+      "readinessCommand": "check:github-workflows-security"
+    },
+    {
+      "provider": "DNS",
+      "ownerArea": "edge-operations",
+      "codeCanVerify": ["read-only DNS records", "certificate expiry", "email auth records"],
+      "manualMustVerify": ["record ownership", "registrar controls", "CAA policy approval"],
+      "readinessCommand": "dns-caa-smoke"
+    },
+    {
+      "provider": "Slack",
+      "ownerArea": "integrations",
+      "codeCanVerify": ["callback URL shape", "OAuth state handling", "signature verification path"],
+      "manualMustVerify": ["app scopes", "redirect URL in Slack app", "signing secret rotation"],
+      "readinessCommand": "check:oauth-state-integrity"
+    },
+    {
+      "provider": "Monitoring",
+      "ownerArea": "observability",
+      "codeCanVerify": ["expected monitor registry", "healthcheck env presence", "SLO comparison"],
+      "manualMustVerify": ["alert recipients", "escalation policy", "on-call routing"],
+      "readinessCommand": "test:slo-budgets"
+    }
+  ],
+  "environmentRiskClasses": [
+    {
+      "id": "staging-safe-smoke",
+      "description": "Can run against staging or preview with test data and scoped test credentials.",
+      "examples": ["public smoke", "auth smoke", "Stripe test-mode checkout", "mocked webhook replay"],
+      "defaultCommandAllowed": true
+    },
+    {
+      "id": "read-only-production",
+      "description": "Can inspect production shape or health without mutating data or configuration.",
+      "examples": ["DNS lookup", "certificate expiry", "Supabase dry-run", "provider log review"],
+      "defaultCommandAllowed": false
+    },
+    {
+      "id": "production-mutation",
+      "description": "Mutates production data, traffic, credentials, provider state, or customer-visible behavior.",
+      "examples": ["migration push", "secret rotation", "DNS record edit", "live billing setup"],
+      "defaultCommandAllowed": false
+    }
+  ]
+}

@@ -7,6 +7,11 @@ const targets = [
   { file: "scripts/comprehensive-pass.mjs", markers: ["safeFetch", "warn(", "FAIL"] },
   { file: "scripts/cron-canary.mjs", markers: ["fetch", "status", "error"] },
   { file: "scripts/release-checklist.mjs", markers: ["spawn", "waitForServer", "shutdown"] },
+  {
+    file: "src/lib/performance/operational-performance-contracts.ts",
+    markers: ["CHAOS_FIXTURES", "supabase-latency", "stripe-failure", "openai-timeout", "forbiddenFields"],
+  },
+  { file: "scripts/chaos-local-smoke.mjs", markers: ["RUN_CHAOS", "fixture_validation_only", "missing"] },
 ];
 
 const rows = [];
@@ -20,7 +25,6 @@ const failed = rows.filter((r) => r.missingCount > 0);
 console.log(
   JSON.stringify(
     {
-      generatedAt: new Date().toISOString(),
       mode: "bounded",
       targetCount: rows.length,
       failedCount: failed.length,

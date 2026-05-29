@@ -23,5 +23,5 @@ export const surfaceTestIds = {
   externalSubmitForm: "external-submit-form",
   /** Error state when `/api/external-actions/.../status` fails */
   externalSubmitLoadError: "external-submit-load-error",
+  externalSubmitRetryButton: "external-submit-retry-button",
 } as const;
-

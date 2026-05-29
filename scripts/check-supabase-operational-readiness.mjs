@@ -154,6 +154,37 @@ union all select 'views', count(*)::int, md5(coalesce(string_agg(name || '=' || 
 order by kind;`.replace(/\s+/g, " ").trim();
 }
 
+export function describeSupabaseEnvironment(env = process.env, options = {}) {
+  const publicUrl = env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  let host = null;
+  let projectRef = null;
+  let environmentClass = "missing-url";
+
+  try {
+    const parsed = new URL(publicUrl);
+    host = parsed.host;
+    if (/^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/u.test(host)) {
+      environmentClass = "local";
+    } else if (host.endsWith(".supabase.co")) {
+      projectRef = host.split(".")[0] || null;
+      environmentClass = options.linked ? "linked-read-only" : "remote-configured";
+    } else {
+      environmentClass = options.linked ? "linked-custom-host-read-only" : "custom-host";
+    }
+  } catch {
+    environmentClass = publicUrl ? "malformed-url" : "missing-url";
+  }
+
+  return {
+    environmentClass,
+    projectRef,
+    host,
+    linked: Boolean(options.linked),
+    commandClass: options.linked ? "linked-read-only" : "local-read-only",
+    mutatingCommandsAllowed: false,
+  };
+}
+
 function defaultRunner(command, args, options = {}) {
   return spawnSync(command, args, {
     cwd: options.cwd ?? DEFAULT_ROOT,
@@ -243,6 +274,7 @@ export async function runSupabaseOperationalReadiness({
   const report = {
     ok: true,
     linked,
+    environment: describeSupabaseEnvironment(env, { linked }),
     localMigrations,
     remoteLedger: null,
     catalogFingerprints: null,

@@ -2,26 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   actionApply,
-  actionSettings,
-  actionSkipMinimal,
   actionSimpler,
   calibrationFlowSubtitle,
   calibrationFlowTitle,
   calibrationReviewTestIds,
   formatSetupChecklistSummary,
-  labelForDashboardProfile,
-  labelForNotificationSuppressAdvanced,
-  labelForReportProfileSuppress,
-  labelForSearchScope,
-  modeLabels,
   options,
-  reviewChangeLater,
   reviewSectionHeadings,
   reviewStepTitle,
-  reviewUtilitiesNoneHidden,
   stepLabels,
 } from "@/lib/onboarding/calibration-copy";
 import type {
@@ -31,18 +21,10 @@ import type {
 } from "@/lib/onboarding/calibration-types";
 import {
   completeQuestionnaireAcceptRecommendation,
-  completeQuestionnaireOpenAdvancedSettings,
-  completeQuestionnaireSimplerSetup,
   previewCalibrationRecommendation,
   recordQuestionnaireStarted,
   saveQuestionnaireProgress,
-  skipQuestionnaireExplicitMinimal,
 } from "@/actions/onboarding-calibration";
-import {
-  WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS,
-  WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS,
-  WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS,
-} from "@/lib/product-surface/workspace-settings-module-labels";
 import {
   CALIBRATION_LAST_STEP_INDEX,
   CALIBRATION_REQUIRED_FIELD_ORDER,
@@ -52,18 +34,6 @@ import { replaceAppHref } from "@/lib/navigation/client-navigation";
 
 const REQUIRED_FIELDS = CALIBRATION_REQUIRED_FIELD_ORDER;
 const LAST_STEP_INDEX = CALIBRATION_LAST_STEP_INDEX;
-
-function labelForAdvancedKey(key: string): string {
-  return WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS.find((o) => o.key === key)?.label ?? key;
-}
-
-function labelForAssuranceKey(key: string): string {
-  return WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS.find((o) => o.key === key)?.label ?? key;
-}
-
-function labelForUtilityKey(key: string): string {
-  return WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS.find((o) => o.key === key)?.label ?? key;
-}
 
 export function CalibrationWizard(props: {
   initialRequired: Partial<CalibrationAnswersRequired>;
@@ -340,48 +310,10 @@ export function CalibrationWizard(props: {
                   >
                     {reviewSectionHeadings.summary}
                   </h3>
-                  <p className="mt-2">
-                    <span className="font-medium text-[var(--text-primary)]">{modeLabels[preview.recommended_workspace_mode]}</span>
-                    <span className="text-[var(--text-secondary)]"> (recommended)</span>
+                  <p className="mt-2 text-[var(--text-secondary)]">
+                    Your workspace is ready to track contracts. Start with a signed agreement, then review fields,
+                    assign an owner, track dates, and turn obligations into work.
                   </p>
-                  <p className="ui-muted-tight mt-2">{reviewChangeLater}</p>
-                </div>
-
-                <div role="region" aria-labelledby="cal-review-adv-heading">
-                  <h3 id="cal-review-adv-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.advanced}
-                  </h3>
-                  <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
-                    {preview.recommended_advanced_families_enabled.length === 0 ? (
-                      <li className="text-[var(--text-secondary)]">None (Core)</li>
-                    ) : (
-                      preview.recommended_advanced_families_enabled.map((k) => (
-                        <li key={k}>{labelForAdvancedKey(k)}</li>
-                      ))
-                    )}
-                  </ul>
-                </div>
-
-                <div role="region" aria-labelledby="cal-review-asm-heading">
-                  <h3 id="cal-review-asm-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.assurance}
-                  </h3>
-                  <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
-                    {preview.recommended_assurance_families_enabled.length === 0 ? (
-                      <li className="text-[var(--text-secondary)]">None</li>
-                    ) : (
-                      preview.recommended_assurance_families_enabled.map((k) => (
-                        <li key={k}>{labelForAssuranceKey(k)}</li>
-                      ))
-                    )}
-                  </ul>
-                </div>
-
-                <div role="region" aria-labelledby="cal-review-landing-heading">
-                  <h3 id="cal-review-landing-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.landing}
-                  </h3>
-                  <p className="mt-2 text-[var(--text-secondary)]">{preview.recommended_default_landing_path}</p>
                 </div>
 
                 <div
@@ -406,73 +338,8 @@ export function CalibrationWizard(props: {
                     {reviewSectionHeadings.reports}
                   </h3>
                   <p className="mt-2 text-[var(--text-secondary)]">
-                    {labelForReportProfileSuppress(
-                      preview.recommended_report_profile.suppress_incompatible_subscriptions
-                    )}
+                    Reports become useful as you review fields, assign owners, add dates, and track work.
                   </p>
-                </div>
-
-                <div
-                  role="region"
-                  aria-labelledby="cal-review-home-heading"
-                  data-testid={calibrationReviewTestIds.home}
-                >
-                  <h3 id="cal-review-home-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.home}
-                  </h3>
-                  <p className="mt-2 text-[var(--text-secondary)]">
-                    {labelForDashboardProfile(
-                      preview.recommended_dashboard_profile,
-                      preview.recommended_workspace_mode
-                    )}
-                  </p>
-                </div>
-
-                <div
-                  role="region"
-                  aria-labelledby="cal-review-search-heading"
-                  data-testid={calibrationReviewTestIds.searchScope}
-                >
-                  <h3 id="cal-review-search-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.search}
-                  </h3>
-                  <p className="mt-2 text-[var(--text-secondary)]">
-                    {labelForSearchScope(preview.recommended_search_scope)}
-                  </p>
-                </div>
-
-                <div
-                  role="region"
-                  aria-labelledby="cal-review-notify-heading"
-                  data-testid={calibrationReviewTestIds.notifications}
-                >
-                  <h3 id="cal-review-notify-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.notifications}
-                  </h3>
-                  <p className="mt-2 text-[var(--text-secondary)]">
-                    {labelForNotificationSuppressAdvanced(
-                      preview.recommended_notification_profile.suppress_advanced_tiers
-                    )}
-                  </p>
-                </div>
-
-                <div
-                  role="region"
-                  aria-labelledby="cal-review-util-heading"
-                  data-testid={calibrationReviewTestIds.utilities}
-                >
-                  <h3 id="cal-review-util-heading" className="text-sm font-semibold text-[var(--text-primary)]">
-                    {reviewSectionHeadings.utilities}
-                  </h3>
-                  {preview.recommended_utility_modules_hidden.length === 0 ? (
-                    <p className="mt-2 text-[var(--text-secondary)]">{reviewUtilitiesNoneHidden}</p>
-                  ) : (
-                    <ul className="mt-2 list-inside list-disc text-[var(--text-secondary)]">
-                      {preview.recommended_utility_modules_hidden.map((k) => (
-                        <li key={k}>Hidden: {labelForUtilityKey(k)}</li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
               </div>
             )}
@@ -488,7 +355,7 @@ export function CalibrationWizard(props: {
                         answers_required: req as CalibrationAnswersRequired,
                         answers_optional: opt,
                       }),
-                    () => replaceAppHref(router, "/dashboard")
+                    () => replaceAppHref(router, "/contracts/new")
                   )
                 }
               >
@@ -498,21 +365,18 @@ export function CalibrationWizard(props: {
                 type="button"
                 disabled={wizardBusy}
                 className="ui-btn-secondary min-h-9 w-full px-4 py-2.5"
-                onClick={() => runComplete(() => completeQuestionnaireSimplerSetup(), () => replaceAppHref(router, "/dashboard"))}
-              >
-                {actionSimpler}
-              </button>
-              <button
-                type="button"
-                disabled={wizardBusy}
-                className="ui-btn-secondary min-h-9 w-full px-4 py-2.5"
                 onClick={() =>
-                  runComplete(() => completeQuestionnaireOpenAdvancedSettings(), () =>
-                    replaceAppHref(router, "/settings/product")
+                  runComplete(
+                    () =>
+                      completeQuestionnaireAcceptRecommendation({
+                        answers_required: req as CalibrationAnswersRequired,
+                        answers_optional: opt,
+                      }),
+                    () => replaceAppHref(router, "/dashboard")
                   )
                 }
               >
-                {actionSettings}
+                {actionSimpler}
               </button>
             </div>
           </div>
@@ -533,35 +397,9 @@ export function CalibrationWizard(props: {
             >
               {step === 7 ? "Continue to review" : "Next"}
             </button>
-            {step <= 6 && (
-              <>
-                <button
-                  type="button"
-                  className="ui-link min-h-9 self-center text-sm"
-                  disabled={wizardBusy}
-                  onClick={() => runComplete(() => completeQuestionnaireSimplerSetup(), () => replaceAppHref(router, "/dashboard"))}
-                >
-                  {actionSimpler}
-                </button>
-                <button
-                  type="button"
-                  className="ui-link min-h-9 self-center text-sm"
-                  disabled={wizardBusy}
-                  onClick={() => runComplete(() => skipQuestionnaireExplicitMinimal(), () => replaceAppHref(router, "/dashboard"))}
-                >
-                  {actionSkipMinimal}
-                </button>
-              </>
-            )}
           </div>
         )}
       </section>
-
-      <p className="text-center text-xs text-[var(--text-tertiary)]">
-        <Link href="/settings/product" className="ui-link">
-          Product settings
-        </Link>
-      </p>
     </div>
   );
 }

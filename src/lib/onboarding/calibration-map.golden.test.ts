@@ -100,7 +100,7 @@ describe("calibration-map golden vectors", () => {
       checklist: ["organize_work", "upload_contract", "product_settings"],
       exp: {
         mode: "core",
-        landing: "/settings/product",
+        landing: "/settings/operations",
         search: "core_only",
         dashboardProfile: "core",
         autopilot: false,
@@ -263,7 +263,7 @@ describe("calibration-map golden vectors", () => {
       }),
       exp: {
         mode: "core",
-        landing: "/settings/product",
+        landing: "/settings/operations",
         search: "core_only",
         dashboardProfile: "core",
         autopilot: false,

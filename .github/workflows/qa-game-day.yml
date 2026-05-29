@@ -20,10 +20,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:synthetic-p0
-      - run: npm run test:synthetic-p0
       - name: Evidence
-        run: |
-          echo '{"steps":["synthetic-p0","synthetic-p0"],"ts":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' > game-day-evidence.json
+        env:
+          GAME_DAY_STRICT: "1"
+        run: npm run check:game-day-exec > game-day-evidence.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: game-day-evidence

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
@@ -23,6 +24,7 @@ import { SettingsProductCalibrationExport } from "@/app/(dashboard)/settings/pro
 import { SettingsProductCalibrationSummary } from "@/app/(dashboard)/settings/product/settings-product-calibration-summary";
 import { SettingsProductEmailSection } from "@/app/(dashboard)/settings/product/settings-product-email-section";
 import { RecoverableState } from "@/components/ui/recoverable-state";
+import { arePrivateProductControlsEnabled } from "@/lib/release-state-private-controls";
 
 const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
 const ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS;
@@ -31,6 +33,8 @@ const UTILITY_MODULE_OPTIONS = WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS;
 export const metadata = { title: "Product experience" };
 
 export default async function WorkspaceProductSettingsPage() {
+  if (!arePrivateProductControlsEnabled()) notFound();
+
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   if (ctx.role !== "admin") {

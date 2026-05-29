@@ -7,6 +7,7 @@ Disallow: /contracts/
 Disallow: /settings/
 Disallow: /onboarding/
 Disallow: /reports/
+Disallow: /search/
 Disallow: /assurance/
 Disallow: /campaigns/
 Disallow: /decisions/

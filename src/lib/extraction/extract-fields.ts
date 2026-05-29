@@ -9,6 +9,7 @@ import {
 } from "@/lib/extraction/model-context-redaction";
 import {
   EXTRACTION_MODEL_OUTPUT_MAX_CHARS,
+  OPENAI_EXTRACTION_ATTEMPT_TIMEOUT_MS,
   OPENAI_EXTRACTION_MAX_RETRY_ATTEMPTS,
 } from "@/lib/extraction/constants";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
@@ -306,6 +307,7 @@ async function chatCompletionWithRetry(
   }, {
     maxAttempts: OPENAI_EXTRACTION_MAX_RETRY_ATTEMPTS,
     baseDelayMs: 500,
+    timeoutMs: OPENAI_EXTRACTION_ATTEMPT_TIMEOUT_MS,
     shouldRetry: isRetryableOpenAIError,
   });
 }

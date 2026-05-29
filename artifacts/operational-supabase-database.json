@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-supabase-database",
+  "generatedBy": "scripts/check-operational-supabase-database.mjs --write",
+  "generatedFrom": "config/operational-supabase-database.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "objectiveCount": 6,
+  "commandCount": 21,
+  "markerFileCount": 6,
+  "delegatedCheckCount": 13,
+  "commands": [
+    {
+      "objective": "backup-restore-evidence",
+      "command": "check:database-backup-restore-evidence",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "backup-restore-evidence",
+      "command": "check:dr-drill-smoke",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false
+    },
+    {
+      "objective": "backup-restore-evidence",
+      "command": "report:rpo-rto-status",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "check:migration-idempotency",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "check:migration-manifest",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "check:migration-organization",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "check:migration-security-patterns",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "check:migrations:strict",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "migration-readiness",
+      "command": "report:migration-rollbacks",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false
+    },
+    {
+      "objective": "retention-legal-hold",
+      "command": "check:privacy-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "retention-legal-hold",
+      "command": "check:retention-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "retention-legal-hold",
+      "command": "check:supabase:retention-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "check:rls-policy-drift",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "check:rls-sanity-tables",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "check:sql-security-automation-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "check:sql-security-migrations-bundle",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "check:tenant-table-schema-constraints",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "command": "test:rls-smoke",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "security-definer-view-safety",
+      "command": "check:migration-security-patterns",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false
+    },
+    {
+      "objective": "security-definer-view-safety",
+      "command": "check:sql-definer-invoker-inventory",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    },
+    {
+      "objective": "security-definer-view-safety",
+      "command": "check:sql-security-migrations-bundle",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true
+    }
+  ],
+  "markerFiles": [
+    {
+      "objective": "retention-legal-hold",
+      "path": "src/app/api/me/account/route.ts",
+      "ok": true,
+      "markerCount": 2
+    },
+    {
+      "objective": "retention-legal-hold",
+      "path": "src/app/api/me/export/route.ts",
+      "ok": true,
+      "markerCount": 2
+    },
+    {
+      "objective": "retention-legal-hold",
+      "path": "supabase/migrations/062_profile_legal_hold.sql",
+      "ok": true,
+      "markerCount": 2
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "path": "supabase/tests/rls_default_deny_smoke.sql",
+      "ok": true,
+      "markerCount": 3
+    },
+    {
+      "objective": "rls-tenant-scope-evidence",
+      "path": "supabase/tests/rls_sanity_smoke.sql",
+      "ok": true,
+      "markerCount": 3
+    },
+    {
+      "objective": "security-definer-view-safety",
+      "path": "supabase/tests/view_invoker_smoke.sql",
+      "ok": true,
+      "markerCount": 2
+    }
+  ],
+  "linkedProjectSafety": [
+    {
+      "command": "check:supabase:config",
+      "commandClass": "default",
+      "packageScriptPresent": true,
+      "linked": false,
+      "mutates": false
+    },
+    {
+      "command": "check:supabase:local-reset-harness",
+      "commandClass": "default",
+      "packageScriptPresent": true,
+      "linked": false,
+      "mutates": false
+    },
+    {
+      "command": "check:supabase:ops",
+      "commandClass": "default",
+      "packageScriptPresent": true,
+      "linked": false,
+      "mutates": false
+    },
+    {
+      "command": "check:supabase:prod",
+      "commandClass": "optional-linked-read-only",
+      "packageScriptPresent": true,
+      "linked": true,
+      "mutates": false
+    },
+    {
+      "command": "check:supabase:prod:deep",
+      "commandClass": "optional-linked-read-only",
+      "packageScriptPresent": true,
+      "linked": true,
+      "mutates": false
+    },
+    {
+      "command": "check:supabase:release-checklist",
+      "commandClass": "default",
+      "packageScriptPresent": true,
+      "linked": false,
+      "mutates": false
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "database-backup-restore-evidence",
+      "ok": true,
+      "issueCount": 0,
+      "commandCount": 2,
+      "manualBoundaryId": "manual-database-restore-drill"
+    },
+    {
+      "checkId": "migration-idempotency",
+      "ok": true,
+      "issueCount": 0,
+      "findingCount": 110,
+      "reviewedExceptionCount": 110
+    },
+    {
+      "checkId": "migration-manifest",
+      "ok": true,
+      "issueCount": 0,
+      "migrationCount": 89,
+      "latestVersion": "089"
+    },
+    {
+      "checkId": "migration-organization",
+      "ok": true,
+      "issueCount": 0,
+      "migrationCount": 89,
+      "latestVersion": "089"
+    },
+    {
+      "checkId": "migration-security-patterns",
+      "ok": true,
+      "issueCount": 0,
+      "strict": true
+    },
+    {
+      "checkId": "privacy-inventory",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "retention-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "rls-policy-drift",
+      "ok": true,
+      "issueCount": 0,
+      "totalCreatedTables": 154,
+      "totalPolicyProtectedTables": 156
+    },
+    {
+      "checkId": "rls-sanity-tables",
+      "ok": true,
+      "issueCount": 0,
+      "tenantTableCount": 152
+    },
+    {
+      "checkId": "sql-definer-invoker-inventory",
+      "ok": true,
+      "issueCount": 0,
+      "securityDefinerFunctionCount": 27,
+      "tenantViewCount": 36
+    },
+    {
+      "checkId": "sql-security-automation-coverage",
+      "ok": true,
+      "issueCount": 0,
+      "coverageCount": 67,
+      "queueCoveredCount": 67
+    },
+    {
+      "checkId": "supabase-retention-inventory",
+      "ok": true,
+      "issueCount": 0,
+      "policyCount": 7
+    },
+    {
+      "checkId": "tenant-table-schema-constraints",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

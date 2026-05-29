@@ -1,0 +1,692 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-platform-variant-coverage",
+  "generatedBy": "scripts/check-operational-platform-variant-coverage.mjs --write",
+  "generatedFrom": "config/operational-platform-variant-coverage.json",
+  "commandCount": 17,
+  "routeFamilyPolicyCount": 11,
+  "browserDimensionCount": 11,
+  "webViewPlatformCount": 2,
+  "osInputVariantCount": 9,
+  "downloadBehaviorCount": 7,
+  "delegatedCheckCount": 1,
+  "commands": [
+    {
+      "objective": "browser-matrix-policy",
+      "script": "check:operational-platform-variant-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "browser_matrix_policy",
+        "route_family_variant_policy"
+      ]
+    },
+    {
+      "objective": "browser-matrix-policy",
+      "script": "check:playwright-project-matrix",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "playwright_project_inventory"
+      ]
+    },
+    {
+      "objective": "browser-matrix-policy",
+      "script": "test:e2e:current-product:matrix",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "desktop",
+        "firefox_locale",
+        "mobile",
+        "reduced_motion",
+        "webkit_mobile"
+      ]
+    },
+    {
+      "objective": "browser-matrix-policy",
+      "script": "test:e2e:i18n-matrix",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "ime",
+        "pseudo_locale",
+        "rtl",
+        "session_cookie_matrix"
+      ]
+    },
+    {
+      "objective": "browser-matrix-policy",
+      "script": "test:e2e:multi-browser",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "chromium",
+        "firefox",
+        "public_smoke",
+        "webkit"
+      ]
+    },
+    {
+      "objective": "download-file-open-behavior",
+      "script": "check:binary-metadata-stripping",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "pdf_download_headers",
+        "pdf_metadata"
+      ]
+    },
+    {
+      "objective": "download-file-open-behavior",
+      "script": "check:export-security-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "content_disposition",
+        "content_type",
+        "filename_safety",
+        "private_cache_headers"
+      ]
+    },
+    {
+      "objective": "download-file-open-behavior",
+      "script": "check:signed-link-scope-narrowing",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "download_audit",
+        "signed_link_scope"
+      ]
+    },
+    {
+      "objective": "download-file-open-behavior",
+      "script": "check:versioned-export-download-contracts",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "csv",
+        "download_names",
+        "generated_reports",
+        "pdf",
+        "signed_links"
+      ]
+    },
+    {
+      "objective": "os-input-variants",
+      "script": "test:e2e:a11y",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "keyboard",
+        "screen_reader_adjacent_semantics"
+      ]
+    },
+    {
+      "objective": "os-input-variants",
+      "script": "test:e2e:resilience:all",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "focus_refetch",
+        "input_recovery"
+      ]
+    },
+    {
+      "objective": "os-input-variants",
+      "script": "test:e2e:ui-qa-plan",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "ime",
+        "paste",
+        "platform_api_harness",
+        "touch"
+      ]
+    },
+    {
+      "objective": "os-input-variants",
+      "script": "test:ui",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "component_input_states",
+        "touch_targets"
+      ]
+    },
+    {
+      "objective": "webview-readiness",
+      "script": "check:callback-destination-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "redirect_boundary"
+      ]
+    },
+    {
+      "objective": "webview-readiness",
+      "script": "check:client-storage-sensitivity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "storage_boundary"
+      ]
+    },
+    {
+      "objective": "webview-readiness",
+      "script": "check:operational-platform-variant-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "android_webview_stub",
+        "ios_wkwebview_stub",
+        "webview_support_policy"
+      ]
+    },
+    {
+      "objective": "webview-readiness",
+      "script": "check:versioned-export-download-contracts",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "download_contracts"
+      ]
+    }
+  ],
+  "browserMatrix": {
+    "projectInventory": "artifacts/browser-os-matrix.json",
+    "requiredProjectCount": 5,
+    "artifactProjectCount": 5,
+    "playwrightProjectCount": 5,
+    "artifactProjects": [
+      "chromium",
+      "firefox",
+      "iPad",
+      "Mobile Chrome",
+      "webkit"
+    ],
+    "playwrightProjects": [
+      "chromium",
+      "firefox",
+      "iPad",
+      "Mobile Chrome",
+      "webkit"
+    ],
+    "requiredEngines": [
+      "chromium",
+      "gecko",
+      "webkit"
+    ],
+    "dimensions": [
+      {
+        "id": "chromium",
+        "path": "playwright.config.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:multi-browser",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "color-scheme",
+        "path": "e2e/fixtures/theme-fixture.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:visual",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "desktop-viewport",
+        "path": "e2e/current-product-device-matrix.chromium.spec.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:current-product:matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "device-scale-factor",
+        "path": "playwright.config.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "check:playwright-project-matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "firefox",
+        "path": "playwright.config.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:multi-browser",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "locale",
+        "path": "e2e/current-product-device-matrix.firefox.spec.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:current-product:matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "mobile-viewport",
+        "path": "e2e/current-product-device-matrix.webkit.spec.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:current-product:matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "reduced-motion",
+        "path": "e2e/current-product-device-matrix.webkit.spec.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:current-product:matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "tablet-viewport",
+        "path": "playwright.config.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "check:playwright-project-matrix",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "timezone",
+        "path": "e2e/timezone-display.spec.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:i18n-matrix",
+        "markerCount": 4,
+        "missingCount": 0,
+        "ok": true
+      },
+      {
+        "id": "webkit",
+        "path": "playwright.config.ts",
+        "owner": "@frontend-platform",
+        "validationCommand": "test:e2e:multi-browser",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      }
+    ]
+  },
+  "routeFamilyPolicies": [
+    {
+      "family": "advanced",
+      "routeCount": 11,
+      "multiBrowserRouteCount": 0,
+      "supportLevel": "chromium-primary-pre-ga",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:operational-platform-variant-coverage",
+      "waiverId": "qa_taxonomy_gap_phase2_feature",
+      "ok": true
+    },
+    {
+      "family": "assurance",
+      "routeCount": 12,
+      "multiBrowserRouteCount": 0,
+      "supportLevel": "chromium-primary-pre-ga",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:operational-platform-variant-coverage",
+      "waiverId": "qa_taxonomy_gap_phase2_feature",
+      "ok": true
+    },
+    {
+      "family": "auth",
+      "routeCount": 4,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@auth-security",
+      "validationCommand": "test:e2e:multi-browser",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "contracts",
+      "routeCount": 11,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "dashboard",
+      "routeCount": 3,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "external",
+      "routeCount": 1,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:multi-browser",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "marketing",
+      "routeCount": 10,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:multi-browser",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "reports",
+      "routeCount": 2,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "settings",
+      "routeCount": 10,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "utilities",
+      "routeCount": 12,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "work",
+      "routeCount": 1,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    }
+  ],
+  "webViewReadiness": {
+    "supportPolicy": "web-app-first; no native iOS or Android wrapper is distributed from this repository",
+    "requiredConstraints": [
+      "cookies",
+      "downloads",
+      "file_uploads",
+      "redirects",
+      "storage"
+    ],
+    "evidence": [
+      {
+        "path": "config/p6-explicit-na-register.json",
+        "owner": "@frontend-platform",
+        "validationCommand": "check:operational-platform-variant-coverage",
+        "markerCount": 2,
+        "missingCount": 0,
+        "ok": true
+      }
+    ],
+    "platforms": [
+      {
+        "id": "android-webview",
+        "supportStatus": "explicitly_not_supported",
+        "owner": "@frontend-platform",
+        "workflow": ".github/workflows/qa-android-webview.yml",
+        "waiverId": "qa_taxonomy_gap_phase2_feature",
+        "constraintCount": 5,
+        "missingConstraintCount": 0,
+        "missingMarkerCount": 0,
+        "ok": true
+      },
+      {
+        "id": "ios-wkwebview",
+        "supportStatus": "explicitly_not_supported",
+        "owner": "@frontend-platform",
+        "workflow": ".github/workflows/qa-ios-wkwebview.yml",
+        "waiverId": "qa_taxonomy_gap_phase2_feature",
+        "constraintCount": 5,
+        "missingConstraintCount": 0,
+        "missingMarkerCount": 0,
+        "ok": true
+      }
+    ]
+  },
+  "osInputVariantChecks": [
+    {
+      "id": "drag-drop",
+      "path": "src/components/ui/ui-file-drop.tsx",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:ui-qa-plan",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "high-contrast",
+      "path": "src/app/globals.css",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:a11y",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "ime-input",
+      "path": "src/app/(dashboard)/search/page.surface.test.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:i18n-matrix",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "keyboard",
+      "path": "e2e/a11y.keyboard.spec.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:a11y",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "paste",
+      "path": "src/app/(dashboard)/search/page.surface.test.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:ui-qa-plan",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "platform-permissions",
+      "path": "e2e/platform-permissions-clipboard.spec.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:ui-qa-plan",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "pointer",
+      "path": "src/components/search/result-row.tsx",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:ui",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "screen-reader-semantics",
+      "path": "src/components/search/search-field.tsx",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:a11y",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "touch",
+      "path": "src/app/(dashboard)/search/page.surface.test.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:ui",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "downloadFileOpenBehavior": [
+    {
+      "id": "browser-download-names",
+      "path": "e2e/onboarding-calibration.spec.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "content-disposition",
+      "path": "src/lib/security/export-filename.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:export-security-guards",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "content-type",
+      "path": "src/app/api/export/calendar/route.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:export-security-guards",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "csv",
+      "path": "src/lib/export/contracts-csv.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:export-security-guards",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "generated-reports",
+      "path": "src/app/api/report-packs/[id]/runs/route.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:export-security-guards",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "pdf",
+      "path": "src/app/api/decisions/[id]/packet-runs/[runId]/route.ts",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:binary-metadata-stripping",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "signed-links",
+      "path": "scripts/check-storage-path-safety.mjs",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:signed-link-scope-narrowing",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "delegatedChecks": [
+    {
+      "checkId": "versioned-export-download-contracts",
+      "ok": true,
+      "issueCount": 0,
+      "contractCount": 169,
+      "categoryCount": 6
+    }
+  ],
+  "manualBoundary": "Real device-lab execution, native WebView harnesses, and assistive-technology signoff remain manual or external-provider work; this registry enforces repository-owned browser, route-family, WebView policy, input, and download coverage.",
+  "issueCount": 0,
+  "issues": []
+}

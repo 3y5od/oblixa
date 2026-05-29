@@ -7,7 +7,7 @@ test.describe("settings security surface", () => {
     await app.loginAsDefaultUser();
     await app.gotoAndWait("/settings/security");
     await expect(page.getByRole("heading", { name: "Security" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Authenticator (TOTP)" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Authenticators" })).toBeVisible();
   });
 
   test("settings refinement runtime checks pass for Core admin and mobile anchors", async ({ page, app }) => {

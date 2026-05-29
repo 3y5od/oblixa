@@ -70,6 +70,7 @@ vi.mock("@/lib/product-surface/landing-eligibility", () => ({
 
 describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
   beforeEach(() => {
+    process.env.OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS = "1";
     getAuthContext.mockReset();
     mergeOrgSettingsJson.mockReset();
     getOrgSettingsJson.mockReset();
@@ -83,6 +84,17 @@ describe("updateWorkspaceProductSurfaceForm (refinement §19 / §21)", () => {
       autoBlockedNotificationTypes: [],
       suppressedSubscriptionCount: 0,
     });
+  });
+
+  it("keeps product mode controls private by default", async () => {
+    delete process.env.OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS;
+    const { updateWorkspaceProductSurfaceForm } = await import("@/actions/product-surface-settings");
+    const fd = new FormData();
+    fd.set("workspace_mode", "advanced");
+    const result = await updateWorkspaceProductSurfaceForm(fd);
+    expect(result).toEqual({ error: "Product mode and module controls are private for this release." });
+    expect(getAuthContext).not.toHaveBeenCalled();
+    expect(mergeOrgSettingsJson).not.toHaveBeenCalled();
   });
 
   it("returns error when unauthenticated", async () => {

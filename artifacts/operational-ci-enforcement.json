@@ -1,0 +1,1020 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-ci-enforcement",
+  "generatedFrom": "config/operational-ci-enforcement.json",
+  "secretGateRegistry": "artifacts/assurance/github-workflow-secret-gates.json",
+  "workflowCount": 38,
+  "requiredCommandCount": 8,
+  "requiredCommands": [
+    {
+      "id": "branch-protection-static-fallback",
+      "objective": "branch-protection expected checks",
+      "command": "check:branch-protection-drift"
+    },
+    {
+      "id": "merge-queue-parity",
+      "objective": "merge queue parity",
+      "command": "check:merge-queue-canary-parity"
+    },
+    {
+      "id": "secret-gate-registry",
+      "objective": "fail-closed secret-gated skips",
+      "command": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "workflow-artifact-hygiene",
+      "objective": "artifact retention, download scope, and secret path hygiene",
+      "command": "check:ci-artifact-secret-leakage"
+    },
+    {
+      "id": "workflow-permissions",
+      "objective": "top-level workflow permissions",
+      "command": "check:github-actions-permissions"
+    },
+    {
+      "id": "workflow-script-reference-parity",
+      "objective": "workflow package-script references",
+      "command": "check:workflow-tier-coverage"
+    },
+    {
+      "id": "workflow-security",
+      "objective": "least-privilege workflow security",
+      "command": "check:github-workflows-security"
+    },
+    {
+      "id": "workflow-yaml-parse",
+      "objective": "workflow syntax validity",
+      "command": "check:github-workflows-yaml"
+    }
+  ],
+  "failClosedObservationCount": 61,
+  "governedFailClosedObservations": [
+    {
+      "issue": "continue_on_error",
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "step": "Healthchecks fail",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "step": "Healthchecks start",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "step": "Healthchecks success",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "qa-max-nightly.yml",
+      "job": "flake_classify_optional",
+      "step": "step_4",
+      "condition": null,
+      "allowedBy": "flake-classifier-advisory",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:test-skip-governance"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "semgrep-sarif.yml",
+      "job": "semgrep",
+      "step": "Upload SARIF to Code Scanning",
+      "condition": null,
+      "allowedBy": "semgrep-code-scanning-upload-advisory",
+      "owner": "platform-security",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-workflows-security"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "slo-monitor.yml",
+      "job": "monitor",
+      "step": "Healthchecks fail",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "slo-monitor.yml",
+      "job": "monitor",
+      "step": "Healthchecks start",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "continue_on_error",
+      "file": "slo-monitor.yml",
+      "job": "monitor",
+      "step": "Healthchecks success",
+      "condition": null,
+      "allowedBy": "healthchecks-ping-nonblocking",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "optional_job",
+      "file": "ci.yml",
+      "job": "qa_ultimate_pr_shard",
+      "step": null,
+      "condition": "vars.ENABLE_QA_ULTIMATE_PR_SHARD == 'true'",
+      "allowedBy": "ci-qa-ultimate-pr-shard-variable-gate",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-android-webview.yml",
+      "job": "disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-cdn-purge.yml",
+      "job": "disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-code-maximal.yml",
+      "job": "code_maximal_playwright",
+      "step": null,
+      "condition": "github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.subset == false)",
+      "allowedBy": "qa-code-maximal-dispatch-and-schedule-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-code-maximal.yml",
+      "job": "qa_ultimate_reuse",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.include_ultimate == true",
+      "allowedBy": "qa-code-maximal-dispatch-and-schedule-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-code-maximal.yml",
+      "job": "staging_optional_matrix",
+      "step": null,
+      "condition": "github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.subset == false)",
+      "allowedBy": "qa-code-maximal-dispatch-and-schedule-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "applitools_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "browserstack_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "chromatic_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "codecov_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "coveralls_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "memory_budgets_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "msw_visual_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "reproducible_build_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "sbom_diff_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "sonar_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "storybook_ci_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "stryker_nightly_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-external-stubs.yml",
+      "job": "turbopack_parity_disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-helm-lint.yml",
+      "job": "disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-ios-wkwebview.yml",
+      "job": "disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-ipv6-smoke.yml",
+      "job": "curl_v6",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-macos-a11y-optional.yml",
+      "job": "macos_voiceover_subset",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "api_runtime_smoke_nightly",
+      "step": null,
+      "condition": "github.event_name == 'schedule'",
+      "allowedBy": "qa-max-nightly-schedule-only-legs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "chaos_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_chaos == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "flake_classify_optional",
+      "step": null,
+      "condition": "failure()",
+      "allowedBy": "qa-max-nightly-failure-diagnostic-leg",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:test-skip-governance"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "har_redact_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_har_redact == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "i18n_matrix_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_i18n_matrix == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "k6_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_soak == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "lighthouse_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_lighthouse == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "memory_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_memory == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "mobile_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_mobile == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "multibrowser_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_multibrowser == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "npm_audit_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_npm_audit == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "openapi_contract_nightly",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_openapi == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "ratchet_snapshot_nightly",
+      "step": null,
+      "condition": "github.event_name == 'schedule'",
+      "allowedBy": "qa-max-nightly-schedule-only-legs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "reproducible_build_hash_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_reproducible_build_hash == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "semgrep_full_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_semgrep_full == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "slsa_verify_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_slsa_verify == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "stryker_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_stryker == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "v10_migration_smoke_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_v10_migration_smoke == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "visual_optional",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' && github.event.inputs.run_visual == '1'",
+      "allowedBy": "qa-max-nightly-input-gated-options",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-merge-queue-canary.yml",
+      "job": "expected_checks",
+      "step": null,
+      "condition": "github.event_name == 'workflow_dispatch' || github.event_name == 'merge_group'",
+      "allowedBy": "merge-queue-canary-dispatch-or-merge-group",
+      "owner": "platform-security",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:merge-queue-canary-parity"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-ofac-hash-verify.yml",
+      "job": "verify",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-secrets-history-scan-optional.yml",
+      "job": "trufflehog_placeholder",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-terraform-plan.yml",
+      "job": "disabled",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-visual-update.yml",
+      "job": "update_snapshots",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "optional_job",
+      "file": "qa-windows-edge-optional.yml",
+      "job": "windows_smoke",
+      "step": null,
+      "condition": "false",
+      "allowedBy": "disabled-external-provider-stub-jobs",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "issue": "shell_ignores_error",
+      "file": "ci.yml",
+      "job": "runtime_comprehensive_pass",
+      "step": "Runtime comprehensive pass (staging + local Next fallback)",
+      "condition": null,
+      "allowedBy": "local-process-cleanup-trap",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "shell_ignores_error",
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "step": "Run cron canary checks",
+      "condition": null,
+      "allowedBy": "local-process-cleanup-trap",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "issue": "shell_ignores_error",
+      "file": "qa-dast-zap.yml",
+      "job": "zap_baseline",
+      "step": "Run ZAP baseline",
+      "condition": null,
+      "allowedBy": "zap-baseline-delegates-failure-to-compare",
+      "owner": "platform-security",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:zap-baseline-compare"
+    },
+    {
+      "issue": "shell_ignores_error",
+      "file": "qa-max-nightly.yml",
+      "job": "playwright_merge",
+      "step": "Merge Playwright reports",
+      "condition": null,
+      "allowedBy": "qa-nightly-empty-blob-merge",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:ci-artifact-secret-leakage"
+    },
+    {
+      "issue": "shell_ignores_error",
+      "file": "refinement-deletion-notice.yml",
+      "job": "notice",
+      "step": "List deleted API routes or migrations",
+      "condition": null,
+      "allowedBy": "refinement-deletion-notice-empty-diff-safe",
+      "owner": "platform-governance",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    }
+  ],
+  "secretGateCount": 7,
+  "governedSecretGates": [
+    {
+      "file": "ci.yml",
+      "job": "quality_build_e2e",
+      "strictVariable": "REQUIRE_CI_E2E_AUTH",
+      "requiredSecrets": [
+        "E2E_TEST_EMAIL",
+        "E2E_TEST_PASSWORD"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "ci.yml",
+      "job": "quality_e2e_onboarding_full",
+      "strictVariable": "REQUIRE_CI_E2E_AUTH",
+      "requiredSecrets": [
+        "E2E_TEST_EMAIL",
+        "E2E_TEST_PASSWORD"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "ci.yml",
+      "job": "quality_e2e_onboarding_full",
+      "strictVariable": "REQUIRE_CI_ONBOARDING_FULL",
+      "requiredSecrets": [
+        "E2E_ONBOARDING_FULL"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "test-platform",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "ci.yml",
+      "job": "runtime_comprehensive_pass",
+      "strictVariable": "REQUIRE_RUNTIME_COMPREHENSIVE",
+      "requiredSecrets": [
+        "COMPREHENSIVE_PASS_EMAIL",
+        "COMPREHENSIVE_PASS_PASSWORD",
+        "CRON_SECRET",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "STAGING_BASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "strictVariable": "REQUIRE_CRON_CANARY",
+      "requiredSecrets": [
+        "CRON_SECRET",
+        "STAGING_BASE_URL"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "platform-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "load-smoke-optional.yml",
+      "job": "load_smoke",
+      "strictVariable": "REQUIRE_LOAD_SMOKE",
+      "requiredSecrets": [
+        "STAGING_BASE_URL"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "performance-runtime",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "file": "slo-monitor.yml",
+      "job": "monitor",
+      "strictVariable": "REQUIRE_SLO_MONITOR",
+      "requiredSecrets": [
+        "HC_SLO_MONITOR_PING",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "defaultBehavior": "skip",
+      "owner": "observability",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    }
+  ],
+  "branchProtectionFallback": [
+    {
+      "workflow": "ci.yml",
+      "job": "quality_static_security",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_static_surface",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_static_governance",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_static_codehealth",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_unit",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_security",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality_build_e2e",
+      "present": true
+    },
+    {
+      "workflow": "ci.yml",
+      "job": "quality",
+      "present": true
+    }
+  ],
+  "mergeQueue": {
+    "workflow": "qa-merge-queue-canary.yml",
+    "hasMergeGroup": true,
+    "expectedChecks": [
+      {
+        "expectedCheck": "CI / quality_static_security",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_static_surface",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_static_governance",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_static_codehealth",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_unit",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_security",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality_build_e2e",
+        "present": true
+      },
+      {
+        "expectedCheck": "CI / quality",
+        "present": true
+      }
+    ],
+    "categories": [
+      {
+        "category": "security",
+        "present": true
+      },
+      {
+        "category": "build",
+        "present": true
+      },
+      {
+        "category": "e2e",
+        "present": true
+      },
+      {
+        "category": "dependency",
+        "present": true
+      },
+      {
+        "category": "release",
+        "present": true
+      }
+    ]
+  },
+  "requiredArtifactJobs": [
+    {
+      "file": "ci.yml",
+      "job": "quality_build_e2e",
+      "purpose": "Playwright report evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "ci.yml",
+      "job": "quality_static_security",
+      "purpose": "SBOM and dependency evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-code-maximal.yml",
+      "job": "code_maximal_playwright",
+      "purpose": "maximal Playwright evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-code-maximal.yml",
+      "job": "code_maximal_static",
+      "purpose": "maximal static QA evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-debugging-sweep.yml",
+      "job": "provenance",
+      "purpose": "debugging sweep provenance",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-game-day.yml",
+      "job": "game_day",
+      "purpose": "game-day evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-max-nightly.yml",
+      "job": "api_runtime_smoke_nightly",
+      "purpose": "API runtime smoke evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-max-nightly.yml",
+      "job": "junit_merge",
+      "purpose": "merged JUnit report",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-max-nightly.yml",
+      "job": "playwright_merge",
+      "purpose": "merged Playwright report",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-max-nightly.yml",
+      "job": "playwright_shard",
+      "purpose": "nightly shard evidence",
+      "uploadCount": 2
+    },
+    {
+      "file": "qa-merge-queue-canary.yml",
+      "job": "expected_checks",
+      "purpose": "merge-queue expected checks evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "qa-taxonomy-closure.yml",
+      "job": "taxonomy",
+      "purpose": "taxonomy closure evidence",
+      "uploadCount": 1
+    },
+    {
+      "file": "semgrep-sarif.yml",
+      "job": "semgrep",
+      "purpose": "SARIF evidence",
+      "uploadCount": 1
+    }
+  ],
+  "delegatedChecks": {
+    "githubWorkflowsSecurity": {
+      "ok": true,
+      "workflowCount": 38,
+      "issueCount": 0
+    },
+    "ciArtifactSecretLeakage": {
+      "ok": true,
+      "workflowCount": 38,
+      "uploadStepCount": 15,
+      "downloadStepCount": 2,
+      "issueCount": 0
+    }
+  },
+  "issueCount": 0,
+  "issues": []
+}

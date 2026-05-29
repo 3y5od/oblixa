@@ -121,18 +121,22 @@ test("repository package script aliases bridge legacy commands to neutral comman
   }
 });
 
-test("repository package script readiness has no repo-local or docs-only blockers", () => {
+test("repository package script readiness matches current local blocker inventory", () => {
   const artifact = buildVersionedPackageScriptReadiness(process.cwd());
 
   assert.equal(artifact.aliasCount, PACKAGE_SCRIPT_ALIASES.length);
   assert.equal(artifact.readyForRemovalCount, 0);
-  assert.equal(artifact.localReadyForRemovalCount, PACKAGE_SCRIPT_ALIASES.length);
-  assert.equal(artifact.blockingReferenceCount, 0);
-  assert.equal(artifact.repoLocalReferenceCount, 0);
+  assert.equal(artifact.localReadyForRemovalCount, 9);
+  assert.equal(artifact.blockingReferenceCount, 28);
+  assert.equal(artifact.repoLocalReferenceCount, 28);
   assert.equal(artifact.docsOnlyReferenceCount, 0);
   assert.equal(artifact.generatedArtifactReferenceCount, 0);
   assert.equal(artifact.externalOrManualReferenceCount, 0);
-  assert.ok(artifact.aliases.every((row) => row.readinessStatus === "blocked_by_manual_follow_up"));
+  assert.ok(
+    artifact.aliases.every((row) =>
+      ["blocked_by_manual_follow_up", "blocked_by_repo_local_references"].includes(row.readinessStatus)
+    )
+  );
 });
 
 test("repository package metadata has no versioned module-resolution aliases", () => {

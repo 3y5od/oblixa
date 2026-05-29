@@ -285,7 +285,7 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
                   <LockKeyhole className="h-3 w-3" />
                 </span>
                 <span>
-                  Workspace sign-in keeps post-signature execution, approvals, and reminders scoped to your organization.
+                  Workspace sign-in keeps contract work, approvals, and reminders scoped to your organization.
                 </span>
               </div>
               {urlBanner && (
@@ -301,25 +301,47 @@ export function AuthForm({ mode, urlBanner }: AuthFormProps) {
               {state?.success && <div className="ui-alert-success">{state.success}</div>}
 
               {mode === "signup" && (
-                <div>
-                  <label htmlFor="fullName" className="ui-label">
-                    Full name
-                  </label>
-                  <div className="relative">
-                    <span
-                      className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
-                      aria-hidden
-                    >
-                      <User className="h-4 w-4" />
-                    </span>
-                    <input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      required
-                      autoComplete="name"
-                      className="ui-input pl-10"
-                    />
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="fullName" className="ui-label">
+                      Full name
+                    </label>
+                    <div className="relative">
+                      <span
+                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
+                        aria-hidden
+                      >
+                        <User className="h-4 w-4" />
+                      </span>
+                      <input
+                        id="fullName"
+                        name="fullName"
+                        type="text"
+                        required
+                        autoComplete="name"
+                        className="ui-input pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="companyName" className="ui-label">
+                      Company name <span className="font-normal text-[var(--text-tertiary)]">(optional)</span>
+                    </label>
+                    <div className="relative">
+                      <span
+                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
+                        aria-hidden
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                      </span>
+                      <input
+                        id="companyName"
+                        name="companyName"
+                        type="text"
+                        autoComplete="organization"
+                        className="ui-input pl-10"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-public-launch-positioning",
+  "manualBoundary": "Final marketing and legal approval of public claims remains external.",
+  "objectives": [
+    {
+      "id": "public-launch-boundaries",
+      "ownerArea": "product-marketing",
+      "commands": [
+        { "command": "check:operational-public-launch-positioning", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "runtime_inventory"] },
+        { "command": "audit:marketing-identity:strict", "ciRequired": false, "covers": ["primary_story_lemmas", "forbidden_launch_claims"] },
+        { "command": "check:operational-legal-trust-compliance", "ciRequired": true, "covers": ["public_claim_traceability", "manual_legal_boundary"] }
+      ],
+      "artifacts": ["artifacts/operational-public-launch-positioning.json"]
+    },
+    {
+      "id": "private-surface-discoverability",
+      "ownerArea": "product-marketing",
+      "commands": [
+        { "command": "check:public-seo-surface", "ciRequired": false, "covers": ["robots_sitemap_noindex_public_inventory"] },
+        { "command": "check:next-public-surface", "ciRequired": true, "covers": ["browser_env_and_diagnostics_surface"] },
+        { "command": "check:surface:hrefs:strict", "ciRequired": false, "covers": ["private_href_eligibility_guards"] }
+      ]
+    },
+    {
+      "id": "conversion-flow-safety",
+      "ownerArea": "product-marketing",
+      "commands": [
+        { "command": "test:operational-public-launch-positioning", "ciRequired": false, "covers": ["contact_route", "signup_action", "asset_metadata_runtime"] },
+        { "command": "test:e2e:smoke", "ciRequired": true, "covers": ["public_route_smoke", "contact_form_smoke"] },
+        { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["billing_checkout_and_portal_handoff"] }
+      ]
+    },
+    {
+      "id": "marketing-asset-metadata-qa",
+      "ownerArea": "product-marketing",
+      "commands": [
+        { "command": "check:public-seo-surface", "ciRequired": false, "covers": ["canonical_jsonld_crawler_assets"] },
+        { "command": "test:e2e:ui-qa-plan", "ciRequired": false, "covers": ["public_heading_and_accessibility_contracts"] }
+      ]
+    }
+  ],
+  "launchBoundaries": [
+    {
+      "id": "core-contract-tracking",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["heroEyebrow = \"Contract tracking\"", "signed contracts", "antiGoalSummary"]
+    },
+    {
+      "id": "signed-agreements-only",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["agreements you have already signed", "does not replace drafting, redlining, or e-signature tools"]
+    },
+    {
+      "id": "not-full-clm",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["not a full CLM", "Is Oblixa a CLM?"]
+    },
+    {
+      "id": "no-legal-advice",
+      "path": "src/components/landing/marketing-site-chrome.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["does not provide legal advice", "Users are responsible for"]
+    },
+    {
+      "id": "no-grc-positioning",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["grc_claim", "forbidden_public_launch_claim"]
+    },
+    {
+      "id": "no-autonomous-agent",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["autonomous_agent_claim", "RELEASE_CLAIM_NEGATIONS"]
+    },
+    {
+      "id": "no-enterprise-assurance",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["enterprise_assurance_claim", "assurance workflows"]
+    },
+    {
+      "id": "human-reviewed-ai",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["your team reviews and approves", "source snippet"]
+    },
+    {
+      "id": "early-access-assurance-workflows",
+      "path": "src/components/landing/contact-form.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markers": ["assurance_workflows", "Need assurance workflows for selected contract work", "ContactForm"]
+    },
+    {
+      "id": "exportable-data",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markers": ["CSV export", "Export operational reports and contract records"]
+    }
+  ],
+  "privateSurfaceRules": [
+    {
+      "id": "robots-private-disallow",
+      "path": "public/robots.txt",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["Disallow: /assurance/", "Disallow: /campaigns/", "Disallow: /decisions/", "Disallow: /search/"]
+    },
+    {
+      "id": "app-robots-preview-disallow",
+      "path": "src/app/robots.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["process.env.VERCEL_ENV === \"preview\"", "disallow: \"/\"", "\"/assurance/\"", "\"/search/\""]
+    },
+    {
+      "id": "sitemap-public-inventory",
+      "path": "src/lib/marketing/public-paths.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["PUBLIC_INFORMATION_PATHS", "SITEMAP_PATHS", "\"/pricing\"", "\"/contact\""]
+    },
+    {
+      "id": "proxy-public-policy",
+      "path": "src/lib/auth/proxy-path-policy.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["unauthenticatedAccessAllowed", "isPublicInformationPath", "isMetadataImageRoute"]
+    },
+    {
+      "id": "generated-public-route-inventory",
+      "path": "e2e/generated/public-routes.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["GENERATED_PUBLIC_ROUTES", "\"route\": \"/pricing\"", "\"routeFamily\": \"marketing\""]
+    },
+    {
+      "id": "public-nav-private-ban",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markers": ["home page does not surface primary CTAs to advanced or assurance hubs", "a[href=\"/decisions\"]", "a[href^=\"/assurance\"]"]
+    },
+    {
+      "id": "command-palette-private-results",
+      "path": "e2e/authenticated.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:surface:hrefs:strict",
+      "markers": ["global search results exclude Advanced destinations", "a[href^=\"/decisions\"]", "a[href^=\"/assurance\"]"]
+    }
+  ],
+  "conversionFlows": [
+    {
+      "id": "contact-form",
+      "path": "src/components/landing/contact-form.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["mutateJson<null>(\"/api/contact\"", "name=\"website\"", "SubmittedState"]
+    },
+    {
+      "id": "contact-api",
+      "path": "src/app/api/contact/route.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["RATE_LIMITS.marketingContact", "readJsonBodyLimited", "formatContactDeliveryError", "safeFetch"]
+    },
+    {
+      "id": "contact-api-abuse-tests",
+      "path": "src/app/api/contact/route.test.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["returns 429 when the public contact rate limit is exceeded", "does not log submitted email, message content, or provider secrets"]
+    },
+    {
+      "id": "pricing-page",
+      "path": "src/app/(marketing)/pricing/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markers": ["Core $249/mo billed annually", "href=\"/signup\"", "Book setup call"]
+    },
+    {
+      "id": "signup-form",
+      "path": "src/actions/auth.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["rateLimitCheck(`signup:${ip}`", "isKillSignup", "emailRedirectTo: `${appUrl}/auth/callback`"]
+    },
+    {
+      "id": "password-recovery",
+      "path": "src/actions/auth.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["rateLimitCheck(`forgot:${ip}`", "redirectTo: `${appUrl}/reset-password`"]
+    },
+    {
+      "id": "billing-checkout-handoff",
+      "path": "src/app/api/stripe/checkout/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:operational-billing-entitlements",
+      "markers": ["enforceIdempotency", "success_url", "cancel_url", "stripe_checkout_invalid_return_url"]
+    },
+    {
+      "id": "billing-portal-handoff",
+      "path": "src/app/api/stripe/portal/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:operational-billing-entitlements",
+      "markers": ["enforceIdempotency", "return_url", "stripe_portal_invalid_return_url"]
+    },
+    {
+      "id": "dpa-security-contact",
+      "path": "src/app/(marketing)/contact/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markers": ["security and DPA requests", "Browse Oblixa", "Start free trial"]
+    }
+  ],
+  "assetMetadata": [
+    {
+      "id": "canonical-url",
+      "path": "src/app/(marketing)/pricing/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["alternates: { canonical: \"/pricing\" }", "openGraph", "twitter"]
+    },
+    {
+      "id": "sitemap",
+      "path": "src/app/sitemap.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["SITEMAP_PATHS", "getAppBaseUrlFromEnv", "changeFrequency"]
+    },
+    {
+      "id": "robots-private-disallow",
+      "path": "src/app/robots.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["GPTBot", "OAI-SearchBot", "sitemap"]
+    },
+    {
+      "id": "json-ld-safe-serialization",
+      "path": "src/components/landing/legal-page-json-ld.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["serializeJsonLdForInlineScript", "type=\"application/ld+json\"", "\"@type\": \"WebPage\""]
+    },
+    {
+      "id": "opengraph-image",
+      "path": "src/app/opengraph-image.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["export const alt", "width: 1200", "height: 630", "contentType = \"image/png\""]
+    },
+    {
+      "id": "twitter-image",
+      "path": "src/app/twitter-image.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["export { default, alt, size, contentType } from \"./opengraph-image\""]
+    },
+    {
+      "id": "app-icon",
+      "path": "src/app/icon.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["size = { width: 32, height: 32 }", "contentType = \"image/png\""]
+    },
+    {
+      "id": "apple-icon",
+      "path": "src/app/apple-icon.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markers": ["size = { width: 180, height: 180 }", "contentType = \"image/png\""]
+    },
+    {
+      "id": "public-logo",
+      "path": "public/oblixa-logo.png",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markers": []
+    },
+    {
+      "id": "metadata-route-inventory",
+      "path": "src/lib/marketing/public-paths.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markers": ["isMetadataImageRoute", "\"/opengraph-image\"", "\"/twitter-image\"", "\"/apple-icon\""]
+    },
+    {
+      "id": "broken-link-smoke",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markers": ["opengraph-image and twitter-image return image responses", "robots.txt and sitemap.xml return OK"]
+    },
+    {
+      "id": "private-anchor-ban",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markers": ["home page does not surface primary CTAs", "a[href=\"/campaigns\"]"]
+    }
+  ],
+  "assetBudgets": [
+    { "path": "public/oblixa-logo.png", "maxBytes": 1250000, "kind": "png" },
+    { "path": "public/robots.txt", "maxBytes": 10000, "kind": "text" },
+    { "path": "public/.well-known/security.txt", "maxBytes": 5000, "kind": "text" }
+  ]
+}

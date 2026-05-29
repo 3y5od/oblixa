@@ -118,6 +118,21 @@ describe("org settings compatibility aliases", () => {
     );
   });
 
+  it("normalizes operational org status for authz fail-closed checks", async () => {
+    const { readOrgSettingsJsonFromRow } = await import("@/lib/assurance/org-settings");
+
+    expect(
+      readOrgSettingsJsonFromRow({
+        v6_org_settings_json: { operational_status: "suspended" },
+      })
+    ).toEqual({ operational_status: "suspended" });
+    expect(
+      readOrgSettingsJsonFromRow({
+        v6_org_settings_json: { operational_status: "invalid" },
+      })
+    ).toEqual({});
+  });
+
   it("mergeOrgSettingsJson filters unknown advanced_modules_hidden keys", async () => {
     const read = vi.fn(async () => ({
       data: { v6_org_settings_json: {} },

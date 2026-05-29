@@ -1,0 +1,538 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-public-launch-positioning",
+  "generatedFrom": "config/operational-public-launch-positioning.json",
+  "manualBoundary": "Final marketing and legal approval of public claims remains external.",
+  "objectiveCount": 4,
+  "commandCoverage": [
+    {
+      "objective": "conversion-flow-safety",
+      "script": "check:operational-billing-entitlements",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "billing_checkout_and_portal_handoff"
+      ]
+    },
+    {
+      "objective": "conversion-flow-safety",
+      "script": "test:e2e:smoke",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "contact_form_smoke",
+        "public_route_smoke"
+      ]
+    },
+    {
+      "objective": "conversion-flow-safety",
+      "script": "test:operational-public-launch-positioning",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "asset_metadata_runtime",
+        "contact_route",
+        "signup_action"
+      ]
+    },
+    {
+      "objective": "marketing-asset-metadata-qa",
+      "script": "check:public-seo-surface",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "canonical_jsonld_crawler_assets"
+      ]
+    },
+    {
+      "objective": "marketing-asset-metadata-qa",
+      "script": "test:e2e:ui-qa-plan",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "public_heading_and_accessibility_contracts"
+      ]
+    },
+    {
+      "objective": "private-surface-discoverability",
+      "script": "check:next-public-surface",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "browser_env_and_diagnostics_surface"
+      ]
+    },
+    {
+      "objective": "private-surface-discoverability",
+      "script": "check:public-seo-surface",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "robots_sitemap_noindex_public_inventory"
+      ]
+    },
+    {
+      "objective": "private-surface-discoverability",
+      "script": "check:surface:hrefs:strict",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "private_href_eligibility_guards"
+      ]
+    },
+    {
+      "objective": "public-launch-boundaries",
+      "script": "audit:marketing-identity:strict",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "forbidden_launch_claims",
+        "primary_story_lemmas"
+      ]
+    },
+    {
+      "objective": "public-launch-boundaries",
+      "script": "check:operational-legal-trust-compliance",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "manual_legal_boundary",
+        "public_claim_traceability"
+      ]
+    },
+    {
+      "objective": "public-launch-boundaries",
+      "script": "check:operational-public-launch-positioning",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "runtime_inventory"
+      ]
+    }
+  ],
+  "launchBoundaries": [
+    {
+      "id": "core-contract-tracking",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "early-access-assurance-workflows",
+      "path": "src/components/landing/contact-form.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "exportable-data",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "human-reviewed-ai",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-autonomous-agent",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-enterprise-assurance",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-grc-positioning",
+      "path": "scripts/audit-marketing-identity.mjs",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-legal-advice",
+      "path": "src/components/landing/marketing-site-chrome.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "not-full-clm",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "signed-agreements-only",
+      "path": "src/components/landing/landing-content.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "audit:marketing-identity:strict",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "privateSurfaceRules": [
+    {
+      "id": "app-robots-preview-disallow",
+      "path": "src/app/robots.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "command-palette-private-results",
+      "path": "e2e/authenticated.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:surface:hrefs:strict",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "generated-public-route-inventory",
+      "path": "e2e/generated/public-routes.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "proxy-public-policy",
+      "path": "src/lib/auth/proxy-path-policy.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "public-nav-private-ban",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "robots-private-disallow",
+      "path": "public/robots.txt",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "sitemap-public-inventory",
+      "path": "src/lib/marketing/public-paths.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "conversionFlows": [
+    {
+      "id": "billing-checkout-handoff",
+      "path": "src/app/api/stripe/checkout/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:operational-billing-entitlements",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "billing-portal-handoff",
+      "path": "src/app/api/stripe/portal/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:operational-billing-entitlements",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contact-api",
+      "path": "src/app/api/contact/route.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contact-api-abuse-tests",
+      "path": "src/app/api/contact/route.test.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contact-form",
+      "path": "src/components/landing/contact-form.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dpa-security-contact",
+      "path": "src/app/(marketing)/contact/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "password-recovery",
+      "path": "src/actions/auth.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "pricing-page",
+      "path": "src/app/(marketing)/pricing/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "signup-form",
+      "path": "src/actions/auth.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "assetMetadata": [
+    {
+      "id": "app-icon",
+      "path": "src/app/icon.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "apple-icon",
+      "path": "src/app/apple-icon.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "broken-link-smoke",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "canonical-url",
+      "path": "src/app/(marketing)/pricing/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "json-ld-safe-serialization",
+      "path": "src/components/landing/legal-page-json-ld.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "metadata-route-inventory",
+      "path": "src/lib/marketing/public-paths.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "opengraph-image",
+      "path": "src/app/opengraph-image.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "private-anchor-ban",
+      "path": "e2e/marketing-public.spec.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "test:e2e:smoke",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "public-logo",
+      "path": "public/oblixa-logo.png",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 0,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "robots-private-disallow",
+      "path": "src/app/robots.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "sitemap",
+      "path": "src/app/sitemap.ts",
+      "owner": "@product-marketing",
+      "validationCommand": "check:public-seo-surface",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "twitter-image",
+      "path": "src/app/twitter-image.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "test:operational-public-launch-positioning",
+      "markerCount": 1,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "runtimeInventory": {
+    "launchBoundaryIdCount": 10,
+    "privateSurfaceIdCount": 11,
+    "conversionFlowIdCount": 8,
+    "assetMetadataIdCount": 12,
+    "boundaryRegistryCount": 10
+  },
+  "assetBudgets": [
+    {
+      "path": "public/oblixa-logo.png",
+      "kind": "png",
+      "byteLength": 989919,
+      "maxBytes": 1250000,
+      "exists": true,
+      "withinBudget": true,
+      "kindOk": true,
+      "ok": true
+    },
+    {
+      "path": "public/robots.txt",
+      "kind": "text",
+      "byteLength": 501,
+      "maxBytes": 10000,
+      "exists": true,
+      "withinBudget": true,
+      "kindOk": true,
+      "ok": true
+    },
+    {
+      "path": "public/.well-known/security.txt",
+      "kind": "text",
+      "byteLength": 242,
+      "maxBytes": 5000,
+      "exists": true,
+      "withinBudget": true,
+      "kindOk": true,
+      "ok": true
+    }
+  ],
+  "delegatedChecks": {
+    "rows": [
+      {
+        "checkId": "marketing-identity",
+        "ok": true,
+        "issueCount": 0
+      },
+      {
+        "checkId": "public-seo-surface",
+        "ok": true,
+        "issueCount": 0
+      },
+      {
+        "checkId": "next-public-surface",
+        "ok": true,
+        "issueCount": 0
+      }
+    ]
+  },
+  "issueCount": 0,
+  "issues": [],
+  "generatedBy": "scripts/check-operational-public-launch-positioning.mjs --write"
+}

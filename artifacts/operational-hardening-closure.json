@@ -1,0 +1,588 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-hardening-closure",
+  "generatedFrom": "config/operational-hardening-objectives.json",
+  "ratchetSource": "config/operational-hardening-ratchet.json",
+  "manualBoundariesSource": "config/operational-manual-boundaries.json",
+  "ratchet": {
+    "minimumReadinessScore": 1,
+    "minimumImplementedCount": 44,
+    "maximumPendingCount": 0
+  },
+  "objectiveCount": 44,
+  "implementedCount": 44,
+  "pendingCount": 0,
+  "readinessScore": 1,
+  "countsByStatus": {
+    "implemented": 44
+  },
+  "countsBySeverity": {
+    "critical": 25,
+    "high": 17,
+    "medium": 2
+  },
+  "countsByOwnerArea": {
+    "api-platform": 1,
+    "architecture": 1,
+    "auth-security": 1,
+    "billing": 1,
+    "compatibility": 1,
+    "data-platform": 1,
+    "document-pipeline": 1,
+    "edge-operations": 1,
+    "frontend-platform": 2,
+    "frontend-security": 1,
+    "incident-response": 1,
+    "integrations": 3,
+    "notifications": 1,
+    "observability": 1,
+    "performance-runtime": 1,
+    "platform-governance": 3,
+    "platform-hardening": 7,
+    "platform-runtime": 3,
+    "platform-security": 4,
+    "privacy-security": 1,
+    "product-data": 1,
+    "product-marketing": 1,
+    "product-operations": 1,
+    "release-engineering": 1,
+    "supply-chain-security": 1,
+    "support-operations": 1,
+    "test-platform": 1,
+    "trust-compliance": 1
+  },
+  "scoresByOwnerArea": {
+    "api-platform": 1,
+    "architecture": 1,
+    "auth-security": 1,
+    "billing": 1,
+    "compatibility": 1,
+    "data-platform": 1,
+    "document-pipeline": 1,
+    "edge-operations": 1,
+    "frontend-platform": 1,
+    "frontend-security": 1,
+    "incident-response": 1,
+    "integrations": 1,
+    "notifications": 1,
+    "observability": 1,
+    "performance-runtime": 1,
+    "platform-governance": 1,
+    "platform-hardening": 1,
+    "platform-runtime": 1,
+    "platform-security": 1,
+    "privacy-security": 1,
+    "product-data": 1,
+    "product-marketing": 1,
+    "product-operations": 1,
+    "release-engineering": 1,
+    "supply-chain-security": 1,
+    "support-operations": 1,
+    "test-platform": 1,
+    "trust-compliance": 1
+  },
+  "manualBoundaryCount": 26,
+  "manualBoundaryBacklog": {
+    "manualActionCount": 17,
+    "providerVerificationCount": 10,
+    "environmentRiskClassCount": 3,
+    "productionOnlyManualActionCount": 13
+  },
+  "manualBoundaryObjectives": [
+    {
+      "id": "oph-005-release-readiness",
+      "section": "2. Release Readiness",
+      "ownerArea": "release-engineering",
+      "manualBoundary": "production release approval and provider promotion remain manual",
+      "validationCommand": "check:operational-release-readiness"
+    },
+    {
+      "id": "oph-006-ci-workflow-enforcement",
+      "section": "3. CI And Workflow Enforcement",
+      "ownerArea": "platform-security",
+      "manualBoundary": "GitHub branch protection changes require external authority",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "id": "oph-008-supabase-database-operations",
+      "section": "5. Supabase And Database Operations",
+      "ownerArea": "data-platform",
+      "manualBoundary": "linked production migration application remains manual",
+      "validationCommand": "check:operational-supabase-database"
+    },
+    {
+      "id": "oph-010-webhooks-callbacks",
+      "section": "7. Webhooks And External Callbacks",
+      "ownerArea": "integrations",
+      "manualBoundary": "live provider webhook endpoint changes remain manual",
+      "validationCommand": "check:operational-webhooks-callbacks"
+    },
+    {
+      "id": "oph-011-secrets-configuration",
+      "section": "8. Secrets And Configuration Safety",
+      "ownerArea": "platform-security",
+      "manualBoundary": "secret rotation and secret value verification require external authority",
+      "validationCommand": "check:operational-secrets-configuration"
+    },
+    {
+      "id": "oph-015-observability-redaction",
+      "section": "12. Observability And Redaction",
+      "ownerArea": "observability",
+      "manualBoundary": "dashboard and alert routing changes remain external",
+      "validationCommand": "check:operational-observability-redaction"
+    },
+    {
+      "id": "oph-018-provider-integrations",
+      "section": "15. Provider Integrations",
+      "ownerArea": "integrations",
+      "manualBoundary": "live provider configuration changes remain manual",
+      "validationCommand": "check:operational-provider-integrations"
+    },
+    {
+      "id": "oph-019-privacy-auditability",
+      "section": "16. Data Lifecycle, Privacy, And Auditability",
+      "ownerArea": "privacy-security",
+      "manualBoundary": "legal approval and compliance certification remain manual",
+      "validationCommand": "check:operational-privacy-auditability"
+    },
+    {
+      "id": "oph-020-supply-chain",
+      "section": "17. Supply Chain And Dependency Risk",
+      "ownerArea": "supply-chain-security",
+      "manualBoundary": "signed release publishing, full SLSA adoption, CodeQL upload enablement, external vulnerability databases, and production secret rotation remain manual or provider-dependent",
+      "validationCommand": "check:operational-supply-chain-risk"
+    },
+    {
+      "id": "oph-021-frontend-resilience",
+      "section": "18. Frontend Operational Resilience",
+      "ownerArea": "frontend-platform",
+      "manualBoundary": "full browser/device lab visual approval, production fixture credential availability, and human UX signoff remain manual",
+      "validationCommand": "check:operational-frontend-resilience"
+    },
+    {
+      "id": "oph-022-performance-load-chaos",
+      "section": "19. Performance, Load, And Chaos",
+      "ownerArea": "performance-runtime",
+      "manualBoundary": "production load, soak, and chaos execution requires explicit external approval",
+      "validationCommand": "check:operational-performance-load-chaos"
+    },
+    {
+      "id": "oph-023-dr-incident-readiness",
+      "section": "20. Disaster Recovery And Incident Readiness",
+      "ownerArea": "incident-response",
+      "manualBoundary": "actual incident command and production restore remain manual",
+      "validationCommand": "check:incident-readiness:strict"
+    },
+    {
+      "id": "oph-024-waivers-ratchets",
+      "section": "21. Waivers, Exceptions, And Risk Ratchets",
+      "ownerArea": "platform-governance",
+      "manualBoundary": "risk acceptance remains manual",
+      "validationCommand": "check:operational-waivers-ratchets"
+    },
+    {
+      "id": "oph-026-schema-contract-compatibility",
+      "section": "23. Schema Evolution And Contract Compatibility",
+      "ownerArea": "compatibility",
+      "manualBoundary": "customer-impacting contract removal remains manual",
+      "validationCommand": "check:operational-schema-compatibility"
+    },
+    {
+      "id": "oph-028-admin-support",
+      "section": "25. Admin, Support, And Internal Operations",
+      "ownerArea": "support-operations",
+      "manualBoundary": "break-glass use remains manual and audited",
+      "validationCommand": "check:operational-support-operations"
+    },
+    {
+      "id": "oph-029-dns-tls-edge",
+      "section": "26. DNS, TLS, Email Authentication, And Public Edge Readiness",
+      "ownerArea": "edge-operations",
+      "manualBoundary": "DNS and provider dashboard changes remain manual",
+      "validationCommand": "check:operational-edge-readiness"
+    },
+    {
+      "id": "oph-030-legal-trust-compliance",
+      "section": "27. Legal, Trust, And Compliance Artifacts",
+      "ownerArea": "trust-compliance",
+      "manualBoundary": "legal approval and certification claims remain manual",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "id": "oph-032-test-reliability",
+      "section": "29. Testing Reliability, Flake Control, And Quarantine Governance",
+      "ownerArea": "test-platform",
+      "manualBoundary": "human review still decides whether a visual change is intentional",
+      "validationCommand": "check:operational-test-reliability-governance"
+    },
+    {
+      "id": "oph-033-platform-variant-coverage",
+      "section": "30. Mobile, Browser, And Platform Variant Coverage",
+      "ownerArea": "frontend-platform",
+      "manualBoundary": "device lab and real assistive tech validation remain manual",
+      "validationCommand": "check:operational-platform-variant-coverage"
+    },
+    {
+      "id": "oph-036-billing-entitlements",
+      "section": "33. Billing, Entitlements, And Commercial Operations",
+      "ownerArea": "billing",
+      "manualBoundary": "live billing configuration and charges remain manual",
+      "validationCommand": "check:operational-billing-entitlements"
+    },
+    {
+      "id": "oph-037-oauth-integration-sync",
+      "section": "34. Integration Sync And OAuth Operations",
+      "ownerArea": "integrations",
+      "manualBoundary": "provider app setup and scopes remain external",
+      "validationCommand": "check:operational-oauth-integration-sync"
+    },
+    {
+      "id": "oph-038-public-launch-positioning",
+      "section": "35. Public Product Surface And Launch Positioning Enforcement",
+      "ownerArea": "product-marketing",
+      "manualBoundary": "final marketing/legal approval remains manual",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "id": "oph-040-threat-model-control-traceability",
+      "section": "37. Threat Modeling And Control Traceability",
+      "ownerArea": "platform-security",
+      "manualBoundary": "risk acceptance remains manual",
+      "validationCommand": "check:control-traceability:strict"
+    },
+    {
+      "id": "oph-041-environment-isolation",
+      "section": "38. Environment Isolation And Data Seeding",
+      "ownerArea": "platform-runtime",
+      "manualBoundary": "provider environment creation remains external",
+      "validationCommand": "check:operational-environment-isolation"
+    },
+    {
+      "id": "oph-042-machine-readable-governance",
+      "section": "39. Machine-Readable Governance And Ownership",
+      "ownerArea": "platform-governance",
+      "manualBoundary": "human owner assignment remains accountable outside code",
+      "validationCommand": "check:operational-governance-ownership"
+    },
+    {
+      "id": "oph-043-manual-boundary-backlog",
+      "section": "40. Explicit Manual Boundary Backlog",
+      "ownerArea": "platform-governance",
+      "manualBoundary": "actual external actions remain manual",
+      "validationCommand": "check:operational-hardening-objectives"
+    }
+  ],
+  "implementedObjectives": [
+    {
+      "id": "oph-001-operational-control-registry",
+      "section": "1. Operational Control Registry",
+      "title": "create a code-owned operational-hardening objective registry",
+      "validationCommand": "check:operational-hardening-objectives",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    },
+    {
+      "id": "oph-002-operational-closure-manifest",
+      "section": "1. Operational Control Registry",
+      "title": "generate an operational-hardening closure manifest",
+      "validationCommand": "check:operational-hardening-objectives",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    },
+    {
+      "id": "oph-003-operational-readiness-score",
+      "section": "1. Operational Control Registry",
+      "title": "add a single operational readiness score",
+      "validationCommand": "check:operational-hardening-objectives",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    },
+    {
+      "id": "oph-004-package-script-discovery",
+      "section": "1. Operational Control Registry",
+      "title": "make operational hardening discoverable from package scripts",
+      "validationCommand": "check:operational-hardening-objectives",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    },
+    {
+      "id": "oph-005-release-readiness",
+      "section": "2. Release Readiness",
+      "title": "turn release readiness into executable checks",
+      "validationCommand": "check:operational-release-readiness",
+      "evidenceArtifact": "artifacts/operational-release-readiness.json"
+    },
+    {
+      "id": "oph-006-ci-workflow-enforcement",
+      "section": "3. CI And Workflow Enforcement",
+      "title": "make CI fail closed and enforce workflow security",
+      "validationCommand": "check:operational-ci-enforcement",
+      "evidenceArtifact": "artifacts/operational-ci-enforcement.json"
+    },
+    {
+      "id": "oph-007-package-pipeline-governance",
+      "section": "4. Package Scripts And Local Pipelines",
+      "title": "make script orchestration explicit and deterministic",
+      "validationCommand": "check:operational-package-pipelines",
+      "evidenceArtifact": "artifacts/operational-package-pipelines.json"
+    },
+    {
+      "id": "oph-008-supabase-database-operations",
+      "section": "5. Supabase And Database Operations",
+      "title": "harden migration, RLS, retention, and linked-project safety checks",
+      "validationCommand": "check:operational-supabase-database",
+      "evidenceArtifact": "artifacts/operational-supabase-database.json"
+    },
+    {
+      "id": "oph-009-cron-jobs-scheduled-work",
+      "section": "6. Cron, Jobs, And Scheduled Work",
+      "title": "inventory and harden every scheduled route",
+      "validationCommand": "check:operational-cron-jobs",
+      "evidenceArtifact": "artifacts/operational-cron-jobs.json"
+    },
+    {
+      "id": "oph-010-webhooks-callbacks",
+      "section": "7. Webhooks And External Callbacks",
+      "title": "branch-cover webhook handlers and callback destination integrity",
+      "validationCommand": "check:operational-webhooks-callbacks",
+      "evidenceArtifact": "artifacts/operational-webhooks-callbacks.json"
+    },
+    {
+      "id": "oph-011-secrets-configuration",
+      "section": "8. Secrets And Configuration Safety",
+      "title": "enforce secret and configuration safety",
+      "validationCommand": "check:operational-secrets-configuration",
+      "evidenceArtifact": "artifacts/operational-secrets-configuration.json"
+    },
+    {
+      "id": "oph-012-authz-session-operations",
+      "section": "9. Auth, Authorization, And Session Operations",
+      "title": "harden auth, authorization, org resolution, and step-up",
+      "validationCommand": "check:operational-authz-session",
+      "evidenceArtifact": "artifacts/operational-authz-session.json"
+    },
+    {
+      "id": "oph-013-api-runtime-contracts",
+      "section": "10. API Runtime Contracts",
+      "title": "generate API inventory and enforce HTTP/error semantics",
+      "validationCommand": "check:operational-api-runtime-contracts",
+      "evidenceArtifact": "artifacts/operational-api-runtime-contracts.json"
+    },
+    {
+      "id": "oph-014-rate-limits-abuse-bounds",
+      "section": "11. Rate Limits, Abuse Controls, And Resource Bounds",
+      "title": "inventory rate limits and bound expensive operations",
+      "validationCommand": "check:operational-rate-limits-abuse-bounds",
+      "evidenceArtifact": "artifacts/operational-rate-limits-abuse-bounds.json"
+    },
+    {
+      "id": "oph-015-observability-redaction",
+      "section": "12. Observability And Redaction",
+      "title": "standardize observability and enforce redaction",
+      "validationCommand": "check:operational-observability-redaction",
+      "evidenceArtifact": "artifacts/operational-observability-redaction.json"
+    },
+    {
+      "id": "oph-016-browser-security",
+      "section": "13. Security Headers And Browser Isolation",
+      "title": "enforce security header, CSP, and browser isolation contracts",
+      "validationCommand": "check:operational-browser-security",
+      "evidenceArtifact": "artifacts/operational-browser-security.json"
+    },
+    {
+      "id": "oph-017-uploads-files-extraction",
+      "section": "14. Uploads, Files, And Extraction",
+      "title": "harden uploads, parsers, AI extraction, and exports",
+      "validationCommand": "check:operational-uploads-files-extraction",
+      "evidenceArtifact": "artifacts/operational-uploads-files-extraction.json"
+    },
+    {
+      "id": "oph-018-provider-integrations",
+      "section": "15. Provider Integrations",
+      "title": "harden Stripe, email, OpenAI, Redis, and token integrations",
+      "validationCommand": "check:operational-provider-integrations",
+      "evidenceArtifact": "artifacts/operational-provider-integrations.json"
+    },
+    {
+      "id": "oph-019-privacy-auditability",
+      "section": "16. Data Lifecycle, Privacy, And Auditability",
+      "title": "generate privacy inventory and test lifecycle/audit behavior",
+      "validationCommand": "check:operational-privacy-auditability",
+      "evidenceArtifact": "artifacts/operational-privacy-auditability.json"
+    },
+    {
+      "id": "oph-020-supply-chain",
+      "section": "17. Supply Chain And Dependency Risk",
+      "title": "enforce SBOM, dependency, scanner, provenance, and secret-scan policy",
+      "validationCommand": "check:operational-supply-chain-risk",
+      "evidenceArtifact": "artifacts/operational-supply-chain-risk.json"
+    },
+    {
+      "id": "oph-021-frontend-resilience",
+      "section": "18. Frontend Operational Resilience",
+      "title": "test route states, workflows, accessibility, responsive, and recovery behavior",
+      "validationCommand": "check:operational-frontend-resilience",
+      "evidenceArtifact": "artifacts/operational-frontend-resilience.json"
+    },
+    {
+      "id": "oph-022-performance-load-chaos",
+      "section": "19. Performance, Load, And Chaos",
+      "title": "add load, soak, chaos, cache, and bundle budget coverage",
+      "validationCommand": "check:operational-performance-load-chaos",
+      "evidenceArtifact": "artifacts/operational-performance-load-chaos.json"
+    },
+    {
+      "id": "oph-023-dr-incident-readiness",
+      "section": "20. Disaster Recovery And Incident Readiness",
+      "title": "add DR drill, incident scenario, game-day, runbook, and follow-up artifacts",
+      "validationCommand": "check:incident-readiness:strict",
+      "evidenceArtifact": "artifacts/operational-dr-incident-readiness.json"
+    },
+    {
+      "id": "oph-024-waivers-ratchets",
+      "section": "21. Waivers, Exceptions, And Risk Ratchets",
+      "title": "create waiver schema, pre-expiry warnings, debt ratchets, and boundary classification",
+      "validationCommand": "check:operational-waivers-ratchets",
+      "evidenceArtifact": "artifacts/operational-waivers-ratchets.json"
+    },
+    {
+      "id": "oph-025-feature-flags",
+      "section": "22. Feature Flags, Kill Switches, And Configuration Rollout",
+      "title": "inventory flags and test kill-switch and rollout behavior",
+      "validationCommand": "check:operational-feature-flags-rollout",
+      "evidenceArtifact": "artifacts/operational-feature-flags-rollout.json"
+    },
+    {
+      "id": "oph-026-schema-contract-compatibility",
+      "section": "23. Schema Evolution And Contract Compatibility",
+      "title": "inventory persisted contracts and enforce additive-first evolution",
+      "validationCommand": "check:operational-schema-compatibility",
+      "evidenceArtifact": "artifacts/operational-schema-compatibility.json"
+    },
+    {
+      "id": "oph-027-data-quality-invariants",
+      "section": "24. Data Quality, Invariants, And Business Rule Safety",
+      "title": "encode domain invariants, property tests, data-quality artifacts, and read-model safety",
+      "validationCommand": "check:operational-data-quality-invariants",
+      "evidenceArtifact": "artifacts/operational-data-quality-invariants.json"
+    },
+    {
+      "id": "oph-028-admin-support",
+      "section": "25. Admin, Support, And Internal Operations",
+      "title": "inventory admin/support capabilities and enforce support-safe diagnostics",
+      "validationCommand": "check:operational-support-operations",
+      "evidenceArtifact": "artifacts/operational-support-operations.json"
+    },
+    {
+      "id": "oph-029-dns-tls-edge",
+      "section": "26. DNS, TLS, Email Authentication, And Public Edge Readiness",
+      "title": "add DNS, TLS, email-auth, crawler, and CDN readiness checks",
+      "validationCommand": "check:operational-edge-readiness",
+      "evidenceArtifact": "artifacts/operational-edge-readiness.json"
+    },
+    {
+      "id": "oph-030-legal-trust-compliance",
+      "section": "27. Legal, Trust, And Compliance Artifacts",
+      "title": "inventory trust/legal surfaces and add claim/capability and subprocessor checks",
+      "validationCommand": "check:operational-legal-trust-compliance",
+      "evidenceArtifact": "artifacts/operational-legal-trust-compliance.json"
+    },
+    {
+      "id": "oph-031-static-architecture-code-health",
+      "section": "28. Static Architecture And Code Health",
+      "title": "enforce import/runtime boundaries, complexity ratchets, dead-code checks, and reproducibility",
+      "validationCommand": "check:operational-static-architecture-code-health",
+      "evidenceArtifact": "artifacts/operational-static-architecture-code-health.json"
+    },
+    {
+      "id": "oph-032-test-reliability",
+      "section": "29. Testing Reliability, Flake Control, And Quarantine Governance",
+      "title": "classify flakes and govern quarantines, skips, test data, and visual baselines",
+      "validationCommand": "check:operational-test-reliability-governance",
+      "evidenceArtifact": "artifacts/operational-test-reliability-governance.json"
+    },
+    {
+      "id": "oph-033-platform-variant-coverage",
+      "section": "30. Mobile, Browser, And Platform Variant Coverage",
+      "title": "add browser, WebView, OS/input, and download behavior coverage",
+      "validationCommand": "check:operational-platform-variant-coverage",
+      "evidenceArtifact": "artifacts/operational-platform-variant-coverage.json"
+    },
+    {
+      "id": "oph-034-search-reporting-exports",
+      "section": "31. Search, Reporting, Analytics, And Export Operations",
+      "title": "harden search, reporting, analytics event governance, and spreadsheet exports",
+      "validationCommand": "check:operational-search-reporting-analytics-exports",
+      "evidenceArtifact": "artifacts/operational-search-reporting-analytics-exports.json"
+    },
+    {
+      "id": "oph-035-notifications-messaging",
+      "section": "32. Notifications, Messaging, And User Communication",
+      "title": "inventory and test notification eligibility, rendering, retry, and dead-letter behavior",
+      "validationCommand": "check:operational-notifications-messaging",
+      "evidenceArtifact": "artifacts/operational-notifications-messaging.json"
+    },
+    {
+      "id": "oph-036-billing-entitlements",
+      "section": "33. Billing, Entitlements, And Commercial Operations",
+      "title": "inventory entitlement gates and test billing, seats, and revenue-impact safeguards",
+      "validationCommand": "check:operational-billing-entitlements",
+      "evidenceArtifact": "artifacts/operational-billing-entitlements.json"
+    },
+    {
+      "id": "oph-037-oauth-integration-sync",
+      "section": "34. Integration Sync And OAuth Operations",
+      "title": "inventory integration sync jobs and test OAuth, token refresh, and disconnect",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "evidenceArtifact": "artifacts/operational-oauth-integration-sync.json"
+    },
+    {
+      "id": "oph-038-public-launch-positioning",
+      "section": "35. Public Product Surface And Launch Positioning Enforcement",
+      "title": "encode launch positioning, private surface, conversion, and public asset checks",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "evidenceArtifact": "artifacts/operational-public-launch-positioning.json"
+    },
+    {
+      "id": "oph-039-repository-artifact-hygiene",
+      "section": "36. Repository, Artifact, And Workspace Hygiene",
+      "title": "classify transient directories and enforce file, encoding, and workspace hygiene",
+      "validationCommand": "check:operational-repository-artifact-hygiene",
+      "evidenceArtifact": "artifacts/operational-repository-artifact-hygiene.json"
+    },
+    {
+      "id": "oph-040-threat-model-control-traceability",
+      "section": "37. Threat Modeling And Control Traceability",
+      "title": "generate STRIDE/OWASP control coverage and residual-risk reporting",
+      "validationCommand": "check:control-traceability:strict",
+      "evidenceArtifact": "artifacts/operational-threat-model-control-traceability.json"
+    },
+    {
+      "id": "oph-041-environment-isolation",
+      "section": "38. Environment Isolation And Data Seeding",
+      "title": "enforce environment isolation, seed safety, fixture lifecycle, and preview checks",
+      "validationCommand": "check:operational-environment-isolation",
+      "evidenceArtifact": "artifacts/operational-environment-isolation.json"
+    },
+    {
+      "id": "oph-042-machine-readable-governance",
+      "section": "39. Machine-Readable Governance And Ownership",
+      "title": "create owner registries, CODEOWNERS parity, change-impact recommendations, and report checksums",
+      "validationCommand": "check:operational-governance-ownership",
+      "evidenceArtifact": "artifacts/operational-governance-ownership.json"
+    },
+    {
+      "id": "oph-043-manual-boundary-backlog",
+      "section": "40. Explicit Manual Boundary Backlog",
+      "title": "maintain irreducible external action backlog and provider-console verification stubs",
+      "validationCommand": "check:operational-hardening-objectives",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    },
+    {
+      "id": "oph-044-documentation-independence",
+      "section": "41. Acceptance Criteria For A Complete Code-Only Pass",
+      "title": "preserve documentation independence",
+      "validationCommand": "check:documentation-runtime-dependencies",
+      "evidenceArtifact": "artifacts/operational-hardening-closure.json"
+    }
+  ],
+  "pendingObjectives": [],
+  "issueCount": 0,
+  "issues": []
+}

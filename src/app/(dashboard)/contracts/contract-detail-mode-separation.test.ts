@@ -38,18 +38,18 @@ describe("contract detail mode separation", () => {
     const corePath = between(raw, "if (isCoreContractDetail)", '<div className="space-y-7 md:space-y-8">');
     for (const label of [
       "Signed agreement",
-      "Next action",
       "Contract action summary",
       "Review fields",
-      "Key dates and reminders",
+      "Key dates",
       "Work, obligations, and exceptions",
       "Approval decisions",
       "Contract obligations",
-      "Evidence requests",
+      "Pending requests",
       "Contract activity",
+      "Recent activity",
       "Date tracking is waiting on extraction",
       "Owner and status",
-      "Open blockers",
+      "Open work",
     ]) {
       expect(corePath).toContain(label);
     }
@@ -57,7 +57,7 @@ describe("contract detail mode separation", () => {
     expect(corePath).toContain("OwnerAssignmentForm");
     expect(corePath).toContain("shouldPrioritizeSourceDocuments");
     expect(corePath).toContain("renderCoreSourceDocumentsSection");
-    const coreBranchInputs = between(raw, "const nextActionLabel =", "if (isCoreContractDetail)");
+    const coreBranchInputs = between(raw, "const primaryAction =", "if (isCoreContractDetail)");
     // v23 aesthetic pass: the `coreActionQueue` compute block was
     // dropped per §10.4 (eliminate redundancy) + §10.14 (subtraction
     // is a design move) — the per-signal action links + the right-
@@ -65,8 +65,7 @@ describe("contract detail mode separation", () => {
     // blockers. `coreReviewSignal` is the surviving structural anchor
     // for the per-signal computed state.
     for (const label of [
-      "Attach signed source file",
-      "Attach the signed agreement",
+      "Attach source file",
       "Source documents",
       "coreReviewSignal",
     ]) {
@@ -98,7 +97,7 @@ describe("contract detail mode separation", () => {
   it("loads and summarizes evidence gaps for Core without exposing the Assurance evidence pack", () => {
     const raw = readDetailPage();
     expect(raw).toContain("isCoreContractDetail || showContractEvidenceOps");
-    expect(raw).toContain("Evidence requests");
+    expect(raw).toContain("Pending requests");
     expect(raw).toContain("Request evidence");
     expect(raw).toContain("activeV10EvidenceCount");
     expect(raw).toContain('activeTab === "evidence"');

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const scheduledAfterCallbacks: Array<() => unknown | Promise<unknown>> = [];
 const afterMock = vi.fn((callback: () => unknown | Promise<unknown>) => {
@@ -63,15 +63,23 @@ vi.mock("@/lib/read-model-refresh", () => ({
 }));
 
 describe("GET /api/export/contracts", () => {
+  const originalKillImportExport = process.env.OBLIXA_KILL_IMPORT_EXPORT;
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    delete process.env.OBLIXA_KILL_IMPORT_EXPORT;
     scheduledAfterCallbacks.length = 0;
     rateLimitCheck.mockResolvedValue({ ok: true });
     requireApiWorkspaceEligibility.mockResolvedValue(null);
     emitProductTelemetryEvent.mockResolvedValue(undefined);
     recordV10AuditEvent.mockResolvedValue("v10-audit-1");
     refreshV10ReadModelsForOrganization.mockResolvedValue({ ok: true, counts: {} });
+  });
+
+  afterEach(() => {
+    if (originalKillImportExport === undefined) delete process.env.OBLIXA_KILL_IMPORT_EXPORT;
+    else process.env.OBLIXA_KILL_IMPORT_EXPORT = originalKillImportExport;
   });
 
   it("returns 429 with retry metadata when rate limited", async () => {
@@ -126,6 +134,45 @@ describe("GET /api/export/contracts", () => {
     const body = await res.json();
     expect(res.status).toBe(401);
     expect(body).toMatchObject({ error: "Unauthorized", code: "unauthorized" });
+  });
+
+  it("fails closed after auth and workspace eligibility when import/export kill switch is active", async () => {
+    process.env.OBLIXA_KILL_IMPORT_EXPORT = "1";
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+    });
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "organization_members") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                order: vi.fn().mockResolvedValue({
+                  data: [{ organization_id: "550e8400-e29b-41d4-a716-446655440001", role: "editor" }],
+                  error: null,
+                }),
+              })),
+            })),
+          };
+        }
+        throw new Error(`Unexpected table ${table}`);
+      }),
+    });
+
+    const { GET } = await import("@/app/api/export/contracts/route");
+    const res = await GET(
+      new Request("http://localhost:3000/api/export/contracts?orgId=550e8400-e29b-41d4-a716-446655440001")
+    );
+    const body = await res.json();
+
+    expect(requireApiWorkspaceEligibility).toHaveBeenCalled();
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      code: "service_temporarily_unavailable",
+      diagnostic_id: "kill_switch_active",
+      details: { subsystem: "import_export" },
+    });
+    expect(collectSupabaseRangePages).not.toHaveBeenCalled();
   });
 
   it("POST returns 401 without DB work when unauthenticated", async () => {

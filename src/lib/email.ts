@@ -7,6 +7,12 @@ import {
   redactOutboundMessageText,
   sanitizeOutboundHtml,
 } from "@/lib/messaging/outbound-payload-scrub";
+import {
+  EMAIL_PROVIDER_TIMEOUT_MS,
+  assertValidEmailSender,
+  sanitizeEmailProviderFailure,
+} from "@/lib/email/provider-policy";
+import { isKillOutboundEmail } from "@/lib/security/kill-switches";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 
@@ -17,9 +23,13 @@ type EmailSendPayload = {
   to: string | string[];
   subject: string;
   html: string;
+  headers?: Record<string, string>;
 };
 
 async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Error | null }> {
+  if (isKillOutboundEmail()) {
+    return { error: new Error("Outbound email is paused by operator kill switch") };
+  }
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
     console.error("[email] RESEND_API_KEY is not configured");
@@ -29,6 +39,7 @@ async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Erro
     if (!RESEND_EMAILS_URL) {
       return { error: new Error("Email provider URL is not trusted") };
     }
+    assertValidEmailSender(payload.from);
     const res = await safeFetch(RESEND_EMAILS_URL, {
       method: "POST",
       headers: {
@@ -36,12 +47,13 @@ async function sendResendEmail(payload: EmailSendPayload): Promise<{ error: Erro
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      timeoutMs: EMAIL_PROVIDER_TIMEOUT_MS,
     });
     if (res.ok) return { error: null };
     const text = await res.text().catch(() => "");
     return { error: new Error(`Email provider send failed (${res.status}): ${redactOutboundMessageText(text, 500)}`) };
   } catch (error) {
-    return { error: error instanceof Error ? new Error(redactOutboundMessageText(error.message, 500)) : new Error(redactOutboundMessageText(String(error), 500)) };
+    return { error: new Error(sanitizeEmailProviderFailure(error)) };
   }
 }
 

@@ -43,7 +43,7 @@ describe("contract upload release-state surface", () => {
       "Source system",
       "External reference",
       "Source documents",
-      "Create contract",
+      "Upload contract",
     ]) {
       expect(formRaw).toContain(label);
     }

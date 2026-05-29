@@ -32,8 +32,8 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/actions/contracts.ts": [
     'const safeName = sanitizeUploadedFileName(file.name);',
-    'const storagePath = `org/${organizationId}/${contract.id}/${crypto.randomUUID()}-${safeName}`;',
-    'const storagePath = `org/${contract.organization_id}/${contract.id}/${crypto.randomUUID()}-${safeName}`;',
+    "buildContractStoragePath(organizationId, contract.id, safeName)",
+    "buildContractStoragePath(contract.organization_id, contract.id, safeName)",
   ],
 };
 

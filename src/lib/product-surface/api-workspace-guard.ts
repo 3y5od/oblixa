@@ -68,7 +68,7 @@ export async function requireApiWorkspaceEligibility(input: {
           outcome: "not_found",
           message: "This V10 API route is not available.",
           diagnosticId: "v10_api_workspace_mapping_missing",
-          nextDestinationHref: input.nextDestinationHref ?? "/settings/product",
+          nextDestinationHref: input.nextDestinationHref ?? "/settings",
         })
       );
     }
@@ -108,7 +108,7 @@ export async function requireApiWorkspaceEligibility(input: {
         outcome: v10OutcomeForApiWorkspaceDenial(denialClass),
         message: "This V10 action is not available in the current workspace configuration.",
         diagnosticId: `v10_api_workspace_gate_${denialClass}`,
-        nextDestinationHref: input.nextDestinationHref ?? "/settings/product",
+        nextDestinationHref: input.nextDestinationHref ?? "/settings",
       })
     );
   }
@@ -139,7 +139,7 @@ export async function requireApiWorkspaceEligibilityV10(input: {
         outcome: "not_found",
         message: "This V10 API route is not available.",
         diagnosticId: "v10_api_workspace_mapping_missing",
-        nextDestinationHref: input.nextDestinationHref ?? "/settings/product",
+        nextDestinationHref: input.nextDestinationHref ?? "/settings",
       })
     );
   }
@@ -172,7 +172,7 @@ export async function requireApiWorkspaceEligibilityV10(input: {
       outcome: v10OutcomeForApiWorkspaceDenial(denialClass),
       message: "This V10 action is not available in the current workspace configuration.",
       diagnosticId: `v10_api_workspace_gate_${denialClass}`,
-      nextDestinationHref: input.nextDestinationHref ?? "/settings/product",
+      nextDestinationHref: input.nextDestinationHref ?? "/settings",
     })
   );
 }

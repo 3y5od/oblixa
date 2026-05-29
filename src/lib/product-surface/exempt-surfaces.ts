@@ -35,6 +35,11 @@ const PAGE_EXEMPT_RULES: ExemptSurfaceRule[] = [
   { class: "static_information", pathPrefix: "/accessibility", reason: "Public static information page" },
   { class: "static_information", pathPrefix: "/security", reason: "Public static information page" },
   { class: "infra_utility", pathPrefix: "/_not-found", reason: "Framework utility route" },
+  {
+    class: "infra_utility",
+    pathPrefix: "/search",
+    reason: "Meta-navigation surface — searches the nav inventory; no feature family",
+  },
 ];
 
 const API_EXEMPT_RULES: ExemptSurfaceRule[] = [

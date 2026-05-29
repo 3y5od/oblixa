@@ -1,0 +1,474 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-oauth-integration-sync",
+  "generatedFrom": "config/operational-oauth-integration-sync.json",
+  "commandCoverage": [
+    {
+      "objective": "integration-disconnect",
+      "script": "check:audit-event-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "sensitive_audit_taxonomy"
+      ]
+    },
+    {
+      "objective": "integration-disconnect",
+      "script": "check:security-event-contract",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "append_only_disconnect_audit"
+      ]
+    },
+    {
+      "objective": "integration-sync-job-inventory",
+      "script": "check:integration-contract-resilience",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "route_negative_paths",
+        "route_replay_or_schema_compatibility"
+      ]
+    },
+    {
+      "objective": "integration-sync-job-inventory",
+      "script": "check:operational-oauth-integration-sync",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "runtime_inventory"
+      ]
+    },
+    {
+      "objective": "integration-sync-job-inventory",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "provider_failure_matrix"
+      ]
+    },
+    {
+      "objective": "oauth-negative-paths",
+      "script": "check:oauth-pkce-enforcement",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "pkce_s256_state_binding"
+      ]
+    },
+    {
+      "objective": "oauth-negative-paths",
+      "script": "check:oauth-state-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "state_replay_expiry_redirect_safety"
+      ]
+    },
+    {
+      "objective": "token-refresh-operations",
+      "script": "check:token-security-quality",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "token_encryption_hashing_quality"
+      ]
+    },
+    {
+      "objective": "token-refresh-operations",
+      "script": "test:operational-oauth-integration-sync",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "disconnect_action",
+        "refresh_route_negative_paths"
+      ]
+    },
+    {
+      "objective": "token-refresh-operations",
+      "script": "tools:reencrypt-integration-tokens",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "dry_run_reencryption_tooling"
+      ]
+    }
+  ],
+  "runtimeInventory": {
+    "syncJobIdCount": 6,
+    "oauthNegativePathCount": 12,
+    "tokenRefreshScenarioCount": 10,
+    "disconnectScenarioCount": 7,
+    "syncJobCount": 6
+  },
+  "delegatedChecks": [
+    {
+      "checkId": "oauth-state-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "oauth-pkce-enforcement",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "provider-integration-fixtures",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "audit-event-coverage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "security-event-contract",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "syncJobs": [
+    {
+      "id": "calendar-sync",
+      "path": "src/app/api/integrations/calendar/sync/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "crm-sync",
+      "path": "src/app/api/integrations/crm/sync/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "disconnect",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "oauth-callback",
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "oauth-start",
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "token-refresh",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "oauthNegativePaths": [
+    {
+      "id": "callback-replay",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "denied-consent",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "expired-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "missing-code",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "missing-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "oversized-code",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-error",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reused-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unsafe-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unsupported-provider",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "wrong-redirect-uri",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "wrong-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "tokenRefreshOperations": [
+    {
+      "id": "expired-refresh-token",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "invalid-refresh-url",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "malformed-response",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "missing-refresh-config",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-timeout",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "repeated-failure",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "revoked-token",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "rotated-encryption-key",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "scan-truncation",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "success",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "disconnectOperations": [
+    {
+      "id": "audit-events",
+      "path": "src/actions/workflow-config-action-scope.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "historical-record-preservation",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "local-token-deletion",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "revocation",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stale-scheduled-jobs",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "user-facing-disconnected-state",
+      "path": "src/actions/workflow-config-action-scope.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "webhook-cleanup",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "manualBoundary": "Provider app setup, live OAuth scopes, and provider-console redirect URL changes remain external.",
+  "issueCount": 0,
+  "issues": [],
+  "artifact": "artifacts/operational-oauth-integration-sync.json",
+  "generatedBy": "scripts/check-operational-oauth-integration-sync.mjs --write"
+}

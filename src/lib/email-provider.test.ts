@@ -10,6 +10,7 @@ vi.mock("@/lib/security/safe-fetch", () => ({
 describe("sendReminderEmail without provider", () => {
   const prevKey = process.env.RESEND_API_KEY;
   const prevFrom = process.env.EMAIL_FROM;
+  const prevOutboundEmailKill = process.env.OBLIXA_KILL_OUTBOUND_EMAIL;
 
   function restoreEnv(key: string, value: string | undefined) {
     if (value === undefined) delete process.env[key];
@@ -21,12 +22,14 @@ describe("sendReminderEmail without provider", () => {
     safeFetchMock.mockReset();
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
+    delete process.env.OBLIXA_KILL_OUTBOUND_EMAIL;
     vi.stubGlobal("fetch", vi.fn());
   });
 
   afterEach(() => {
     restoreEnv("RESEND_API_KEY", prevKey);
     restoreEnv("EMAIL_FROM", prevFrom);
+    restoreEnv("OBLIXA_KILL_OUTBOUND_EMAIL", prevOutboundEmailKill);
     vi.unstubAllGlobals();
     vi.resetModules();
   });
@@ -45,6 +48,25 @@ describe("sendReminderEmail without provider", () => {
     expect(out.error?.message).toMatch(/not configured/i);
     expect(safeFetchMock).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when outbound email kill switch is active", async () => {
+    process.env.RESEND_API_KEY = "re_test_key";
+    process.env.OBLIXA_KILL_OUTBOUND_EMAIL = "1";
+
+    const { sendReminderEmail } = await import("@/lib/email");
+    const out = await sendReminderEmail({
+      to: "a@b.co",
+      contractTitle: "C",
+      fieldName: "end_date",
+      fieldValue: "2026-01-01",
+      daysUntil: 3,
+      contractUrl: "https://app.test/c/1",
+    });
+
+    expect(out.error).toBeInstanceOf(Error);
+    expect(out.error?.message).toMatch(/paused by operator kill switch/i);
+    expect(safeFetchMock).not.toHaveBeenCalled();
   });
 
   it("sends via trusted Resend HTTP API without importing the SDK", async () => {
@@ -66,6 +88,7 @@ describe("sendReminderEmail without provider", () => {
       expect.objectContaining({ href: "https://api.resend.com/emails" }),
       expect.objectContaining({
         method: "POST",
+        timeoutMs: 15_000,
         headers: expect.objectContaining({ Authorization: "Bearer re_test_key" }),
       })
     );

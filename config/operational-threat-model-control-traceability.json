@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-threat-model-control-traceability",
+  "objectives": [
+    {
+      "id": "stride-owasp-control-coverage",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:control-traceability:strict", "ciRequired": true, "covers": ["stride_dread_model", "owasp_api_top_10", "security_control_rows", "artifact_drift"] },
+        { "command": "check:security-control-coverage", "ciRequired": true, "covers": ["security_control_matrix_shape"] },
+        { "command": "check:threat-row-coverage", "ciRequired": true, "covers": ["threat_row_evidence_or_waiver"] }
+      ],
+      "artifacts": [
+        "artifacts/operational-threat-model-control-traceability.json",
+        "artifacts/stride-dread-threat-model.json",
+        "artifacts/security-control-coverage-matrix.rows.json"
+      ]
+    },
+    {
+      "id": "attack-surface-inventory",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:control-traceability:strict", "ciRequired": true, "covers": ["attack_surface_inventory", "high_risk_surface_evidence"] },
+        { "command": "check:route-universe", "ciRequired": true, "covers": ["routes_actions_jobs_inventory"] },
+        { "command": "check:security-route-matrix", "ciRequired": true, "covers": ["api_route_security_metadata"] }
+      ],
+      "artifacts": [
+        "artifacts/route-universe.json",
+        "artifacts/security-route-matrix.json"
+      ]
+    },
+    {
+      "id": "security-test-linkage",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:control-traceability:strict", "ciRequired": true, "covers": ["orphan_control_detection", "orphan_high_risk_surface_detection"] },
+        { "command": "check:api-route-tests", "ciRequired": true, "covers": ["api_route_test_inventory"] },
+        { "command": "check:server-action-negative-tests", "ciRequired": true, "covers": ["server_action_negative_test_inventory"] },
+        { "command": "check:api-route-auth-contract", "ciRequired": true, "covers": ["api_auth_control_linkage"] },
+        { "command": "check:operational-rate-limits-abuse-bounds", "ciRequired": true, "covers": ["rate_limit_and_abuse_control_linkage"] }
+      ]
+    },
+    {
+      "id": "residual-risk-reporting",
+      "ownerArea": "platform-governance",
+      "commands": [
+        { "command": "check:control-traceability:strict", "ciRequired": true, "covers": ["residual_risk_fields", "manual_boundary_mapping"] },
+        { "command": "check:operational-waivers-ratchets", "ciRequired": true, "covers": ["waiver_expiry_owner_risk"] },
+        { "command": "check:qa-waiver-registry", "ciRequired": true, "covers": ["external_waiver_schema"] }
+      ]
+    }
+  ],
+  "minimums": {
+    "attackSurfaceRows": 600,
+    "securityControlRows": 250,
+    "threatRows": 6,
+    "highRiskSurfaceRows": 400
+  },
+  "requiredStrideCategories": [
+    "spoofing",
+    "tampering",
+    "repudiation",
+    "information-disclosure",
+    "denial-of-service",
+    "elevation-of-privilege"
+  ],
+  "requiredOwaspApiControls": [
+    "SEC-API1",
+    "SEC-API2",
+    "SEC-API3",
+    "SEC-API4",
+    "SEC-API5",
+    "SEC-API6",
+    "SEC-API7",
+    "SEC-API8",
+    "SEC-API9",
+    "SEC-API10"
+  ],
+  "requiredAttackSurfaceClasses": [
+    "public-endpoint",
+    "authenticated-endpoint",
+    "tokenized-link",
+    "webhook",
+    "oauth-callback",
+    "upload-file-extraction",
+    "export-reporting",
+    "provider-call",
+    "background-job",
+    "server-action"
+  ],
+  "highRiskTiers": ["P0", "P1"],
+  "residualRiskPolicy": {
+    "manualBoundaryDefaultExpiry": "2027-12-31",
+    "requiredFields": ["id", "kind", "owner", "expiry", "impact", "validationCommand"],
+    "impactByManualBoundaryCategory": {
+      "credentialed": "External credential or provider-console authority can affect production access or billing state.",
+      "customer-impacting": "External approval can affect customer-visible behavior, communications, performance, or availability.",
+      "external-authority": "Repository checks can validate shape, but the external provider setting must be confirmed manually.",
+      "legal": "Legal or compliance approval remains outside code and can block release claims.",
+      "production-data": "Production data actions require provider authority and can affect data integrity or availability.",
+      "release-decision": "Release owner decision can accept, defer, or block residual risk."
+    }
+  }
+}

@@ -1,0 +1,2172 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-cron-jobs",
+  "generatedBy": "scripts/check-operational-cron-jobs.mjs --write",
+  "generatedFrom": "config/operational-cron-jobs.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "scheduledRouteCount": 45,
+  "commandCount": 16,
+  "markerFileCount": 12,
+  "delegatedCheckCount": 3,
+  "commands": [
+    {
+      "objective": "cron-authentication",
+      "script": "check:cron-canary",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "signed_unsigned_runtime_probe"
+      ]
+    },
+    {
+      "objective": "cron-authentication",
+      "script": "check:cron-route-auth",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "auth_helper_presence"
+      ]
+    },
+    {
+      "objective": "cron-authentication",
+      "script": "check:scheduled-cron-route-wrappers",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "shared_wrapper_enforcement"
+      ]
+    },
+    {
+      "objective": "cron-observability",
+      "script": "check:cron-canary",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "runtime_json_shape"
+      ]
+    },
+    {
+      "objective": "cron-observability",
+      "script": "check:observability-contracts",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "redaction_and_request_id_baseline"
+      ]
+    },
+    {
+      "objective": "cron-observability",
+      "script": "check:operational-cron-jobs",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "standard_envelope"
+      ]
+    },
+    {
+      "objective": "idempotency-locks",
+      "script": "check:duplicate-execution-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "durable_duplicate_guards"
+      ]
+    },
+    {
+      "objective": "idempotency-locks",
+      "script": "check:idempotency-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "idempotency_key_contract"
+      ]
+    },
+    {
+      "objective": "idempotency-locks",
+      "script": "check:job-lock-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "single_flight_locks"
+      ]
+    },
+    {
+      "objective": "schedule-drift",
+      "script": "check:operational-cron-jobs",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "duration_budget",
+        "registry_drift"
+      ]
+    },
+    {
+      "objective": "schedule-drift",
+      "script": "check:vercel-cron",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "schedule_to_route_alignment"
+      ]
+    },
+    {
+      "objective": "schedule-drift",
+      "script": "check:vercel-cron-canary-parity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "canary_map_parity"
+      ]
+    },
+    {
+      "objective": "scheduled-route-inventory",
+      "script": "check:api-route-tests",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "route_test_coverage"
+      ]
+    },
+    {
+      "objective": "scheduled-route-inventory",
+      "script": "check:operational-cron-jobs",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "registry",
+        "route_files",
+        "route_tests",
+        "slo_budget"
+      ]
+    },
+    {
+      "objective": "scheduled-route-inventory",
+      "script": "check:vercel-cron",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "route_handlers",
+        "vercel_schedule_alignment"
+      ]
+    },
+    {
+      "objective": "scheduled-route-inventory",
+      "script": "check:vercel-cron-canary-parity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "canary_contract_alignment"
+      ]
+    }
+  ],
+  "markerFiles": [
+    {
+      "path": "e2e/cron-bearer-parity.spec.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "e2e/cron-routes-smoke.spec.ts",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "scripts/lib/cron-http-probe.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/app/api/notifications/retry-deliveries/route.test.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/assurance/cron-route-runner.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/cron/route-runner.test.ts",
+      "markerCount": 7,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/cron/route-runner.ts",
+      "markerCount": 15,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/cron/single-flight-lock.test.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/cron/single-flight-lock.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/cron-auth.test.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "path": "src/lib/security/cron-route-gate.test.ts",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "registry": [
+    {
+      "path": "/api/contracts/recompute-signals",
+      "schedule": "45 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/contracts/recompute-signals/route.ts",
+      "testFile": "src/app/api/contracts/recompute-signals/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/security/retention-cleanup",
+      "schedule": "42 3 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/security/retention-cleanup/route.ts",
+      "testFile": "src/app/api/cron/security/retention-cleanup/route.test.ts",
+      "ownerArea": "privacy-security",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "policy_count",
+        "retention_cutoff",
+        "cleanup_counts"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/cron/stripe-webhook-events",
+      "schedule": "30 3 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/stripe-webhook-events/route.ts",
+      "testFile": "src/app/api/cron/stripe-webhook-events/route.test.ts",
+      "ownerArea": "integrations",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/cron/v10/idempotency-cleanup",
+      "schedule": "12 3 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v10/idempotency-cleanup/route.ts",
+      "testFile": "src/app/api/cron/v10/idempotency-cleanup/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "deleted_count",
+        "retention_cutoff"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/cron/v10/read-model-refresh",
+      "schedule": "*/15 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 15,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v10/read-model-refresh/route.ts",
+      "testFile": "src/app/api/cron/v10/read-model-refresh/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 120,
+      "expectedDurationMs": 120000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "scanned_organizations",
+        "next_cursor",
+        "refresh_scope",
+        "results",
+        "duration_ms"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 120,
+        "cadenceMinutes": 15,
+        "maxRuntimeShare": 0.1333
+      }
+    },
+    {
+      "path": "/api/cron/v10/runtime-artifact-cleanup",
+      "schedule": "27 3 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v10/runtime-artifact-cleanup/route.ts",
+      "testFile": "src/app/api/cron/v10/runtime-artifact-cleanup/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "archived_count",
+        "retention_cutoff"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/cron/v4/approvals-sla",
+      "schedule": "*/20 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 20,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/approvals-sla/route.ts",
+      "testFile": "src/app/api/cron/v4/approvals-sla/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "evaluated",
+        "breaches"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 20,
+        "maxRuntimeShare": 0.05
+      }
+    },
+    {
+      "path": "/api/cron/v4/attestations-issue",
+      "schedule": "0 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/attestations-issue/route.ts",
+      "testFile": "src/app/api/cron/v4/attestations-issue/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "issued"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v4/escalations-dispatch",
+      "schedule": "*/20 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 20,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/escalations-dispatch/route.ts",
+      "testFile": "src/app/api/cron/v4/escalations-dispatch/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "dispatched"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 20,
+        "maxRuntimeShare": 0.05
+      }
+    },
+    {
+      "path": "/api/cron/v4/evidence-followup",
+      "schedule": "45 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/evidence-followup/route.ts",
+      "testFile": "src/app/api/cron/v4/evidence-followup/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "reviewed",
+        "exceptionsCreated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v4/exceptions-detect",
+      "schedule": "*/30 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 30,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/exceptions-detect/route.ts",
+      "testFile": "src/app/api/cron/v4/exceptions-detect/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "detected"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 30,
+        "maxRuntimeShare": 0.0333
+      }
+    },
+    {
+      "path": "/api/cron/v4/programs-reconcile",
+      "schedule": "10 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/programs-reconcile/route.ts",
+      "testFile": "src/app/api/cron/v4/programs-reconcile/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "reconciledPrograms"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v4/renewals-recompute-signals",
+      "schedule": "25 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
+      "testFile": "src/app/api/cron/v4/renewals-recompute-signals/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "updatedSignals"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v4/report-packs-generate",
+      "schedule": "15 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "testFile": "src/app/api/cron/v4/report-packs-generate/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "generated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/campaign-progress",
+      "schedule": "*/30 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 30,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/campaign-progress/route.ts",
+      "testFile": "src/app/api/cron/v5/campaign-progress/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "campaignsUpdated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 30,
+        "maxRuntimeShare": 0.0333
+      }
+    },
+    {
+      "path": "/api/cron/v5/capacity-forecast-refresh",
+      "schedule": "20 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/capacity-forecast-refresh/route.ts",
+      "testFile": "src/app/api/cron/v5/capacity-forecast-refresh/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "forecastsGenerated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/decision-sla-monitor",
+      "schedule": "*/20 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 20,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/decision-sla-monitor/route.ts",
+      "testFile": "src/app/api/cron/v5/decision-sla-monitor/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "slaBreachesDetected"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 20,
+        "maxRuntimeShare": 0.05
+      }
+    },
+    {
+      "path": "/api/cron/v5/external-followup",
+      "schedule": "50 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/external-followup/route.ts",
+      "testFile": "src/app/api/cron/v5/external-followup/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "expiredLinks"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/portfolio-risk-recompute",
+      "schedule": "35 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/portfolio-risk-recompute/route.ts",
+      "testFile": "src/app/api/cron/v5/portfolio-risk-recompute/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "riskSnapshotsUpserted"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/recommendation-refresh",
+      "schedule": "40 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/recommendation-refresh/route.ts",
+      "testFile": "src/app/api/cron/v5/recommendation-refresh/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "recommendationsCreated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/relationship-rollups",
+      "schedule": "15 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/relationship-rollups/route.ts",
+      "testFile": "src/app/api/cron/v5/relationship-rollups/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "rollupsRecorded"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v5/simulation-snapshots",
+      "schedule": "5 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v5/simulation-snapshots/route.ts",
+      "testFile": "src/app/api/cron/v5/simulation-snapshots/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "snapshotRunsCreated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/assurance-checks",
+      "schedule": "*/30 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 30,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/assurance-checks/route.ts",
+      "testFile": "src/app/api/cron/v6/assurance-checks/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "checkRuns"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 30,
+        "maxRuntimeShare": 0.0333
+      }
+    },
+    {
+      "path": "/api/cron/v6/autopilot-dry-run",
+      "schedule": "20 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/autopilot-dry-run/route.ts",
+      "testFile": "src/app/api/cron/v6/autopilot-dry-run/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "logs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/autopilot-execution",
+      "schedule": "40 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/autopilot-execution/route.ts",
+      "testFile": "src/app/api/cron/v6/autopilot-execution/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "executed"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/control-policy-reevaluation",
+      "schedule": "45 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/control-policy-reevaluation/route.ts",
+      "testFile": "src/app/api/cron/v6/control-policy-reevaluation/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "evaluations"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/external-workflow-deadlines",
+      "schedule": "*/25 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 25,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/external-workflow-deadlines/route.ts",
+      "testFile": "src/app/api/cron/v6/external-workflow-deadlines/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "escalated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 25,
+        "maxRuntimeShare": 0.04
+      }
+    },
+    {
+      "path": "/api/cron/v6/finding-refresh",
+      "schedule": "10 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/finding-refresh/route.ts",
+      "testFile": "src/app/api/cron/v6/finding-refresh/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "updated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/health-graph-rollups",
+      "schedule": "35 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/health-graph-rollups/route.ts",
+      "testFile": "src/app/api/cron/v6/health-graph-rollups/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "nodes",
+        "edges"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/onboarding-calibration-stale",
+      "schedule": "18 4 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/onboarding-calibration-stale/route.ts",
+      "testFile": "src/app/api/cron/v6/onboarding-calibration-stale/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 120,
+      "expectedDurationMs": 120000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "expired",
+        "scanned",
+        "orgs_scanned",
+        "duration_ms",
+        "orgs_processed",
+        "errors_count"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 120,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0014
+      }
+    },
+    {
+      "path": "/api/cron/v6/outcome-effectiveness",
+      "schedule": "50 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/outcome-effectiveness/route.ts",
+      "testFile": "src/app/api/cron/v6/outcome-effectiveness/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "analyzed"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/playbook-follow-up-assurance",
+      "schedule": "8 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/playbook-follow-up-assurance/route.ts",
+      "testFile": "src/app/api/cron/v6/playbook-follow-up-assurance/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "assuranceRuns"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/review-board-packet-generation",
+      "schedule": "5 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/review-board-packet-generation/route.ts",
+      "testFile": "src/app/api/cron/v6/review-board-packet-generation/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "generated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/scorecard-recompute",
+      "schedule": "25 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/scorecard-recompute/route.ts",
+      "testFile": "src/app/api/cron/v6/scorecard-recompute/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "updated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/cron/v6/segment-recompute",
+      "schedule": "55 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/cron/v6/segment-recompute/route.ts",
+      "testFile": "src/app/api/cron/v6/segment-recompute/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withV6CronRoute",
+      "wrapperHelper": "withV6CronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "ok",
+        "recomputed"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/integrations/calendar/sync",
+      "schedule": "*/30 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 30,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/integrations/calendar/sync/route.ts",
+      "testFile": "src/app/api/integrations/calendar/sync/route.test.ts",
+      "ownerArea": "integrations",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 30,
+        "maxRuntimeShare": 0.0333
+      }
+    },
+    {
+      "path": "/api/integrations/crm/sync",
+      "schedule": "10 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/integrations/crm/sync/route.ts",
+      "testFile": "src/app/api/integrations/crm/sync/route.test.ts",
+      "ownerArea": "integrations",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/integrations/refresh-tokens",
+      "schedule": "*/20 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 20,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/integrations/refresh-tokens/route.ts",
+      "testFile": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "ownerArea": "integrations",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 20,
+        "maxRuntimeShare": 0.05
+      }
+    },
+    {
+      "path": "/api/maintenance/prune-operational-data",
+      "schedule": "0 3 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/maintenance/prune-operational-data/route.ts",
+      "testFile": "src/app/api/maintenance/prune-operational-data/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/notifications/retry-deliveries",
+      "schedule": "*/15 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 15,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/notifications/retry-deliveries/route.ts",
+      "testFile": "src/app/api/notifications/retry-deliveries/route.test.ts",
+      "ownerArea": "notifications",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "scanned"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 15,
+        "maxRuntimeShare": 0.0667
+      }
+    },
+    {
+      "path": "/api/reminders/send",
+      "schedule": "0 9 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/reminders/send/route.ts",
+      "testFile": "src/app/api/reminders/send/route.test.ts",
+      "ownerArea": "notifications",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "sent",
+        "candidates",
+        "skipped_no_email"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/reports/capture-metrics",
+      "schedule": "20 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/reports/capture-metrics/route.ts",
+      "testFile": "src/app/api/reports/capture-metrics/route.test.ts",
+      "ownerArea": "reporting",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 120,
+      "expectedDurationMs": 120000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "single-scheduled-invocation",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs",
+        "updated"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 120,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0333
+      }
+    },
+    {
+      "path": "/api/reports/send-summaries",
+      "schedule": "30 9 * * *",
+      "scheduleClass": "daily",
+      "cadenceMinutes": 1440,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/reports/send-summaries/route.ts",
+      "testFile": "src/app/api/reports/send-summaries/route.test.ts",
+      "ownerArea": "reporting",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 1440,
+        "maxRuntimeShare": 0.0007
+      }
+    },
+    {
+      "path": "/api/tasks/run-rules",
+      "schedule": "15 * * * *",
+      "scheduleClass": "hourly",
+      "cadenceMinutes": 60,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/tasks/run-rules/route.ts",
+      "testFile": "src/app/api/tasks/run-rules/route.test.ts",
+      "ownerArea": "platform-runtime",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "withCronRoute",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 60,
+        "maxRuntimeShare": 0.0167
+      }
+    },
+    {
+      "path": "/api/webhooks/dispatch",
+      "schedule": "*/30 * * * *",
+      "scheduleClass": "intra-hour",
+      "cadenceMinutes": 30,
+      "methods": [
+        "GET"
+      ],
+      "routeFile": "src/app/api/webhooks/dispatch/route.ts",
+      "testFile": "src/app/api/webhooks/dispatch/route.test.ts",
+      "ownerArea": "integrations",
+      "authScheme": "shared-cron-secret",
+      "authHelper": "gateCronRequest",
+      "wrapperHelper": "withCronRoute",
+      "maxDurationSeconds": 60,
+      "expectedDurationMs": 60000,
+      "idempotencyPolicy": "shared-runner-idempotency-key",
+      "lockPolicy": "shared-runner-single-flight",
+      "retryPolicy": "retry-aware",
+      "observabilityPolicy": "shared-runner-envelope-and-healthcheck",
+      "expectedResponseKeys": [
+        "durationMs"
+      ],
+      "standardTelemetryFields": [
+        "ok",
+        "route",
+        "job_id",
+        "started_at",
+        "durationMs",
+        "processed_count",
+        "skipped_count",
+        "failed_count",
+        "retry_count",
+        "errors_count"
+      ],
+      "slo": {
+        "maxDurationSeconds": 60,
+        "cadenceMinutes": 30,
+        "maxRuntimeShare": 0.0333
+      }
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "duplicate-execution-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "idempotency-policy-inline",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "job-lock-guards",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

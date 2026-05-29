@@ -11,9 +11,12 @@ const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:upload-security-guards"'];
 const MAX_IMPORT_ROWS_EXPORT_MARKER = "export const " + "V" + "10_MAX_IMPORT_ROWS = 10_000;";
 const REQUIRED_FILE_MARKERS = {
   "src/actions/contracts.ts": [
+    "dedupeValidatedUploadedFiles",
+    "buildContractStoragePath",
     "scanUploadedFileForMalware",
     "sniffUploadedFileMime",
     "const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB",
+    "const MAX_CONTRACT_UPLOAD_FILES = 12;",
     'const ALLOWED_TYPES = new Set([',
     "const ALLOWED_EXTENSIONS_BY_TYPE = new Map([",
     '"application/pdf",',
@@ -27,10 +30,21 @@ const REQUIRED_FILE_MARKERS = {
     'return { ok: false, safeName, reason: "signature" };',
     'return { ok: false, safeName, reason: "malware" };',
     '"None of the selected files could be uploaded. Use PDF or DOCX, each 20 MB or smaller.",',
-    'throw new Error(`${validation.safeName}: exceeds 20 MB limit`);',
-    'throw new Error(`${validation.safeName}: unsafe file name`);',
-    'throw new Error(`${validation.safeName}: unsupported file type`);',
+    'if (validation.reason === "size") return `${validation.safeName}: exceeds 20 MB limit`;',
+    'if (validation.reason === "filename") return `${validation.safeName}: unsafe file name`;',
+    'return `${validation.safeName}: unsupported file type`;',
+    'return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };',
     'return { error: "Add at least one PDF or DOCX under 20 MB." };',
+  ],
+  "src/lib/security/upload-batch.ts": [
+    "export function uploadedFileDuplicateKey(",
+    "safeName.normalize(\"NFC\").toLowerCase()",
+    "export function dedupeValidatedUploadedFiles",
+    "duplicateCount",
+  ],
+  "src/lib/security/upload-batch.test.ts": [
+    'it("uses normalized filename, MIME type, and size for duplicate detection"',
+    'it("drops duplicate uploaded files before durable upload processing"',
   ],
   "src/lib/security/upload-filename.ts": [
     "export const UPLOADED_FILE_NAME_MAX_LENGTH = 255;",

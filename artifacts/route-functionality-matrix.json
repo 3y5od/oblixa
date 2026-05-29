@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T23:20:58.887Z",
+  "generatedAt": "2026-05-28T22:05:45.870Z",
   "rows": [
     {
       "route": "/",
@@ -14319,6 +14319,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -14782,7 +14783,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
         "openai",
         "supabase"
       ],
@@ -15303,9 +15303,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [
-        "supabase"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -15353,6 +15351,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -17179,6 +17178,129 @@
       "smokeTier": "nightly"
     },
     {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "methods": [
+        "GET"
+      ],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "sentry"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P3",
+      "owner": "engineering",
+      "smokeTier": "inventory"
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "methods": [
+        "GET"
+      ],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P3",
+      "owner": "engineering",
+      "smokeTier": "inventory"
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "methods": [
+        "GET"
+      ],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "riskTier": "P2",
+      "owner": "engineering",
+      "smokeTier": "nightly"
+    },
+    {
       "route": "/security",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "kind": "page",
@@ -17991,7 +18113,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "openai",
         "resend",
         "supabase"
       ],
@@ -25603,6 +25724,55 @@
       },
       "riskTier": "P1",
       "owner": "security",
+      "smokeTier": "nightly"
+    },
+    {
+      "route": "action:product-telemetry.test",
+      "sourcePath": "src/actions/product-telemetry.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "methods": [
+        "ACTION"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "explicit",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase",
+        "upstash_or_memory_rate_limit"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "riskTier": "P1",
+      "owner": "engineering",
       "smokeTier": "nightly"
     },
     {

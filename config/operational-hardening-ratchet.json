@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-hardening-ratchet",
+  "minimumReadinessScore": 1,
+  "maximumPendingCount": 0,
+  "minimumImplementedCount": 44
+}

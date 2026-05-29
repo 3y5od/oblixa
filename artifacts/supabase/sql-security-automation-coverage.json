@@ -4,12 +4,12 @@
   "inventoryPath": "artifacts/compatibility/versioned-content-contract-inventory.json",
   "stagingPath": "artifacts/supabase/sql-object-rename-staging.json",
   "queuePath": "artifacts/compatibility/removal-queue.json",
-  "coverageCount": 67,
-  "queueCoveredCount": 67,
+  "coverageCount": 68,
+  "queueCoveredCount": 68,
   "kindCounts": {
     "function_grant": 9,
     "rls_policy": 46,
-    "security_helper": 12
+    "security_helper": 13
   },
   "rows": [
     {
@@ -858,6 +858,21 @@
       "legacyName": "v4_policy_registry_json",
       "neutralAlias": "policy_registry_json",
       "sourcePath": "src/app/api/simulations/run/route.ts",
+      "owner": "database-platform",
+      "reason": "Compatibility-sensitive sql_security_object version content is inventoried and queued instead of removed in code-only passes.",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "Do not remove or rename this sql_security_object until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualOnly": true,
+      "surfaceClass": "sql_object",
+      "subSurfaceClass": "sql_security_object",
+      "queueCovered": true
+    },
+    {
+      "source": "content_contract_inventory",
+      "kind": "security_helper",
+      "legacyName": "v6",
+      "neutralAlias": null,
+      "sourcePath": "openapi.yaml",
       "owner": "database-platform",
       "reason": "Compatibility-sensitive sql_security_object version content is inventoried and queued instead of removed in code-only passes.",
       "validationCommand": "npm run check:versioned-content-contracts",

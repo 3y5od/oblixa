@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T23:20:58.888Z",
+  "generatedAt": "2026-05-28T22:05:45.870Z",
   "rows": [
     {
       "route": "/",
@@ -2439,6 +2439,27 @@
       "diagnosticPrefix": "reset_password"
     },
     {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "search"
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "search"
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "search"
+    },
+    {
       "route": "/security",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "owner": "engineering",
@@ -3564,6 +3585,13 @@
       "owner": "security",
       "riskTier": "P1",
       "diagnosticPrefix": "action_product_surface_settings_test"
+    },
+    {
+      "route": "action:product-telemetry.test",
+      "sourcePath": "src/actions/product-telemetry.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_product_telemetry_test"
     },
     {
       "route": "action:program-surface-guard.test",

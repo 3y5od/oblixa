@@ -16,29 +16,61 @@ export default function ReviewQueueLoading() {
           </div>
         </div>
 
-        <div className="ui-card-raised overflow-hidden rounded-2xl border">
-          <div className="grid gap-0 border-b border-[var(--border-subtle)] md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="border-b border-[var(--border-subtle)] px-4 py-4 md:border-b-0 md:border-r sm:px-5">
-                <div className="ui-skeleton h-3 w-28 rounded" />
-                <div className="ui-skeleton mt-3 h-7 w-20 rounded" />
-                <div className="ui-skeleton mt-2 h-3 w-32 rounded" />
-              </div>
-            ))}
+        <div className="ui-card-quiet overflow-hidden">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
+            <div className="flex items-center gap-2.5">
+              <div className="ui-skeleton h-3 w-24 rounded" />
+              <div className="ui-skeleton h-5 w-28 rounded-full" />
+              <div className="ui-skeleton hidden h-1.5 w-24 rounded-full sm:block" />
+            </div>
+            <div className="flex items-center gap-x-5 sm:ml-auto">
+              <div className="ui-skeleton h-4 w-20 rounded" />
+              <div className="ui-skeleton h-4 w-24 rounded" />
+            </div>
           </div>
           <div className="grid gap-0 lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]">
             <div className="space-y-5 px-4 py-5 sm:px-5 lg:px-6">
-              <div className="ui-skeleton h-7 w-56 rounded" />
-              <div className="grid gap-3 sm:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="ui-skeleton h-24 rounded-xl" />
-                ))}
+              <div className="space-y-2">
+                <div className="ui-skeleton h-3 w-20 rounded" />
+                <div className="ui-skeleton h-7 w-56 rounded" />
+                <div className="ui-skeleton h-4 w-44 rounded" />
               </div>
-              <div className="ui-skeleton h-10 w-96 max-w-full rounded-xl" />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2.5">
+                  <div className="ui-skeleton h-3 w-28 rounded" />
+                  <div className="ui-skeleton h-9 w-40 rounded" />
+                  <div className="ui-skeleton h-5 w-48 rounded-full" />
+                </div>
+                <div className="space-y-2.5">
+                  <div className="ui-skeleton h-3 w-36 rounded" />
+                  <div className="ui-skeleton h-7 w-24 rounded" />
+                  <div className="ui-skeleton h-3 w-28 rounded" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="ui-skeleton h-3 w-28 rounded" />
+                <div className="ui-skeleton h-12 w-full max-w-md rounded" />
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <div className="ui-skeleton h-10 w-28 rounded-full" />
+                <div className="ui-skeleton h-10 w-20 rounded-full" />
+                <div className="ui-skeleton h-10 w-32 rounded-full" />
+                <div className="ui-skeleton h-10 w-20 rounded-full" />
+              </div>
             </div>
-            <div className="border-t border-[var(--border-subtle)] px-4 py-5 sm:px-5 lg:border-l lg:border-t-0 lg:px-6">
-              <div className="ui-skeleton h-28 rounded-xl" />
-              <div className="ui-skeleton mt-5 h-44 rounded-xl" />
+            <div className="space-y-6 border-t border-[var(--border-subtle)] px-4 py-5 sm:px-5 lg:border-l lg:border-t-0 lg:px-6">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="ui-skeleton h-3 w-32 rounded" />
+                  <div className="ui-skeleton h-4 w-28 rounded" />
+                </div>
+                <div className="ui-skeleton h-44 w-full rounded-md" />
+              </div>
+              <div className="space-y-2">
+                <div className="ui-skeleton h-3 w-20 rounded" />
+                <div className="ui-skeleton h-16 w-full rounded-md" />
+                <div className="ui-skeleton h-8 w-32 rounded-full" />
+              </div>
             </div>
           </div>
         </div>

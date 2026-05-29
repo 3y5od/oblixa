@@ -331,8 +331,8 @@ function entryWarnings(
         title: "Policy is not active in this workspace mode",
         message: "This policy targets a workspace area that is not visible in the current mode.",
         policyId: id || undefined,
-        actionLabel: "Review product experience",
-        actionHref: "/settings/product",
+        actionLabel: "Open settings",
+        actionHref: "/settings",
       });
     }
     if (mode === "assurance" && hiddenModule && options.hiddenAssuranceModules?.has(hiddenModule)) {
@@ -341,8 +341,8 @@ function entryWarnings(
         title: "Policy applies to a hidden workspace area",
         message: "This policy targets an Assurance area that is currently hidden from the workspace.",
         policyId: id || undefined,
-        actionLabel: "Review product experience",
-        actionHref: "/settings/product",
+        actionLabel: "Open settings",
+        actionHref: "/settings",
       });
     }
   }

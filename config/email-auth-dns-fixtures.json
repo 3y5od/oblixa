@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-email-auth-dns-fixtures",
+  "domain": "oblixa.io",
+  "records": [
+    {
+      "type": "SPF",
+      "host": "oblixa.io",
+      "expected": "v=spf1 include:_spf.resend.com -all",
+      "required": true
+    },
+    {
+      "type": "DKIM",
+      "host": "resend._domainkey.oblixa.io",
+      "expected": "v=DKIM1; k=rsa; p=<provider-managed>",
+      "required": true
+    },
+    {
+      "type": "DMARC",
+      "host": "_dmarc.oblixa.io",
+      "expected": "v=DMARC1; p=quarantine; rua=mailto:dmarc@oblixa.io",
+      "required": true
+    },
+    {
+      "type": "MX",
+      "host": "oblixa.io",
+      "expected": "provider-managed inbound MX or no inbound MX for send-only domains",
+      "required": true
+    },
+    {
+      "type": "MTA-STS",
+      "host": "_mta-sts.oblixa.io",
+      "expected": "v=STSv1; id=code-owned-fixture",
+      "required": true
+    }
+  ],
+  "manualBoundary": "Live DNS and Resend domain verification remain external provider-console actions."
+}

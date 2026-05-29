@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { setMockPathname } from "@/test-utils/mock-navigation";
+import { mockRouter } from "@/test-utils/mock-router";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import { COMMAND_PALETTE_OPEN_EVENT } from "@/lib/product-surface/command-palette-bridge";
 import { Header } from "./header";
 
 const coreSurface: NavSurfaceInput = {
@@ -33,13 +33,10 @@ describe("Header", () => {
     expect(screen.queryByText("Tools")).toBeNull();
   });
 
-  it("submits header search through the command palette bridge", async () => {
+  it("submits header search to the global /search route", async () => {
     setMockPathname("/contracts");
     const user = userEvent.setup();
-    let receivedQuery = "";
-    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, (event) => {
-      receivedQuery = ((event as CustomEvent<{ query?: string }>).detail?.query ?? "").trim();
-    });
+    mockRouter.push.mockClear();
 
     renderWithProviders(<Header navSurface={coreSurface} showUtilitiesLink />);
 
@@ -47,6 +44,18 @@ describe("Header", () => {
     await user.type(input, "renewals");
     fireEvent.submit(input.closest("form")!);
 
-    expect(receivedQuery).toBe("renewals");
+    expect(mockRouter.push).toHaveBeenCalledWith("/search?q=renewals");
+  });
+
+  it("submits an empty header search to /search without a query string", () => {
+    setMockPathname("/contracts");
+    mockRouter.push.mockClear();
+
+    renderWithProviders(<Header navSurface={coreSurface} showUtilitiesLink />);
+
+    const input = screen.getByTestId("workspace-header-search");
+    fireEvent.submit(input.closest("form")!);
+
+    expect(mockRouter.push).toHaveBeenCalledWith("/search");
   });
 });

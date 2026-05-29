@@ -137,6 +137,62 @@ describe("auth callback org provisioning", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=invite_invalid");
   });
 
+  it("rejects invite callbacks when accepting would exceed the workspace seat limit", async () => {
+    const inviteId = "00000000-0000-4000-8000-000000000003";
+    const memberUpsert = vi.fn();
+    exchangeCodeForSession.mockResolvedValue({
+      data: {
+        user: {
+          id: "user_1",
+          email: "user@example.com",
+          user_metadata: { invite_id: inviteId },
+        },
+      },
+      error: null,
+    });
+    adminFrom.mockImplementation((table: string) => {
+      if (table === "organization_invites") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: {
+              id: inviteId,
+              organization_id: "org_1",
+              email: "user@example.com",
+              role: "viewer",
+              expires_at: new Date(Date.now() + 60_000).toISOString(),
+              consumed_at: null,
+              revoked_at: null,
+            },
+            error: null,
+          }),
+        };
+      }
+      if (table === "organization_members") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn().mockResolvedValue({
+              data: Array.from({ length: 10 }, (_, index) => ({
+                user_id: `existing_user_${index}`,
+              })),
+              error: null,
+            }),
+          })),
+          upsert: memberUpsert,
+        };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    const { GET } = await import("@/app/auth/callback/route");
+    const res = await GET(new Request("http://localhost:3000/auth/callback?code=abc"));
+
+    expect(ensureUserOrg).not.toHaveBeenCalled();
+    expect(memberUpsert).not.toHaveBeenCalled();
+    expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=invite_seat_limit");
+  });
+
   it("uses the trusted canonical origin when the callback request host is untrusted in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://app.example.com");

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-supabase-database",
+  "objectives": [
+    {
+      "id": "migration-readiness",
+      "ownerArea": "data-platform",
+      "commands": [
+        { "command": "check:migrations:strict", "ciRequired": true, "covers": ["naming", "ordering", "unsafe_sql"] },
+        { "command": "check:migration-manifest", "ciRequired": true, "covers": ["manifest_coverage", "migration_hashes"] },
+        { "command": "check:migration-organization", "ciRequired": true, "covers": ["domain_index", "verification_queries"] },
+        { "command": "check:migration-idempotency", "ciRequired": true, "covers": ["idempotency", "destructive_sql_exceptions"] },
+        { "command": "check:migration-security-patterns", "ciRequired": false, "covers": ["rls", "grants", "search_path", "tenant_scope"] },
+        { "command": "report:migration-rollbacks", "ciRequired": false, "covers": ["fix_forward_metadata", "rollback_notes"] }
+      ],
+      "artifacts": [
+        "artifacts/supabase/migration-manifest.json",
+        "artifacts/supabase/migration-domain-index.json",
+        "scripts/migration-idempotency-exceptions.json"
+      ]
+    },
+    {
+      "id": "linked-project-safety",
+      "ownerArea": "data-platform",
+      "defaultCommands": [
+        "check:supabase:ops",
+        "check:supabase:config",
+        "check:supabase:local-reset-harness",
+        "check:supabase:release-checklist"
+      ],
+      "optionalLinkedReadOnlyCommands": ["check:supabase:prod", "check:supabase:prod:deep"],
+      "forbiddenDefaultCommandPatterns": [
+        "--linked",
+        "\\bsupabase\\s+db\\s+(?:push|reset|branch|dump|restore)\\b",
+        "\\bsupabase\\s+migration\\s+(?:up|repair)\\b"
+      ],
+      "requiredSourceMarkers": [
+        "projectRef",
+        "environmentClass",
+        "mutatingCommandsAllowed"
+      ]
+    },
+    {
+      "id": "rls-tenant-scope-evidence",
+      "ownerArea": "data-platform",
+      "commands": [
+        { "command": "check:rls-sanity-tables", "ciRequired": true },
+        { "command": "check:tenant-table-schema-constraints", "ciRequired": true },
+        { "command": "check:rls-policy-drift", "ciRequired": true },
+        { "command": "test:rls-smoke", "ciRequired": true },
+        { "command": "check:sql-security-migrations-bundle", "ciRequired": true },
+        { "command": "check:sql-security-automation-coverage", "ciRequired": true }
+      ],
+      "artifacts": [
+        "artifacts/assurance/rls-sanity-tables.json",
+        "artifacts/supabase/sql-security-automation-coverage.json"
+      ],
+      "fixtures": [
+        {
+          "path": "supabase/tests/rls_sanity_smoke.sql",
+          "markers": ["same_org_allowed", "cross_org_denied", "set local role authenticated"]
+        },
+        {
+          "path": "supabase/tests/rls_default_deny_smoke.sql",
+          "markers": ["anon_direct_insert_denied", "authenticated_direct_update_denied", "authenticated_direct_delete_denied"]
+        }
+      ]
+    },
+    {
+      "id": "security-definer-view-safety",
+      "ownerArea": "data-platform",
+      "commands": [
+        { "command": "check:sql-definer-invoker-inventory", "ciRequired": true },
+        { "command": "check:sql-security-migrations-bundle", "ciRequired": true },
+        { "command": "check:migration-security-patterns", "ciRequired": false }
+      ],
+      "artifacts": ["artifacts/assurance/sql-definer-invoker-inventory.json"],
+      "fixtures": [
+        {
+          "path": "supabase/tests/view_invoker_smoke.sql",
+          "markers": ["view_security_invoker_same_org_allowed", "view_security_invoker_cross_org_denied"]
+        }
+      ]
+    },
+    {
+      "id": "retention-legal-hold",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "check:supabase:retention-inventory", "ciRequired": true },
+        { "command": "check:retention-policy", "ciRequired": true },
+        { "command": "check:privacy-inventory", "ciRequired": true }
+      ],
+      "artifacts": ["artifacts/supabase/data-retention-inventory.json"],
+      "requiredMarkers": [
+        {
+          "path": "supabase/migrations/062_profile_legal_hold.sql",
+          "markers": ["legal_hold boolean not null default false", "idx_profiles_legal_hold_true"]
+        },
+        {
+          "path": "src/app/api/me/export/route.ts",
+          "markers": ["isLegalHoldProfile(profile)", "security.dsr_self_export_blocked_legal_hold"]
+        },
+        {
+          "path": "src/app/api/me/account/route.ts",
+          "markers": ["isLegalHoldProfile(profile)", "security.dsr_account_delete_blocked_legal_hold"]
+        }
+      ]
+    },
+    {
+      "id": "backup-restore-evidence",
+      "ownerArea": "data-platform",
+      "commands": [
+        { "command": "check:database-backup-restore-evidence", "ciRequired": true },
+        { "command": "check:dr-drill-smoke", "ciRequired": false },
+        { "command": "report:rpo-rto-status", "ciRequired": false }
+      ],
+      "artifacts": ["artifacts/supabase/database-backup-restore-evidence.json"],
+      "manualBoundaryId": "manual-database-restore-drill"
+    }
+  ]
+}

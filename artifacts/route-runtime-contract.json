@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T23:20:58.887Z",
+  "generatedAt": "2026-05-28T22:05:45.870Z",
   "rows": [
     {
       "route": "/",
@@ -3831,6 +3831,39 @@
       }
     },
     {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/error.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/loading.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
       "route": "/security",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "kind": "page",
@@ -5593,6 +5626,17 @@
     {
       "route": "action:product-surface-settings.test",
       "sourcePath": "src/actions/product-surface-settings.test.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "action:product-telemetry.test",
+      "sourcePath": "src/actions/product-telemetry.test.ts",
       "kind": "server_action",
       "runtime": "server_action",
       "performanceBudget": {

@@ -23,4 +23,10 @@ describe("/api/stripe/invoices route contract", () => {
     expect(SRC).toContain('"Cache-Control", "no-store, max-age=0"');
     expect(SRC).toContain('"X-Frame-Options", "DENY"');
   });
+
+  it("preserves the invoice response schema and payload shape for backward compatibility", () => {
+    expect(SRC).toContain("export type BillingInvoice");
+    expect(SRC).toContain("invoices: [] satisfies BillingInvoice[]");
+    expect(SRC).toContain("lines: (inv.lines?.data ?? []).map");
+  });
 });

@@ -198,4 +198,86 @@ describe("workflow-config server action input safety", () => {
     expect(workflowConfigMocks.createClient).not.toHaveBeenCalled();
     expect(workflowConfigMocks.cookies).not.toHaveBeenCalled();
   });
+
+  it("disconnectIntegrationConnectionForm rejects unsafe reasons before auth or cookies", async () => {
+    const { disconnectIntegrationConnectionForm } = await import("@/actions/workflow-config");
+    const fd = new FormData();
+    fd.set("provider", "slack");
+    fd.set("reason", "rotated\u202Ehidden");
+
+    const result = await disconnectIntegrationConnectionForm(fd);
+
+    expect(result).toEqual({ error: "Disconnect reason contains unsupported characters" });
+    expect(workflowConfigMocks.createClient).not.toHaveBeenCalled();
+    expect(workflowConfigMocks.cookies).not.toHaveBeenCalled();
+  });
+
+  it("disconnectIntegrationConnectionForm removes tokens and webhook config while auditing", async () => {
+    const maybeSingle = vi.fn(async () => ({
+      data: {
+        id: "conn-1",
+        organization_id: "org-1",
+        provider: "slack",
+        status: "connected",
+      },
+      error: null,
+    }));
+    const selectEqProvider = vi.fn(() => ({ maybeSingle }));
+    const selectEqOrg = vi.fn(() => ({ eq: selectEqProvider }));
+    const updateEqOrg = vi.fn(async () => ({ error: null }));
+    const updateEqId = vi.fn(() => ({ eq: updateEqOrg }));
+    const update = vi.fn((patch: unknown) => {
+      void patch;
+      return { eq: updateEqId };
+    });
+    workflowConfigMocks.from.mockImplementation((table: string) => {
+      if (table !== "integration_connections") throw new Error(`Unexpected table: ${table}`);
+      return {
+        select: vi.fn(() => ({ eq: selectEqOrg })),
+        update,
+      };
+    });
+
+    const { disconnectIntegrationConnectionForm } = await import("@/actions/workflow-config");
+    const fd = new FormData();
+    fd.set("provider", "slack");
+    fd.set("reason", "rotated provider app");
+
+    const result = await disconnectIntegrationConnectionForm(fd);
+
+    expect(result).toEqual({ success: true });
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "not_connected",
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        connected_account: null,
+        oauth_connected_at: null,
+        last_synced_at: null,
+        last_error: null,
+        config_json: expect.objectContaining({
+          disconnect_reason: "rotated provider app",
+          cleanup: "tokens_webhooks_and_provider_endpoints_removed",
+        }),
+      })
+    );
+    expect(JSON.stringify(update.mock.calls[0]?.[0])).not.toContain("webhookUrl");
+    expect(workflowConfigMocks.recordSecurityAuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "security.integration_disconnected",
+        targetType: "integration_connection",
+        targetId: "conn-1",
+        safeMetadata: expect.objectContaining({
+          provider: "slack",
+          localTokenDeletion: true,
+          webhookCleanup: true,
+          staleScheduledJobsBlocked: true,
+          historicalRecordPreserved: true,
+        }),
+      })
+    );
+    expect(workflowConfigMocks.revalidatePath).toHaveBeenCalledWith("/settings/operations");
+  });
 });

@@ -25,6 +25,7 @@ function writeValidFixture(root) {
       "Disallow: /settings/",
       "Disallow: /onboarding/",
       "Disallow: /reports/",
+      "Disallow: /search/",
       "Disallow: /assurance/",
       "Disallow: /campaigns/",
       "Disallow: /decisions/",
@@ -40,7 +41,7 @@ function writeValidFixture(root) {
   write(
     root,
     "src/app/robots.ts",
-    'const isVercelPreview = process.env.VERCEL_ENV === "preview";\nif (isVercelPreview) return { rules: { userAgent: "*", disallow: "/" } };\nreturn { rules: [{ disallow: ["/api/","/dashboard/","/work/","/contracts/","/settings/","/onboarding/","/reports/","/assurance/","/campaigns/","/decisions/","/relationship-workspaces/","/accounts/","/counterparties/","/more/"] }] };\n'
+    'const isVercelPreview = process.env.VERCEL_ENV === "preview";\nif (isVercelPreview) return { rules: { userAgent: "*", disallow: "/" } };\nreturn { rules: [{ disallow: ["/api/","/dashboard/","/work/","/contracts/","/settings/","/onboarding/","/reports/","/search/","/assurance/","/campaigns/","/decisions/","/relationship-workspaces/","/accounts/","/counterparties/","/more/"] }] };\n'
   );
   write(
     root,

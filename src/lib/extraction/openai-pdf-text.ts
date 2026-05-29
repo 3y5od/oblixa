@@ -1,6 +1,9 @@
 import { isRetryableOpenAIError, withRetry } from "@/lib/extraction/retry";
 import { redactModelBoundContractText } from "@/lib/extraction/model-context-redaction";
-import { OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS } from "@/lib/extraction/constants";
+import {
+  OPENAI_PDF_OCR_ATTEMPT_TIMEOUT_MS,
+  OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS,
+} from "@/lib/extraction/constants";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 type OpenAIClient = InstanceType<Awaited<typeof import("openai")>["default"]>;
@@ -90,7 +93,12 @@ export async function extractTextFromPdfViaOpenAi(
           await deleteOpenAiUploadedFile(client, upload.id);
         }
       },
-      { maxAttempts: OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS, baseDelayMs: 600, shouldRetry: isRetryableOpenAIError }
+      {
+        maxAttempts: OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS,
+        baseDelayMs: 600,
+        timeoutMs: OPENAI_PDF_OCR_ATTEMPT_TIMEOUT_MS,
+        shouldRetry: isRetryableOpenAIError,
+      }
     );
   };
 

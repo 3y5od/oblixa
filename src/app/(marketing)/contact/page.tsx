@@ -8,7 +8,7 @@ import { GradientPhrase } from "@/components/ui/gradient-phrase";
 
 const title = "Contact — Oblixa";
 const description =
-  "Talk to Oblixa about Core, security and DPA requests, the Founding Customer offer, the guided pilot, or larger-team workflows. We respond within one business day.";
+  "Talk to Oblixa about Core, security and DPA requests, the Founding Customer offer, the guided pilot, larger-team workflows, or assurance workflows. We respond within one business day.";
 
 export const metadata: Metadata = {
   title,
@@ -128,6 +128,14 @@ export default function ContactPage() {
             <p className="mx-auto mt-4 max-w-xl text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
               Tell us what you&apos;re trying to solve.
             </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <a href="#contact-form" className="ui-btn-primary px-4 py-2 text-[13px] font-semibold">
+                Book setup call
+              </a>
+              <Link href="/signup" className="ui-btn-secondary px-4 py-2 text-[13px] font-semibold">
+                Start free trial
+              </Link>
+            </div>
             <div className="mt-5 flex justify-center">
               <div className="inline-flex flex-wrap divide-x divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)] text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                 <span className="px-3 py-1.5">1-day reply</span>
@@ -139,6 +147,7 @@ export default function ContactPage() {
           {/* Form card — constrained inner width within the wider container. */}
           <div className="mx-auto mt-10 max-w-3xl">
             <section
+              id="contact-form"
               aria-label="Contact form"
               className="landing-card-premium relative overflow-hidden rounded-2xl border p-6 sm:p-8"
             >

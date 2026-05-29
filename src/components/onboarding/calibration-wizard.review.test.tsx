@@ -7,11 +7,8 @@ import { CalibrationWizard } from "@/components/onboarding/calibration-wizard";
 import type { CalibrationRecommendation } from "@/lib/onboarding/calibration-types";
 import {
   actionApply,
-  actionSettings,
   actionSimpler,
   calibrationReviewTestIds,
-  labelForNotificationSuppressAdvanced,
-  labelForSearchScope,
   reviewSectionHeadings,
   reviewStepTitle,
   setupChecklistKeyLabels,
@@ -88,22 +85,22 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     await screen.findByTestId(calibrationReviewTestIds.root);
   }
 
-  it("review step shows recommended mode label, landing, and three primary actions", async () => {
+  it("review step shows Core-safe result copy and two primary actions", async () => {
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
     await waitForReviewPreviewRoot();
     expect(screen.getByRole("heading", { level: 1, name: reviewStepTitle })).toBeTruthy();
-    expect(screen.getByText(/Recommended workspace mode/i)).toBeTruthy();
-    expect(screen.getByText(/\(recommended\)/)).toBeTruthy();
+    expect(screen.getAllByText(/Your workspace is ready to track contracts/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Recommended workspace mode/i)).toBeNull();
     const section = reviewSection();
     const applyBtn = within(section).getByRole("button", { name: actionApply }) as HTMLButtonElement;
     expect(applyBtn.disabled).toBe(false);
     expect(within(section).getByRole("button", { name: actionSimpler })).toBeTruthy();
-    expect(within(section).getByRole("button", { name: actionSettings })).toBeTruthy();
+    expect(within(section).queryByRole("button", { name: /advanced/i })).toBeNull();
   });
 
-  it("Apply recommendation stays disabled until preview resolves", async () => {
+  it("upload-first action stays disabled until preview resolves", async () => {
     actionMocks.previewCalibrationRecommendation.mockImplementation(() => new Promise(() => {}));
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
@@ -113,7 +110,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     expect(applyBtn.disabled).toBe(true);
   });
 
-  it("successful Apply calls complete action and router.replace to /dashboard", async () => {
+  it("successful upload-first action calls complete action and router.replace to /contracts/new", async () => {
     const user = userEvent.setup();
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
@@ -123,7 +120,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     await waitFor(() =>
       expect(actionMocks.completeQuestionnaireAcceptRecommendation).toHaveBeenCalled()
     );
-    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/dashboard"));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/contracts/new"));
   });
 
   it("focuses the step heading after landing on review", async () => {
@@ -175,7 +172,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
 
   it("while a review outcome is in-flight, primary outcome buttons are disabled", async () => {
     const user = userEvent.setup();
-    actionMocks.completeQuestionnaireSimplerSetup.mockImplementation(() => new Promise(() => {}));
+    actionMocks.completeQuestionnaireAcceptRecommendation.mockImplementation(() => new Promise(() => {}));
     render(
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
@@ -187,7 +184,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
         (within(section).getByRole("button", { name: actionApply }) as HTMLButtonElement).disabled
       ).toBe(true);
       expect(
-        (within(section).getByRole("button", { name: actionSettings }) as HTMLButtonElement).disabled
+        (within(section).getByRole("button", { name: actionSimpler }) as HTMLButtonElement).disabled
       ).toBe(true);
     });
   });
@@ -212,7 +209,7 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     actionMocks.previewCalibrationRecommendation.mockResolvedValue({ ok: true, recommendation: mockRec });
     render(<CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />);
     await waitForReviewPreviewRoot();
-    await screen.findByText(/Recommended workspace mode/i);
+    await screen.findByRole("heading", { level: 1, name: reviewStepTitle });
     const results = await axe.run(reviewSection(), {
       runOnly: { type: "tag", values: ["wcag2a"] },
     });
@@ -231,17 +228,12 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
     expect(screen.getByTestId(calibrationReviewTestIds.setup)).toBeTruthy();
     expect(screen.getByRole("heading", { name: reviewSectionHeadings.setup })).toBeTruthy();
     expect(screen.getByText(setupChecklistKeyLabels.upload_contract)).toBeTruthy();
-    const searchRegion = screen.getByTestId(calibrationReviewTestIds.searchScope);
-    expect(
-      within(searchRegion).getByText(labelForSearchScope("match_mode"))
-    ).toBeTruthy();
-    const notifyRegion = screen.getByTestId(calibrationReviewTestIds.notifications);
-    expect(
-      within(notifyRegion).getByText(labelForNotificationSuppressAdvanced(false))
-    ).toBeTruthy();
+    expect(screen.getByTestId(calibrationReviewTestIds.reports)).toBeTruthy();
+    expect(screen.queryByTestId(calibrationReviewTestIds.searchScope)).toBeNull();
+    expect(screen.queryByTestId(calibrationReviewTestIds.notifications)).toBeNull();
   });
 
-  it("review shows core-only search scope and utility hides when preview says so", async () => {
+  it("review hides mode and utility implementation details even when preview contains them", async () => {
     actionMocks.previewCalibrationRecommendation.mockResolvedValue({
       ok: true,
       recommendation: {
@@ -262,15 +254,8 @@ describe("CalibrationWizard — review & outcomes (jsdom)", () => {
       <CalibrationWizard initialRequired={{ ...fullReq }} initialOptional={{}} initialStep={8} />
     );
     await waitForReviewPreviewRoot();
-    const searchRegion = await screen.findByTestId(calibrationReviewTestIds.searchScope);
-    expect(
-      within(searchRegion).getByText(labelForSearchScope("core_only"))
-    ).toBeTruthy();
-    const utilRegion = screen.getByTestId(calibrationReviewTestIds.utilities);
-    expect(within(utilRegion).getByText(/Hidden: Intake/)).toBeTruthy();
-    const notifyRegion = screen.getByTestId(calibrationReviewTestIds.notifications);
-    expect(
-      within(notifyRegion).getByText(labelForNotificationSuppressAdvanced(true))
-    ).toBeTruthy();
+    expect(screen.queryByText(/Core mode|Advanced mode|Assurance mode/i)).toBeNull();
+    expect(screen.queryByText(/Hidden: Intake/)).toBeNull();
+    expect(screen.queryByTestId(calibrationReviewTestIds.utilities)).toBeNull();
   });
 });

@@ -193,7 +193,7 @@ describe("V10 P1/P2 Advanced and Assurance continuity", () => {
     ).toMatchObject({
       behavior: "suppress_hidden_by_module",
       suppressionReason: "module_hidden_by_workspace_configuration",
-      workDestination: "/settings/product",
+      workDestination: "/settings",
     });
     expect(
       validateV10AdvancedAssuranceNotificationPolicies([
@@ -262,7 +262,7 @@ describe("V10 P1/P2 Advanced and Assurance continuity", () => {
       visible: false,
       visibility_state: "hidden_by_mode",
       outcome: "mode_required",
-      fallback_destination: "/settings/product",
+      fallback_destination: "/settings",
     });
     expect(
       buildV10LinkedRecordContinuityEvidence({

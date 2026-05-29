@@ -1,0 +1,1307 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-package-pipeline-governance",
+  "generatedFrom": "config/operational-package-pipelines.json",
+  "packageScriptCount": 909,
+  "operationalScriptCount": 867,
+  "packageGraph": {
+    "nodeCount": 909,
+    "edgeCount": 92,
+    "cycleCount": 0,
+    "aliasOnlyCount": 46,
+    "missingReferenceCount": 0
+  },
+  "workflowScriptReferenceCount": 448,
+  "requiredCommands": [
+    {
+      "id": "ci-parity-pipeline",
+      "objective": "local CI parity pipeline",
+      "command": "pipeline:ci-parity"
+    },
+    {
+      "id": "generated-artifact-hygiene",
+      "objective": "generated artifact ownership and redaction",
+      "command": "check:generated-artifact-hygiene"
+    },
+    {
+      "id": "maximal-pipeline",
+      "objective": "maximal QA pipeline",
+      "command": "pipeline:qa-max"
+    },
+    {
+      "id": "release-pipeline",
+      "objective": "release pipeline",
+      "command": "pipeline:release:checklist"
+    },
+    {
+      "id": "script-registry-integrity",
+      "objective": "check-owned script registry coverage",
+      "command": "check:script-registry-integrity"
+    },
+    {
+      "id": "security-pipeline",
+      "objective": "security pipeline",
+      "command": "pipeline:security:comprehensive"
+    },
+    {
+      "id": "static-check-determinism",
+      "objective": "deterministic operational scripts",
+      "command": "check:static-check-determinism"
+    },
+    {
+      "id": "static-ci-pipeline",
+      "objective": "static CI pipeline",
+      "command": "pipeline:ci:static"
+    },
+    {
+      "id": "surface-pipeline",
+      "objective": "surface pipeline",
+      "command": "pipeline:surface:suite"
+    },
+    {
+      "id": "tier-coverage",
+      "objective": "package-script tier ownership",
+      "command": "check:tier-coverage:strict"
+    },
+    {
+      "id": "ultimate-pipeline",
+      "objective": "ultimate QA pipeline",
+      "command": "pipeline:qa-ultimate"
+    },
+    {
+      "id": "workflow-tier-coverage",
+      "objective": "workflow to package-script parity",
+      "command": "check:workflow-tier-coverage:strict"
+    }
+  ],
+  "tierCoverage": {
+    "checkScripts": 536,
+    "manifestScripts": 108,
+    "allowlist": 478,
+    "uncovered": 0,
+    "orphanAllowlist": 0
+  },
+  "pipelineTiers": [
+    {
+      "id": "quick",
+      "ownerArea": "platform-hardening",
+      "script": "check:quick",
+      "scriptExists": true,
+      "manifestPresence": [],
+      "workflow": null,
+      "workflowPresent": null
+    },
+    {
+      "id": "static",
+      "ownerArea": "platform-hardening",
+      "script": "pipeline:ci:static",
+      "scriptExists": true,
+      "manifestPresence": [],
+      "workflow": ".github/workflows/ci.yml",
+      "workflowPresent": true
+    },
+    {
+      "id": "security",
+      "ownerArea": "platform-security",
+      "script": "security:sweep:comprehensive",
+      "scriptExists": true,
+      "manifestPresence": [
+        {
+          "manifestTier": "nightly",
+          "present": true
+        },
+        {
+          "manifestTier": "nightly_fast",
+          "present": true
+        },
+        {
+          "manifestTier": "nightly_deep",
+          "present": true
+        }
+      ],
+      "workflow": null,
+      "workflowPresent": null
+    },
+    {
+      "id": "surface",
+      "ownerArea": "api-platform",
+      "script": "pipeline:surface:suite",
+      "scriptExists": true,
+      "manifestPresence": [],
+      "workflow": ".github/workflows/ci.yml",
+      "workflowPresent": true
+    },
+    {
+      "id": "integration",
+      "ownerArea": "test-platform",
+      "script": "test:integration:ai-webhook",
+      "scriptExists": true,
+      "manifestPresence": [
+        {
+          "manifestTier": "nightly",
+          "present": true
+        },
+        {
+          "manifestTier": "nightly_fast",
+          "present": true
+        },
+        {
+          "manifestTier": "nightly_deep",
+          "present": true
+        }
+      ],
+      "workflow": null,
+      "workflowPresent": null
+    },
+    {
+      "id": "e2e",
+      "ownerArea": "test-platform",
+      "script": "test:e2e:smoke",
+      "scriptExists": true,
+      "manifestPresence": [],
+      "workflow": ".github/workflows/ci.yml",
+      "workflowPresent": true
+    },
+    {
+      "id": "release",
+      "ownerArea": "release-engineering",
+      "script": "pipeline:release:checklist",
+      "scriptExists": true,
+      "manifestPresence": [
+        {
+          "manifestTier": "release",
+          "present": true
+        }
+      ],
+      "workflow": null,
+      "workflowPresent": null
+    },
+    {
+      "id": "maximal",
+      "ownerArea": "test-platform",
+      "script": "pipeline:qa-ultimate",
+      "scriptExists": true,
+      "manifestPresence": [],
+      "workflow": ".github/workflows/reusable-qa-ultimate.yml",
+      "workflowPresent": true
+    }
+  ],
+  "deterministicOutput": {
+    "staticCheckDeterminism": {
+      "ok": true,
+      "issueCount": 0,
+      "blockingScriptsChecked": 229
+    },
+    "generatedArtifactHygiene": {
+      "ok": true,
+      "issueCount": 0,
+      "artifactCount": 104,
+      "deterministicArtifactCount": 83,
+      "safeToRegenerateCount": 85
+    }
+  },
+  "generatedArtifacts": [
+    {
+      "path": "artifacts/assurance/catalog-script-index.json",
+      "ownerArea": "test-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/assurance/dashboard.json",
+      "ownerArea": "test-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/assurance/scripts-to-epic-map.json",
+      "ownerArea": "test-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/neutral-naming-rules.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:neutral-naming-rules",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/removal-queue.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:compatibility-removal-queue",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-additive-alias-preservation.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-additive-alias-preservation",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-alias-usage-neutrality.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-alias-usage-neutrality",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-code-only-closure.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-code-only-closure",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-content-contract-inventory.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-content-contracts",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-content-surface-coverage.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-content-surface-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-detailed-objective-coverage.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-detailed-objective-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-env-flag-aliases.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-env-flag-aliases",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-export-download-contracts.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-export-download-contracts",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-exported-symbol-inventory.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-exported-symbols",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-final-checklist-reconciliation.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-final-checklist-reconciliation",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-forward-migration-readiness.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-forward-migration-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-local-content-rewrites",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-local-surface-regression.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-local-surface-regression",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-manual-surface-closure.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-manual-surface-closure",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-naming-safe-rename-manifest.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-naming-safe-renames",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-open-objective-closure.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-open-objective-closure",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-package-script-readiness.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-package-script-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-public-runtime-dual-read.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-public-runtime-dual-read",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-remaining-local-contract-closure.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-remaining-local-contract-closure",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-remaining-surface-coverage.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-remaining-surface-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/compatibility/versioned-unchecked-objective-readiness.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-unchecked-objective-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/dependency-review-policy.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/license-allowlist.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-api-runtime-contracts.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-api-runtime-contracts",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-authz-session.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-authz-session",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-billing-entitlements.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-billing-entitlements",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-browser-security.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-browser-security",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-ci-enforcement.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-ci-enforcement",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-cron-jobs.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-cron-jobs",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-data-quality-invariants.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-data-quality-invariants",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-dr-incident-readiness.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:incident-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-edge-readiness.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-edge-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-environment-isolation.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-environment-isolation",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-feature-flags-rollout.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-feature-flags-rollout",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-frontend-resilience.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-frontend-resilience",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-governance-ownership.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-governance-ownership",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-hardening-closure.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-hardening-objectives",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-incident-follow-up-template.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:incident-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-legal-trust-compliance.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-legal-trust-compliance",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-notifications-messaging.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-notifications-messaging",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-oauth-integration-sync.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-oauth-integration-sync",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-observability-redaction.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-observability-redaction",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-package-pipelines.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-package-pipelines",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-performance-load-chaos.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-performance-load-chaos",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-platform-variant-coverage.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-platform-variant-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-privacy-auditability.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-privacy-auditability",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-provider-integrations.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-provider-integrations",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-public-launch-positioning.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-public-launch-positioning",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-rate-limits-abuse-bounds.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-rate-limits-abuse-bounds",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-release-readiness.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-release-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-repository-artifact-hygiene.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-repository-artifact-hygiene",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-schema-compatibility.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-schema-compatibility",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-search-reporting-analytics-exports.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-search-reporting-analytics-exports",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-secrets-configuration.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-secrets-configuration",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-static-architecture-code-health.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-static-architecture-code-health",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-supabase-database.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-supabase-database",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-supply-chain-risk.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-supply-chain-risk",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-support-operations.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-support-operations",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-test-reliability-governance.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-test-reliability-governance",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-threat-model-control-traceability.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:control-traceability",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-uploads-files-extraction.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-uploads-files-extraction",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-waivers-ratchets.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-waivers-ratchets",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/operational-webhooks-callbacks.json",
+      "ownerArea": "platform-hardening",
+      "deterministic": true,
+      "writeCommand": "npm run write:operational-webhooks-callbacks",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/page-route-state-matrix.json",
+      "ownerArea": "frontend-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/reproducible-build-report.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-db-dependencies.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-external-contracts.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-functionality-matrix.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-provider-matrix.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-runtime-contract.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/route-universe.json",
+      "ownerArea": "api-platform",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/sbom-diff-report.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/sbom-dual-format-evidence.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": "npm run write:sbom-dual-format-evidence",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/security-control-coverage-matrix.rows.json",
+      "ownerArea": "platform-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/security-proxy-matrix.json",
+      "ownerArea": "platform-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/security-report-checksums.json",
+      "ownerArea": "platform-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/security-route-matrix.json",
+      "ownerArea": "platform-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/spdx-sbom.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": "npm run write:sbom-dual-format-evidence",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/stride-dread-threat-model.json",
+      "ownerArea": "platform-security",
+      "deterministic": true,
+      "writeCommand": "npm run write:control-traceability",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/subprocessors-diff.json",
+      "ownerArea": "trust-compliance",
+      "deterministic": true,
+      "writeCommand": "npm run write:subprocessors-drift",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/data-retention-inventory.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:supabase:retention-inventory",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/database-backup-restore-evidence.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:database-backup-restore-evidence",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/local-catalog-fingerprint.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:supabase:fingerprint-artifact",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/migration-domain-index.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:migration-organization",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/migration-history-version-exceptions.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:migration-history-version-exceptions",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/migration-manifest.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:migration-manifest",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/seed-versioned-name-queue-coverage.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:seed-versioned-name-queue-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-neutral-table-view-aliases.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-neutral-table-view-aliases",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-object-reference-inventory.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-object-reference-inventory",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-object-rename-staging.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-object-rename-staging",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-policy-alias-readiness.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-policy-alias-readiness",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-policy-forward-migration-blueprint.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-policy-forward-migration-blueprint",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-policy-predicate-equivalence.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-policy-predicate-equivalence",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-rename-verification-sql.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-rename-verification-sql",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supabase/sql-security-automation-coverage.json",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-security-automation-coverage",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/supply-chain-install-script-allowlist.json",
+      "ownerArea": "supply-chain-security",
+      "deterministic": false,
+      "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "scripts/versioned-naming-removal-queue.json",
+      "ownerArea": "compatibility",
+      "deterministic": true,
+      "writeCommand": "npm run write:versioned-naming-removal-queue",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "supabase/sql/policy-forward-migration-blueprint.sql",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-policy-forward-migration-blueprint",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "supabase/sql/policy-predicate-equivalence.sql",
+      "ownerArea": "data-platform",
+      "deterministic": true,
+      "writeCommand": "npm run write:sql-policy-predicate-equivalence",
+      "cleanupPolicy": "regenerate-on-check-drift"
+    }
+  ],
+  "aliasOnlyScripts": [
+    {
+      "script": "check:release-promotable:report",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:surface-hrefs:compatibility:strict",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 1,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:surface-suite:compatibility",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 1,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:surface:api-eligibility",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 1,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-complete-closure",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-inventory-lock",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-migration-smoke",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-migration-smoke:strict",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-privacy-scan",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-promotable",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-promotable:report",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-release-evidence",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-runtime-evidence-plan",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-suite",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v10-zero-exclusion-report",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v7-hrefs:strict",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v7-suite",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-acceptance-criteria",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-acceptance-matrix",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-action-eligibility",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-action-inventory",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-api-eligibility",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-api-inventory",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-denial-mapping",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-diagnostics-contract",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-hrefs",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-hrefs:strict",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-page-inventory",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-suite",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-supplemental-contracts",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v8-vocabulary",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "check:v9-suite",
+      "ownerArea": "platform-hardening",
+      "coverage": "tier-or-allowlist",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "qa:sweep:ci-unit",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 1,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "qa:sweep:max",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "qa:sweep:security-static",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "report:v9-pr-body-rollup",
+      "ownerArea": "platform-governance",
+      "coverage": "artifact-or-report",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:e2e:multi-browser",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 2
+    },
+    {
+      "script": "test:e2e:v10",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:e2e:v10:matrix",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:e2e:v9",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:e2e:v9:visual",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:e2e:v9:visual:update",
+      "ownerArea": "test-platform",
+      "coverage": "qa-tier-manifest",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:vitest:v10",
+      "ownerArea": "test-platform",
+      "coverage": "package-script-graph",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "test:watch",
+      "ownerArea": "test-platform",
+      "coverage": "package-script-graph",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "verify",
+      "ownerArea": "platform-hardening",
+      "coverage": "package-script-graph",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    },
+    {
+      "script": "verify:security",
+      "ownerArea": "platform-hardening",
+      "coverage": "package-script-graph",
+      "aliasOnly": true,
+      "referencedByScriptCount": 0,
+      "referencedByWorkflowCount": 0
+    }
+  ],
+  "dangerousShellFindings": [],
+  "issueCount": 0,
+  "issues": []
+}

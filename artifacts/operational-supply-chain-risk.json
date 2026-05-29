@@ -1,0 +1,613 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-supply-chain-risk",
+  "generatedBy": "scripts/check-operational-supply-chain-risk.mjs --write",
+  "generatedFrom": "config/operational-supply-chain-risk.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 28,
+  "scannerPolicyCount": 7,
+  "sbomContractCount": 3,
+  "dependencyPolicyContractCount": 4,
+  "releaseProvenanceContractCount": 4,
+  "secretScanContractCount": 4,
+  "delegatedCheckCount": 10,
+  "commands": [
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:dependency-confusion-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "confusion_static_guards"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:dependency-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "dependency_review_policy",
+        "security_pipeline_parity"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:install-script-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "install_script_allowlist"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:license-sbom",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "license_allowlist"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:lockfile-integrity-drift",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "lockfile_drift",
+        "registry_integrity"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:supply-chain-dependency-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "confusion",
+        "denylist",
+        "known_vulnerabilities",
+        "native_wasm_inventory",
+        "typosquat"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "check:supply-chain-waivers",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "external_waiver_registry"
+      ]
+    },
+    {
+      "objective": "dependency-policy-enforcement",
+      "script": "report:dependency-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "npm_audit_summary"
+      ]
+    },
+    {
+      "objective": "dual-format-sbom-evidence",
+      "script": "check:operational-supply-chain-risk",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "delegated_supply_chain_checks"
+      ]
+    },
+    {
+      "objective": "dual-format-sbom-evidence",
+      "script": "check:sbom-dual-format-evidence",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "cyclonedx_spdx_counts",
+        "dependency_drift_gate",
+        "hash_evidence"
+      ]
+    },
+    {
+      "objective": "dual-format-sbom-evidence",
+      "script": "check:sbom-formats-vex-sarif",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "spdx_cyclonedx_vex_sarif_contracts"
+      ]
+    },
+    {
+      "objective": "dual-format-sbom-evidence",
+      "script": "check:sbom-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "cyclonedx_schema",
+        "direct_dependency_coverage"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "check:container-signing-slsa-stub",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "slsa_cosign_boundary"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "check:release-artifact-provenance",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "ci_provenance_signals",
+        "release_artifact_inputs"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "check:reproducible-build-hash",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "reproducible_build_hash_boundary"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "check:security-report-checksums",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "release_checksum_manifest"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "verify-cosign-artifact",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "env_gated_cosign_verification"
+      ]
+    },
+    {
+      "objective": "release-provenance-integrity",
+      "script": "verify-slsa-attestation",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "env_gated_slsa_verification"
+      ]
+    },
+    {
+      "objective": "scanner-ci-parity",
+      "script": "check:github-actions-permissions",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "least_privilege_workflow_permissions"
+      ]
+    },
+    {
+      "objective": "scanner-ci-parity",
+      "script": "check:github-workflows-security",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "pinned_actions",
+        "workflow_permissions"
+      ]
+    },
+    {
+      "objective": "scanner-ci-parity",
+      "script": "check:semgrep-rulepack-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "semgrep_rulepack_ci_and_sarif_parity"
+      ]
+    },
+    {
+      "objective": "scanner-ci-parity",
+      "script": "check:supply-chain-security-matrix",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "codeql_semgrep_trivy_dependency_review_scorecard_presence"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:ci-artifact-secret-leakage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "ci_artifact_secret_outputs"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:git-history-secret-exposure",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": false,
+      "securityPipelinePresent": null,
+      "covers": [
+        "history_scan_stub_contract"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:gitleaks-allowlist",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "ci_gitleaks_allowlist_parity"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:static-secret-safety",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "local_secret_scan_aggregate"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:test-fixture-secrets",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "fixture_secret_placeholders"
+      ]
+    },
+    {
+      "objective": "secret-scan-parity",
+      "script": "check:tracked-secrets-hygiene",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "tracked_secret_file_hygiene"
+      ]
+    }
+  ],
+  "scannerPolicies": [
+    {
+      "id": "codeql",
+      "workflow": ".github/workflows/codeql.yml",
+      "owner": "@security",
+      "threshold": "default javascript-typescript queries",
+      "reportOutput": "CodeQL SARIF/code scanning analyze step",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#codeql_analysis",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "custom-security-checks",
+      "workflow": ".github/workflows/ci.yml",
+      "owner": "@security-engineering",
+      "threshold": "package script exit code",
+      "reportOutput": "JSON stdout and generated artifacts",
+      "waiverPolicy": "owned allowlists plus config/qa-external-waiver-registry.json",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dependency-review",
+      "workflow": ".github/workflows/dependency-review.yml",
+      "owner": "@security",
+      "threshold": "high",
+      "reportOutput": "GitHub dependency review job summary",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#github_dependency_review_high",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "npm-audit",
+      "workflow": ".github/workflows/ci.yml",
+      "owner": "@security",
+      "threshold": "high",
+      "reportOutput": "report:dependency-risk JSON telemetry",
+      "waiverPolicy": "no waiver for high or critical when audit metadata is available",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "openssf-scorecard",
+      "workflow": ".github/workflows/openssf-scorecard.yml",
+      "owner": "@security",
+      "threshold": "SARIF publication",
+      "reportOutput": "results.sarif",
+      "waiverPolicy": "no waiver; scheduled workflow must stay present",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "semgrep",
+      "workflow": ".github/workflows/semgrep-sarif.yml",
+      "owner": "@security",
+      "threshold": "ERROR",
+      "reportOutput": "semgrep.sarif artifact",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#semgrep_sarif",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "trivy",
+      "workflow": ".github/workflows/trivy-fs.yml",
+      "owner": "@security",
+      "threshold": "CRITICAL,HIGH",
+      "reportOutput": "Trivy workflow report",
+      "waiverPolicy": "config/qa-external-waiver-registry.json#trivy_fs_optional_tier",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "sbomContracts": [
+    {
+      "id": "cyclonedx-integrity-check",
+      "path": "scripts/check-sbom-integrity.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dual-format-sbom-generator",
+      "path": "scripts/check-sbom-dual-format-evidence.mjs",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "vex-sarif-format-check",
+      "path": "scripts/check-sbom-formats-vex-sarif.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "dependencyPolicyContracts": [
+    {
+      "id": "dependency-risk-policy-check",
+      "path": "scripts/check-supply-chain-dependency-risk.mjs",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dependency-risk-policy-config",
+      "path": "config/supply-chain-dependency-risk.json",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "install-script-risk-check",
+      "path": "scripts/check-install-script-risk.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "lockfile-integrity-check",
+      "path": "scripts/check-lockfile-integrity-drift.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "releaseProvenanceContracts": [
+    {
+      "id": "release-artifact-provenance-check",
+      "path": "scripts/check-release-artifact-provenance.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reproducible-build-hash",
+      "path": "scripts/reproducible-build-hash.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "slsa-cosign-boundary",
+      "path": "scripts/check-container-signing-slsa-stub.mjs",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "slsa-stub-artifact",
+      "path": "artifacts/slsa-build-level-stub.json",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "secretScanContracts": [
+    {
+      "id": "ci-artifact-secret-leakage",
+      "path": "scripts/check-ci-artifact-secret-leakage.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "gitleaks-allowlist-parity",
+      "path": "scripts/check-gitleaks-allowlist.mjs",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "secret-scan-workflow",
+      "path": ".github/workflows/ci.yml",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "static-secret-safety",
+      "path": "scripts/check-static-secret-safety.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "dependency-policy",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "github-workflows-security",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "release-artifact-provenance",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sbom-dual-format-evidence",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sbom-formats-vex-sarif",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "sbom-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "security-report-checksums",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "semgrep-rulepack-integrity",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "static-secret-safety",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "supply-chain-dependency-risk",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "manualBoundary": "Publishing real signed release artifacts, enabling blocking CodeQL upload, adopting full SLSA attestations, external vulnerability database availability, and production secret rotation remain manual or provider-dependent.",
+  "issueCount": 0,
+  "issues": []
+}

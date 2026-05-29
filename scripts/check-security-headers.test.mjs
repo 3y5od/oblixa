@@ -35,13 +35,14 @@ test("analyzeSecurityHeaders validates header builder and next config wiring", (
       'key: "Permissions-Policy"',
       'key: "Content-Security-Policy"',
       'key: "Content-Security-Policy-Report-Only"',
+      'key: "Reporting-Endpoints"',
       'key: "Strict-Transport-Security"',
     ].join("\n")
   );
   write(
     root,
     "src/lib/security/csp-builders.test.ts",
-    "buildSecurityHeaders adds HSTS only on Vercel by default\nPermissions-Policy disables payment and capture surfaces unless product opts in later\nrequire-trusted-types-for 'script'\nbuildSecurityHeaders rejects unsafe header values sourced from nonce input\nbuildApiNoStoreHeaders emits CDN-resistant private API cache headers\nscript-src-attr 'none'\nupgrade-insecure-requests\n"
+    "buildSecurityHeaders adds HSTS only on Vercel by default\nPermissions-Policy disables payment and capture surfaces unless product opts in later\nrequire-trusted-types-for 'script'\nbuildSecurityHeaders rejects unsafe header values sourced from nonce input\nbuildSecurityHeaders wires CSP report-uri and report-to endpoints\nbuildApiNoStoreHeaders emits CDN-resistant private API cache headers\nscript-src-attr 'none'\nupgrade-insecure-requests\n"
   );
 
   const report = analyzeSecurityHeaders(root);

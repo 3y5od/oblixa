@@ -13,7 +13,8 @@ describe("onboarding banner activation path anchors (V9 §7.1–7.2)", () => {
       "utf8"
     );
     expect(raw).toContain('"/onboarding/calibration"');
-    expect(raw).toContain('"/settings/product"');
+    expect(raw).not.toContain('"/settings/product"');
+    expect(raw).toContain("Review workspace setup");
     expect(raw).toContain('href="/contracts/new"');
     expect(raw).toContain('href: "/contracts/review"');
     expect(raw).toContain('href: "/contracts?sort=activity"');

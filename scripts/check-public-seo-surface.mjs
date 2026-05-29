@@ -13,6 +13,7 @@ const PRIVATE_PREFIXES = [
   "/settings",
   "/onboarding",
   "/reports",
+  "/search",
   "/assurance",
   "/campaigns",
   "/decisions",

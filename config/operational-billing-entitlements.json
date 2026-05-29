@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-billing-entitlements",
+  "objectives": [
+    {
+      "id": "entitlement-gate-inventory",
+      "ownerArea": "billing",
+      "commands": [
+        { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["commercial_gate_registry", "artifact_drift", "entitlement_policy"] },
+        { "command": "test:operational-billing-entitlements", "ciRequired": false, "covers": ["aggregate_marker_requirements"] },
+        { "command": "test:vitest:current-product", "ciRequired": false, "covers": ["billing_state_policy", "feature_gate_policy", "seat_policy"] }
+      ],
+      "artifacts": ["artifacts/operational-billing-entitlements.json"]
+    },
+    {
+      "id": "billing-state-transitions",
+      "ownerArea": "billing",
+      "commands": [
+        { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["state_transition_matrix", "ui_api_state_parity"] },
+        { "command": "check:release-security-required-env", "ciRequired": true, "covers": ["stripe_env_shape", "price_id_shape", "provider_mode"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["stripe_webhook_fixtures", "portal_return", "payment_failure"] }
+      ]
+    },
+    {
+      "id": "seat-and-invite-limits",
+      "ownerArea": "billing",
+      "commands": [
+        { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["seat_limit_matrix", "invite_runtime_integration"] },
+        { "command": "check:audit-event-coverage", "ciRequired": true, "covers": ["member_invite_audit_events"] },
+        { "command": "test:vitest:current-product", "ciRequired": false, "covers": ["invite_acceptance_seat_limit", "tenant_scope"] }
+      ]
+    },
+    {
+      "id": "revenue-impact-safeguards",
+      "ownerArea": "billing",
+      "commands": [
+        { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["revenue_safeguard_registry"] },
+        { "command": "check:idempotency-policy", "ciRequired": true, "covers": ["billing_mutation_idempotency"] },
+        { "command": "check:audit-event-coverage", "ciRequired": true, "covers": ["billing_audit_events"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["replay_safe_provider_events"] },
+        { "command": "check:release-security-required-env", "ciRequired": true, "covers": ["manual_live_billing_boundary"] },
+        { "command": "check:pci-cde-drift", "ciRequired": false, "covers": ["pci_scope_drift"] },
+        { "command": "check:pan-in-client-bundle", "ciRequired": false, "covers": ["card_data_client_bundle"] }
+      ]
+    }
+  ],
+  "entitlementGates": [
+    {
+      "id": "plans",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["OPERATIONAL_COMMERCIAL_PLAN_IDS", "\"free\"", "\"trial\"", "\"core\"", "\"advanced\"", "\"assurance\"", "\"enterprise\"", "PLAN_RANK"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "billing-states",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["OPERATIONAL_BILLING_STATE_IDS", "resolveOperationalBillingState", "evaluateOperationalBillingAccess"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "feature-access",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["OPERATIONAL_COMMERCIAL_FEATURE_POLICIES", "requiresPaidBilling", "evaluateCommercialFeatureGate"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "workspace-modes",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["workspaceModes", "workspace_mode_gated", "WorkspaceProductMode"],
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "seats",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["OPERATIONAL_SEAT_MUTATION_IDS", "evaluateSeatMutation", "CORE_PLAN_LIMITS.teamMembers"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "usage-limits",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["CORE_PLAN_LIMITS.activeContracts", "usageLimit", "usage_limit_reached"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "grace-periods",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["gracePeriodEndsAt", "reason: \"grace_period\"", "graceMs > (input.nowMs ?? Date.now())"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "blocked-states",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["BLOCKED_BILLING_STATES", "billing_state_blocked", "\"incomplete_expired\""],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "billingStateTransitions": [
+    { "id": "trialing", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"trialing\"", "PAID_UP_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "active", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"active\"", "isOperationalBillingPaidUp"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "past-due", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"past_due\"", "gracePeriodEndsAt", "billing_state_blocked"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "unpaid", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"unpaid\"", "BLOCKED_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "canceled", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"canceled\"", "BLOCKED_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "incomplete", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"incomplete\"", "BLOCKED_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "incomplete-expired", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"incomplete_expired\"", "BLOCKED_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "paused", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"paused\"", "BLOCKED_BILLING_STATES"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "no-customer", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"no_customer\"", "if (!input.stripeCustomerId) return \"no_customer\";"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "no-subscription", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"no_subscription\"", "if (!input.stripeSubscriptionId) return \"no_subscription\";"], "owner": "@billing", "validationCommand": "test:vitest:current-product" },
+    { "id": "portal-return", "path": "src/lib/billing/operational-entitlements.ts", "markers": ["\"portal_return\"", "portalReturn", "billing_state_ambiguous"], "owner": "@billing", "validationCommand": "test:vitest:current-product" }
+  ],
+  "seatInviteLimits": [
+    {
+      "id": "invite-creation",
+      "path": "src/actions/settings.ts",
+      "markers": ["evaluateSeatMutation", "operation: \"invite_creation\"", "loadPendingInviteSeatRows"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "revoke",
+      "path": "src/actions/settings.ts",
+      "markers": ["action: \"member.invite_revoked\"", "revoked_at", "revokeOrgInvite"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "accept",
+      "path": "src/app/auth/callback/route.ts",
+      "markers": ["operation: \"invite_accept\"", "invite_seat_limit", "organization_members"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "expired-invite",
+      "path": "src/app/auth/callback/route.ts",
+      "markers": ["new Date(inv.expires_at).getTime() < Date.now()", "invite_invalid"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "duplicate-invite",
+      "path": "src/actions/settings.ts",
+      "markers": ["duplicatePendingInvite", ".delete()", ".eq(\"email\", email)"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "seat-limit",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["seat_limit_reached", "input.activeSeats + pendingInvites + seatDelta > seatLimit", "CORE_PLAN_LIMITS.teamMembers"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "role-change",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["input.operation === \"role_change\"", "member.role_changed"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "billing-mismatch",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "markers": ["input.operation === \"billing_mismatch\"", "billing.seat_mismatch_detected"],
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "revenueImpactSafeguards": [
+    {
+      "id": "idempotency",
+      "path": "src/app/api/stripe/checkout/route.ts",
+      "markers": ["enforceIdempotency", "scope: \"stripe.checkout\"", "actorKey: `${membership.organization_id}:${user.id}`"],
+      "owner": "@billing",
+      "validationCommand": "check:idempotency-policy"
+    },
+    {
+      "id": "audit-events",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markers": ["billing.checkout_completed", "billing.payment_failed", "audit_events"],
+      "owner": "@security",
+      "validationCommand": "check:audit-event-coverage"
+    },
+    {
+      "id": "redaction",
+      "path": "src/app/api/stripe/portal/route.ts",
+      "markers": ["requestId", "stripeCode", "jsonProblem(502"],
+      "owner": "@security",
+      "validationCommand": "check:provider-integration-fixtures"
+    },
+    {
+      "id": "provider-event-replay",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "markers": ["stripe_webhook_events", "duplicate: true", "stripe_webhook_livemode_mismatch"],
+      "owner": "@billing",
+      "validationCommand": "check:provider-integration-fixtures"
+    },
+    {
+      "id": "manual-boundary",
+      "path": "config/operational-manual-boundaries.json",
+      "markers": ["manual-stripe-live-configuration", "live price correctness", "portal settings", "live webhook endpoint"],
+      "owner": "@billing",
+      "validationCommand": "check:release-security-required-env"
+    }
+  ],
+  "manualBoundary": "Live billing configuration and charges remain manual; this registry enforces repository-owned entitlement gates, billing state transitions, seat limits, replay safety, audit coverage, and safe provider fixture behavior."
+}

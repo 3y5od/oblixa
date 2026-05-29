@@ -32,6 +32,8 @@ export const EXTRACTION_MAX_TEXT_CHARS = 720_000;
 export const EXTRACTION_MAX_CHUNKS = 16;
 export const OPENAI_EXTRACTION_MAX_RETRY_ATTEMPTS = 4;
 export const OPENAI_PDF_OCR_MAX_RETRY_ATTEMPTS = 3;
+export const OPENAI_EXTRACTION_ATTEMPT_TIMEOUT_MS = 30_000;
+export const OPENAI_PDF_OCR_ATTEMPT_TIMEOUT_MS = 30_000;
 export const EXTRACTION_MODEL_OUTPUT_MAX_CHARS = 20_000;
 
 /** True when a processing job is old enough to treat as abandoned and allow retry. */

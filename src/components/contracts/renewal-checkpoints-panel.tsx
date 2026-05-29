@@ -11,6 +11,7 @@ import {
 } from "@/actions/policy-operations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import type { ContractRenewalCheckpoint, RenewalCheckpointStatus } from "@/lib/types";
+import { UiSelect } from "@/components/ui/ui-select";
 
 type CheckpointRow = Pick<
   ContractRenewalCheckpoint,
@@ -232,9 +233,14 @@ function StructuredWorkspaceForm({
 export function RenewalCheckpointsPanel({
   checkpoints,
   canEdit,
+  compact = false,
 }: {
   checkpoints: CheckpointRow[];
   canEdit: boolean;
+  /** When true, hide the structured renewal workspace editor + decision
+   *  packet generator. Used on Core overview where the Dates card should
+   *  surface only checkpoint list / status, not the Advanced workspace. */
+  compact?: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -264,16 +270,24 @@ export function RenewalCheckpointsPanel({
           {error}
         </p>
       )}
-      <ul className="space-y-3">
+      <ul className={compact ? "divide-y divide-[var(--border-subtle)]" : "space-y-3"}>
         {checkpoints.map((cp) => (
-          <li key={cp.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
+          <li
+            key={cp.id}
+            className={compact ? "py-2.5 first:pt-0 last:pb-0" : "rounded-xl border border-[var(--border-subtle)] bg-surface p-4"}
+          >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-[var(--text-primary)]">{cp.label}</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-                  Due {format(new Date(`${cp.due_date}T12:00:00`), "MMM d, yyyy")}
-                  <span className="text-[var(--text-tertiary)]"> · </span>
-                  {cp.offset_days}d before renewal
+                  <span className="tabular-nums">
+                    Due {format(new Date(`${cp.due_date}T12:00:00`), "MMM d, yyyy")}
+                  </span>
+                  <span className="ui-dot-sep" aria-hidden />
+                  <span className="font-medium tabular-nums">
+                    {cp.offset_days}d
+                  </span>
+                  <span> before renewal</span>
                 </p>
                 {cp.completed_at && (
                   <p className="mt-1 text-xs text-emerald-700">
@@ -282,26 +296,46 @@ export function RenewalCheckpointsPanel({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusTone(cp.status)}`}>
-                  {cp.status}
-                </span>
+                {(() => {
+                  const tone = statusTone(cp.status);
+                  const toneInk = tone.includes("emerald")
+                    ? "var(--success-ink)"
+                    : tone.includes("blue")
+                      ? "var(--accent-strong)"
+                      : tone.includes("var(--warning")
+                        ? "var(--warning-ink)"
+                        : "var(--border-strong)";
+                  return (
+                    <span
+                      aria-hidden
+                      className="inline-flex h-1.5 w-1.5 shrink-0 self-center rounded-full"
+                      style={{
+                        background: toneInk,
+                        boxShadow: `0 0 0 2.5px color-mix(in oklab, ${toneInk} 22%, transparent)`,
+                      }}
+                    />
+                  );
+                })()}
+                {compact ? null : (
+                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none ${statusTone(cp.status)}`}>
+                    {cp.status.toUpperCase()}
+                  </span>
+                )}
                 {canEdit && (
-                  <select
+                  <UiSelect
+                    variant="pill"
+                    className="min-w-[9rem]"
+                    buttonClassName="text-[12px]"
                     value={cp.status}
                     disabled={isPending}
-                    onChange={(e) => onStatusChange(cp.id, e.target.value as RenewalCheckpointStatus)}
-                    className="ui-input min-w-[8.5rem] py-1.5 text-xs"
-                  >
-                    {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => onStatusChange(cp.id, v as RenewalCheckpointStatus)}
+                    options={STATUS_OPTIONS}
+                    ariaLabel="Checkpoint status"
+                  />
                 )}
               </div>
             </div>
-            {canEdit ? (
+            {canEdit && !compact ? (
               <form action={updateRenewalCheckpointRenewalStateFormAction} className="mt-3 flex flex-wrap items-center gap-2">
                 <input type="hidden" name="checkpointId" value={cp.id} />
                 <label className="text-[11px] text-[var(--text-secondary)]">Renewal state</label>
@@ -321,7 +355,7 @@ export function RenewalCheckpointsPanel({
                 </button>
               </form>
             ) : null}
-            {canEdit ? (
+            {canEdit && !compact ? (
               <StructuredWorkspaceForm
                 checkpointId={cp.id}
                 workspaceJson={
@@ -331,12 +365,12 @@ export function RenewalCheckpointsPanel({
                 }
               />
             ) : null}
-            {canEdit ? (
+            {canEdit && !compact ? (
               <form action={generateRenewalDecisionPacketFormAction} className="mt-4 space-y-2 border-t border-[var(--border-subtle)] pt-3">
                 <input type="hidden" name="checkpointId" value={cp.id} />
                 <p className="text-[11px] font-medium text-[var(--text-secondary)]">Decision packet</p>
                 <input aria-label="Optional summary for the packet" name="packetSummary"
-                  placeholder="Optional summary for the packet"
+                  placeholder="Summary (optional)"
                   className="ui-input w-full max-w-md text-[11px]"
                 />
                 <button type="submit" className="ui-btn-primary px-3 py-1.5 text-xs">

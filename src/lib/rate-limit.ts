@@ -22,6 +22,11 @@ export const RATE_LIMIT_KEY_MAX_LENGTH = 240;
 const RATE_LIMIT_FAIL_CLOSED_RETRY_AFTER_MS = 60_000;
 const RATE_LIMIT_UPSTASH_TIMEOUT_MS = 1_500;
 
+type UpstashLimitResult = {
+  success: boolean;
+  reset: number;
+};
+
 export function hasDistributedRateLimitConfig(env: NodeJS.ProcessEnv = process.env): boolean {
   return Boolean(env.UPSTASH_REDIS_REST_URL?.trim() && env.UPSTASH_REDIS_REST_TOKEN?.trim());
 }
@@ -106,6 +111,21 @@ async function withRateLimitTimeout<T>(promise: Promise<T>, timeoutMs: number): 
   }
 }
 
+function normalizeUpstashLimitResult(result: unknown): UpstashLimitResult {
+  if (!result || typeof result !== "object") {
+    throw new Error("rate_limit_backend_malformed_response");
+  }
+  const row = result as { success?: unknown; reset?: unknown };
+  if (typeof row.success !== "boolean") {
+    throw new Error("rate_limit_backend_malformed_response");
+  }
+  if (row.success === false && (typeof row.reset !== "number" || !Number.isFinite(row.reset))) {
+    throw new Error("rate_limit_backend_malformed_response");
+  }
+  const reset = typeof row.reset === "number" && Number.isFinite(row.reset) ? row.reset : Date.now();
+  return { success: row.success, reset };
+}
+
 export async function rateLimitCheck(
   key: string,
   config: WindowConfig,
@@ -121,10 +141,10 @@ export async function rateLimitCheck(
     return rateLimitTake(normalizedKey, config);
   }
   try {
-    const result = await withRateLimitTimeout(
+    const result = normalizeUpstashLimitResult(await withRateLimitTimeout(
       upstash.limit(normalizedKey),
       options.timeoutMs ?? RATE_LIMIT_UPSTASH_TIMEOUT_MS
-    );
+    ));
     if (result.success) {
       return { ok: true };
     }
@@ -227,6 +247,10 @@ export const RATE_LIMITS = {
   v6OnboardingCalibrationStaleCron: { max: 60, windowMs: 60_000 },
   /** V9 product telemetry server actions (CmdK, page load, review save-next) — user+IP keyed. */
   productV9Telemetry: { max: 240, windowMs: 60_000 },
+  /** Authenticated command search over contract and operational read-model indexes. */
+  commandPaletteSearch: { max: 90, windowMs: 60_000 },
+  /** Authenticated report-run listing and export/download endpoint. */
+  reportPackRunsRead: { max: 60, windowMs: 60_000 },
   /** Gated internal debugging sweep diagnostics (bearer + env). */
   internalDebuggingSweep: { max: 30, windowMs: 60_000 },
   workspaceApi: { max: 240, windowMs: 60_000 },

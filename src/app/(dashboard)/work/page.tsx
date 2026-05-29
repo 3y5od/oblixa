@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import type { ReactNode } from "react";
-import { ArrowUpRight, ChevronRight, ListTodo, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronRight, ListTodo, Plus, Sparkles } from "lucide-react";
 import { createContractTask } from "@/actions/tasks";
 import { WorkReleaseActions } from "@/components/work/work-release-actions";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { TimeChip } from "@/components/ui/time-chip";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
 import { UiTabs } from "@/components/ui/ui-tabs";
 import { RecoverableState } from "@/components/ui/recoverable-state";
@@ -22,6 +22,7 @@ import {
   WORK_PAGE_TITLE,
   WORK_PARTIAL_DATA_REASON,
   WORK_PARTIAL_DATA_TITLE,
+  WORK_ROW_LABELS,
 } from "@/lib/work/spec-strings";
 import type { WorkFilterState, WorkItemRow } from "@/lib/work/types";
 
@@ -141,8 +142,11 @@ export default async function WorkPage(props: {
         />
       ) : null}
 
-      <section className="ui-card overflow-hidden p-0" aria-labelledby="work-surface-title">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
+      <section
+        className="overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_90%,transparent)] bg-[var(--surface-raised)] shadow-[var(--shadow-1)]"
+        aria-labelledby="work-surface-title"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-3">
           <div className="flex min-w-0 items-center gap-2">
             <h2 id="work-surface-title" className="sr-only">
               {model.title}
@@ -156,7 +160,7 @@ export default async function WorkPage(props: {
           </div>
           <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]">
             All contracts
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+            <ArrowRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
           </Link>
         </div>
 
@@ -168,13 +172,13 @@ export default async function WorkPage(props: {
             active: tab.active,
             count: tab.count,
           }))}
-          className="px-5"
+          className="px-4"
         />
 
         <WorkFilters filters={model.filters} model={model} keepCreateOpen={model.create.open} />
 
         {model.create.open ? (
-          <div className="border-y border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_26%,transparent)] px-5 py-4">
+          <div className="border-y border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_26%,transparent)] px-4 py-4">
             <form action={createWorkItemAction} className="grid gap-3 lg:grid-cols-[1.25fr_1.35fr_0.95fr_0.8fr_0.95fr]">
               <div className="space-y-2">
                 <p className="ui-caps-2 text-[var(--text-tertiary)]">{model.primaryCta}</p>
@@ -261,7 +265,7 @@ export default async function WorkPage(props: {
           </div>
         ) : null}
 
-         <WorkRows rows={model.rows} mutationsEnabled={workQueueMutationsEnabled} />
+        <WorkTable rows={model.rows} mutationsEnabled={workQueueMutationsEnabled} />
       </section>
     </div>
   );
@@ -279,7 +283,7 @@ function WorkFilters({
   const hasFilters = hasActiveFilters(filters);
 
   return (
-    <form method="get" className="grid gap-3 px-5 py-4 md:grid-cols-5 lg:grid-cols-[1fr_1fr_1.35fr_1fr_1fr_auto_auto]">
+    <form method="get" className="grid gap-3 px-4 py-4 md:grid-cols-5 lg:grid-cols-[1fr_1fr_1.35fr_1fr_1fr_auto_auto]">
       {model.activeTab !== "all" ? <input type="hidden" name="tab" value={model.activeTab} /> : null}
       {keepCreateOpen ? <input type="hidden" name="create" value="1" /> : null}
       <FilterSelect name="owner" label={WORK_FILTER_LABELS.owner} value={filters.owner} options={model.filterOptions.owners} />
@@ -339,7 +343,7 @@ function FilterSelect({
   );
 }
 
-function WorkRows({
+function WorkTable({
   rows,
   mutationsEnabled,
 }: {
@@ -348,7 +352,7 @@ function WorkRows({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="px-5 py-12 text-center">
+      <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-12 text-center">
         <p className="mx-auto max-w-xl text-[1.05rem] font-semibold text-[var(--text-primary)]">
           {WORK_EMPTY_STATE}
         </p>
@@ -356,94 +360,172 @@ function WorkRows({
     );
   }
 
+  const headerCellClass =
+    "px-3 py-1.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] whitespace-nowrap";
+  const bodyCellClass = "px-3 py-2.5 align-middle";
+
   return (
     <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)]">
-      {rows.map((row) => (
-        <article
-          key={row.key}
-          className="grid gap-4 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 last:border-b-0 lg:grid-cols-[minmax(12rem,0.9fr)_minmax(0,1.7fr)_minmax(10rem,auto)]"
-        >
-          <div className="min-w-0 space-y-2">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
-                {row.display.state.type.value}
-              </p>
-              <Link
-                href={row.display.identity.title.href ?? row.href}
-                className="mt-1.5 block break-words text-[14px] font-medium leading-snug tracking-[-0.011em] text-[var(--text-primary)] hover:text-[var(--accent-strong)]"
-              >
-                {row.display.identity.title.value}
-              </Link>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                {row.display.identity.linkedContract.label}
-              </p>
-              {row.display.identity.linkedContract.href ? (
-                <Link
-                  href={row.display.identity.linkedContract.href}
-                  className="ui-link mt-1.5 inline-block break-words text-[13px]"
+      <table className="w-full border-collapse text-[12.5px]" aria-label="Work items in this workspace">
+        <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface-raised))]">
+          <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)]">
+            <th scope="col" className={`${headerCellClass} w-full pl-4 pr-3`}>
+              Work item
+            </th>
+            <th scope="col" className={`${headerCellClass} hidden md:table-cell`}>
+              {WORK_ROW_LABELS.owner}
+            </th>
+            <th scope="col" className={headerCellClass}>
+              {WORK_ROW_LABELS.dueDate}
+            </th>
+            <th scope="col" className={headerCellClass}>
+              {WORK_ROW_LABELS.status}
+            </th>
+            <th scope="col" className={`${headerCellClass} hidden lg:table-cell`}>
+              {WORK_ROW_LABELS.lastUpdate}
+            </th>
+            <th scope="col" className="py-1.5 pl-3 pr-4">
+              <span className="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            // Risk styling reads from the freshly derived dueState (see
+            // deriveDueMeta) rather than the read model's stored due_state,
+            // which goes stale and can leave an overdue row untoned.
+            const atRisk = row.dueState === "overdue" || row.status === "blocked";
+            const dueInk =
+              row.dueState === "overdue"
+                ? "var(--danger-ink)"
+                : row.dueState === "due_today" || row.dueState === "due_soon"
+                  ? "var(--warning-ink)"
+                  : "var(--text-primary)";
+            const descriptor = dueDescriptor(row.dueInDays);
+            const titleHref = row.display.identity.title.href ?? row.href;
+            return (
+              <tr key={row.key} className="ui-table-row group">
+                <td
+                  className={`${bodyCellClass} pl-4 pr-3`}
+                  style={
+                    atRisk
+                      ? {
+                          boxShadow:
+                            "inset 3px 0 0 0 color-mix(in oklab, var(--danger-ink) 60%, transparent)",
+                        }
+                      : undefined
+                  }
                 >
-                  {row.display.identity.linkedContract.value}
-                </Link>
-              ) : (
-                <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">
-                  {row.display.identity.linkedContract.value}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <dl className="grid min-w-0 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
-            <WorkFact label={row.display.ownership.owner.label} value={row.display.ownership.owner.value} />
-            <WorkFact label={row.display.ownership.dueDate.label}>
-              <span className="tabular-nums">{row.display.ownership.dueDate.value}</span>
-            </WorkFact>
-            <WorkFact label={row.display.ownership.lastUpdate.label}>
-              <span className="tabular-nums">{row.display.ownership.lastUpdate.value}</span>
-            </WorkFact>
-            <WorkFact label={row.display.state.status.label}>
-              <StatusBadge status={row.statusTone}>{row.display.state.status.value}</StatusBadge>
-            </WorkFact>
-            <WorkFact label={row.display.state.type.label} value={row.display.state.type.value} />
-            <WorkFact label={row.display.state.blocker.label} value={row.display.state.blocker.value} />
-          </dl>
-
-          <div className="min-w-0 lg:justify-self-end">
-             <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
-          </div>
-        </article>
-      ))}
+                  <div className="min-w-0">
+                    {/* Neutral metadata, not status — stays tertiary, not accent. */}
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                      {row.typeLabel}
+                    </p>
+                    <Link
+                      href={titleHref}
+                      title={row.title}
+                      className="mt-0.5 block max-w-[28rem] truncate font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)]"
+                    >
+                      {row.display.identity.title.value}
+                    </Link>
+                    {row.display.identity.linkedContract.href ? (
+                      <Link
+                        href={row.display.identity.linkedContract.href}
+                        title={row.display.identity.linkedContract.value}
+                        className="mt-0.5 block max-w-[28rem] truncate text-[11.5px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)]"
+                      >
+                        {row.display.identity.linkedContract.value}
+                      </Link>
+                    ) : (
+                      <span className="mt-0.5 block text-[11.5px] text-[var(--text-tertiary)]">
+                        {row.display.identity.linkedContract.value}
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className={`${bodyCellClass} hidden md:table-cell`}>
+                  <span
+                    className={
+                      row.ownerLabel === "Unassigned"
+                        ? "text-[var(--text-tertiary)]"
+                        : "text-[var(--text-primary)]"
+                    }
+                  >
+                    {row.ownerLabel}
+                  </span>
+                </td>
+                <td className={`${bodyCellClass} tabular-nums`}>
+                  {row.dueAt ? (
+                    <div className="min-w-0">
+                      <span className="block font-medium" style={{ color: dueInk }}>
+                        {formatDueCompact(row.dueAt)}
+                      </span>
+                      {descriptor ? (
+                        <span className="block text-[11px] text-[var(--text-tertiary)]">
+                          {descriptor}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="text-[var(--text-tertiary)]">—</span>
+                  )}
+                </td>
+                <td className={bodyCellClass}>
+                  <div className="flex flex-col gap-1">
+                    {/* Dot + halo gives a non-color shape cue so status isn't tone alone (§7.7). */}
+                    <StatusBadge status={row.statusTone} className="gap-1.5 self-start">
+                      <span
+                        aria-hidden
+                        className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+                        style={{
+                          boxShadow:
+                            "0 0 0 2px color-mix(in oklab, currentColor 22%, transparent)",
+                        }}
+                      />
+                      {row.statusLabel}
+                    </StatusBadge>
+                    {/* Blocker reason sits under the badge so the cause travels with the state. */}
+                    {row.blocker !== "—" ? (
+                      <span className="max-w-[18rem] text-[11px] leading-snug text-[var(--text-tertiary)]">
+                        {row.blocker}
+                      </span>
+                    ) : null}
+                  </div>
+                </td>
+                <td
+                  className={`${bodyCellClass} hidden tabular-nums lg:table-cell`}
+                  suppressHydrationWarning
+                >
+                  {row.lastUpdateAt ? (
+                    <TimeChip date={row.lastUpdateAt} />
+                  ) : (
+                    <span className="text-[var(--text-tertiary)]">—</span>
+                  )}
+                </td>
+                <td className={`${bodyCellClass} pl-3 pr-4`}>
+                  <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-const EMPTY_FACT_VALUES = new Set(["None", "—", ""]);
+function dueDescriptor(dueInDays: number | null): string | null {
+  if (dueInDays == null) return null;
+  if (dueInDays < 0) return `Overdue ${Math.abs(dueInDays)}d`;
+  if (dueInDays === 0) return "Due today";
+  if (dueInDays === 1) return "Due tomorrow";
+  return `In ${dueInDays}d`;
+}
 
-function WorkFact({
-  label,
-  value,
-  children,
-}: {
-  label: string;
-  value?: string;
-  children?: ReactNode;
-}) {
-  const isEmpty = children == null && value != null && EMPTY_FACT_VALUES.has(value);
-  return (
-    <div className="min-w-0">
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-        {label}
-      </dt>
-      <dd
-        className={`mt-1.5 break-words text-[13px] leading-snug ${
-          isEmpty ? "text-[var(--text-tertiary)]" : "text-[var(--text-primary)]"
-        }`}
-      >
-        {children ?? value}
-      </dd>
-    </div>
-  );
+function formatDueCompact(dueAt: string): string {
+  const date = new Date(dueAt);
+  if (Number.isNaN(date.getTime())) return dueAt;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
 }
 
 function hasActiveFilters(filters: WorkFilterState) {

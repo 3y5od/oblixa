@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-database-backup-restore-evidence",
+  "manualBoundaryId": "manual-database-restore-drill",
+  "rpoRto": {
+    "rpoMinutes": 240,
+    "rtoMinutes": 60,
+    "source": "code-owned-placeholder",
+    "reviewedOn": "2026-05-28",
+    "expiresOn": "2027-05-28"
+  },
+  "commands": [
+    {
+      "command": "check:dr-drill-smoke",
+      "purpose": "Run an explicitly enabled read-only vendor status drill smoke.",
+      "strictEnvKeys": ["DR_DRILL_STRICT", "DR_VENDOR_STATUS_URL"],
+      "mutatesProduction": false
+    },
+    {
+      "command": "report:rpo-rto-status",
+      "purpose": "Emit code-owned RPO/RTO placeholder status for release evidence.",
+      "strictEnvKeys": [],
+      "mutatesProduction": false
+    }
+  ],
+  "forbiddenScriptPatterns": [
+    "\\bsupabase\\s+db\\s+(?:push|reset|branch|dump|restore)\\b",
+    "\\bpg_restore\\b",
+    "\\bpsql\\b[\\s\\S]*\\b(?:insert|update|delete|truncate|drop|alter)\\b"
+  ],
+  "redactionPolicy": {
+    "mode": "metadata-only",
+    "forbiddenKeys": ["password", "secret", "token", "serviceRoleKey", "connectionString"],
+    "allowedEnvEvidence": "presence-only"
+  },
+  "manualActions": [
+    "Confirm Supabase PITR or backup status in the provider console.",
+    "Run any restore drill against approved non-production infrastructure only.",
+    "Record production restore decisions outside repository automation."
+  ]
+}

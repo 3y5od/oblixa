@@ -6,10 +6,14 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   BadgeCheck,
   BarChart3,
+  Bell,
   BellRing,
   Boxes,
+  Building2,
   CalendarClock,
+  ClipboardCheck,
   CreditCard,
+  Download,
   FileCheck2,
   Files,
   GitBranch,
@@ -24,6 +28,10 @@ import {
   SearchCheck,
   Settings,
   Shield,
+  ShieldCheck,
+  Upload,
+  Users,
+  UserRound,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -50,6 +58,10 @@ import {
 const COLLAPSED_PREF_EVENT = "oblixa:sidebar-collapsed-change";
 const DESKTOP_SIDEBAR_BODY_ID = "desktop-sidebar-body";
 
+// Icons for the primary sidebar plus the extra cmd-K-only destinations
+// (profile / workspace-identity / team / imports / security-account /
+// notifications / export). The latter group never renders here — but the
+// NavItem icon union is shared, so the record must be exhaustive.
 const iconByKey: Record<NonNullable<SidebarItemModel["icon"]>, LucideIcon> = {
   dashboard: LayoutDashboard,
   review: SearchCheck,
@@ -67,6 +79,14 @@ const iconByKey: Record<NonNullable<SidebarItemModel["icon"]>, LucideIcon> = {
   settings: Settings,
   billing: CreditCard,
   more: Grid2x2,
+  profile: UserRound,
+  "workspace-identity": Building2,
+  team: Users,
+  imports: Upload,
+  "security-account": ShieldCheck,
+  notifications: Bell,
+  export: Download,
+  "review-fields": ClipboardCheck,
 };
 
 function fallbackNavSurface(role: WorkspaceRole, flags: Record<FeatureFlagKey, boolean>): NavSurfaceInput {

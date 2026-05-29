@@ -5,6 +5,7 @@ import {
   publicTokenPrefix,
   publicTokenStableKey,
 } from "@/lib/security/public-token-key";
+import { rotatingSecretCandidates } from "@/lib/security/rotating-secret";
 
 const SUBMIT_TICKET_TTL_MS = 15 * 60 * 1000;
 
@@ -18,7 +19,7 @@ function isProductionLikeEnv(): boolean {
  * HMAC key for external submit tickets. Production-like env requires
  * `EXTERNAL_ACTION_SUBMIT_TICKET_SECRET` (must not reuse CRON_SECRET or the passcode pepper).
  */
-function externalSubmitTicketSecret(): string {
+function currentExternalSubmitTicketSecret(): string {
   const submit = process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET?.trim();
   if (isProductionLikeEnv()) {
     if (submit) return submit;
@@ -32,6 +33,14 @@ function externalSubmitTicketSecret(): string {
   return DEV_EXTERNAL_PEPPER_FALLBACK;
 }
 
+function externalSubmitTicketSecrets(): string[] {
+  return rotatingSecretCandidates({
+    currentSecret: currentExternalSubmitTicketSecret(),
+    previousSecret: process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS,
+    previousSecretExpiresAt: process.env.EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT,
+  });
+}
+
 /**
  * When `requires_reauth` is true on a link, the participant must call GET status (step-up),
  * receive `submitTicket`, and include it in the POST submit body. Ticket is HMAC-bound to
@@ -40,7 +49,7 @@ function externalSubmitTicketSecret(): string {
 export function signExternalSubmitTicket(input: { linkId: string; urlToken: string }): string {
   const exp = Date.now() + SUBMIT_TICKET_TTL_MS;
   const body = JSON.stringify({ lid: input.linkId, t: input.urlToken, exp });
-  const sig = createHmac("sha256", externalSubmitTicketSecret()).update(body, "utf8").digest("base64url");
+  const sig = createHmac("sha256", externalSubmitTicketSecrets()[0]!).update(body, "utf8").digest("base64url");
   return Buffer.from(JSON.stringify({ lid: input.linkId, t: input.urlToken, exp, sig }), "utf8").toString(
     "base64url"
   );
@@ -70,15 +79,17 @@ export function verifyExternalSubmitTicket(
       return { ok: false, reason: "submit_ticket_invalid" };
     }
     const body = JSON.stringify({ lid: raw.lid, t: raw.t, exp: raw.exp });
-    const expected = createHmac("sha256", externalSubmitTicketSecret()).update(body, "utf8").digest("base64url");
-    try {
-      if (!timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(raw.sig, "utf8"))) {
+    for (const secret of externalSubmitTicketSecrets()) {
+      const expected = createHmac("sha256", secret).update(body, "utf8").digest("base64url");
+      try {
+        if (timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(raw.sig, "utf8"))) {
+          return { ok: true };
+        }
+      } catch {
         return { ok: false, reason: "submit_ticket_invalid" };
       }
-    } catch {
-      return { ok: false, reason: "submit_ticket_invalid" };
     }
-    return { ok: true };
+    return { ok: false, reason: "submit_ticket_invalid" };
   } catch {
     return { ok: false, reason: "submit_ticket_invalid" };
   }

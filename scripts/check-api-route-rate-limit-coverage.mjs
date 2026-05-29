@@ -8,12 +8,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, "..");
-const apiRoot = path.join(root, "src", "app", "api");
-const allowlistPath = path.join(__dirname, "api-route-rate-limit-allowlist.txt");
+const DEFAULT_ROOT = path.join(__dirname, "..");
 const reportOnly = process.argv.includes("--report");
 const strict = process.argv.includes("--strict");
 
@@ -28,7 +26,7 @@ function walkRoutes(dir, acc = []) {
   return acc;
 }
 
-function loadAllowlist() {
+function loadAllowlist(allowlistPath) {
   if (!fs.existsSync(allowlistPath)) return new Set();
   const set = new Set();
   for (const line of fs.readFileSync(allowlistPath, "utf8").split("\n")) {
@@ -39,14 +37,9 @@ function loadAllowlist() {
   return set;
 }
 
-function toApiRelative(abs) {
+function toApiRelative(apiRoot, abs) {
   return path.relative(apiRoot, abs).replace(/\\/g, "/");
 }
-
-const routes = walkRoutes(apiRoot).sort();
-const allowlist = loadAllowlist();
-const violations = [];
-const orderingWarnings = [];
 
 function indexOfMatch(text, re) {
   const m = text.match(re);
@@ -95,79 +88,83 @@ const DB_TOUCH_RE =
 const DB_MUTATION_RE = /\bupsert\s*\(|\binsert\s*\(|\bupdate\s*\(|\bdelete\s*\(/;
 const ORDERING_DB_TOUCH_RE = /\.from\s*\(|\bupsert\s*\(|\binsert\s*\(|\bupdate\s*\(|\bdelete\s*\(/;
 
-for (const abs of routes) {
-  const rel = toApiRelative(abs);
-  if (allowlist.has(rel)) continue;
-  const text = fs.readFileSync(abs, "utf8");
-  const hasRateLimit = SHARED_RATE_LIMIT_RE.test(text);
-  const isMutatingHandler = MUTATION_HANDLER_RE.test(text);
-  const hasDbTouch = DB_TOUCH_RE.test(text);
-  const hasDbMutation = DB_MUTATION_RE.test(text);
-  const needsRateLimit = /\bcreateAdminClient\b/.test(text) || (strict && (hasDbTouch || isMutatingHandler || hasDbMutation));
+export function analyzeApiRouteRateLimitCoverage(root = DEFAULT_ROOT, options = {}) {
+  const apiRoot = path.join(root, "src", "app", "api");
+  const allowlistPath = path.join(root, "scripts", "api-route-rate-limit-allowlist.txt");
+  const routes = walkRoutes(apiRoot).sort();
+  const allowlist = loadAllowlist(allowlistPath);
+  const violations = [];
+  const orderingWarnings = [];
+  const strictMode = Boolean(options.strict);
 
-  if (needsRateLimit && !hasRateLimit) {
-    violations.push(rel);
-    continue;
-  }
+  for (const abs of routes) {
+    const rel = toApiRelative(apiRoot, abs);
+    if (allowlist.has(rel)) continue;
+    const text = fs.readFileSync(abs, "utf8");
+    const hasRateLimit = SHARED_RATE_LIMIT_RE.test(text);
+    const isMutatingHandler = MUTATION_HANDLER_RE.test(text);
+    const hasDbTouch = DB_TOUCH_RE.test(text);
+    const hasDbMutation = DB_MUTATION_RE.test(text);
+    const needsRateLimit = /\bcreateAdminClient\b/.test(text) || (strictMode && (hasDbTouch || isMutatingHandler || hasDbMutation));
 
-  if (hasRateLimit && (hasDbTouch || hasDbMutation)) {
-    const handlerBlocks = extractExportedHandlerBlocks(text);
-    for (const block of handlerBlocks) {
-      const rateLimitIdx = indexOfMatch(block, /\brateLimitCheck\s*\(/);
-      const dbIdx = indexOfMatch(block, ORDERING_DB_TOUCH_RE);
-      if (rateLimitIdx >= 0 && dbIdx >= 0 && dbIdx < rateLimitIdx) {
-        orderingWarnings.push(rel);
-        break;
+    if (needsRateLimit && !hasRateLimit) {
+      violations.push(rel);
+      continue;
+    }
+
+    if (hasRateLimit && (hasDbTouch || hasDbMutation)) {
+      const handlerBlocks = extractExportedHandlerBlocks(text);
+      for (const block of handlerBlocks) {
+        const rateLimitIdx = indexOfMatch(block, /\brateLimitCheck\s*\(/);
+        const dbIdx = indexOfMatch(block, ORDERING_DB_TOUCH_RE);
+        if (rateLimitIdx >= 0 && dbIdx >= 0 && dbIdx < rateLimitIdx) {
+          orderingWarnings.push(rel);
+          break;
+        }
       }
     }
   }
+
+  return {
+    checkId: "api-route-rate-limit-coverage",
+    ok: violations.length === 0,
+    totalRoutes: routes.length,
+    violationCount: violations.length,
+    orderingWarningCount: orderingWarnings.length,
+    strict: strictMode,
+    violations,
+    orderingWarnings,
+  };
 }
 
-if (violations.length > 0) {
-  console.log(
-    JSON.stringify(
-      {
-        totalRoutes: routes.length,
-        violationCount: violations.length,
-        orderingWarningCount: orderingWarnings.length,
-        violations,
-        orderingWarnings,
-      },
-      null,
-      2
-    )
-  );
-  if (reportOnly) process.exit(0);
-  console.error(
-    "API route(s) perform mutating/privileged work without rateLimitCheck and are not allowlisted:\n"
-  );
-  for (const v of violations) console.error(`  - ${v}`);
-  console.error(
-    "\nAdd rateLimitCheck (after auth) or list the path in scripts/api-route-rate-limit-allowlist.txt with a short comment line above it."
-  );
-  process.exit(1);
+export function runApiRouteRateLimitCoverageCheck(root = DEFAULT_ROOT, options = { strict }) {
+  const report = analyzeApiRouteRateLimitCoverage(root, options);
+  console.log(JSON.stringify(report, null, 2));
+  if (report.violations.length > 0) {
+    if (reportOnly) return report;
+    console.error(
+      "API route(s) perform mutating/privileged work without rateLimitCheck and are not allowlisted:\n"
+    );
+    for (const v of report.violations) console.error(`  - ${v}`);
+    console.error(
+      "\nAdd rateLimitCheck (after auth) or list the path in scripts/api-route-rate-limit-allowlist.txt with a short comment line above it."
+    );
+    process.exitCode = 1;
+    return report;
+  }
+
+  if (reportOnly) return report;
+
+  if (report.orderingWarnings.length > 0) {
+    console.warn(
+      `WARN: ${report.orderingWarnings.length} route(s) may call DB work before rateLimitCheck (review ordering).`
+    );
+  }
+
+  console.log(`OK: ${report.totalRoutes} API route(s) satisfy rate-limit coverage (or allowlist).`);
+  return report;
 }
 
-console.log(
-  JSON.stringify(
-    {
-      totalRoutes: routes.length,
-      violationCount: 0,
-      orderingWarningCount: orderingWarnings.length,
-      violations: [],
-      orderingWarnings,
-    },
-    null,
-    2
-  )
-);
-
-if (reportOnly) process.exit(0);
-
-if (orderingWarnings.length > 0) {
-  console.warn(
-    `WARN: ${orderingWarnings.length} route(s) may call DB work before rateLimitCheck (review ordering).`
-  );
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  runApiRouteRateLimitCoverageCheck();
 }
-
-console.log(`OK: ${routes.length} API route(s) satisfy rate-limit coverage (or allowlist).`);

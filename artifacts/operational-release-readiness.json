@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-release-readiness",
+  "generatedFrom": "config/operational-release-readiness.json",
+  "manualBoundariesSource": "config/operational-manual-boundaries.json",
+  "commitSha": "16789e43e6369f82527bbf14f84f514f03f545f0",
+  "releaseCheckCount": 5,
+  "requiredReleaseCheckCount": 5,
+  "environmentContractCount": 4,
+  "rollbackReadinessCount": 2,
+  "blockerClassCount": 9,
+  "evidenceBundle": {
+    "id": "release-code-owned-evidence-bundle",
+    "redactionPolicy": "hash-only",
+    "commandResultPolicy": "commands-listed-not-executed",
+    "sentryReleaseIdPolicy": "check:release-evidence records release ids when SENTRY_RELEASE or NEXT_PUBLIC_SENTRY_RELEASE is present",
+    "files": [
+      {
+        "name": "migration-manifest",
+        "path": "artifacts/supabase/migration-manifest.json",
+        "sha256": "6e7dcc143b5608949e2fccd10118b9481af50866d6e6ab818f98f4bcaf38d449"
+      },
+      {
+        "name": "openapi",
+        "path": "openapi.yaml",
+        "sha256": "8cff340a917b0834f81e96eef92a36866d0fd6640ef5c16bab5a387c0921d593"
+      },
+      {
+        "name": "operational-hardening-closure",
+        "path": "artifacts/operational-hardening-closure.json",
+        "sha256": "7230a8f0266a618c525438ae891cd3c54c907e12252d95b384014ff547085b84"
+      },
+      {
+        "name": "operational-release-readiness-check",
+        "path": "scripts/check-operational-release-readiness.mjs",
+        "sha256": "8d5ea9a97776ab37201aca3944c7127bb3dd1f8cf488ffed9f68abf983419d82"
+      },
+      {
+        "name": "operational-release-readiness-config",
+        "path": "config/operational-release-readiness.json",
+        "sha256": "e237bd7b63cfc0a0996a3c046432c6b0eef5e044a5c6c305c278cc696b910a32"
+      },
+      {
+        "name": "package-lock",
+        "path": "package-lock.json",
+        "sha256": "b750917e16cb98a625d32ac2a7d5ab4b760a7abc3d78a730f2ce7bc1a6faee0b"
+      },
+      {
+        "name": "qa-closure",
+        "path": "artifacts/qa-closure-manifest.json",
+        "sha256": "91d183611a2fc6cc0034952f27c56bbde1f6baf7169b0fab0dcef23961420b59"
+      },
+      {
+        "name": "release-security-required-env-check",
+        "path": "scripts/check-release-security-required-env.mjs",
+        "sha256": "08447de71200a0130e4e4d5f0c3c56b6ff2f04200d9c6a18d6f528b4bdbda172"
+      },
+      {
+        "name": "release-security-required-env-tests",
+        "path": "scripts/check-release-security-required-env.test.mjs",
+        "sha256": "2a3f700de8ba4bba244f5d2047c15dc4dd667a55b25e21664d05e47c3441538b"
+      },
+      {
+        "name": "route-inventory",
+        "path": "artifacts/routes/compatibility-route-inventory.json",
+        "sha256": "51e11f6c1b010f2d2f73c1e18d855e1108a8575b5d156a72bfbe276b494d285b"
+      },
+      {
+        "name": "sbom-cyclonedx",
+        "path": "cyclonedx-sbom.json",
+        "sha256": "fb766ca4310bfd0139caca7b9fbb584472588c960435c91a187b0a23044c37b2"
+      },
+      {
+        "name": "security-report-checksums",
+        "path": "artifacts/security-report-checksums.json",
+        "sha256": "509f9fd57a74be0269d3257961314caa1c1f5b1c2d2bcfbe4c61cd5725ba9e31"
+      }
+    ]
+  },
+  "blockerCategories": [
+    "branch-protection",
+    "cron",
+    "migrations",
+    "observability",
+    "provider-config",
+    "secrets",
+    "slo",
+    "smoke",
+    "webhook"
+  ],
+  "releaseChecks": [
+    {
+      "id": "release-checklist-pipeline",
+      "command": "pipeline:release:checklist",
+      "required": true,
+      "blockerClass": "release_pipeline_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-evidence",
+      "command": "check:release-evidence",
+      "required": true,
+      "blockerClass": "release_evidence_stale_or_missing",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-preflight",
+      "command": "preflight:release",
+      "required": true,
+      "blockerClass": "release_preflight_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-security-required-env",
+      "command": "check:release-security-required-env",
+      "required": true,
+      "blockerClass": "release_env_contract_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "supabase-release-checklist",
+      "command": "check:supabase:release-checklist",
+      "required": true,
+      "blockerClass": "supabase_release_readiness_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    }
+  ],
+  "environmentContracts": [
+    {
+      "id": "callback-destination-integrity",
+      "command": "check:callback-destination-integrity",
+      "environments": [
+        "preview",
+        "production",
+        "staging"
+      ],
+      "detects": [
+        "callback URL mismatches",
+        "open redirects",
+        "untrusted callback destinations"
+      ]
+    },
+    {
+      "id": "env-contract-hygiene",
+      "command": "check:env-contract-hygiene",
+      "environments": [
+        "ci",
+        "local",
+        "preview",
+        "production",
+        "staging"
+      ],
+      "detects": [
+        "malformed URLs",
+        "mixed environment credentials",
+        "wrong key prefixes"
+      ]
+    },
+    {
+      "id": "env-example-parity",
+      "command": "check:env-example-parity",
+      "environments": [
+        "ci",
+        "local",
+        "preview",
+        "production",
+        "staging"
+      ],
+      "detects": [
+        "missing variables",
+        "public secret naming",
+        "stale examples"
+      ]
+    },
+    {
+      "id": "release-security-required-env",
+      "command": "check:release-security-required-env",
+      "environments": [
+        "preview",
+        "production",
+        "staging"
+      ],
+      "detects": [
+        "cron",
+        "encryption",
+        "HMAC",
+        "OpenAI",
+        "Resend",
+        "Sentry",
+        "Stripe",
+        "Supabase",
+        "Upstash"
+      ]
+    }
+  ],
+  "rollbackReadiness": [
+    {
+      "id": "database-forward-fix",
+      "validationCommand": "report:migration-rollbacks",
+      "requiredFields": [
+        "destructiveSqlReview",
+        "forwardFixPlan",
+        "migrationRiskClass"
+      ],
+      "manualBoundary": "Production database rollback or forward-fix execution remains manual."
+    },
+    {
+      "id": "vercel-rollback-target",
+      "validationCommand": "pipeline:release:checklist",
+      "requiredFields": [
+        "postRollbackSmokeCommand",
+        "previousDeploymentId",
+        "rollbackOwner"
+      ],
+      "manualBoundary": "The actual Vercel rollback target must be confirmed in the provider dashboard."
+    }
+  ],
+  "blockerTaxonomy": [
+    {
+      "id": "branch_protection_unknown",
+      "category": "branch-protection",
+      "severity": "stop_ship",
+      "validationCommand": "check:github-workflows-security",
+      "nextAction": "Verify required checks and branch protection outside the repository."
+    },
+    {
+      "id": "cron_health_failed",
+      "category": "cron",
+      "severity": "stop_ship",
+      "validationCommand": "check:cron-route-auth",
+      "nextAction": "Resolve cron auth, schedule, or health failures before release."
+    },
+    {
+      "id": "migration_history_mismatch",
+      "category": "migrations",
+      "severity": "stop_ship",
+      "validationCommand": "check:migration-manifest",
+      "nextAction": "Regenerate migration evidence and resolve migration history drift."
+    },
+    {
+      "id": "observability_blind_spot",
+      "category": "observability",
+      "severity": "release_review_required",
+      "validationCommand": "check:logging-telemetry-redaction",
+      "nextAction": "Add or verify telemetry before approving release."
+    },
+    {
+      "id": "provider_callback_mismatch",
+      "category": "provider-config",
+      "severity": "stop_ship",
+      "validationCommand": "check:callback-destination-integrity",
+      "nextAction": "Correct provider callback URLs and rerun callback integrity checks."
+    },
+    {
+      "id": "release_env_contract_failed",
+      "category": "secrets",
+      "severity": "stop_ship",
+      "validationCommand": "check:release-security-required-env",
+      "nextAction": "Fix missing, malformed, or mixed-environment release variables."
+    },
+    {
+      "id": "slo_budget_failed",
+      "category": "slo",
+      "severity": "release_review_required",
+      "validationCommand": "test:slo-budgets",
+      "nextAction": "Review SLO budget failure and either fix or obtain explicit release approval."
+    },
+    {
+      "id": "smoke_failed",
+      "category": "smoke",
+      "severity": "stop_ship",
+      "validationCommand": "test:e2e:smoke",
+      "nextAction": "Fix smoke-test failure before release promotion."
+    },
+    {
+      "id": "webhook_delivery_failed",
+      "category": "webhook",
+      "severity": "stop_ship",
+      "validationCommand": "check:webhook-inbound-policy",
+      "nextAction": "Resolve webhook signature, replay, or delivery readiness failures."
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

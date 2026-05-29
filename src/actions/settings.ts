@@ -15,6 +15,7 @@ import {
 import { isKillInvites } from "@/lib/security/kill-switches";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
+import { evaluateSeatMutation } from "@/lib/billing/operational-entitlements";
 
 const MAX_PROFILE_NAME_LEN = 200;
 const MAX_ORG_NAME_LEN = 200;
@@ -27,6 +28,12 @@ type SettingsActionResult = { error?: string; success?: true };
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error ?? "Unknown error");
 }
+
+type PendingInviteSeatRow = {
+  id: string;
+  email: string;
+  expires_at: string;
+};
 
 async function recoverSettingsAction(scope: string, run: () => Promise<SettingsActionResult>): Promise<SettingsActionResult> {
   try {
@@ -50,6 +57,33 @@ async function safeInsertSettingsAuditEvent(
     console.error("[settings] audit_events insert threw:", error);
   }
   return { error: failureMessage };
+}
+
+async function loadPendingInviteSeatRows(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  orgId: string,
+  nowIso: string
+): Promise<{ rows: PendingInviteSeatRow[]; error: boolean }> {
+  const { data, error } = await admin
+    .from("organization_invites")
+    .select("id, email, expires_at")
+    .eq("organization_id", orgId)
+    .is("consumed_at", null)
+    .is("revoked_at", null)
+    .gt("expires_at", nowIso);
+
+  if (error || !Array.isArray(data)) return { rows: [], error: true };
+  return {
+    rows: data.flatMap((row) => {
+    const invite = row as Partial<PendingInviteSeatRow>;
+    return typeof invite.id === "string" &&
+      typeof invite.email === "string" &&
+      typeof invite.expires_at === "string"
+      ? [{ id: invite.id, email: invite.email, expires_at: invite.expires_at }]
+      : [];
+    }),
+    error: false,
+  };
 }
 
 /** Supabase rejects admin invite-by-email when the address already exists in Auth. */
@@ -230,14 +264,37 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
     return { error: "Invitations are temporarily disabled." };
   }
 
-  const existingMember = (await loadOrgMemberProfileRows(admin, orgId, {
+  const memberRows = await loadOrgMemberProfileRows(admin, orgId, {
     memberColumns: "id, user_id",
-  })).find((member) => member.profiles?.email?.toLowerCase() === email);
+  });
+  const existingMember = memberRows.find((member) => member.profiles?.email?.toLowerCase() === email);
   if (existingMember) {
     return { error: "This user is already a member of the organization." };
   }
 
   const expiresAt = new Date(Date.now() + INVITE_TTL_MS).toISOString();
+  const pendingInviteResult = await loadPendingInviteSeatRows(admin, orgId, new Date().toISOString());
+  if (pendingInviteResult.error) {
+    return { error: "Could not verify team member limit. Try again later." };
+  }
+  const pendingInvites = pendingInviteResult.rows;
+  const duplicatePendingInvite = pendingInvites.some((invite) => invite.email.toLowerCase() === email);
+  const seatDecision = evaluateSeatMutation({
+    operation: "invite_creation",
+    activeSeats: memberRows.length,
+    pendingInvites: pendingInvites.length,
+    duplicatePendingInvite,
+    sameTenant: true,
+  });
+
+  if (!seatDecision.allowed) {
+    return {
+      error:
+        seatDecision.reason === "seat_limit_reached"
+          ? "Your workspace has reached its team member limit. Revoke a pending invite or remove a member before inviting someone new."
+          : "This invite cannot be created for the current billing state.",
+    };
+  }
 
   await admin
     .from("organization_invites")

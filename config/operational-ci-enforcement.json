@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-ci-enforcement",
+  "requiredCommands": [
+    {
+      "id": "workflow-security",
+      "objective": "least-privilege workflow security",
+      "command": "check:github-workflows-security"
+    },
+    {
+      "id": "workflow-permissions",
+      "objective": "top-level workflow permissions",
+      "command": "check:github-actions-permissions"
+    },
+    {
+      "id": "secret-gate-registry",
+      "objective": "fail-closed secret-gated skips",
+      "command": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "branch-protection-static-fallback",
+      "objective": "branch-protection expected checks",
+      "command": "check:branch-protection-drift"
+    },
+    {
+      "id": "merge-queue-parity",
+      "objective": "merge queue parity",
+      "command": "check:merge-queue-canary-parity"
+    },
+    {
+      "id": "workflow-artifact-hygiene",
+      "objective": "artifact retention, download scope, and secret path hygiene",
+      "command": "check:ci-artifact-secret-leakage"
+    },
+    {
+      "id": "workflow-yaml-parse",
+      "objective": "workflow syntax validity",
+      "command": "check:github-workflows-yaml"
+    },
+    {
+      "id": "workflow-script-reference-parity",
+      "objective": "workflow package-script references",
+      "command": "check:workflow-tier-coverage"
+    }
+  ],
+  "failClosedAllowlist": [
+    {
+      "id": "healthchecks-ping-nonblocking",
+      "issue": "continue_on_error",
+      "fileRegex": "^(cron-canary|slo-monitor)\\.yml$",
+      "jobRegex": "^(canary|monitor)$",
+      "stepRegex": "^Healthchecks (start|success|fail)$",
+      "owner": "platform-runtime",
+      "reason": "External healthcheck ping failures must not mask the canary or monitor result.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "id": "semgrep-code-scanning-upload-advisory",
+      "issue": "continue_on_error",
+      "file": "semgrep-sarif.yml",
+      "job": "semgrep",
+      "step": "Upload SARIF to Code Scanning",
+      "owner": "platform-security",
+      "reason": "The Semgrep scan and SARIF artifact are blocking; GitHub Code Scanning upload depends on repository feature availability.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-workflows-security"
+    },
+    {
+      "id": "flake-classifier-advisory",
+      "issue": "continue_on_error",
+      "file": "qa-max-nightly.yml",
+      "job": "flake_classify_optional",
+      "owner": "test-platform",
+      "reason": "Failure classification is post-failure diagnostic evidence and must not change the original failing job outcome.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:test-skip-governance"
+    },
+    {
+      "id": "zap-baseline-delegates-failure-to-compare",
+      "issue": "shell_ignores_error",
+      "file": "qa-dast-zap.yml",
+      "job": "zap_baseline",
+      "step": "Run ZAP baseline",
+      "patternRegex": "zap-baseline\\.py[\\s\\S]*\\|\\| true",
+      "owner": "platform-security",
+      "reason": "The baseline command always emits a report; check:zap-baseline-compare owns pass/fail semantics.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:zap-baseline-compare"
+    },
+    {
+      "id": "refinement-deletion-notice-empty-diff-safe",
+      "issue": "shell_ignores_error",
+      "file": "refinement-deletion-notice.yml",
+      "job": "notice",
+      "patternRegex": "(git fetch|grep -E)[\\s\\S]*\\|\\| true",
+      "owner": "platform-governance",
+      "reason": "The workflow is an informational PR notice and treats unavailable base refs or empty deletion sets as no-op evidence.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "id": "local-process-cleanup-trap",
+      "issue": "shell_ignores_error",
+      "fileRegex": "^(ci|cron-canary)\\.yml$",
+      "patternRegex": "kill [^\\n]+\\|\\| true",
+      "owner": "platform-runtime",
+      "reason": "Trap cleanup must not hide the owning smoke-test command outcome.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:operational-ci-enforcement"
+    },
+    {
+      "id": "qa-nightly-empty-blob-merge",
+      "issue": "shell_ignores_error",
+      "file": "qa-max-nightly.yml",
+      "job": "playwright_merge",
+      "step": "Merge Playwright reports",
+      "patternRegex": "ls -d all-blobs/playwright-blob-\\*[\\s\\S]*\\|\\| true",
+      "owner": "test-platform",
+      "reason": "The merge job explicitly handles missing shard artifacts and records a skipped merge rather than failing unrelated nightly jobs.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:ci-artifact-secret-leakage"
+    },
+    {
+      "id": "disabled-external-provider-stub-jobs",
+      "issue": "optional_job",
+      "fileRegex": "^qa-(android-webview|cdn-purge|external-stubs|helm-lint|ios-wkwebview|ipv6-smoke|k8s-smoke|macos-a11y-optional|ofac-hash-verify|secrets-history-scan-optional|terraform-plan|visual-update|windows-edge-optional)\\.yml$",
+      "conditionRegex": "^false$",
+      "owner": "test-platform",
+      "reason": "Provider, device-lab, or external-platform workflows are represented as explicit disabled stubs until external authority exists.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "id": "qa-code-maximal-dispatch-and-schedule-options",
+      "issue": "optional_job",
+      "file": "qa-code-maximal.yml",
+      "jobRegex": "^(qa_ultimate_reuse|code_maximal_playwright|staging_optional_matrix)$",
+      "owner": "test-platform",
+      "reason": "Expensive maximal QA legs are gated by schedule or explicit workflow_dispatch inputs.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "id": "ci-qa-ultimate-pr-shard-variable-gate",
+      "issue": "optional_job",
+      "file": "ci.yml",
+      "job": "qa_ultimate_pr_shard",
+      "owner": "test-platform",
+      "reason": "The QA ultimate shard is intentionally controlled by ENABLE_QA_ULTIMATE_PR_SHARD to limit PR cost.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "id": "merge-queue-canary-dispatch-or-merge-group",
+      "issue": "optional_job",
+      "file": "qa-merge-queue-canary.yml",
+      "job": "expected_checks",
+      "owner": "platform-security",
+      "reason": "The merge-queue expected-check artifact is intentionally limited to manual dispatch and merge_group events.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:merge-queue-canary-parity"
+    },
+    {
+      "id": "qa-max-nightly-input-gated-options",
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "jobRegex": "^(openapi_contract_nightly|memory_optional|lighthouse_optional|k6_optional|stryker_optional|chaos_optional|visual_optional|multibrowser_optional|slsa_verify_optional|i18n_matrix_optional|mobile_optional|npm_audit_optional|semgrep_full_optional|v10_migration_smoke_optional|har_redact_optional|reproducible_build_hash_optional)$",
+      "owner": "test-platform",
+      "reason": "Expensive or externally dependent nightly jobs require explicit workflow_dispatch opt-in.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "id": "qa-max-nightly-schedule-only-legs",
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "jobRegex": "^(ratchet_snapshot_nightly|api_runtime_smoke_nightly)$",
+      "owner": "test-platform",
+      "reason": "Nightly-only evidence jobs are not intended to run on every workflow_dispatch variant.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:qa-workflow-fleet"
+    },
+    {
+      "id": "qa-max-nightly-failure-diagnostic-leg",
+      "issue": "optional_job",
+      "file": "qa-max-nightly.yml",
+      "job": "flake_classify_optional",
+      "owner": "test-platform",
+      "reason": "Flake classification runs only after failures as diagnostic evidence.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:test-skip-governance"
+    }
+  ],
+  "secretGateAllowlist": [
+    {
+      "id": "ci-quality-build-e2e-auth",
+      "file": "ci.yml",
+      "job": "quality_build_e2e",
+      "strictVariable": "REQUIRE_CI_E2E_AUTH",
+      "owner": "test-platform",
+      "reason": "Authenticated E2E is skipped by default without test-account secrets and fails closed when REQUIRE_CI_E2E_AUTH is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "ci-onboarding-full-flag",
+      "file": "ci.yml",
+      "job": "quality_e2e_onboarding_full",
+      "strictVariable": "REQUIRE_CI_ONBOARDING_FULL",
+      "owner": "test-platform",
+      "reason": "The deep onboarding suite is opt-in by flag and still separately requires E2E credentials.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "ci-onboarding-full-auth",
+      "file": "ci.yml",
+      "job": "quality_e2e_onboarding_full",
+      "strictVariable": "REQUIRE_CI_E2E_AUTH",
+      "owner": "test-platform",
+      "reason": "The full onboarding suite is skipped by default without test-account secrets and fails closed when REQUIRE_CI_E2E_AUTH is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "ci-runtime-comprehensive-pass",
+      "file": "ci.yml",
+      "job": "runtime_comprehensive_pass",
+      "strictVariable": "REQUIRE_RUNTIME_COMPREHENSIVE",
+      "owner": "platform-runtime",
+      "reason": "Runtime comprehensive staging probes require staging credentials and fail closed when REQUIRE_RUNTIME_COMPREHENSIVE is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "cron-canary-staging-secrets",
+      "file": "cron-canary.yml",
+      "job": "canary",
+      "strictVariable": "REQUIRE_CRON_CANARY",
+      "owner": "platform-runtime",
+      "reason": "Cron canary staging probes require staging URL and cron secret and fail closed when REQUIRE_CRON_CANARY is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "load-smoke-staging-target",
+      "file": "load-smoke-optional.yml",
+      "job": "load_smoke",
+      "strictVariable": "REQUIRE_LOAD_SMOKE",
+      "owner": "performance-runtime",
+      "reason": "Load smoke requires an explicit staging target and fails closed when REQUIRE_LOAD_SMOKE is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    },
+    {
+      "id": "slo-monitor-provider-secrets",
+      "file": "slo-monitor.yml",
+      "job": "monitor",
+      "strictVariable": "REQUIRE_SLO_MONITOR",
+      "owner": "observability",
+      "reason": "SLO monitor requires provider credentials and healthcheck URL and fails closed when REQUIRE_SLO_MONITOR is set.",
+      "expiresOn": "2027-05-28",
+      "validationCommand": "check:github-scheduled-workflows-secrets"
+    }
+  ],
+  "requiredBranchProtectionJobs": [
+    "quality_static_security",
+    "quality_static_surface",
+    "quality_static_governance",
+    "quality_static_codehealth",
+    "quality_unit",
+    "quality_security",
+    "quality_build_e2e",
+    "quality"
+  ],
+  "requiredMergeQueueExpectedChecks": [
+    "CI / quality_static_security",
+    "CI / quality_static_surface",
+    "CI / quality_static_governance",
+    "CI / quality_static_codehealth",
+    "CI / quality_unit",
+    "CI / quality_security",
+    "CI / quality_build_e2e",
+    "CI / quality"
+  ],
+  "requiredMergeQueueCategories": ["security", "build", "e2e", "dependency", "release"],
+  "requiredArtifactJobs": [
+    { "file": "ci.yml", "job": "quality_static_security", "purpose": "SBOM and dependency evidence" },
+    { "file": "ci.yml", "job": "quality_build_e2e", "purpose": "Playwright report evidence" },
+    { "file": "qa-code-maximal.yml", "job": "code_maximal_static", "purpose": "maximal static QA evidence" },
+    { "file": "qa-code-maximal.yml", "job": "code_maximal_playwright", "purpose": "maximal Playwright evidence" },
+    { "file": "qa-debugging-sweep.yml", "job": "provenance", "purpose": "debugging sweep provenance" },
+    { "file": "qa-game-day.yml", "job": "game_day", "purpose": "game-day evidence" },
+    { "file": "qa-taxonomy-closure.yml", "job": "taxonomy", "purpose": "taxonomy closure evidence" },
+    { "file": "qa-max-nightly.yml", "job": "playwright_shard", "purpose": "nightly shard evidence" },
+    { "file": "qa-max-nightly.yml", "job": "playwright_merge", "purpose": "merged Playwright report" },
+    { "file": "qa-max-nightly.yml", "job": "junit_merge", "purpose": "merged JUnit report" },
+    { "file": "qa-max-nightly.yml", "job": "api_runtime_smoke_nightly", "purpose": "API runtime smoke evidence" },
+    { "file": "semgrep-sarif.yml", "job": "semgrep", "purpose": "SARIF evidence" },
+    { "file": "qa-merge-queue-canary.yml", "job": "expected_checks", "purpose": "merge-queue expected checks evidence" }
+  ]
+}

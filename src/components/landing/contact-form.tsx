@@ -26,6 +26,7 @@ const interestedOptions = [
   { value: "founding_customer", label: "Founding Customer offer" },
   { value: "guided_pilot", label: "Guided pilot" },
   { value: "larger_team", label: "Larger-team workflows" },
+  { value: "assurance_workflows", label: "Assurance workflows" },
   { value: "custom", label: "Custom workflows" },
   { value: "dpa", label: "Data Processing Addendum (DPA)" },
   { value: "general", label: "General inquiry" },
@@ -51,6 +52,7 @@ function painPrefillFor(v: InterestedValue): string {
   if (v === "dpa") return "Need a Data Processing Addendum";
   if (v === "founding_customer") return "Interested in the Founding Customer offer";
   if (v === "larger_team") return "Need a larger plan than Core's 10 seats";
+  if (v === "assurance_workflows") return "Need assurance workflows for selected contract work";
   if (v === "custom") return "Custom workflows or SSO";
   return "";
 }

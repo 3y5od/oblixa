@@ -476,7 +476,7 @@ describe("V10 command palette contract ranking", () => {
         { label: "Review work queue", href: "/work", reason: "zero_result" },
         { label: "Review reports", href: "/reports", reason: "zero_result" },
         { label: "Check system health", href: "/settings/health", reason: "zero_result" },
-        { label: "Configure product settings", href: "/settings/product", reason: "zero_result" },
+        { label: "Open settings", href: "/settings", reason: "zero_result" },
       ]),
     });
     expect(buildV10CommandSearchRecovery({ query: "report", resultCount: 2, partialIndex: true, mode: "advanced" })).toMatchObject({
@@ -496,7 +496,7 @@ describe("V10 command palette contract ranking", () => {
       })
     ).toMatchObject({
       diagnosticId: "v10_command_hidden_module_filtered",
-      actions: expect.arrayContaining([{ label: "Review hidden modules", href: "/settings/product", reason: "hidden_module_filtered" }]),
+      actions: expect.arrayContaining([{ label: "Open settings", href: "/settings", reason: "hidden_module_filtered" }]),
     });
     expect(buildV10CommandSearchRecovery({ query: "acme", resultCount: 1, partialIndex: false, mode: "core" })).toBeNull();
   });

@@ -22,8 +22,16 @@ export interface UiSelectProps {
   className?: string;
   buttonClassName?: string;
   ariaLabel?: string;
+  /** Optional caps prefix rendered inside the trigger — the §7.3 leading-label
+   *  pill ("WINDOW  90 days"). Lets a dense toolbar drop separate stacked
+   *  labels while keeping the control unmistakably custom (not a native box). */
+  label?: string;
   /** Width of the popover menu. Defaults to matching the button width. */
   menuWidth?: "trigger" | "fit";
+  /** Trigger chrome variant. `compact` matches `.ui-input-compact` (bordered
+   *  box). `pill` matches §7.3 — a rounded-full pill trigger with leading
+   *  caps-label + value, used in dense sidebars / overlay panels. */
+  variant?: "compact" | "pill";
 }
 
 export function UiSelect({
@@ -38,7 +46,9 @@ export function UiSelect({
   className,
   buttonClassName,
   ariaLabel,
+  label,
   menuWidth = "trigger",
+  variant = "compact",
 }: UiSelectProps) {
   const [internalValue, setInternalValue] = useState(defaultValue);
   const isControlled = controlledValue !== undefined;
@@ -98,13 +108,30 @@ export function UiSelect({
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((o) => !o)}
-        className={`ui-input-compact inline-flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50 ${buttonClassName ?? ""}`}
+        className={`${
+          variant === "pill"
+            ? "inline-flex min-h-9 w-full items-center justify-between gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3.5 py-1.5 text-[12.5px] text-left transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            : "ui-input-compact inline-flex w-full items-center justify-between gap-2 text-left"
+        } disabled:cursor-not-allowed disabled:opacity-50 ${buttonClassName ?? ""}`}
       >
-        <span
-          className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
-        >
-          {selected?.label ?? placeholder}
-        </span>
+        {label ? (
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="shrink-0 text-[9.5px] font-semibold uppercase tracking-[0.13em] text-[var(--text-tertiary)]">
+              {label}
+            </span>
+            <span
+              className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
+            >
+              {selected?.label ?? placeholder}
+            </span>
+          </span>
+        ) : (
+          <span
+            className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
+          >
+            {selected?.label ?? placeholder}
+          </span>
+        )}
         <ChevronDown
           className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)] transition-transform"
           style={{ transform: open ? "rotate(180deg)" : "none" }}

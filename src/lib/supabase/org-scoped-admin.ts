@@ -11,13 +11,23 @@ export type ResolvedOrgMembership = {
   role: string;
 };
 
+export type OrgOperationalStatus = "active" | "inactive" | "suspended";
+
 export type OrgResolutionFailureReason =
   | "organization_membership_missing"
   | "organization_membership_ambiguous"
-  | "organization_membership_query_failed";
+  | "organization_membership_query_failed"
+  | "organization_state_missing"
+  | "organization_state_query_failed"
+  | "organization_inactive"
+  | "organization_suspended";
 
 export type OrgResolutionResult =
   | { ok: true; membership: ResolvedOrgMembership }
+  | { ok: false; reason: OrgResolutionFailureReason; detail?: string };
+
+type OrgOperationalStateResult =
+  | { ok: true; status: "active" }
   | { ok: false; reason: OrgResolutionFailureReason; detail?: string };
 
 export type SensitiveOrgContextUser = {
@@ -48,7 +58,7 @@ type OrgScopedMutationQuery<TQuery> = {
 };
 
 type AdminWithMemberships = {
-  from: (table: "organization_members") => {
+  from: (table: "organization_members" | "organizations") => {
     select: (columns: string) => unknown;
   };
 };
@@ -122,6 +132,63 @@ function rowToMembership(row: unknown): ResolvedOrgMembership | null {
     organization_id: candidate.organization_id,
     role: typeof candidate.role === "string" && candidate.role.trim() ? candidate.role : "viewer",
   };
+}
+
+function normalizeOrgOperationalStatus(value: unknown): OrgOperationalStatus {
+  if (value === "inactive" || value === "suspended") return value;
+  return "active";
+}
+
+function objectField(record: Record<string, unknown>, key: string): unknown {
+  return Object.prototype.hasOwnProperty.call(record, key) ? record[key] : undefined;
+}
+
+export function orgOperationalStatusFromRow(row: unknown): OrgOperationalStatus | null {
+  if (!row || typeof row !== "object") return null;
+  const record = row as Record<string, unknown>;
+  const rawSettings =
+    objectField(record, "org_settings_json") ?? objectField(record, "v6_org_settings_json");
+  const settings = rawSettings && typeof rawSettings === "object" ? rawSettings as Record<string, unknown> : {};
+  return normalizeOrgOperationalStatus(
+    objectField(settings, "operational_status") ??
+      objectField(settings, "organization_status") ??
+      objectField(record, "operational_status") ??
+      objectField(record, "organization_status")
+  );
+}
+
+async function resolveOrganizationOperationalState(
+  admin: AdminWithMemberships,
+  orgId: string
+): Promise<OrgOperationalStateResult> {
+  try {
+    const query = admin
+      .from("organizations")
+      .select("id, v6_org_settings_json") as {
+      eq: (column: string, value: string) => {
+        maybeSingle: () => Promise<{ data: unknown; error: { message?: string } | null }>;
+      };
+    };
+    const result = await query.eq("id", requireServiceRoleOrgId(orgId)).maybeSingle();
+    if (result.error) {
+      return {
+        ok: false,
+        reason: "organization_state_query_failed",
+        detail: result.error.message ?? "organization state query failed",
+      };
+    }
+    const status = orgOperationalStatusFromRow(result.data);
+    if (!status) return { ok: false, reason: "organization_state_missing" };
+    if (status === "inactive") return { ok: false, reason: "organization_inactive" };
+    if (status === "suspended") return { ok: false, reason: "organization_suspended" };
+    return { ok: true, status: "active" };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "organization_state_query_failed",
+      detail: error instanceof Error ? error.message : "organization state query failed",
+    };
+  }
 }
 
 export function getExplicitOrgIdFromRequest(request: Request): string | null {
@@ -242,6 +309,15 @@ export async function resolveSensitiveOrgContext(
       reason: result.reason,
       status: orgResolutionHttpStatus(result.reason),
       detail: result.detail,
+    };
+  }
+  const orgState = await resolveOrganizationOperationalState(admin, result.membership.organization_id);
+  if (!orgState.ok) {
+    return {
+      ok: false,
+      reason: orgState.reason,
+      status: orgResolutionHttpStatus(orgState.reason),
+      detail: orgState.detail,
     };
   }
   return {

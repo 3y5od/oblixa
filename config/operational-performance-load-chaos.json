@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-performance-load-chaos",
+  "objectives": [
+    {
+      "id": "load-smoke-coverage",
+      "ownerArea": "performance-runtime",
+      "commands": [
+        { "command": "check:operational-performance-load-chaos", "ciRequired": true, "qaPipelineRequired": false, "covers": ["aggregate_registry", "artifact_drift", "load_surface_coverage"] },
+        { "command": "test:performance-contracts", "ciRequired": false, "qaPipelineRequired": false, "covers": ["typed_load_thresholds", "production_target_guards"] },
+        { "command": "test:e2e:perf", "ciRequired": false, "qaPipelineRequired": false, "covers": ["browser_navigation_timing", "web_vitals_harness", "upload_perf_smoke"] },
+        { "command": "test:k6:smoke", "ciRequired": false, "qaPipelineRequired": true, "covers": ["k6_load_smoke", "latency_error_rate_resource_thresholds"] },
+        { "command": "test:lighthouse:nightly", "ciRequired": false, "qaPipelineRequired": true, "covers": ["lighthouse_optional_smoke"] }
+      ],
+      "artifacts": ["artifacts/operational-performance-load-chaos.json"]
+    },
+    {
+      "id": "soak-stress-scaffolding",
+      "ownerArea": "performance-runtime",
+      "commands": [
+        { "command": "test:k6:soak", "ciRequired": false, "qaPipelineRequired": false, "covers": ["soak_opt_in", "stress_cost_caps"] },
+        { "command": "test:k6:smoke", "ciRequired": false, "qaPipelineRequired": true, "covers": ["safe_default_targets"] }
+      ]
+    },
+    {
+      "id": "chaos-fixture-tests",
+      "ownerArea": "platform-runtime",
+      "commands": [
+        { "command": "test:chaos-local-smoke", "ciRequired": false, "qaPipelineRequired": false, "covers": ["local_fixture_validation", "compose_opt_in"] },
+        { "command": "report:chaos-readiness", "ciRequired": true, "qaPipelineRequired": false, "covers": ["bounded_chaos_readiness_report"] }
+      ]
+    },
+    {
+      "id": "cache-consistency-tests",
+      "ownerArea": "api-platform",
+      "commands": [
+        { "command": "check:sensitive-cache-controls", "ciRequired": true, "qaPipelineRequired": false, "covers": ["private_no_store", "vary_cookie_authorization"] },
+        { "command": "check:client-cache-sensitivity", "ciRequired": true, "qaPipelineRequired": false, "covers": ["client_cache_sensitivity"] },
+        { "command": "check:cache-poisoning-guards", "ciRequired": false, "qaPipelineRequired": false, "covers": ["cache_poisoning_inputs"] }
+      ]
+    },
+    {
+      "id": "bundle-runtime-budgets",
+      "ownerArea": "performance-runtime",
+      "commands": [
+        { "command": "check:bundle-budget", "ciRequired": true, "qaPipelineRequired": false, "covers": ["client_js_budget", "first_load_budget"] },
+        { "command": "check:performance-static:strict", "ciRequired": true, "qaPipelineRequired": false, "covers": ["server_only_imports", "unbounded_reads"] },
+        { "command": "check:timeout-budget-guards", "ciRequired": true, "qaPipelineRequired": false, "covers": ["max_duration", "fetch_timeouts"] },
+        { "command": "check:route-universe", "ciRequired": true, "qaPipelineRequired": false, "covers": ["route_runtime_class", "route_performance_budget_inventory"] },
+        { "command": "perf:autonomous:postbuild", "ciRequired": false, "qaPipelineRequired": false, "covers": ["server_build_output_artifacts"] }
+      ],
+      "artifacts": [
+        "artifacts/route-performance-budgets.json",
+        "artifacts/autonomous-perf-ci-runtime-budget.json",
+        "artifacts/autonomous-perf-coverage-matrix.json"
+      ]
+    }
+  ],
+  "loadSmokeTargets": [
+    { "id": "landing", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"landing\"", "path: \"/\"", "p95Ms"] },
+    { "id": "login", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"login\"", "path: \"/login\"", "maxErrorRate"] },
+    { "id": "dashboard", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"dashboard\"", "path: \"/dashboard\"", "auth-redirect-ok"] },
+    { "id": "contracts-list", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"contracts-list\"", "path: \"/contracts\"", "auth-redirect-ok"] },
+    { "id": "contract-detail", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"contract-detail\"", "performance-smoke-contract", "404"] },
+    { "id": "upload", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"upload\"", "path: \"/contracts/bulk\"", "document-pipeline"] },
+    { "id": "search", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"search\"", "path: \"/search?q=renewal\"", "maxResponseKb"] },
+    { "id": "reports", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"reports\"", "path: \"/reports\"", "maxDurationSeconds"] },
+    { "id": "exports", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"exports\"", "path: \"/api/report-packs\"", "405"] },
+    { "id": "cron-like", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"cron-like\"", "path: \"/api/reminders/send\"", "cron-deny-ok"] },
+    { "id": "provider-mocked", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"provider-mocked\"", "performance-provider-mock", "provider-mock"] }
+  ],
+  "soakStressScaffolding": [
+    { "id": "k6-smoke-thresholds", "path": "k6/smoke.js", "markers": ["thresholds", "http_req_failed", "http_req_duration", "K6_PATHS", "bounded body"] },
+    { "id": "k6-soak-opt-in", "path": "scripts/k6-soak-runner.mjs", "markers": ["RUN_K6_SOAK", "isSafeLoadTarget", "OBLIXA_ALLOW_PRODUCTION_LOAD", "production_load_opt_in_required"] },
+    { "id": "staging-smoke-target-guard", "path": "loadtests/k6-staging-smoke.js", "markers": ["STAGING_BASE_URL", "assertSafeBaseUrl", "production_load_opt_in_required", "thresholds"] },
+    { "id": "k6-soak-thresholds", "path": "k6/soak-spike-stub.js", "markers": ["thresholds", "stages", "http_req_duration", "p(95)<2500"] }
+  ],
+  "chaosFixtures": [
+    { "id": "supabase-latency", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"supabase-latency\"", "provider: \"supabase\"", "fault: \"latency\""] },
+    { "id": "stripe-failure", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"stripe-failure\"", "provider: \"stripe\"", "billing_route"] },
+    { "id": "resend-failure", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"resend-failure\"", "provider: \"resend\"", "recipient_email"] },
+    { "id": "openai-timeout", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"openai-timeout\"", "provider: \"openai\"", "raw_contract_text"] },
+    { "id": "upstash-outage", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"upstash-outage\"", "provider: \"upstash\"", "fail_closed"] },
+    { "id": "webhook-duplicate", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"webhook-duplicate\"", "provider: \"webhook\"", "idempotent_noop"] },
+    { "id": "cron-overlap", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"cron-overlap\"", "provider: \"cron\"", "cron_secret"] },
+    { "id": "db-conflict", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"db-conflict\"", "provider: \"database\"", "diagnostic_id"] }
+  ],
+  "cacheConsistencyCases": [
+    { "id": "stale-reads", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"stale-reads\"", "stale_read_model_detects_partial_and_repair_required"] },
+    { "id": "read-after-write-lag", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"read-after-write-lag\"", "mutation_expected_version_prevents_laggy_overwrite"] },
+    { "id": "revalidation-tags", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"revalidation-tags\"", "revalidatePath_or_tag_is_explicit_for_mutations"] },
+    { "id": "cache-headers", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"cache-headers\"", "private_no_store_for_sensitive_responses"] },
+    { "id": "stale-mutation-guards", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"stale-mutation-guards\"", "expected_version_and_idempotency_contract"] },
+    { "id": "cache-poisoning-inputs", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"cache-poisoning-inputs\"", "untrusted_query_never_controls_shared_cache_key"] }
+  ],
+  "budgetContracts": [
+    { "id": "js-bundle", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"js-bundle\"", "check:bundle-budget", "BUNDLE_BUDGET_CLIENT_KB"] },
+    { "id": "server-build-output", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"server-build-output\"", "perf:autonomous:postbuild", "server output"] },
+    { "id": "route-runtime-class", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"route-runtime-class\"", "check:route-universe", "route runtime class"] },
+    { "id": "max-duration", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"max-duration\"", "check:timeout-budget-guards", "maxDuration"] },
+    { "id": "expensive-dependency-imports", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["id: \"expensive-dependency-imports\"", "check:performance-static:strict", "server-only packages"] }
+  ],
+  "environmentGuards": [
+    { "id": "production-target-block", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["isProductionLoadTarget", "blockedProductionHosts", "oblixa.app"] },
+    { "id": "explicit-production-opt-in", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["OBLIXA_ALLOW_PRODUCTION_LOAD", "isSafeLoadTarget"] },
+    { "id": "load-cost-caps", "path": "src/lib/performance/operational-performance-contracts.ts", "markers": ["maxVusWithoutOverride", "maxDurationSecondsWithoutOverride", "resourceBudget"] }
+  ],
+  "manualBoundary": "Production load, soak, and chaos execution require explicit external approval; this registry enforces local/staging-safe code-owned thresholds, fixtures, opt-in guards, and budget ratchets."
+}

@@ -19,6 +19,7 @@ import {
   ALL_ADVANCED_NAV_MODULE_KEYS,
   ALL_ASSURANCE_NAV_MODULE_KEYS,
 } from "@/lib/product-surface/workspace-module-keys";
+import { arePrivateProductControlsEnabled } from "@/lib/release-state-private-controls";
 import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import {
@@ -86,6 +87,10 @@ export async function updateWorkspaceProductSurfaceForm(formData: FormData): Pro
 }
 
 async function updateWorkspaceProductSurfaceFormUnsafe(formData: FormData): Promise<ProductSurfaceActionResult> {
+  if (!arePrivateProductControlsEnabled()) {
+    return { error: "Product mode and module controls are private for this release." };
+  }
+
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:updateWorkspaceProductSurfaceForm",
     featureFamily: "settings",
@@ -296,6 +301,10 @@ export async function resetWorkspaceProductSurfaceDefaultsForm(): Promise<Produc
 }
 
 async function resetWorkspaceProductSurfaceDefaultsFormUnsafe(): Promise<ProductSurfaceActionResult> {
+  if (!arePrivateProductControlsEnabled()) {
+    return { error: "Product mode and module controls are private for this release." };
+  }
+
   const eligibility = await requireServerActionEligibility({
     actionId: "product-surface-settings:resetWorkspaceProductSurfaceDefaultsForm",
     featureFamily: "settings",

@@ -157,6 +157,16 @@ describe("csp-builders", () => {
     expect(byKey.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
     expect(byKey.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
     expect(byKey.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
+    expect(byKey.get("Reporting-Endpoints")).toBe('csp-endpoint="/api/security/csp-report"');
+  });
+
+  it("buildSecurityHeaders wires CSP report-uri and report-to endpoints", () => {
+    const headers = buildSecurityHeaders({ isProd: true, isVercel: true });
+    const byKey = new Map(headers.map((h) => [h.key, h.value]));
+    for (const key of ["Content-Security-Policy", "Content-Security-Policy-Report-Only"]) {
+      expect(byKey.get(key)).toContain("report-uri /api/security/csp-report");
+      expect(byKey.get(key)).toContain("report-to csp-endpoint");
+    }
   });
 
   it("buildSecurityHeaders rejects unsafe header values sourced from nonce input", () => {

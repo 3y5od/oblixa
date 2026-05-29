@@ -1,0 +1,5823 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-environment-isolation",
+  "generatedArtifact": "artifacts/operational-environment-isolation.json",
+  "generatedFrom": "config/operational-environment-isolation.json",
+  "ok": true,
+  "summary": {
+    "environmentClassCount": 6,
+    "envKeyCount": 263,
+    "e2eMatrixKeyCount": 25,
+    "seedFileCount": 3,
+    "fixtureLifecycleControlCount": 7,
+    "previewProviderControlCount": 7
+  },
+  "wiring": {
+    "sourceFileCount": 22,
+    "requiredValidationCommandCount": 20
+  },
+  "environmentClasses": {
+    "classCount": 6,
+    "requiredClassCount": 6,
+    "requiredDimensionCount": 7,
+    "rows": [
+      {
+        "id": "ci",
+        "urlSignalCount": 3,
+        "keySignalCount": 4,
+        "callbackOriginPolicy": "ci-owned-base-url-only",
+        "cookiePolicy": "no-shared-auth-state-by-default",
+        "storageBucketPolicy": "no-production-bucket-writes",
+        "providerModePolicy": "mock-test-or-staging",
+        "productionJobPolicy": "disabled-unless-explicit-secret-gate"
+      },
+      {
+        "id": "local",
+        "urlSignalCount": 3,
+        "keySignalCount": 3,
+        "callbackOriginPolicy": "local-or-loopback-only",
+        "cookiePolicy": "secure-in-production-only",
+        "storageBucketPolicy": "local-project-fixture-buckets-only",
+        "providerModePolicy": "test-or-sandbox",
+        "productionJobPolicy": "disabled"
+      },
+      {
+        "id": "preview",
+        "urlSignalCount": 3,
+        "keySignalCount": 3,
+        "callbackOriginPolicy": "preview-origin-allowlist",
+        "cookiePolicy": "secure-samesite-lax",
+        "storageBucketPolicy": "preview-project-class",
+        "providerModePolicy": "test-or-sandbox",
+        "productionJobPolicy": "disabled"
+      },
+      {
+        "id": "production",
+        "urlSignalCount": 4,
+        "keySignalCount": 3,
+        "callbackOriginPolicy": "canonical-production-origin-only",
+        "cookiePolicy": "secure-hsts-samesite",
+        "storageBucketPolicy": "production-project-class",
+        "providerModePolicy": "live",
+        "productionJobPolicy": "enabled-only-through-release-gated-secrets"
+      },
+      {
+        "id": "staging",
+        "urlSignalCount": 4,
+        "keySignalCount": 3,
+        "callbackOriginPolicy": "staging-origin-allowlist",
+        "cookiePolicy": "secure-samesite-lax",
+        "storageBucketPolicy": "staging-project-class",
+        "providerModePolicy": "test-or-sandbox",
+        "productionJobPolicy": "disabled-unless-staging-safe"
+      },
+      {
+        "id": "test",
+        "urlSignalCount": 3,
+        "keySignalCount": 4,
+        "callbackOriginPolicy": "deterministic-test-origin",
+        "cookiePolicy": "isolated-browser-context",
+        "storageBucketPolicy": "ephemeral-fixture-namespace",
+        "providerModePolicy": "mock-or-test",
+        "productionJobPolicy": "disabled"
+      }
+    ]
+  },
+  "envFileIsolation": {
+    "envFileCount": 2,
+    "envEntryCount": 281,
+    "uniqueEnvKeyCount": 263,
+    "e2eMatrixKeyCount": 25,
+    "requiredE2eMatrixKeyCount": 13,
+    "rows": [
+      {
+        "file": ".env.example",
+        "line": 588,
+        "key": "ADR_REQUIRED_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 111,
+        "key": "APP_BASE_URL",
+        "commented": true,
+        "valueClass": "production",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 31,
+        "key": "BASE_URL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 589,
+        "key": "CLA_DCO_POLICY_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 395,
+        "key": "COMPREHENSIVE_PASS_BASE_URL",
+        "commented": true,
+        "valueClass": "local",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 398,
+        "key": "COMPREHENSIVE_PASS_EMAIL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 12,
+        "key": "COMPREHENSIVE_PASS_EMAIL",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 14,
+        "key": "COMPREHENSIVE_PASS_FULL_NAME",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 399,
+        "key": "COMPREHENSIVE_PASS_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 13,
+        "key": "COMPREHENSIVE_PASS_PASSWORD",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 397,
+        "key": "COMPREHENSIVE_PASS_SECONDARY_BASE_URL",
+        "commented": true,
+        "valueClass": "local",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 67,
+        "key": "CONTACT_NOTIFY_EMAIL",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 574,
+        "key": "COSIGN_PUBLIC_KEY",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 387,
+        "key": "CRON_HEALTHCHECK_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 337,
+        "key": "CRON_SECRET_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 335,
+        "key": "CRON_SECRET_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 333,
+        "key": "CRON_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 416,
+        "key": "DAST_LOCAL_BASE_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "local",
+          "staging"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 414,
+        "key": "DAST_TARGET_MODE",
+        "commented": true,
+        "valueClass": "staging",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "staging"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 415,
+        "key": "DAST_TARGET_MODE",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "staging"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 299,
+        "key": "DECISION_PACKET_BUCKET",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 497,
+        "key": "DISABLE_ONBOARDING_CALIBRATION_GATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 500,
+        "key": "DISABLE_ONBOARDING_CALIBRATION_STALE_CRON",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 582,
+        "key": "DR_DRILL_INCLUDE_RPO",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 580,
+        "key": "DR_DRILL_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 581,
+        "key": "DR_VENDOR_STATUS_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 490,
+        "key": "E2E_ACCOUNT_KEY",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 483,
+        "key": "E2E_ADVANCED_EMAIL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 484,
+        "key": "E2E_ADVANCED_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 485,
+        "key": "E2E_ASSURANCE_EMAIL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 486,
+        "key": "E2E_ASSURANCE_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 487,
+        "key": "E2E_CORE_NON_ADMIN_EMAIL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 488,
+        "key": "E2E_CORE_NON_ADMIN_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 491,
+        "key": "E2E_COUNTERPARTY_KEY",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 481,
+        "key": "E2E_ONBOARDING_BLOCKING",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 509,
+        "key": "E2E_ONBOARDING_EXPORT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 421,
+        "key": "E2E_RANDOM_SEED",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 460,
+        "key": "E2E_TEARDOWN_RPC",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 461,
+        "key": "E2E_TEARDOWN_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 459,
+        "key": "E2E_TEARDOWN_TABLES",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 458,
+        "key": "E2E_TEARDOWN_WEBHOOK_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 457,
+        "key": "E2E_TEARDOWN",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 209,
+        "key": "E2E_TEST_EMAIL",
+        "commented": true,
+        "valueClass": "local",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 450,
+        "key": "E2E_TEST_EMAIL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.local.example",
+        "line": 9,
+        "key": "E2E_TEST_EMAIL",
+        "commented": false,
+        "valueClass": "local",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 210,
+        "key": "E2E_TEST_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 451,
+        "key": "E2E_TEST_PASSWORD",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.local.example",
+        "line": 10,
+        "key": "E2E_TEST_PASSWORD",
+        "commented": false,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": true,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 63,
+        "key": "EMAIL_FROM",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 173,
+        "key": "EMAIL_INBOUND_HMAC_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 278,
+        "key": "ENABLE_ADAPTIVE_PLAYBOOKS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 240,
+        "key": "ENABLE_APPROVALS_SLA",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 276,
+        "key": "ENABLE_ASSURANCE_CORE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 245,
+        "key": "ENABLE_AUTOMATION_EXPANSION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 281,
+        "key": "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 279,
+        "key": "ENABLE_AUTOPILOT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 277,
+        "key": "ENABLE_CONTROL_POLICIES",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 265,
+        "key": "ENABLE_CONTROL_ROOM_UX",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 260,
+        "key": "ENABLE_DECISION_FOUNDATION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 224,
+        "key": "ENABLE_DEMO_SEED",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 18,
+        "key": "ENABLE_DEMO_SEED",
+        "commented": false,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 264,
+        "key": "ENABLE_EXTERNAL_COLLABORATION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 242,
+        "key": "ENABLE_INTAKE_PIPELINE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 239,
+        "key": "ENABLE_OBLIGATIONS_EXECUTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 282,
+        "key": "ENABLE_OUTCOME_INTELLIGENCE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 243,
+        "key": "ENABLE_PERSONA_DASHBOARDS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 261,
+        "key": "ENABLE_PORTFOLIO_CAMPAIGNS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 263,
+        "key": "ENABLE_RELATIONSHIP_LAYER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 241,
+        "key": "ENABLE_RENEWAL_WORKSPACE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 244,
+        "key": "ENABLE_REPORTING_HISTORY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 283,
+        "key": "ENABLE_REVIEW_BOARDS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 284,
+        "key": "ENABLE_SEGMENTS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 262,
+        "key": "ENABLE_SIMULATION_AND_INTELLIGENCE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 238,
+        "key": "ENABLE_TASKS_ENGINE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 249,
+        "key": "ENABLE_V3_APPROVALS_SLA",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 254,
+        "key": "ENABLE_V3_AUTOMATION_EXPANSION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 251,
+        "key": "ENABLE_V3_INTAKE_PIPELINE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 248,
+        "key": "ENABLE_V3_OBLIGATIONS_EXECUTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 252,
+        "key": "ENABLE_V3_PERSONA_DASHBOARDS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 250,
+        "key": "ENABLE_V3_RENEWAL_WORKSPACE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 253,
+        "key": "ENABLE_V3_REPORTING_HISTORY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 247,
+        "key": "ENABLE_V3_TASKS_ENGINE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 272,
+        "key": "ENABLE_V5_CONTROL_ROOM_UX",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 267,
+        "key": "ENABLE_V5_DECISION_FOUNDATION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 271,
+        "key": "ENABLE_V5_EXTERNAL_COLLABORATION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 268,
+        "key": "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 270,
+        "key": "ENABLE_V5_RELATIONSHIP_LAYER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 269,
+        "key": "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 288,
+        "key": "ENABLE_V6_ADAPTIVE_PLAYBOOKS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 286,
+        "key": "ENABLE_V6_ASSURANCE_CORE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 291,
+        "key": "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 289,
+        "key": "ENABLE_V6_AUTOPILOT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 287,
+        "key": "ENABLE_V6_CONTROL_POLICIES",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 292,
+        "key": "ENABLE_V6_OUTCOME_INTELLIGENCE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 293,
+        "key": "ENABLE_V6_REVIEW_BOARDS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 294,
+        "key": "ENABLE_V6_SEGMENTS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 308,
+        "key": "EXTERNAL_ACTION_PASSCODE_PEPPER",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 306,
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 305,
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 303,
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 85,
+        "key": "EXTRACTION_CHUNK_CONCURRENCY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 98,
+        "key": "EXTRACTION_WORKER_BASE_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 93,
+        "key": "EXTRACTION_WORKER_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 583,
+        "key": "GAME_DAY_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 213,
+        "key": "GOOGLE_SITE_VERIFICATION",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 520,
+        "key": "HC_SLO_MONITOR_PING",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 368,
+        "key": "INBOUND_AUTOMATION_ORG_ALLOWLIST",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 354,
+        "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 353,
+        "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 352,
+        "key": "INBOUND_AUTOMATION_TOKEN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 358,
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 357,
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 356,
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 364,
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 363,
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 362,
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 361,
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 360,
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 359,
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 375,
+        "key": "INTEGRATION_TOKEN_ENCRYPTION_KEY",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 585,
+        "key": "NATIVE_ASAN_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 108,
+        "key": "NEXT_PUBLIC_APP_URL",
+        "commented": false,
+        "valueClass": "local",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 4,
+        "key": "NEXT_PUBLIC_APP_URL",
+        "commented": false,
+        "valueClass": "local",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 230,
+        "key": "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": [
+          "ci"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 204,
+        "key": "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 533,
+        "key": "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 534,
+        "key": "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 518,
+        "key": "NEXT_PUBLIC_SENTRY_DSN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 523,
+        "key": "NEXT_PUBLIC_SENTRY_RELEASE",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": [
+          "production"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 530,
+        "key": "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 529,
+        "key": "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 528,
+        "key": "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 38,
+        "key": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 19,
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 6,
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 15,
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "commented": true,
+        "valueClass": "local",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 18,
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "commented": false,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 5,
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "commented": false,
+        "valueClass": "local",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 403,
+        "key": "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 405,
+        "key": "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 232,
+        "key": "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": true,
+        "sensitive": false,
+        "classHints": [
+          "ci"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 379,
+        "key": "OAUTH_SLACK_AUTHORIZE_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 381,
+        "key": "OAUTH_SLACK_CLIENT_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 382,
+        "key": "OAUTH_SLACK_CLIENT_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 383,
+        "key": "OAUTH_SLACK_SCOPE",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 380,
+        "key": "OAUTH_SLACK_TOKEN_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 166,
+        "key": "OBLIXA_ACTIVE_TOKEN_ENCRYPTION_KEY_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 137,
+        "key": "OBLIXA_COEP_MODE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 146,
+        "key": "OBLIXA_CSP_ENFORCING_SCRIPT_HASHES",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 127,
+        "key": "OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 143,
+        "key": "OBLIXA_CSP_STRICT_ENFORCING_SCRIPT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 140,
+        "key": "OBLIXA_CSP_STRICT_ENFORCING_STYLE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 185,
+        "key": "OBLIXA_DEBUGGING_SWEEP_ENDPOINT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 179,
+        "key": "OBLIXA_DSR_ACCOUNT_DELETE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 176,
+        "key": "OBLIXA_DSR_SELF_EXPORT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 538,
+        "key": "OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 191,
+        "key": "OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 189,
+        "key": "OBLIXA_INTERNAL_DIAG_IP_ALLOWLIST",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 187,
+        "key": "OBLIXA_INTERNAL_DIAG_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 344,
+        "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 342,
+        "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 340,
+        "key": "OBLIXA_INTERNAL_HMAC_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 151,
+        "key": "OBLIXA_KILL_BILLING",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 154,
+        "key": "OBLIXA_KILL_CRON_FAMILY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 152,
+        "key": "OBLIXA_KILL_EXTRACTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 155,
+        "key": "OBLIXA_KILL_IMPORT_EXPORT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 158,
+        "key": "OBLIXA_KILL_INBOUND_AUTOMATION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 156,
+        "key": "OBLIXA_KILL_INTEGRATION_SYNC",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 157,
+        "key": "OBLIXA_KILL_INVITES",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 153,
+        "key": "OBLIXA_KILL_OUTBOUND_EMAIL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 150,
+        "key": "OBLIXA_KILL_SIGNUP",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 159,
+        "key": "OBLIXA_KILL_WEBHOOK_DISPATCH",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 371,
+        "key": "OBLIXA_MALWARE_SCANNER_MODE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 196,
+        "key": "OBLIXA_PROCESS_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 202,
+        "key": "OBLIXA_PROVENANCE_FETCH_REFS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 200,
+        "key": "OBLIXA_PROVENANCE_TITLE_SCAN",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 473,
+        "key": "OBLIXA_RELEASE_SECURITY_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "production"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 121,
+        "key": "OBLIXA_SELF_HOSTED_HSTS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 162,
+        "key": "OBLIXA_STEP_UP_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 198,
+        "key": "OBLIXA_STRICT_ARTIFACTS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 124,
+        "key": "OBLIXA_STRICT_ENV",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 194,
+        "key": "OBLIXA_SWEEP_STUB_VERBOSE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 167,
+        "key": "OBLIXA_TOKEN_ENCRYPTION_KEY_DEFAULT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 118,
+        "key": "OBLIXA_TRUST_FORWARDED_IP",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 115,
+        "key": "OBLIXA_TRUSTED_APP_ORIGINS",
+        "commented": true,
+        "valueClass": "production",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 131,
+        "key": "OBLIXA_TRUSTED_TYPES_MODE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 133,
+        "key": "OBLIXA_TRUSTED_TYPES_REPORT_ONLY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 504,
+        "key": "ONBOARDING_CALIBRATION_PENDING_STALE_AFTER_DAYS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 502,
+        "key": "ONBOARDING_CALIBRATION_STALE_AFTER_DAYS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 501,
+        "key": "ONBOARDING_CALIBRATION_STALE_CRON_DRY_RUN",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 506,
+        "key": "ONBOARDING_CALIBRATION_STALE_MS_BETWEEN_ORGS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 73,
+        "key": "OPENAI_API_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 79,
+        "key": "OPENAI_EXTRACTION_JSON_SCHEMA",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 82,
+        "key": "OPENAI_EXTRACTION_MODEL_LONG",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 76,
+        "key": "OPENAI_EXTRACTION_MODEL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 89,
+        "key": "OPENAI_PDF_OCR_FALLBACK_MODEL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 88,
+        "key": "OPENAI_PDF_OCR_MODEL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 465,
+        "key": "OPENAPI_CONTRACT_BEARER",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 464,
+        "key": "OPENAPI_CONTRACT_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 466,
+        "key": "OPENAPI_SMOKE_PATHS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 392,
+        "key": "OPS_RETENTION_AUDIT_EVENTS_DAYS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 391,
+        "key": "OPS_RETENTION_NOTIFICATION_DELIVERIES_DAYS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 454,
+        "key": "ORG_DATA_REGION",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 30,
+        "key": "PERF_SKIP_BUILD",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 28,
+        "key": "PERF_TIER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 29,
+        "key": "PERF_TIER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 419,
+        "key": "PLAYWRIGHT_BASE_URL",
+        "commented": true,
+        "valueClass": "local",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 433,
+        "key": "PLAYWRIGHT_BLOB_REPORT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 206,
+        "key": "PLAYWRIGHT_CORRELATION_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 447,
+        "key": "PLAYWRIGHT_DEVICE_MATRIX",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 560,
+        "key": "PLAYWRIGHT_MAXIMAL_CI",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "ci",
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 439,
+        "key": "PLAYWRIGHT_MEASURE_MEMORY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 436,
+        "key": "PLAYWRIGHT_MOBILE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 445,
+        "key": "PLAYWRIGHT_MULTI_BROWSER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 449,
+        "key": "PLAYWRIGHT_ONBOARDING_DEEP",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 427,
+        "key": "PLAYWRIGHT_REUSE_AUTH_STORAGE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 561,
+        "key": "PLAYWRIGHT_SHARD_INDEX",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 562,
+        "key": "PLAYWRIGHT_SHARD_TOTAL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 563,
+        "key": "PLAYWRIGHT_TRACE_FAILURE_ONLY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 564,
+        "key": "PLAYWRIGHT_TRACE_FULL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 565,
+        "key": "PLAYWRIGHT_VIDEO",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 425,
+        "key": "PLAYWRIGHT_VISUAL_AUTH",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 566,
+        "key": "PLAYWRIGHT_VISUAL_CONTINUE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 423,
+        "key": "PLAYWRIGHT_VISUAL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 536,
+        "key": "PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 586,
+        "key": "QA_ARCHAEOLOGY_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 590,
+        "key": "QA_COPYLEFT_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 587,
+        "key": "QA_DEPENDENCY_CYCLES_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 558,
+        "key": "QA_MAXIMAL_DISCOVER_BATCH_INDEX",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 557,
+        "key": "QA_MAXIMAL_DISCOVER_BATCH_TOTAL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 556,
+        "key": "QA_MAXIMAL_DISCOVER_CHECK_UNION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 555,
+        "key": "QA_MAXIMAL_INCLUDE_POSTMERGE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 554,
+        "key": "QA_MAXIMAL_INCLUDE_ULTIMATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 559,
+        "key": "QA_MAXIMAL_MULTI_BROWSER",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 553,
+        "key": "QA_MAXIMAL_PLAYWRIGHT_ONLY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 552,
+        "key": "QA_MAXIMAL_SKIP_PLAYWRIGHT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 551,
+        "key": "QA_MAXIMAL_SUBSET",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 469,
+        "key": "QA_ULTIMATE_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 221,
+        "key": "REQUIRE_ACTIVE_SUBSCRIPTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 17,
+        "key": "REQUIRE_ACTIVE_SUBSCRIPTION",
+        "commented": false,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 60,
+        "key": "RESEND_API_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 570,
+        "key": "RLS_SMOKE_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 442,
+        "key": "RUN_LIGHTHOUSE_NIGHTLY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 571,
+        "key": "RUN_LIGHTHOUSE_NIGHTLY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 478,
+        "key": "SBOM_BASELINE_PATH",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 477,
+        "key": "SBOM_DIFF_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 573,
+        "key": "SBOM_DIFF_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 474,
+        "key": "SECURITY_RELEASE_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "production"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 576,
+        "key": "SEMGREP_FULL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 517,
+        "key": "SENTRY_DSN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 526,
+        "key": "SENTRY_PROFILES_SAMPLE_RATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 524,
+        "key": "SENTRY_RELEASE",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "production"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 525,
+        "key": "SENTRY_TRACES_SAMPLE_RATE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 170,
+        "key": "SLACK_SIGNING_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 577,
+        "key": "SLO_BUDGETS_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 575,
+        "key": "SLSA_VERIFY_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 412,
+        "key": "STAGING_BASE_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "staging"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 569,
+        "key": "STAGING_BASE_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "staging"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 48,
+        "key": "STRIPE_API_VERSION",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 46,
+        "key": "STRIPE_CONFIG_DRIFT_ASSERT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 45,
+        "key": "STRIPE_FOUNDING_AVAILABLE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 44,
+        "key": "STRIPE_FOUNDING_COUPON_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 43,
+        "key": "STRIPE_MONTHLY_PRICE_ID",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 41,
+        "key": "STRIPE_PRICE_ID",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 39,
+        "key": "STRIPE_SECRET_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 494,
+        "key": "STRIPE_TRIAL_PERIOD_DAYS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 54,
+        "key": "STRIPE_WEBHOOK_SECRET_PREVIOUS_EXPIRES_AT",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 53,
+        "key": "STRIPE_WEBHOOK_SECRET_PREVIOUS",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 51,
+        "key": "STRIPE_WEBHOOK_SECRET",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 23,
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.local.example",
+        "line": 7,
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "commented": false,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 572,
+        "key": "SYNTHETIC_STRICT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 543,
+        "key": "TEST_FAULT_INJECTION",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 546,
+        "key": "TEST_FAULT_UPSTREAM_OPENAI",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 545,
+        "key": "TEST_FAULT_UPSTREAM_STRIPE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 544,
+        "key": "TEST_FAULT_UPSTREAM_SUPABASE",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "test"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 409,
+        "key": "UPSTASH_REDIS_REST_TOKEN",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 408,
+        "key": "UPSTASH_REDIS_REST_URL",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 301,
+        "key": "V5_DECISION_PACKET_BUCKET",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 113,
+        "key": "VERCEL_PROJECT_PRODUCTION_URL",
+        "commented": true,
+        "valueClass": "production",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "production"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 567,
+        "key": "VITEST_COVERAGE_MAXIMAL",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      }
+    ],
+    "keySummary": [
+      {
+        "key": "ADR_REQUIRED_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "APP_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "production"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "CLA_DCO_POLICY_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "COMPREHENSIVE_PASS_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "COMPREHENSIVE_PASS_EMAIL",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "COMPREHENSIVE_PASS_FULL_NAME",
+        "files": [
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "COMPREHENSIVE_PASS_PASSWORD",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "COMPREHENSIVE_PASS_SECONDARY_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "CONTACT_NOTIFY_EMAIL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "COSIGN_PUBLIC_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "CRON_HEALTHCHECK_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "CRON_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "CRON_SECRET_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "CRON_SECRET_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "DAST_LOCAL_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DAST_TARGET_MODE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "staging"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DECISION_PACKET_BUCKET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DISABLE_ONBOARDING_CALIBRATION_GATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DISABLE_ONBOARDING_CALIBRATION_STALE_CRON",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DR_DRILL_INCLUDE_RPO",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DR_DRILL_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "DR_VENDOR_STATUS_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_ACCOUNT_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "E2E_ADVANCED_EMAIL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_ADVANCED_PASSWORD",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "E2E_ASSURANCE_EMAIL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_ASSURANCE_PASSWORD",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "E2E_CORE_NON_ADMIN_EMAIL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_CORE_NON_ADMIN_PASSWORD",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "E2E_COUNTERPARTY_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "E2E_ONBOARDING_BLOCKING",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_ONBOARDING_EXPORT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_RANDOM_SEED",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEARDOWN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEARDOWN_RPC",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEARDOWN_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEARDOWN_TABLES",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEARDOWN_WEBHOOK_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEST_EMAIL",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "E2E_TEST_PASSWORD",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "EMAIL_FROM",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "EMAIL_INBOUND_HMAC_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "ENABLE_ADAPTIVE_PLAYBOOKS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_APPROVALS_SLA",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_ASSURANCE_CORE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_AUTOMATION_EXPANSION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_AUTOPILOT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_CONTROL_POLICIES",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_CONTROL_ROOM_UX",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_DECISION_FOUNDATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_DEMO_SEED",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_EXTERNAL_COLLABORATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_INTAKE_PIPELINE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_OBLIGATIONS_EXECUTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_OUTCOME_INTELLIGENCE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_PERSONA_DASHBOARDS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_PORTFOLIO_CAMPAIGNS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_RELATIONSHIP_LAYER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_RENEWAL_WORKSPACE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_REPORTING_HISTORY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_REVIEW_BOARDS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_SEGMENTS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_SIMULATION_AND_INTELLIGENCE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_TASKS_ENGINE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_APPROVALS_SLA",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_AUTOMATION_EXPANSION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_INTAKE_PIPELINE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_OBLIGATIONS_EXECUTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_PERSONA_DASHBOARDS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_RENEWAL_WORKSPACE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_REPORTING_HISTORY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V3_TASKS_ENGINE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_CONTROL_ROOM_UX",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_DECISION_FOUNDATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_EXTERNAL_COLLABORATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_RELATIONSHIP_LAYER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_ADAPTIVE_PLAYBOOKS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_ASSURANCE_CORE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_AUTOPILOT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_CONTROL_POLICIES",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_OUTCOME_INTELLIGENCE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_REVIEW_BOARDS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ENABLE_V6_SEGMENTS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "EXTERNAL_ACTION_PASSCODE_PEPPER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "EXTRACTION_CHUNK_CONCURRENCY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "EXTRACTION_WORKER_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "EXTRACTION_WORKER_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "GAME_DAY_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "GOOGLE_SITE_VERIFICATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "HC_SLO_MONITOR_PING",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "INBOUND_AUTOMATION_ORG_ALLOWLIST",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "INBOUND_AUTOMATION_TOKEN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "INTEGRATION_TOKEN_ENCRYPTION_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "NATIVE_ASAN_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_APP_URL",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_SENTRY_DSN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": true
+      },
+      {
+        "key": "NEXT_PUBLIC_SENTRY_RELEASE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": true
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": true
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "OAUTH_SLACK_AUTHORIZE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OAUTH_SLACK_CLIENT_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OAUTH_SLACK_CLIENT_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OAUTH_SLACK_SCOPE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OAUTH_SLACK_TOKEN_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_ACTIVE_TOKEN_ENCRYPTION_KEY_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_COEP_MODE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_CSP_ENFORCING_SCRIPT_HASHES",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_CSP_STRICT_ENFORCING_SCRIPT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_CSP_STRICT_ENFORCING_STYLE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_DEBUGGING_SWEEP_ENDPOINT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_DSR_ACCOUNT_DELETE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_DSR_SELF_EXPORT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_INTERNAL_DIAG_IP_ALLOWLIST",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_INTERNAL_DIAG_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_INTERNAL_HMAC_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_KILL_BILLING",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_CRON_FAMILY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_EXTRACTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_IMPORT_EXPORT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_INBOUND_AUTOMATION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_INTEGRATION_SYNC",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_INVITES",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_OUTBOUND_EMAIL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_SIGNUP",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_KILL_WEBHOOK_DISPATCH",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_MALWARE_SCANNER_MODE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_PROCESS_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_PROVENANCE_FETCH_REFS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_PROVENANCE_TITLE_SCAN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_RELEASE_SECURITY_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_SELF_HOSTED_HSTS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_STEP_UP_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_STRICT_ARTIFACTS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_STRICT_ENV",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_SWEEP_STUB_VERBOSE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_TOKEN_ENCRYPTION_KEY_DEFAULT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OBLIXA_TRUST_FORWARDED_IP",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_TRUSTED_APP_ORIGINS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "production"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_TRUSTED_TYPES_MODE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_TRUSTED_TYPES_REPORT_ONLY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ONBOARDING_CALIBRATION_PENDING_STALE_AFTER_DAYS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ONBOARDING_CALIBRATION_STALE_AFTER_DAYS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ONBOARDING_CALIBRATION_STALE_CRON_DRY_RUN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ONBOARDING_CALIBRATION_STALE_MS_BETWEEN_ORGS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAI_API_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OPENAI_EXTRACTION_JSON_SCHEMA",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAI_EXTRACTION_MODEL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAI_EXTRACTION_MODEL_LONG",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAI_PDF_OCR_FALLBACK_MODEL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAI_PDF_OCR_MODEL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAPI_CONTRACT_BEARER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "OPENAPI_CONTRACT_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPENAPI_SMOKE_PATHS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPS_RETENTION_AUDIT_EVENTS_DAYS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OPS_RETENTION_NOTIFICATION_DELIVERIES_DAYS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "ORG_DATA_REGION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PERF_SKIP_BUILD",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PERF_TIER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "local"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_BLOB_REPORT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_CORRELATION_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_DEVICE_MATRIX",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_MAXIMAL_CI",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_MEASURE_MEMORY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_MOBILE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_MULTI_BROWSER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_ONBOARDING_DEEP",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_REUSE_AUTH_STORAGE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_SHARD_INDEX",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_SHARD_TOTAL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_TRACE_FAILURE_ONLY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_TRACE_FULL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_VIDEO",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_VISUAL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_VISUAL_AUTH",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PLAYWRIGHT_VISUAL_CONTINUE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_ARCHAEOLOGY_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_COPYLEFT_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_DEPENDENCY_CYCLES_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_DISCOVER_BATCH_INDEX",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_DISCOVER_BATCH_TOTAL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_DISCOVER_CHECK_UNION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_INCLUDE_POSTMERGE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_INCLUDE_ULTIMATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_MULTI_BROWSER",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_PLAYWRIGHT_ONLY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_SKIP_PLAYWRIGHT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_MAXIMAL_SUBSET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "QA_ULTIMATE_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "REQUIRE_ACTIVE_SUBSCRIPTION",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "RESEND_API_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "RLS_SMOKE_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "RUN_LIGHTHOUSE_NIGHTLY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SBOM_BASELINE_PATH",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SBOM_DIFF_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SECURITY_RELEASE_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SEMGREP_FULL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SENTRY_DSN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "SENTRY_PROFILES_SAMPLE_RATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SENTRY_RELEASE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SENTRY_TRACES_SAMPLE_RATE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SLACK_SIGNING_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "SLO_BUDGETS_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "SLSA_VERIFY_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STAGING_BASE_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_API_VERSION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_CONFIG_DRIFT_ASSERT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_FOUNDING_AVAILABLE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_FOUNDING_COUPON_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_MONTHLY_PRICE_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_PRICE_ID",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_SECRET_KEY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "STRIPE_TRIAL_PERIOD_DAYS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "STRIPE_WEBHOOK_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "STRIPE_WEBHOOK_SECRET_PREVIOUS",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "STRIPE_WEBHOOK_SECRET_PREVIOUS_EXPIRES_AT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "files": [
+          ".env.example",
+          ".env.local.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "SYNTHETIC_STRICT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "TEST_FAULT_INJECTION",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "TEST_FAULT_UPSTREAM_OPENAI",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "TEST_FAULT_UPSTREAM_STRIPE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "TEST_FAULT_UPSTREAM_SUPABASE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "UPSTASH_REDIS_REST_TOKEN",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
+        "key": "UPSTASH_REDIS_REST_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "V5_DECISION_PACKET_BUCKET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "VERCEL_PROJECT_PRODUCTION_URL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [
+          "production"
+        ],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "VITEST_COVERAGE_MAXIMAL",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      }
+    ]
+  },
+  "syntheticProviderIsolation": {
+    "previewSafe": {
+      "ok": true,
+      "issueCount": 0
+    },
+    "previewLiveRejected": true,
+    "productionTestRejected": true
+  },
+  "seedSafety": {
+    "delegated": {
+      "ok": true,
+      "issueCount": 0,
+      "insertCount": 2
+    },
+    "seedFileCount": 3,
+    "mutationCount": 4,
+    "uuidCount": 1,
+    "emailCount": 0,
+    "rows": [
+      {
+        "path": "scripts/e2e-seed-contract-statuses.sql",
+        "mutationCount": 0,
+        "uuidCount": 0,
+        "emailCount": 0,
+        "markerCoverage": [
+          {
+            "marker": "on conflict",
+            "present": false
+          },
+          {
+            "marker": "Never run against production",
+            "present": false
+          },
+          {
+            "marker": "local",
+            "present": true
+          }
+        ]
+      },
+      {
+        "path": "scripts/e2e-seed-onboarding-blocking.sql",
+        "mutationCount": 0,
+        "uuidCount": 0,
+        "emailCount": 0,
+        "markerCoverage": [
+          {
+            "marker": "on conflict",
+            "present": false
+          },
+          {
+            "marker": "Never run against production",
+            "present": true
+          },
+          {
+            "marker": "local",
+            "present": false
+          }
+        ]
+      },
+      {
+        "path": "supabase/seed.sql",
+        "mutationCount": 4,
+        "uuidCount": 1,
+        "emailCount": 0,
+        "markerCoverage": [
+          {
+            "marker": "on conflict",
+            "present": true
+          },
+          {
+            "marker": "Never run against production",
+            "present": false
+          },
+          {
+            "marker": "local",
+            "present": false
+          }
+        ]
+      }
+    ]
+  },
+  "fixtureLifecycle": {
+    "controlCount": 7,
+    "requiredControlCount": 7,
+    "rows": [
+      {
+        "id": "conflict-handling",
+        "sourceFile": "supabase/seed.sql",
+        "markerCount": 2,
+        "presentMarkerCount": 2,
+        "markerCoverage": [
+          {
+            "marker": "on conflict",
+            "present": true
+          },
+          {
+            "marker": "do update",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "file-cleanup",
+        "sourceFile": ".gitignore",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "e2e/.auth/",
+            "present": true
+          },
+          {
+            "marker": "test-results/",
+            "present": true
+          },
+          {
+            "marker": "playwright-report/",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "fixture-creation",
+        "sourceFile": "e2e/global-setup-auth-storage.ts",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "PLAYWRIGHT_REUSE_AUTH_STORAGE",
+            "present": true
+          },
+          {
+            "marker": "storageState",
+            "present": true
+          },
+          {
+            "marker": "ensureAuthenticatedSession",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "fixture-teardown",
+        "sourceFile": "scripts/e2e-teardown.mjs",
+        "markerCount": 4,
+        "presentMarkerCount": 4,
+        "markerCoverage": [
+          {
+            "marker": "E2E_TEARDOWN",
+            "present": true
+          },
+          {
+            "marker": "E2E_TEARDOWN_STRICT",
+            "present": true
+          },
+          {
+            "marker": "E2E_TEARDOWN_TABLES",
+            "present": true
+          },
+          {
+            "marker": "E2E_TEARDOWN_RPC",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "namespace-isolation",
+        "sourceFile": "playwright.config.ts",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "E2E_RANDOM_SEED",
+            "present": true
+          },
+          {
+            "marker": "x-playwright-e2e-seed",
+            "present": true
+          },
+          {
+            "marker": "PLAYWRIGHT_CORRELATION_ID",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "org-isolation",
+        "sourceFile": "supabase/tests/rls_sanity_smoke.sql",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "public.organizations",
+            "present": true
+          },
+          {
+            "marker": "public.organization_members",
+            "present": true
+          },
+          {
+            "marker": "organization_id",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "token-expiry",
+        "sourceFile": "supabase/config.toml",
+        "markerCount": 2,
+        "presentMarkerCount": 2,
+        "markerCoverage": [
+          {
+            "marker": "jwt_expiry = 3600",
+            "present": true
+          },
+          {
+            "marker": "otp_expiry = 3600",
+            "present": true
+          }
+        ]
+      }
+    ]
+  },
+  "previewProviderControls": {
+    "controlCount": 7,
+    "requiredControlCount": 7,
+    "rows": [
+      {
+        "id": "preview-auth-redirects",
+        "provider": "supabase-auth",
+        "sourceFile": "src/app/auth/callback/route.ts",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "getSafeRedirectPath",
+            "present": true
+          },
+          {
+            "marker": "resolvePostAuthRedirectPath",
+            "present": true
+          },
+          {
+            "marker": "NextResponse.redirect",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-callback-url-integrity",
+        "provider": "callbacks",
+        "sourceFile": "scripts/check-callback-destination-integrity.mjs",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "check:callback-destination-integrity",
+            "present": true
+          },
+          {
+            "marker": "REQUIRED_CI_COMMANDS",
+            "present": true
+          },
+          {
+            "marker": "REQUIRED_SECURITY_PIPELINE_STEPS",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-email-sender",
+        "provider": "resend",
+        "sourceFile": ".env.example",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "RESEND_API_KEY",
+            "present": true
+          },
+          {
+            "marker": "EMAIL_FROM",
+            "present": true
+          },
+          {
+            "marker": "CONTACT_NOTIFY_EMAIL",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-production-jobs-disabled",
+        "provider": "cron",
+        "sourceFile": "config/operational-manual-boundaries.json",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "production-mutation",
+            "present": true
+          },
+          {
+            "marker": "defaultCommandAllowed",
+            "present": true
+          },
+          {
+            "marker": "production",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-stripe-test-mode",
+        "provider": "stripe",
+        "sourceFile": "src/lib/stripe.ts",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "assertStripeEnvironmentConsistency",
+            "present": true
+          },
+          {
+            "marker": "STRIPE_EXPECTED_MODE",
+            "present": true
+          },
+          {
+            "marker": "Stripe test mode is not allowed in production",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-supabase-project-class",
+        "provider": "supabase",
+        "sourceFile": "scripts/check-release-security-required-env.mjs",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "NEXT_PUBLIC_SUPABASE_URL",
+            "present": true
+          },
+          {
+            "marker": "mixed_environment_credentials",
+            "present": true
+          },
+          {
+            "marker": "releaseEnvironment",
+            "present": true
+          }
+        ]
+      },
+      {
+        "id": "preview-upstash-class",
+        "provider": "upstash",
+        "sourceFile": "src/lib/rate-limit.ts",
+        "markerCount": 3,
+        "presentMarkerCount": 3,
+        "markerCoverage": [
+          {
+            "marker": "UPSTASH_REDIS_REST_URL",
+            "present": true
+          },
+          {
+            "marker": "hasDistributedRateLimitConfig",
+            "present": true
+          },
+          {
+            "marker": "isProductionLikeRateLimitEnv",
+            "present": true
+          }
+        ]
+      }
+    ]
+  },
+  "delegatedChecks": {
+    "envContractHygiene": {
+      "ok": true,
+      "issueCount": 0,
+      "checkId": "env-contract-hygiene"
+    },
+    "testFixtureSecrets": {
+      "ok": true,
+      "issueCount": 0,
+      "checkId": "test-fixture-secrets"
+    },
+    "providerIntegrationFixtures": {
+      "ok": true,
+      "issueCount": 0,
+      "checkId": "provider-integration-fixtures"
+    },
+    "operationalTestReliabilityGovernance": {
+      "ok": true,
+      "issueCount": 0,
+      "checkId": "code-owned-operational-test-reliability-governance"
+    }
+  },
+  "manualBoundary": "Provider environment creation, preview URL registration, and production secret value verification remain external; this gate enforces code-owned isolation, fixture, seed, and preview safety contracts.",
+  "issueCount": 0,
+  "issues": []
+}

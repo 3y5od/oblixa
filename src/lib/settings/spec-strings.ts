@@ -251,7 +251,7 @@ export const SETTINGS_BILLING_STRINGS = {
   trialCapBadge: "TRIAL CAP",
   // Polish-pass §6.2 — admin utility-row prefix
   adminUtilityLabel: "Admin",
-  trialMicrocopy: "21-day free trial · No card required",
+  trialMicrocopy: "21-day free trial · No credit card required",
   taxNote: "Pricing shown in USD. Taxes calculated at checkout based on your billing region.",
   contactSalesPrompt: "Need a custom plan or enterprise terms?",
   contactSalesCta: "Talk to us",
@@ -323,7 +323,7 @@ export const SETTINGS_BILLING_STRINGS = {
   // §11.3 — structured microcopy parts for ChipPair rendering
   trialMicrocopyParts: [
     "21-day free trial",
-    "No card required",
+    "No credit card required",
   ] as const,
   faq: [
     "What happens when the trial ends?",
@@ -341,7 +341,7 @@ export const SETTINGS_BILLING_STRINGS = {
     "Can I change plans?":
       "Switch monthly and annual any time in the customer portal. Prorated credits apply on upgrade; downgrades take effect at the next renewal.",
     "Can I add more contracts?":
-      "Annual plans include unmetered contracts. Monthly plans cap at the limit shown on this page. Contact us to discuss higher limits.",
+      "Core includes up to 500 active contracts. Larger teams and higher contract volumes are available through a custom plan.",
     "Can I add more team members?":
       "Invite teammates from Settings → Team. Additional seats can be added in the customer portal.",
     "Do you offer setup help?":
@@ -414,10 +414,14 @@ export const SETTINGS_SECURITY_STRINGS = {
   mfaEmptyBody: "Enroll a TOTP authenticator to enable two-factor sign-in.",
   mfaEmptyBodyRequired:
     "Your workspace requires MFA. Enroll an authenticator now.",
-  // §1.12 step-up state badges — V2 §1.34 + §2.6 rename NOT REQUIRED → INACTIVE.
+  // Step-up state badges. The inactive label reads "LOCKED" (not
+  // "INACTIVE") so it stays consistent with the active "Confirm
+  // password" form beneath it — the form is what unlocks sensitive
+  // actions, so "LOCKED + enabled form" reads as a clear call to act,
+  // whereas "INACTIVE + enabled form" looked self-contradictory.
   stepUpActiveLabel: "ACTIVE",
   stepUpExpiredLabel: "EXPIRED",
-  stepUpEmptyLabel: "INACTIVE",
+  stepUpEmptyLabel: "LOCKED",
   stepUpMfaSessionLabel: "MFA SESSION",
   // §16.15 AAL2 frictionless-path helper
   stepUpAal2Note: "YOUR MFA SESSION COVERS SENSITIVE ACTIONS",
@@ -428,8 +432,11 @@ export const SETTINGS_SECURITY_STRINGS = {
   // V2 §4.6 Sessions positive-action body shortened.
   sessionsBody: "Sign out other devices.",
   sessionsCurrentLabel: "THIS DEVICE",
-  // V2 §1.47 sign out current device link
-  signOutSelfCta: "Sign out this device →",
+  // Sign-out / change-password render as ghost pills in the Devices
+  // card action cluster, so the trailing arrow glyph is dropped — the
+  // pill shape carries the affordance and keeps all three actions in
+  // one consistent vocabulary.
+  signOutSelfCta: "Sign out this device",
   // V3 §4.6 shortened from 104 chars (2 sentences) → 52 chars
   // (1 sentence). Existing-sessions footnote dropped.
   orgMfaConsequence:
@@ -455,8 +462,8 @@ export const SETTINGS_SECURITY_STRINGS = {
   contactEmail: "security@oblixa.com",
   // V2 §1.16 — drop trailing arrow; rendered as separate ChevronRight.
   contactCta: "Request DPA",
-  // §3.4 password change link
-  passwordChangeCta: "Change password →",
+  // §3.4 password change — ghost pill in the Devices action cluster.
+  passwordChangeCta: "Change password",
   // §1.39 banner state machine
   mfaBannerRequired:
     "Enroll an authenticator to access your workspace.",
@@ -501,14 +508,13 @@ export const SETTINGS_SECURITY_STRINGS = {
   // V3 §1.26 — per-section retry copy
   sectionFetchError: "We couldn't load this section.",
   sectionRetryCta: "Retry →",
-  // V4 §6.1 — MFA explainer disclosure (resolves §1.3 height
-  // asymmetry + adds UX value for non-technical admins).
-  mfaExplainerSummary: "WHAT IS TWO-FACTOR SIGN-IN?",
+  // Disclosure triggers render as sentence-case accent links with a
+  // chevron (not caps eyebrows) so they read as a secondary "learn
+  // more" affordance rather than a section heading.
+  mfaExplainerSummary: "What is two-factor sign-in?",
   mfaExplainerBody:
     "Adds a 6-digit code from your authenticator app at sign-in. Works with 1Password, Authy, Google Authenticator, Microsoft Authenticator.",
-  // V4 §6.2 — POLICY explainer disclosure (resolves §1.4 height
-  // asymmetry).
-  policyExplainerSummary: "WHAT CHANGES FOR MEMBERS?",
+  policyExplainerSummary: "What changes for members?",
   policyExplainerBody:
     "Members signing in for the first time after enabling are prompted to enroll an authenticator. Existing sessions stay valid until natural expiry.",
 } as const;

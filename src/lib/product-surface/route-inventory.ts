@@ -31,6 +31,7 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   { pattern: "/contracts/evidence-studio", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts/reports", tier: "core", refinementRef: "§10.1" },
   { pattern: "/reports", tier: "core", refinementRef: "§10.1" },
+  { pattern: "/search", tier: "core", refinementRef: "§10.1" },
   { pattern: "/onboarding/calibration", tier: "utility", refinementRef: "appendix" },
   { pattern: "/settings", tier: "core", refinementRef: "§10.1" },
   { pattern: "/settings/security", tier: "core", refinementRef: "§10.1" },

@@ -21,9 +21,9 @@ describe("field review release-state workspace", () => {
     expect(FIELD_REVIEW_TITLE).toBe("Review fields");
     expect(FIELD_REVIEW_EMPTY_STATE).toBe("No fields need review.");
     expect(raw).toContain("export const metadata = { title: FIELD_REVIEW_TITLE }");
-    expect(raw).toContain("title={FIELD_REVIEW_TITLE}");
-    expect(raw).toContain("eyebrow={FIELD_REVIEW_EYEBROW}");
-    expect(raw).toContain("All contracts");
+    expect(raw).toContain("{FIELD_REVIEW_TITLE}");
+    expect(raw).toContain("{FIELD_REVIEW_EYEBROW}");
+    expect(raw).toContain("Back to contracts");
     expect(raw).toContain("FIELD_REVIEW_EMPTY_STATE");
   });
 
@@ -71,7 +71,7 @@ describe("field review release-state workspace", () => {
     const raw = loadingPage();
 
     expect(raw).toContain("Loading review fields");
-    expect(raw).toContain("ui-card-raised");
+    expect(raw).toContain("ui-card-quiet");
     expect(raw).toContain("lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]");
     expect(raw).not.toContain("Loading review queue");
     expect(raw).not.toContain("xl:grid-cols-4");

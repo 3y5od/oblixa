@@ -14,6 +14,7 @@ import { isUuid } from "@/lib/security/validation";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import { isKillImportExport, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import {
   executeV10IdempotentResponseMutation,
   getV10IdempotencyKeyFromRequest,
@@ -143,6 +144,7 @@ async function runExportContractsCsv(request: Request, options?: ExportCsvOption
     v10MutationResponse: options?.createExportJob === true,
   });
   if (modeGate) return modeGate;
+  if (isKillImportExport()) return killSwitchJsonResponse("import_export");
 
   const v6Settings = await getOrgSettingsJson(admin, orgId);
   const csvFieldNames = getExportCsvExtractedFieldNamesForWorkspaceMode(v6Settings.workspace_mode);

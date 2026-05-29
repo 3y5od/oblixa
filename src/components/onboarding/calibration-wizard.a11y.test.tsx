@@ -55,7 +55,7 @@ describe("CalibrationWizard — focus after Next", () => {
     const user = userEvent.setup();
     render(<CalibrationWizard initialRequired={{}} initialOptional={{}} initialStep={0} />);
 
-    await user.click(screen.getByRole("radio", { name: /Track signed contracts and dates/i }));
+    await user.click(screen.getByRole("radio", { name: /Upload signed contracts and track dates/i }));
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 

@@ -8,6 +8,7 @@ import { hasRoleCapability } from "@/lib/access-control";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { SETTINGS_PAGE_STRINGS } from "@/lib/settings/spec-strings";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
 import {
   AccessManagementSection,
   ProfileSettingsSection,
@@ -100,34 +101,22 @@ export default async function SettingsPage() {
   });
 
   return (
-    <div className="ui-page-stack mx-auto max-w-5xl gap-4">
+    <div className="ui-page-stack mx-auto max-w-6xl gap-4">
       <DashboardPageHeader
         icon={<Settings className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow={SETTINGS_PAGE_STRINGS.eyebrow}
         title={SETTINGS_PAGE_STRINGS.title}
         lead={SETTINGS_PAGE_STRINGS.lead}
         actions={
-          <dl className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
-            <div className="inline-flex items-center gap-1.5">
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                Role
-              </dt>
-              <dd className="font-medium text-[var(--text-secondary)]">{viewModel.roleLabel}</dd>
-            </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <KeyValueChip label="Role" value={viewModel.roleLabel} />
             {viewModel.planLabel ? (
-              <>
-                <span aria-hidden className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block" />
-                <div className="inline-flex items-center gap-1.5">
-                  <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Plan
-                  </dt>
-                  <dd className="font-medium text-[var(--text-secondary)]">
-                    {viewModel.planLabel === "No plan" ? "Free" : viewModel.planLabel}
-                  </dd>
-                </div>
-              </>
+              <KeyValueChip
+                label="Plan"
+                value={viewModel.planLabel === "No plan" ? "Free" : viewModel.planLabel}
+              />
             ) : null}
-          </dl>
+          </div>
         }
       />
 

@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-static-architecture-code-health",
+  "generatedArtifact": "artifacts/operational-static-architecture-code-health.json",
+  "sourceFiles": [
+    "config/operational-static-architecture-code-health.json",
+    "scripts/check-operational-static-architecture-code-health.mjs",
+    "scripts/check-operational-static-architecture-code-health.test.mjs",
+    "scripts/check-import-boundaries.mjs",
+    "scripts/check-dependency-cycles.mjs",
+    "scripts/check-script-complexity-ratchet.mjs",
+    "scripts/check-server-action-complexity.mjs",
+    "scripts/check-frontend-component-complexity.mjs",
+    "scripts/check-unused-script-files.mjs",
+    "scripts/reproducible-build-hash.mjs",
+    "scripts/dependency-cycles-baseline.json",
+    "scripts/script-complexity-baseline.json",
+    "scripts/server-action-complexity-baseline.json",
+    "scripts/frontend-component-complexity-baseline.json",
+    "scripts/route-handler-complexity-baseline.json",
+    "next.config.ts",
+    "package-lock.json"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-static-architecture-code-health",
+    "test:operational-static-architecture-code-health",
+    "check:import-boundaries",
+    "check:dependency-cycles",
+    "check:script-complexity-ratchet",
+    "check:server-action-complexity",
+    "check:frontend-component-complexity",
+    "check:unused-script-files",
+    "check:dynamic-import-specifiers",
+    "check:reproducible-build-hash",
+    "check:generated-artifact-hygiene",
+    "check:baseline-registry",
+    "typecheck",
+    "lint"
+  ],
+  "dependencyCycleBaseline": "scripts/dependency-cycles-baseline.json",
+  "importBoundaryRules": [
+    {
+      "id": "client-no-node-server-or-provider-sdk",
+      "appliesTo": { "clientDirective": true, "productionOnly": true },
+      "allowTypeOnly": true,
+      "forbiddenSpecifiers": [
+        "node:",
+        "fs",
+        "path",
+        "crypto",
+        "child_process",
+        "server-only",
+        "@supabase/supabase-js",
+        "stripe",
+        "openai",
+        "resend",
+        "@upstash/redis",
+        "@sentry/node",
+        "@/app/api/",
+        "@/lib/supabase/server",
+        "@/lib/admin",
+        "@/lib/stripe"
+      ],
+      "reason": "client bundles must not import server-only modules, API routes, or provider SDKs"
+    },
+    {
+      "id": "production-no-test-surfaces",
+      "appliesTo": { "productionOnly": true },
+      "forbiddenSpecifiers": [".test.", ".spec.", "/test-utils/", "__tests__"],
+      "forbiddenResolvedPathFragments": [".test.", ".spec.", "/test-utils/", "__tests__"],
+      "reason": "production modules must not import test-only code"
+    },
+    {
+      "id": "components-and-lib-no-api-route-handlers",
+      "appliesTo": { "pathPrefixes": ["src/components/", "src/lib/"], "productionOnly": true },
+      "forbiddenSpecifiers": ["@/app/api/"],
+      "forbiddenResolvedPathFragments": ["/app/api/"],
+      "reason": "components and library modules must not import API route handlers"
+    },
+    {
+      "id": "server-actions-no-ui-components",
+      "appliesTo": { "pathPrefixes": ["src/actions/"], "productionOnly": true },
+      "forbiddenSpecifiers": ["@/components/"],
+      "forbiddenResolvedPathFragments": ["/components/"],
+      "reason": "server actions must stay independent of UI component modules"
+    }
+  ],
+  "runtimeBoundary": {
+    "routeRoots": ["src/app"],
+    "edgeForbiddenSpecifiers": ["node:", "fs", "path", "crypto", "child_process", "net", "tls", "dns", "mammoth", "pdf-parse", "stripe", "openai", "@react-pdf/renderer"],
+    "nodeNativeSpecifiers": ["node:", "fs", "path", "crypto", "child_process", "net", "tls", "dns"],
+    "requiredServerExternalPackages": ["@react-pdf/renderer", "mammoth", "openai", "pdf-parse", "stripe"]
+  },
+  "complexityRatchets": [
+    {
+      "id": "script-complexity",
+      "roots": ["scripts"],
+      "extensions": [".mjs"],
+      "maxLines": 450,
+      "baseline": "scripts/script-complexity-baseline.json",
+      "excludePathFragments": ["scripts/lib/", "scripts/pipelines/"]
+    },
+    {
+      "id": "server-action-complexity",
+      "roots": ["src/actions"],
+      "extensions": [".ts"],
+      "maxLines": 450,
+      "baseline": "scripts/server-action-complexity-baseline.json",
+      "excludePathFragments": [".test.", ".spec."]
+    },
+    {
+      "id": "frontend-component-complexity",
+      "roots": ["src/components", "src/app"],
+      "extensions": [".tsx"],
+      "maxLines": 350,
+      "baseline": "scripts/frontend-component-complexity-baseline.json",
+      "excludePathFragments": [".test.", ".spec."]
+    },
+    {
+      "id": "route-handler-complexity",
+      "roots": ["src/app"],
+      "extensions": ["route.ts"],
+      "maxLines": 450,
+      "baseline": "scripts/route-handler-complexity-baseline.json",
+      "excludePathFragments": [".test.", ".spec."]
+    },
+    {
+      "id": "source-file-complexity",
+      "roots": ["src"],
+      "extensions": [".ts", ".tsx"],
+      "maxLines": 4500,
+      "baseline": null,
+      "excludePathFragments": [".test.", ".spec.", "src/lib/debugging-sweep/catalog-generated"]
+    }
+  ],
+  "deadSurface": {
+    "scriptIgnore": [
+      "lib/args.mjs",
+      "lib/process.mjs",
+      "lib/result.mjs",
+      "lib/timing.mjs",
+      "lib/fs-walk.mjs",
+      "lib/allowlist.mjs",
+      "lib/scheduler.mjs",
+      "check-registry.mjs",
+      "run-check.mjs",
+      "security-check-generic.mjs",
+      "cron-route-expected-keys.mjs",
+      "release-checklist.mjs",
+      "audit-compatibility-cross-surface-hrefs.mjs",
+      "check-product-surface-compatibility-vocabulary.mjs",
+      "debugging-sweep/bucket-definitions.mjs",
+      "debugging-sweep/merge-stub-lists.mjs",
+      "scaffold-sweep-stub.mjs",
+      "check-load-smoke-scaffold.mjs",
+      "generate-maximal-assurance-directives-doc.mjs"
+    ],
+    "fixtureRoots": ["e2e/fixtures", "scripts/fixtures"],
+    "fixtureReferenceAllowlist": [
+      "e2e/fixtures/surface-availability.json",
+      "scripts/fixtures/supabase-advisors/advisor-error.json",
+      "scripts/fixtures/supabase-advisors/known-warning.json",
+      "scripts/fixtures/supabase-advisors/unregistered-warning.json",
+      "scripts/fixtures/supabase-snapshot/healthy.json",
+      "scripts/fixtures/supabase-snapshot/missing-policy.json",
+      "scripts/fixtures/supabase-snapshot/missing-migration.json"
+    ],
+    "routeMetadataEvidenceCommands": ["check:public-seo-surface", "check:route-universe", "check:operational-package-pipelines"]
+  },
+  "reproducibility": {
+    "hashInputs": ["package-lock.json", "next.config.ts", "tsconfig.json"],
+    "generatedTypeArtifacts": [
+      "src/lib/debugging-sweep/catalog-generated.ts",
+      "src/lib/debugging-sweep/catalog-generated.meta.json",
+      "src/lib/debugging-sweep/partition-checksums.generated.ts",
+      "src/lib/debugging-sweep/partition-manifest.generated.ts",
+      "src/lib/qa/generated-route-matrices.ts"
+    ],
+    "requiredMarkers": {
+      "scripts/reproducible-build-hash.mjs": ["REPRODUCIBLE_BUILD_STRICT", "SOURCE_DATE_EPOCH", "checkId: \"reproducible-build-hash\""],
+      "scripts/reproducible-build-report.mjs": ["artifacts", "reproducible-build-report.json", "package-lock.json"]
+    }
+  },
+  "manualBoundary": {
+    "objectiveId": "oph-031-static-architecture-code-health",
+    "boundary": "large-file refactors and dependency cleanup priorities remain human-owned, but new regressions are code-blocked",
+    "readinessCommand": "check:operational-static-architecture-code-health"
+  }
+}

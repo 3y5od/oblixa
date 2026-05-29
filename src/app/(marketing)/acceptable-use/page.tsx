@@ -5,6 +5,7 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 const title = "Acceptable use — Oblixa";
 const description =
   "Acceptable use rules for the Oblixa contract tracking workspace. Prohibited content, fair-use AI extraction, account responsibility, and suspension grounds.";
+const LAST_REVIEWED_ISO = "2026-05-28";
 
 export const metadata: Metadata = {
   title,
@@ -78,6 +79,7 @@ export default function AcceptableUsePage() {
               Plain rules for how Oblixa can be used. These rules apply alongside our Terms of
               Service and Privacy Policy. Subject to update; review with counsel for your organization.
             </p>
+            <p className="mt-3 text-[12.5px] text-[var(--text-tertiary)]">Last reviewed: {LAST_REVIEWED_ISO}</p>
           </header>
 
           <article className="mt-10 space-y-8">

@@ -5,6 +5,7 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 const title = "Terms of use — Oblixa";
 const description =
   "Terms governing use of the Oblixa contract tracking workspace. Subject to update; review with counsel for your organization.";
+const LAST_REVIEWED_ISO = "2026-05-28";
 
 export const metadata: Metadata = {
   title,
@@ -71,7 +72,7 @@ export default function TermsPage() {
                   Terms of use
                 </h1>
                 <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                  Last updated: {new Date().toISOString().slice(0, 10)}
+                  Last updated: {LAST_REVIEWED_ISO}
                 </p>
               </div>
             </div>

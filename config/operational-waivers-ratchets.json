@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-waivers-ratchets",
+  "asOfDate": "2026-05-28",
+  "waiverRegistry": "config/qa-external-waiver-registry.json",
+  "preExpiryWarningDays": [7, 14, 30],
+  "requiredWaiverFields": [
+    "id",
+    "scope",
+    "owner",
+    "reason",
+    "risk",
+    "blockerClass",
+    "expiry",
+    "validationCommand",
+    "replacementObjective",
+    "lastReviewedDate"
+  ],
+  "allowedRiskLevels": ["low", "medium", "high", "critical"],
+  "allowedBlockerClasses": [
+    "automation-gap",
+    "customer-impacting",
+    "data-migration",
+    "dns-change",
+    "external-provider",
+    "legal-approval",
+    "organization-policy",
+    "production-credential",
+    "provider-console",
+    "release-decision",
+    "risk-acceptance"
+  ],
+  "debtRatchet": {
+    "owner": "platform-governance",
+    "baselineDate": "2026-05-28",
+    "validationCommand": "check:operational-waivers-ratchets",
+    "metrics": {
+      "optionalChecks": 3,
+      "stubWorkflows": 17,
+      "warnOnlyScripts": 5,
+      "skippedTests": 174,
+      "allowlistRows": 623,
+      "uncoveredRoutes": 0,
+      "waivedObjectives": 8
+    }
+  },
+  "manualBoundary": {
+    "requiredClasses": [
+      "provider-console",
+      "production-credential",
+      "legal-approval",
+      "release-decision",
+      "data-migration",
+      "dns-change",
+      "customer-impacting"
+    ],
+    "objectiveCoverage": [
+      {
+        "objectiveId": "oph-005-release-readiness",
+        "manualActionIds": ["manual-release-approval"],
+        "codeEvidence": ["check:operational-release-readiness", "artifacts/operational-release-readiness.json"]
+      },
+      {
+        "objectiveId": "oph-006-ci-workflow-enforcement",
+        "manualActionIds": ["manual-branch-protection-change"],
+        "codeEvidence": ["check:operational-ci-enforcement", "artifacts/operational-ci-enforcement.json"]
+      },
+      {
+        "objectiveId": "oph-008-supabase-database-operations",
+        "manualActionIds": ["manual-production-migration-apply"],
+        "codeEvidence": ["check:operational-supabase-database", "artifacts/operational-supabase-database.json"]
+      },
+      {
+        "objectiveId": "oph-010-webhooks-callbacks",
+        "manualActionIds": ["manual-stripe-live-configuration"],
+        "codeEvidence": ["check:operational-webhooks-callbacks", "artifacts/operational-webhooks-callbacks.json"]
+      },
+      {
+        "objectiveId": "oph-011-secrets-configuration",
+        "manualActionIds": ["manual-secret-rotation"],
+        "codeEvidence": ["check:operational-secrets-configuration", "artifacts/operational-secrets-configuration.json"]
+      },
+      {
+        "objectiveId": "oph-015-observability-redaction",
+        "manualActionIds": ["manual-monitoring-alert-routing"],
+        "codeEvidence": ["check:operational-observability-redaction", "artifacts/operational-observability-redaction.json"]
+      },
+      {
+        "objectiveId": "oph-018-provider-integrations",
+        "manualActionIds": ["manual-stripe-live-configuration", "manual-oauth-provider-app-setup"],
+        "codeEvidence": ["check:operational-provider-integrations", "artifacts/operational-provider-integrations.json"]
+      },
+      {
+        "objectiveId": "oph-019-privacy-auditability",
+        "manualActionIds": ["manual-legal-approval"],
+        "codeEvidence": ["check:operational-privacy-auditability", "artifacts/operational-privacy-auditability.json"]
+      },
+      {
+        "objectiveId": "oph-020-supply-chain",
+        "manualActionIds": ["manual-release-approval", "manual-secret-rotation"],
+        "codeEvidence": ["check:operational-supply-chain-risk", "artifacts/operational-supply-chain-risk.json"]
+      },
+      {
+        "objectiveId": "oph-021-frontend-resilience",
+        "manualActionIds": ["manual-browser-device-lab-approval"],
+        "codeEvidence": ["check:operational-frontend-resilience", "artifacts/operational-frontend-resilience.json"]
+      },
+      {
+        "objectiveId": "oph-022-performance-load-chaos",
+        "manualActionIds": ["manual-production-load-chaos-approval"],
+        "codeEvidence": ["check:operational-performance-load-chaos", "artifacts/operational-performance-load-chaos.json"]
+      },
+      {
+        "objectiveId": "oph-023-dr-incident-readiness",
+        "manualActionIds": ["manual-database-restore-drill", "manual-customer-impacting-communication"],
+        "codeEvidence": ["check:incident-readiness:strict", "artifacts/operational-dr-incident-readiness.json"]
+      },
+      {
+        "objectiveId": "oph-024-waivers-ratchets",
+        "manualActionIds": ["manual-risk-acceptance"],
+        "codeEvidence": ["check:operational-waivers-ratchets", "artifacts/operational-waivers-ratchets.json"]
+      },
+      {
+        "objectiveId": "oph-026-schema-contract-compatibility",
+        "manualActionIds": ["manual-customer-impacting-communication", "manual-release-approval"],
+        "codeEvidence": ["check:operational-schema-compatibility", "artifacts/operational-schema-compatibility.json"]
+      },
+      {
+        "objectiveId": "oph-028-admin-support",
+        "manualActionIds": ["manual-break-glass-approval"],
+        "codeEvidence": ["check:operational-support-operations", "artifacts/operational-support-operations.json"]
+      },
+      {
+        "objectiveId": "oph-029-dns-tls-edge",
+        "manualActionIds": ["manual-dns-change"],
+        "codeEvidence": ["check:operational-edge-readiness", "artifacts/operational-edge-readiness.json"]
+      },
+      {
+        "objectiveId": "oph-030-legal-trust-compliance",
+        "manualActionIds": ["manual-legal-approval"],
+        "codeEvidence": ["check:operational-legal-trust-compliance", "artifacts/operational-legal-trust-compliance.json"]
+      },
+      {
+        "objectiveId": "oph-032-test-reliability",
+        "manualActionIds": ["manual-browser-device-lab-approval"],
+        "codeEvidence": ["check:operational-test-reliability-governance", "artifacts/operational-test-reliability-governance.json"]
+      },
+      {
+        "objectiveId": "oph-033-platform-variant-coverage",
+        "manualActionIds": ["manual-browser-device-lab-approval"],
+        "codeEvidence": ["check:operational-platform-variant-coverage", "artifacts/operational-platform-variant-coverage.json"]
+      },
+      {
+        "objectiveId": "oph-036-billing-entitlements",
+        "manualActionIds": ["manual-stripe-live-configuration"],
+        "codeEvidence": ["check:operational-billing-entitlements", "artifacts/operational-billing-entitlements.json", "check:release-security-required-env"]
+      },
+      {
+        "objectiveId": "oph-037-oauth-integration-sync",
+        "manualActionIds": ["manual-oauth-provider-app-setup"],
+        "codeEvidence": [
+          "check:operational-oauth-integration-sync",
+          "artifacts/operational-oauth-integration-sync.json",
+          "check:oauth-state-integrity"
+        ]
+      },
+      {
+        "objectiveId": "oph-038-public-launch-positioning",
+        "manualActionIds": ["manual-legal-approval"],
+        "codeEvidence": [
+          "check:operational-public-launch-positioning",
+          "artifacts/operational-public-launch-positioning.json",
+          "audit:marketing-identity:strict"
+        ]
+      },
+      {
+        "objectiveId": "oph-040-threat-model-control-traceability",
+        "manualActionIds": ["manual-risk-acceptance"],
+        "codeEvidence": ["check:control-traceability:strict"]
+      },
+      {
+        "objectiveId": "oph-041-environment-isolation",
+        "manualActionIds": ["manual-provider-environment-creation"],
+        "codeEvidence": ["check:operational-environment-isolation", "artifacts/operational-environment-isolation.json", "check:env-matrix"]
+      },
+      {
+        "objectiveId": "oph-042-machine-readable-governance",
+        "manualActionIds": ["manual-owner-assignment"],
+        "codeEvidence": ["check:operational-governance-ownership", "artifacts/operational-governance-ownership.json", "check:codeowners-security-paths"]
+      },
+      {
+        "objectiveId": "oph-043-manual-boundary-backlog",
+        "manualActionIds": [
+          "manual-production-migration-apply",
+          "manual-database-restore-drill",
+          "manual-secret-rotation",
+          "manual-branch-protection-change",
+          "manual-dns-change",
+          "manual-stripe-live-configuration",
+          "manual-legal-approval",
+          "manual-release-approval",
+          "manual-customer-impacting-communication"
+        ],
+        "codeEvidence": ["check:operational-hardening-objectives", "artifacts/operational-hardening-closure.json"]
+      }
+    ]
+  }
+}

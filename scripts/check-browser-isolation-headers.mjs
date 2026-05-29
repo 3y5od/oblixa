@@ -48,6 +48,8 @@ const REQUIRED_FILE_MARKERS = {
   "e2e/security-headers-smoke.spec.ts": [
     'cross-origin-opener-policy',
     'cross-origin-resource-policy',
+    "framing defenses are explicit for clickjacking protection",
+    "frame-ancestors 'none'",
     "script-src-attr 'none'",
     "upgrade-insecure-requests",
   ],

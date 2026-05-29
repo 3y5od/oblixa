@@ -1,0 +1,511 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-billing-entitlements",
+  "generatedFrom": "config/operational-billing-entitlements.json",
+  "commandCoverage": [
+    {
+      "objective": "billing-state-transitions",
+      "script": "check:operational-billing-entitlements",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "state_transition_matrix",
+        "ui_api_state_parity"
+      ]
+    },
+    {
+      "objective": "billing-state-transitions",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "payment_failure",
+        "portal_return",
+        "stripe_webhook_fixtures"
+      ]
+    },
+    {
+      "objective": "billing-state-transitions",
+      "script": "check:release-security-required-env",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "price_id_shape",
+        "provider_mode",
+        "stripe_env_shape"
+      ]
+    },
+    {
+      "objective": "entitlement-gate-inventory",
+      "script": "check:operational-billing-entitlements",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "artifact_drift",
+        "commercial_gate_registry",
+        "entitlement_policy"
+      ]
+    },
+    {
+      "objective": "entitlement-gate-inventory",
+      "script": "test:operational-billing-entitlements",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "aggregate_marker_requirements"
+      ]
+    },
+    {
+      "objective": "entitlement-gate-inventory",
+      "script": "test:vitest:current-product",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "billing_state_policy",
+        "feature_gate_policy",
+        "seat_policy"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:audit-event-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "billing_audit_events"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:idempotency-policy",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "billing_mutation_idempotency"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:operational-billing-entitlements",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "revenue_safeguard_registry"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:pan-in-client-bundle",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "card_data_client_bundle"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:pci-cde-drift",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "pci_scope_drift"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:provider-integration-fixtures",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "replay_safe_provider_events"
+      ]
+    },
+    {
+      "objective": "revenue-impact-safeguards",
+      "script": "check:release-security-required-env",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "manual_live_billing_boundary"
+      ]
+    },
+    {
+      "objective": "seat-and-invite-limits",
+      "script": "check:audit-event-coverage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "member_invite_audit_events"
+      ]
+    },
+    {
+      "objective": "seat-and-invite-limits",
+      "script": "check:operational-billing-entitlements",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "invite_runtime_integration",
+        "seat_limit_matrix"
+      ]
+    },
+    {
+      "objective": "seat-and-invite-limits",
+      "script": "test:vitest:current-product",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "invite_acceptance_seat_limit",
+        "tenant_scope"
+      ]
+    }
+  ],
+  "runtimeInventory": {
+    "gateCount": 8,
+    "planCount": 6,
+    "stateCount": 11,
+    "seatMutationCount": 8,
+    "revenueSafeguardIdCount": 5,
+    "featurePolicyCount": 8,
+    "revenueSafeguardCount": 5
+  },
+  "delegatedChecks": [
+    {
+      "checkId": "release-security-required-env",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "provider-integration-fixtures",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "audit-event-coverage",
+      "ok": true,
+      "issueCount": 0
+    },
+    {
+      "checkId": "idempotency-policy-inline",
+      "ok": true,
+      "issueCount": 0
+    }
+  ],
+  "entitlementGates": [
+    {
+      "id": "billing-states",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "blocked-states",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "feature-access",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "grace-periods",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "plans",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 8,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "seats",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "usage-limits",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "workspace-modes",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@product-operations",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "billingStateTransitions": [
+    {
+      "id": "active",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "canceled",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "incomplete",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "incomplete-expired",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-customer",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "no-subscription",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "past-due",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "paused",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "portal-return",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "trialing",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "unpaid",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "seatInviteLimits": [
+    {
+      "id": "accept",
+      "path": "src/app/auth/callback/route.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "billing-mismatch",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "duplicate-invite",
+      "path": "src/actions/settings.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "expired-invite",
+      "path": "src/app/auth/callback/route.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "invite-creation",
+      "path": "src/actions/settings.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "revoke",
+      "path": "src/actions/settings.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "role-change",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "seat-limit",
+      "path": "src/lib/billing/operational-entitlements.ts",
+      "owner": "@billing",
+      "validationCommand": "test:vitest:current-product",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "revenueImpactSafeguards": [
+    {
+      "id": "audit-events",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "owner": "@security",
+      "validationCommand": "check:audit-event-coverage",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "idempotency",
+      "path": "src/app/api/stripe/checkout/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:idempotency-policy",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "manual-boundary",
+      "path": "config/operational-manual-boundaries.json",
+      "owner": "@billing",
+      "validationCommand": "check:release-security-required-env",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-event-replay",
+      "path": "src/app/api/stripe/webhook/route.ts",
+      "owner": "@billing",
+      "validationCommand": "check:provider-integration-fixtures",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "redaction",
+      "path": "src/app/api/stripe/portal/route.ts",
+      "owner": "@security",
+      "validationCommand": "check:provider-integration-fixtures",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "manualBoundary": "Live billing configuration and charges remain manual; this registry enforces repository-owned entitlement gates, billing state transitions, seat limits, replay safety, audit coverage, and safe provider fixture behavior.",
+  "issueCount": 0,
+  "issues": [],
+  "artifact": "artifacts/operational-billing-entitlements.json",
+  "generatedBy": "scripts/check-operational-billing-entitlements.mjs --write"
+}

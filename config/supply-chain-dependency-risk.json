@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-supply-chain-dependency-risk-policy",
+  "ownerArea": "supply-chain-security",
+  "thresholds": {
+    "npmAuditFailOnSeverity": "high",
+    "osvFailOnSeverity": "high",
+    "dependencyReviewFailOnSeverity": "high",
+    "licensePolicy": "allowlist",
+    "installScriptPolicy": "explicit-owner-allowlist",
+    "lockfileIntegrity": "sha512-npm-registry-only"
+  },
+  "knownMaliciousDenylist": [
+    { "name": "event-stream", "owner": "supply-chain-security", "reason": "historical maintainer takeover incident" },
+    { "name": "flatmap-stream", "owner": "supply-chain-security", "reason": "historical malicious transitive package" },
+    { "name": "coa", "owner": "supply-chain-security", "reason": "historical compromised npm package" },
+    { "name": "rc", "owner": "supply-chain-security", "reason": "historical compromised npm package" },
+    { "name": "ua-parser-js", "blockedVersions": ["0.7.29", "0.8.0", "1.0.0"], "owner": "supply-chain-security", "reason": "historical compromised versions" }
+  ],
+  "typosquatRisk": {
+    "protectedNames": ["next", "react", "stripe", "openai", "resend", "supabase", "sentry", "playwright", "vitest", "eslint", "tailwindcss", "zod"],
+    "allowedSimilarNames": ["@next/swc", "@sentry/cli", "@supabase/auth-js", "@supabase/supabase-js", "@tailwindcss/oxide"]
+  },
+  "dependencyConfusion": {
+    "allowedRegistryPrefix": "https://registry.npmjs.org/",
+    "internalScopes": [],
+    "forbidUnpinnedGitDependencies": true,
+    "forbidFileDependenciesOutsideWorkspace": true
+  },
+  "nativeWasmInventory": {
+    "expiresOn": "2027-12-31",
+    "allowedFamilies": [
+      { "pattern": "^@emnapi/", "owner": "frontend-platform", "reason": "WASI runtime support pulled by Tailwind/Rolldown optional packages" },
+      { "pattern": "^@img/sharp", "owner": "media-platform", "reason": "Sharp platform binaries and libvips packages" },
+      { "pattern": "^@napi-rs/wasm-runtime$", "owner": "frontend-platform", "reason": "WASM runtime support for native resolver packages" },
+      { "pattern": "^@next/swc", "owner": "frontend-platform", "reason": "Next.js compiler platform packages" },
+      { "pattern": "^@rolldown/binding", "owner": "frontend-platform", "reason": "Bundler optional native/WASM bindings" },
+      { "pattern": "^@rollup/(?:plugin|rollup)", "owner": "frontend-platform", "reason": "Rollup plugins and platform-specific optional binaries" },
+      { "pattern": "^@sentry/cli", "owner": "observability", "reason": "Sentry release tooling platform binaries" },
+      { "pattern": "^@swc/helpers$", "owner": "frontend-platform", "reason": "SWC helper runtime" },
+      { "pattern": "^@tailwindcss/oxide", "owner": "frontend-platform", "reason": "Tailwind compiler native/WASM packages" },
+      { "pattern": "^@tybys/wasm-util$", "owner": "frontend-platform", "reason": "WASM utility dependency for runtime bindings" },
+      { "pattern": "^@unrs/resolver-binding", "owner": "frontend-platform", "reason": "Resolver optional native/WASM platform bindings" },
+      { "pattern": "^@webassemblyjs/", "owner": "frontend-platform", "reason": "Webpack/WASM parsing toolchain dependencies" },
+      { "pattern": "^fsevents$", "owner": "qa-platform", "reason": "Optional macOS watcher dependency" },
+      { "pattern": "^lightningcss", "owner": "frontend-platform", "reason": "CSS compiler native platform packages" },
+      { "pattern": "^next$", "owner": "frontend-platform", "reason": "Next.js compiler transitively references SWC packages" },
+      { "pattern": "^rollup$", "owner": "frontend-platform", "reason": "Bundler optional native packages" },
+      { "pattern": "^semver$", "owner": "media-platform", "reason": "Nested version helper under Sharp optional native package" },
+      { "pattern": "^sharp$", "owner": "media-platform", "reason": "Native image processing package" },
+      { "pattern": "^tslib$", "owner": "frontend-platform", "reason": "Nested helper under Tailwind Oxide WASM package" },
+      { "pattern": "^unrs-resolver$", "owner": "frontend-platform", "reason": "Resolver package with native postinstall behavior" }
+    ]
+  }
+}

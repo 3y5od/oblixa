@@ -26,6 +26,7 @@ describe("artifacts/qa-closure-manifest.json", () => {
       scriptsCodemodMjsFiles: string[];
       srcLibInternalTestFiles: string[];
       scriptsPipelineMjsFiles: string[];
+      autonomousCodeOnlyQaObjectives: Array<{ id: string; title: string; npmScripts: string[] }>;
     };
     expect(m.schemaVersion).toBe(1);
     expect([...m.appRouterMetadataSpecialFiles].sort()).toEqual([...METADATA_SPECIAL].sort());
@@ -41,9 +42,18 @@ describe("artifacts/qa-closure-manifest.json", () => {
     expect(m.appRouterFaviconIcoFiles).toEqual(["src/app/favicon.ico"]);
     expect(m.qaMaxP10Steps.length).toBe(35);
     expect(m.qaMaxP10Steps[m.qaMaxP10Steps.length - 1]).toBe("qa:sweep:checks:batch");
-    expect(m.srcTestUtilsFiles.length).toBe(9);
+    expect(m.srcTestUtilsFiles.length).toBe(10);
     expect(m.scriptsCodemodMjsFiles.length).toBe(2);
     expect(m.srcLibInternalTestFiles.length).toBe(26);
-    expect(m.scriptsPipelineMjsFiles.length).toBe(10);
+    expect(m.scriptsPipelineMjsFiles.length).toBe(12);
+    expect(m.autonomousCodeOnlyQaObjectives).toHaveLength(96);
+    expect(m.autonomousCodeOnlyQaObjectives[0]).toMatchObject({
+      id: "qa-001-baseline-execution",
+      npmScripts: expect.arrayContaining(["check:quick", "lint", "test:scripts", "typecheck"]),
+    });
+    expect(m.autonomousCodeOnlyQaObjectives.at(-1)).toMatchObject({
+      id: "qa-096-documentation-independence",
+      npmScripts: expect.arrayContaining(["check:documentation-runtime-dependencies"]),
+    });
   });
 });

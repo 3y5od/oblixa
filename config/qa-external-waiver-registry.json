@@ -11,6 +11,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "dependency_review_policy_transitive",
+      "risk": "medium",
+      "blockerClass": "organization-policy",
+      "reason": "PR dependency review fail-on-severity is high while transitive-noise exceptions remain tracked in the policy artifact.",
+      "validationCommand": "check:supply-chain-waivers",
+      "replacementObjective": "oph-020-supply-chain",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": ["artifacts/dependency-review-policy.json", ".github/workflows/dependency-review.yml"],
       "notes": "PR dependency review fail-on-severity=high; waivers for transitive noise tracked in policy JSON."
     },
     {
@@ -22,6 +29,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "trivy_optional_org_tier",
+      "risk": "medium",
+      "blockerClass": "organization-policy",
+      "reason": "Filesystem Trivy execution is present, but blocking tier policy depends on organization scanner ownership.",
+      "validationCommand": "check:supply-chain-waivers",
+      "replacementObjective": "oph-020-supply-chain",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": [".github/workflows/trivy-fs.yml", "config/operational-supply-chain-risk.json"],
       "notes": "Container/fs Trivy workflow present; blocking tier org-specific."
     },
     {
@@ -33,6 +47,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "codeql_sarif_optional_upload",
+      "risk": "medium",
+      "blockerClass": "external-provider",
+      "reason": "CodeQL workflow coverage is present; upload and default-query policy remain provider and organization governed.",
+      "validationCommand": "check:supply-chain-waivers",
+      "replacementObjective": "oph-020-supply-chain",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": [".github/workflows/codeql.yml", "config/operational-supply-chain-risk.json"],
       "notes": "CodeQL default queries; SARIF upload optional per org."
     },
     {
@@ -44,6 +65,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "semgrep_rulepacks_workflow",
+      "risk": "medium",
+      "blockerClass": "organization-policy",
+      "reason": "Semgrep SARIF workflow exists while rule-pack blocking policy remains centrally governed.",
+      "validationCommand": "check:supply-chain-waivers",
+      "replacementObjective": "oph-020-supply-chain",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": [".github/workflows/semgrep-sarif.yml", "config/operational-supply-chain-risk.json"],
       "notes": "Semgrep SARIF workflow; rule packs managed in workflow."
     },
     {
@@ -54,7 +82,14 @@
       "expiry": "2027-12-31",
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
-      "scope": "zast_staging_gated",
+      "scope": "zap_staging_gated",
+      "risk": "medium",
+      "blockerClass": "external-provider",
+      "reason": "DAST baseline is represented by a disabled-by-default workflow until a governed staging URL is available.",
+      "validationCommand": "check:qa-waiver-registry",
+      "replacementObjective": "oph-020-supply-chain",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": [".github/workflows/qa-dast-zap.yml", "artifacts/zap-baseline.json"],
       "notes": "DAST disabled by default (if: false); enable with STAGING_BASE_URL."
     },
     {
@@ -65,6 +100,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "wcag22_rows_pending_per_sc_automation",
+      "risk": "medium",
+      "blockerClass": "automation-gap",
+      "reason": "WCAG 2.2 taxonomy rows stay waived until each success criterion has direct Playwright or Vitest automation.",
+      "validationCommand": "check:qa-waiver-registry",
+      "replacementObjective": "oph-033-platform-variant-coverage",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": ["config/qa-comprehensive-taxonomy.json", "config/qa-taxonomy-strictness-sla.json"],
       "notes": "WCAG 2.2 taxonomy rows bind here until Playwright/Vitest per-SC coverage lands."
     },
     {
@@ -75,6 +117,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "dimension_and_phase2_tracks_deferred",
+      "risk": "medium",
+      "blockerClass": "automation-gap",
+      "reason": "Phase-2 QA dimensions are explicitly deferred until substantive route, identity, distributed, and AI coverage lands.",
+      "validationCommand": "check:qa-waiver-registry",
+      "replacementObjective": "oph-033-platform-variant-coverage",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": ["config/qa-comprehensive-taxonomy.json", "config/qa-taxonomy-phase2-tracks.json"],
       "notes": "Phase-2 burn-down tracks (identity, HTTP/CDN depth, distributed, AI, etc.) pending substantive tests."
     },
     {
@@ -85,6 +134,13 @@
       "issue": "https://github.com/oblixa/oblixa/issues/1",
       "expires": "2027-12-31",
       "scope": "allowlisted_github_workflows_infra_only",
+      "risk": "low",
+      "blockerClass": "external-provider",
+      "reason": "Infra-only or provider-console workflows are excluded from product QA surface until adopted as product-facing checks.",
+      "validationCommand": "check:qa-waiver-registry",
+      "replacementObjective": "oph-006-ci-workflow-enforcement",
+      "lastReviewedDate": "2026-05-28",
+      "usagePaths": ["config/qa-comprehensive-taxonomy.json", "config/operational-ci-enforcement.json"],
       "notes": "Stub or infra-only workflows excluded from product QA surface."
     }
   ]

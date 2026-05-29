@@ -1,4 +1,4 @@
-import { formatDistanceToNowStrict } from "date-fns";
+import { differenceInCalendarDays, formatDistanceToNowStrict, isValid } from "date-fns";
 import type { createAdminClient } from "@/lib/supabase/server";
 import { getV10WorkItemHref } from "@/lib/job-routing";
 import { applyV10ReadModelVisibility } from "@/lib/visibility";
@@ -102,6 +102,10 @@ export type BuildWorkPageModelInput = WorkModelLoadInput & {
   contracts: WorkContractOptionRow[];
   members: OrgMemberProfileRow[];
   warnings?: string[];
+  /** Render-time clock for overdue derivation. Defaults to `new Date()`.
+   *  Injectable so tab counts/tone reflect "now" rather than the read
+   *  model's projection-time `due_state`, which goes stale between runs. */
+  now?: Date;
 };
 
 export function normalizeWorkTab(input: { tab?: string | null; lens?: string | null }): WorkTabKey {
@@ -157,12 +161,14 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
     input.members.map((member) => [member.user_id, orgMemberProfileLabel(member.profiles)])
   );
 
+  const now = input.now ?? new Date();
   const shapedRows = input.rows
     .filter((row) => isWorkTypeKey(normalizeToken(row.type)))
     .map((row) => shapeWorkRow(row, {
       userId: input.userId,
       contractById,
       ownerLabelById,
+      now,
     }))
     .filter((row): row is WorkItemRow => row !== null);
 
@@ -303,6 +309,7 @@ function shapeWorkRow(
     userId: string;
     contractById: Map<string, WorkContractOptionRow>;
     ownerLabelById: Map<string, string>;
+    now: Date;
   }
 ): WorkItemRow | null {
   const type = normalizeToken(row.type);
@@ -331,7 +338,11 @@ function shapeWorkRow(
           ? input.ownerLabelById.get(ownerUserId) ?? "Assigned teammate"
           : "Unassigned";
   const dueAt = row.due_at ?? null;
-  const dueState = normalizeToken(row.due_state) || "none";
+  // Derive freshness from due_at vs the render clock rather than trusting
+  // the read model's `due_state` column — that value is computed at
+  // projection time and goes stale, so a date 9 days past can still report
+  // "due_soon"/"none" and never surface in the Overdue tab.
+  const { dueState, dueInDays } = deriveDueMeta(dueAt, input.now);
   const blocker = normalizeToken(row.blocked_reason) || (status === "blocked" ? "Blocked" : "—");
   const lastUpdateAt = row.last_state_change_at ?? row.updated_at ?? null;
   const title = normalizeToken(row.title) || WORK_TYPE_LABELS[type];
@@ -359,6 +370,7 @@ function shapeWorkRow(
     dueAt,
     dueLabel,
     dueState,
+    dueInDays,
     blocker,
     lastUpdateAt,
     lastUpdateLabel,
@@ -380,11 +392,10 @@ function shapeWorkRow(
       state: {
         status: { label: WORK_ROW_LABELS.status, value: statusLabel },
         type: { label: WORK_ROW_LABELS.type, value: typeLabel },
-        // Display-only transform: keep "—" as the internal sentinel
-        // (used by the `blocked` tab filter at line ~453) but surface
-        // "None" to the user — a bare em-dash reads as missing data
-        // rather than the intended "no blocker on this work item".
-        blocker: { label: WORK_ROW_LABELS.blocker, value: blocker === "—" ? "None" : blocker },
+        // "—" is the no-blocker sentinel (also read by the `blocked` tab
+        // filter); surface it verbatim per §10.12 rather than spelling out
+        // "None".
+        blocker: { label: WORK_ROW_LABELS.blocker, value: blocker },
       },
     },
     actions: buildActionCapabilities({ type, status, sourceId, contractId, href, contractHref }),
@@ -507,6 +518,25 @@ function statusTone(status: string, dueState: string, severity: string) {
   if (status === "done") return "healthy";
   if (status === "canceled" || status === "cancelled") return "disabled";
   return "in_review";
+}
+
+function deriveDueMeta(
+  dueAt: string | null,
+  now: Date
+): { dueState: string; dueInDays: number | null } {
+  if (!dueAt) return { dueState: "none", dueInDays: null };
+  const due = new Date(dueAt);
+  if (!isValid(due)) return { dueState: "none", dueInDays: null };
+  const dueInDays = differenceInCalendarDays(due, now);
+  const dueState =
+    dueInDays < 0
+      ? "overdue"
+      : dueInDays === 0
+        ? "due_today"
+        : dueInDays <= 7
+          ? "due_soon"
+          : "none";
+  return { dueState, dueInDays };
 }
 
 function formatDateLabel(value: string | null) {

@@ -8,8 +8,20 @@ import {
   useRef,
   type KeyboardEvent,
 } from "react";
+import { format } from "date-fns";
 import { ArrowRight, Check, CircleHelp, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function formatFieldValue(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (ISO_DATE_RE.test(trimmed)) {
+    const parsed = new Date(`${trimmed}T12:00:00`);
+    if (!Number.isNaN(parsed.getTime())) return format(parsed, "MMM d, yyyy");
+  }
+  return raw;
+}
 import {
   buildFieldReviewStatusMessage,
   getCriticalFieldReviewSummary,
@@ -28,19 +40,6 @@ const statusBadge: Record<string, string> = {
   edited: "ui-status-badge ui-status-badge-in-review",
 };
 const CRITICAL_DATE_REVIEW_COPY = "Key date coverage still needs review";
-
-function confidenceLabel(c: number | null): string {
-  if (c == null || Number.isNaN(c)) return "—";
-  const pct = Math.round(Math.min(1, Math.max(0, c)) * 100);
-  return `${pct}%`;
-}
-
-function confidenceTone(c: number | null): string {
-  if (c == null) return "text-[var(--text-tertiary)]";
-  if (c >= 0.75) return "text-[var(--success-ink)]";
-  if (c >= 0.45) return "text-[var(--warning-ink)]";
-  return "text-[var(--danger-ink)]";
-}
 
 interface FieldReviewProps {
   fields: ExtractedField[];
@@ -124,7 +123,7 @@ export function FieldReview({
           summaryCopy={CRITICAL_DATE_REVIEW_COPY}
         />
       )}
-      <div className="ui-table-shell overflow-hidden" role="list" aria-label="Extracted contract fields">
+      <div className="border-t border-[var(--border-subtle)]" role="list" aria-label="Extracted contract fields">
         <div className="divide-y divide-[var(--border-subtle)]">
           {orderedFields.map((field) => (
             <FieldRow
@@ -226,12 +225,12 @@ const FieldRow = memo(function FieldRow({
 
   const rowBg =
     field.status === "pending"
-      ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_34%,transparent)]"
+      ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_16%,transparent)]"
       : field.status === "approved"
-        ? "bg-[color:color-mix(in_oklab,var(--success-soft)_28%,transparent)]"
+        ? "bg-transparent"
         : field.status === "rejected"
-          ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_30%,transparent)]"
-          : "bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)]";
+          ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_14%,transparent)]"
+          : "bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)]";
 
   const rowKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (!canEdit || field.status !== "pending" || editing) return;
@@ -271,7 +270,7 @@ const FieldRow = memo(function FieldRow({
       id={`field-${field.id}`}
       role="listitem"
       data-review-focus-row={canEdit && field.status === "pending" && !editing ? "true" : undefined}
-      className={`scroll-mt-28 p-4 outline-none transition-colors focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:p-5 ${rowBg}`}
+      className={`scroll-mt-28 px-3 py-2.5 outline-none transition-colors focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:px-4 sm:py-3 ${rowBg}`}
       tabIndex={canEdit && field.status === "pending" && !editing ? 0 : -1}
       onKeyDown={rowKeyDown}
     >
@@ -293,16 +292,27 @@ const FieldRow = memo(function FieldRow({
                     : "Edited"}
             </span>
           </div>
-          <p className="mt-1 ui-caps-3 text-[var(--text-tertiary)]">
-            {field.source === "ai" ? "AI extraction" : "Human entry"}
-          </p>
-          <p className="mt-2 max-w-sm rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_62%,transparent)] px-2.5 py-2 text-[11px] leading-snug text-[var(--text-secondary)]">
-            {provenanceLabel}
-          </p>
+          <span
+            className="mt-1 inline-flex items-center overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[10px] leading-none"
+            aria-label={`${field.source === "ai" ? "AI extraction" : "Human entry"}${field.confidence != null ? ` at ${Math.round(Math.min(1, Math.max(0, field.confidence)) * 100)}% signal` : ""}`}
+          >
+            <span className="px-1.5 py-0.5 font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+              {field.source === "ai" ? "AI" : "Human"}
+            </span>
+            {field.confidence != null ? (
+              <span className="border-l border-[var(--border-subtle)] px-1.5 py-0.5 font-medium uppercase tracking-[0.12em] tabular-nums text-[var(--text-tertiary)]">
+                {Math.round(Math.min(1, Math.max(0, field.confidence)) * 100)}%
+              </span>
+            ) : null}
+          </span>
+          {field.status !== "approved" ? (
+            <p className="mt-2 max-w-sm text-[11px] leading-snug text-[var(--text-tertiary)]">
+              {provenanceLabel}
+            </p>
+          ) : null}
         </div>
 
         <div className="min-w-0 text-[var(--text-primary)]">
-          <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)]">Value</p>
           {editing ? (
             <div className="flex flex-col gap-2">
               <input
@@ -340,8 +350,10 @@ const FieldRow = memo(function FieldRow({
             </div>
           ) : (
             <>
-              <span className="block break-words font-medium leading-relaxed">
-                {field.field_value || (
+              <span className="block break-words font-medium leading-relaxed tabular-nums">
+                {field.field_value ? (
+                  formatFieldValue(field.field_value)
+                ) : (
                   <span className="font-normal italic text-[var(--text-tertiary)]">Unknown</span>
                 )}
               </span>
@@ -355,27 +367,18 @@ const FieldRow = memo(function FieldRow({
               )}
             </>
           )}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span
-              className={`font-mono text-[12px] font-semibold tabular-nums ${confidenceTone(field.confidence)}`}
-              title="Model-reported certainty (0–100%)"
-            >
-              {confidenceLabel(field.confidence)}
-            </span>
-            <span className="text-[11px] text-[var(--text-tertiary)]">Model signal</span>
-          </div>
         </div>
 
         <div className="min-w-0">
-          <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)]">Source evidence</p>
           {field.source_snippet ? (
-            <blockquote className="ui-source-quote max-h-28 overflow-y-auto rounded-r-lg text-[12.5px] leading-snug">
-              <span className="italic text-[var(--text-secondary)]">
-                &ldquo;{field.source_snippet}&rdquo;
-              </span>
-            </blockquote>
+            <>
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Source excerpt</p>
+              <p className="mt-1 max-h-24 overflow-y-auto text-[12px] leading-snug text-[var(--text-secondary)]">
+                {field.source_snippet}
+              </p>
+            </>
           ) : (
-            <span className="text-[12.5px] text-[var(--text-tertiary)]">No source snippet</span>
+            <span className="text-[12px] text-[var(--text-tertiary)]">—</span>
           )}
         </div>
 

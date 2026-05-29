@@ -1,0 +1,533 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "source": "code-owned-operational-performance-load-chaos",
+  "generatedBy": "scripts/check-operational-performance-load-chaos.mjs --write",
+  "generatedFrom": "config/operational-performance-load-chaos.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 17,
+  "loadSmokeTargetCount": 11,
+  "soakStressScaffoldingCount": 4,
+  "chaosFixtureCount": 8,
+  "cacheConsistencyCaseCount": 6,
+  "budgetContractCount": 5,
+  "environmentGuardCount": 3,
+  "artifactInputCount": 4,
+  "commands": [
+    {
+      "objective": "bundle-runtime-budgets",
+      "script": "check:bundle-budget",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "client_js_budget",
+        "first_load_budget"
+      ]
+    },
+    {
+      "objective": "bundle-runtime-budgets",
+      "script": "check:performance-static:strict",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "server_only_imports",
+        "unbounded_reads"
+      ]
+    },
+    {
+      "objective": "bundle-runtime-budgets",
+      "script": "check:route-universe",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "route_performance_budget_inventory",
+        "route_runtime_class"
+      ]
+    },
+    {
+      "objective": "bundle-runtime-budgets",
+      "script": "check:timeout-budget-guards",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "fetch_timeouts",
+        "max_duration"
+      ]
+    },
+    {
+      "objective": "bundle-runtime-budgets",
+      "script": "perf:autonomous:postbuild",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "server_build_output_artifacts"
+      ]
+    },
+    {
+      "objective": "cache-consistency-tests",
+      "script": "check:cache-poisoning-guards",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "cache_poisoning_inputs"
+      ]
+    },
+    {
+      "objective": "cache-consistency-tests",
+      "script": "check:client-cache-sensitivity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "client_cache_sensitivity"
+      ]
+    },
+    {
+      "objective": "cache-consistency-tests",
+      "script": "check:sensitive-cache-controls",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "private_no_store",
+        "vary_cookie_authorization"
+      ]
+    },
+    {
+      "objective": "chaos-fixture-tests",
+      "script": "report:chaos-readiness",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "bounded_chaos_readiness_report"
+      ]
+    },
+    {
+      "objective": "chaos-fixture-tests",
+      "script": "test:chaos-local-smoke",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "compose_opt_in",
+        "local_fixture_validation"
+      ]
+    },
+    {
+      "objective": "load-smoke-coverage",
+      "script": "check:operational-performance-load-chaos",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "load_surface_coverage"
+      ]
+    },
+    {
+      "objective": "load-smoke-coverage",
+      "script": "test:e2e:perf",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "browser_navigation_timing",
+        "upload_perf_smoke",
+        "web_vitals_harness"
+      ]
+    },
+    {
+      "objective": "load-smoke-coverage",
+      "script": "test:k6:smoke",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "k6_load_smoke",
+        "latency_error_rate_resource_thresholds"
+      ]
+    },
+    {
+      "objective": "load-smoke-coverage",
+      "script": "test:lighthouse:nightly",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "lighthouse_optional_smoke"
+      ]
+    },
+    {
+      "objective": "load-smoke-coverage",
+      "script": "test:performance-contracts",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "production_target_guards",
+        "typed_load_thresholds"
+      ]
+    },
+    {
+      "objective": "soak-stress-scaffolding",
+      "script": "test:k6:smoke",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": true,
+      "qaPipelinePresent": true,
+      "covers": [
+        "safe_default_targets"
+      ]
+    },
+    {
+      "objective": "soak-stress-scaffolding",
+      "script": "test:k6:soak",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "qaPipelineRequired": false,
+      "qaPipelinePresent": null,
+      "covers": [
+        "soak_opt_in",
+        "stress_cost_caps"
+      ]
+    }
+  ],
+  "loadSmokeTargets": [
+    {
+      "id": "contract-detail",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "contracts-list",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "cron-like",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "dashboard",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "exports",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "landing",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "login",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-mocked",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reports",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "search",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "upload",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "soakStressScaffolding": [
+    {
+      "id": "k6-smoke-thresholds",
+      "path": "k6/smoke.js",
+      "markerCount": 5,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "k6-soak-opt-in",
+      "path": "scripts/k6-soak-runner.mjs",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "k6-soak-thresholds",
+      "path": "k6/soak-spike-stub.js",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "staging-smoke-target-guard",
+      "path": "loadtests/k6-staging-smoke.js",
+      "markerCount": 4,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "chaosFixtures": [
+    {
+      "id": "cron-overlap",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "db-conflict",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "openai-timeout",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "resend-failure",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stripe-failure",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "supabase-latency",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "upstash-outage",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "webhook-duplicate",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "cacheConsistencyCases": [
+    {
+      "id": "cache-headers",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "cache-poisoning-inputs",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "read-after-write-lag",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "revalidation-tags",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stale-mutation-guards",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "stale-reads",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "budgetContracts": [
+    {
+      "id": "expensive-dependency-imports",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "js-bundle",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "max-duration",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "route-runtime-class",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "server-build-output",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "environmentGuards": [
+    {
+      "id": "explicit-production-opt-in",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "load-cost-caps",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "production-target-block",
+      "path": "src/lib/performance/operational-performance-contracts.ts",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    }
+  ],
+  "artifactInputs": [
+    {
+      "path": "artifacts/route-performance-budgets.json",
+      "exists": true
+    },
+    {
+      "path": "artifacts/autonomous-perf-ci-runtime-budget.json",
+      "exists": true
+    },
+    {
+      "path": "artifacts/autonomous-perf-coverage-matrix.json",
+      "exists": true
+    },
+    {
+      "path": "config/autonomous-perf-phase-closure.json",
+      "exists": true
+    }
+  ],
+  "codeContracts": {
+    "sourcePath": "src/lib/performance/operational-performance-contracts.ts",
+    "markerCount": 6,
+    "missingCount": 0,
+    "ok": true
+  },
+  "manualBoundary": "Production load, soak, and chaos execution require explicit external approval; this registry enforces local/staging-safe code-owned thresholds, fixtures, opt-in guards, and budget ratchets.",
+  "issueCount": 0,
+  "issues": []
+}

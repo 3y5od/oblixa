@@ -33,10 +33,10 @@ describe("AddFieldForm", () => {
         canEdit
       />
     );
-    fireEvent.click(screen.getByRole("button", { name: /add field manually/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /^add field$/i })[0]!);
     fireEvent.change(screen.getByRole("combobox"), { target: { value: pick } });
     fireEvent.change(screen.getByPlaceholderText(/enter value/i), { target: { value: "  hello  " } });
-    fireEvent.click(screen.getByRole("button", { name: /^add field$/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /^add field$/i })[0]!);
 
     await waitFor(() => expect(addManualField).toHaveBeenCalled());
     expect(addManualField).toHaveBeenCalledWith(

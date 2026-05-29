@@ -31,8 +31,12 @@ const REQUIRED_ENV_EXAMPLE_KEYS = [
   "OPENAI_API_KEY",
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
+  "STRIPE_WEBHOOK_SECRET_PREVIOUS",
+  "STRIPE_WEBHOOK_SECRET_PREVIOUS_EXPIRES_AT",
   "EXTERNAL_ACTION_PASSCODE_PEPPER",
   "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET",
+  "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS",
+  "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT",
   "EXTRACTION_WORKER_SECRET",
   "OBLIXA_INTERNAL_DIAG_SECRET",
   "INBOUND_AUTOMATION_TOKEN_PREVIOUS",
@@ -123,6 +127,24 @@ const REQUIRED_FILE_MARKERS = {
   "src/lib/security/token-crypto.test.ts": [
     "emits versioned token envelopes with explicit key ids",
     "decryptIntegrationToken rejects legacy plaintext in production",
+  ],
+  "src/lib/decision-intelligence/api.ts": [
+    "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS",
+    "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT",
+    "rotatingSecretCandidates",
+  ],
+  "src/lib/decision-intelligence/api.external.test.ts": [
+    "accepts previous submit-ticket secret during bounded rotation",
+    "rejects expired previous submit-ticket secret during rotation",
+  ],
+  "src/app/api/stripe/webhook/route.ts": [
+    "STRIPE_WEBHOOK_SECRET_PREVIOUS",
+    "STRIPE_WEBHOOK_SECRET_PREVIOUS_EXPIRES_AT",
+    "rotatingSecretCandidates",
+  ],
+  "src/app/api/stripe/webhook/route.test.ts": [
+    "accepts a valid previous Stripe webhook secret during bounded rotation",
+    "rejects an expired previous Stripe webhook secret during rotation",
   ],
   "scripts/reencrypt-integration-tokens.mjs": [
     "planIntegrationTokenReencryption",

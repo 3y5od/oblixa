@@ -14,7 +14,7 @@ const REQUIRED_FILE_MARKERS = {
     "`EXTERNAL_ACTION_SUBMIT_TICKET_SECRET` (must not reuse CRON_SECRET or the passcode pepper).",
     'const exp = Date.now() + SUBMIT_TICKET_TTL_MS;',
     'const body = JSON.stringify({ lid: input.linkId, t: input.urlToken, exp });',
-    'const sig = createHmac("sha256", externalSubmitTicketSecret()).update(body, "utf8").digest("base64url");',
+    'const sig = createHmac("sha256", externalSubmitTicketSecrets()[0]!).update(body, "utf8").digest("base64url");',
     'if (raw.lid !== expectedLinkId) return { ok: false, reason: "submit_ticket_invalid" };',
     'return { ok: false, reason: "submit_ticket_expired" };',
   ],

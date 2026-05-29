@@ -40,10 +40,12 @@ export function UiTabs({ items, className, ariaLabel = "Tabs" }: UiTabsProps) {
           <span>{item.label}</span>
           {typeof item.count === "number" ? (
             <span
-              className={`ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums ${
-                item.active
-                  ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_42%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  : "bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] text-[var(--text-tertiary)]"
+              className={`ml-0.5 inline-flex min-w-[1.125rem] items-center justify-center rounded-md border px-1 text-[11px] font-semibold leading-none tabular-nums ${
+                item.count === 0
+                  ? "border-transparent text-[var(--text-tertiary)] opacity-55"
+                  : item.active
+                    ? "border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)]"
+                    : "border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] text-[var(--text-secondary)]"
               }`}
             >
               {item.count}

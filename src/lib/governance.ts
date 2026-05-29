@@ -81,7 +81,7 @@ export function evaluateV10Eligibility(input: V10EligibilityInput): V10Eligibili
 export function getV10EligibleFallbackDestination(result: V10EligibilityResult): string {
   if (result.allowed) return "current_destination";
   if (result.outcome === "plan_required") return "/settings/billing";
-  if (result.outcome === "mode_required" || result.outcome === "hidden_module") return "/settings/product";
+  if (result.outcome === "mode_required" || result.outcome === "hidden_module") return "/settings";
   if (result.outcome === "forbidden") return "/dashboard";
   return "/dashboard";
 }
@@ -151,7 +151,7 @@ export function buildV10SettingsHealthDiagnostics(input: {
       key: "governance_configuration",
       severity: "attention",
       userVisibleSummary: "Workspace configuration or release gates need review.",
-      recoveryHref: "/settings/product",
+      recoveryHref: "/settings",
     });
   }
   return diagnostics;

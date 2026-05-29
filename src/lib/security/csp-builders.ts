@@ -43,6 +43,8 @@ export function buildContentSecurityPolicy(
 const CSP_SCRIPT_HASH_SOURCE_RE = /^'(?:sha256|sha384|sha512)-[A-Za-z0-9+/=]+'$/;
 const CSP_NONCE_SOURCE_RE = /^[A-Za-z0-9+/_=-]{8,128}$/;
 const SECURITY_HEADER_VALUE_UNSAFE_RE = /[\u0000-\u001f\u007f]/;
+const SECURITY_REPORTING_ENDPOINT_GROUP = "csp-endpoint";
+const SECURITY_REPORTING_ENDPOINT_PATH = "/api/security/csp-report";
 export type TrustedTypesMode = "off" | "report-only" | "enforce";
 export type CoepMode = "off" | "credentialless" | "require-corp";
 const TRUSTED_TYPES_DIRECTIVE = "trusted-types oblixa default; require-trusted-types-for 'script'";
@@ -177,6 +179,14 @@ function buildEnforcingScriptSrc(
   return `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`;
 }
 
+function appendCspReportingDirectives(csp: string): string {
+  return `${csp}; report-uri ${SECURITY_REPORTING_ENDPOINT_PATH}; report-to ${SECURITY_REPORTING_ENDPOINT_GROUP}`;
+}
+
+function buildReportingEndpointsHeader(): string {
+  return `${SECURITY_REPORTING_ENDPOINT_GROUP}="${SECURITY_REPORTING_ENDPOINT_PATH}"`;
+}
+
 export function buildStrictCspReportOnly(
   isProd: boolean,
   /** Staged Next 16+ nonce path: set OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE in next.config (build-time). */
@@ -309,8 +319,9 @@ export function buildSecurityHeaders(input: {
       key: "Permissions-Policy",
       value: buildPermissionsPolicy(),
     },
-    { key: "Content-Security-Policy", value: enforcingCsp },
-    { key: "Content-Security-Policy-Report-Only", value: reportOnlyCsp },
+    { key: "Content-Security-Policy", value: appendCspReportingDirectives(enforcingCsp) },
+    { key: "Content-Security-Policy-Report-Only", value: appendCspReportingDirectives(reportOnlyCsp) },
+    { key: "Reporting-Endpoints", value: buildReportingEndpointsHeader() },
   ];
   if (coepMode !== "off") {
     headers.push({ key: "Cross-Origin-Embedder-Policy", value: coepMode });

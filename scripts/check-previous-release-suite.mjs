@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 function walk(dir, out) {
@@ -19,7 +19,11 @@ const root = process.cwd();
 const files = [];
 walk(join(root, "src"), files);
 files.sort();
-files.push(join(root, "src", "lib", "v9-acceptance-criteria.test.ts"));
+
+const acceptanceCriteria = join(root, "src", "lib", "acceptance-criteria.test.ts");
+if (existsSync(acceptanceCriteria)) {
+  files.push(acceptanceCriteria);
+}
 
 const r = spawnSync("npx", ["vitest", "run", ...files], { stdio: "inherit", cwd: root, shell: false });
 process.exit(r.status ?? 1);

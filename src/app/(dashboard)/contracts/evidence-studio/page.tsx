@@ -1,10 +1,23 @@
 import Link from "next/link";
-import { ArrowUpRight, FileCheck2, Paperclip, Plus } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  FileCheck2,
+  Inbox,
+  Paperclip,
+  Plus,
+  XCircle,
+} from "lucide-react";
 import { EvidenceReleaseActions } from "@/components/evidence/evidence-release-actions";
 import { EvidenceRequestCreatePanel } from "@/components/evidence/evidence-request-create-panel";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
+import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { TimeChip } from "@/components/ui/time-chip";
 import { UiTabs } from "@/components/ui/ui-tabs";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { canEditContracts } from "@/lib/permissions";
@@ -23,9 +36,23 @@ import {
   EVIDENCE_PARTIAL_DATA_TITLE,
   EVIDENCE_ROW_LABELS,
 } from "@/lib/evidence/spec-strings";
-import type { EvidenceDisplayValue, EvidenceRow } from "@/lib/evidence/types";
+import type {
+  EvidenceDisplayValue,
+  EvidenceRow,
+  EvidenceSectionKey,
+  EvidenceSectionSummary,
+} from "@/lib/evidence/types";
 
 export const metadata = { title: EVIDENCE_PAGE_TITLE };
+
+// Compact tab labels reused only by the cross-link chips on an empty tab, so a
+// long section name like "Evidence linked to obligations" stays a tidy capsule.
+const SHORT_SECTION_LABELS: Record<EvidenceSectionKey, string> = {
+  open_requests: "Open",
+  overdue_requests: "Overdue",
+  received_evidence: "Received",
+  linked_obligations: "Linked",
+};
 
 type EvidencePageSearchParams = {
   section?: string | string[];
@@ -76,7 +103,8 @@ export default async function EvidencePage(props: {
       <DashboardPageHeader
         icon={<FileCheck2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow={model.eyebrow}
-        title={model.title}
+        title={EVIDENCE_PAGE_TITLE}
+        lead={model.lead}
         actions={
           <Link href={createHref} className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
             <Plus className="h-4 w-4" aria-hidden />
@@ -100,30 +128,34 @@ export default async function EvidencePage(props: {
         />
       ) : null}
 
+      {/* §10.6 single focal surface: the request queue is the one surface on the
+          page. Section counts ride its tabs, so there is no separate metric
+          strip competing for the eye (§10.4). */}
       <section
         id="live-request-queue"
-        className="ui-card scroll-mt-8 overflow-visible p-0"
+        className="ui-card-quiet scroll-mt-8 overflow-visible p-0"
         aria-labelledby="evidence-surface-title"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3">
           <div className="flex min-w-0 items-center gap-2">
             <h2 id="evidence-surface-title" className="sr-only">
               {model.title}
             </h2>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-              Evidence requests
-            </p>
-            <span className="ui-chip">
-              <span className="font-mono tabular-nums">{model.totalVisibleRows}</span>
-              <span className="ml-1">visible</span>
-            </span>
+            <span className="ui-caps-2 text-[var(--text-tertiary)]">Evidence requests</span>
           </div>
-          <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]">
+          {/* §21 — internal navigation reads with a forward chevron, not the
+              ↗ external-link glyph that implies a new tab / outside surface. */}
+          <Link
+            href="/contracts"
+            className="ui-btn-ghost inline-flex items-center gap-1 px-3 py-1.5 text-[12.5px]"
+          >
             All contracts
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+            <ChevronRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
           </Link>
         </div>
 
+        {/* #3: counts ride the tabs (and nowhere else) so the user never has to
+            reconcile a tab against a separate metric strip below it. */}
         <UiTabs
           ariaLabel="Evidence sections"
           items={model.sections.map((section) => ({
@@ -137,16 +169,35 @@ export default async function EvidencePage(props: {
 
         {model.create.open ? (
           <EvidenceRequestCreatePanel model={model.create} cancelHref={cancelCreateHref} />
-        ) : null}
-
-        {model.rows.length === 0 ? (
-          <div className="px-5 py-7">
-            <div className="rounded-xl border border-dashed border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_24%,transparent)] px-4 py-5">
-              <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
-                {EVIDENCE_EMPTY_STATE}
-              </p>
+        ) : model.rows.length === 0 ? (
+          model.totalVisibleRows === 0 ? (
+            // #4/#5/#6: canonical empty surface — icon tile, caps eyebrow, and a
+            // co-located primary action, not a dashed placeholder box.
+            <div className="px-5 py-12">
+              <EmptyState
+                icon={
+                  <FileCheck2 className="h-7 w-7 text-[var(--text-tertiary)]" strokeWidth={1.65} aria-hidden />
+                }
+                eyebrow="Evidence requests"
+                title="No evidence requests yet"
+                copy={EVIDENCE_EMPTY_STATE}
+                action={
+                  <Link href={createHref} className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
+                    <Plus className="h-4 w-4" aria-hidden />
+                    {model.primaryCta}
+                  </Link>
+                }
+              />
             </div>
-          </div>
+          ) : (
+            // #1: this tab is empty but other tabs hold live work — name where it
+            // is and link straight to it instead of implying the page is empty.
+            <SectionEmptyState
+              sections={model.sections}
+              activeSection={model.activeSection}
+              createHref={createHref}
+            />
+          )
         ) : (
           <div className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_72%,transparent)]">
             <div className="hidden grid-cols-[minmax(14rem,1.35fr)_minmax(11rem,1fr)_minmax(10rem,0.9fr)_minmax(9rem,0.8fr)_minmax(9rem,0.8fr)_minmax(9rem,0.85fr)_minmax(11rem,0.9fr)] gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)] xl:grid">
@@ -168,6 +219,57 @@ export default async function EvidencePage(props: {
   );
 }
 
+// #1: when the active tab is empty but evidence work lives in other sections,
+// point straight to it with count+verb capsules rather than a dead-end empty
+// message (§8.1). The auto-pick default keeps a fresh load off this path, so it
+// only surfaces when the user explicitly opens an empty tab.
+function SectionEmptyState({
+  sections,
+  activeSection,
+  createHref,
+}: {
+  sections: EvidenceSectionSummary[];
+  activeSection: EvidenceSectionKey;
+  createHref: string;
+}) {
+  const active = sections.find((section) => section.key === activeSection);
+  const elsewhere = sections.filter(
+    (section) => section.key !== activeSection && section.count > 0
+  );
+  return (
+    <div className="px-5 py-12">
+      <EmptyState
+        size="compact"
+        icon={<Inbox className="h-5 w-5 text-[var(--text-tertiary)]" strokeWidth={1.65} aria-hidden />}
+        eyebrow="Evidence requests"
+        title={`Nothing in ${(active?.label ?? "this view").toLowerCase()}`}
+        copy="Evidence work is waiting in another view — jump to it below."
+        action={
+          <>
+            {elsewhere.map((section) => (
+              <ChipCapsule
+                key={section.key}
+                href={section.href}
+                leftValue={section.count}
+                leftLabel={SHORT_SECTION_LABELS[section.key]}
+                rightVerb="View"
+                tone={section.key === "overdue_requests" ? "danger" : undefined}
+              />
+            ))}
+            <Link
+              href={createHref}
+              className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              Request evidence
+            </Link>
+          </>
+        }
+      />
+    </div>
+  );
+}
+
 function EvidenceRowItem({
   row,
   mutationsEnabled,
@@ -176,23 +278,40 @@ function EvidenceRowItem({
   mutationsEnabled: boolean;
 }) {
   return (
-    <article className="px-5 py-4">
-      <div className="grid gap-4 xl:grid-cols-[minmax(14rem,1.35fr)_minmax(11rem,1fr)_minmax(10rem,0.9fr)_minmax(9rem,0.8fr)_minmax(9rem,0.8fr)_minmax(9rem,0.85fr)_minmax(11rem,0.9fr)] xl:items-center">
-        <FieldValue value={row.display.requestTitle} primary />
+    <article className="px-5 py-3.5">
+      <div className="grid gap-x-4 gap-y-3 xl:grid-cols-[minmax(14rem,1.35fr)_minmax(11rem,1fr)_minmax(10rem,0.9fr)_minmax(9rem,0.8fr)_minmax(9rem,0.8fr)_minmax(9rem,0.85fr)_minmax(11rem,0.9fr)] xl:items-center">
+        {/* §10.2 + #7 one primary object per row: the request title is the
+            single strong accent link; contract + obligation recede to quiet
+            secondary links so they don't compete for the row's focus. */}
+        <FieldValue value={row.display.requestTitle} variant="primary" />
         <FieldValue value={row.display.linkedContract} />
         <FieldValue value={row.display.linkedObligation} />
         <FieldValue value={row.display.requestOwner} />
-        <FieldValue value={row.display.dueDate} />
         <div className="min-w-0">
-          <p className="ui-caps-2 xl:sr-only">{row.display.status.label}</p>
-          <StatusBadge status={row.statusTone}>{row.statusLabel}</StatusBadge>
-          <p
-            className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] text-[var(--text-tertiary)]"
-            aria-label={`${row.display.attachedFiles.label}: ${row.display.attachedFiles.value}`}
-          >
-            <Paperclip className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
-            <span className="tabular-nums">{row.display.attachedFiles.value}</span>
+          <p className="ui-caps-2 text-[var(--text-tertiary)] xl:sr-only">
+            {row.display.dueDate.label}
           </p>
+          {row.dueAt ? (
+            <TimeChip
+              date={row.dueAt}
+              format="calendar"
+              tone={row.status === "overdue" ? "danger" : "neutral"}
+            />
+          ) : (
+            <span className="text-[13px] text-[var(--text-tertiary)]">—</span>
+          )}
+        </div>
+        <div className="flex min-w-0 flex-col items-start gap-1.5">
+          <p className="ui-caps-2 text-[var(--text-tertiary)] xl:sr-only">
+            {row.display.status.label}
+          </p>
+          {/* §7.7 + #6 non-color reinforcement: a shape-coded status glyph
+              rides inside the badge so the state is legible without color. */}
+          <StatusBadge status={row.statusTone} className="gap-1.5">
+            <StatusIcon status={row.status} />
+            {row.statusLabel}
+          </StatusBadge>
+          <FilesChip count={row.attachedFilesCount} />
         </div>
         <EvidenceReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
       </div>
@@ -202,29 +321,80 @@ function EvidenceRowItem({
 
 function FieldValue({
   value,
-  primary = false,
+  variant = "secondary",
 }: {
   value: EvidenceDisplayValue;
-  primary?: boolean;
+  variant?: "primary" | "secondary";
 }) {
+  const isPrimary = variant === "primary";
+  // Hover-only underline (not the permanent `.ui-link` underline) so wrapped
+  // titles don't fragment into a jagged stack of underlined lines (#9).
+  const linkBase =
+    "rounded-sm break-words no-underline underline-offset-[3px] decoration-[color:color-mix(in_oklab,var(--accent)_40%,transparent)] transition-colors hover:underline focus-visible:underline";
   return (
     <div className="min-w-0">
-      <p className="ui-caps-2 xl:sr-only">{value.label}</p>
+      <p className="ui-caps-2 text-[var(--text-tertiary)] xl:sr-only">{value.label}</p>
       {value.href ? (
         <Link
           href={value.href}
-          className={`ui-link break-words ${primary ? "text-[14px] font-semibold" : "text-[13px] font-medium"}`}
+          className={
+            isPrimary
+              ? `${linkBase} text-[14px] font-semibold text-[var(--accent-strong)]`
+              : `${linkBase} text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--accent-strong)]`
+          }
         >
           {value.value}
         </Link>
       ) : (
         <p
-          className={`break-words ${primary ? "text-[14px] font-semibold text-[var(--text-primary)]" : "text-[13px] text-[var(--text-secondary)]"}`}
+          className={`break-words ${isPrimary ? "text-[14px] font-semibold text-[var(--text-primary)]" : "text-[13px] text-[var(--text-secondary)]"}`}
         >
           {value.value}
         </p>
       )}
     </div>
+  );
+}
+
+function StatusIcon({ status }: { status: EvidenceRow["status"] }) {
+  const cls = "h-3 w-3 shrink-0";
+  switch (status) {
+    case "overdue":
+      return <AlertTriangle className={cls} strokeWidth={2} aria-hidden />;
+    case "accepted":
+      return <CheckCircle2 className={cls} strokeWidth={2} aria-hidden />;
+    case "rejected":
+      return <XCircle className={cls} strokeWidth={2} aria-hidden />;
+    case "received":
+      return <Inbox className={cls} strokeWidth={2} aria-hidden />;
+    case "requested":
+    default:
+      return <Clock className={cls} strokeWidth={2} aria-hidden />;
+  }
+}
+
+// #7: attached-file count as its own structured, tabular chip instead of a
+// loose paperclip + number bolted onto the status cell.
+function FilesChip({ count }: { count: number }) {
+  const hasFiles = count > 0;
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none"
+      style={{
+        borderColor: hasFiles
+          ? "color-mix(in oklab, var(--accent) 24%, var(--border-card))"
+          : "var(--border-card)",
+        background: hasFiles
+          ? "color-mix(in oklab, var(--accent-soft) 16%, var(--surface-raised))"
+          : "var(--surface)",
+        color: hasFiles ? "var(--accent-strong)" : "var(--text-tertiary)",
+      }}
+      aria-label={`${count} ${count === 1 ? "file" : "files"} attached`}
+    >
+      <Paperclip className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
+      <span className="tabular-nums">{count}</span>
+      <span>{count === 1 ? "file" : "files"}</span>
+    </span>
   );
 }
 

@@ -1129,8 +1129,8 @@ export default async function SettingsHealthPage() {
   const overallStatus = getOverallWorkspaceHealthStatus(userItems);
   const affectedCount = getAffectedWorkspaceHealthCount(userItems);
   const primaryAction = affectedItems.find((item) => item.primaryAction)?.primaryAction ?? {
-    href: "/settings/product",
-    label: "Review workspace mode",
+    href: "/settings",
+    label: "Open settings",
   };
   const primaryAffectedItem = affectedItems[0] ?? null;
   const secondaryAffectedItems = affectedItems.filter((item) => item.id !== primaryAffectedItem?.id);

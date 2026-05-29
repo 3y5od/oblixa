@@ -6,27 +6,82 @@ export function isUuid(value: string | null | undefined): boolean {
   return typeof value === "string" && UUID_RE.test(value.trim());
 }
 
+export type ContractStoragePathParts = {
+  organizationId: string;
+  contractId: string;
+  objectId: string;
+  fileName: string;
+  legacyShape: boolean;
+};
+
+const CONTRACT_STORAGE_NAMESPACE = "org";
+const CONTRACT_STORAGE_FILE_TAIL_RE =
+  /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-(.+)$/i;
+const CONTRACT_STORAGE_FILE_NAME_UNSAFE_RE = /[/\\\0%\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/;
+
+function isContractStorageFileNameSafe(fileName: string): boolean {
+  const trimmed = fileName.trim();
+  if (!trimmed || trimmed !== fileName) return false;
+  if (trimmed.length > 500) return false;
+  if (trimmed === "." || trimmed === ".." || trimmed.startsWith(".")) return false;
+  return !CONTRACT_STORAGE_FILE_NAME_UNSAFE_RE.test(trimmed);
+}
+
 /**
- * Contract file storage path: `{orgId}/{contractId}/{uuid}-{filename}`.
- * Rejects traversal, odd separators, and implausible shapes before DB lookup.
+ * Contract file storage path: `org/{orgId}/{contractId}/{uuid}-{filename}`.
+ * The parser also accepts the legacy three-segment shape so old stored rows
+ * remain downloadable while new writes use the explicit namespace.
  */
-export function isContractStoragePathSafe(path: string | null | undefined): boolean {
-  if (path == null || typeof path !== "string") return false;
+export function parseContractStoragePath(path: string | null | undefined): ContractStoragePathParts | null {
+  if (path == null || typeof path !== "string") return null;
   const p = path.trim();
-  if (p.length === 0 || p.length > 1024) return false;
-  if (p.includes("%")) return false;
-  if (p.includes("..") || p.includes("\\") || p.includes("\0")) return false;
+  if (p.length === 0 || p.length > 1024) return null;
+  if (p.includes("%")) return null;
+  if (p.includes("..") || p.includes("\\") || p.includes("\0")) return null;
+
   const parts = p.split("/");
-  if (parts.length !== 3) return false;
-  if (!UUID_RE.test(parts[0]) || !UUID_RE.test(parts[1])) return false;
-  const tail = parts[2];
-  const fileTailRe =
-    /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-(.+)$/i;
-  const m = tail.match(fileTailRe);
-  if (!m || !UUID_RE.test(m[1]) || m[2].length === 0 || m[2].length > 500) {
-    return false;
+  let organizationId: string;
+  let contractId: string;
+  let tail: string;
+  let legacyShape = false;
+  if (parts.length === 4 && parts[0] === CONTRACT_STORAGE_NAMESPACE) {
+    [, organizationId, contractId, tail] = parts;
+  } else if (parts.length === 3) {
+    legacyShape = true;
+    [organizationId, contractId, tail] = parts;
+  } else {
+    return null;
   }
-  return true;
+
+  if (!UUID_RE.test(organizationId) || !UUID_RE.test(contractId)) return null;
+  const match = tail.match(CONTRACT_STORAGE_FILE_TAIL_RE);
+  if (!match || !UUID_RE.test(match[1]) || !isContractStorageFileNameSafe(match[2])) return null;
+  return {
+    organizationId,
+    contractId,
+    objectId: match[1],
+    fileName: match[2],
+    legacyShape,
+  };
+}
+
+export function buildContractStoragePath(
+  organizationId: string,
+  contractId: string,
+  safeFileName: string,
+  objectId = crypto.randomUUID()
+): string {
+  if (!isUuid(organizationId) || !isUuid(contractId) || !isUuid(objectId)) {
+    throw new Error("invalid_contract_storage_path_scope");
+  }
+  if (!isContractStorageFileNameSafe(safeFileName)) {
+    throw new Error("invalid_contract_storage_file_name");
+  }
+  return `${CONTRACT_STORAGE_NAMESPACE}/${organizationId}/${contractId}/${objectId}-${safeFileName}`;
+}
+
+export function isContractStoragePathSafe(path: string | null | undefined): boolean {
+  return parseContractStoragePath(path) !== null;
 }
 
 const EMAIL_RE =

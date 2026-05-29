@@ -80,6 +80,17 @@
       "temporaryPaths": ["test-results/**", "playwright-report/**"]
     },
     {
+      "path": "scripts/dependency-cycles-baseline.json",
+      "owner": "architecture",
+      "purpose": "Ratchet existing alias-aware source dependency cycles.",
+      "checkCommand": "npm run check:operational-static-architecture-code-health",
+      "refreshCommand": "manual: update after reviewed dependency cycle cleanup",
+      "sourceScanner": "scripts/check-operational-static-architecture-code-health.mjs",
+      "sourceScannerSha256": "64fe29aa4b8a868172dcb3175cd28995ed70bfcb3c05d4eac589def53bd48583",
+      "reviewTrigger": "Dependency cycle scanner changes or intentional cycle cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
       "path": "scripts/frontend-component-complexity-baseline.json",
       "owner": "frontend-platform",
       "purpose": "Ratchet oversized frontend component files.",
@@ -88,6 +99,28 @@
       "sourceScanner": "scripts/check-frontend-component-complexity.mjs",
       "sourceScannerSha256": "042689454fe369e52d7e31e8309252e916bf9295c097ec355ce8d0e24ad5db17",
       "reviewTrigger": "Component complexity threshold changes or intentional cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/route-handler-complexity-baseline.json",
+      "owner": "api-platform",
+      "purpose": "Ratchet oversized route handler files.",
+      "checkCommand": "npm run check:operational-static-architecture-code-health",
+      "refreshCommand": "manual: update after reviewed route handler complexity cleanup",
+      "sourceScanner": "scripts/check-operational-static-architecture-code-health.mjs",
+      "sourceScannerSha256": "64fe29aa4b8a868172dcb3175cd28995ed70bfcb3c05d4eac589def53bd48583",
+      "reviewTrigger": "Route handler complexity threshold changes or intentional cleanup.",
+      "temporaryPaths": ["none"]
+    },
+    {
+      "path": "scripts/script-complexity-baseline.json",
+      "owner": "architecture",
+      "purpose": "Ratchet oversized repository scripts.",
+      "checkCommand": "npm run check:script-complexity-ratchet",
+      "refreshCommand": "manual: update after reviewed script complexity cleanup",
+      "sourceScanner": "scripts/check-script-complexity-ratchet.mjs",
+      "sourceScannerSha256": "d6bd343ac8dbdb89afdfcfa3d2c08efb4262fce3a22e5c905c44899de2044365",
+      "reviewTrigger": "Script complexity threshold changes or intentional cleanup.",
       "temporaryPaths": ["none"]
     },
     {
@@ -141,7 +174,7 @@
       "checkCommand": "npm run check:subprocessors-drift",
       "refreshCommand": "manual: update hash after reviewed subprocessors change",
       "sourceScanner": "scripts/check-subprocessors-drift.mjs",
-      "sourceScannerSha256": "6a13c56f4b15b801b1212e0839a8f921d88b07ccdb9fcd776de985133e859172",
+      "sourceScannerSha256": "77788d2afeba1a7e66c0fbdc04b37813dfa1520d8dd5212809829e4a3495a868",
       "reviewTrigger": "Reviewed subprocessors inventory changes.",
       "temporaryPaths": ["none"]
     },

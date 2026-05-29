@@ -86,7 +86,7 @@ describe("pricing v10 contract", () => {
   // Custom plans (Tier 16.7)
   it("preserves the Custom plans spec list", () => {
     expect(raw).toContain("Custom plans");
-    expect(raw).toContain("Sized to your team.");
+    expect(raw).toContain("Need portfolio operations, controls, or assurance workflows?");
     expect(raw).toContain("500+");
     expect(raw).toContain("10+");
     expect(raw).toContain("Contact us");

@@ -14,6 +14,7 @@ import {
   resolvePostAuthRedirectPath,
 } from "@/lib/auth/post-auth-redirect";
 import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
+import { evaluateSeatMutation } from "@/lib/billing/operational-entitlements";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -57,6 +58,26 @@ export async function GET(request: Request) {
 
         const role =
           ["admin", "editor", "viewer"].includes(inv.role) ? inv.role : "editor";
+
+        const { data: orgMembers, error: orgMembersErr } = await admin
+          .from("organization_members")
+          .select("user_id")
+          .eq("organization_id", inv.organization_id);
+        if (orgMembersErr || !Array.isArray(orgMembers)) {
+          return NextResponse.redirect(`${origin}/login?error=invite_invalid`);
+        }
+
+        const seatDecision = evaluateSeatMutation({
+          operation: "invite_accept",
+          activeSeats: orgMembers.length,
+          existingMember: orgMembers.some(
+            (member) => (member as { user_id?: unknown }).user_id === user.id
+          ),
+          sameTenant: true,
+        });
+        if (!seatDecision.allowed) {
+          return NextResponse.redirect(`${origin}/login?error=invite_seat_limit`);
+        }
 
         await admin.from("organization_members").upsert(
           {

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-release-readiness",
+  "releaseChecks": [
+    {
+      "id": "release-preflight",
+      "objective": "Validate release-adjacent static and environment gates.",
+      "command": "preflight:release",
+      "required": true,
+      "blockerClass": "release_preflight_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-evidence",
+      "objective": "Validate deterministic release evidence controls.",
+      "command": "check:release-evidence",
+      "required": true,
+      "blockerClass": "release_evidence_stale_or_missing",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-security-required-env",
+      "objective": "Validate production-like security environment variable contracts.",
+      "command": "check:release-security-required-env",
+      "required": true,
+      "blockerClass": "release_env_contract_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "supabase-release-checklist",
+      "objective": "Validate Supabase release checklist evidence without applying production migrations.",
+      "command": "check:supabase:release-checklist",
+      "required": true,
+      "blockerClass": "supabase_release_readiness_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "release-checklist-pipeline",
+      "objective": "Run the aggregate code-owned release checklist pipeline.",
+      "command": "pipeline:release:checklist",
+      "required": true,
+      "blockerClass": "release_pipeline_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    }
+  ],
+  "environmentContracts": [
+    {
+      "id": "env-example-parity",
+      "command": "check:env-example-parity",
+      "environments": ["local", "ci", "preview", "staging", "production"],
+      "detects": ["missing variables", "stale examples", "public secret naming"]
+    },
+    {
+      "id": "env-contract-hygiene",
+      "command": "check:env-contract-hygiene",
+      "environments": ["local", "ci", "preview", "staging", "production"],
+      "detects": ["malformed URLs", "wrong key prefixes", "mixed environment credentials"]
+    },
+    {
+      "id": "release-security-required-env",
+      "command": "check:release-security-required-env",
+      "environments": ["preview", "staging", "production"],
+      "detects": ["Supabase", "Stripe", "Upstash", "Resend", "Sentry", "OpenAI", "cron", "HMAC", "encryption"]
+    },
+    {
+      "id": "callback-destination-integrity",
+      "command": "check:callback-destination-integrity",
+      "environments": ["preview", "staging", "production"],
+      "detects": ["callback URL mismatches", "open redirects", "untrusted callback destinations"]
+    }
+  ],
+  "evidenceBundle": {
+    "id": "release-code-owned-evidence-bundle",
+    "requiredFiles": [
+      { "name": "package-lock", "path": "package-lock.json" },
+      { "name": "sbom-cyclonedx", "path": "cyclonedx-sbom.json" },
+      { "name": "openapi", "path": "openapi.yaml" },
+      { "name": "route-inventory", "path": "artifacts/routes/compatibility-route-inventory.json" },
+      { "name": "migration-manifest", "path": "artifacts/supabase/migration-manifest.json" },
+      { "name": "qa-closure", "path": "artifacts/qa-closure-manifest.json" },
+      { "name": "operational-hardening-closure", "path": "artifacts/operational-hardening-closure.json" },
+      { "name": "security-report-checksums", "path": "artifacts/security-report-checksums.json" },
+      { "name": "operational-release-readiness-config", "path": "config/operational-release-readiness.json" },
+      { "name": "operational-release-readiness-check", "path": "scripts/check-operational-release-readiness.mjs" },
+      { "name": "release-security-required-env-check", "path": "scripts/check-release-security-required-env.mjs" },
+      { "name": "release-security-required-env-tests", "path": "scripts/check-release-security-required-env.test.mjs" }
+    ],
+    "redactionPolicy": "hash-only",
+    "commandResultPolicy": "commands-listed-not-executed"
+  },
+  "rollbackReadiness": [
+    {
+      "id": "vercel-rollback-target",
+      "validationCommand": "pipeline:release:checklist",
+      "requiredFields": ["previousDeploymentId", "rollbackOwner", "postRollbackSmokeCommand"],
+      "manualBoundary": "The actual Vercel rollback target must be confirmed in the provider dashboard."
+    },
+    {
+      "id": "database-forward-fix",
+      "validationCommand": "report:migration-rollbacks",
+      "requiredFields": ["migrationRiskClass", "forwardFixPlan", "destructiveSqlReview"],
+      "manualBoundary": "Production database rollback or forward-fix execution remains manual."
+    }
+  ],
+  "blockerTaxonomy": [
+    {
+      "id": "migration_history_mismatch",
+      "category": "migrations",
+      "severity": "stop_ship",
+      "validationCommand": "check:migration-manifest",
+      "nextAction": "Regenerate migration evidence and resolve migration history drift."
+    },
+    {
+      "id": "release_env_contract_failed",
+      "category": "secrets",
+      "severity": "stop_ship",
+      "validationCommand": "check:release-security-required-env",
+      "nextAction": "Fix missing, malformed, or mixed-environment release variables."
+    },
+    {
+      "id": "branch_protection_unknown",
+      "category": "branch-protection",
+      "severity": "stop_ship",
+      "validationCommand": "check:github-workflows-security",
+      "nextAction": "Verify required checks and branch protection outside the repository."
+    },
+    {
+      "id": "provider_callback_mismatch",
+      "category": "provider-config",
+      "severity": "stop_ship",
+      "validationCommand": "check:callback-destination-integrity",
+      "nextAction": "Correct provider callback URLs and rerun callback integrity checks."
+    },
+    {
+      "id": "slo_budget_failed",
+      "category": "slo",
+      "severity": "release_review_required",
+      "validationCommand": "test:slo-budgets",
+      "nextAction": "Review SLO budget failure and either fix or obtain explicit release approval."
+    },
+    {
+      "id": "smoke_failed",
+      "category": "smoke",
+      "severity": "stop_ship",
+      "validationCommand": "test:e2e:smoke",
+      "nextAction": "Fix smoke-test failure before release promotion."
+    },
+    {
+      "id": "webhook_delivery_failed",
+      "category": "webhook",
+      "severity": "stop_ship",
+      "validationCommand": "check:webhook-inbound-policy",
+      "nextAction": "Resolve webhook signature, replay, or delivery readiness failures."
+    },
+    {
+      "id": "cron_health_failed",
+      "category": "cron",
+      "severity": "stop_ship",
+      "validationCommand": "check:cron-route-auth",
+      "nextAction": "Resolve cron auth, schedule, or health failures before release."
+    },
+    {
+      "id": "observability_blind_spot",
+      "category": "observability",
+      "severity": "release_review_required",
+      "validationCommand": "check:logging-telemetry-redaction",
+      "nextAction": "Add or verify telemetry before approving release."
+    }
+  ]
+}

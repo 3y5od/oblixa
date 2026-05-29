@@ -17,16 +17,17 @@ const coreRoutes = [
   ["/contracts/evidence-studio", "contracts", "Evidence", ["smoke", "a11y"]],
   ["/contracts/reports", "reports", "Contract report packs", ["smoke", "a11y"]],
   ["/reports", "reports", "Reports", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/search", "utilities", "Search", ["smoke", "a11y"]],
   ["/settings", "settings", "Settings", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/settings/security", "settings", "Security", ["smoke", "a11y"]],
   ["/settings/billing", "settings", "Billing", ["smoke", "a11y"]],
   ["/settings/operations", "settings", "Notifications", ["smoke", "a11y"]],
-  ["/settings/product", "settings", "Product experience", ["smoke", "a11y"]],
   ["/settings/health", "settings", "System health", ["smoke", "a11y"]],
   ["/settings/health/diagnostics", "settings", "System health diagnostics", ["smoke", "a11y"]],
   ["/settings/policy", "settings", "Workflow policies", ["smoke", "a11y"]],
   ["/settings/policy/diagnostics", "settings", "Policy diagnostics", ["smoke", "a11y"]],
   ["/settings/policy/registry", "settings", "Advanced policy editor", ["smoke", "a11y"]],
+  ["/settings/product", "settings", "Product settings", ["smoke", "a11y"]],
   ["/more", "utilities", "Tools index", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/onboarding/calibration", "dashboard", "Workspace calibration", ["smoke", "a11y"]],
 ];
@@ -123,6 +124,7 @@ function withManifestMetadata(entry) {
 function workspaceModeTierForRoute(routeFamily, route) {
   if (route === "/onboarding/calibration") return "utility";
   if (route === "/contracts/analytics") return "advanced";
+  if (route === "/search") return "core";
 
   if (routeFamily === "advanced") return "advanced";
   if (routeFamily === "assurance") return "assurance";

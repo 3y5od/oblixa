@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { jsonNotFound, jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
+import { jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { getApiAuthContext } from "@/lib/contract-operations/api-auth";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { parseWorkspaceMode } from "@/lib/product-surface/context";
@@ -15,6 +15,7 @@ import {
 import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 import { parseFixedEnumParam } from "@/lib/security/validation";
+import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 
 const ROUTE = "/api/report-packs/[id]/runs";
 
@@ -49,6 +50,10 @@ export async function GET(
   const routeParamRejection = rejectUnsafeRouteParams({ id }, ["id"], "/api/report-packs/[id]/runs");
 
   if (routeParamRejection) return routeParamRejection;
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`report-pack-runs:${ctx.userId}:${ip}:${id}`, RATE_LIMITS.reportPackRunsRead);
+  if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
+
   const { data: pack } = await ctx.admin
     .from("report_packs")
     .select("id, name, report_type, annotations_json")

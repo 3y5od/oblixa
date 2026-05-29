@@ -12,7 +12,7 @@ describe("calibration-wizard copy source", () => {
     expect(raw).toContain("stepLabels");
     expect(raw).toContain("reviewSectionHeadings");
     expect(raw).toContain("calibrationReviewTestIds");
-    expect(raw).toContain("labelForSearchScope");
-    expect(raw).toContain("reviewUtilitiesNoneHidden");
+    expect(raw).toContain("formatSetupChecklistSummary");
+    expect(raw).toContain("reviewStepTitle");
   });
 });

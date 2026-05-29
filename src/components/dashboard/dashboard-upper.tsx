@@ -499,7 +499,7 @@ export async function DashboardUpper(props: {
                   {DASHBOARD_PRIMARY_CTA}
                 </Link>
                 <Link
-                  href="/contracts/intake"
+                  href="/contracts/bulk"
                   prefetch={false}
                   className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
                 >

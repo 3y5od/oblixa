@@ -22,6 +22,8 @@ import {
 export type OrgSettingsJson = {
   /** Product surface mode (product-surface policy). Default: core when unset. */
   workspace_mode?: WorkspaceProductMode;
+  /** Operational access state. Inactive/suspended orgs fail closed in org-resolution helpers. */
+  operational_status?: "active" | "inactive" | "suspended";
   /** Post-login landing path (must start with `/`). */
   default_landing_path?: string;
   /** Hide specific advanced modules even when workspace is advanced/assurance. */
@@ -71,6 +73,11 @@ function sanitizeWorkspaceMode(v: unknown): WorkspaceProductMode | undefined {
   return undefined;
 }
 
+function sanitizeOperationalStatus(v: unknown): OrgSettingsJson["operational_status"] | undefined {
+  if (v === "active" || v === "inactive" || v === "suspended") return v;
+  return undefined;
+}
+
 function normalizeStringList(value: unknown, maxLength: number): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
   return value
@@ -84,6 +91,13 @@ export function normalizeOrgSettingsJson(raw: OrgSettingsJson): OrgSettingsJson 
     next.workspace_mode = mode;
   } else {
     delete next.workspace_mode;
+  }
+
+  const operationalStatus = sanitizeOperationalStatus(raw.operational_status);
+  if (operationalStatus) {
+    next.operational_status = operationalStatus;
+  } else {
+    delete next.operational_status;
   }
 
   if (Array.isArray(raw.advanced_modules_hidden)) {

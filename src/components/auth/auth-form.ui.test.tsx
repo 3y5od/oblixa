@@ -21,6 +21,7 @@ describe("AuthForm", () => {
   it("renders signup-specific full name field", () => {
     renderWithProviders(<AuthForm mode="signup" />);
     expect(screen.getByLabelText("Full name")).toBeTruthy();
+    expect(screen.getByLabelText(/Company name/i)).toBeTruthy();
     expect(screen.getByRole("button", { name: /start free trial/i })).toBeTruthy();
   });
 });

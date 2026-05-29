@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-oauth-integration-sync",
+  "manualBoundary": "Provider app setup, live OAuth scopes, and provider-console redirect URL changes remain external.",
+  "objectives": [
+    {
+      "id": "integration-sync-job-inventory",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:operational-oauth-integration-sync", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "runtime_inventory"] },
+        { "command": "check:integration-contract-resilience", "ciRequired": true, "covers": ["route_negative_paths", "route_replay_or_schema_compatibility"] },
+        { "command": "check:provider-integration-fixtures", "ciRequired": true, "covers": ["provider_failure_matrix"] }
+      ],
+      "artifacts": ["artifacts/operational-oauth-integration-sync.json"]
+    },
+    {
+      "id": "oauth-negative-paths",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:oauth-state-integrity", "ciRequired": true, "covers": ["state_replay_expiry_redirect_safety"] },
+        { "command": "check:oauth-pkce-enforcement", "ciRequired": true, "covers": ["pkce_s256_state_binding"] }
+      ]
+    },
+    {
+      "id": "token-refresh-operations",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "test:operational-oauth-integration-sync", "ciRequired": false, "covers": ["refresh_route_negative_paths", "disconnect_action"] },
+        { "command": "check:token-security-quality", "ciRequired": true, "covers": ["token_encryption_hashing_quality"] },
+        { "command": "tools:reencrypt-integration-tokens", "ciRequired": false, "covers": ["dry_run_reencryption_tooling"] }
+      ]
+    },
+    {
+      "id": "integration-disconnect",
+      "ownerArea": "integrations",
+      "commands": [
+        { "command": "check:security-event-contract", "ciRequired": true, "covers": ["append_only_disconnect_audit"] },
+        { "command": "check:audit-event-coverage", "ciRequired": true, "covers": ["sensitive_audit_taxonomy"] }
+      ]
+    }
+  ],
+  "syncJobs": [
+    {
+      "id": "calendar-sync",
+      "path": "src/app/api/integrations/calendar/sync/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markers": ["forEachSupabaseRangePage", ".in(\"provider\", [\"google_calendar\", \"outlook_calendar\"])", "if (row.status !== \"connected\") continue", "enqueueOutboundEvent", "integration.calendar_sync_run"]
+    },
+    {
+      "id": "crm-sync",
+      "path": "src/app/api/integrations/crm/sync/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markers": ["forEachSupabaseRangePage", ".eq(\"provider\", \"crm\")", ".eq(\"status\", \"connected\")", "external_reference_id", "crm.sync_failed"]
+    },
+    {
+      "id": "token-refresh",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markers": [".eq(\"status\", \"connected\")", ".not(\"refresh_token\", \"is\", null)", ".lte(\"token_expires_at\", soonIso)", "timeoutMs: 20_000", "formatUnknownForServerLog(err)"]
+    },
+    {
+      "id": "oauth-start",
+      "path": "src/app/api/integrations/oauth/start/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["hasSensitiveActionProof", "enforceIdempotency", "code_challenge_method: \"S256\"", "redirect.search === \"\"", "oauth_start_provider_missing"]
+    },
+    {
+      "id": "oauth-callback",
+      "path": "src/app/api/integrations/oauth/callback/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["consumeOAuthStateForTokenExchange", "oauth_callback_state_replay", "oauth_callback_provider_error", "encryptIntegrationToken(tokenPayload.access_token)", "redirect.search === \"\""]
+    },
+    {
+      "id": "disconnect",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:operational-oauth-integration-sync",
+      "markers": ["disconnectIntegrationConnectionForm", "buildOperationalIntegrationDisconnectPatch", "security.integration_disconnected", "disconnectPatch", "webhookCleanup: true"]
+    }
+  ],
+  "oauthNegativePaths": [
+    {
+      "id": "missing-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when state or code is missing", "state=&code=x"]
+    },
+    {
+      "id": "wrong-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when oauth state row is missing (invalid state)", "expect(body).toMatchObject({ error: \"Invalid state\" })"]
+    },
+    {
+      "id": "expired-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when oauth state is expired", "State expired"]
+    },
+    {
+      "id": "reused-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when oauth state already used", "State already used"]
+    },
+    {
+      "id": "missing-code",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when state or code is missing", "code=x"]
+    },
+    {
+      "id": "denied-consent",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when provider denied consent without loading oauth state", "oauth_callback_provider_error"]
+    },
+    {
+      "id": "wrong-redirect-uri",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when oauth state redirect_uri is not the callback route", "oauth_callback_redirect_uri_invalid"]
+    },
+    {
+      "id": "provider-error",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 502 upstream_failed when token exchange rejects upstream", "oauth_callback_token_exchange_failed"]
+    },
+    {
+      "id": "callback-replay",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 and skips token exchange when state was consumed concurrently", "oauth_callback_state_replay"]
+    },
+    {
+      "id": "unsafe-state",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["rejects unsafe callback state before database lookup", "oauth_callback_invalid_state"]
+    },
+    {
+      "id": "oversized-code",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["rejects oversized callback code before database lookup", "oauth_callback_invalid_code"]
+    },
+    {
+      "id": "unsupported-provider",
+      "path": "src/app/api/integrations/oauth/callback/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "check:oauth-state-integrity",
+      "markers": ["returns 400 when oauth state provider is unsupported", "oauth_callback_provider_unsupported"]
+    }
+  ],
+  "tokenRefreshOperations": [
+    {
+      "id": "success",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["posts the refresh payload field shape and persists refreshed token fields", "encryptIntegrationToken"]
+    },
+    {
+      "id": "expired-refresh-token",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["handles expired or revoked refresh tokens as terminal bounded failures", "Token refresh failed: 401"]
+    },
+    {
+      "id": "revoked-token",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["handles expired or revoked refresh tokens as terminal bounded failures", "invalid_grant"]
+    },
+    {
+      "id": "provider-timeout",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["safeFetch(refreshUrl.toString()", "timeoutMs: 20_000", "formatUnknownForServerLog(err)"]
+    },
+    {
+      "id": "rotated-encryption-key",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["treats rotated encryption-key failures as sanitized bounded refresh failures", "encryption key rotation failed"]
+    },
+    {
+      "id": "malformed-response",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["contains malformed provider responses and encryption rotation failures without retries", "{malformed"]
+    },
+    {
+      "id": "repeated-failure",
+      "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["blocks duplicate replay of refresh-tokens cron runs with x-idempotency-key", "Duplicate request blocked by idempotency key"]
+    },
+    {
+      "id": "invalid-refresh-url",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["integrations_refresh_url_invalid", "Invalid tokenRefreshUrl in config_json"]
+    },
+    {
+      "id": "missing-refresh-config",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["integrations_refresh_config_missing", "Missing refresh config in config_json"]
+    },
+    {
+      "id": "scan-truncation",
+      "path": "src/app/api/integrations/refresh-tokens/route.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["integrations_refresh_connections_scan_truncated", "pagination offset cap"]
+    }
+  ],
+  "disconnectOperations": [
+    {
+      "id": "revocation",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["disconnectIntegrationConnectionForm", "hasSensitiveActionProof", "security.integration_disconnected"]
+    },
+    {
+      "id": "local-token-deletion",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["access_token: null", "refresh_token: null", "token_expires_at: null", "connected_account: null"]
+    },
+    {
+      "id": "stale-scheduled-jobs",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["status: \"not_connected\"", "shouldRunOperationalIntegrationSync", "reason: \"not_connected\""]
+    },
+    {
+      "id": "webhook-cleanup",
+      "path": "src/lib/integrations/operational-sync.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["tokens_webhooks_and_provider_endpoints_removed", "config_json:"]
+    },
+    {
+      "id": "audit-events",
+      "path": "src/actions/workflow-config-action-scope.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["disconnectIntegrationConnectionForm removes tokens and webhook config while auditing", "security.integration_disconnected"]
+    },
+    {
+      "id": "user-facing-disconnected-state",
+      "path": "src/actions/workflow-config-action-scope.test.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["status: \"not_connected\"", "expect(result).toEqual({ success: true })"]
+    },
+    {
+      "id": "historical-record-preservation",
+      "path": "src/actions/workflow-config.ts",
+      "owner": "@integrations",
+      "validationCommand": "test:operational-oauth-integration-sync",
+      "markers": ["historicalRecordPreserved: true", ".update(disconnectPatch)", ".eq(\"organization_id\", membership.organization_id)"]
+    }
+  ]
+}

@@ -22,14 +22,14 @@ import {
 import type { V10MutationOutcome, V10SourceObjectType } from "./release-contract";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
-type V10AuditMetadataValue =
+export type V10AuditMetadataValue =
   | string
   | number
   | boolean
   | null
   | V10AuditMetadataValue[]
   | { [key: string]: V10AuditMetadataValue };
-type V10AuditMetadata = Record<string, V10AuditMetadataValue>;
+export type V10AuditMetadata = Record<string, V10AuditMetadataValue>;
 export type V10AuditWriteMode = "best_effort" | "blocking";
 
 function recoverableErrorMessage(error: unknown): string {

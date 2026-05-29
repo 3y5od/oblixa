@@ -267,7 +267,7 @@ export const V10_END_TO_END_DOMAIN_WORKFLOW_CONTRACTS: readonly V10EndToEndDomai
     readModels: ["notification_deliveries", "work_items", "activation_state"],
     mutationOrActionNames: ["update_notification_preferences", "schedule_reminder"],
     visibleStates: ["empty", "partial", "failed", "success"],
-    recoveryDestination: "/settings/product",
+    recoveryDestination: "/settings/operations#notifications",
     requiredProofs: ["src/actions/product-surface-settings.ts", "src/lib/read-model-refresh.ts"],
   },
   {
@@ -277,7 +277,7 @@ export const V10_END_TO_END_DOMAIN_WORKFLOW_CONTRACTS: readonly V10EndToEndDomai
     readModels: ["activation_state", "job_run_visibility", "command_search_index"],
     mutationOrActionNames: ["update_workspace_mode", "update_module_visibility", "update_plan_mode"],
     visibleStates: ["empty", "partial", "failed", "hidden_module", "success"],
-    recoveryDestination: "/settings/product",
+    recoveryDestination: "/settings",
     requiredProofs: ["src/lib/governance.ts", "src/actions/product-surface-settings.ts"],
   },
   {

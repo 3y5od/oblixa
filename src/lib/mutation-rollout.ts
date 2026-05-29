@@ -260,7 +260,7 @@ export const V10_WORKSPACE_DOWNGRADE_PLANS: readonly V10WorkspaceDowngradePlan[]
     preserveAuditVisibility: true,
     suppressNotifications: true,
     readModelRepairRequired: true,
-    recoveryDestination: "/settings/product",
+    recoveryDestination: "/settings",
   },
   {
     transition: "assurance_to_advanced",
@@ -269,7 +269,7 @@ export const V10_WORKSPACE_DOWNGRADE_PLANS: readonly V10WorkspaceDowngradePlan[]
     preserveAuditVisibility: true,
     suppressNotifications: true,
     readModelRepairRequired: true,
-    recoveryDestination: "/settings/product",
+    recoveryDestination: "/settings",
   },
   {
     transition: "assurance_to_core",
@@ -278,7 +278,7 @@ export const V10_WORKSPACE_DOWNGRADE_PLANS: readonly V10WorkspaceDowngradePlan[]
     preserveAuditVisibility: true,
     suppressNotifications: true,
     readModelRepairRequired: true,
-    recoveryDestination: "/settings/product",
+    recoveryDestination: "/settings",
   },
   {
     transition: "plan_past_due",
@@ -450,7 +450,7 @@ export function evaluateV10RolloutDecision(input: {
     return { allowed: false, outcome: "dependency_blocked", reason: "kill_switch_active", recoveryDestination: "/settings/health" };
   }
   if (input.rolloutState === "disabled") {
-    return { allowed: false, outcome: "dependency_blocked", reason: "rollout_disabled", recoveryDestination: "/settings/product" };
+    return { allowed: false, outcome: "dependency_blocked", reason: "rollout_disabled", recoveryDestination: "/settings" };
   }
   if (input.rolloutState === "paused") {
     return { allowed: false, outcome: "dependency_blocked", reason: "rollout_paused", recoveryDestination: "/settings/health" };
@@ -468,7 +468,7 @@ export function evaluateV10RolloutDecision(input: {
     const bucket = input.workspaceBucket ?? 100;
     const canaryPercent = input.canaryPercent ?? 0;
     if (bucket >= canaryPercent) {
-      return { allowed: false, outcome: "dependency_blocked", reason: "outside_canary", recoveryDestination: "/settings/product" };
+      return { allowed: false, outcome: "dependency_blocked", reason: "outside_canary", recoveryDestination: "/settings" };
     }
   }
   return { allowed: true, outcome: "success", reason: null, recoveryDestination: "current_destination" };

@@ -1,18 +1,15 @@
 import Link from "next/link";
-import {
-  CalendarClock,
-  ClipboardCheck,
-  FileCheck2,
-  FilePlus2,
-  UploadCloud,
-} from "lucide-react";
+import { ArrowLeft, FilePlus2 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { ActionChip } from "@/components/ui/action-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UploadForm } from "@/components/contracts/upload-form";
 import { RecentUploads, type RecentFileRow } from "@/components/contracts/recent-uploads";
 import { canEditContracts } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
+
+export const metadata = { title: "Upload contract" };
 
 export default async function NewContractPage() {
   const ctx = await getAuthContext();
@@ -26,7 +23,6 @@ export default async function NewContractPage() {
   }
 
   const canEdit = canEditContracts(ctx.role as OrgRole);
-  /** §4.4 — subscription gate for uploads; not used for workspace mode or navigation. */
   const hasPlan =
     !isPlanEnforcementEnabled() ||
     (await orgHasActivePlan(ctx.admin, ctx.orgId));
@@ -60,37 +56,31 @@ export default async function NewContractPage() {
       contract_title: c.title,
     };
   });
-  // v23 aesthetic pass: dropped per-step description prose (§10.7 +
-  // §10.4) — the numbered step label is enough; the multi-sentence
-  // explainer added noise without information.
+
   const nextSteps = [
-    { label: "Review extracted fields", icon: ClipboardCheck },
-    { label: "Assign ownership", icon: FileCheck2 },
-    { label: "Track dates and follow-up", icon: CalendarClock },
+    "Review extracted fields",
+    "Assign ownership",
+    "Track dates and follow-up",
   ];
 
   return (
-    <div className="ui-page-stack mx-auto max-w-7xl">
+    <div className="mx-auto flex max-w-7xl flex-col gap-4">
+      <Link
+        href="/contracts"
+        className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+      >
+        <ArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+        Back to contracts
+      </Link>
       <DashboardPageHeader
-        icon={<FilePlus2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        icon={<FilePlus2 className="h-4 w-4" strokeWidth={1.85} />}
         eyebrow="New record"
         title="Upload contract"
-        // v23: dropped the long page lead. The h1 + eyebrow + the form
-        // chrome below carry sufficient context; the prose sentence
-        // duplicated the form's section h2 + lead and pushed the form
-        // ~80px down the page (§10.4 + §10.7).
         lead={null}
-        actions={
-          <Link
-            href="/contracts"
-            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
-          >
-            Back to contracts
-          </Link>
-        }
+        density="compact"
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
         <section className="min-w-0">
           <UploadForm
             organizationId={ctx.orgId}
@@ -106,43 +96,38 @@ export default async function NewContractPage() {
           )}
         </section>
 
-        <aside className="space-y-4 lg:sticky lg:top-24">
-          <section className="ui-card p-5">
-            <p className="ui-eyebrow">Next steps</p>
-            <h2 className="ui-section-title mt-2 text-[1.05rem]">After creation</h2>
-            <ol className="mt-4 space-y-2.5">
-              {nextSteps.map((step, index) => {
-                const StepIcon = step.icon;
-                return (
-                  <li key={step.label} className="flex items-center gap-3">
-                    <span className="ui-icon-tile-compact shrink-0" aria-hidden>
-                      <StepIcon className="h-4 w-4" strokeWidth={1.85} />
-                    </span>
-                    <p className="min-w-0 text-[13px] font-medium text-[var(--text-primary)]">
-                      <span className="mr-1.5 tabular-nums text-[var(--text-tertiary)]">
-                        {index + 1}
-                      </span>
-                      {step.label}
-                    </p>
-                  </li>
-                );
-              })}
+        <aside className="overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)]">
+          <section className="px-4 py-4">
+            <p className="ui-eyebrow">After creation</p>
+            <ol className="mt-2.5 space-y-2">
+              {nextSteps.map((label, index) => (
+                <li key={label} className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] font-mono text-[10px] font-semibold tabular-nums text-[var(--text-secondary)]"
+                  >
+                    {index + 1}
+                  </span>
+                  <p className="min-w-0 text-[12.5px] text-[var(--text-secondary)]">
+                    {label}
+                  </p>
+                </li>
+              ))}
             </ol>
           </section>
 
-          <section className="ui-card p-5">
-            <p className="ui-eyebrow">Bulk import</p>
-            <h2 className="ui-section-title mt-2 text-[1.05rem]">Migrate a spreadsheet</h2>
-            <Link
+          <section className="px-4 py-4">
+            <p className="ui-eyebrow">Migrate a spreadsheet</p>
+            <ActionChip
+              verb="Import CSV"
               href="/contracts/bulk"
-              className="ui-btn-ghost mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
-            >
-              <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              Import CSV
-            </Link>
+              className="mt-2"
+            />
           </section>
 
-          <RecentUploads files={recentFiles} />
+          <section className="px-4 py-4">
+            <RecentUploads files={recentFiles} />
+          </section>
         </aside>
       </div>
     </div>

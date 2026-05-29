@@ -10,55 +10,95 @@ import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { logProductSurfaceDiagnostic } from "@/lib/product-surface/dev-diagnostics";
 import { isHrefEligibleForNavSurface } from "@/lib/product-surface/href-eligibility";
 
-/** Extra cmd-K entries not on primary NAV_ITEMS (keep aligned with command-palette DEEP_LINK_COMMANDS). */
+/** Extra cmd-K entries not on primary NAV_ITEMS (keep aligned with command-palette DEEP_LINK_COMMANDS).
+ *  V2 search pass:
+ *  - Per-destination `icon` token — no Compass fallback for known destinations.
+ *  - `searchSubgroup` tags Tools sub-pages as Account / Workspace / Operations.
+ *  - Inventory export targets `/reports#exports` to dodge the
+ *    `paletteHrefKey` query-strip dedupe collision with `/reports`.
+ *  - Descriptions stay ≤80 chars (design-principles §10.7). */
 export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
   {
     name: "Profile",
     href: "/settings#profile",
-    description: "Update your name and account identity.",
+    description: "Update your name and contact details.",
     section: "primary",
-  },
-  {
-    name: "Workspace",
-    href: "/settings#workspace-identity",
-    description: "Rename the workspace shown in navigation, invites, exports, and billing.",
-    section: "primary",
-  },
-  {
-    name: "Team",
-    href: "/settings#team-access",
-    description: "Review members, roles, invitations, and pending access.",
-    section: "primary",
-  },
-  {
-    name: "Billing",
-    href: "/settings/billing",
-    description: "Review subscription status, invoices, and billing access.",
-    section: "primary",
-  },
-  {
-    name: "Notifications",
-    href: "/settings/operations#notifications",
-    description: "Reminder defaults for renewals, review, work, evidence, and weekly digest delivery.",
-    section: "primary",
+    icon: "profile",
+    searchGroup: "tools",
+    searchSubgroup: "account",
+    searchSynonyms: ["account", "name", "identity", "me"],
   },
   {
     name: "Security",
     href: "/settings/security",
     description: "Account security and session controls.",
     section: "primary",
+    icon: "security-account",
+    searchGroup: "tools",
+    searchSubgroup: "account",
+    searchSynonyms: ["password", "mfa", "2fa", "sessions", "devices"],
+  },
+  {
+    // Renamed from "Workspace" so the row no longer collides with the
+    // (formerly visible) subgroup label of the same name. The href anchor
+    // already targets `#workspace-identity`.
+    name: "Workspace identity",
+    href: "/settings#workspace-identity",
+    description: "Rename the workspace and edit display details.",
+    section: "primary",
+    icon: "workspace-identity",
+    searchGroup: "tools",
+    searchSubgroup: "workspace",
+    searchSynonyms: ["org", "organization", "company", "rename", "workspace"],
+  },
+  {
+    name: "Team",
+    href: "/settings#team-access",
+    description: "Members, roles, and pending invites.",
+    section: "primary",
+    icon: "team",
+    searchGroup: "tools",
+    searchSubgroup: "workspace",
+    searchSynonyms: ["members", "invites", "roles", "access", "users"],
+  },
+  {
+    name: "Billing",
+    href: "/settings/billing",
+    description: "Subscription, invoices, and billing access.",
+    section: "primary",
+    icon: "billing",
+    searchGroup: "tools",
+    searchSubgroup: "workspace",
+    searchSynonyms: ["subscription", "invoice", "invoices", "plan", "payment"],
+  },
+  {
+    name: "Notifications",
+    href: "/settings/operations#notifications",
+    description: "Reminder defaults for renewals, work, and weekly digest.",
+    section: "primary",
+    icon: "notifications",
+    searchGroup: "tools",
+    searchSubgroup: "workspace",
+    searchSynonyms: ["alerts", "reminders", "email", "digest"],
   },
   {
     name: "Imports and exports",
     href: "/contracts/bulk",
-    description: "Bulk contract imports and signed-file intake.",
+    description: "Bulk imports and signed-file uploads.",
     section: "primary",
+    icon: "imports",
+    searchGroup: "tools",
+    searchSubgroup: "operations",
+    searchSynonyms: ["import", "upload", "csv", "bulk", "ingest"],
   },
   {
-    name: "Data export",
-    href: "/reports?report=contract_inventory",
-    description: "Export the contract inventory report.",
+    name: "Inventory export",
+    href: "/reports#exports",
+    description: "Export the contract inventory as CSV.",
     section: "primary",
+    icon: "export",
+    searchGroup: "reports",
+    searchSynonyms: ["export", "csv", "download", "inventory", "contract"],
   },
   {
     name: "Compare campaigns & simulations",
@@ -66,6 +106,8 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     description: "Side-by-side campaign progress and simulation inputs.",
     section: "primary",
     v5FlagsAnyOf: ["v5PortfolioCampaigns"],
+    searchGroup: "pages",
+    searchSynonyms: ["campaign", "simulation", "compare"],
   },
 ];
 

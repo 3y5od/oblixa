@@ -16,6 +16,9 @@ export default async function LoginPage({
       "This invitation is invalid or has expired. Ask your admin for a new invite.";
   } else if (q.error === "invite_email_mismatch") {
     urlBanner = "Sign in with the same email address the invitation was sent to.";
+  } else if (q.error === "invite_seat_limit") {
+    urlBanner =
+      "This workspace has reached its team member limit. Ask an admin to revoke a pending invite or remove a member.";
   } else if (q.error === "auth_callback_error") {
     urlBanner = "Sign-in could not be completed. Try again or request a new link.";
   }

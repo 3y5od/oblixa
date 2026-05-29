@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-environment-isolation",
+  "generatedArtifact": "artifacts/operational-environment-isolation.json",
+  "sourceFiles": [
+    "config/operational-environment-isolation.json",
+    "scripts/check-operational-environment-isolation.mjs",
+    "scripts/check-operational-environment-isolation.test.mjs",
+    "config/e2e-env-matrix.json",
+    ".env.example",
+    ".env.local.example",
+    "scripts/check-env-matrix.mjs",
+    "scripts/check-env-contract-hygiene.mjs",
+    "scripts/check-release-security-required-env.mjs",
+    "scripts/check-callback-destination-integrity.mjs",
+    "scripts/check-supabase-seed-safety.mjs",
+    "scripts/check-test-fixture-secrets.mjs",
+    "scripts/check-test-fixture-pii-policy.mjs",
+    "scripts/e2e-teardown.mjs",
+    "playwright.config.ts",
+    "e2e/global-setup-auth-storage.ts",
+    "e2e/global-teardown.ts",
+    "src/lib/stripe.ts",
+    "src/lib/rate-limit.ts",
+    "src/app/auth/callback/route.ts",
+    "supabase/config.toml",
+    "supabase/seed.sql"
+  ],
+  "requiredValidationCommands": [
+    "check:operational-environment-isolation",
+    "write:operational-environment-isolation",
+    "test:operational-environment-isolation",
+    "check:env-matrix",
+    "check:e2e-env-matrix",
+    "check:env-contract-hygiene",
+    "check:env-example-parity",
+    "check:security-env-contract",
+    "check:release-security-required-env",
+    "check:callback-destination-integrity",
+    "check:auth-callback-guardrails",
+    "check:supabase:seed-safety",
+    "check:test-fixture-secrets",
+    "check:test-fixture-pii-policy",
+    "check:provider-integration-fixtures",
+    "check:test-credential-reuse",
+    "check:api-tenant-isolation",
+    "check:deterministic-org-resolution",
+    "check:operational-test-reliability-governance",
+    "test:e2e:teardown"
+  ],
+  "environmentClasses": [
+    {
+      "id": "local",
+      "urlSignals": ["localhost", "127.0.0.1", ".local"],
+      "requiredKeySignals": ["LOCAL", "DEV", "E2E"],
+      "callbackOriginPolicy": "local-or-loopback-only",
+      "cookiePolicy": "secure-in-production-only",
+      "storageBucketPolicy": "local-project-fixture-buckets-only",
+      "providerModePolicy": "test-or-sandbox",
+      "productionJobPolicy": "disabled"
+    },
+    {
+      "id": "test",
+      "urlSignals": ["example.test", "example.invalid", "127.0.0.1"],
+      "requiredKeySignals": ["TEST", "E2E", "PLAYWRIGHT", "FIXTURE"],
+      "callbackOriginPolicy": "deterministic-test-origin",
+      "cookiePolicy": "isolated-browser-context",
+      "storageBucketPolicy": "ephemeral-fixture-namespace",
+      "providerModePolicy": "mock-or-test",
+      "productionJobPolicy": "disabled"
+    },
+    {
+      "id": "ci",
+      "urlSignals": ["PLAYWRIGHT_BASE_URL", "CI", "GITHUB_ACTIONS"],
+      "requiredKeySignals": ["CI", "GITHUB", "ACTIONS", "PLAYWRIGHT"],
+      "callbackOriginPolicy": "ci-owned-base-url-only",
+      "cookiePolicy": "no-shared-auth-state-by-default",
+      "storageBucketPolicy": "no-production-bucket-writes",
+      "providerModePolicy": "mock-test-or-staging",
+      "productionJobPolicy": "disabled-unless-explicit-secret-gate"
+    },
+    {
+      "id": "preview",
+      "urlSignals": ["preview", "vercel.app", "branch"],
+      "requiredKeySignals": ["PREVIEW", "STAGING", "DAST"],
+      "callbackOriginPolicy": "preview-origin-allowlist",
+      "cookiePolicy": "secure-samesite-lax",
+      "storageBucketPolicy": "preview-project-class",
+      "providerModePolicy": "test-or-sandbox",
+      "productionJobPolicy": "disabled"
+    },
+    {
+      "id": "staging",
+      "urlSignals": ["staging", "stage", "canary", "sandbox"],
+      "requiredKeySignals": ["STAGING", "DAST", "CANARY"],
+      "callbackOriginPolicy": "staging-origin-allowlist",
+      "cookiePolicy": "secure-samesite-lax",
+      "storageBucketPolicy": "staging-project-class",
+      "providerModePolicy": "test-or-sandbox",
+      "productionJobPolicy": "disabled-unless-staging-safe"
+    },
+    {
+      "id": "production",
+      "urlSignals": ["oblixa.io", "production", "prod", "live"],
+      "requiredKeySignals": ["PRODUCTION", "RELEASE", "LIVE"],
+      "callbackOriginPolicy": "canonical-production-origin-only",
+      "cookiePolicy": "secure-hsts-samesite",
+      "storageBucketPolicy": "production-project-class",
+      "providerModePolicy": "live",
+      "productionJobPolicy": "enabled-only-through-release-gated-secrets"
+    }
+  ],
+  "requiredEnvironmentClassIds": ["local", "test", "ci", "preview", "staging", "production"],
+  "requiredEnvironmentDimensions": [
+    "urlSignals",
+    "requiredKeySignals",
+    "callbackOriginPolicy",
+    "cookiePolicy",
+    "storageBucketPolicy",
+    "providerModePolicy",
+    "productionJobPolicy"
+  ],
+  "requiredE2eMatrixKeys": [
+    "STAGING_BASE_URL",
+    "PLAYWRIGHT_BASE_URL",
+    "E2E_TEST_EMAIL",
+    "E2E_TEST_PASSWORD",
+    "E2E_TEARDOWN",
+    "E2E_TEARDOWN_WEBHOOK_URL",
+    "E2E_TEARDOWN_TABLES",
+    "E2E_TEARDOWN_RPC",
+    "E2E_TEARDOWN_STRICT",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+  ],
+  "localOnlyEnvFiles": [".env.local.example"],
+  "seedSafety": {
+    "seedFiles": [
+      "supabase/seed.sql",
+      "scripts/e2e-seed-contract-statuses.sql",
+      "scripts/e2e-seed-onboarding-blocking.sql"
+    ],
+    "allowedEmailDomains": ["example.com", "example.test", "example.invalid", "oblixa.local"],
+    "allowedUuidPrefixes": ["00000000-0000-4000-8000-", "00000000-0000-0000-0000-"],
+    "requiredSafetyMarkers": ["on conflict", "Never run against production", "local"]
+  },
+  "fixtureLifecycleControls": [
+    {
+      "id": "fixture-creation",
+      "sourceFile": "e2e/global-setup-auth-storage.ts",
+      "markers": ["PLAYWRIGHT_REUSE_AUTH_STORAGE", "storageState", "ensureAuthenticatedSession"]
+    },
+    {
+      "id": "fixture-teardown",
+      "sourceFile": "scripts/e2e-teardown.mjs",
+      "markers": ["E2E_TEARDOWN", "E2E_TEARDOWN_STRICT", "E2E_TEARDOWN_TABLES", "E2E_TEARDOWN_RPC"]
+    },
+    {
+      "id": "namespace-isolation",
+      "sourceFile": "playwright.config.ts",
+      "markers": ["E2E_RANDOM_SEED", "x-playwright-e2e-seed", "PLAYWRIGHT_CORRELATION_ID"]
+    },
+    {
+      "id": "org-isolation",
+      "sourceFile": "supabase/tests/rls_sanity_smoke.sql",
+      "markers": ["public.organizations", "public.organization_members", "organization_id"]
+    },
+    {
+      "id": "token-expiry",
+      "sourceFile": "supabase/config.toml",
+      "markers": ["jwt_expiry = 3600", "otp_expiry = 3600"]
+    },
+    {
+      "id": "file-cleanup",
+      "sourceFile": ".gitignore",
+      "markers": ["e2e/.auth/", "test-results/", "playwright-report/"]
+    },
+    {
+      "id": "conflict-handling",
+      "sourceFile": "supabase/seed.sql",
+      "markers": ["on conflict", "do update"]
+    }
+  ],
+  "previewProviderControls": [
+    {
+      "id": "preview-auth-redirects",
+      "provider": "supabase-auth",
+      "sourceFile": "src/app/auth/callback/route.ts",
+      "markers": ["getSafeRedirectPath", "resolvePostAuthRedirectPath", "NextResponse.redirect"]
+    },
+    {
+      "id": "preview-callback-url-integrity",
+      "provider": "callbacks",
+      "sourceFile": "scripts/check-callback-destination-integrity.mjs",
+      "markers": ["check:callback-destination-integrity", "REQUIRED_CI_COMMANDS", "REQUIRED_SECURITY_PIPELINE_STEPS"]
+    },
+    {
+      "id": "preview-stripe-test-mode",
+      "provider": "stripe",
+      "sourceFile": "src/lib/stripe.ts",
+      "markers": ["assertStripeEnvironmentConsistency", "STRIPE_EXPECTED_MODE", "Stripe test mode is not allowed in production"]
+    },
+    {
+      "id": "preview-supabase-project-class",
+      "provider": "supabase",
+      "sourceFile": "scripts/check-release-security-required-env.mjs",
+      "markers": ["NEXT_PUBLIC_SUPABASE_URL", "mixed_environment_credentials", "releaseEnvironment"]
+    },
+    {
+      "id": "preview-upstash-class",
+      "provider": "upstash",
+      "sourceFile": "src/lib/rate-limit.ts",
+      "markers": ["UPSTASH_REDIS_REST_URL", "hasDistributedRateLimitConfig", "isProductionLikeRateLimitEnv"]
+    },
+    {
+      "id": "preview-email-sender",
+      "provider": "resend",
+      "sourceFile": ".env.example",
+      "markers": ["RESEND_API_KEY", "EMAIL_FROM", "CONTACT_NOTIFY_EMAIL"]
+    },
+    {
+      "id": "preview-production-jobs-disabled",
+      "provider": "cron",
+      "sourceFile": "config/operational-manual-boundaries.json",
+      "markers": ["production-mutation", "defaultCommandAllowed", "production"]
+    }
+  ],
+  "manualBoundary": "Provider environment creation, preview URL registration, and production secret value verification remain external; this gate enforces code-owned isolation, fixture, seed, and preview safety contracts."
+}

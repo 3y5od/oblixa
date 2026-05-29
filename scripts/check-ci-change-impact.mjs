@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 
 const DEFAULT_BASE_REF = process.env.CI_CHANGE_IMPACT_BASE_REF?.trim() || "HEAD~1";
 
-const RISK_AREAS = [
+export const RISK_AREAS = [
   {
     id: "migrations",
     checks: [
@@ -173,6 +173,46 @@ const RISK_AREAS = [
     matches: (file) => /(?:stripe|billing|invoice|subscription|webhook|webhooks)/iu.test(file),
   },
   {
+    id: "provider_integrations",
+    checks: [
+      "check:operational-provider-integrations",
+      "check:provider-integration-fixtures",
+      "check:operational-environment-isolation",
+      "check:webhook-inbound-policy",
+      "check:release-security-required-env",
+    ],
+    matches: (file) =>
+      /(?:stripe|resend|openai|sentry|upstash|oauth|calendar|crm|provider|integration|webhook_outbox)/iu.test(file) ||
+      /^src\/lib\/(?:email|extraction|integrations|observability)\//u.test(file),
+  },
+  {
+    id: "ui_surface",
+    checks: [
+      "check:operational-frontend-resilience",
+      "check:operational-platform-variant-coverage",
+      "check:ui-surface-consistency",
+      "check:route-state-coverage",
+      "test:e2e:ui-qa-plan",
+    ],
+    matches: (file) =>
+      /^src\/(?:app|components)\/.+\.(?:tsx|jsx|css)$/u.test(file) ||
+      /^e2e\/.+\.(?:ts|tsx|js|jsx)$/u.test(file) ||
+      /^playwright\.config\.ts$/u.test(file),
+  },
+  {
+    id: "public_copy",
+    checks: [
+      "check:operational-public-launch-positioning",
+      "check:operational-legal-trust-compliance",
+      "audit:marketing-identity:strict",
+      "audit:release-state-code-only:strict",
+    ],
+    matches: (file) =>
+      /^src\/app\/\(marketing\)\//u.test(file) ||
+      /^src\/lib\/marketing\//u.test(file) ||
+      /(?:privacy|terms|security|trust|cookie|accessibility|subprocessor|marketing|public|claim)/iu.test(file),
+  },
+  {
     id: "generated_artifacts",
     checks: [
       "check:baseline-registry",
@@ -266,7 +306,7 @@ const RISK_AREAS = [
   },
   {
     id: "documentation",
-    checks: [],
+    checks: ["check:documentation-runtime-dependencies", "check:operational-hardening-objectives"],
     matches: (file) =>
       /(?:^|\/)(?:README|CHANGELOG|CONTRIBUTING|AGENTS)\.md$/iu.test(file) ||
       /^docs\//u.test(file) ||
@@ -356,6 +396,30 @@ export function classifyChangedEntries(entries) {
   };
 }
 
+export function buildPrSummary(changeImpact) {
+  const checks = changeImpact.requiredChecks ?? [];
+  const areas = (changeImpact.riskAreas ?? []).map((row) => row.area);
+  const warnings = [];
+  if ((changeImpact.changedCount ?? 0) === 0) warnings.push("No changed files were detected; confirm the base ref or attach explicit evidence.");
+  if (areas.includes("unclassified")) warnings.push("At least one changed file is unclassified; add a change-impact rule or record reviewer-owned evidence.");
+  for (const entry of changeImpact.changed ?? []) {
+    if ((entry.requiredChecks ?? []).length === 0) {
+      warnings.push(`${entry.path} has no targeted validation command; record why existing evidence is sufficient.`);
+    }
+  }
+
+  const lines = [
+    `Changed files: ${changeImpact.changedCount ?? 0}`,
+    `Risk areas: ${areas.length ? areas.join(", ") : "none"}`,
+    `Recommended validation: ${checks.length ? checks.map((check) => `npm run ${check}`).join("; ") : "none"}`,
+  ];
+  if (warnings.length > 0) lines.push(`Missing evidence warnings: ${warnings.join(" | ")}`);
+  return {
+    markdown: lines.map((line) => `- ${line}`).join("\n"),
+    missingEvidenceWarnings: warnings,
+  };
+}
+
 function runGit(args) {
   const result = spawnSync("git", args, {
     stdio: ["ignore", "pipe", "pipe"],
@@ -397,7 +461,7 @@ export function analyzeChangeImpact({
     issues.push({ issue: "no_changed_files_detected", baseRef });
   }
 
-  return {
+  const report = {
     ok: issues.length === 0,
     strict,
     baseRef,
@@ -413,6 +477,10 @@ export function analyzeChangeImpact({
     omittedChangedCount: Math.max(0, classified.changed.length - maxChangedEntries),
     issueCount: issues.length,
     issues,
+  };
+  return {
+    ...report,
+    prSummary: buildPrSummary(report),
   };
 }
 

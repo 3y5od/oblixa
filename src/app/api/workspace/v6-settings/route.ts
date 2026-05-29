@@ -14,6 +14,7 @@ import {
 } from "@/lib/assurance/org-settings";
 import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
 import { enforceIdempotency } from "@/lib/idempotency";
+import { arePrivateProductControlsEnabled } from "@/lib/release-state-private-controls";
 import { recordApiMutationAuditEvent, recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { requireExpectedVersionForMutation, staleExpectedVersionResponse } from "@/lib/security/stale-write-guard";
 
@@ -83,6 +84,14 @@ export async function PATCH(request: Request) {
 
   const patch: Partial<OrgSettingsJson> = {};
   if (typeof body.autopilotAllowExecution === "boolean") {
+    if (!arePrivateProductControlsEnabled()) {
+      return jsonProblem(403, {
+        error: "Autopilot execution controls are private for this release.",
+        code: "private_release_control",
+        diagnostic_id: "workspace_v6_settings_private_release_control",
+        route: ROUTE,
+      });
+    }
     patch.autopilot_allow_execution = body.autopilotAllowExecution;
   }
   if (Array.isArray(body.reviewBoardNotificationEmails)) {

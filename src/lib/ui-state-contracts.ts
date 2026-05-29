@@ -180,11 +180,11 @@ export const V10_RECOVERABILITY_FAILURE_MODE_MATRIX: readonly V10RecoverabilityF
   },
   {
     failureMode: "hidden_feature",
-    route: "/settings/product",
+    route: "/settings",
     state: "hidden_module",
     userReason: "This destination is hidden by workspace configuration.",
     diagnosticId: "v10_hidden_feature_recovery",
-    nextActionLabel: "Review product settings",
+    nextActionLabel: "Open settings",
     noActionExplanation: null,
     auditAction: "workspace.hidden_module_filtered",
     telemetryObjective: "search_as_router",
@@ -500,13 +500,6 @@ export const V10_ROUTE_STATE_MATRIX: readonly V10RouteStateMatrixEntry[] = [
     performanceBudgetKind: "dashboard",
   },
   {
-    route: "/settings/product",
-    requiredStates: ["forbidden", "hidden_module", "mode_gated", "plan_gated", "stale"],
-    accessibilityAssertions: ["settings_controls_named", "status_regions_announced", "keyboard_reachable_primary_action"],
-    responsiveProfiles: ["mobile", "tablet", "desktop"],
-    performanceBudgetKind: "dashboard",
-  },
-  {
     route: "command_palette",
     requiredStates: ["empty", "partial", "failed", "external_link_expired", "external_link_revoked"],
     accessibilityAssertions: ["dialog_named", "focus_returns_to_trigger", "zero_result_recovery_action"],
@@ -630,7 +623,6 @@ export function validateV10RouteStateMatrix(
     "/contracts/reports",
     "/reports",
     "/settings/health",
-    "/settings/product",
     "command_palette",
   ]) {
     if (!matrix.some((entry) => entry.route === route)) failures.push(`route_matrix_missing:${route}`);

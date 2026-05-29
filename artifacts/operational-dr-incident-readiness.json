@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-dr-incident-readiness",
+  "generatedBy": "scripts/check-incident-readiness.mjs --write",
+  "generatedFrom": "config/operational-dr-incident-readiness.json",
+  "manualBoundariesSource": "config/operational-manual-boundaries.json",
+  "ciWorkflow": ".github/workflows/ci.yml",
+  "commandCount": 13,
+  "drDrillCount": 4,
+  "incidentScenarioCount": 10,
+  "gameDayWorkflowCount": 1,
+  "runbookReferenceCount": 5,
+  "followUpFieldCount": 11,
+  "manualBoundaries": [
+    {
+      "id": "manual-customer-impacting-communication",
+      "present": true,
+      "category": "customer-impacting",
+      "ownerArea": "support-operations",
+      "externalSystem": "Customer communication channel",
+      "readinessCommand": "check:incident-readiness:strict",
+      "productionOnly": true
+    },
+    {
+      "id": "manual-database-restore-drill",
+      "present": true,
+      "category": "production-data",
+      "ownerArea": "data-platform",
+      "externalSystem": "Supabase",
+      "readinessCommand": "check:database-backup-restore-evidence",
+      "productionOnly": true
+    }
+  ],
+  "commands": [
+    {
+      "objective": "dr-drill-automation",
+      "script": "check:database-backup-restore-evidence",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "backup_metadata",
+        "restore_boundary"
+      ]
+    },
+    {
+      "objective": "dr-drill-automation",
+      "script": "check:dr-drill-smoke",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "explicit_opt_in_vendor_status"
+      ]
+    },
+    {
+      "objective": "dr-drill-automation",
+      "script": "check:incident-readiness:strict",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "aggregate_registry",
+        "artifact_drift",
+        "redacted_evidence"
+      ]
+    },
+    {
+      "objective": "dr-drill-automation",
+      "script": "report:rpo-rto-status",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "rpo_rto_metadata"
+      ]
+    },
+    {
+      "objective": "game-day-workflow-support",
+      "script": "check:game-day-exec",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "strict_evidence_check"
+      ]
+    },
+    {
+      "objective": "game-day-workflow-support",
+      "script": "test:synthetic-p0",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": false,
+      "covers": [
+        "mocked_p0_synthetic"
+      ]
+    },
+    {
+      "objective": "incident-scenario-checks",
+      "script": "check:runtime-health-probe-contracts",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "health_probe_detection"
+      ]
+    },
+    {
+      "objective": "incident-scenario-checks",
+      "script": "report:chaos-readiness",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "provider_outage_signal"
+      ]
+    },
+    {
+      "objective": "incident-scenario-checks",
+      "script": "test:slo-budgets",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "elevated_5xx_detection",
+        "slo_budget_signal"
+      ]
+    },
+    {
+      "objective": "operational-runbook-integrity",
+      "script": "check:command-reference-integrity",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "command_reference_integrity"
+      ]
+    },
+    {
+      "objective": "operational-runbook-integrity",
+      "script": "check:operational-release-readiness",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "rollback_readiness"
+      ]
+    },
+    {
+      "objective": "operational-runbook-integrity",
+      "script": "report:ci-change-impact",
+      "ciRequired": false,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "change_impact_mapping"
+      ]
+    },
+    {
+      "objective": "post-incident-follow-up-artifacts",
+      "script": "check:incident-readiness:strict",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "covers": [
+        "follow_up_template",
+        "redaction_policy"
+      ]
+    }
+  ],
+  "drDrills": [
+    {
+      "id": "backup-metadata",
+      "command": "check:database-backup-restore-evidence",
+      "packageScriptPresent": true,
+      "sourcePath": "scripts/check-database-backup-restore-evidence.mjs",
+      "env": [],
+      "evidenceArtifact": "artifacts/supabase/database-backup-restore-evidence.json",
+      "evidenceExists": true,
+      "redaction": "metadata-only",
+      "mutatesProduction": false,
+      "forbiddenMutationFindingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "env-presence",
+      "command": "check:dr-drill-smoke",
+      "packageScriptPresent": true,
+      "sourcePath": "scripts/dr-drill-smoke.mjs",
+      "env": [
+        {
+          "envName": "DR_DRILL_INCLUDE_RPO",
+          "declaredInExample": true,
+          "referencedInSource": true
+        },
+        {
+          "envName": "DR_DRILL_STRICT",
+          "declaredInExample": true,
+          "referencedInSource": true
+        },
+        {
+          "envName": "DR_VENDOR_STATUS_URL",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "evidenceArtifact": "artifacts/operational-dr-incident-readiness.json",
+      "evidenceExists": true,
+      "redaction": "presence-only",
+      "mutatesProduction": false,
+      "forbiddenMutationFindingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "redacted-evidence",
+      "command": "check:incident-readiness:strict",
+      "packageScriptPresent": true,
+      "sourcePath": "scripts/check-incident-readiness.mjs",
+      "env": [],
+      "evidenceArtifact": "artifacts/operational-dr-incident-readiness.json",
+      "evidenceExists": true,
+      "redaction": "metadata-only",
+      "mutatesProduction": false,
+      "forbiddenMutationFindingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "restore-runbook-completeness",
+      "command": "check:database-backup-restore-evidence",
+      "packageScriptPresent": true,
+      "sourcePath": "scripts/check-database-backup-restore-evidence.mjs",
+      "env": [],
+      "evidenceArtifact": "artifacts/supabase/database-backup-restore-evidence.json",
+      "evidenceExists": true,
+      "redaction": "metadata-only",
+      "mutatesProduction": false,
+      "forbiddenMutationFindingCount": 0,
+      "ok": true
+    }
+  ],
+  "incidentScenarios": [
+    {
+      "id": "auth-outage",
+      "ownerArea": "auth-security",
+      "detectionSignal": "auth error rate or session lifecycle check failure",
+      "firstAction": "enable support-safe login status notice and verify auth callback guardrails",
+      "rollbackPath": "revert auth config change and rerun auth callback and session lifecycle checks",
+      "validationCommand": "check:auth-callback-guardrails",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-authz-session.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "bad-deploy",
+      "ownerArea": "release-engineering",
+      "detectionSignal": "synthetic p0 or release preflight failure after deploy",
+      "firstAction": "freeze promotion and identify last known good deployment",
+      "rollbackPath": "provider rollback target remains manual; validate with release readiness checks",
+      "validationCommand": "check:operational-release-readiness",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-release-readiness.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "bad-migration",
+      "ownerArea": "data-platform",
+      "detectionSignal": "migration manifest or database smoke failure",
+      "firstAction": "stop migration promotion and classify destructive SQL or forward-fix requirement",
+      "rollbackPath": "use forward-fix metadata and local migration rollback report before any external action",
+      "validationCommand": "report:migration-rollbacks",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/supabase/migration-manifest.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "cron-failure",
+      "ownerArea": "platform-runtime",
+      "detectionSignal": "cron canary, route auth, or scheduled wrapper check failure",
+      "firstAction": "disable repeated manual retries and inspect cron route envelope",
+      "rollbackPath": "revert cron route or schedule change and rerun cron auth and wrapper checks",
+      "validationCommand": "check:operational-cron-jobs",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-cron-jobs.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "data-leak",
+      "ownerArea": "privacy-security",
+      "detectionSignal": "privacy inventory, redaction, or client exposure check failure",
+      "firstAction": "contain affected surface and preserve audit evidence without exporting raw data",
+      "rollbackPath": "disable leaking route or serialization path and rerun privacy and redaction checks",
+      "validationCommand": "check:operational-privacy-auditability",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-privacy-auditability.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "db-outage",
+      "ownerArea": "data-platform",
+      "detectionSignal": "runtime health probe or Supabase readiness failure",
+      "firstAction": "serve degraded state and verify no mutating restore automation is attempted",
+      "rollbackPath": "manual provider restore or failover; code validates backup metadata only",
+      "validationCommand": "check:database-backup-restore-evidence",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/supabase/database-backup-restore-evidence.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "elevated-5xx",
+      "ownerArea": "platform-runtime",
+      "detectionSignal": "SLO budget breach or runtime health-probe error budget signal",
+      "firstAction": "page owning area and capture route incident map evidence",
+      "rollbackPath": "revert implicated deploy or feature gate and rerun SLO budget tests",
+      "validationCommand": "test:slo-budgets",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/route-incident-map.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-outage",
+      "ownerArea": "integrations",
+      "detectionSignal": "chaos readiness or provider integration fixture failure",
+      "firstAction": "switch to degraded provider-safe path and stop retry amplification",
+      "rollbackPath": "restore provider integration path after mocked outage fixtures pass",
+      "validationCommand": "check:operational-provider-integrations",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-provider-integrations.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "secret-exposure",
+      "ownerArea": "platform-security",
+      "detectionSignal": "static secret, artifact leakage, or client bundle secret check failure",
+      "firstAction": "freeze release and trigger manual rotation boundary",
+      "rollbackPath": "remove exposure, regenerate evidence, and verify secret configuration checks",
+      "validationCommand": "check:operational-secrets-configuration",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-secrets-configuration.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    },
+    {
+      "id": "webhook-replay",
+      "ownerArea": "integrations",
+      "detectionSignal": "duplicate delivery, replay window, or idempotency policy failure",
+      "firstAction": "pause replay source and verify durable event id handling",
+      "rollbackPath": "restore webhook handler after replay and idempotency fixtures pass",
+      "validationCommand": "check:operational-webhooks-callbacks",
+      "validationCommandPresent": true,
+      "evidenceArtifact": "artifacts/operational-webhooks-callbacks.json",
+      "evidenceExists": true,
+      "missingFieldCount": 0,
+      "ok": true
+    }
+  ],
+  "gameDayWorkflows": [
+    {
+      "id": "qa-game-day",
+      "workflow": ".github/workflows/qa-game-day.yml",
+      "allowedTriggers": [
+        "workflow_dispatch"
+      ],
+      "hasAllowedTrigger": true,
+      "requiredCommands": [
+        "check:game-day-exec",
+        "test:synthetic-p0"
+      ],
+      "missingCommandCount": 0,
+      "hasStrictEvidence": true,
+      "hasArtifactUpload": true,
+      "usesSecrets": false,
+      "evidenceArtifact": "artifacts/qa-game-day-checklist.json",
+      "evidenceExists": true,
+      "mutatesProduction": false,
+      "forbiddenMutationFindingCount": 0,
+      "ok": true
+    }
+  ],
+  "runbookReferences": [
+    {
+      "id": "bad-deploy-rollback",
+      "dashboardPlaceholder": "Vercel deployments dashboard",
+      "commands": [
+        "check:operational-release-readiness",
+        "preflight:release"
+      ],
+      "missingCommandCount": 0,
+      "env": [
+        {
+          "envName": "NEXT_PUBLIC_APP_URL",
+          "declaredInExample": true,
+          "referencedInSource": true
+        },
+        {
+          "envName": "SENTRY_RELEASE",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "rollbackValidationCommand": "check:operational-release-readiness",
+      "rollbackValidationPresent": true,
+      "sourceArtifacts": [
+        "artifacts/operational-release-readiness.json"
+      ],
+      "missingArtifactCount": 0,
+      "ok": true
+    },
+    {
+      "id": "bad-migration-forward-fix",
+      "dashboardPlaceholder": "Supabase migration history dashboard",
+      "commands": [
+        "check:migration-manifest",
+        "report:migration-rollbacks"
+      ],
+      "missingCommandCount": 0,
+      "env": [
+        {
+          "envName": "NEXT_PUBLIC_SUPABASE_URL",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "rollbackValidationCommand": "report:migration-rollbacks",
+      "rollbackValidationPresent": true,
+      "sourceArtifacts": [
+        "artifacts/supabase/migration-manifest.json"
+      ],
+      "missingArtifactCount": 0,
+      "ok": true
+    },
+    {
+      "id": "database-restore",
+      "dashboardPlaceholder": "Supabase PITR and backup status dashboard",
+      "commands": [
+        "check:database-backup-restore-evidence",
+        "report:rpo-rto-status"
+      ],
+      "missingCommandCount": 0,
+      "env": [
+        {
+          "envName": "DR_DRILL_INCLUDE_RPO",
+          "declaredInExample": true,
+          "referencedInSource": true
+        },
+        {
+          "envName": "DR_DRILL_STRICT",
+          "declaredInExample": true,
+          "referencedInSource": true
+        },
+        {
+          "envName": "DR_VENDOR_STATUS_URL",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "rollbackValidationCommand": "check:database-backup-restore-evidence",
+      "rollbackValidationPresent": true,
+      "sourceArtifacts": [
+        "artifacts/supabase/database-backup-restore-evidence.json"
+      ],
+      "missingArtifactCount": 0,
+      "ok": true
+    },
+    {
+      "id": "provider-outage-degrade",
+      "dashboardPlaceholder": "Provider status pages and Sentry project routing",
+      "commands": [
+        "check:operational-provider-integrations",
+        "report:chaos-readiness"
+      ],
+      "missingCommandCount": 0,
+      "env": [
+        {
+          "envName": "SENTRY_RELEASE",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "rollbackValidationCommand": "check:operational-provider-integrations",
+      "rollbackValidationPresent": true,
+      "sourceArtifacts": [
+        "artifacts/operational-provider-integrations.json",
+        "artifacts/third-party-outage-cascade-matrix.json"
+      ],
+      "missingArtifactCount": 0,
+      "ok": true
+    },
+    {
+      "id": "security-incident-containment",
+      "dashboardPlaceholder": "Security findings queue and provider rotation dashboards",
+      "commands": [
+        "check:operational-observability-redaction",
+        "check:operational-secrets-configuration"
+      ],
+      "missingCommandCount": 0,
+      "env": [
+        {
+          "envName": "SENTRY_RELEASE",
+          "declaredInExample": true,
+          "referencedInSource": true
+        }
+      ],
+      "rollbackValidationCommand": "check:operational-secrets-configuration",
+      "rollbackValidationPresent": true,
+      "sourceArtifacts": [
+        "artifacts/operational-observability-redaction.json",
+        "artifacts/operational-secrets-configuration.json"
+      ],
+      "missingArtifactCount": 0,
+      "ok": true
+    }
+  ],
+  "postIncidentFollowUpTemplate": {
+    "artifact": "artifacts/operational-incident-follow-up-template.json",
+    "templateId": "code-owned-post-incident-follow-up",
+    "deterministic": true,
+    "redactionPolicy": "metadata-only",
+    "fieldNames": [
+      "affectedControls",
+      "dueDates",
+      "evidenceArtifacts",
+      "failedChecks",
+      "incidentId",
+      "newTests",
+      "owners",
+      "redactionReview",
+      "severity",
+      "timeline",
+      "validationCommands"
+    ]
+  },
+  "manualBoundary": "Actual incident command, customer communication approval, production rollback, production restore, and provider-console actions remain manual; code validates readiness, fixtures, command integrity, and redacted evidence only.",
+  "issueCount": 0,
+  "issues": []
+}

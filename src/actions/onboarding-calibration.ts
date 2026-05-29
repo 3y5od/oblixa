@@ -15,7 +15,6 @@ import { stripPrototypePollutionKeys } from "@/lib/security/strip-prototype-poll
 import {
   coreFallbackV6Patch,
   finalizeRecommendation,
-  recommendationToV6Patch,
 } from "@/lib/onboarding/calibration-map";
 import {
   calibrationAnswersOptionalSchema,
@@ -232,7 +231,7 @@ export async function saveQuestionnaireProgress(input: unknown): Promise<Calibra
 
 export async function startRecalibrationFromSettingsForm(): Promise<void> {
   const r = await beginRecalibration();
-  if (!r.ok) redirect("/settings/product");
+  if (!r.ok) redirect("/settings");
   redirect("/onboarding/calibration");
 }
 
@@ -383,8 +382,27 @@ export async function completeQuestionnaireAcceptRecommendation(
 
   const prevMode = parseWorkspaceMode(prevV6);
   const flags = getFeatureFlags();
-  const rec = finalizeRecommendation(parsed.data.answers_required, flags, parsed.data.answers_optional ?? undefined);
-  const v6Patch = recommendationToV6Patch(rec);
+  const generatedRecommendation = finalizeRecommendation(
+    parsed.data.answers_required,
+    flags,
+    parsed.data.answers_optional ?? undefined
+  );
+  const v6Patch = coreFallbackV6Patch();
+  const rec = {
+    ...generatedRecommendation,
+    recommended_workspace_mode: "core" as const,
+    recommended_advanced_families_enabled: [],
+    recommended_assurance_families_enabled: [],
+    recommended_default_landing_path: "/dashboard",
+    recommended_dashboard_profile: "core" as const,
+    recommended_search_scope: "core_only" as const,
+    recommended_notification_profile: { suppress_advanced_tiers: true },
+    recommended_report_profile: {
+      suppress_incompatible_subscriptions: true,
+      aligns_with_workspace_transition: true as const,
+    },
+    recommended_utility_modules_hidden: v6Patch.utility_modules_hidden ?? [],
+  };
   const answerHash = hashAnswersShort(parsed.data.answers_required);
 
   const completedAt = nowIso();
@@ -667,7 +685,7 @@ export async function completeQuestionnaireOpenAdvancedSettings(): Promise<Calib
         contract_id: null,
         user_id: ctx.user.id,
         action: "onboarding.recommendation_overridden",
-        details: { destination: "/settings/product" },
+        details: { destination: "/settings" },
       },
       {
         organization_id: ctx.orgId,

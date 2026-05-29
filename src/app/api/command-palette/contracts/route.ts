@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { jsonProblem, jsonUnauthorized } from "@/lib/http/problem";
+import { jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import { normalizeContractsSearchQuery } from "@/lib/contracts-search-url";
 import { resolveSearchIndexFeatureFamily } from "@/lib/product-surface/feature-registry";
@@ -12,6 +12,7 @@ import type { WorkspaceProductMode } from "@/lib/product-surface/types";
 import { emitV10ObjectiveTelemetryEvent } from "@/lib/product-telemetry";
 import { applyV10CommandSearchVisibility } from "@/lib/visibility";
 import { V10_PLANS, type V10Plan } from "@/lib/release-contract";
+import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 
 const ROLE_ORDER: WorkspaceRole[] = ["viewer", "legal_reviewer", "finance_reviewer", "editor", "ops_manager", "manager", "admin"];
 const MODE_ORDER: WorkspaceProductMode[] = ["core", "advanced", "assurance"];
@@ -353,9 +354,9 @@ export function buildV10CommandSearchRecovery(input: {
   ];
   if (input.mode !== "core") actions.push({ label: "Review decisions", href: "/decisions", reason });
   if (input.mode === "assurance") actions.push({ label: "Inspect assurance", href: "/assurance", reason });
-  actions.push({ label: "Configure product settings", href: "/settings/product", reason });
+  actions.push({ label: "Open settings", href: "/settings", reason });
   if ((input.hiddenFilteredCount ?? 0) > 0) {
-    actions.push({ label: "Review hidden modules", href: "/settings/product", reason: "hidden_module_filtered" });
+    actions.push({ label: "Open settings", href: "/settings", reason: "hidden_module_filtered" });
   }
   return {
     message: input.partialIndex
@@ -412,6 +413,9 @@ export async function GET(request: Request) {
       { headers: PRIVATE_NO_STORE_HEADERS }
     );
   }
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`command-search:${ctx.user.id}:${ip}`, RATE_LIMITS.commandPaletteSearch);
+  if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
 
   const pattern = `%${q}%`;
   const rankTerm = safeRankTerm(q);

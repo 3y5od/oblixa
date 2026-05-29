@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-api-runtime-contracts",
+  "objectives": [
+    {
+      "id": "api-route-inventory",
+      "ownerArea": "api-platform",
+      "commands": [
+        { "command": "check:operational-api-runtime-contracts", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "api_inventory"] },
+        { "command": "check:route-universe", "ciRequired": true, "covers": ["route_inventory_drift", "runtime_cache_rate_limit_metadata"] },
+        { "command": "check:route-functionality", "ciRequired": true, "covers": ["route_functionality_matrix", "red_metric_allowlist"] },
+        { "command": "check:api-route-tests", "ciRequired": true, "covers": ["colocated_api_route_tests", "waiver_metadata"] },
+        { "command": "check:openapi-spec-contract", "ciRequired": true, "covers": ["response_schema_coverage", "method_coverage"] }
+      ],
+      "artifacts": [
+        "artifacts/route-universe.json",
+        "artifacts/route-functionality-matrix.json",
+        "artifacts/route-runtime-contract.json",
+        "artifacts/operational-api-runtime-contracts.json"
+      ]
+    },
+    {
+      "id": "http-semantics",
+      "ownerArea": "api-platform",
+      "commands": [
+        { "command": "check:http-method-policy", "ciRequired": true, "covers": ["method_exports", "unsupported_method_policy", "body_policy"] },
+        { "command": "check:api-cors-policy", "ciRequired": true, "covers": ["cors_origin_policy", "credentialed_cors"] },
+        { "command": "check:sensitive-cache-controls", "ciRequired": true, "covers": ["private_no_store", "vary_headers"] },
+        { "command": "check:api-route-guard-normalization", "ciRequired": true, "covers": ["guard_order", "work_before_auth_detection"] }
+      ]
+    },
+    {
+      "id": "problem-json-errors",
+      "ownerArea": "api-platform",
+      "commands": [
+        { "command": "check:api-problem-json", "ciRequired": true, "covers": ["safe_error_schema", "raw_exception_redaction", "status_helpers"] },
+        { "command": "check:auth-error-consistency", "ciRequired": true, "covers": ["401_403_shape"] }
+      ]
+    },
+    {
+      "id": "request-response-size-limits",
+      "ownerArea": "platform-security",
+      "commands": [
+        { "command": "check:json-body-limited-adoption", "ciRequired": true, "covers": ["request_body_bounds", "content_type_rejection"] },
+        { "command": "check:request-framing-guards", "ciRequired": true, "covers": ["content_length", "stream_bound", "unsafe_json_keys"] },
+        { "command": "check:response-size-guards", "ciRequired": true, "covers": ["response_byte_bounds", "safe_oversize_error"] },
+        { "command": "check:decompression-bomb-guards", "ciRequired": true, "covers": ["docx_expansion_bounds", "parser_limits"] }
+      ]
+    },
+    {
+      "id": "runtime-smoke-registry",
+      "ownerArea": "operations",
+      "commands": [
+        { "command": "check:api-runtime-smoke-registry", "ciRequired": true, "covers": ["safe_smoke_registry_drift"] },
+        { "command": "check:api-runtime-smoke", "ciRequired": true, "covers": ["runtime_smoke_runner"] },
+        { "command": "check:runtime-health-probe-contracts", "ciRequired": true, "covers": ["health_probe_contracts", "failure_classes"] }
+      ],
+      "artifacts": ["artifacts/assurance/api-runtime-smoke-registry.json"]
+    }
+  ],
+  "inventoryRequiredFields": [
+    "route",
+    "sourcePath",
+    "methods",
+    "authModel",
+    "runtime",
+    "cachePolicy",
+    "rateLimitPolicy",
+    "bodyPolicy",
+    "owner",
+    "expectedStatuses",
+    "performanceBudget",
+    "smokeTier"
+  ],
+  "requiredProblemStatuses": [400, 401, 403, 404, 405, 409, 413, 415, 422, 429, 500, 502, 503],
+  "requiredSmokeCategories": [
+    "public_or_token_surface",
+    "session_or_worker_unsigned_reject",
+    "signature_or_unsigned_reject",
+    "defer_cron_canary"
+  ],
+  "sourceMarkers": [
+    {
+      "path": "scripts/lib/build-route-universe.mjs",
+      "markers": ["authModel", "runtimeFromSource", "cachePolicy", "rateLimitPolicy", "bodyPolicy", "performanceBudget", "expectedStatuses"]
+    },
+    {
+      "path": "src/lib/http/problem.ts",
+      "markers": ["SUPPORT_SAFE_PROBLEM_STATUSES", "jsonUnprocessableEntity", "redactProblemErrorMessage", "sanitizeProblemDetails"]
+    },
+    {
+      "path": "src/lib/security/read-json-body-limited.ts",
+      "markers": ["readJsonBodyLimited", "parseJsonBodyWithLimit", "rejectUnexpectedBody", "jsonPayloadTooLarge", "jsonUnsupportedMediaType"]
+    },
+    {
+      "path": "src/lib/security/response-size.ts",
+      "markers": ["jsonResponseWithSizeLimit", "encodedJsonSizeBytes", "api_response_size_limit_exceeded"]
+    },
+    {
+      "path": "scripts/lib/route-runtime-semantics.mjs",
+      "markers": ["defaultExpectedOutcomesForRunnerHint", "classifyRuntimeSmokeResponse", "assertCronSemanticContract"]
+    }
+  ],
+  "testMarkers": [
+    {
+      "path": "src/lib/http/problem.test.ts",
+      "markers": ["covers representative support-safe status helpers", "jsonUnprocessableEntity(\"/api/example\")", "SUPPORT_SAFE_PROBLEM_STATUSES"]
+    },
+    {
+      "path": "src/lib/security/read-json-body-limited.test.ts",
+      "markers": ["rejects oversized body by Content-Length", "rejects prototype-pollution keys after parsing", "rejects JSON shapes that exceed structural limits"]
+    },
+    {
+      "path": "src/lib/security/response-size.test.ts",
+      "markers": ["returns a safe problem response when the payload exceeds the limit", "response_too_large"]
+    },
+    {
+      "path": "scripts/check-api-problem-json.test.mjs",
+      "markers": ["rejects raw NextResponse error JSON", "rejects stack and raw exception response fields", "requires support-safe problem helper coverage"]
+    },
+    {
+      "path": "scripts/check-http-method-policy.test.mjs",
+      "markers": ["rejects mutating route rows with missing body limits"]
+    }
+  ]
+}

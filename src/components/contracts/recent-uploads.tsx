@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { ChevronRight, FileText } from "lucide-react";
+import { CountChip } from "@/components/ui/count-chip";
 
 export interface RecentFileRow {
   id: string;
@@ -14,49 +15,61 @@ export interface RecentFileRow {
 export function RecentUploads({ files }: { files: RecentFileRow[] }) {
   if (files.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,transparent)] px-5 py-6 text-center text-sm text-[var(--text-secondary)] shadow-[var(--shadow-1)] sm:px-6">
-        No file uploads yet. PDF and DOCX up to 20 MB are supported.
-      </div>
+      <section>
+        <p className="ui-eyebrow">Recent uploads</p>
+        <p className="mt-2 text-[12px] text-[var(--text-tertiary)]">
+          No file uploads yet.
+        </p>
+      </section>
     );
   }
 
   return (
-    <div className="ui-card overflow-hidden">
-      {/* v23 aesthetic pass: dropped the explainer paragraph ("Latest
-          files attached to contracts in your workspace. Choose a contract
-          to run extraction or continue review.") — the eyebrow + h2 are
-          unambiguous; the description repeated what's clearly a recent-
-          activity list (§10.4 + §10.7). */}
-      <div className="border-b border-[var(--border-subtle)] px-5 py-4 sm:px-6">
-        <p className="ui-eyebrow">Activity</p>
-        <h2 className="mt-1.5 text-sm font-semibold text-[var(--text-primary)]">Recent uploads</h2>
+    <section>
+      <div className="flex items-center gap-1.5">
+        <p className="ui-eyebrow">Recent uploads</p>
+        <CountChip value={files.length} />
       </div>
-      <ul className="max-h-64 divide-y divide-[var(--border-subtle)] overflow-y-auto">
+      <ul className="mt-2 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
         {files.map((f) => (
-          <li key={f.id} className="flex items-start gap-3 px-5 py-3.5 sm:px-6">
-            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]">
-              <FileText size={16} className="text-[var(--text-tertiary)]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-[var(--text-primary)]">
-                {f.file_name}
-              </p>
-              <p className="text-xs text-[var(--text-secondary)]">
-                <Link
-                  href={`/contracts/${f.contract_id}`}
-                  className="ui-link text-xs"
-                >
+          <li key={f.id} className="group">
+            <Link
+              href={`/contracts/${f.contract_id}`}
+              title={f.contract_title}
+              className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-2 py-2 transition-colors"
+            >
+              <span
+                aria-hidden
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-secondary)] transition-colors group-hover:border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] group-hover:text-[var(--accent-strong)]"
+              >
+                <FileText className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[12.5px] font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--accent-strong)]">
                   {f.contract_title}
-                </Link>
-                {" · "}
-                {f.file_type === "application/pdf" ? "PDF" : "DOCX"}
-                {" · "}
-                {format(new Date(f.created_at), "MMM d, yyyy")}
-              </p>
-            </div>
+                </p>
+                <p
+                  title={f.file_name}
+                  className="truncate text-[10.5px] text-[var(--text-tertiary)]"
+                >
+                  <span className="font-mono uppercase tracking-[0.06em]">
+                    {f.file_type === "application/pdf" ? "PDF" : "DOCX"}
+                  </span>
+                  <span className="ui-dot-sep">·</span>
+                  {format(new Date(f.created_at), "MMM d")}
+                </p>
+              </div>
+              <span
+                aria-hidden
+                className="inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)] transition-colors group-hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))]"
+              >
+                Open
+                <ChevronRight className="h-2.5 w-2.5" strokeWidth={2} />
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

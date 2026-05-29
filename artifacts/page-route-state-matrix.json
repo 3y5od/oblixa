@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-24T23:20:58.888Z",
+  "generatedAt": "2026-05-28T22:05:45.871Z",
   "rows": [
     {
       "route": "/",
@@ -1355,6 +1355,24 @@
         "not_found"
       ],
       "inheritedShell": "auth"
+    },
+    {
+      "route": "/search",
+      "sourcePath": "src/app/(dashboard)/search/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
     },
     {
       "route": "/security",

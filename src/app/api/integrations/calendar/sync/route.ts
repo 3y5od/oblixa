@@ -1,6 +1,7 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { buildOrganizationCalendarIcs } from "@/lib/integrations/calendar";
+import { isKillIntegrationSync, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { enqueueOutboundEvent } from "@/lib/integrations/events";
@@ -83,6 +84,7 @@ export const GET = withCronRoute({
   healthcheckRoute: "integrations/calendar/sync",
   rateLimitKey: "cron:integrations:calendar-sync",
   rateLimit: RATE_LIMITS.integrationCalendarSync,
+  preflight: () => (isKillIntegrationSync() ? killSwitchJsonResponse("integration_sync") : null),
   handler: async ({ admin, startedAtMs }) => {
     const nowIso = new Date().toISOString();
     const errors: Array<Record<string, unknown>> = [];

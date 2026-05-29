@@ -193,7 +193,7 @@ describe("CommandPalette", () => {
     expect(await screen.findByRole("dialog", { name: /command palette/i })).toBeTruthy();
     expect(screen.getByPlaceholderText(/search pages, queues, reports, tools/i)).toBeTruthy();
     expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThan(0);
-    expect(screen.getByText(/^Workflows · \/contracts$/i)).toBeTruthy();
+    expect(screen.getByText(/^Pages · \/contracts$/i)).toBeTruthy();
   });
 
   it("navigates the active result when Enter is pressed", async () => {

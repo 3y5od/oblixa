@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-operational-browser-security",
+  "objectives": [
+    {
+      "id": "security-header-contracts",
+      "ownerArea": "frontend-security",
+      "commands": [
+        { "command": "check:operational-browser-security", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "route_family_headers", "browser_isolation"] },
+        { "command": "check:security-headers", "ciRequired": true, "covers": ["csp", "hsts", "referrer_policy", "x_content_type_options", "frame_restrictions"] },
+        { "command": "check:browser-isolation-headers", "ciRequired": true, "covers": ["coop", "coep", "corp", "clickjacking", "csp_report_endpoint"] },
+        { "command": "check:permissions-policy-security", "ciRequired": true, "covers": ["permissions_policy_disabled_features"] },
+        { "command": "check:content-sniffing-defenses", "ciRequired": true, "covers": ["nosniff", "content_type_boundaries"] },
+        { "command": "check:sensitive-cache-controls", "ciRequired": true, "covers": ["api_no_store", "vary_cookie_authorization", "surrogate_no_store"] }
+      ],
+      "artifacts": ["artifacts/operational-browser-security.json"]
+    },
+    {
+      "id": "csp-rollout-hardening",
+      "ownerArea": "frontend-security",
+      "commands": [
+        { "command": "check:csp-nonce-hash-consistency", "ciRequired": true, "covers": ["nonce_normalization", "hash_normalization", "strict_report_only", "rollback_flags"] },
+        { "command": "check:unsafe-inline-regressions", "ciRequired": true, "covers": ["unsafe_inline_regression_signals"] },
+        { "command": "check:third-party-script-integrity", "ciRequired": true, "covers": ["third_party_script_inventory", "script_integrity_signals"] },
+        { "command": "check:next-script-integrity", "ciRequired": true, "covers": ["next_script_sri"] },
+        { "command": "check:reporting-endpoints", "ciRequired": true, "covers": ["reporting_endpoints_header", "csp_report_uri", "csp_report_to", "bounded_report_ingest"] }
+      ],
+      "artifacts": ["artifacts/reporting-endpoints-stub.json"]
+    },
+    {
+      "id": "client-data-leakage-prevention",
+      "ownerArea": "privacy-security",
+      "commands": [
+        { "command": "check:client-storage-sensitivity", "ciRequired": true, "covers": ["local_storage", "session_storage", "storage_key_allowlist", "bounded_json"] },
+        { "command": "check:client-cache-sensitivity", "ciRequired": true, "covers": ["client_cache_signal_inventory"] },
+        { "command": "check:sensitive-url-propagation", "ciRequired": true, "covers": ["url_tokens", "signed_urls", "redirect_stripping"] },
+        { "command": "check:client-bundle-secret-leakage", "ciRequired": true, "covers": ["client_reachable_graph", "server_env_leakage", "service_role_imports"] },
+        { "command": "check:xss-client-exposure", "ciRequired": true, "covers": ["json_ld_serialization", "postmessage", "dangerous_html", "target_blank"] },
+        { "command": "check:next-public-surface", "ciRequired": true, "covers": ["public_env_allowlist", "client_bundle_env_keys"] }
+      ]
+    },
+    {
+      "id": "browser-isolation-smoke",
+      "ownerArea": "test-platform",
+      "commands": [
+        { "command": "test:e2e:smoke", "ciRequired": true, "covers": ["public_headers", "dashboard_headers", "api_cache", "public_token_cache", "clickjacking_headers"] },
+        { "command": "test:e2e:maximal-playwright-bundle", "ciRequired": false, "covers": ["advanced_browser_headers", "privacy_sandbox_stubs"] }
+      ]
+    }
+  ],
+  "routeFamilies": [
+    {
+      "id": "public",
+      "representativePath": "/",
+      "e2eMarkers": ["marketing page carries required browser security headers", "generated public route matrix carries required browser security headers"],
+      "requiredHeaders": ["content-security-policy", "content-security-policy-report-only", "reporting-endpoints", "x-content-type-options", "x-frame-options", "referrer-policy", "permissions-policy", "cross-origin-opener-policy", "cross-origin-resource-policy"]
+    },
+    {
+      "id": "auth",
+      "representativePath": "/login",
+      "e2eMarkers": ["generated public route matrix carries required browser security headers"],
+      "requiredHeaders": ["content-security-policy", "x-content-type-options", "x-frame-options", "referrer-policy", "permissions-policy"]
+    },
+    {
+      "id": "dashboard",
+      "representativePath": "/dashboard",
+      "e2eMarkers": ["dashboard page carries required browser security headers"],
+      "requiredHeaders": ["content-security-policy", "x-content-type-options", "x-frame-options", "referrer-policy"]
+    },
+    {
+      "id": "external-token",
+      "representativePath": "/api/external-actions/not-a-real-token/status",
+      "e2eMarkers": ["public-token route carries private no-store"],
+      "requiredHeaders": ["cache-control", "pragma", "vary"]
+    },
+    {
+      "id": "api",
+      "representativePath": "/api/export/contracts",
+      "e2eMarkers": ["API response carries private no-store"],
+      "requiredHeaders": ["cache-control", "pragma", "expires", "surrogate-control", "vary"]
+    }
+  ],
+  "cspRolloutContracts": [
+    {
+      "id": "strict-enforcing-csp",
+      "path": "src/lib/security/csp-builders.ts",
+      "markers": ["strictEnforcingScriptSrc", "strictEnforcingStyleSrc", "normalizeCspScriptHashSources", "normalizeCspScriptNonce", "script-src-attr 'none'", "upgrade-insecure-requests"]
+    },
+    {
+      "id": "reporting-endpoint-csp",
+      "path": "src/lib/security/csp-builders.ts",
+      "markers": ["appendCspReportingDirectives", "report-uri ${SECURITY_REPORTING_ENDPOINT_PATH}", "report-to ${SECURITY_REPORTING_ENDPOINT_GROUP}", "Reporting-Endpoints"]
+    },
+    {
+      "id": "third-party-source-boundary",
+      "path": "src/lib/security/csp-builders.test.ts",
+      "markers": ["production CSP does not broaden script or frame sources", "expect(scriptSrc).not.toContain(\"*\")", "expect(frameSrc).not.toContain(\"http:\")"]
+    },
+    {
+      "id": "unsafe-inline-rollback-tests",
+      "path": "src/lib/security/csp-builders.test.ts",
+      "markers": ["prod enforcing CSP supports explicit unsafe-inline rollback flags", "strict prod script-src accepts configured hashes for inline rollout", "invalid configured CSP script hash sources fail closed"]
+    }
+  ],
+  "clientLeakageSurfaces": [
+    {
+      "id": "client-storage-helper",
+      "path": "src/lib/security/client-storage.ts",
+      "markers": ["CLIENT_STORAGE_JSON_MAX_LENGTH", "hasUnsafeJsonKey(parsed)", "isJsonShapeWithinLimits(parsed", "export function readCommandPaletteRecentCommands()", "export function readUploadMetadataDraft(", "export function writeContractTableSelection("]
+    },
+    {
+      "id": "client-bundle-graph",
+      "path": "scripts/check-client-bundle-secret-leakage.mjs",
+      "markers": ["buildClientReachableGraph", "server_env_in_client_bundle", "supabase_server_import_in_client_bundle", "service_role_call_in_client_bundle"]
+    },
+    {
+      "id": "sensitive-url-stripping",
+      "path": "src/lib/security/sensitive-url.ts",
+      "markers": ["SENSITIVE_URL_PARAM_NAMES", "stripSensitiveUrlParams", "urlContainsSensitiveParams", "access_token", "signed_url", "private_url"]
+    },
+    {
+      "id": "safe-inline-json-ld",
+      "path": "src/lib/security/json-ld-inline-script.ts",
+      "markers": ["serializeJsonLdForInlineScript", ".replace(/</g, \"\\\\u003c\")"]
+    },
+    {
+      "id": "rsc-cache-boundary",
+      "path": "src/lib/next-cache-rsc.contract.test.ts",
+      "markers": ["Next cache / RSC invariants", "unstable_cache", "revalidateTag"]
+    }
+  ],
+  "browserSmokeContracts": [
+    {
+      "id": "security-headers-smoke",
+      "path": "e2e/security-headers-smoke.spec.ts",
+      "markers": ["root CSP carries enforcing and report-only browser isolation directives", "framing defenses are explicit for clickjacking protection", "generated public route matrix carries required browser security headers", "dashboard page carries required browser security headers", "API response carries private no-store", "public-token route carries private no-store"]
+    },
+    {
+      "id": "advanced-browser-security-smoke",
+      "path": "e2e/browser-security-headers-advanced.spec.ts",
+      "markers": ["browser security headers advanced @nightly", "COOP/COEP headers when product enables crossOriginIsolation"]
+    }
+  ],
+  "reportingEndpoint": {
+    "path": "/api/security/csp-report",
+    "group": "csp-endpoint",
+    "routeFile": "src/app/api/security/csp-report/route.ts",
+    "testFile": "src/app/api/security/csp-report/route.test.ts",
+    "artifact": "artifacts/reporting-endpoints-stub.json"
+  }
+}
