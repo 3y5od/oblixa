@@ -975,7 +975,7 @@ jobs:
         run: semgrep scan --config p/ci --config p/typescript --config semgrep/oblixa-security.yml --config semgrep/oblixa-performance.yml --config semgrep/oblixa-surface.yml --severity ERROR --error .
 
       - name: OSV dependency scan
-        uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2
         with:
           scan-args: |-
             --lockfile=package-lock.json
