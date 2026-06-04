@@ -4,7 +4,7 @@
   "inventoryPath": "artifacts/compatibility/versioned-content-contract-inventory.json",
   "queuePath": "artifacts/compatibility/removal-queue.json",
   "categoryCount": 6,
-  "contractCount": 169,
+  "contractCount": 168,
   "manualOnlyContractCount": 107,
   "queueCoveredManualCount": 107,
   "remainingSafeActionCount": 0,
@@ -56,12 +56,12 @@
     },
     {
       "id": "export_import_diagnostics",
-      "contractCount": 88,
-      "hitCount": 279,
+      "contractCount": 87,
+      "hitCount": 278,
       "manualOnlyCount": 63,
       "queueCoveredManualCount": 63,
       "remainingSafeActionCount": 0,
-      "validationCommandCoveredCount": 88
+      "validationCommandCoveredCount": 87
     }
   ],
   "contracts": [
@@ -1011,6 +1011,22 @@
     },
     {
       "category": "export_import_diagnostics",
+      "path": "src/components/landing/landing-content.ts",
+      "contractName": "v14",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "notification_or_export_contract",
+      "owner": "platform-hardening",
+      "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "suggestedNeutralName": null,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "queueCovered": true,
+      "hitCount": 1
+    },
+    {
+      "category": "export_import_diagnostics",
       "path": "src/lib/advanced-assurance-continuity.ts",
       "contractName": "V10",
       "surfaceClass": "source_content",
@@ -1072,22 +1088,6 @@
       "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "queueCovered": true,
       "hitCount": 3
-    },
-    {
-      "category": "export_import_diagnostics",
-      "path": "src/lib/contracts-import-release-state.test.ts",
-      "contractName": "v23",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "suggestedNeutralName": null,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "queueCovered": true,
-      "hitCount": 1
     },
     {
       "category": "export_import_diagnostics",
@@ -1344,22 +1344,6 @@
       "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "queueCovered": true,
       "hitCount": 2
-    },
-    {
-      "category": "export_import_diagnostics",
-      "path": "src/lib/marketing/voice-sweep.test.ts",
-      "contractName": "v9",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "notification_or_export_contract",
-      "owner": "platform-hardening",
-      "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "suggestedNeutralName": null,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "queueCovered": true,
-      "hitCount": 1
     },
     {
       "category": "export_import_diagnostics",

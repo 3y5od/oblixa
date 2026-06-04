@@ -50,7 +50,7 @@ export function OwnerAssignmentForm({
     label: m.label,
   }));
   const secondaryOptions: UiSelectOption[] = [
-    { value: "", label: "—" },
+    { value: "", label: "None" },
     ...members.map((m) => ({ value: m.userId, label: m.label })),
   ];
   const disabled = isPending || members.length === 0;
@@ -90,7 +90,7 @@ export function OwnerAssignmentForm({
           value={currentSecondaryOwnerId ?? ""}
           onChange={onSecondaryChange}
           options={secondaryOptions}
-          placeholder="—"
+          placeholder="None"
           disabled={disabled}
           ariaLabel="Secondary stakeholder"
         />

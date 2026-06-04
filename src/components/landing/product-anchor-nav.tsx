@@ -3,6 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { PRODUCT_SECTIONS } from "@/components/landing/product-sections-data";
 
+/** Short labels for the compact nav pills; full eyebrow is reused as the
+ *  SectionCard heading, the 'Next' ActionChip verb, and the aria-live text. */
+const NAV_LABELS: Record<string, string> = {
+  replace: "Replace spreadsheet",
+  upload: "Upload",
+  review: "Review",
+  dates: "Dates",
+  work: "Work",
+  evidence: "Evidence",
+  reports: "Reports",
+};
+
 /**
  * Sticky scroll-spy chip strip for /product.
  *
@@ -109,10 +121,6 @@ export function ProductAnchorNav() {
   }, [activeId]);
 
   const currentIdx = PRODUCT_SECTIONS.findIndex((s) => s.id === activeId);
-  const progress = Math.max(
-    1,
-    Math.min(PRODUCT_SECTIONS.length, currentIdx + 1)
-  );
   const activeSection = PRODUCT_SECTIONS[currentIdx];
 
   // T6.5 — Keyboard arrow navigation inside the nav
@@ -142,7 +150,7 @@ export function ProductAnchorNav() {
         {/* T6.1 — Segmented progress bar (7 segments) */}
         <div
           aria-hidden
-          className="flex h-[3px] w-full gap-px overflow-hidden rounded-t-2xl bg-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)]"
+          className="flex h-[2px] w-full gap-px overflow-hidden rounded-t-2xl bg-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)]"
         >
           {PRODUCT_SECTIONS.map((s, idx) => (
             <span
@@ -151,7 +159,7 @@ export function ProductAnchorNav() {
               style={{
                 background:
                   idx <= currentIdx
-                    ? "var(--accent-strong)"
+                    ? "color-mix(in oklab, var(--accent-strong) 55%, transparent)"
                     : "transparent",
               }}
             />
@@ -165,8 +173,11 @@ export function ProductAnchorNav() {
           >
             {PRODUCT_SECTIONS.map((s, idx) => {
               const isActive = s.id === activeId;
-              // T6.6 — phase boundary divider after sections 02 and 05
-              const showPhaseDivider = idx === 2 || idx === 5;
+              // T6.6 — phase boundary divider at each phase transition, derived
+              // from phaseId so reordering sections can't misplace the divider.
+              const showPhaseDivider =
+                idx > 0 &&
+                PRODUCT_SECTIONS[idx].phaseId !== PRODUCT_SECTIONS[idx - 1].phaseId;
               return (
                 <li key={s.id} className="flex items-center gap-1.5">
                   {showPhaseDivider ? (
@@ -180,9 +191,9 @@ export function ProductAnchorNav() {
                     data-anchor-chip
                     aria-current={isActive ? "true" : undefined}
                     className={
-                      "product-anchor-chip inline-flex min-w-[2.5rem] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors motion-reduce:transition-none " +
+                      "product-anchor-chip ui-chip-focus inline-flex min-w-[2.5rem] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors motion-reduce:transition-none " +
                       (isActive
-                        ? "border-[color:color-mix(in_oklab,var(--accent-strong)_38%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_50%,var(--surface-raised))] text-[var(--accent-strong)]"
+                        ? "border-[color:color-mix(in_oklab,var(--accent-strong)_38%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_20%,var(--surface-raised))] text-[var(--accent-strong)]"
                         : "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-strong))] hover:text-[var(--text-primary)]")
                     }
                   >
@@ -194,20 +205,12 @@ export function ProductAnchorNav() {
                     >
                       {s.number}
                     </span>
-                    {s.eyebrow}
+                    {NAV_LABELS[s.id] ?? s.eyebrow}
                   </a>
                 </li>
               );
             })}
           </ul>
-          {/* v7 T27.24 — counter hidden below md to prevent overflow on narrow viewports.
-              The segmented progress bar already conveys position. */}
-          <span
-            aria-hidden
-            className="ml-auto hidden shrink-0 whitespace-nowrap px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-tertiary)] md:inline-flex"
-          >
-            Section {progress} of {PRODUCT_SECTIONS.length}
-          </span>
         </div>
       </div>
       {/* T25.1 — Screen-reader announcement of section changes */}

@@ -87,7 +87,8 @@ describe("sidebar model", () => {
   });
 
   it("shows Assurance primary and child labels when assurance nav is allowed", () => {
-    const m = model({ surface: surface({ mode: "assurance", role: "manager", featureFlags: allFlags, seesAdvancedPrimaryNav: true, seesAssuranceNav: true }) });
+    // Children are contextual: they only surface when the section is active.
+    const m = model({ pathname: "/assurance", surface: surface({ mode: "assurance", role: "manager", featureFlags: allFlags, seesAdvancedPrimaryNav: true, seesAssuranceNav: true }) });
     const assurance = findItem("Assurance", m);
     expect(assurance?.children.map((child) => child.name)).toEqual([
       "Findings",
@@ -108,6 +109,8 @@ describe("sidebar model", () => {
 
   it("removes hidden advanced, assurance, and utility modules including badges", () => {
     const m = model({
+      // On an Assurance route so the (filtered) Assurance subnav is exercised.
+      pathname: "/assurance",
       surface: surface({
         mode: "assurance",
         role: "admin",
@@ -125,7 +128,9 @@ describe("sidebar model", () => {
     expect(topLevelNames(m)).not.toContain("Tools");
     expect(findItem("Assurance", m)?.children.map((child) => child.name)).not.toContain("Playbooks");
     expect(findItem("Watchlists", m)).toBeUndefined();
-    expect(findItem("Contracts", m)?.children.find((child) => child.name === "Review fields")?.badge?.displayValue).toBe("4");
+    // Contracts is inactive here, so its review count rolls up onto the parent
+    // row as a single count chip rather than an always-on "Review fields" child.
+    expect(findItem("Contracts", m)?.badge?.displayValue).toBe("4");
   });
 
   it("marks the release-state Work destination exact-active without legacy child lanes", () => {
@@ -195,6 +200,24 @@ describe("sidebar model", () => {
 
     const large = model({ pathname: "/contracts/obligations", navBadges: { obligations: 104 } });
     expect(findItem("Work", large)?.children).toEqual([]);
+  });
+
+  it("treats the Contracts subnav as contextual — children only when the section is active", () => {
+    // Inactive section: no child rows; the review count rolls up onto the
+    // parent Contracts row as a single chip.
+    const away = model({ pathname: "/work", navBadges: { reviewQueue: 5 } });
+    const contractsAway = findItem("Contracts", away);
+    expect(contractsAway?.children).toEqual([]);
+    expect(contractsAway?.badge?.displayValue).toBe("5");
+
+    // Active section: "All contracts" + "Review fields" surface; the parent
+    // stops carrying the rolled-up count because the child owns it.
+    const inSection = model({ pathname: "/contracts", navBadges: { reviewQueue: 5 } });
+    const contractsIn = findItem("Contracts", inSection);
+    expect(contractsIn?.children.map((c) => c.name)).toEqual(["All contracts", "Review fields"]);
+    expect(contractsIn?.badge).toBeUndefined();
+    expect(contractsIn?.children.find((c) => c.name === "All contracts")?.exactActive).toBe(true);
+    expect(contractsIn?.children.find((c) => c.name === "Review fields")?.badge?.displayValue).toBe("5");
   });
 
   it("does not aggregate hidden old Work lane badges when collapsed in Core", () => {

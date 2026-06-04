@@ -22,7 +22,7 @@ const REQUIRED_LAUNCH_BOUNDARIES = new Set([
   "no-autonomous-agent",
   "no-enterprise-assurance",
   "human-reviewed-ai",
-  "early-access-assurance-workflows",
+  "gated-early-access-request",
   "exportable-data",
 ]);
 
@@ -41,6 +41,7 @@ const REQUIRED_CONVERSION_FLOWS = new Set([
   "contact-api",
   "contact-api-abuse-tests",
   "pricing-page",
+  "early-access-page",
   "signup-form",
   "password-recovery",
   "billing-checkout-handoff",

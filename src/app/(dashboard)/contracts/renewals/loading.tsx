@@ -7,7 +7,7 @@ export default function RenewalsLoading() {
       <div className="ui-page-stack mx-auto max-w-7xl" aria-hidden aria-busy="true">
         <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
           <div className="flex min-w-0 items-start gap-3.5">
-            <div className="ui-skeleton h-10 w-10 rounded-xl" />
+            <div className="ui-skeleton h-10 w-10 rounded-md" />
             <div className="min-w-0 space-y-2">
               <div className="ui-skeleton h-3 w-24 rounded" />
               <div className="ui-skeleton h-8 w-48 rounded" />
@@ -20,7 +20,7 @@ export default function RenewalsLoading() {
           </div>
         </div>
 
-        <div className="ui-card-quiet overflow-hidden">
+        <div className="ui-card overflow-hidden">
           <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
             <div className="ui-skeleton h-5 w-52 rounded" />
             <div className="ui-skeleton h-8 w-28 rounded-full" />

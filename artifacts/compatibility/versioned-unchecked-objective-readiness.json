@@ -65,10 +65,10 @@
         "apiRoutes": 1,
         "cronRoutes": 32,
         "environmentKeys": 24,
-        "exportedSymbolAliases": 1148,
+        "exportedSymbolAliases": 1150,
         "packageScriptAliases": 37,
         "sqlObjects": 75,
-        "telemetryEventNames": 74
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -129,12 +129,12 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1532,
+        "contentContractAliases": 1574,
         "cronRoutes": 32,
         "environmentKeys": 24,
         "packageScriptAliases": 37,
         "sqlObjects": 75,
-        "telemetryEventNames": 74
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -195,7 +195,7 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1532,
+        "contentContractAliases": 1574,
         "cronRoutes": 32
       },
       "uncoveredManualCount": 0,
@@ -205,7 +205,7 @@
       "evidence": {
         "publicGroupCount": 4,
         "preservedGroupCount": 4,
-        "contractCount": 457,
+        "contractCount": 461,
         "dualReadPresentCount": 2,
         "runtimeReadinessStatusCounts": {
           "dual_read_present": 2,
@@ -230,7 +230,7 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1532
+        "contentContractAliases": 1574
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -296,7 +296,7 @@
         "migrationHistoryFilenames": 37,
         "seedVersionedNames": 1,
         "sqlObjects": 75,
-        "sqlSecurityAutomation": 67
+        "sqlSecurityAutomation": 68
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -304,7 +304,7 @@
       "missingValidationCommandCount": 0,
       "evidence": {
         "stagedSqlRenameCount": 75,
-        "sqlSecurityCoverageCount": 67,
+        "sqlSecurityCoverageCount": 68,
         "seedQueueCoveredCount": 0
       }
     },
@@ -324,17 +324,17 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1532,
-        "telemetryEventNames": 74
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
       "missingValidationCommandCount": 0,
       "evidence": {
-        "telemetryEventCount": 338,
-        "telemetryNeutralAliasCount": 74,
-        "telemetryQueueCount": 74
+        "telemetryEventCount": 390,
+        "telemetryNeutralAliasCount": 93,
+        "telemetryQueueCount": 93
       }
     }
   ],

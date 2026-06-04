@@ -37,7 +37,7 @@ describe("contract detail mode separation", () => {
     const raw = readDetailPage();
     const corePath = between(raw, "if (isCoreContractDetail)", '<div className="space-y-7 md:space-y-8">');
     for (const label of [
-      "Signed agreement",
+      "Contract record",
       "Contract action summary",
       "Review fields",
       "Key dates",

@@ -12,6 +12,7 @@ export interface UiToggleProps {
   label?: ReactNode;
   description?: ReactNode;
   ariaLabel?: string;
+  ariaDescribedBy?: string;
   size?: "sm" | "md";
 }
 
@@ -24,6 +25,7 @@ export function UiToggle({
   label,
   description,
   ariaLabel,
+  ariaDescribedBy,
   size = "md",
 }: UiToggleProps) {
   const id = useId();
@@ -45,6 +47,7 @@ export function UiToggle({
         defaultChecked={isControlled ? undefined : defaultChecked}
         disabled={disabled}
         aria-label={ariaLabel ?? (typeof label === "string" ? label : undefined)}
+        aria-describedby={ariaDescribedBy}
         onChange={onChange ? (e) => onChange(e.target.checked) : undefined}
       />
       <span

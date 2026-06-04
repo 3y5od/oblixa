@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const checks = [
   { id: "api_route_auth_contract", cmd: "npm", args: ["run", "check:api-route-auth-contract"] },
@@ -16,7 +16,7 @@ const checks = [
 const rows = [];
 for (const check of checks) {
   const startedAt = Date.now();
-  const res = spawnSync(check.cmd, check.args, {
+  const res = spawnSyncCrossPlatform(check.cmd, check.args, {
     encoding: "utf8",
     stdio: "pipe",
     env: process.env,

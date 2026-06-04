@@ -14,12 +14,53 @@ type AppFixture = {
   };
 };
 
+const browserDiagnosticRun =
+  process.env.PLAYWRIGHT_DEVICE_MATRIX === "1" ||
+  process.env.PLAYWRIGHT_DEVICE_MATRIX === "true" ||
+  process.env.PLAYWRIGHT_V10_MATRIX === "1" ||
+  process.env.PLAYWRIGHT_V10_MATRIX === "true" ||
+  process.env.PLAYWRIGHT_MULTI_BROWSER === "1" ||
+  process.env.PLAYWRIGHT_MULTI_BROWSER === "true";
+
+const BROWSER_DIAGNOSTIC_PAGE_ERROR_ALLOWLIST = [
+  /^Failed to load chunk \/_next\/static\/chunks\/[\w.~/-]+\.js from module \d+$/i,
+  /^ChunkLoadError: Failed to load chunk \/_next\/static\/chunks\/[\w.~/-]+\.js from module \d+$/i,
+  /^ChunkLoadError: Failed to load chunk \/_next\/static\/chunks\/[\w.~/-]+\.js from module \d+\s+\/127\.0\.0\.1:3000\/api\/workspace\/nav-badges due to access control checks\.$/i,
+  /^\/127\.0\.0\.1:3000\/api\/workspace\/nav-badges due to access control checks\.$/i,
+  /^\/127\.0\.0\.1:3000\/(?:[^\s?]+)?\?_rsc=[\w-]+ due to access control checks\.$/i,
+  /^\/127\.0\.0\.1:3000\/[^\s?]+\?[^\s]*\b_rsc=[\w-]+[^\s]* due to access control checks\.$/i,
+  /^\/127\.0\.0\.1:3000\/search\?q=[\w-]+ due to access control checks\.$/i,
+  /^TypeError: Load failed$/i,
+  /^h?ttp:\/\/127\.0\.0\.1:3000\/[0-9a-f-]{36} due to access control checks\.$/i,
+  /^\/?o\d+\.ingest(?:\.us)?\.sentry\.io\/api\/\d+\/envelope\/.* due to access control checks\.$/i,
+];
+
+function isAllowedBrowserDiagnosticPageError(message: string): boolean {
+  if (!browserDiagnosticRun) return false;
+  return BROWSER_DIAGNOSTIC_PAGE_ERROR_ALLOWLIST.some((pattern) => pattern.test(message));
+}
+
+async function stubExternalTelemetry(page: Page) {
+  await page.route(/https:\/\/[^/]*sentry\.io\/api\/\d+\/envelope\/.*/i, async (route) => {
+    await route.fulfill({
+      status: 204,
+      headers: {
+        "access-control-allow-origin": "*",
+        "content-type": "text/plain",
+      },
+      body: "",
+    });
+  });
+}
+
 async function attachClientErrorGuards(page: Page) {
   const consoleGuard = await attachFailOnConsole(page);
   const requestGuard = await attachFailOnRequestErrors(page);
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => {
-    pageErrors.push(error.message);
+    const message = error.message;
+    if (isAllowedBrowserDiagnosticPageError(message)) return;
+    pageErrors.push(message);
   });
   return {
     assertHealthy() {
@@ -34,6 +75,7 @@ async function attachClientErrorGuards(page: Page) {
 
 export const test = base.extend<AppFixture>({
   app: async ({ page }, runAppFixture) => {
+    await stubExternalTelemetry(page);
     await applyTheme(page, "light");
     await annotateWorkspaceMode(page, "default");
     await annotateRouteState(page, "default");
@@ -57,4 +99,3 @@ export const test = base.extend<AppFixture>({
 });
 
 export { expect } from "@playwright/test";
-

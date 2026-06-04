@@ -7,13 +7,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
-const cwd = process.cwd();
-const srcRoot = path.join(cwd, "src");
+const DEFAULT_CWD = process.cwd();
 
 const ALLOWLIST_HASHES = new Set([
   "main-content", // skip link
 ]);
+
+const DATA_ID_SOURCE_FILES = new Set(["src/components/landing/product-sections-data.ts"]);
 
 async function* walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -39,19 +41,27 @@ function rel(p) {
 const hashHrefRe = /href\s*=\s*["']#([a-zA-Z][\w-]*)["']/g;
 const hashPropRe = /href:\s*["']#([a-zA-Z][\w-]*)["']/g;
 const idAttrRe = /\bid\s*=\s*["']([a-zA-Z][\w-]*)["']/g;
+const dataIdRe = /\bid\s*:\s*["']([a-zA-Z][\w-]*)["']/g;
 
-async function main() {
+export async function analyzeClientHashDetails(root = DEFAULT_CWD) {
+  const srcRoot = path.join(root, "src");
   const allIds = new Set();
   const hashRefs = [];
 
   for await (const file of walk(srcRoot)) {
-    const r = rel(file);
+    const r = path.relative(root, file).split(path.sep).join("/");
     const text = await fs.readFile(file, "utf8");
 
     let m;
     const idRe = new RegExp(idAttrRe.source, "g");
     while ((m = idRe.exec(text)) !== null) {
       allIds.add(m[1]);
+    }
+    if (DATA_ID_SOURCE_FILES.has(r)) {
+      const dataRe = new RegExp(dataIdRe.source, "g");
+      while ((m = dataRe.exec(text)) !== null) {
+        allIds.add(m[1]);
+      }
     }
 
     const collect = (regex) => {
@@ -65,20 +75,32 @@ async function main() {
   }
 
   const missing = hashRefs.filter((h) => !ALLOWLIST_HASHES.has(h.id) && !allIds.has(h.id));
+  return {
+    ok: missing.length === 0,
+    idCount: allIds.size,
+    hashRefCount: hashRefs.length,
+    missing,
+  };
+}
 
-  if (missing.length === 0) {
+async function main() {
+  const report = await analyzeClientHashDetails();
+
+  if (report.ok) {
     console.log("PASS check-client-hash-details: all in-app hash targets have a matching id in src");
     process.exit(0);
   }
 
   console.error("FAIL check-client-hash-details: hash links with no matching id= in src:");
-  for (const h of missing) {
+  for (const h of report.missing) {
     console.error(`  #${h.id} referenced in ${h.file}`);
   }
   process.exit(1);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

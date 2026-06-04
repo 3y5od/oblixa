@@ -13,8 +13,8 @@
     "queueCoveredCount": 79,
     "retainedLegacyAliasCount": 79,
     "neutralOnlyAliasCount": 0,
-    "legacyReferenceCount": 258,
-    "neutralReferenceCount": 1351,
+    "legacyReferenceCount": 373,
+    "neutralReferenceCount": 1601,
     "issueCount": 0
   },
   "aliases": [
@@ -24,9 +24,9 @@
       "neutralAlias": "ENABLE_APPROVALS_SLA",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -40,6 +40,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -50,9 +56,9 @@
       "neutralAlias": "ENABLE_AUTOMATION_EXPANSION",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -66,6 +72,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -76,9 +88,9 @@
       "neutralAlias": "ENABLE_INTAKE_PIPELINE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -92,6 +104,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -102,9 +120,9 @@
       "neutralAlias": "ENABLE_OBLIGATIONS_EXECUTION",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -119,6 +137,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -128,9 +152,9 @@
       "neutralAlias": "ENABLE_PERSONA_DASHBOARDS",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 3,
-      "referenceFileCount": 3,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -151,6 +175,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -160,9 +190,9 @@
       "neutralAlias": "ENABLE_RENEWAL_WORKSPACE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -177,6 +207,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -186,9 +222,9 @@
       "neutralAlias": "ENABLE_REPORTING_HISTORY",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 4,
-      "referenceFileCount": 4,
+      "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -215,6 +251,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -224,9 +266,9 @@
       "neutralAlias": "ENABLE_TASKS_ENGINE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 7,
-      "neutralReferenceCount": 3,
-      "referenceFileCount": 4,
+      "legacyReferenceCount": 8,
+      "neutralReferenceCount": 4,
+      "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -253,6 +295,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -262,9 +310,9 @@
       "neutralAlias": "ENABLE_CONTROL_ROOM_UX",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 4,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 4,
+      "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -291,6 +339,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -300,9 +354,9 @@
       "neutralAlias": "ENABLE_DECISION_FOUNDATION",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 4,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 4,
+      "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -329,6 +383,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -338,9 +398,9 @@
       "neutralAlias": "ENABLE_EXTERNAL_COLLABORATION",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 8,
+      "legacyReferenceCount": 9,
       "neutralReferenceCount": 6,
-      "referenceFileCount": 6,
+      "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -379,6 +439,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -388,9 +454,9 @@
       "neutralAlias": "ENABLE_PORTFOLIO_CAMPAIGNS",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 3,
+      "legacyReferenceCount": 4,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 3,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -410,6 +476,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -420,9 +492,9 @@
       "neutralAlias": "ENABLE_RELATIONSHIP_LAYER",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 3,
+      "legacyReferenceCount": 4,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 3,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -442,6 +514,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -452,9 +530,9 @@
       "neutralAlias": "ENABLE_SIMULATION_AND_INTELLIGENCE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 3,
+      "legacyReferenceCount": 4,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 3,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -475,6 +553,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -484,9 +568,9 @@
       "neutralAlias": "ENABLE_ADAPTIVE_PLAYBOOKS",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -501,6 +585,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -510,9 +600,9 @@
       "neutralAlias": "ENABLE_ASSURANCE_CORE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 13,
+      "legacyReferenceCount": 14,
       "neutralReferenceCount": 6,
-      "referenceFileCount": 6,
+      "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -551,6 +641,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -560,9 +656,9 @@
       "neutralAlias": "ENABLE_AUTOPILOT",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 6,
+      "legacyReferenceCount": 7,
       "neutralReferenceCount": 5,
-      "referenceFileCount": 3,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -582,6 +678,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 2,
           "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -624,9 +726,9 @@
       "neutralAlias": "ENABLE_CONTROL_POLICIES",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -640,6 +742,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -650,9 +758,9 @@
       "neutralAlias": "ENABLE_OUTCOME_INTELLIGENCE",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -666,6 +774,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -676,9 +790,9 @@
       "neutralAlias": "ENABLE_REVIEW_BOARDS",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -693,6 +807,12 @@
           "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "source_or_test"
         }
       ]
     },
@@ -702,9 +822,9 @@
       "neutralAlias": "ENABLE_SEGMENTS",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 3,
       "neutralReferenceCount": 2,
-      "referenceFileCount": 2,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/feature-flags.test.ts src/lib/observability/instrumentation-env-warn.test.ts",
       "references": [
@@ -718,6 +838,12 @@
           "path": "src/lib/feature-flags.ts",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/operational-feature-flags.ts",
+          "legacyCount": 1,
+          "neutralCount": 0,
           "referenceClass": "source_or_test"
         }
       ]
@@ -1199,7 +1325,7 @@
       "owner": "product-surface",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 52,
+      "neutralReferenceCount": 53,
       "referenceFileCount": 15,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
@@ -1225,7 +1351,7 @@
         {
           "path": "src/actions/product-surface-settings.test.ts",
           "legacyCount": 0,
-          "neutralCount": 18,
+          "neutralCount": 19,
           "referenceClass": "source_or_test"
         },
         {
@@ -1304,7 +1430,7 @@
       "queueCovered": true,
       "legacyReferenceCount": 3,
       "neutralReferenceCount": 43,
-      "referenceFileCount": 20,
+      "referenceFileCount": 19,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
       "references": [
@@ -1351,12 +1477,6 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/app/(dashboard)/reports/page.tsx",
-          "legacyCount": 0,
-          "neutralCount": 2,
-          "referenceClass": "source_or_test"
-        },
-        {
           "path": "src/app/(dashboard)/settings/product/page.tsx",
           "legacyCount": 0,
           "neutralCount": 2,
@@ -1365,7 +1485,7 @@
         {
           "path": "src/app/(dashboard)/work/page.tsx",
           "legacyCount": 0,
-          "neutralCount": 2,
+          "neutralCount": 4,
           "referenceClass": "source_or_test"
         },
         {
@@ -1475,7 +1595,7 @@
       "owner": "product-surface",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 46,
+      "neutralReferenceCount": 47,
       "referenceFileCount": 12,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
@@ -1495,7 +1615,7 @@
         {
           "path": "src/lib/assurance/org-settings.ts",
           "legacyCount": 1,
-          "neutralCount": 16,
+          "neutralCount": 17,
           "referenceClass": "source_or_test"
         },
         {
@@ -2009,8 +2129,8 @@
       "owner": "frontend-platform",
       "queueCovered": true,
       "legacyReferenceCount": 3,
-      "neutralReferenceCount": 21,
-      "referenceFileCount": 8,
+      "neutralReferenceCount": 23,
+      "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/business-dates-drift.test.ts src/lib/hardening.test.ts",
       "references": [
@@ -2057,6 +2177,12 @@
           "referenceClass": "source_or_test"
         },
         {
+          "path": "src/lib/evidence/model.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
           "path": "src/lib/hardening.test.ts",
           "legacyCount": 0,
           "neutralCount": 2,
@@ -2070,7 +2196,7 @@
       "neutralAlias": "check:complete-closure",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 18,
       "referenceFileCount": 13,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -2084,13 +2210,13 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2162,7 +2288,7 @@
       "neutralAlias": "check:release-inventory-lock",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 14,
       "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -2176,13 +2302,13 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2230,9 +2356,9 @@
       "neutralAlias": "check:migration-smoke:current",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 4,
-      "neutralReferenceCount": 28,
-      "referenceFileCount": 17,
+      "legacyReferenceCount": 10,
+      "neutralReferenceCount": 29,
+      "referenceFileCount": 18,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:migration-smoke:current",
       "references": [
@@ -2249,14 +2375,20 @@
           "referenceClass": "ci_or_workflow"
         },
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/autonomous-code-only-qa-objectives.json",
           "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 4,
           "neutralCount": 4,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
@@ -2346,7 +2478,7 @@
       "neutralAlias": "check:migration-smoke:current:strict",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 14,
       "referenceFileCount": 12,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -2366,13 +2498,13 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2432,7 +2564,7 @@
       "neutralAlias": "check:release-privacy-scan",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 35,
       "referenceFileCount": 20,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -2446,13 +2578,13 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2566,7 +2698,7 @@
       "neutralAlias": "check:release-promotable",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 4,
+      "legacyReferenceCount": 10,
       "neutralReferenceCount": 18,
       "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -2574,13 +2706,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 4,
           "neutralCount": 4,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
@@ -2634,12 +2766,24 @@
       "neutralAlias": "report:release-promotable",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 4,
-      "referenceFileCount": 2,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run report:release-promotable",
       "references": [
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
+          "neutralCount": 0,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 1,
+          "neutralCount": 0,
+          "referenceClass": "repo_local"
+        },
         {
           "path": "package.json",
           "legacyCount": 1,
@@ -2660,9 +2804,9 @@
       "neutralAlias": "check:release-evidence",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 123,
-      "referenceFileCount": 34,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 127,
+      "referenceFileCount": 37,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:release-evidence",
       "references": [
@@ -2673,14 +2817,26 @@
           "referenceClass": "ci_or_workflow"
         },
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/autonomous-code-only-qa-objectives.json",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
-          "path": "config/qa-tier-coverage-allowlist.json",
+          "path": "config/operational-release-readiness.json",
           "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2693,6 +2849,12 @@
         {
           "path": "scripts/check-compatibility-removal-queue.mjs",
           "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-operational-release-readiness.mjs",
+          "legacyCount": 0,
           "neutralCount": 1,
           "referenceClass": "tooling_or_governance"
         },
@@ -2878,21 +3040,21 @@
       "neutralAlias": "report:runtime-evidence-plan",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 12,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 10,
       "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run report:runtime-evidence-plan",
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
-          "neutralCount": 2,
+          "legacyCount": 2,
+          "neutralCount": 0,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2940,9 +3102,9 @@
       "neutralAlias": "check:release-suite-current",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 118,
-      "referenceFileCount": 39,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 120,
+      "referenceFileCount": 40,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:release-suite-current",
       "references": [
@@ -2953,14 +3115,20 @@
           "referenceClass": "ci_or_workflow"
         },
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/autonomous-code-only-qa-objectives.json",
           "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -2997,7 +3165,7 @@
         {
           "path": "scripts/check-versioned-closure-readiness.test.mjs",
           "legacyCount": 0,
-          "neutralCount": 1,
+          "neutralCount": 2,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -3188,7 +3356,7 @@
       "neutralAlias": "check:zero-exclusion-report",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 15,
       "referenceFileCount": 10,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3202,13 +3370,13 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3262,7 +3430,7 @@
       "neutralAlias": "check:surface-hrefs:compatibility:strict",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 7,
       "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3270,13 +3438,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3306,7 +3474,7 @@
       "neutralAlias": "check:surface-suite:compatibility",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 8,
       "referenceFileCount": 5,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3314,13 +3482,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3350,7 +3518,7 @@
       "neutralAlias": "check:surface:acceptance-criteria",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 8,
       "referenceFileCount": 6,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3358,13 +3526,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3400,7 +3568,7 @@
       "neutralAlias": "check:surface:acceptance-matrix",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 10,
       "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3408,13 +3576,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3456,7 +3624,7 @@
       "neutralAlias": "check:surface:action-eligibility",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 12,
       "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3464,13 +3632,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3524,7 +3692,7 @@
       "neutralAlias": "check:surface:action-inventory",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 13,
       "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3532,13 +3700,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3592,7 +3760,7 @@
       "neutralAlias": "check:surface:api-eligibility",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 14,
       "referenceFileCount": 10,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3600,13 +3768,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3666,7 +3834,7 @@
       "neutralAlias": "check:surface:api-inventory",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 13,
       "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3674,13 +3842,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3734,7 +3902,7 @@
       "neutralAlias": "check:surface:denial-mapping",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 10,
       "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -3742,13 +3910,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3790,21 +3958,27 @@
       "neutralAlias": "check:surface:diagnostics-contract",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 10,
-      "referenceFileCount": 7,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 13,
+      "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:diagnostics-contract",
       "references": [
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/operational-support-operations.json",
           "legacyCount": 0,
+          "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -3846,22 +4020,34 @@
       "neutralAlias": "check:surface:hrefs",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 4,
-      "neutralReferenceCount": 30,
-      "referenceFileCount": 14,
+      "legacyReferenceCount": 10,
+      "neutralReferenceCount": 71,
+      "referenceFileCount": 17,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:hrefs",
       "references": [
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/operational-public-launch-positioning.json",
           "legacyCount": 0,
-          "neutralCount": 6,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 4,
+          "neutralCount": 4,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 2,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/release-state-implementation-objectives.json",
           "legacyCount": 0,
-          "neutralCount": 3,
+          "neutralCount": 40,
           "referenceClass": "repo_local"
         },
         {
@@ -3880,6 +4066,12 @@
           "path": "scripts/check-qa-maximal-bundle.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-state-implementation-objectives.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -3944,22 +4136,34 @@
       "neutralAlias": "check:surface:hrefs:strict",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 24,
-      "referenceFileCount": 14,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 65,
+      "referenceFileCount": 17,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:hrefs:strict",
       "references": [
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/operational-public-launch-positioning.json",
           "legacyCount": 0,
-          "neutralCount": 4,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
+          "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/release-state-implementation-objectives.json",
           "legacyCount": 0,
-          "neutralCount": 2,
+          "neutralCount": 40,
           "referenceClass": "repo_local"
         },
         {
@@ -3978,6 +4182,12 @@
           "path": "scripts/check-qa-maximal-bundle.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-release-state-implementation-objectives.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -4042,7 +4252,7 @@
       "neutralAlias": "check:surface:page-inventory",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 14,
       "referenceFileCount": 10,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -4050,13 +4260,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -4116,8 +4326,8 @@
       "neutralAlias": "check:surface:suite",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 33,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 30,
       "referenceFileCount": 17,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:suite",
@@ -4130,14 +4340,14 @@
         },
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
-          "neutralCount": 4,
+          "legacyCount": 2,
+          "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
-          "neutralCount": 2,
+          "legacyCount": 1,
+          "neutralCount": 1,
           "referenceClass": "repo_local"
         },
         {
@@ -4232,21 +4442,27 @@
       "neutralAlias": "check:surface:supplemental-contracts",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 11,
-      "referenceFileCount": 8,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 12,
+      "referenceFileCount": 9,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:supplemental-contracts",
       "references": [
         {
-          "path": "config/qa-comprehensive-taxonomy.json",
+          "path": "config/autonomous-code-only-qa-objectives.json",
           "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/qa-comprehensive-taxonomy.json",
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -4294,22 +4510,22 @@
       "neutralAlias": "check:surface:vocabulary",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
-      "neutralReferenceCount": 15,
+      "legacyReferenceCount": 5,
+      "neutralReferenceCount": 12,
       "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run check:surface:vocabulary",
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
-          "neutralCount": 4,
+          "legacyCount": 2,
+          "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
-          "neutralCount": 2,
+          "legacyCount": 1,
+          "neutralCount": 1,
           "referenceClass": "repo_local"
         },
         {
@@ -4356,7 +4572,7 @@
       "neutralAlias": "check:previous-release-suite",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 2,
+      "legacyReferenceCount": 5,
       "neutralReferenceCount": 12,
       "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
@@ -4364,13 +4580,13 @@
       "references": [
         {
           "path": "config/qa-comprehensive-taxonomy.json",
-          "legacyCount": 0,
+          "legacyCount": 2,
           "neutralCount": 2,
           "referenceClass": "repo_local"
         },
         {
           "path": "config/qa-tier-coverage-allowlist.json",
-          "legacyCount": 0,
+          "legacyCount": 1,
           "neutralCount": 1,
           "referenceClass": "repo_local"
         },
@@ -4495,8 +4711,8 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 4,
-      "neutralReferenceCount": 63,
-      "referenceFileCount": 26,
+      "neutralReferenceCount": 82,
+      "referenceFileCount": 29,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:current-product",
       "references": [
@@ -4505,6 +4721,24 @@
           "legacyCount": 0,
           "neutralCount": 1,
           "referenceClass": "ci_or_workflow"
+        },
+        {
+          "path": "config/autonomous-code-only-qa-objectives.json",
+          "legacyCount": 0,
+          "neutralCount": 5,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-frontend-resilience.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-platform-variant-coverage.json",
+          "legacyCount": 0,
+          "neutralCount": 12,
+          "referenceClass": "repo_local"
         },
         {
           "path": "e2e/current-product-device-matrix.chromium.spec.ts",
@@ -4665,11 +4899,29 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 5,
-      "referenceFileCount": 4,
+      "neutralReferenceCount": 20,
+      "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:current-product:matrix",
       "references": [
+        {
+          "path": "config/autonomous-code-only-qa-objectives.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-frontend-resilience.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-platform-variant-coverage.json",
+          "legacyCount": 0,
+          "neutralCount": 12,
+          "referenceClass": "repo_local"
+        },
         {
           "path": "e2e/current-product-device-matrix.chromium.spec.ts",
           "legacyCount": 0,
@@ -4702,12 +4954,30 @@
       "neutralAlias": "test:e2e:compatibility",
       "owner": "platform-hardening",
       "queueCovered": true,
-      "legacyReferenceCount": 6,
-      "neutralReferenceCount": 13,
-      "referenceFileCount": 5,
+      "legacyReferenceCount": 7,
+      "neutralReferenceCount": 17,
+      "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:compatibility",
       "references": [
+        {
+          "path": "config/autonomous-code-only-qa-objectives.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-schema-compatibility.json",
+          "legacyCount": 1,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-test-reliability-governance.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
         {
           "path": "package.json",
           "legacyCount": 3,
@@ -4747,11 +5017,17 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 4,
-      "neutralReferenceCount": 7,
-      "referenceFileCount": 3,
+      "neutralReferenceCount": 9,
+      "referenceFileCount": 4,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:compatibility:visual",
       "references": [
+        {
+          "path": "config/operational-test-reliability-governance.json",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "repo_local"
+        },
         {
           "path": "package.json",
           "legacyCount": 2,
@@ -4779,11 +5055,17 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 3,
-      "referenceFileCount": 2,
+      "neutralReferenceCount": 4,
+      "referenceFileCount": 3,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:compatibility:visual:update",
       "references": [
+        {
+          "path": "config/operational-test-reliability-governance.json",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "repo_local"
+        },
         {
           "path": "package.json",
           "legacyCount": 1,
@@ -4805,15 +5087,39 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 6,
-      "referenceFileCount": 3,
+      "neutralReferenceCount": 125,
+      "referenceFileCount": 8,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:vitest:current-product",
       "references": [
         {
+          "path": "config/operational-billing-entitlements.json",
+          "legacyCount": 0,
+          "neutralCount": 29,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-notifications-messaging.json",
+          "legacyCount": 0,
+          "neutralCount": 27,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/operational-search-reporting-analytics-exports.json",
+          "legacyCount": 0,
+          "neutralCount": 21,
+          "referenceClass": "repo_local"
+        },
+        {
           "path": "config/qa-tier-manifest.json",
           "legacyCount": 0,
           "neutralCount": 3,
+          "referenceClass": "repo_local"
+        },
+        {
+          "path": "config/release-state-implementation-objectives.json",
+          "legacyCount": 0,
+          "neutralCount": 37,
           "referenceClass": "repo_local"
         },
         {
@@ -4826,6 +5132,12 @@
           "path": "scripts/check-compatibility-removal-queue.mjs",
           "legacyCount": 1,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/check-operational-billing-entitlements.test.mjs",
+          "legacyCount": 0,
+          "neutralCount": 5,
           "referenceClass": "tooling_or_governance"
         }
       ]

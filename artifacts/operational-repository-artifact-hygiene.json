@@ -167,9 +167,9 @@
     ]
   },
   "generatedArtifactOwnership": {
-    "generatedArtifactCount": 104,
-    "deterministicArtifactCount": 83,
-    "ownedArtifactCount": 104,
+    "generatedArtifactCount": 105,
+    "deterministicArtifactCount": 84,
+    "ownedArtifactCount": 105,
     "missingOwnerCount": 0,
     "rows": [
       {
@@ -423,6 +423,13 @@
         "cleanupPolicy": "regenerate-on-check-drift",
         "deterministic": true,
         "writeCommand": "npm run write:operational-public-launch-positioning"
+      },
+      {
+        "path": "artifacts/release-state-implementation-objectives.json",
+        "ownerArea": "product-surface",
+        "cleanupPolicy": "regenerate-on-check-drift",
+        "deterministic": true,
+        "writeCommand": "npm run write:release-state-implementation-objectives"
       },
       {
         "path": "artifacts/operational-repository-artifact-hygiene.json",
@@ -903,7 +910,7 @@
     ]
   },
   "fileSafety": {
-    "scannedFileCount": 3748,
+    "scannedFileCount": 3756,
     "largeFileCount": 2,
     "binaryFileCount": 55,
     "unexpectedBinaryCount": 0,
@@ -911,7 +918,7 @@
     "executableMasquerade": {
       "ok": true,
       "issueCount": 0,
-      "scannedFileCount": 3776
+      "scannedFileCount": 3762
     },
     "binaryMetadataStripping": {
       "ok": true,
@@ -1434,9 +1441,9 @@
     ]
   },
   "sourceHygiene": {
-    "scannedTextFileCount": 3673,
+    "scannedTextFileCount": 3680,
     "crlfCount": 0,
-    "missingFinalNewlineCount": 96,
+    "missingFinalNewlineCount": 95,
     "controlCharacterCount": 0,
     "trojanSourceControlCount": 0,
     "asciiPolicyViolationCount": 0,
@@ -2332,16 +2339,6 @@
         "nonAsciiPolicyViolation": false
       },
       {
-        "path": "src/lib/qa/ui-quality-sweep.test.ts",
-        "bytes": 5120,
-        "crlf": false,
-        "missingFinalNewline": true,
-        "controlCharacter": false,
-        "trojanSourceControl": false,
-        "asciiRequired": false,
-        "nonAsciiPolicyViolation": false
-      },
-      {
         "path": "src/lib/tasks/run-task-automation-rules-for-org.test.ts",
         "bytes": 5449,
         "crlf": false,
@@ -2404,451 +2401,10 @@
     ]
   },
   "workspaceCleanliness": {
-    "untrackedFileCount": 216,
-    "requiredUntrackedFileCount": 88,
+    "untrackedFileCount": 10,
+    "requiredUntrackedFileCount": 0,
     "unregisteredRequiredUntrackedFileCount": 0,
-    "requiredRows": [
-      {
-        "path": "artifacts/operational-api-runtime-contracts.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-authz-session.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-billing-entitlements.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-browser-security.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-ci-enforcement.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-cron-jobs.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-data-quality-invariants.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-dr-incident-readiness.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-edge-readiness.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-environment-isolation.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-feature-flags-rollout.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-frontend-resilience.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-governance-ownership.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-hardening-closure.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-incident-follow-up-template.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-legal-trust-compliance.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-notifications-messaging.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-oauth-integration-sync.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-observability-redaction.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-package-pipelines.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-performance-load-chaos.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-platform-variant-coverage.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-privacy-auditability.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-provider-integrations.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-public-launch-positioning.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-rate-limits-abuse-bounds.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-release-readiness.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-repository-artifact-hygiene.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-schema-compatibility.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-search-reporting-analytics-exports.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-secrets-configuration.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-static-architecture-code-health.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-supabase-database.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-supply-chain-risk.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-support-operations.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-test-reliability-governance.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-threat-model-control-traceability.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-uploads-files-extraction.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-waivers-ratchets.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "artifacts/operational-webhooks-callbacks.json",
-        "registry": "generated-artifact-hygiene",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-api-runtime-contracts.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-authz-session.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-billing-entitlements.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-billing-entitlements.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-browser-security.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-ci-enforcement.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-cron-jobs.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-data-quality-invariants.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-edge-readiness.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-environment-isolation.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-environment-isolation.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-feature-flags-rollout.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-frontend-resilience.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-governance-ownership.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-governance-ownership.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-hardening-objectives.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-legal-trust-compliance.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-notifications-messaging.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-notifications-messaging.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-oauth-integration-sync.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-oauth-integration-sync.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-observability-redaction.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-package-pipelines.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-performance-load-chaos.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-platform-variant-coverage.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-platform-variant-coverage.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-privacy-auditability.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-provider-integrations.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-public-launch-positioning.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-public-launch-positioning.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-rate-limits-abuse-bounds.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-release-readiness.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-repository-artifact-hygiene.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-repository-artifact-hygiene.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-schema-compatibility.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-search-reporting-analytics-exports.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-search-reporting-analytics-exports.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-secrets-configuration.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-static-architecture-code-health.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-static-architecture-code-health.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-supabase-database.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-supply-chain-risk.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-support-operations.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-test-reliability-governance.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-test-reliability-governance.test.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-uploads-files-extraction.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-waivers-ratchets.mjs",
-        "registry": "package.json",
-        "registered": true
-      },
-      {
-        "path": "scripts/check-operational-webhooks-callbacks.mjs",
-        "registry": "package.json",
-        "registered": true
-      }
-    ],
+    "requiredRows": [],
     "localOnlyReferenceCount": 0,
     "localOnlyReferences": []
   },
@@ -2860,7 +2416,7 @@
     "executableMasquerade": {
       "ok": true,
       "issueCount": 0,
-      "scannedFileCount": 3776
+      "scannedFileCount": 3762
     },
     "binaryMetadataStripping": {
       "ok": true,

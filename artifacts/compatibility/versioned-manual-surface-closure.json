@@ -24,7 +24,7 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {},
       "uncoveredManualCount": 0,
@@ -50,11 +50,11 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566,
-        "telemetryEventNames": 87
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "queueStatusCounts": {
-        "awaiting_analytics_dashboard_cutover": 244,
+        "awaiting_analytics_dashboard_cutover": 250,
         "awaiting_production_cutover": 17
       },
       "uncoveredManualCount": 0,
@@ -79,10 +79,10 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
-        "awaiting_production_cutover": 98
+        "awaiting_production_cutover": 102
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -107,10 +107,10 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 2,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
-        "awaiting_production_cutover": 194
+        "awaiting_production_cutover": 218
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -137,12 +137,12 @@
       "coverageStatus": "retained_legacy_covered",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566,
+        "contentContractAliases": 1574,
         "cronRoutes": 32
       },
       "queueStatusCounts": {
         "alias_added": 33,
-        "awaiting_production_cutover": 453
+        "awaiting_production_cutover": 457
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -166,7 +166,7 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {},
       "uncoveredManualCount": 0,
@@ -195,12 +195,12 @@
       "categoryCount": 2,
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1566,
+        "contentContractAliases": 1574,
         "cronRoutes": 32
       },
       "queueStatusCounts": {
         "alias_added": 33,
-        "awaiting_production_cutover": 551
+        "awaiting_production_cutover": 559
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -227,10 +227,10 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 3,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
-        "alias_added": 50,
+        "alias_added": 52,
         "awaiting_production_cutover": 13
       },
       "uncoveredManualCount": 0,
@@ -257,12 +257,12 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 2,
       "queueCounts": {
-        "contentContractAliases": 1566,
-        "telemetryEventNames": 87
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "queueStatusCounts": {
-        "alias_added": 50,
-        "awaiting_analytics_dashboard_cutover": 244,
+        "alias_added": 52,
+        "awaiting_analytics_dashboard_cutover": 250,
         "awaiting_production_cutover": 30
       },
       "uncoveredManualCount": 0,
@@ -288,12 +288,12 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566,
+        "contentContractAliases": 1574,
         "environmentKeys": 24
       },
       "queueStatusCounts": {
         "alias_added": 24,
-        "awaiting_production_cutover": 212
+        "awaiting_production_cutover": 229
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -319,7 +319,7 @@
       "categoryCount": 1,
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
         "alias_added": 1,
@@ -347,12 +347,12 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
         "alias_added": 29,
         "awaiting_linked_verification": 1,
-        "awaiting_production_cutover": 224
+        "awaiting_production_cutover": 241
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -377,12 +377,12 @@
       "coverageStatus": "retained_legacy_covered",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566,
+        "contentContractAliases": 1574,
         "sqlObjects": 75
       },
       "queueStatusCounts": {
         "alias_added": 42,
-        "awaiting_linked_verification": 85
+        "awaiting_linked_verification": 88
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -407,7 +407,7 @@
       "coverageStatus": "coverage_proven",
       "categoryCount": 1,
       "queueCounts": {
-        "contentContractAliases": 1566
+        "contentContractAliases": 1574
       },
       "queueStatusCounts": {
         "awaiting_production_cutover": 12
@@ -437,12 +437,12 @@
       "categoryCount": 1,
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1566,
-        "telemetryEventNames": 87
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "queueStatusCounts": {
         "alias_added": 1,
-        "awaiting_analytics_dashboard_cutover": 244,
+        "awaiting_analytics_dashboard_cutover": 250,
         "awaiting_production_cutover": 206
       },
       "uncoveredManualCount": 0,
@@ -471,12 +471,12 @@
       "coverageStatus": "retained_legacy_covered",
       "categoryCount": 2,
       "queueCounts": {
-        "contentContractAliases": 1566,
-        "telemetryEventNames": 87
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "queueStatusCounts": {
         "alias_added": 1,
-        "awaiting_analytics_dashboard_cutover": 488,
+        "awaiting_analytics_dashboard_cutover": 500,
         "awaiting_production_cutover": 223
       },
       "uncoveredManualCount": 0,

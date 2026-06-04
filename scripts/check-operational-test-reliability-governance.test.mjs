@@ -134,7 +134,7 @@ test("visual baseline governance requires route matrices, update commands, and s
             updateCommand: "test:e2e:visual:update",
             browser: "chromium",
             device: "Desktop Chrome",
-            osAssumption: "darwin",
+            osAssumptions: ["darwin", "win32"],
             diffThreshold: "playwright-default",
             reviewEvidenceCommand: "check:operational-test-reliability-governance",
           },

@@ -22,6 +22,7 @@ const RENEWAL_EXPORT_STATUSES = [
   "completed",
   "no_renewal_action_needed",
 ] as const;
+const RENEWAL_EXPORT_REVIEW_STATES = ["", "reviewed", "suggested", "computed", "missing"] as const;
 
 export const maxDuration = 60;
 
@@ -66,6 +67,7 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const status = parseFixedEnumParam(url.searchParams.get("status"), RENEWAL_EXPORT_STATUSES, "");
+  const review = parseFixedEnumParam(url.searchParams.get("review"), RENEWAL_EXPORT_REVIEW_STATES, "");
   await emitProductTelemetryEvent(admin, {
     organizationId: orgId,
     userId: user.id,
@@ -76,6 +78,7 @@ export async function GET(request: Request) {
       has_owner_filter: url.searchParams.has("owner"),
       has_counterparty_filter: url.searchParams.has("counterparty"),
       has_status_filter: status !== "",
+      has_review_filter: review !== "",
     },
   });
 
@@ -89,6 +92,7 @@ export async function GET(request: Request) {
       owner: url.searchParams.get("owner"),
       counterparty: url.searchParams.get("counterparty"),
       status,
+      review,
     });
 
     const headers = [

@@ -20,10 +20,11 @@ export async function recordApiRouteAuditEvent(
     actorUserId: input.actorUserId,
     actorType: input.actorType ?? "user",
     action: input.action ?? "api.route_authorized",
-    targetType: "api_route",
+    targetType: "runtime_artifact",
     targetId: `${method} ${input.route}`,
-    outcome: "authorized",
+    outcome: "success",
     safeMetadata: {
+      authorization_status: "authorized",
       method,
       route: input.route,
     },

@@ -2,6 +2,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const V10_OBJECTIVE_METRICS = [
   "activation",
@@ -203,13 +204,8 @@ if (files.length === 0) {
 
 // After heavy upstream steps (e.g. full coverage), many parallel fork workers can hit
 // vitest-pool "Timeout waiting for worker to respond". Cap parallelism for this suite.
-const result = spawnSync(
-  "npx",
-  ["vitest", "run", "--no-file-parallelism", "--max-workers=4", ...files],
-  {
-    stdio: "inherit",
-    cwd: root,
-    shell: false,
-  }
-);
+const result = spawnSyncCrossPlatform("npx", ["vitest", "run", "--no-file-parallelism", "--max-workers=4", ...files], {
+  stdio: "inherit",
+  cwd: root,
+});
 process.exit(result.status ?? 1);

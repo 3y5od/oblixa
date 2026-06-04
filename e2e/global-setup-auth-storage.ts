@@ -49,7 +49,10 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   await waitForAppHttpReady(baseURL, 120_000);
 
   const browser = await chromium.launch();
-  const context = await browser.newContext({ baseURL });
+  const context = await browser.newContext({
+    baseURL,
+    ...(fs.existsSync(AUTH_FILE) ? { storageState: AUTH_FILE } : {}),
+  });
   const page = await context.newPage();
 
   try {

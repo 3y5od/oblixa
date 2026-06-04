@@ -16,7 +16,7 @@ describe("Renewals release-state row signals", () => {
   const model = readFileSync(join(process.cwd(), "src/lib/renewals/model.ts"), "utf8");
 
   it("uses the exact release-state filters and row labels", () => {
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status"]);
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Review"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
@@ -26,9 +26,11 @@ describe("Renewals release-state row signals", () => {
       "Status",
       "Next action",
     ]);
-    for (const key of Object.keys(RENEWAL_FILTER_LABELS)) {
-      expect(page).toContain(`RENEWAL_FILTER_LABELS.${key}`);
-    }
+    // Filter labels are wired into <RenewalFilterBar labels={RENEWAL_FILTER_LABELS}>;
+    // the per-key reads now live in that component, so the page proves it consumes the
+    // centralized release-state constant rather than re-deriving each label inline. The
+    // exact label values stay pinned by the Object.values assertion above.
+    expect(page).toContain("labels={RENEWAL_FILTER_LABELS}");
     for (const key of Object.keys(RENEWAL_ROW_LABELS)) {
       expect(page).toContain(`RENEWAL_ROW_LABELS.${key}`);
     }

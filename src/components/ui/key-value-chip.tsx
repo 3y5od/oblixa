@@ -34,7 +34,7 @@ export function KeyValueChip({ label, value, tone, hideLabel, className }: KeyVa
         background: tone
           ? `color-mix(in oklab, ${ink} 14%, var(--surface-raised))`
           : "var(--surface-raised)",
-        color: "var(--text-tertiary)",
+        color: tone ? ink : "var(--text-secondary)",
       }}
     >
       {hideLabel ? (

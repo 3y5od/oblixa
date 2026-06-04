@@ -22,6 +22,11 @@ export function ContractContinuityLinks(props: {
   className?: string;
   surface?: WorkflowDestinationSurface;
   label?: string;
+  /** Cap the number of destination chips rendered inline; the remainder collapse
+   *  into a single "+N" overflow chip linking to the contract. Lets a dense list
+   *  row show the first few related-work destinations without wrapping the whole
+   *  set onto a messy second line. Omit to render every visible destination. */
+  maxVisible?: number;
 }) {
   const omit = new Set(props.omit ?? []);
   const id = props.contractId;
@@ -46,20 +51,30 @@ export function ContractContinuityLinks(props: {
   if (visible.length === 0) return null;
   const label = props.label ?? "Related work";
   const shell = props.className ?? "mt-1 flex max-w-[18rem] flex-wrap items-center gap-x-1 gap-y-1 text-[12.5px] text-[var(--text-tertiary)]";
+  const cap = props.maxVisible && props.maxVisible > 0 ? props.maxVisible : visible.length;
+  const shown = visible.slice(0, cap);
+  const overflow = visible.length - shown.length;
+  const chipClass =
+    "inline-flex min-h-6 items-center rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_66%,transparent)] px-2 text-[11px] font-medium leading-none text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:text-[var(--text-primary)]";
   return (
     <div className={shell} aria-label={label}>
       <span className="inline-flex min-h-6 items-center pr-1 text-[11px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--text-tertiary)]">
         {label}
       </span>
-      {visible.map((l) => (
-        <Link
-          key={l.page}
-          href={l.href}
-          className="inline-flex min-h-6 items-center rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_66%,transparent)] px-2 text-[11px] font-medium leading-none text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:text-[var(--text-primary)]"
-        >
+      {shown.map((l) => (
+        <Link key={l.page} href={l.href} className={chipClass}>
           {l.label}
         </Link>
       ))}
+      {overflow > 0 ? (
+        <Link
+          href={`/contracts/${id}`}
+          className={`${chipClass} tabular-nums`}
+          aria-label={`${overflow} more related ${overflow === 1 ? "destination" : "destinations"}`}
+        >
+          +{overflow}
+        </Link>
+      ) : null}
     </div>
   );
 }

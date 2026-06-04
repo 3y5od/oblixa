@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { applyTheme } from "./fixtures/theme-fixture";
+import { settleWebKitWorker } from "./fixtures/webkit-worker-teardown";
 import { ExternalSurfacePO } from "./page-objects/ExternalSurfacePO";
 
 type ExternalActionState = {
@@ -57,8 +58,19 @@ function expectPrivateNoStore(headers: Record<string, string>, label: string) {
 }
 
 test.describe("public-token route states", () => {
+  test.afterAll(async ({}, testInfo) => {
+    await settleWebKitWorker(testInfo);
+  });
+
   test.beforeEach(async ({ page }) => {
     await applyTheme(page, "light");
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+    if (!page.isClosed()) {
+      await page.close({ runBeforeUnload: false });
+    }
   });
 
   test("invalid public token status and submit routes return 4xx with private no-store", async ({ request }) => {

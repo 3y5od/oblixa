@@ -284,12 +284,20 @@ export function analyzeVisualBaselineGovernance(root, config, issues = []) {
     const runCommand = scripts[suite.runCommand] ?? "";
     const updateCommand = scripts[suite.updateCommand] ?? "";
     const snapshots = snapshotFiles(root, suite.snapshotRoot);
+    const osAssumptions = Array.isArray(suite.osAssumptions)
+      ? suite.osAssumptions
+      : suite.osAssumption
+        ? [suite.osAssumption]
+        : [];
     const badSnapshotNames = snapshots.filter(
-      (rel) => !path.basename(rel).includes(suite.browser) || !path.basename(rel).includes(suite.osAssumption)
+      (rel) => !path.basename(rel).includes(suite.browser) || !osAssumptions.some((osName) => path.basename(rel).includes(osName))
     );
-    const requiredMetadata = ["owner", "runCommand", "updateCommand", "browser", "device", "osAssumption", "diffThreshold", "reviewEvidenceCommand"];
+    const requiredMetadata = ["owner", "runCommand", "updateCommand", "browser", "device", "diffThreshold", "reviewEvidenceCommand"];
     for (const field of requiredMetadata) {
       if (!suite[field]) issues.push(issue("operational_test_reliability_visual_suite_metadata_missing", { spec: suite.spec, field }));
+    }
+    if (osAssumptions.length === 0) {
+      issues.push(issue("operational_test_reliability_visual_suite_metadata_missing", { spec: suite.spec, field: "osAssumption" }));
     }
     if (!fs.existsSync(path.join(root, suite.spec))) {
       issues.push(issue("operational_test_reliability_visual_spec_missing", { spec: suite.spec }));
@@ -328,6 +336,7 @@ export function analyzeVisualBaselineGovernance(root, config, issues = []) {
       browser: suite.browser,
       device: suite.device,
       osAssumption: suite.osAssumption,
+      osAssumptions,
       diffThreshold: suite.diffThreshold,
       reviewEvidenceCommand: suite.reviewEvidenceCommand,
       badSnapshotNameCount: badSnapshotNames.length,

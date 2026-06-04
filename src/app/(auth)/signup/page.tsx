@@ -1,7 +1,7 @@
 import { AuthForm } from "@/components/auth/auth-form";
 
 export const metadata = {
-  title: "Start your free trial of Oblixa",
+  title: "Request access to Oblixa",
 };
 
 export default function SignupPage() {

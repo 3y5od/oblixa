@@ -103,9 +103,11 @@ describe("Security page — page structure + primitives (§1, §2)", () => {
     expect(panelSrc).toMatch(/h-8 w-8/);
   });
 
-  it("§2.6 identity strip surfaces MFA + Role + Account on a hairline dl", () => {
+  it("§2.6 identity strip surfaces MFA + Account on a hairline dl", () => {
     // Issue #2 — chips live in a flat <dl aria-label="Identity"> rather
-    // than the page-header metaStrip slot.
+    // than the page-header metaStrip slot. Role was removed from the strip
+    // (§10.4) — it lives in the "Team roles" row of Account & workspace
+    // context, so the strip no longer repeats it.
     expect(pageSrc).toContain('aria-label="Identity"');
     // ACCOUNT label comes from spec-strings.accountLabel.
     expect(pageSrc).toContain("SETTINGS_SECURITY_STRINGS.accountLabel");
@@ -130,8 +132,9 @@ describe("Security page — page structure + primitives (§1, §2)", () => {
     expect(panelSrc).not.toContain("<ConfirmActionButton");
   });
 
-  it("§3.3 DPA contact rendered as mailto link", () => {
+  it("§3.3 security contact rendered as mailto link", () => {
     // mailto: is constructed via template literal `mailto:${...contactEmail}`.
+    // Row reframed from "Request DPA" to a plain security contact path.
     expect(pageSrc).toMatch(/mailto:\$\{[^}]*contactEmail\}/);
     expect(SETTINGS_SECURITY_STRINGS.contactEmail).toBe("security@oblixa.com");
   });
@@ -427,10 +430,11 @@ describe("Security page — V2 pass surface pins", () => {
     expect(SETTINGS_SECURITY_STRINGS.passwordPlaceholder).toBe("");
   });
 
-  it("V2 §1.34 + §2.6 / Issue #9 stepUpEmptyLabel is LOCKED (consistent with the unlock form)", () => {
-    // "LOCKED + enabled Confirm-password form" reads as a call to act;
-    // the old "INACTIVE" badge over active controls looked contradictory.
-    expect(SETTINGS_SECURITY_STRINGS.stepUpEmptyLabel).toBe("LOCKED");
+  it("V2 §1.34 + §2.6 / Issue #9 stepUpEmptyLabel states what unlocks (REQUIRES PASSWORD)", () => {
+    // De-jargoned from the terse "LOCKED": the resting badge now names the
+    // action that unlocks sensitive changes, consistent with the
+    // "Confirm password" form beneath it.
+    expect(SETTINGS_SECURITY_STRINGS.stepUpEmptyLabel).toBe("REQUIRES PASSWORD");
   });
 
   it("V2 §1.34 stepUpMfaSessionLabel exists for AAL2 path", () => {
@@ -526,8 +530,10 @@ describe("Security page — V2 pass surface pins", () => {
     );
   });
 
-  it("V2 §4.8 SENSITIVE eyebrow renamed to STEP-UP", () => {
-    expect(SETTINGS_SECURITY_STRINGS.eyebrows.stepUp).toBe("STEP-UP");
+  it("V2 §4.8 step-up eyebrow de-jargoned to ACCESS", () => {
+    // "STEP-UP" is security-engineering jargon; the plain category noun
+    // "ACCESS" parallels the MFA / SESSIONS / POLICY sibling eyebrows.
+    expect(SETTINGS_SECURITY_STRINGS.eyebrows.stepUp).toBe("ACCESS");
   });
 
   it("V2 §4.10 activityViewAllCta renamed to OPEN AUDIT LOG", () => {
@@ -697,16 +703,15 @@ describe("Security page — V4 pass surface pins", () => {
     expect(panelSrc).toMatch(/factorsEmpty[^?]*\?[\s\S]{0,200}warning-soft/);
   });
 
-  it("V4 §1.8 / user-report §5 POLICY badge escalates to AT RISK when exposed", () => {
-    // V4 user-report §5 — shortened from "WORKSPACE EXPOSED" (17
-    // chars, forced h2 wrap) to "AT RISK" (7 chars, matches the
-    // width-class of REQUIRED / OPTIONAL). Workspace context is
-    // implicit from the card identity.
-    // Issue #16 — each policy badge now carries a leading glyph
-    // (ShieldCheck / TriangleAlert) for non-color reinforcement (§7.7),
-    // so the orgMfa ternary → factorsEmpty branch spans more markup;
-    // distance relaxed accordingly.
-    expect(panelSrc).toContain("AT RISK");
+  it("V4 §1.8 POLICY badge names the real gap (SETUP REQUIRED) when admin has no factor", () => {
+    // Recalibrated from "AT RISK": with enforcement off the workspace
+    // isn't violating policy — the actionable gap is that the admin has no
+    // authenticator yet, so the badge reads "SETUP REQUIRED" and coheres
+    // with the disabled enable-toggle + self-lockout hint.
+    // Each policy badge carries a leading glyph (ShieldCheck /
+    // TriangleAlert) for non-color reinforcement (§7.7).
+    expect(panelSrc).toContain("SETUP REQUIRED");
+    expect(panelSrc).not.toContain("AT RISK");
     expect(panelSrc).not.toContain("WORKSPACE EXPOSED");
     expect(panelSrc).toMatch(/orgMfa\s*\?[\s\S]{0,400}factorsEmpty/);
   });
@@ -871,7 +876,7 @@ describe("Security page — V4 pass surface pins", () => {
     expect(pageSrc).toContain("activityEmptyLabel");
     // 5. Audit history link — Resources card row (restored per compliance audit).
     expect(pageSrc).toContain("View audit history");
-    // 6. DPA/security contact link — LEGAL CONTACT row.
+    // 6. Security / data-handling contact link — DATA HANDLING row.
     expect(pageSrc).toContain("contactCta");
     expect(pageSrc).toMatch(/mailto:\$\{[^}]*contactEmail\}/);
     // 7. Required note — LEGAL footer, exact phrasing per §1700-1702.

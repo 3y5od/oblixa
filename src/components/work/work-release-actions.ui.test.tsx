@@ -10,11 +10,13 @@ import { WorkReleaseActions } from "./work-release-actions";
 
 const mocks = vi.hoisted(() => ({
   completeWorkItem: vi.fn(),
+  updateContractTaskStatus: vi.fn(),
   updateContractObligation: vi.fn(),
 }));
 
 vi.mock("@/actions/tasks", () => ({
   completeWorkItem: mocks.completeWorkItem,
+  updateContractTaskStatus: mocks.updateContractTaskStatus,
 }));
 
 vi.mock("@/actions/obligations", () => ({
@@ -62,6 +64,13 @@ function baseRow(overrides: Partial<WorkItemRow> = {}): WorkItemRow {
         blocker: { label: WORK_ROW_LABELS.blocker, value: "—" },
       },
     },
+    primaryAction: {
+      verb: "complete",
+      label: "Complete",
+      kind: "mutation",
+      href: "/contracts/contract-1?tab=overview#work",
+      mutation: "complete_task",
+    },
     actions: [
       {
         key: "complete",
@@ -73,7 +82,6 @@ function baseRow(overrides: Partial<WorkItemRow> = {}): WorkItemRow {
       { key: "change_due_date", label: WORK_ACTION_LABELS.change_due_date, kind: "link", href: "/contracts/contract-1" },
       { key: "comment", label: WORK_ACTION_LABELS.comment, kind: "link", href: "/contracts/contract-1?tab=notes" },
       { key: "link_evidence", label: WORK_ACTION_LABELS.link_evidence, kind: "link", href: "/contracts/contract-1?tab=overview#contract-evidence" },
-      { key: "escalate", label: WORK_ACTION_LABELS.escalate, kind: "link", href: "/contracts/contract-1" },
     ],
     ...overrides,
   };
@@ -83,19 +91,23 @@ describe("WorkReleaseActions", () => {
   afterEach(() => {
     resetMockRouter();
     mocks.completeWorkItem.mockReset();
+    mocks.updateContractTaskStatus.mockReset();
     mocks.updateContractObligation.mockReset();
   });
 
   it("keeps one compact action cluster while exposing the full release-state vocabulary", () => {
     renderWithProviders(<WorkReleaseActions row={baseRow()} mutationsEnabled />);
 
-    expect(screen.getByText("Actions")).toBeTruthy();
-    for (const label of Object.values(WORK_ACTION_LABELS)) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    // The single primary control carries the status-aware verb...
+    expect(screen.getByRole("button", { name: WORK_ACTION_LABELS.complete })).toBeTruthy();
+    // ...and the compact overflow trigger holds the rest of the vocabulary.
+    fireEvent.click(screen.getByRole("button", { name: "Actions" }));
+    for (const key of ["reassign", "change_due_date", "comment", "link_evidence"] as const) {
+      expect(screen.getAllByText(WORK_ACTION_LABELS[key]).length).toBeGreaterThan(0);
     }
   });
 
-  it("fires the direct Complete mutation for supported task rows", async () => {
+  it("fires the direct Complete mutation and exposes an undo before committing", async () => {
     mocks.completeWorkItem.mockResolvedValueOnce({ success: true });
 
     renderWithProviders(<WorkReleaseActions row={baseRow()} mutationsEnabled />);
@@ -106,25 +118,39 @@ describe("WorkReleaseActions", () => {
       taskId: "task-1",
       idempotencyKey: null,
     });
+    // The row stays briefly with an undo affordance rather than refreshing out immediately.
+    expect(await screen.findByRole("button", { name: /undo/i })).toBeTruthy();
+  });
+
+  it("reopens the task to open when undo is clicked", async () => {
+    mocks.completeWorkItem.mockResolvedValueOnce({ success: true });
+    mocks.updateContractTaskStatus.mockResolvedValueOnce({ success: true });
+
+    renderWithProviders(<WorkReleaseActions row={baseRow()} mutationsEnabled />);
+
+    fireEvent.click(screen.getAllByRole("button", { name: WORK_ACTION_LABELS.complete })[0]!);
+    fireEvent.click(await screen.findByRole("button", { name: /undo/i }));
+
+    expect(mocks.updateContractTaskStatus).toHaveBeenCalledWith("task-1", "open");
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalled());
   });
 
-  it("routes unsupported actions to the row or contract instead of creating fake mutations", () => {
+  it("renders a link-kind primary as navigation instead of creating a fake mutation", () => {
     const row = baseRow({
-      actions: [
-        { key: "complete", label: WORK_ACTION_LABELS.complete, kind: "link", href: "/contracts/contract-1#source" },
-        { key: "reassign", label: WORK_ACTION_LABELS.reassign, kind: "link", href: "/contracts/contract-1" },
-        { key: "change_due_date", label: WORK_ACTION_LABELS.change_due_date, kind: "link", href: "/contracts/contract-1" },
-        { key: "comment", label: WORK_ACTION_LABELS.comment, kind: "link", href: "/contracts/contract-1?tab=notes" },
-        { key: "link_evidence", label: WORK_ACTION_LABELS.link_evidence, kind: "link", href: "/contracts/contract-1?tab=overview#contract-evidence" },
-        { key: "escalate", label: WORK_ACTION_LABELS.escalate, kind: "link", href: "/contracts/contract-1" },
-      ],
+      type: "exception",
+      status: "open",
+      primaryAction: {
+        verb: "resolve",
+        label: "Resolve",
+        kind: "link",
+        href: "/contracts/exceptions?status=open&contract=contract-1",
+      },
     });
 
     renderWithProviders(<WorkReleaseActions row={row} mutationsEnabled />);
 
-    expect(screen.getAllByRole("link", { name: WORK_ACTION_LABELS.complete })[0]?.getAttribute("href")).toBe(
-      "/contracts/contract-1#source"
+    expect(screen.getByRole("link", { name: "Resolve" }).getAttribute("href")).toBe(
+      "/contracts/exceptions?status=open&contract=contract-1"
     );
     expect(mocks.completeWorkItem).not.toHaveBeenCalled();
   });

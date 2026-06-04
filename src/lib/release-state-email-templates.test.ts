@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS,
+  RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATES,
   RELEASE_STATE_EMAIL_TEMPLATE_KEYS,
   RELEASE_STATE_EMAIL_TEMPLATES,
   getReleaseStateEmailTemplate,
@@ -9,7 +11,7 @@ const FORBIDDEN_PUBLIC_EMAIL_COPY = /\b(legal advice|autonomous|guaranteed extra
 
 describe("release-state email templates", () => {
   it("covers every launch lifecycle email with subject, body, and CTA", () => {
-    expect(RELEASE_STATE_EMAIL_TEMPLATE_KEYS).toHaveLength(21);
+    expect(RELEASE_STATE_EMAIL_TEMPLATE_KEYS).toHaveLength(15);
     for (const key of RELEASE_STATE_EMAIL_TEMPLATE_KEYS) {
       const template = getReleaseStateEmailTemplate(key);
       expect(template.key).toBe(key);
@@ -22,14 +24,14 @@ describe("release-state email templates", () => {
   });
 
   it("pins required release-state subjects and CTAs", () => {
-    expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.subject).toBe("Welcome to Oblixa");
+    expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.subject).toBe("Welcome to Oblixa early access");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.ctaLabel).toBe("Upload first contract");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.extraction_ready.subject).toBe("Your contract is ready for review");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.extraction_ready.ctaLabel).toBe("Review fields");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.upcoming_renewal_reminder.subject).toBe("Renewal date approaching");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.upcoming_renewal_reminder.ctaLabel).toBe("Review renewal");
-    expect(RELEASE_STATE_EMAIL_TEMPLATES.trial_ending_2_days.subject).toBe("Your Oblixa trial ends soon");
-    expect(RELEASE_STATE_EMAIL_TEMPLATES.trial_ending_2_days.ctaLabel).toBe("Choose plan");
+    expect(RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS).toHaveLength(3);
+    expect(RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATES.payment_failed.ctaLabel).toBe("Update billing");
   });
 
   it("keeps public lifecycle email copy launch-safe", () => {

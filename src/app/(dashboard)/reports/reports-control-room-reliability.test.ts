@@ -27,8 +27,11 @@ describe("reports release-state compliance", () => {
     ]) {
       expect(spec).toContain(label);
     }
-    expect(raw).toContain('href="/settings/health"');
+    // The Core Reports surface must not route users into the admin-only
+    // /settings/health (internal-settings) page — partial-data recovery stays
+    // inside Reports (the in-context "Refresh report data" action).
     for (const forbidden of [
+      "/settings/health",
       "Operational reports",
       "Workspace reports",
       "Configure your first report pack",

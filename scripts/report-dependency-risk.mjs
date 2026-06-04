@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 function numberOrZero(value) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -75,7 +75,7 @@ export function buildDependencyRiskReport(auditResult, now = new Date()) {
 }
 
 export function runDependencyRiskReport() {
-  const res = spawnSync("npm", ["audit", "--json", "--audit-level=high"], {
+  const res = spawnSyncCrossPlatform("npm", ["audit", "--json", "--audit-level=high"], {
     encoding: "utf8",
     env: process.env,
   });

@@ -220,8 +220,7 @@ begin
     token_hash = null,
     token_prefix = null,
     active = false,
-    revoked_at = coalesce(revoked_at, retention_cutoff),
-    revoked_reason = coalesce(revoked_reason, 'retention_cleanup')
+    revoked_at = coalesce(revoked_at, retention_cutoff)
   where id in (select id from candidates);
   get diagnostics calendar_feeds_redacted = row_count;
 

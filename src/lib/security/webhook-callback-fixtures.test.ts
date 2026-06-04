@@ -20,6 +20,7 @@ describe("webhook and callback fixture corpus", () => {
         "unknown_event",
         "malformed_payload",
         "wrong_content_type",
+        "wrong_mode",
         "provider_outage",
       ])
     );

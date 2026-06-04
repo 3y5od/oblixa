@@ -3477,6 +3477,21 @@
       "bindings": [
         {
           "kind": "npmScript",
+          "ref": "check:database-backup-restore-evidence"
+        }
+      ],
+      "id": "bind-check-check-database-backup-restore-evidence",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:database-backup-restore-evidence",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
           "ref": "check:debugging-sweep"
         }
       ],
@@ -5232,6 +5247,561 @@
       "bindings": [
         {
           "kind": "npmScript",
+          "ref": "check:operational-api-runtime-contracts"
+        }
+      ],
+      "id": "bind-check-check-operational-api-runtime-contracts",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-api-runtime-contracts",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-authz-session"
+        }
+      ],
+      "id": "bind-check-check-operational-authz-session",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-authz-session",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-billing-entitlements"
+        }
+      ],
+      "id": "bind-check-check-operational-billing-entitlements",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-billing-entitlements",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-browser-security"
+        }
+      ],
+      "id": "bind-check-check-operational-browser-security",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-browser-security",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-ci-enforcement"
+        }
+      ],
+      "id": "bind-check-check-operational-ci-enforcement",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-ci-enforcement",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-cron-jobs"
+        }
+      ],
+      "id": "bind-check-check-operational-cron-jobs",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-cron-jobs",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-data-quality-invariants"
+        }
+      ],
+      "id": "bind-check-check-operational-data-quality-invariants",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-data-quality-invariants",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-edge-readiness"
+        }
+      ],
+      "id": "bind-check-check-operational-edge-readiness",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-edge-readiness",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-environment-isolation"
+        }
+      ],
+      "id": "bind-check-check-operational-environment-isolation",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-environment-isolation",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-feature-flags-rollout"
+        }
+      ],
+      "id": "bind-check-check-operational-feature-flags-rollout",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-feature-flags-rollout",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-frontend-resilience"
+        }
+      ],
+      "id": "bind-check-check-operational-frontend-resilience",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-frontend-resilience",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-governance-ownership"
+        }
+      ],
+      "id": "bind-check-check-operational-governance-ownership",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-governance-ownership",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-hardening-objectives"
+        }
+      ],
+      "id": "bind-check-check-operational-hardening-objectives",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-hardening-objectives",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-legal-trust-compliance"
+        }
+      ],
+      "id": "bind-check-check-operational-legal-trust-compliance",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-legal-trust-compliance",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-notifications-messaging"
+        }
+      ],
+      "id": "bind-check-check-operational-notifications-messaging",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-notifications-messaging",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-oauth-integration-sync"
+        }
+      ],
+      "id": "bind-check-check-operational-oauth-integration-sync",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-oauth-integration-sync",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-observability-redaction"
+        }
+      ],
+      "id": "bind-check-check-operational-observability-redaction",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-observability-redaction",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-package-pipelines"
+        }
+      ],
+      "id": "bind-check-check-operational-package-pipelines",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-package-pipelines",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-performance-load-chaos"
+        }
+      ],
+      "id": "bind-check-check-operational-performance-load-chaos",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-performance-load-chaos",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-platform-variant-coverage"
+        }
+      ],
+      "id": "bind-check-check-operational-platform-variant-coverage",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-platform-variant-coverage",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-privacy-auditability"
+        }
+      ],
+      "id": "bind-check-check-operational-privacy-auditability",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-privacy-auditability",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-provider-integrations"
+        }
+      ],
+      "id": "bind-check-check-operational-provider-integrations",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-provider-integrations",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-public-launch-positioning"
+        }
+      ],
+      "id": "bind-check-check-operational-public-launch-positioning",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-public-launch-positioning",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-rate-limits-abuse-bounds"
+        }
+      ],
+      "id": "bind-check-check-operational-rate-limits-abuse-bounds",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-rate-limits-abuse-bounds",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-release-readiness"
+        }
+      ],
+      "id": "bind-check-check-operational-release-readiness",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-release-readiness",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-repository-artifact-hygiene"
+        }
+      ],
+      "id": "bind-check-check-operational-repository-artifact-hygiene",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-repository-artifact-hygiene",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-schema-compatibility"
+        }
+      ],
+      "id": "bind-check-check-operational-schema-compatibility",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-schema-compatibility",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-search-reporting-analytics-exports"
+        }
+      ],
+      "id": "bind-check-check-operational-search-reporting-analytics-exports",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-search-reporting-analytics-exports",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-secrets-configuration"
+        }
+      ],
+      "id": "bind-check-check-operational-secrets-configuration",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-secrets-configuration",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-static-architecture-code-health"
+        }
+      ],
+      "id": "bind-check-check-operational-static-architecture-code-health",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-static-architecture-code-health",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-supabase-database"
+        }
+      ],
+      "id": "bind-check-check-operational-supabase-database",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-supabase-database",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-supply-chain-risk"
+        }
+      ],
+      "id": "bind-check-check-operational-supply-chain-risk",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-supply-chain-risk",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-support-operations"
+        }
+      ],
+      "id": "bind-check-check-operational-support-operations",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-support-operations",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-test-reliability-governance"
+        }
+      ],
+      "id": "bind-check-check-operational-test-reliability-governance",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-test-reliability-governance",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-uploads-files-extraction"
+        }
+      ],
+      "id": "bind-check-check-operational-uploads-files-extraction",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-uploads-files-extraction",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-waivers-ratchets"
+        }
+      ],
+      "id": "bind-check-check-operational-waivers-ratchets",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-waivers-ratchets",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:operational-webhooks-callbacks"
+        }
+      ],
+      "id": "bind-check-check-operational-webhooks-callbacks",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:operational-webhooks-callbacks",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
           "ref": "check:optimization-operating-model"
         }
       ],
@@ -5712,6 +6282,21 @@
       "bindings": [
         {
           "kind": "npmScript",
+          "ref": "check:provider-integration-fixtures"
+        }
+      ],
+      "id": "bind-check-check-provider-integration-fixtures",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:provider-integration-fixtures",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
           "ref": "check:public-seo-surface"
         }
       ],
@@ -6003,6 +6588,21 @@
       "id": "bind-check-check-qa-workflow-fleet",
       "section": "reverse_bind_check",
       "title": "Claim npm script check:qa-workflow-fleet",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:query-cost-policy"
+        }
+      ],
+      "id": "bind-check-check-query-cost-policy",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:query-cost-policy",
       "priorityBand": "P2"
     },
     {
@@ -6318,6 +6918,21 @@
       "id": "bind-check-check-release-security-required-env",
       "section": "reverse_bind_check",
       "title": "Claim npm script check:release-security-required-env",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:release-state-implementation-objectives"
+        }
+      ],
+      "id": "bind-check-check-release-state-implementation-objectives",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:release-state-implementation-objectives",
       "priorityBand": "P2"
     },
     {
@@ -6648,6 +7263,21 @@
       "id": "bind-check-check-sbom-diff",
       "section": "reverse_bind_check",
       "title": "Claim npm script check:sbom-diff",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:sbom-dual-format-evidence"
+        }
+      ],
+      "id": "bind-check-check-sbom-dual-format-evidence",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:sbom-dual-format-evidence",
       "priorityBand": "P2"
     },
     {
@@ -7068,6 +7698,21 @@
       "id": "bind-check-check-sensitive-url-propagation",
       "section": "reverse_bind_check",
       "title": "Claim npm script check:sensitive-url-propagation",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:sentry-tag-banlist"
+        }
+      ],
+      "id": "bind-check-check-sentry-tag-banlist",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:sentry-tag-banlist",
       "priorityBand": "P2"
     },
     {
@@ -7773,6 +8418,21 @@
       "id": "bind-check-check-supabase-snapshot",
       "section": "reverse_bind_check",
       "title": "Claim npm script check:supabase:snapshot",
+      "priorityBand": "P2"
+    },
+    {
+      "source": "deduped",
+      "applicability": "always",
+      "riskScore": 5,
+      "bindings": [
+        {
+          "kind": "npmScript",
+          "ref": "check:supply-chain-dependency-risk"
+        }
+      ],
+      "id": "bind-check-check-supply-chain-dependency-risk",
+      "section": "reverse_bind_check",
+      "title": "Claim npm script check:supply-chain-dependency-risk",
       "priorityBand": "P2"
     },
     {

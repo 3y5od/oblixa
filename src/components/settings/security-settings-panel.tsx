@@ -167,6 +167,9 @@ export function SecuritySettingsPanel({
   const totpHintId = useId();
   const totpErrorId = useId();
   const orgMfaToggleId = useId();
+  // a11y: ties the self-lockout hint to the disabled org-MFA toggle via
+  // aria-describedby so AT/SR users hear why the control is unavailable.
+  const orgMfaHintId = useId();
   // V2 §5.9 SR transition announcement.
   const prevFactorCountRef = useRef<number>(initialFactors.length);
 
@@ -182,6 +185,12 @@ export function SecuritySettingsPanel({
   const factorsEmpty = factorCount === 0;
   // V2 §1.19 — branch the empty-state medallion + body on org policy.
   const showDangerEmptyState = factorsEmpty && orgMfaRequired;
+
+  // Self-lockout guard: block enabling workspace-wide MFA while this admin
+  // has no authenticator of their own (they'd be forced to enroll at next
+  // sign-in with no factor ready). Only the enable path is blocked — if the
+  // policy is already on, the toggle stays operable so it can be lifted.
+  const cannotEnableOrgMfa = factorsEmpty && !orgMfa;
 
   // V2 §6.5 — multi-tab race: tab A initiates step-up, tab B reads
   // stale state. The server-side hasSensitiveActionProof is the
@@ -315,7 +324,7 @@ export function SecuritySettingsPanel({
       setNeedsStepUpPrompt(false);
       // V2 §6.2 optimistic update so badge flips immediately.
       setOptimisticStepUpActive(true);
-      setMessage("Step-up confirmed for ~10 minutes. Sensitive actions are unlocked.");
+      setMessage("Password confirmed. Sensitive actions are unlocked for about 10 minutes.");
     } finally {
       setStepUpPending(false);
     }
@@ -392,7 +401,7 @@ export function SecuritySettingsPanel({
                 </p>
                 <h2
                   id="mfa-card-title"
-                  className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)] sm:text-[1.4rem]"
+                  className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]"
                 >
                   {SETTINGS_SECURITY_STRINGS.sections.mfa}
                 </h2>
@@ -721,13 +730,13 @@ export function SecuritySettingsPanel({
                     {SETTINGS_SECURITY_STRINGS.eyebrows.stepUp}
                   </span>
                 </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)] sm:text-[1.4rem]">
+                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
                   {SETTINGS_SECURITY_STRINGS.sections.stepUp}
                 </h2>
               </div>
             </div>
             <span className="shrink-0">
-              <StatusBadge status={stepUpTone} className="gap-1">
+              <StatusBadge status={stepUpTone} className="gap-1 whitespace-nowrap">
                 {stepUpIcon}
                 {stepUpLabel}
               </StatusBadge>
@@ -849,7 +858,7 @@ export function SecuritySettingsPanel({
                     {SETTINGS_SECURITY_STRINGS.eyebrows.sessions}
                   </span>
                 </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)] sm:text-[1.4rem]">
+                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
                   {SETTINGS_SECURITY_STRINGS.sections.sessions}
                   {/* V4 user-report §2 — count chip dropped when
                       sessions.length === 1: the THIS DEVICE row
@@ -956,7 +965,7 @@ export function SecuritySettingsPanel({
             {/* V4 user-report §4 — header uses items-start + gap-3
                 + no flex-wrap. The title block carries min-w-0 so
                 a long h2 ("MFA enforcement") rendered well rather
-                than forcing the AT RISK badge to wrap to a second
+                than forcing the status badge to wrap to a second
                 row. Badge keeps `shrink-0` to anchor right. */}
             <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
               <div className="flex min-w-0 items-start gap-3">
@@ -969,26 +978,19 @@ export function SecuritySettingsPanel({
                       {SETTINGS_SECURITY_STRINGS.eyebrows.policy}
                     </span>
                   </p>
-                  <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)] sm:text-[1.4rem]">
+                  <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
                     {SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
                   </h2>
                 </div>
               </div>
-              {/* V4 §1.8 — tone-coded escalation. When orgMfa is
-                  OFF and the user has no factors, surface AT RISK
-                  warning tone instead of empty/grey OPTIONAL.
-                  V4 user-report §4 — badge wrapped in shrink-0
-                  span so it anchors top-right.
-                  V4 user-report §5 — at-risk variant was 17 chars
-                  ("workspace exposed") which forced the h2 to wrap.
-                  Shortened to "AT RISK" (7 chars) to match the
-                  width-class of REQUIRED (8) / OPTIONAL (8); h2
-                  now fits on a single line at 2-col grid widths.
-                  "Workspace" context is implicit (this is the
-                  workspace policy card). */}
-              {/* Each state badge carries a glyph so the policy posture
+              {/* V4 §1.8 — tone-coded escalation. When enforcement is
+                  OFF and this admin has no factor, surface a warning-tone
+                  "SETUP REQUIRED" badge instead of the neutral OPTIONAL.
+                  Badge wrapped in shrink-0 + whitespace-nowrap so it
+                  anchors top-right without wrapping the h2.
+                  Each state badge carries a glyph so the policy posture
                   is legible without color alone (§7.7): ShieldCheck when
-                  required, TriangleAlert when the workspace is exposed. */}
+                  required, TriangleAlert when setup is still needed. */}
               <span className="shrink-0">
                 {orgMfa ? (
                   <StatusBadge status="healthy" className="gap-1">
@@ -996,9 +998,13 @@ export function SecuritySettingsPanel({
                     REQUIRED
                   </StatusBadge>
                 ) : factorsEmpty ? (
-                  <StatusBadge status="warning" className="gap-1">
+                  // Enforcement is off, so the workspace isn't violating any
+                  // policy — the actionable gap is that this admin has no
+                  // authenticator yet. "SETUP REQUIRED" names that and
+                  // coheres with the disabled enable-toggle + hint.
+                  <StatusBadge status="warning" className="gap-1 whitespace-nowrap">
                     <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
-                    AT RISK
+                    SETUP REQUIRED
                   </StatusBadge>
                 ) : (
                   <StatusBadge status="empty">OPTIONAL</StatusBadge>
@@ -1015,8 +1021,9 @@ export function SecuritySettingsPanel({
                   label="Require MFA for all members"
                   description={SETTINGS_SECURITY_STRINGS.orgMfaConsequence}
                   checked={orgMfa}
-                  disabled={pending}
+                  disabled={pending || cannotEnableOrgMfa}
                   ariaLabel="Require MFA for all members"
+                  ariaDescribedBy={cannotEnableOrgMfa ? orgMfaHintId : undefined}
                   onChange={(checked) => {
                     if (checked && !orgMfa) {
                       setPendingOrgMfaValue(true);
@@ -1036,6 +1043,16 @@ export function SecuritySettingsPanel({
                     }
                   }}
                 />
+                {cannotEnableOrgMfa ? (
+                  <p id={orgMfaHintId} className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] leading-snug text-[var(--warning-ink)]">
+                    <TriangleAlert
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                      strokeWidth={1.85}
+                      aria-hidden
+                    />
+                    {SETTINGS_SECURITY_STRINGS.orgMfaSelfLockoutHint}
+                  </p>
+                ) : null}
               </div>
               {/* V4 §6.2 — "What changes for members?" disclosure.
                   Resolves §1.4 height asymmetry beneath the toggle. */}
@@ -1070,7 +1087,7 @@ export function SecuritySettingsPanel({
                     {SETTINGS_SECURITY_STRINGS.eyebrows.policy}
                   </span>
                 </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.4rem]">
+                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
                   {SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
                 </h2>
               </div>

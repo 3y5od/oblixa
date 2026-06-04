@@ -4,9 +4,9 @@ export const REPORTS_PAGE_LEAD = "Export operational reports for renewals, work,
 export const REPORTS_PRIMARY_CTA = "Export report";
 export const REPORTS_EMPTY_STATE = "Reports become more useful as you review fields, assign owners, and track work.";
 
-export const REPORTS_PARTIAL_DATA_TITLE = "Reports data is partially unavailable";
+export const REPORTS_PARTIAL_DATA_TITLE = "Report data is partially unavailable";
 export const REPORTS_PARTIAL_DATA_REASON =
-  "Some report data returned partial results. Available previews remain usable while data freshness is restored.";
+  "Some previews may be incomplete until data freshness is restored.";
 
 export const REPORT_LABELS = {
   upcoming_renewals: "Upcoming renewals",
@@ -22,7 +22,11 @@ export const REPORT_LABELS = {
 } as const;
 
 export const REPORT_FILTER_LABELS = {
-  window: "Window",
+  // "Renewal window" over a bare "Window": the dimension is a forward-looking
+  // horizon over the renewal cycle (it scopes the two windowed reports —
+  // upcoming renewals and notice deadlines), and "Window" alone never said
+  // window of what.
+  window: "Renewal window",
   owner: "Owner",
   counterparty: "Counterparty",
   status: "Status",
@@ -38,7 +42,9 @@ export const REPORT_WINDOW_LABELS = {
 export const REPORT_CONTENT_LABELS = {
   description: "Description",
   filters: "Filters",
-  previewTable: "Preview table",
+  // Displayed above the preview list. "Preview" alone is calmer than the older
+  // "Preview table" now that the surface reads as a dense list, not a grid.
+  previewTable: "Preview",
   exportButton: "Export button",
   lastGenerated: "Last generated timestamp",
 } as const;

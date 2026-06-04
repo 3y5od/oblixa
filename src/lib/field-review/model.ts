@@ -36,6 +36,7 @@ export interface FieldReviewActiveContract {
   id: string;
   title: string;
   counterparty: string | null;
+  contractType: string | null;
   ownerLabel: string;
   status: Contract["status"];
   files: ContractFile[];
@@ -52,6 +53,9 @@ export interface FieldReviewActiveField {
   confidenceLabel: string;
   source: ExtractedField["source"];
   currentApprovedValue: string | null;
+  /** True when a prior approved/edited value exists and differs from the
+   *  current AI suggestion — approving will overwrite a different value. */
+  approvedConflict: boolean;
   importantLabel: string | null;
   needsCitation: boolean;
 }
@@ -60,6 +64,9 @@ export interface FieldReviewDocumentPreview {
   status: "available" | "unavailable";
   title: string;
   excerpt: string;
+  /** True when the active field's source snippet was located inside the
+   *  document text (so the excerpt actually shows supporting evidence). */
+  snippetLocated: boolean;
   sourceFileNames: string[];
 }
 
@@ -82,6 +89,7 @@ export interface FieldReviewWorkspaceModel {
   activeField: FieldReviewActiveField | null;
   documentPreview: FieldReviewDocumentPreview | null;
   progress: FieldReviewProgress;
+  prevHref: string | null;
   nextHref: string | null;
   skipHref: string | null;
   warnings: string[];
@@ -185,11 +193,12 @@ function buildDocumentPreview(
   if (!document) {
     return {
       status: "unavailable",
-      title: "Document preview unavailable",
+      title: "Source preview unavailable",
       excerpt:
         sourceFileNames.length > 0
           ? "No searchable document text is available yet. Use the source snippet and attached file list while reviewing this field."
           : "No source file or searchable document text is attached to this contract.",
+      snippetLocated: false,
       sourceFileNames,
     };
   }
@@ -206,11 +215,12 @@ function buildDocumentPreview(
 
   return {
     status: "available",
-    title: snippetIndex > -1 ? "Document preview near source" : "Document preview",
+    title: snippetIndex > -1 ? "Source preview near match" : "Source preview",
     excerpt:
       start > 0 || start + PREVIEW_EXCERPT_CHARS < document.length
         ? `${start > 0 ? "... " : ""}${excerpt}${start + PREVIEW_EXCERPT_CHARS < document.length ? " ..." : ""}`
         : excerpt,
+    snippetLocated: snippetIndex > -1,
     sourceFileNames,
   };
 }
@@ -226,6 +236,13 @@ function currentApprovedValue(fields: ExtractedField[], activeField: ExtractedFi
         field.field_value.trim().length > 0
     )?.field_value ?? null
   );
+}
+
+/** A prior approved value conflicts with the suggestion when both exist and
+ *  differ (case/space-insensitive) — approving would overwrite trusted data. */
+function approvedValueConflicts(approved: string | null, suggested: string | null): boolean {
+  if (!approved || !suggested) return false;
+  return approved.trim().toLowerCase() !== suggested.trim().toLowerCase();
 }
 
 function toQueueItem(
@@ -289,11 +306,17 @@ export function buildFieldReviewWorkspaceModel(
     : -1;
   const next = flatIndex > -1 ? flatPending[flatIndex + 1] ?? null : flatPending[0] ?? null;
   const nextHref = next ? contractHref(next.contract.id, page, next.field.id) : null;
+  const prev = flatIndex > 0 ? flatPending[flatIndex - 1] ?? null : null;
+  const prevHref = prev ? contractHref(prev.contract.id, page, prev.field.id) : null;
   const skipHref = nextHref ?? (activeContract ? contractHref(activeContract.id, page) : null);
 
   const totalContracts = input.totalContracts ?? contracts.length;
   const totalPages = Math.max(1, Math.ceil(totalContracts / pageSize));
   const fieldsWaiting = flatPending.length;
+  const activeApprovedValue =
+    activeContract && activeField
+      ? currentApprovedValue(activeContract.extracted_fields ?? [], activeField)
+      : null;
 
   return {
     page,
@@ -306,6 +329,7 @@ export function buildFieldReviewWorkspaceModel(
           id: activeContract.id,
           title: activeContract.title,
           counterparty: activeContract.counterparty,
+          contractType: activeContract.contract_type ?? null,
           ownerLabel: ownerLabel(activeContract),
           status: activeContract.status,
           files: activeContract.contract_files ?? [],
@@ -322,9 +346,8 @@ export function buildFieldReviewWorkspaceModel(
           confidence: activeField.confidence,
           confidenceLabel: formatConfidence(activeField.confidence),
           source: activeField.source,
-          currentApprovedValue: activeContract
-            ? currentApprovedValue(activeContract.extracted_fields ?? [], activeField)
-            : null,
+          currentApprovedValue: activeApprovedValue,
+          approvedConflict: approvedValueConflicts(activeApprovedValue, activeField.field_value),
           importantLabel: getImportantFieldLabel(activeField.field_name),
           needsCitation:
             activeField.source === "ai" &&
@@ -341,6 +364,7 @@ export function buildFieldReviewWorkspaceModel(
       activeContractPendingFields: pendingFields.length,
       activeContractTotalFields: activeContract?.extracted_fields?.length ?? 0,
     },
+    prevHref,
     nextHref,
     skipHref,
     warnings: input.warnings ?? [],

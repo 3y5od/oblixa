@@ -37,7 +37,7 @@ const MANUAL_SMOKE_AUTOMATION_PROXIES: Record<SmokePath, readonly FileNeedle[]> 
     ["src/components/contracts/evidence-submission-form.ui.test.tsx", "submit evidence"],
     ["src/components/contracts/evidence-submission-review-actions.ui.test.tsx", "EvidenceSubmissionReviewActions"],
   ],
-  "quick-open contract + zero results": [["e2e/compatibility-core-smoke.spec.ts", "no matches found"]],
+  "quick-open contract + zero results": [["e2e/compatibility-core-smoke.spec.ts", "Open full search"]],
   "export rate limit / row budget messaging": [
     ["src/lib/export-job-visibility.test.ts", "row budget"],
     ["src/app/api/export/contracts/route.test.ts", "429"],
@@ -73,7 +73,7 @@ describe("V9 manual smoke matrix — automation bridge (handoff proxy)", () => {
     expect(smoke).toContain("@compatibility");
     expect(smoke).toContain("/onboarding/calibration");
     expect(smoke).toContain("/contracts/bulk");
-    expect(smoke).toContain("no matches found");
+    expect(smoke).toContain("Open full search");
     expect(smoke).toContain("/contracts/review");
     expect(smoke).toContain("/work");
     expect(smoke).toContain("/contracts/data-quality");

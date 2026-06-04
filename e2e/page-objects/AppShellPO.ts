@@ -33,6 +33,10 @@ export class AppShellPO {
     return this.page.getByTestId(shellTestIds.commandPaletteRoot);
   }
 
+  commandPaletteInput() {
+    return this.page.getByTestId(shellTestIds.commandPaletteInput);
+  }
+
   async expectShellVisible() {
     await expect(this.mainContent()).toBeVisible();
     await expect(this.primaryNav()).toBeVisible();
@@ -49,4 +53,3 @@ export class AppShellPO {
     await expect(this.mobileDrawer()).toBeVisible();
   }
 }
-

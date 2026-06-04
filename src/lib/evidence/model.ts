@@ -1,3 +1,4 @@
+import { differenceInCalendarDays } from "date-fns";
 import type { createAdminClient } from "@/lib/supabase/server";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel, type OrgMemberProfileRow } from "@/lib/org-member-profiles";
 import { applyV10ReadModelVisibility } from "@/lib/visibility";
@@ -12,8 +13,11 @@ import {
   EVIDENCE_SECTION_LABELS,
   EVIDENCE_STATUS_LABELS,
 } from "./spec-strings";
+import { buildEvidenceHref, hasActiveEvidenceFilters, normalizeEvidenceFilters } from "./href";
 import type {
   EvidenceActionCapability,
+  EvidenceDueFilterKey,
+  EvidenceFilterState,
   EvidenceModelLoadInput,
   EvidenceModelSearchInput,
   EvidenceOption,
@@ -22,6 +26,23 @@ import type {
   EvidenceSectionKey,
   EvidenceStatusKey,
 } from "./types";
+
+// Re-export the pure URL/filter helpers so existing importers (the page, tests)
+// can continue using this model module as their compatibility entry point.
+export { buildEvidenceHref, hasActiveEvidenceFilters, normalizeEvidenceFilters };
+
+// A request is "due soon" when its deadline is within this forward window
+// (inclusive of today). Drives the due-state risk tone, the header "Due soon"
+// count, and the due-state filter.
+const DUE_SOON_DAYS = 7;
+
+// Page size for the request table — keeps the surface to one operational
+// screenful with the footer reachable, instead of an unbounded scroll.
+export const EVIDENCE_PAGE_SIZE = 25;
+
+// Sentinel owner-filter value for requests with no assigned reviewer, so an
+// "Unassigned" option can round-trip through the URL like any other owner.
+const UNASSIGNED_OWNER_VALUE = "unassigned";
 
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -121,25 +142,11 @@ function pickDefaultSection(
   return counts.find((entry) => entry.count > 0)?.key ?? "open_requests";
 }
 
-export function buildEvidenceHref(input: {
-  section?: EvidenceSectionKey;
-  contract?: string | null;
-  create?: boolean;
-}) {
-  const params = new URLSearchParams();
-  // Always emit the section token (including open_requests) so a tab click is a
-  // sticky, explicit selection rather than the bare path that re-triggers the
-  // auto-pick default.
-  if (input.section) params.set("section", input.section);
-  if (input.contract) params.set("contract", input.contract);
-  if (input.create) params.set("create", "1");
-  const qs = params.toString();
-  return qs ? `/contracts/evidence-studio?${qs}` : "/contracts/evidence-studio";
-}
 
 export function buildEvidencePageModel(input: BuildEvidencePageModelInput): EvidencePageModel {
   const explicitSection = resolveExplicitSection(input);
-  const selectedContractId = normalizeToken(input.contract);
+  const filters = normalizeEvidenceFilters(input);
+  const selectedContractId = filters.contract;
   const contractById = new Map(input.contracts.map((contract) => [contract.id, contract]));
   const obligationById = new Map(input.obligations.map((obligation) => [obligation.id, obligation]));
   const memberLabelById = new Map(
@@ -169,13 +176,13 @@ export function buildEvidencePageModel(input: BuildEvidencePageModelInput): Evid
       })
     );
 
-  const selectedRows = selectedContractId
-    ? shapedRows.filter((row) => row.contractId === selectedContractId)
-    : shapedRows;
+  // Apply every active filter (contract, owner, obligation, due, file) before
+  // computing tab counts so the counts reflect exactly what filtering shows.
+  const filteredRows = shapedRows.filter((row) => matchesFilters(row, filters));
 
   const sectionCounts = EVIDENCE_SECTION_ORDER.map((key) => ({
     key,
-    count: selectedRows.filter((row) => matchesSection(row, key)).length,
+    count: filteredRows.filter((row) => matchesSection(row, key)).length,
   }));
   // An explicit ?section= always wins; otherwise open on the first section that
   // holds work so the page never lands on an empty tab while requests sit in
@@ -186,13 +193,19 @@ export function buildEvidencePageModel(input: BuildEvidencePageModelInput): Evid
     key,
     label: EVIDENCE_SECTION_LABELS[key],
     count,
-    href: buildEvidenceHref({ section: key, contract: selectedContractId }),
+    href: buildEvidenceHref({ section: key, contract: selectedContractId, filters }),
     active: key === activeSection,
   }));
 
-  const rows = selectedRows
+  const sectionRows = filteredRows
     .filter((row) => matchesSection(row, activeSection))
     .sort(compareEvidenceRows);
+  const totalInSection = sectionRows.length;
+  const totalPages = Math.max(1, Math.ceil(totalInSection / EVIDENCE_PAGE_SIZE));
+  // Clamp the requested page so a stale/over-range ?page= lands on the last page
+  // instead of an empty table.
+  const page = Math.min(Math.max(1, parsePage(input.page)), totalPages);
+  const rows = sectionRows.slice((page - 1) * EVIDENCE_PAGE_SIZE, page * EVIDENCE_PAGE_SIZE);
 
   const contractOptions = toContractOptions(input.contracts);
   const createObligations = selectedContractId
@@ -206,9 +219,22 @@ export function buildEvidencePageModel(input: BuildEvidencePageModelInput): Evid
     primaryCta: EVIDENCE_PRIMARY_CTA,
     activeSection,
     selectedContractId,
+    filters,
+    hasActiveFilters: hasActiveEvidenceFilters(filters),
+    filterOptions: buildEvidenceFilterOptions(shapedRows),
+    summary: {
+      dueSoon: filteredRows.filter((row) => row.dueState === "due_soon").length,
+      // "Missing file" is only actionable while a request is still awaiting
+      // upload, so terminal (accepted) rows don't inflate the count.
+      missingFile: filteredRows.filter(
+        (row) => row.attachedFilesCount === 0 && (row.status === "requested" || row.status === "overdue")
+      ).length,
+    },
     sections,
     rows,
-    totalVisibleRows: selectedRows.length,
+    pageInfo: { page, pageSize: EVIDENCE_PAGE_SIZE, totalPages, totalInSection },
+    totalVisibleRows: filteredRows.length,
+    totalUnfilteredRows: shapedRows.length,
     create: {
       open: input.create === "1" || input.create === "true",
       selectedContractId,
@@ -371,6 +397,17 @@ function shapeEvidenceRow(
   const externalFiles = input.externalFileCountByRequirement.get(requirementId) ?? 0;
   const payloadFiles = countPayloadFiles(latestSubmission?.payload_json);
   const attachedFilesCount = Math.max(externalFiles, payloadFiles);
+  const dueInDays = calcDueInDays(row.due_at ?? null, input.now);
+  const dueState = deriveDueState(status, dueInDays);
+  // "Last activity" = the most recent signal across the requirement record and
+  // its latest submission, so the Updated column reflects real movement.
+  const lastUpdateAt = latestTimestamp(
+    row.updated_at,
+    readStatus?.latest_submission_at,
+    latestSubmission?.reviewed_at,
+    latestSubmission?.submitted_at,
+    row.created_at
+  );
   const ownerUserId = row.reviewer_id ?? null;
   const requestOwnerLabel =
     ownerUserId === input.userId
@@ -394,6 +431,9 @@ function shapeEvidenceRow(
     requestOwnerLabel,
     dueAt: row.due_at ?? null,
     dueLabel: formatDateLabel(row.due_at ?? null),
+    dueInDays,
+    dueState,
+    lastUpdateAt,
     status,
     statusLabel: EVIDENCE_STATUS_LABELS[status],
     statusTone: statusTone(status),
@@ -413,6 +453,7 @@ function shapeEvidenceRow(
       },
       requestOwner: { label: EVIDENCE_ROW_LABELS.requestOwner, value: requestOwnerLabel },
       dueDate: { label: EVIDENCE_ROW_LABELS.dueDate, value: formatDateLabel(row.due_at ?? null) },
+      lastUpdate: { label: "Last update", value: lastUpdateAt ? formatDateLabel(lastUpdateAt) : "—" },
       status: { label: EVIDENCE_ROW_LABELS.status, value: EVIDENCE_STATUS_LABELS[status] },
       attachedFiles: {
         label: EVIDENCE_ROW_LABELS.attachedFiles,
@@ -447,75 +488,63 @@ function deriveEvidenceStatus(input: {
 
 function buildActionCapabilities(row: EvidenceRow): EvidenceActionCapability[] {
   const createHref = buildEvidenceHref({ create: true, contract: row.contractId });
-  const uploadEnabled = row.status === "requested" || row.status === "overdue" || row.status === "rejected";
-  const reviewEnabled = row.status === "received" && row.latestSubmissionId;
   const contractEvidenceHref = row.contractHref ?? createHref;
-  return [
-    {
-      key: "request_evidence",
-      label: EVIDENCE_ACTION_LABELS.request_evidence,
-      kind: "link",
-      href: createHref,
-      requirementId: row.requirementId,
-    },
-    uploadEnabled
+  const requirementId = row.requirementId;
+
+  const upload: EvidenceActionCapability = {
+    key: "upload_evidence",
+    label: EVIDENCE_ACTION_LABELS.upload_evidence,
+    kind: "mutation",
+    mutation: "upload_evidence",
+    requirementId,
+  };
+  const remind: EvidenceActionCapability = {
+    key: "send_reminder",
+    label: EVIDENCE_ACTION_LABELS.send_reminder,
+    kind: "mutation",
+    mutation: "send_reminder",
+    requirementId,
+  };
+  // On a rejected request, "Request evidence" means re-request a fresh submission.
+  const requestAgain: EvidenceActionCapability = {
+    key: "request_evidence",
+    label: EVIDENCE_ACTION_LABELS.request_evidence,
+    kind: "link",
+    href: createHref,
+    requirementId,
+  };
+  const reviewAction = (key: "accept" | "reject"): EvidenceActionCapability =>
+    row.latestSubmissionId
       ? {
-          key: "upload_evidence",
-          label: EVIDENCE_ACTION_LABELS.upload_evidence,
+          key,
+          label: EVIDENCE_ACTION_LABELS[key],
           kind: "mutation",
-          mutation: "upload_evidence",
-          requirementId: row.requirementId,
-        }
-      : {
-          key: "upload_evidence",
-          label: EVIDENCE_ACTION_LABELS.upload_evidence,
-          kind: "link",
-          href: contractEvidenceHref,
-          requirementId: row.requirementId,
-        },
-    reviewEnabled
-      ? {
-          key: "accept",
-          label: EVIDENCE_ACTION_LABELS.accept,
-          kind: "mutation",
-          mutation: "accept",
-          requirementId: row.requirementId,
-          submissionId: row.latestSubmissionId,
-        }
-      : {
-          key: "accept",
-          label: EVIDENCE_ACTION_LABELS.accept,
-          kind: "link",
-          href: contractEvidenceHref,
-          requirementId: row.requirementId,
-          submissionId: row.latestSubmissionId,
-        },
-    reviewEnabled
-      ? {
-          key: "reject",
-          label: EVIDENCE_ACTION_LABELS.reject,
-          kind: "mutation",
-          mutation: "reject",
-          requirementId: row.requirementId,
+          mutation: key,
+          requirementId,
           submissionId: row.latestSubmissionId,
         }
       : {
-          key: "reject",
-          label: EVIDENCE_ACTION_LABELS.reject,
+          key,
+          label: EVIDENCE_ACTION_LABELS[key],
           kind: "link",
           href: contractEvidenceHref,
-          requirementId: row.requirementId,
+          requirementId,
           submissionId: row.latestSubmissionId,
-        },
-    {
-      key: "send_reminder",
-      label: EVIDENCE_ACTION_LABELS.send_reminder,
-      kind: row.status === "accepted" ? "link" : "mutation",
-      href: contractEvidenceHref,
-      mutation: row.status === "accepted" ? undefined : "send_reminder",
-      requirementId: row.requirementId,
-    },
-  ];
+        };
+
+  // Actions are state-contextual: no "Accept/Reject" on a request with nothing
+  // submitted, and no redundant "Request evidence" on an already-open request.
+  switch (row.status) {
+    case "requested":
+    case "overdue":
+      return [upload, remind];
+    case "rejected":
+      return [upload, requestAgain, remind];
+    case "received":
+      return [reviewAction("accept"), reviewAction("reject")];
+    case "accepted":
+      return [];
+  }
 }
 
 function matchesSection(row: EvidenceRow, section: EvidenceSectionKey) {
@@ -529,6 +558,96 @@ function matchesSection(row: EvidenceRow, section: EvidenceSectionKey) {
     case "linked_obligations":
       return Boolean(row.linkedObligationId);
   }
+}
+
+function matchesFilters(row: EvidenceRow, filters: EvidenceFilterState): boolean {
+  if (filters.contract && row.contractId !== filters.contract) return false;
+  if (filters.owner) {
+    const ownerValue = row.requestOwnerUserId ?? UNASSIGNED_OWNER_VALUE;
+    if (ownerValue !== filters.owner) return false;
+  }
+  if (filters.status && row.status !== filters.status) return false;
+  if (filters.obligation && row.linkedObligationId !== filters.obligation) return false;
+  if (filters.due && row.dueState !== filters.due) return false;
+  if (filters.file) {
+    const hasFile = row.attachedFilesCount > 0;
+    if (filters.file === "has_file" && !hasFile) return false;
+    if (filters.file === "missing_file" && hasFile) return false;
+  }
+  return true;
+}
+
+// Filter dropdown options reflect every request (pre-filter) so a user can
+// always reselect a value they just filtered away. Values present in the data
+// only — no empty dropdowns of theoretical owners/contracts.
+function buildEvidenceFilterOptions(rows: EvidenceRow[]): EvidencePageModel["filterOptions"] {
+  const owners = new Map<string, string>();
+  const contracts = new Map<string, string>();
+  const obligations = new Map<string, string>();
+  const statusesPresent = new Set<EvidenceStatusKey>();
+  for (const row of rows) {
+    const ownerValue = row.requestOwnerUserId ?? UNASSIGNED_OWNER_VALUE;
+    if (!owners.has(ownerValue)) owners.set(ownerValue, row.requestOwnerLabel);
+    if (row.contractId && !contracts.has(row.contractId)) contracts.set(row.contractId, row.contractTitle);
+    if (row.linkedObligationId && !obligations.has(row.linkedObligationId)) {
+      obligations.set(row.linkedObligationId, row.linkedObligationTitle);
+    }
+    statusesPresent.add(row.status);
+  }
+  const STATUS_OPTION_ORDER: EvidenceStatusKey[] = [
+    "requested",
+    "overdue",
+    "received",
+    "accepted",
+    "rejected",
+  ];
+  return {
+    owners: [{ value: "", label: "Any owner" }, ...mapToSortedOptions(owners)],
+    statuses: [
+      { value: "", label: "Any status" },
+      ...STATUS_OPTION_ORDER.filter((status) => statusesPresent.has(status)).map((status) => ({
+        value: status,
+        label: EVIDENCE_STATUS_LABELS[status],
+      })),
+    ],
+    contracts: [{ value: "", label: "Any contract" }, ...mapToSortedOptions(contracts)],
+    obligations: [{ value: "", label: "Any obligation" }, ...mapToSortedOptions(obligations)],
+  };
+}
+
+function mapToSortedOptions(map: Map<string, string>): EvidenceOption[] {
+  return [...map.entries()]
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function calcDueInDays(dueAt: string | null, now: Date): number | null {
+  if (!dueAt) return null;
+  const date = new Date(dueAt);
+  if (Number.isNaN(date.getTime())) return null;
+  return differenceInCalendarDays(date, now);
+}
+
+// Keep "overdue" aligned with the Overdue tab (status-driven); everything else
+// is forward-looking off the calendar-day delta.
+function deriveDueState(status: EvidenceStatusKey, dueInDays: number | null): EvidenceDueFilterKey {
+  if (status === "overdue") return "overdue";
+  if (dueInDays === null) return "no_due";
+  if (dueInDays >= 0 && dueInDays <= DUE_SOON_DAYS) return "due_soon";
+  return "";
+}
+
+function latestTimestamp(...values: Array<string | null | undefined>): string | null {
+  let best: string | null = null;
+  let bestMs = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    if (!value) continue;
+    const ms = new Date(value).getTime();
+    if (Number.isNaN(ms) || ms <= bestMs) continue;
+    bestMs = ms;
+    best = value;
+  }
+  return best;
 }
 
 function compareEvidenceRows(a: EvidenceRow, b: EvidenceRow) {
@@ -592,6 +711,11 @@ function toObligationOptions(
 
 function normalizeToken(value: string | null | undefined) {
   return (value ?? "").trim();
+}
+
+function parsePage(value: string | null | undefined): number {
+  const parsed = Number.parseInt((value ?? "").trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
 function isEvidenceSectionKey(value: string): value is EvidenceSectionKey {

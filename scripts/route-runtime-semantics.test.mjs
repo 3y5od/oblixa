@@ -58,6 +58,32 @@ test("assertCronSemanticContract detects inconsistent notification retry totals"
   );
 });
 
+test("assertCronSemanticContract accepts webhook dispatches completed without subscribers", () => {
+  assert.deepEqual(
+    assertCronSemanticContract("/api/webhooks/dispatch", {
+      candidates: 50,
+      delivered: 48,
+      attempts: 0,
+      skippedNoSubscribers: 48,
+      totalFailures: 0,
+    }),
+    []
+  );
+});
+
+test("assertCronSemanticContract rejects unexplained webhook deliveries without attempts", () => {
+  assert.deepEqual(
+    assertCronSemanticContract("/api/webhooks/dispatch", {
+      candidates: 50,
+      delivered: 48,
+      attempts: 0,
+      skippedNoSubscribers: 47,
+      totalFailures: 0,
+    }),
+    ["attempts:below_delivered"]
+  );
+});
+
 test("assertCronSemanticContract accepts review-board packet summary counts", () => {
   assert.deepEqual(
     assertCronSemanticContract("/api/cron/v6/review-board-packet-generation", {

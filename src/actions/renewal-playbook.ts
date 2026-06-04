@@ -9,6 +9,7 @@ import type { RenewalCheckpointStatus } from "@/lib/types";
 import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 const MAX_WORKSPACE_NOTE_LEN = 4000;
 
@@ -69,8 +70,7 @@ async function getRenewalDate(
 
   const raw = field?.field_value?.trim();
   if (!raw) return null;
-  const date = new Date(`${raw}T12:00:00`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  return parseBusinessDateAtNoon(raw);
 }
 
 export async function seedRenewalPlaybook(contractId: string) {

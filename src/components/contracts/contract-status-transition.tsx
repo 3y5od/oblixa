@@ -31,12 +31,17 @@ interface ContractStatusTransitionProps {
   contractId: string;
   currentStatus: ContractStatus;
   canEdit?: boolean;
+  /** When set, the transition to "active" is disabled and this reason is
+   *  surfaced — used to hold activation until required suggested fields are
+   *  reviewed (release-state AI trust boundary). */
+  blockActivateReason?: string | null;
 }
 
 export function ContractStatusTransition({
   contractId,
   currentStatus,
   canEdit = true,
+  blockActivateReason = null,
 }: ContractStatusTransitionProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -62,21 +67,35 @@ export function ContractStatusTransition({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {available.map(({ label, target }) => (
-        <button
-          type="button"
-          key={target}
-          onClick={() => handleTransition(target)}
-          disabled={isPending}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            buttonStyles[target] ||
-            "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
-          }`}
-        >
-          {isPending ? "Updating..." : label}
-        </button>
-      ))}
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        {available.map(({ label, target }) => {
+          const activateBlocked = target === "active" && Boolean(blockActivateReason);
+          return (
+            <button
+              type="button"
+              key={target}
+              onClick={() => handleTransition(target)}
+              disabled={isPending || activateBlocked}
+              title={activateBlocked ? blockActivateReason ?? undefined : undefined}
+              aria-disabled={activateBlocked || undefined}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                activateBlocked
+                  ? "border border-dashed border-[var(--border-strong)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,var(--surface))] text-[var(--text-tertiary)]"
+                  : `disabled:opacity-50 ${
+                      buttonStyles[target] ||
+                      "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
+                    }`
+              }`}
+            >
+              {isPending ? "Updating..." : label}
+            </button>
+          );
+        })}
+      </div>
+      {blockActivateReason && available.some(({ target }) => target === "active") ? (
+        <p className="text-[11.5px] leading-snug text-[var(--warning-ink)]">{blockActivateReason}</p>
+      ) : null}
     </div>
   );
 }

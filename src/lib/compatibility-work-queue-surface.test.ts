@@ -39,7 +39,6 @@ describe("Work release-state surface", () => {
       "Change due date",
       "Comment",
       "Link evidence",
-      "Escalate",
     ]);
     expect(WORK_EMPTY_STATE).toBe("Create work from a contract date, obligation, approval, or exception.");
   });
@@ -54,7 +53,10 @@ describe("Work release-state surface", () => {
     expect(page).not.toContain("DiagnosticDisclosure");
     expect(page).not.toContain("SamplePreviewCard");
     expect(page).not.toContain("QueueItemCard");
-    expect(page).not.toContain("overflow-x-auto");
+    // The release-state table keeps a sticky-header scroll container that uses
+    // `overflow-x-auto` (required by page.surface.test.ts). The old Work hub's
+    // anti-pattern was a hard min-width forcing the whole table to scroll —
+    // guarded by `min-w-[980px]` below — not `overflow-x-auto` itself.
     expect(page).not.toContain("min-w-[980px]");
   });
 });

@@ -27,12 +27,50 @@ describe("secFetchSiteAllowsSensitiveMutation", () => {
     expect(secFetchSiteAllowsSensitiveMutation(req("POST"))).toBe(false);
   });
 
+  it("allows explicit same-origin browser mutations when browser metadata is stripped", () => {
+    expect(
+      secFetchSiteAllowsSensitiveMutation(
+        req("POST", { headers: { "x-oblixa-browser-mutation": "same-origin" } })
+      )
+    ).toBe(true);
+  });
+
   it("blocks cross-site Origin values", () => {
     expect(secFetchSiteAllowsSensitiveMutation(req("POST", { origin: "https://evil.example" }))).toBe(false);
   });
 
   it("allows same-origin Origin values", () => {
     expect(secFetchSiteAllowsSensitiveMutation(req("POST", { origin: "https://app.example" }))).toBe(true);
+  });
+
+  it("allows equivalent localhost origins on the same protocol and port", () => {
+    expect(
+      secFetchSiteAllowsSensitiveMutation(
+        req("POST", {
+          origin: "http://127.0.0.1:3000",
+          url: "http://localhost:3000/api/contact",
+        })
+      )
+    ).toBe(true);
+    expect(
+      secFetchSiteAllowsSensitiveMutation(
+        req("POST", {
+          referer: "http://127.0.0.1:3000/contact",
+          url: "http://localhost:3000/api/contact",
+        })
+      )
+    ).toBe(true);
+  });
+
+  it("blocks localhost-equivalent origins when protocol or port differs", () => {
+    expect(
+      secFetchSiteAllowsSensitiveMutation(
+        req("POST", {
+          origin: "http://127.0.0.1:3001",
+          url: "http://localhost:3000/api/contact",
+        })
+      )
+    ).toBe(false);
   });
 
   it("blocks hostile Referer when Origin is absent", () => {
@@ -58,6 +96,7 @@ describe("secFetchSiteAllowsSensitiveMutation", () => {
         req("POST", {
           origin: "https://evil.example",
           site: "cross-site",
+          headers: { "x-oblixa-browser-mutation": "same-origin" },
         })
       )
     ).toBe(false);

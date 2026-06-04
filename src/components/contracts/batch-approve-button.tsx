@@ -9,12 +9,16 @@ import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-err
 interface BatchApproveButtonProps {
   contractId: string;
   pendingCount: number;
+  /** Count of pending fields that can actually be approved (AI values need a
+   *  source citation). When 0, the button is disabled with an explanation. */
+  readyCount?: number;
   canEdit?: boolean;
 }
 
 export function BatchApproveButton({
   contractId,
   pendingCount,
+  readyCount,
   canEdit = true,
 }: BatchApproveButtonProps) {
   const [isPending, startTransition] = useTransition();
@@ -22,6 +26,8 @@ export function BatchApproveButton({
   const router = useRouter();
 
   if (!canEdit || pendingCount === 0) return null;
+
+  const nothingReady = typeof readyCount === "number" && readyCount === 0;
 
   function handleClick() {
     setMessage(null);
@@ -46,13 +52,18 @@ export function BatchApproveButton({
       <button
         type="button"
         onClick={handleClick}
-        disabled={isPending}
-        className="ui-btn-secondary inline-flex w-full items-center gap-1.5 px-3 py-2 text-xs disabled:opacity-50 sm:w-auto"
+        disabled={isPending || nothingReady}
+        title={
+          nothingReady
+            ? "No fields are ready to approve yet — add a source citation or edit a value first."
+            : undefined
+        }
+        className="ui-btn-secondary inline-flex w-full items-center gap-1.5 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         <ListChecks size={16} className="text-[var(--success-ink)]" />
         {isPending ? "Approving…" : "Approve all ready fields"}
       </button>
-      {message && (
+      {message ? (
         <p
           className={`max-w-xl rounded-lg px-3 py-2 text-xs leading-relaxed sm:text-right ${
             message.tone === "error" ? "ui-alert-error" : "ui-alert-success"
@@ -62,7 +73,11 @@ export function BatchApproveButton({
         >
           {message.text}
         </p>
-      )}
+      ) : nothingReady ? (
+        <p className="max-w-xl text-[11.5px] leading-snug text-[var(--text-tertiary)] sm:text-right">
+          No fields are ready yet — add a source citation or edit a value first.
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -2,8 +2,8 @@
 export const SETTINGS_PAGE_STRINGS = {
   eyebrow: "Settings",
   title: "Settings",
-  lead: "Manage workspace, team, billing, notifications, security, and export settings.",
-  directoryTitle: "Settings directory",
+  lead: "Manage workspace, team, billing, notifications, security, and data export.",
+  directoryTitle: "Directory",
 } as const;
 
 export const SETTINGS_GROUP_STRINGS = {
@@ -52,7 +52,7 @@ export const SETTINGS_DESTINATION_STRINGS = {
     title: "Imports and exports",
     description: "Import contracts and review operational export tools.",
     actionLabel: "Open imports",
-    currentStateLabel: "CSV and signed files",
+    currentStateLabel: "Contracts and files",
   },
   data_export: {
     title: "Data export",
@@ -114,11 +114,13 @@ export const SETTINGS_NOTIFICATIONS_STRINGS = {
   // backwards-compat; UI no longer renders it.
   emailRemindersToggleHelp:
     "Reminders go to owners, reviewers, and assignees.",
-  // V2 §1.4 — parens replace bare middle-dot per §11.16.
-  quietHoursLegend: "Quiet hours (UTC)",
-  // V3 §1.6 — visible START/END caps labels dropped per §11.15
-  // (helper between label and input). Sr-only aria-labels carry
-  // the SR semantic. Constants retained for backwards-compat.
+  // V4 §2.4 — legend drops the "(UTC)" parenthetical; a UTC chip now
+  // sits beside the range so the timezone reads as structured metadata
+  // rather than low-signal parens. (V2 was "Quiet hours (UTC)".)
+  quietHoursLegend: "Quiet hours",
+  // V4 §2.1 — visible Start/End caps labels return above each input as
+  // the canonical time-range control. (V3 had hidden these to sr-only;
+  // a bare "0 → 0" pair was ambiguous about which end was which.)
   quietStartLabel: "Start",
   quietEndLabel: "End",
   // V3 §2.7 — quietHoursHelp dropped entirely; the legend "Quiet
@@ -157,6 +159,31 @@ export const SETTINGS_NOTIFICATIONS_STRINGS = {
   // V3 §16.7 — schema-parse-failure inline error.
   policyLoadError: "Notification settings could not be loaded.",
   policyReloadCta: "Reload",
+  // V4 §2.4 — UTC chip beside the quiet-hours range (replaces the
+  // "(UTC)" legend parenthetical).
+  utcLabel: "UTC",
+  // V4 §3 — read-only (non-admin) state reads as a titled notice with an
+  // icon + a quiet footer line, not a thin one-line banner that looked
+  // like an input. `nonAdminBanner` (above) supplies the body copy.
+  readOnlyTitle: "Read-only",
+  readOnlyFooter: "Ask a workspace admin to change these settings.",
+  // V4 §5 — summary rail: a quiet companion surface that reflects the
+  // derived posture of the current (pending) form. Pairs with the form
+  // so the page reads as two columns instead of one isolated card, and
+  // surfaces the *interpreted* quiet window (any-time / overnight) that
+  // the raw number inputs don't make obvious.
+  summary: {
+    eyebrow: "Summary",
+    title: "Current setup",
+    context: "Workspace defaults applied to everyone on the team.",
+    emailLabel: "Email",
+    quietLabel: "Quiet hours",
+    remindersLabel: "Reminders",
+    digestLabel: "Weekly digest",
+    anyTime: "Any time",
+    overnight: "Overnight",
+    pausedNote: "No reminders will send while email is off.",
+  },
   categories: [
     // V3 §2.1 — recast descriptions to drop redundant "Notify {audience}"
     // prefix. Storage keys unchanged for backwards-compat.
@@ -203,13 +230,13 @@ export const SETTINGS_BILLING_STRINGS = {
   // Finishing-pass §1.11 + §5.1 — shortened from 92 chars to satisfy
   // spec §10.7 (≤80 chars between structured elements). State-specific
   // variants below; this `lead` is the generic fallback.
-  lead: "Manage your plan, payment method, and invoices.",
-  leadFreeState: "Pick a plan to keep your contract tracking past the trial.",
-  leadActiveState: "Manage your plan, payment method, and invoices.",
+  lead: "Review early-access status and billing questions.",
+  leadFreeState: "Billing starts after evaluation, once Oblixa is part of your workflow.",
+  leadActiveState: "Review your current access and billing status.",
   backLabel: "Back to settings",
-  primaryCta: "Choose annual plan",
-  secondaryCta: "Continue monthly",
-  trialCta: "Convert to paid plan",
+  primaryCta: "Contact support about billing",
+  secondaryCta: "Review early-access pricing",
+  trialCta: "Request billing help",
   reactivateCta: "Reactivate subscription",
   resumeCheckoutCta: "Resume checkout",
   paymentMethodCta: "Update payment method",
@@ -218,22 +245,19 @@ export const SETTINGS_BILLING_STRINGS = {
   cancellationLabel: "Cancellation path",
   unavailableTitle: "Billing checkout is unavailable in this environment.",
   unavailableCopy: "Account status remains visible. Configure billing on the server to enable checkout and customer portal actions.",
-  // Polish-pass §2.10 + finishing-pass §2.5 — body ≤ 80 chars, with
-  // 21-day specificity per spec §10.7.
-  emptyStateBody: "Subscribe to keep editing past the 21-day trial.",
-  // Finishing-pass §5.3 — caps chip label when trial ended on free
-  trialEndedLabel: "TRIAL ENDED",
+  // Polish-pass §2.10 + finishing-pass §2.5 — body ≤ 80 chars.
+  emptyStateBody: "Billing is secondary during early access.",
+  trialEndedLabel: "EVALUATION",
   // Polish-pass §2.9 — sub-eyebrow above plan-includes feature list
-  planIncludesEyebrow: "Plan includes",
+  planIncludesEyebrow: "Included during early access",
   // Polish-pass §3.4 — invoices section eyebrow
   invoicesEyebrow: "Invoices",
   // Polish-pass §3.1 — compact empty invoices copy
   noInvoicesYet: "No invoices yet",
   // Polish-pass §4.7 — release-state §305 exact phrasing (drops ?)
   contactSalesPromptSpec:
-    "Larger teams and higher contract volumes are available on custom plans.",
-  // Polish-pass §7.1 — tertiary trial CTA (gated on no prior trial)
-  startTrialCta: "Or start a 21-day free trial",
+    "Larger teams and higher contract volumes are handled during early access.",
+  startTrialCta: "Request early-access billing help",
   // Polish-pass §7.2 — promo-code discoverability prompt
   promoCodePrompt: "Have a discount code?",
   // Polish-pass §7.4 — founding ribbon (no emoji, no bare dot)
@@ -248,57 +272,57 @@ export const SETTINGS_BILLING_STRINGS = {
   // Polish-pass §3.10 — auto-renews chip label
   autoRenewsLabel: "Auto-renews",
   // Polish-pass §5.7 — trial cap badge
-  trialCapBadge: "TRIAL CAP",
+  trialCapBadge: "EVALUATION SCOPE",
   // Polish-pass §6.2 — admin utility-row prefix
-  adminUtilityLabel: "Admin",
-  trialMicrocopy: "21-day free trial · No credit card required",
-  taxNote: "Pricing shown in USD. Taxes calculated at checkout based on your billing region.",
-  contactSalesPrompt: "Need a custom plan or enterprise terms?",
-  contactSalesCta: "Talk to us",
-  contactSalesHref: "mailto:sales@oblixa.com",
+  adminUtilityLabel: "Billing administration",
+  trialMicrocopy: "Early access — Billing after evaluation",
+  taxNote: "Pricing is finalized during early-access evaluations.",
+  contactSalesPrompt: "Questions about billing during early access?",
+  contactSalesCta: "Contact support",
+  contactSalesHref: "mailto:support@oblixa.com",
   testModeBanner: "Stripe TEST MODE active — no real charges will be made.",
   // §Plan Limits — release-state §289-307
   coreLimits: { contracts: 500, teamMembers: 10 } as const,
-  trialCaps: { contracts: 25, teamMembers: 3, days: 21 } as const,
+  trialCaps: { contracts: 25, teamMembers: 3, days: 0 } as const,
   planContent: {
-    aiExtraction: "Fair-use included",
+    aiExtraction: "Source-backed, human-reviewed",
     auditHistory: "Available in security",
     csvExport: "Available in imports & exports",
-    support: "Standard support",
+    support: "Product support during evaluation",
     emailReminders: "Included",
   } as const,
   foundingCustomerOffer: {
-    priceDisplay: "$2,400 for the first year",
+    priceDisplay: "Founding monthly plan after evaluation",
     limit: 25,
-    ctaLabel: "Apply for founding customer pricing",
-    description: "Limited availability. Includes one setup call.",
+    ctaLabel: "Discuss founding access",
+    description: "Available only after evaluation value is clear.",
   } as const,
   guidedPilotOffer: {
-    priceDisplay: "$1,500 for 60 days",
+    priceDisplay: "Evaluation first",
     description:
-      "Credited toward your first annual subscription if you continue. Includes setup call, import planning, owner mapping, first-report review.",
+      "Start with a small contract subset. Continued use can move to a founding monthly plan.",
   } as const,
   // Placeholder values rendered as em-dash sentinels — see §1.26, §17.1
   // NOTE: "Free" is NOT a placeholder — it's a legitimate plan label
   // when subscriptionStatus === "none". Was previously included here
   // and caused the em-dash bug (refinement §1.1).
   placeholders: {
-    noActiveTrial: "No active trial",
+    noActiveTrial: "No active evaluation",
     notConfigured: "Not configured",
     planDependent: "Plan dependent",
     notScheduled: "Not scheduled",
-    trialEndUnavailable: "Trial end unavailable",
+    trialEndUnavailable: "Evaluation review date unavailable",
     unavailableUntilBilling: "Available after billing is configured",
     askAdminCancel: "Ask a workspace admin to manage cancellation.",
   } as const,
   cancellationConfirmation:
     "You'll get a cancellation confirmation email and access continues through {date}. You can reactivate any time before then.",
-  contactSalesPromptShort: "Need higher limits or a custom plan?",
+  contactSalesPromptShort: "Questions about early-access billing?",
   whatYouGetEyebrow: "What you get",
   includedEyebrow: "Included",
-  enterpriseInterestLabel: "Enterprise",
-  enterpriseInterestVerb: "Talk to us",
-  publicPricingLink: "View public pricing →",
+  enterpriseInterestLabel: "Manual boundary",
+  enterpriseInterestVerb: "Contact support",
+  publicPricingLink: "Review early-access pricing →",
   publicPricingHref: "/pricing",
   testModeBannerShort: "Test billing mode — no real charges.",
   testCardHints: [
@@ -322,37 +346,36 @@ export const SETTINGS_BILLING_STRINGS = {
   } as const,
   // §11.3 — structured microcopy parts for ChipPair rendering
   trialMicrocopyParts: [
-    "21-day free trial",
-    "No credit card required",
+    "Early access",
+    "Billing after evaluation",
   ] as const,
   faq: [
-    "What happens when the trial ends?",
+    "What happens after evaluation?",
     "Can I export before cancelling?",
-    "Can I change plans?",
+    "When would paid use start?",
     "Can I add more contracts?",
     "Can I add more team members?",
     "Do you offer setup help?",
   ] as const,
   faqAnswers: {
-    "What happens when the trial ends?":
-      "Your workspace stays accessible in read-only mode. Subscribe to keep editing, importing, and exporting contracts.",
+    "What happens after evaluation?":
+      "If Oblixa becomes useful to your workflow, continued use can move to a paid founding monthly plan. You can also export records and reports.",
     "Can I export before cancelling?":
       "Yes. Export your contract inventory from Settings → Imports and exports before you cancel. Exports stop being available 7 days after cancellation.",
-    "Can I change plans?":
-      "Switch monthly and annual any time in the customer portal. Prorated credits apply on upgrade; downgrades take effect at the next renewal.",
+    "When would paid use start?":
+      "Paid use starts only after evaluation, if Oblixa becomes part of your workflow — continued use moves to a founding monthly plan.",
     "Can I add more contracts?":
-      "Core includes up to 500 active contracts. Larger teams and higher contract volumes are available through a custom plan.",
+      "Start with a small evaluation set. Larger migrations should wait until the workflow proves useful.",
     "Can I add more team members?":
-      "Invite teammates from Settings → Team. Additional seats can be added in the customer portal.",
+      "Invite teammates from Settings → Team when they need to help review fields, owners, work, or evidence.",
     "Do you offer setup help?":
-      "Yes. The Guided Pilot is $1,500 for 60 days and includes a setup call, import planning, owner mapping, and first-report review — credited toward your first annual subscription if you continue. Email support@oblixa.com to start.",
+      "Early access includes product support during evaluation, not managed implementation. We don't run migrations, spreadsheet cleanup, or legal review.",
   } as const,
 } as const;
 
 // Billing strings — keep in lockstep with the canonical release-state
-// spec: Billing Page (lines 1645-1683) + Plan Limits (289-307) + Trial
-// (309-322) + Founding Customer Offer + Guided Pilot. Edit the spec
-// doc first, then propagate here.
+// spec: Billing Page + early-access evaluation billing guidance. Keep this
+// subdued until public billing is intentionally activated.
 
 // Security strings — structured spec-strings for the security
 // settings surface. The `legalNote` matches release-state §1700-1702
@@ -387,8 +410,11 @@ export const SETTINGS_SECURITY_STRINGS = {
     resources: "RESOURCES",
     mfa: "MFA",
     sessions: "SESSIONS",
-    // V2 §4.8 — STEP-UP is the industry term + matches stepUpFormCta.
-    stepUp: "STEP-UP",
+    // De-jargoned from "STEP-UP" (a security-engineering term) to the
+    // plain category noun "ACCESS". The card h2 "Password confirmation"
+    // already says what the control does, and "ACCESS" parallels the
+    // MFA / SESSIONS / POLICY sibling eyebrows without doubling "confirm".
+    stepUp: "ACCESS",
     policy: "POLICY",
     workspace: "WORKSPACE",
     legal: "LEGAL",
@@ -397,8 +423,11 @@ export const SETTINGS_SECURITY_STRINGS = {
     recentActivity: "Recent security activity",
     // V2 §4.3 — more specific destination wording.
     auditHistory: "Audit history",
-    // §4.2 — DPA rephrased to less-jargon "Legal contact"
-    dpaContact: "Legal contact",
+    // Release-state: this row is a contact path for data/security
+    // questions, not a formal DPA/procurement flow — labelled "Data
+    // handling" so it doesn't imply a Data Processing Agreement we don't
+    // offer at release.
+    dpaContact: "Data handling",
     // V2 §1.37 sign-in provider row
     signInMethod: "Sign-in method",
     // V2 §1.48 account creation date
@@ -414,19 +443,19 @@ export const SETTINGS_SECURITY_STRINGS = {
   mfaEmptyBody: "Enroll a TOTP authenticator to enable two-factor sign-in.",
   mfaEmptyBodyRequired:
     "Your workspace requires MFA. Enroll an authenticator now.",
-  // Step-up state badges. The inactive label reads "LOCKED" (not
-  // "INACTIVE") so it stays consistent with the active "Confirm
-  // password" form beneath it — the form is what unlocks sensitive
-  // actions, so "LOCKED + enabled form" reads as a clear call to act,
-  // whereas "INACTIVE + enabled form" looked self-contradictory.
+  // Step-up state badges. The resting (locked) label reads "REQUIRES
+  // PASSWORD" rather than the terse "LOCKED" so it states exactly what
+  // unlocks sensitive actions — consistent with the "Confirm password"
+  // form beneath it. Rendered with whitespace-nowrap so the longer label
+  // never wraps the card h2.
   stepUpActiveLabel: "ACTIVE",
   stepUpExpiredLabel: "EXPIRED",
-  stepUpEmptyLabel: "LOCKED",
+  stepUpEmptyLabel: "REQUIRES PASSWORD",
   stepUpMfaSessionLabel: "MFA SESSION",
   // §16.15 AAL2 frictionless-path helper
   stepUpAal2Note: "YOUR MFA SESSION COVERS SENSITIVE ACTIONS",
   // §1.33 contextual prompt when needStepUp: true returns
-  stepUpRequiredPrompt: "Step-up required — confirm password below to retry.",
+  stepUpRequiredPrompt: "Confirm your password below to continue.",
   // §16.6 rate-limit error
   rateLimitedCopy: "Too many attempts — try again in a minute.",
   // V2 §4.6 Sessions positive-action body shortened.
@@ -444,6 +473,11 @@ export const SETTINGS_SECURITY_STRINGS = {
   // Kept for the OFF-gating confirmation dialog per V3 §1.17.
   orgMfaOffConsequence:
     "Allow members to skip MFA enrollment? Current authenticators stay enrolled.",
+  // Self-lockout guard: an admin with no authenticator of their own must
+  // not force workspace-wide MFA — they'd be forced to enroll at next
+  // sign-in with no factor ready. Shown beneath the disabled toggle.
+  orgMfaSelfLockoutHint:
+    "Enroll your own authenticator first to avoid losing access.",
   // §10.5 non-admin policy view
   workspaceMfaRequiredReadOnly:
     "Your workspace requires multi-factor authentication. Enroll an authenticator below.",
@@ -458,17 +492,19 @@ export const SETTINGS_SECURITY_STRINGS = {
   manualKeyWarning: "TREAT AS PASSWORD",
   // §1.19 TOTP code hint
   totpCodeHint: "6-DIGIT CODE FROM AUTHENTICATOR APP",
-  // §3.3 DPA mailto
+  // §3.3 security / data-handling mailto.
   contactEmail: "security@oblixa.com",
-  // V2 §1.16 — drop trailing arrow; rendered as separate ChevronRight.
-  contactCta: "Request DPA",
+  // "Request DPA" overpromised a formal Data Processing Agreement flow
+  // that doesn't exist at release (release-state: no procurement-readiness
+  // implication). Reframed as a plain contact path to the security team.
+  contactCta: "Email security team",
   // §3.4 password change — ghost pill in the Devices action cluster.
   passwordChangeCta: "Change password",
   // §1.39 banner state machine
   mfaBannerRequired:
     "Enroll an authenticator to access your workspace.",
   mfaBannerEnrolled: "Authenticator enrolled.",
-  mfaBannerExpired: "Step-up expired. Confirm password to continue.",
+  mfaBannerExpired: "Password confirmation expired. Confirm again to continue.",
   // §1.44 account identity chip
   accountLabel: "ACCOUNT",
   workspaceLabelChip: "WORKSPACE",

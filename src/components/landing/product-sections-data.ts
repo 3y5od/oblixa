@@ -2,7 +2,10 @@
  * Section data for /product — shared between the page (rendered content) and
  * the client-side ProductAnchorNav (scroll-spy + chip strip).
  *
- * v5 visual pass: per-section tone tokens, badge stamps, group phases.
+ * Per ui-design-principles §10.18, per-section identity is a restrained tone
+ * cue on the eyebrow + medallion only. The card rail, background, bullets, and
+ * metric chip stay neutral so the tone reads as quiet wayfinding, not
+ * decorative color-coding.
  */
 
 export type SectionTone = "cool" | "warm" | "amber" | "success";
@@ -33,7 +36,7 @@ export const PHASES: readonly Phase[] = [
 ] as const;
 
 /**
- * 7 product sections — id, eyebrow, number, badge stamp, tone, phase.
+ * 7 product sections — id, eyebrow, number, tone, phase.
  * The icon name is a key into the icon registry (page imports the actual
  * lucide component to avoid bundling all icons via this data module).
  */
@@ -46,6 +49,16 @@ export type SectionIconName =
   | "ShieldCheck"
   | "BarChart3";
 
+/**
+ * Structured metric chip — a caps label + tabular value, rendered as a
+ * `<KeyValueChip>`. Replaces the older prose `microStat` mini-sentence so the
+ * inline fact reads as a bounded chip rather than a floating sentence.
+ */
+export type SectionMetric = {
+  label: string;
+  value: string;
+};
+
 export type ProductSection = {
   id: string;
   number: string;
@@ -56,31 +69,10 @@ export type ProductSection = {
   bullets: readonly string[];
   bulletVariant: "check" | "dot";
   tone: SectionTone;
-  badge: string;
   phaseId: Phase["id"];
-  /**
-   * v6 T8.3 — section-specific micro-stat (kept as the single in-body pill).
-   * Per v7 T27.4: the context strip caps line was removed; per v7 T28.1 the
-   * abstract decoration SVG was removed. `microStat` is the only inline pill left.
-   */
-  microStat?: string;
-  /**
-   * v6 T8.1 — abstract decoration name. Retained in the data shape for
-   * type-stability but NO LONGER RENDERED (v7 T28.1 — competes with the badge
-   * stamp for the top-right corner, medallion already carries section identity).
-   */
-  decoration: SectionDecorationName;
+  /** Single structured fact shown below the message (label + tabular value). */
+  metric?: SectionMetric;
 };
-
-/** v6 T8.1 — abstract SVG decoration identifiers per section. */
-export type SectionDecorationName =
-  | "grid-tree"
-  | "upload-arrow"
-  | "magnifier-check"
-  | "calendar-dot"
-  | "nodes"
-  | "shield-check"
-  | "bar-chart";
 
 export const PRODUCT_SECTIONS: readonly ProductSection[] = [
   {
@@ -88,73 +80,67 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     number: "1",
     iconName: "FileSpreadsheet",
     eyebrow: "Replace the spreadsheet",
-    title: "Move from a static spreadsheet to a tracking workspace",
+    title: "Move your tracker into one live workspace",
     message:
       "Reviewed terms, dates, and owners stay connected — no more re-typing the same fields across rows, tabs, and shared documents.",
     bullets: [
       "Start with a spreadsheet import or a small contract set",
       "Keep contract records and files together",
       "See missing owners, dates, and key fields",
-      "Turn reviewed contract information into reminders, work, and reports",
+      "Turn reviewed fields into reminders, work, and reports",
     ],
     bulletVariant: "dot",
     tone: "cool",
-    badge: "Start here",
     phaseId: "setup",
-    microStat: "Average first import: 25–50 contracts",
-    decoration: "grid-tree",
+    metric: { label: "First import", value: "25–50" },
   },
   {
     id: "upload",
     number: "2",
     iconName: "Database",
     eyebrow: "Upload and import",
-    title: "Add signed contracts from PDFs, DOCX, or your existing spreadsheet",
+    title: "Add signed contracts from PDF, DOCX, or CSV",
     message:
       "Bring in agreements one at a time or by CSV. Keep the original files alongside the structured fields your team will actually use.",
     bullets: [
       "Upload individual agreements",
       "Import contract records by CSV",
       "Track files and metadata together",
-      "Start with a small contract set instead of migrating everything",
+      "Start with a small contract set",
     ],
     bulletVariant: "dot",
     tone: "cool",
-    badge: "Input",
     phaseId: "setup",
-    microStat: "Supported formats: PDF, DOCX, CSV",
-    decoration: "upload-arrow",
+    metric: { label: "Formats", value: "PDF DOCX CSV" },
   },
   {
     id: "review",
     number: "3",
     iconName: "FileText",
-    eyebrow: "Review key terms",
-    title: "Confirm important fields before they drive reminders, work, or reports",
+    eyebrow: "Review suggested fields",
+    title: "Confirm suggested fields before you trust them",
     message:
-      "Suggested extracted terms come back with source snippets and confidence indicators. A reviewer confirms each important field before it drives a reminder, work item, or report.",
+      "Suggested fields come back source-backed and human-reviewed — each tied to the snippet it was pulled from, and confirmed by a reviewer before it drives a reminder, work item, or report.",
     bullets: [
-      "Suggested extracted terms",
+      "Suggested fields",
       "Source snippets from the original document",
-      "Confidence indicators",
       "Human approval before fields become trusted data",
+      "Confidence shown as a hint, not a verdict",
       "Manual correction at any time",
     ],
     bulletVariant: "check",
     tone: "warm",
-    badge: "Trust check",
     phaseId: "day-to-day",
-    microStat: "Typical review: 4–6 fields per contract",
-    decoration: "magnifier-check",
+    metric: { label: "Per contract", value: "4–6 fields" },
   },
   {
     id: "dates",
     number: "4",
     iconName: "CalendarClock",
     eyebrow: "Track dates",
-    title: "Keep renewal, notice, termination, and effective dates visible",
+    title: "Keep renewal and notice dates visible",
     message:
-      "Renewal, notice, termination, and effective dates surface on a single calendar — with the owner and the relevant clause one click away.",
+      "Renewal, notice, termination, and effective dates surface on a single timeline — with the owner and the relevant clause one click away.",
     bullets: [
       "Upcoming deadlines",
       "Notice windows",
@@ -164,17 +150,15 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     ],
     bulletVariant: "check",
     tone: "warm",
-    badge: "Most used",
     phaseId: "day-to-day",
-    microStat: "Default reminder windows: 30, 60, and 90 days",
-    decoration: "calendar-dot",
+    metric: { label: "Reminders", value: "30 / 60 / 90 days" },
   },
   {
     id: "work",
     number: "5",
     iconName: "ListChecks",
     eyebrow: "Assign work",
-    title: "Turn contract obligations and follow-up into accountable work",
+    title: "Turn obligations and follow-up into owned work",
     message:
       "Convert clause-level obligations into tasks, approvals, and exceptions with named owners and due dates. Follow-up stops living in inboxes.",
     bullets: [
@@ -187,17 +171,15 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     ],
     bulletVariant: "check",
     tone: "warm",
-    badge: "Active",
     phaseId: "day-to-day",
-    microStat: "Default approvers: Owner + Admin",
-    decoration: "nodes",
+    metric: { label: "Work types", value: "4" },
   },
   {
     id: "evidence",
     number: "6",
     iconName: "ShieldCheck",
     eyebrow: "Collect evidence",
-    title: "Request and attach proof when contract work needs evidence",
+    title: "Request and track proof of follow-up",
     message:
       "When an obligation needs proof — a certificate, a renewal confirmation, a vendor attestation — request it inside the contract record and track status until it arrives.",
     bullets: [
@@ -208,87 +190,41 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     ],
     bulletVariant: "check",
     tone: "amber",
-    badge: "Proof",
     phaseId: "output",
-    microStat: "Default ack window: 14 days",
-    decoration: "shield-check",
+    metric: { label: "Default due", value: "14 days" },
   },
   {
     id: "reports",
     number: "7",
     iconName: "BarChart3",
     eyebrow: "Report and export",
-    title: "Produce operational reports without rebuilding spreadsheets",
+    title: "Produce reports without rebuilding spreadsheets",
     message:
-      "Pre-built lists answer the questions your team asks every quarter: what is renewing, what is missing, what is overdue. Export anything to CSV in one click.",
+      "Operational reports answer the questions your team asks every quarter: what is renewing, what is missing, what is overdue. Export anything to CSV in one click.",
     bullets: [
       "Upcoming renewals",
+      "Notice deadlines",
       "Missing owners",
       "Missing key fields",
       "Open obligations",
       "Overdue work",
-      "Exceptions",
+      "Exceptions by owner",
+      "Evidence requests",
       "Contract inventory",
+      "Review completeness",
     ],
     bulletVariant: "check",
     tone: "success",
-    badge: "Output",
     phaseId: "output",
-    microStat: "Default exports: CSV (every plan)",
-    decoration: "bar-chart",
+    metric: { label: "Export", value: "CSV" },
   },
 ] as const;
 
 /**
- * v6 — Phase descriptions shown below each phase header.
+ * Phase descriptions shown below each phase header.
  */
 export const PHASE_DESCRIPTIONS: Record<Phase["id"], string> = {
   setup: "Bring your contracts in and see what's missing.",
   "day-to-day": "Confirm fields, watch deadlines, assign accountable work.",
   output: "Collect proof and export the reports your team needs.",
 } as const;
-
-/**
- * v6 T11.4 — REMOVED v7 T27.10. Pull quotes were short italic sentences
- * floating between sections with no editorial framing; they read as accidental.
- * Page narrative works without them.
- */
-
-/**
- * The four outcomes shown in the strip below the hero. Tone-coded.
- */
-export const OUTCOMES = [
-  {
-    id: "renewals",
-    label: "Track renewals",
-    subtitle: "Renewals + notice dates",
-    tone: "cool" as SectionTone,
-    iconName: "CalendarClock" as SectionIconName,
-    anchor: "#dates",
-  },
-  {
-    id: "work",
-    label: "Assign work",
-    subtitle: "Tasks + approvals",
-    tone: "warm" as SectionTone,
-    iconName: "ListChecks" as SectionIconName,
-    anchor: "#work",
-  },
-  {
-    id: "evidence",
-    label: "Collect evidence",
-    subtitle: "Proof of follow-up",
-    tone: "amber" as SectionTone,
-    iconName: "ShieldCheck" as SectionIconName,
-    anchor: "#evidence",
-  },
-  {
-    id: "reports",
-    label: "Produce reports",
-    subtitle: "CSV exports",
-    tone: "success" as SectionTone,
-    iconName: "BarChart3" as SectionIconName,
-    anchor: "#reports",
-  },
-] as const;
-

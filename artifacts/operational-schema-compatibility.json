@@ -379,13 +379,13 @@
       "id": "telemetry-event-inventory",
       "ok": true,
       "issueCount": 0,
-      "eventCount": 370
+      "eventCount": 390
     },
     {
       "id": "versioned-public-contract-preservation",
       "ok": true,
       "issueCount": 0,
-      "contractCount": 458
+      "contractCount": 460
     },
     {
       "id": "versioned-public-runtime-dual-read",
@@ -403,13 +403,13 @@
       "id": "versioned-source-config-preservation",
       "ok": true,
       "issueCount": 0,
-      "contractCount": 344
+      "contractCount": 349
     },
     {
       "id": "versioned-export-download-contracts",
       "ok": true,
       "issueCount": 0,
-      "contractCount": 169
+      "contractCount": 168
     },
     {
       "id": "versioned-package-script-readiness",

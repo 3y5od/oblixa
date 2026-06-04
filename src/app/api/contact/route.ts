@@ -24,20 +24,25 @@ const FIELD_MAX = {
   role: 200,
   contracts: 64,
   interested: 64,
+  trackingMethod: 64,
+  hasTracker: 32,
+  redactedSample: 32,
+  preference: 32,
   pain: 600,
   message: 4000,
 } as const;
 
-const ALLOWED_INTERESTED = [
-  "core",
-  "founding_customer",
-  "guided_pilot",
-  "larger_team",
-  "assurance_workflows",
-  "custom",
-  "dpa",
-  "general",
+const ALLOWED_INTERESTED = ["early_access", "general"] as const;
+const ALLOWED_TRACKING_METHODS = [
+  "spreadsheet",
+  "shared_folder",
+  "email_calendar",
+  "memory",
+  "mixed",
+  "other",
 ] as const;
+const ALLOWED_YES_NO_UNSURE = ["yes", "no", "unsure"] as const;
+const ALLOWED_PREFERENCES = ["async", "call", "either"] as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const recentSubmissionDigests = new Map<string, number>();
@@ -49,6 +54,10 @@ type ContactBody = {
   role?: unknown;
   contracts?: unknown;
   interested?: unknown;
+  trackingMethod?: unknown;
+  hasTracker?: unknown;
+  redactedSample?: unknown;
+  preference?: unknown;
   pain?: unknown;
   message?: unknown;
   /** Honeypot — when filled by a bot, we silently 204 without sending. */
@@ -72,6 +81,10 @@ function hasDuplicateContactSubmission(payload: {
   role: string;
   contracts: string;
   interested: string;
+  trackingMethod: string;
+  hasTracker: string;
+  redactedSample: string;
+  preference: string;
   pain: string;
   message: string;
 }): boolean {
@@ -88,6 +101,10 @@ function hasDuplicateContactSubmission(payload: {
         role: payload.role.toLowerCase(),
         contracts: payload.contracts,
         interested: payload.interested,
+        trackingMethod: payload.trackingMethod,
+        hasTracker: payload.hasTracker,
+        redactedSample: payload.redactedSample,
+        preference: payload.preference,
         pain: payload.pain,
         message: payload.message,
       })
@@ -121,6 +138,10 @@ async function sendNotificationEmail(payload: {
   role: string;
   contracts: string;
   interested: string;
+  trackingMethod: string;
+  hasTracker: string;
+  redactedSample: string;
+  preference: string;
   pain: string;
   message: string;
 }): Promise<void> {
@@ -136,13 +157,8 @@ async function sendNotificationEmail(payload: {
   }
   const interestedLabel =
     {
-      core: "Core (self-serve trial)",
-      founding_customer: "Founding Customer offer",
-      guided_pilot: "Guided pilot",
-      larger_team: "Larger-team workflows",
-      assurance_workflows: "Assurance workflows",
-      custom: "Custom workflows",
-      dpa: "Data Processing Addendum (DPA)",
+      early_access: "Early access request",
+      general: "General early-access question",
     }[payload.interested] ?? payload.interested;
 
   const rows: Array<[string, string]> = [
@@ -150,8 +166,12 @@ async function sendNotificationEmail(payload: {
     ["Work email", payload.email],
     ["Company", payload.company],
     ["Role", payload.role],
-    ["Contracts", payload.contracts],
-    ["Interested in", interestedLabel],
+    ["Approx. signed contracts", payload.contracts],
+    ["Request type", interestedLabel],
+    ["How tracked today", payload.trackingMethod],
+    ["Existing spreadsheet/tracker", payload.hasTracker],
+    ["Redacted sample shareable", payload.redactedSample],
+    ["Follow-up preference", payload.preference],
     ["Main pain", payload.pain],
     ["Message", payload.message],
   ];
@@ -222,10 +242,26 @@ export async function POST(request: Request) {
   const role = trimOrEmpty(body.role, FIELD_MAX.role);
   const contracts = trimOrEmpty(body.contracts, FIELD_MAX.contracts);
   const interested = trimOrEmpty(body.interested, FIELD_MAX.interested);
+  const trackingMethod = trimOrEmpty(body.trackingMethod, FIELD_MAX.trackingMethod);
+  const hasTracker = trimOrEmpty(body.hasTracker, FIELD_MAX.hasTracker);
+  const redactedSample = trimOrEmpty(body.redactedSample, FIELD_MAX.redactedSample);
+  const preference = trimOrEmpty(body.preference, FIELD_MAX.preference);
   const pain = trimOrEmpty(body.pain, FIELD_MAX.pain);
   const message = trimOrEmpty(body.message, FIELD_MAX.message);
 
-  if (!name || !email || !company || !role || !contracts || !interested) {
+  if (
+    !name ||
+    !email ||
+    !company ||
+    !role ||
+    !contracts ||
+    !interested ||
+    !trackingMethod ||
+    !hasTracker ||
+    !redactedSample ||
+    !preference ||
+    !pain
+  ) {
     return jsonBadRequest(ROUTE, { reason: "missing_required" });
   }
   if (!EMAIL_RE.test(email)) {
@@ -233,6 +269,18 @@ export async function POST(request: Request) {
   }
   if (!(ALLOWED_INTERESTED as readonly string[]).includes(interested)) {
     return jsonBadRequest(ROUTE, { reason: "invalid_interested" });
+  }
+  if (!(ALLOWED_TRACKING_METHODS as readonly string[]).includes(trackingMethod)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_tracking_method" });
+  }
+  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(hasTracker)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_has_tracker" });
+  }
+  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(redactedSample)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_redacted_sample" });
+  }
+  if (!(ALLOWED_PREFERENCES as readonly string[]).includes(preference)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_preference" });
   }
 
   if (
@@ -243,6 +291,10 @@ export async function POST(request: Request) {
       role,
       contracts,
       interested,
+      trackingMethod,
+      hasTracker,
+      redactedSample,
+      preference,
       pain,
       message,
     })
@@ -258,6 +310,10 @@ export async function POST(request: Request) {
       role,
       contracts,
       interested,
+      trackingMethod,
+      hasTracker,
+      redactedSample,
+      preference,
       pain,
       message,
     });

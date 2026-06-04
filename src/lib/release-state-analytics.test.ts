@@ -44,12 +44,13 @@ describe("release-state analytics", () => {
   });
 
   it("pins release-state metric targets without requiring an external analytics provider", () => {
-    expect(RELEASE_STATE_METRIC_DEFINITIONS.signup_to_calibration_complete.target).toBe(0.7);
+    expect(RELEASE_STATE_METRIC_DEFINITIONS.access_request_to_qualified.target).toBe(0.3);
+    expect(RELEASE_STATE_METRIC_DEFINITIONS.qualified_to_tracker_reviewed.target).toBe(0.5);
+    expect(RELEASE_STATE_METRIC_DEFINITIONS.evaluation_started_to_calibration_complete.target).toBe(0.7);
     expect(RELEASE_STATE_METRIC_DEFINITIONS.calibration_to_first_upload.target).toBe(0.5);
     expect(RELEASE_STATE_METRIC_DEFINITIONS.first_upload_to_reviewed_field.target).toBe(0.4);
     expect(RELEASE_STATE_METRIC_DEFINITIONS.activation_complete.target).toBe(0.25);
-    expect(RELEASE_STATE_METRIC_DEFINITIONS.self_serve_trial_to_paid.target).toBe(0.05);
-    expect(RELEASE_STATE_METRIC_DEFINITIONS.guided_pilot_to_paid.target).toBe(0.3);
-    expect(RELEASE_STATE_METRIC_DEFINITIONS.first_month_paid_retention.target).toBe(0.85);
+    expect(RELEASE_STATE_METRIC_DEFINITIONS.activation_to_evaluation_converted.target).toBe(0.2);
+    expect(RELEASE_STATE_METRIC_DEFINITIONS.activated_workspace_support_burden_recorded.target).toBe(1);
   });
 });

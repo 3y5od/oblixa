@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
-const outdated = spawnSync("npm", ["outdated", "--json"], {
+const outdated = spawnSyncCrossPlatform("npm", ["outdated", "--json"], {
   encoding: "utf8",
   env: process.env,
 });

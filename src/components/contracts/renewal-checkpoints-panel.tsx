@@ -10,6 +10,7 @@ import {
   updateRenewalCheckpointWorkspaceFormAction,
 } from "@/actions/policy-operations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import type { ContractRenewalCheckpoint, RenewalCheckpointStatus } from "@/lib/types";
 import { UiSelect } from "@/components/ui/ui-select";
 
@@ -281,7 +282,7 @@ export function RenewalCheckpointsPanel({
                 <p className="text-sm font-semibold text-[var(--text-primary)]">{cp.label}</p>
                 <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   <span className="tabular-nums">
-                    Due {format(new Date(`${cp.due_date}T12:00:00`), "MMM d, yyyy")}
+                    Due {formatBusinessDateAtNoon(cp.due_date)}
                   </span>
                   <span className="ui-dot-sep" aria-hidden />
                   <span className="font-medium tabular-nums">

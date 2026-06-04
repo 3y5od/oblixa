@@ -27,6 +27,10 @@ export interface DashboardPageHeaderProps {
    *  scope chips (e.g., "Contracts: 5") that should attach visually to the
    *  page identity instead of floating below. */
   titleSuffix?: ReactNode;
+  /** Vertical alignment of the right-hand actions/meta cluster against the
+   *  title block. "start" (default) keeps it top-aligned; "center" anchors it to
+   *  the title's vertical center so actions read as attached on tall headers. */
+  actionsAlign?: "start" | "center";
 }
 
 function monogramColors(seed: string): { bg: string; fg: string } {
@@ -59,6 +63,7 @@ export function DashboardPageHeader({
   noEyebrowDot,
   density = "default",
   titleSuffix,
+  actionsAlign = "start",
 }: DashboardPageHeaderProps) {
   const monoColors = monogram ? monogramColors(monogram) : null;
   const isCompact = density === "compact";
@@ -158,14 +163,18 @@ export function DashboardPageHeader({
         </div>
       </div>
       {/* §5.1 right-aligned dl meta strip + action cluster. */}
-      <div className="flex shrink-0 flex-wrap items-start justify-end gap-x-3 gap-y-2">
+      <div
+        className={`flex min-w-0 max-w-full flex-wrap justify-start gap-x-3 gap-y-2 sm:justify-end ${
+          actionsAlign === "center" ? "items-center self-center" : "items-start"
+        }`}
+      >
         {metaStrip ? (
-          <dl className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1 self-center text-[11.5px] text-[var(--text-secondary)]">
+          <dl className="flex min-w-0 max-w-full flex-wrap items-center gap-x-5 gap-y-1 self-center text-[11.5px] text-[var(--text-secondary)]">
             {metaStrip}
           </dl>
         ) : null}
         {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>
         ) : null}
       </div>
     </header>

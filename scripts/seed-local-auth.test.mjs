@@ -16,7 +16,7 @@ test("resolveSeedUsers includes configured local test credentials", () => {
 
   assert.equal(result.users.length, 2);
   assert.equal(result.users[0].email, "dev@oblixa.local");
-  assert.equal(result.users[0].fullName, "Local Dev User");
+  assert.equal(result.users[0].fullName, "Maya Chen");
   assert.equal(result.users[0].seedWorkspace, true);
   assert.equal(result.users[1].email, "real-user@example.com");
   assert.equal(result.users[1].fullName, null);

@@ -1,17 +1,20 @@
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
+
 export type WorkflowHealth = "healthy" | "watch" | "at_risk" | "unknown";
 
 export function normalizeIsoDate(input: string | null | undefined): string | null {
   const raw = input?.trim();
   if (!raw) return null;
-  const date = new Date(raw.includes("T") ? raw : `${raw}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
+  const date = raw.includes("T") ? new Date(raw) : parseBusinessDateAtNoon(raw);
+  if (!date || Number.isNaN(date.getTime())) return null;
   return date.toISOString().slice(0, 10);
 }
 
 export function addDaysIsoDate(baseDate: string, days: number): string | null {
   const normalizedBase = normalizeIsoDate(baseDate);
   if (!normalizedBase) return null;
-  const date = new Date(`${normalizedBase}T12:00:00`);
+  const date = parseBusinessDateAtNoon(normalizedBase);
+  if (!date) return null;
   date.setDate(date.getDate() + Math.trunc(days));
   return date.toISOString().slice(0, 10);
 }

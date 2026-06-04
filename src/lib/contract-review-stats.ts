@@ -47,6 +47,46 @@ export async function getReviewStatsForContractIds(
   return map;
 }
 
+/**
+ * Pending (AI-suggested, not-yet-reviewed) field names per contract, so the
+ * Review Queue can name what needs review ("RENEWAL DATE", "COUNTERPARTY")
+ * instead of only a count. Names are returned raw (e.g. `renewal_date`); the
+ * caller humanizes for display. Capped per contract to keep the row scannable.
+ */
+export async function getPendingFieldNamesForContractIds(
+  admin: Admin,
+  contractIds: string[],
+  perContractLimit = 5
+): Promise<Record<string, string[]>> {
+  const empty: Record<string, string[]> = {};
+  if (contractIds.length === 0) return empty;
+
+  const { data, error } = await admin
+    .from("extracted_fields")
+    .select("contract_id, field_name, updated_at")
+    .in("contract_id", contractIds)
+    .eq("status", "pending")
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("getPendingFieldNamesForContractIds", error);
+    return empty;
+  }
+
+  const map: Record<string, string[]> = {};
+  for (const row of data ?? []) {
+    const id = row.contract_id as string;
+    const name = (row.field_name as string | null)?.trim();
+    if (!id || !name) continue;
+    const bucket = (map[id] ??= []);
+    if (bucket.length < perContractLimit && !bucket.includes(name)) {
+      bucket.push(name);
+    }
+  }
+
+  return map;
+}
+
 export interface ReviewQueuePageResult {
   contracts: Contract[];
   total: number;

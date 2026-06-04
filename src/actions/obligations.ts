@@ -10,6 +10,7 @@ import { emitProductTelemetryEvent, emitVisibleMutationErrorTelemetry, emitWorkA
 import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/mutation-envelope";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
 const OBLIGATION_STATUSES: ContractObligationStatus[] = [
@@ -135,8 +136,9 @@ function isRecurrenceType(v: string): v is ObligationRecurrenceType {
 function computeNextDueDate(
   recurrenceType: ObligationRecurrenceType,
   recurrenceIntervalDays: number | null,
-  baseDate: Date
+  baseDate: Date | null
 ): string | null {
+  if (!baseDate) return null;
   const next = new Date(baseDate);
   if (recurrenceType === "none") return null;
   if (recurrenceType === "daily") next.setDate(next.getDate() + 1);
@@ -267,7 +269,7 @@ export async function createContractObligation(input: {
       recurrence_interval_days: recurrenceIntervalDays,
       next_due_date:
         recurrenceType !== "none" && dueDate
-          ? computeNextDueDate(recurrenceType, recurrenceIntervalDays, new Date(`${dueDate}T12:00:00`))
+          ? computeNextDueDate(recurrenceType, recurrenceIntervalDays, parseBusinessDateAtNoon(dueDate))
           : null,
       escalation_due_at: escalationDueAt,
       escalation_status: escalationDueAt ? "pending" : "none",
@@ -536,7 +538,7 @@ export async function updateContractObligation(input: {
     const nextDueDate = computeNextDueDate(
       recurrenceType,
       recurrenceIntervalDays,
-      new Date(`${baseDue}T12:00:00`)
+      parseBusinessDateAtNoon(baseDue)
     );
     if (recurrenceType !== "none" && nextDueDate) {
       const { data: generated, error: generationError } = await admin

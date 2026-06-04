@@ -21,6 +21,7 @@ import { executeV10IdempotentMutation, recordV10AuditEvent } from "@/lib/server-
 import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
 import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/mutation-envelope";
 import { getV10CompatibleActionGroup } from "@/lib/work-semantics";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 const TASK_STATUSES: ContractTaskStatus[] = ["open", "in_progress", "blocked", "done"];
 const TASK_PRIORITIES: ContractTaskPriority[] = ["low", "medium", "high"];
@@ -1351,10 +1352,11 @@ export async function updateContractTaskStatus(
     ) {
       const anchor = task.recurrence_anchor_date ?? new Date().toISOString().slice(0, 10);
       if (isIsoDateOnly(anchor)) {
-        const anchorTs = new Date(`${anchor}T12:00:00`).getTime();
-        const nextTs = anchorTs + task.recurrence_interval_days * 24 * 60 * 60 * 1000;
-        if (Number.isFinite(nextTs)) {
-          const nextDate = new Date(nextTs).toISOString().slice(0, 10);
+        const anchorDate = parseBusinessDateAtNoon(anchor);
+        if (anchorDate) {
+          const nextDateValue = new Date(anchorDate);
+          nextDateValue.setDate(nextDateValue.getDate() + task.recurrence_interval_days);
+          const nextDate = nextDateValue.toISOString().slice(0, 10);
           const { data: nextTask, error: recurrenceError } = await admin
             .from("contract_tasks")
             .insert({

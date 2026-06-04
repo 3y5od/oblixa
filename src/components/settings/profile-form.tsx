@@ -8,8 +8,11 @@ interface ProfileFormProps {
   email: string;
 }
 
+const READ_ONLY_TAG = "ui-caps-3 text-[10px] text-[var(--text-tertiary)]";
+
 export function ProfileForm({ fullName, email }: ProfileFormProps) {
-  const [draftName, setDraftName] = useState(fullName || "");
+  const initialName = fullName || "";
+  const [draftName, setDraftName] = useState(initialName);
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string; success?: boolean } | undefined, formData: FormData) => {
       return updateProfile(formData);
@@ -18,7 +21,8 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
   );
 
   const errId = "profile-form-error";
-  const isDirty = draftName !== (fullName || "");
+  const isDirty = draftName.trim() !== initialName.trim();
+  const canSave = isDirty && !pending;
 
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
@@ -40,6 +44,7 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
             name="fullName"
             type="text"
             value={draftName}
+            maxLength={120}
             onChange={(event) => setDraftName(event.currentTarget.value)}
             placeholder="Your full name"
             className="ui-input w-full min-w-0"
@@ -48,9 +53,11 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           />
         </div>
         <div className="min-w-0">
+          {/* §7.2 read-only field — mono value (technical string, matches the
+              member table), READ-ONLY tag inline with the label, muted surface. */}
           <label htmlFor="profile-email-readonly" className="ui-label flex items-baseline gap-2">
             Email
-            <span className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Read-only</span>
+            <span className={READ_ONLY_TAG}>Read-only</span>
           </label>
           <input
             id="profile-email-readonly"
@@ -63,13 +70,14 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
           />
         </div>
       </div>
-      <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-3">
+      <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-4">
         {isDirty ? (
           <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Unsaved changes</span>
         ) : null}
         <button
           type="submit"
-          disabled={pending || !isDirty}
+          disabled={!canSave}
+          aria-disabled={!canSave}
           className={
             isDirty
               ? "ui-btn-primary disabled:pointer-events-none disabled:opacity-60"

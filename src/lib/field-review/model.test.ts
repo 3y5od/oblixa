@@ -82,6 +82,20 @@ describe("field-review workspace model", () => {
 
     expect(model.activeContract?.id).toBe("contract-2");
     expect(model.activeField?.id).toBe("field-2b");
+    expect(model.activeContract?.contractType).toBe("MSA");
+    // field-2b is the last pending item, so prev points back to field-2a and there is no next.
+    expect(model.prevHref).toContain("field=field-2a");
+    expect(model.nextHref).toBeNull();
+  });
+
+  it("exposes prevHref as null on the first pending item", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({ extracted_fields: [field({ id: "field-1", contract_id: "contract-1" })] }),
+      ],
+    });
+
+    expect(model.prevHref).toBeNull();
   });
 
   it("falls back to the first pending field when selected params are stale", () => {
@@ -114,6 +128,19 @@ describe("field-review workspace model", () => {
     });
 
     expect(model.activeField?.currentApprovedValue).toBe("Old Acme Corp");
+    // A differing prior approval flags a conflict (approving overwrites trusted data).
+    expect(model.activeField?.approvedConflict).toBe(true);
+  });
+
+  it("does not flag a conflict when no prior approval exists", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({ extracted_fields: [field({ id: "pending", status: "pending" })] }),
+      ],
+    });
+
+    expect(model.activeField?.currentApprovedValue).toBeNull();
+    expect(model.activeField?.approvedConflict).toBe(false);
   });
 
   it("builds a document preview near the source snippet when searchable text exists", () => {
@@ -136,6 +163,28 @@ describe("field-review workspace model", () => {
 
     expect(model.documentPreview?.status).toBe("available");
     expect(model.documentPreview?.excerpt).toMatch(/automatically renews/);
+    expect(model.documentPreview?.snippetLocated).toBe(true);
+  });
+
+  it("reports snippetLocated false when the snippet is not in the document text", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          search_document: "Unrelated boilerplate that does not mention the clause at all.",
+          extracted_fields: [
+            field({
+              id: "renewal",
+              field_name: "renewal_date",
+              field_value: "2026-08-18",
+              source_snippet: "automatically renews for successive one-year periods",
+            }),
+          ],
+        }),
+      ],
+    });
+
+    expect(model.documentPreview?.status).toBe("available");
+    expect(model.documentPreview?.snippetLocated).toBe(false);
   });
 
   it("falls back to source-file metadata when document text is unavailable", () => {
@@ -161,6 +210,7 @@ describe("field-review workspace model", () => {
     });
 
     expect(model.documentPreview?.status).toBe("unavailable");
+    expect(model.documentPreview?.snippetLocated).toBe(false);
     expect(model.documentPreview?.sourceFileNames).toEqual(["signed-msa.docx"]);
   });
 

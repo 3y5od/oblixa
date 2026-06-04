@@ -14,7 +14,7 @@ export const STATUS_SEMANTICS: Record<ContractStatus, SemanticStatus> = {
 };
 
 export const STATUS_LABELS: Record<ContractStatus, string> = {
-  draft: "Draft",
+  draft: "Incomplete",
   pending_review: "Pending review",
   active: "Active",
   expired: "Expired",

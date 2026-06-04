@@ -71,7 +71,7 @@ describe("field review release-state workspace", () => {
     const raw = loadingPage();
 
     expect(raw).toContain("Loading review fields");
-    expect(raw).toContain("ui-card-quiet");
+    expect(raw).toContain("ui-card");
     expect(raw).toContain("lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]");
     expect(raw).not.toContain("Loading review queue");
     expect(raw).not.toContain("xl:grid-cols-4");

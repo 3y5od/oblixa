@@ -104,10 +104,16 @@ export function assertCronSemanticContract(route, body) {
     }
     case "/api/webhooks/dispatch": {
       for (const key of ["candidates", "delivered", "attempts", "totalFailures"]) requireNonNegativeNumber(body, key, failures);
+      if ("skippedNoSubscribers" in body) requireNonNegativeNumber(body, "skippedNoSubscribers", failures);
       if (typeof body.delivered === "number" && typeof body.candidates === "number" && body.delivered > body.candidates) {
         failures.push("delivered:exceeds_candidates");
       }
-      if (typeof body.attempts === "number" && typeof body.delivered === "number" && body.attempts < body.delivered) {
+      const skippedNoSubscribers = typeof body.skippedNoSubscribers === "number" ? body.skippedNoSubscribers : 0;
+      if (
+        typeof body.attempts === "number" &&
+        typeof body.delivered === "number" &&
+        body.attempts + skippedNoSubscribers < body.delivered
+      ) {
         failures.push("attempts:below_delivered");
       }
       break;

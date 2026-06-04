@@ -1,8 +1,20 @@
 import { shellTestIds } from "@/lib/qa/test-ids";
 import { test, expect } from "./fixtures/app-fixture";
+import { settleWebKitWorker } from "./fixtures/webkit-worker-teardown";
 import { AuthPO } from "./page-objects/AuthPO";
 
 test.describe("auth flow smoke", () => {
+  test.afterAll(async ({}, testInfo) => {
+    await settleWebKitWorker(testInfo);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+    if (!page.isClosed()) {
+      await page.close({ runBeforeUnload: false });
+    }
+  });
+
   test("dashboard unauthenticated access redirects to login", async ({ page }) => {
     const auth = new AuthPO(page);
     await page.goto("/dashboard");

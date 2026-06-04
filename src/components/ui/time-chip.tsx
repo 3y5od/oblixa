@@ -15,6 +15,10 @@ export interface TimeChipProps {
   className?: string;
   /** Optional title attribute override. Defaults to ISO timestamp. */
   title?: string;
+  /** Render as a neutral bordered pill even without a tone, so the date reads
+   *  as a structured chip rather than bare text. Activity-feed rows leave this
+   *  off to keep the canonical borderless time treatment (§8.5). */
+  bordered?: boolean;
 }
 
 function toneInk(tone?: StatTone): string {
@@ -33,6 +37,7 @@ export function TimeChip({
   tone,
   className,
   title,
+  bordered = false,
 }: TimeChipProps) {
   if (!date) return null;
   const value =
@@ -44,6 +49,7 @@ export function TimeChip({
   const d = date instanceof Date ? date : new Date(date);
   const titleAttr =
     title ?? (Number.isFinite(d.getTime()) ? d.toISOString() : undefined);
+  const chrome = tone || bordered;
   return (
     <span
       title={titleAttr}
@@ -57,8 +63,8 @@ export function TimeChip({
             })
           : undefined)
       }
-      className={`inline-flex items-center text-[11px] font-medium leading-none tabular-nums ${
-        tone
+      className={`inline-flex items-center whitespace-nowrap text-[11px] font-medium leading-none tabular-nums ${
+        chrome
           ? `rounded-md border px-1.5 py-0.5 ${format === "readable" ? "" : "uppercase tracking-[0.12em]"}`
           : ""
       } ${className ?? ""}`.trim()}
@@ -69,7 +75,13 @@ export function TimeChip({
               borderColor: `color-mix(in oklab, ${toneInk(tone)} 28%, var(--border-card))`,
               background: `color-mix(in oklab, ${toneInk(tone)} 10%, transparent)`,
             }
-          : { color: toneInk(tone) }
+          : bordered
+            ? {
+                color: "var(--text-secondary)",
+                borderColor: "var(--border-card)",
+                background: "var(--surface)",
+              }
+            : { color: toneInk(tone) }
       }
     >
       {value}

@@ -1,26 +1,24 @@
 /** Marketing copy — single source for landing UI and JSON-LD FAQ.
  *  Aligned to docs/oblixa-release-state.md — the wedge is "Replace the contract
- *  tracking spreadsheet"; voice rules forbid "Contract execution" / "Execution
- *  layer" / "Platform" / "Transformation" / "Autonomous" in public copy. */
+ *  tracking spreadsheet"; voice rules forbid several enterprise-heavy terms in
+ *  public copy. */
 
 export const heroEyebrow = "Contract tracking";
 
-export const heroTitle =
-  "Track renewals, obligations, and owners from signed contracts.";
+export const heroTitle = "Replace your contract-tracking spreadsheet.";
 
-/* v10 — Restored to release-state spec verbatim (`docs/oblixa-release-state.md`
-   §Home Page > Hero). The v9 tightening (to "Replace your contract tracking
-   spreadsheet…") violated the spec; reverting for compliance. */
 export const heroSubcopy =
-  "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.";
+  "Oblixa helps small teams track renewals, obligations, owners, evidence, and reports from signed contracts, with source-backed suggestions reviewed by your team.";
 
-export const ctaPrimaryLabel = "Start free trial";
-export const ctaSecondaryLabel = "Book setup call";
-export const navGetStartedLabel = "Start free trial";
+export const ctaPrimaryLabel = "Request early access";
+/* v14: release-state §/ requires the secondary CTA to read "View product
+   tour" and point at the /product tour page (was "See how it works" →
+   #how-it-works). */
+export const ctaSecondaryLabel = "View product tour";
+export const navGetStartedLabel = "Request early access";
 
-/** Trust micro-copy under hero CTAs. Voice-sweep bans middle dots — em-dash. */
 export const riskReducerLine =
-  "21-day free trial — no credit card required.";
+  "Gated early access for a small number of teams replacing manual contract trackers.";
 
 export const antiGoalSummary =
   "Oblixa is not a full CLM, legal-advice tool, or autonomous agent. It tracks renewals, obligations, owners, evidence, and reports from agreements you have already signed.";
@@ -31,11 +29,11 @@ export const objectionBullets = [
     body: "Renewal dates, owners, and follow-up live in one workspace with review history instead of scattered files and inbox threads.",
   },
   {
-    title: "Full CLM is too heavy to migrate",
+    title: "Heavy contract suites are too much to migrate",
     body: "Start with a small contract set or your existing spreadsheet — no months-long implementation, no redlining workflow you do not need.",
   },
   {
-    title: "AI extraction needs human review",
+    title: "Suggested fields need human review",
     body: "Suggested fields stay tied to source snippets until your team approves what drives reminders, work, and reports.",
   },
 ] as const;
@@ -79,9 +77,9 @@ export const faqItems = [
       "Yes. Export operational reports and contract records as CSV at any time so you are never locked in.",
   },
   {
-    question: "What happens when the trial ends?",
+    question: "What happens after early access?",
     answer:
-      "Your data stays available. Choose a plan to keep tracking renewals, work, evidence, and reports — or export everything to CSV and continue in your existing tools.",
+      "Early-access evaluations have a defined goal and review point. If Oblixa becomes useful to your workflow, continued use can move to a paid founding monthly plan; you can also export records and reports.",
   },
 ] as const;
 
@@ -89,12 +87,12 @@ export const faqItems = [
    (`docs/oblixa-release-state.md` §Home Page > Problem). v9 trim to 4
    violated the spec; v10 restores all 6 bullets. */
 export const problemSectionTitle =
-  "Your contracts are signed. The follow-up is scattered.";
+  "Your contracts are signed. The follow‑up is scattered.";
 export const problemBullets = [
   "Renewal and notice dates live in spreadsheets",
   "Obligations are buried in PDFs",
   "Owners are unclear or outdated",
-  "Approvals and follow-up happen over email",
+  "Follow-up happens over email",
   "Evidence is hard to request and collect",
   "Reports take hours to rebuild",
 ] as const;
@@ -130,14 +128,14 @@ export const problemCards: ReadonlyArray<{
     tone: "neutral",
   },
   {
-    title: "Approvals and follow-up happen over email",
+    title: "Follow-up happens over email",
     description: "Threads scatter; outcomes are hard to reconstruct.",
     iconName: "MailQuestion",
     tone: "neutral",
   },
   {
     title: "Evidence is hard to request and collect",
-    description: "Auditors ask; teams hunt; the trail goes cold.",
+    description: "Requests come in; teams hunt; the trail goes cold.",
     iconName: "FolderSearch",
     tone: "danger",
   },
@@ -165,24 +163,31 @@ export const outcomesBullets = [
    in v10 after v9 deletion violated the spec. */
 export const bestFitSectionTitle = "Built for teams outgrowing contract spreadsheets";
 export const bestFitItems = [
-  "50 to 500 active agreements",
-  "Vendor, customer, service, lease, financing, partnership, or renewal-heavy contracts",
-  "Shared responsibility across operations, finance, legal, procurement, or account teams",
-  "A need to track dates, owners, obligations, evidence, and reports in one place",
+  "Signed contracts already exist and need operational follow-up",
+  "Tracking happens in a spreadsheet, folder, email thread, calendar, or someone's memory",
+  "Owners, renewal dates, obligations, evidence, or reports are becoming unreliable",
+  "The first evaluation can start with a small contract subset, not a full migration",
 ] as const;
 
 /* Pricing CTA section — release-state spec §Home Page > Pricing CTA.
-   Restored in v10 after v9 deletion violated the spec. */
-export const pricingCtaMessage =
-  "Start by replacing the spreadsheet. Add larger-team workflows only when you need them.";
+   Restored in v10 after v9 deletion violated the spec. v13: heading
+   shortened (was a 2-clause sentence rendered at display scale); the
+   founding-plan caveat moves to a supporting lead so the headline reads
+   as one clear promise. */
+export const pricingCtaMessage = "Start with an early-access evaluation.";
+export const pricingCtaLead =
+  "Then discuss a founding monthly plan if the workflow proves useful — no fixed public pricing during early access.";
 
 /* Trust chip badges — moved to the marketing footer in v9 (was a standalone
    Trust band section on the landing page). */
+/* v14: trimmed to three claims. "Signed webhooks" is dropped per repeated
+   review request even though it is genuinely implemented (HMAC-SHA256
+   x-oblixa-signature in src/app/api/webhooks/dispatch/route.ts) — it read as
+   too implementation-detail-y for a public trust strip. Re-add if desired. */
 export const trustChipBadges = [
   "TLS 1.3 encryption",
   "Role-based access",
-  "Signed webhooks",
-  "Audit-logged events",
+  "Audit history",
 ] as const;
 
 export const softwareFeatureList = [

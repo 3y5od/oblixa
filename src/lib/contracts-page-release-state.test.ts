@@ -8,6 +8,10 @@ function read(rel: string): string {
 
 const pageRaw = read("src/app/(dashboard)/contracts/page.tsx");
 const tableRaw = read("src/components/contracts/contract-table.tsx");
+// Search + date + sort live in a dedicated client form (dirty-aware Apply,
+// custom comboboxes); the page composes it. Assertions about those axes read
+// the form source.
+const searchFormRaw = read("src/components/contracts/contracts-search-form.tsx");
 const listRaw = read("src/lib/contract-list.ts");
 const idFiltersRaw = read("src/lib/contract-list-id-filters.ts");
 
@@ -26,18 +30,18 @@ describe("contracts page release-state surface", () => {
     expect(pageRaw).not.toContain('eyebrow="Tracking"');
     expect(pageRaw).toContain('title="Contracts"');
     expect(pageRaw).toContain("Upload contract");
-    expect(pageRaw).toContain("Import CSV");
+    expect(pageRaw).toContain("Import contracts");
     expect(pageRaw).not.toContain(">Bulk import<");
   });
 
   it("supports the release-state search and filter axes", () => {
-    expect(pageRaw).toContain("Search contracts by name, counterparty, owner, or tag");
+    expect(searchFormRaw).toContain("Search contracts by name, counterparty, owner, or tag");
+    expect(searchFormRaw).toContain("Date preset");
     expect(pageRaw).toContain("getContractIdsMatchingOwnerOrTagSearch");
     expect(pageRaw).toContain("Status");
     expect(pageRaw).toContain("Owner");
     expect(pageRaw).toContain("Counterparty");
     expect(pageRaw).toContain("Contract type");
-    expect(pageRaw).toContain("Date preset");
     expect(pageRaw).toContain("Needs review");
     expect(pageRaw).toContain("Missing dates");
     expect(pageRaw).toContain("Open work");

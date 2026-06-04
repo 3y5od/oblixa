@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
+import { DASHBOARD_TITLE } from "@/lib/dashboard/spec-strings";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 export class DashboardPO {
@@ -14,7 +15,6 @@ export class DashboardPO {
   }
 
   async expectLoaded() {
-    await expect(this.page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible();
+    await expect(this.page.getByRole("heading", { level: 1, name: DASHBOARD_TITLE })).toBeVisible();
   }
 }
-

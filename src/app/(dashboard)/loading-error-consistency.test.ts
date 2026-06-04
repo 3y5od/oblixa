@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 function collectDashboardLoadingFiles(dir: string, out: string[]): void {
@@ -73,7 +73,7 @@ describe("dashboard loading and error consistency (V9)", () => {
     collectDashboardLoadingFiles(root, absPaths);
     expect(absPaths.length).toBeGreaterThanOrEqual(15);
     for (const abs of absPaths.sort()) {
-      const rel = abs.replace(process.cwd() + "/", "");
+      const rel = relative(process.cwd(), abs).replace(/\\/g, "/");
       const src = readFileSync(abs, "utf8");
       expect(src, rel).toContain('role="status"');
       expect(src, rel).toContain('aria-live="polite"');
@@ -93,13 +93,14 @@ describe("dashboard loading and error consistency (V9)", () => {
     expect(contractsLoading).toContain("ui-skeleton h-96 rounded-2xl");
 
     expect(workLoading).toContain("ui-page-header");
-    expect(workLoading).toContain("ui-page-shell");
-    expect(workLoading).toContain("lg:grid-cols-2");
+    expect(workLoading).toContain("ui-page-stack");
+    expect(workLoading).toContain("md:grid-cols-5");
 
-    // Review loading was migrated to the unified card-raised + flat-identity skeleton vocabulary.
+    // Review loading mirrors the raised two-pane field review workspace shell.
     expect(reviewLoading).toContain("ui-card-raised");
     expect(reviewLoading).toContain("ui-skeleton h-10 w-10 rounded-xl");
-    expect(reviewLoading).toContain("md:grid-cols-4");
+    expect(reviewLoading).toContain("lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]");
+    expect(reviewLoading).toContain("sm:grid-cols-2");
     expect(reviewLoading).not.toContain("ui-page-header flex flex-col gap-6");
     expect(reviewLoading).not.toContain("ui-card-hero");
     expect(reviewLoading).not.toContain("grid grid-cols-3 gap-2");

@@ -38,22 +38,20 @@ test.describe("security API smokes", () => {
     }
   });
 
-  test("POST import/contracts without session returns 401 (not 5xx)", async ({ request }) => {
+  test("POST import/contracts without session fails closed (not 5xx)", async ({ request }) => {
     const res = await request.post("/api/import/contracts", {
       headers: { "content-type": "text/csv" },
       data: "title\nx",
     });
-    expect(res.status()).toBe(401);
-    expect(res.status()).toBeLessThan(500);
+    expectPrivateApiDenied(res.status(), "/api/import/contracts");
   });
 
-  test("POST /api/extract without session returns 401 (not 5xx)", async ({ request }) => {
+  test("POST /api/extract without session fails closed (not 5xx)", async ({ request }) => {
     const res = await request.post("/api/extract", {
       headers: { "content-type": "application/json" },
       data: JSON.stringify({ contractId: "00000000-0000-0000-0000-000000000000" }),
     });
-    expect(res.status()).toBe(401);
-    expect(res.status()).toBeLessThan(500);
+    expectPrivateApiDenied(res.status(), "/api/extract");
   });
 
   test("external action status with garbage token returns 4xx (not 500)", async ({ request }) => {

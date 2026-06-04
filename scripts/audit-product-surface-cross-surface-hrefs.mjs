@@ -5,7 +5,7 @@
  * trailing `/` directory prefix per line; `#` comments).
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 
 const ROOT = process.cwd();
 const STRICT = process.argv.includes("--strict");
@@ -25,7 +25,7 @@ const NATIVE_TREE_REL_PREFIXES = [
 ];
 
 function normalizeRel(p) {
-  return p.split(join.sep).join("/");
+  return p.split(sep).join("/");
 }
 function loadAllowlist() {
   try {

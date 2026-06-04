@@ -7,9 +7,9 @@ describe("home metadata", () => {
   it("sets absolute title string for SERP/social", () => {
     expect(typeof homeMetadata.title).toBe("string");
     expect(homeMetadata.title).toContain("Oblixa");
-    // v1 marketing pass: aligned to release-state wedge (replace the contract
-    // tracking spreadsheet) — title now leads with the operational verb.
-    expect(homeMetadata.title).toContain("Track renewals");
+    // Marketing pass: aligned to the release-state wedge, replacing the
+    // contract-tracking spreadsheet.
+    expect(homeMetadata.title).toContain("Replace your contract-tracking spreadsheet");
   });
 
   it("has canonical and openGraph url", () => {

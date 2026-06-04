@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-05-24T21:59:54.038Z",
+  "generatedAt": "2026-06-02T22:22:30.184Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -220,6 +220,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-binary-metadata-stripping.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-branch-protection-drift.mjs",
       "primaryEpicNumber": null
     },
@@ -320,6 +324,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-client-hash-details.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-client-storage-sensitivity.mjs",
       "primaryEpicNumber": null
     },
@@ -388,6 +396,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-control-traceability.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-copyleft-transitive-license-graph.mjs",
       "primaryEpicNumber": null
     },
@@ -436,6 +448,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-dangerous-node-patterns.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-dangerously-set-inner-html.mjs",
       "primaryEpicNumber": null
     },
@@ -445,6 +461,10 @@
     },
     {
       "path": "scripts/check-data-lifecycle-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-database-backup-restore-evidence.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -557,6 +577,10 @@
     },
     {
       "path": "scripts/check-email-dns-fixtures.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-email-dns-fixtures.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1004,6 +1028,198 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-operational-api-runtime-contracts.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-authz-session.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-billing-entitlements.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-billing-entitlements.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-browser-security.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-ci-enforcement.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-cron-jobs.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-data-quality-invariants.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-edge-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-environment-isolation.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-environment-isolation.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-feature-flags-rollout.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-frontend-resilience.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-governance-ownership.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-governance-ownership.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-hardening-objectives.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-legal-trust-compliance.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-notifications-messaging.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-notifications-messaging.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-oauth-integration-sync.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-oauth-integration-sync.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-observability-redaction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-package-pipelines.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-performance-load-chaos.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-platform-variant-coverage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-platform-variant-coverage.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-privacy-auditability.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-provider-integrations.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-public-launch-positioning.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-public-launch-positioning.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-rate-limits-abuse-bounds.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-release-readiness.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-repository-artifact-hygiene.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-repository-artifact-hygiene.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-schema-compatibility.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-search-reporting-analytics-exports.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-search-reporting-analytics-exports.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-secrets-configuration.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-static-architecture-code-health.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-static-architecture-code-health.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-supabase-database.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-supply-chain-risk.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-support-operations.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-test-reliability-governance.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-test-reliability-governance.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-uploads-files-extraction.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-waivers-ratchets.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-operational-webhooks-callbacks.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-optimization-operating-model.mjs",
       "primaryEpicNumber": null
     },
@@ -1120,6 +1336,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-plan-ia.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-playwright-project-matrix.mjs",
       "primaryEpicNumber": null
     },
@@ -1172,7 +1392,19 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-product-surface-vocabulary.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-prototype-pollution-guards.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-provider-integration-fixtures.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-provider-integration-fixtures.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1312,6 +1544,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-regex-dos-risk.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-registry.mjs",
       "primaryEpicNumber": null
     },
@@ -1328,6 +1564,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-release-inventory-lock.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-release-metadata-leakage.mjs",
       "primaryEpicNumber": null
     },
@@ -1341,6 +1581,10 @@
     },
     {
       "path": "scripts/check-release-security-required-env.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-release-state-implementation-objectives.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1465,6 +1709,10 @@
     },
     {
       "path": "scripts/check-sbom-diff.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-sbom-dual-format-evidence.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1889,6 +2137,10 @@
     },
     {
       "path": "scripts/check-supabase-snapshot-bundle.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-supply-chain-dependency-risk.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -2502,6 +2754,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/report-type-lint-strictness.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/report-user-facing-interactions.mjs",
       "primaryEpicNumber": null
     },
@@ -2525,6 +2781,10 @@
     },
     {
       "name": "test:chaos-local-smoke",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:control-traceability",
       "primaryEpicNumber": null
     },
     {
@@ -2597,6 +2857,10 @@
     },
     {
       "name": "test:e2e:onboarding:grep",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:e2e:perf",
       "primaryEpicNumber": null
     },
     {
@@ -2737,6 +3001,82 @@
     },
     {
       "name": "test:logic:watch",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-billing-entitlements",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-data-quality-invariants",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-edge-readiness",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-environment-isolation",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-feature-flags",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-governance-ownership",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-legal-trust-compliance",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-notifications-messaging",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-oauth-integration-sync",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-platform-variant-coverage",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-public-launch-positioning",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-repository-artifact-hygiene",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-schema-compatibility",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-search-reporting-analytics-exports",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-static-architecture-code-health",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-support-operations",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:operational-test-reliability-governance",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:performance-contracts",
+      "primaryEpicNumber": null
+    },
+    {
+      "name": "test:privacy-auditability",
       "primaryEpicNumber": null
     },
     {

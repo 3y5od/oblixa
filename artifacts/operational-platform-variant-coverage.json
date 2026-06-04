@@ -406,7 +406,7 @@
     },
     {
       "family": "contracts",
-      "routeCount": 11,
+      "routeCount": 12,
       "multiBrowserRouteCount": 1,
       "supportLevel": "multi-browser-representative",
       "owner": "@frontend-platform",
@@ -436,7 +436,7 @@
     },
     {
       "family": "marketing",
-      "routeCount": 10,
+      "routeCount": 11,
       "multiBrowserRouteCount": 1,
       "supportLevel": "multi-browser-representative",
       "owner": "@frontend-platform",
@@ -682,7 +682,7 @@
       "checkId": "versioned-export-download-contracts",
       "ok": true,
       "issueCount": 0,
-      "contractCount": 169,
+      "contractCount": 168,
       "categoryCount": 6
     }
   ],

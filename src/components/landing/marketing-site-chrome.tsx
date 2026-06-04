@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
-import { Info } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Info, Menu, X } from "lucide-react";
 import { LegalLinks } from "@/components/layout/legal-links";
 import { trustChipBadges } from "@/components/landing/landing-content";
 
@@ -19,82 +19,138 @@ function navLinkAttrs(pathname: string | null, href: string) {
     : ({} as const);
 }
 
+/** Public marketing nav links (release-aligned set). */
+const PUBLIC_LINKS = [
+  { href: "/product", label: "Product" },
+  { href: "/pricing", label: "Access and pricing" },
+  { href: "/security", label: "Security" },
+  { href: "/contact", label: "Contact" },
+] as const;
+
+/** Shared ghost recipe for the public nav links: 40px tall (parity with the
+ *  CTA + brand tile), full-width left-aligned rows inside the mobile drawer,
+ *  auto-width centered pills inline at md+, with the active-route treatment. */
+const publicLinkClass =
+  "ui-btn-ghost inline-flex min-h-10 w-full items-center justify-start whitespace-nowrap px-3 text-[14px] md:w-auto md:justify-center data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4";
+
 export function MarketingSiteHeader({ secondaryNav }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Close the drawer on any nav link tap (the header persists across marketing
+  // route changes, so navigation alone won't reset it).
+  const closeMenu = () => setMenuOpen(false);
+
+  // Close the drawer on Escape while it is open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   return (
-    <header className="ui-footer-shell sticky top-0 z-20 print:hidden">
+    <header className="ui-footer-shell sticky top-0 z-30 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex min-h-[4.4rem] flex-wrap items-center justify-between gap-3 py-2 sm:gap-4 sm:py-0">
+        <div className="relative flex min-h-[3.5rem] items-center justify-between gap-3">
+          {/* Brand lockup — one link target; de-glossed 40px tile aligned to the
+              nav/CTA height; baseline-centered wordmark. */}
           <Link
             href="/"
-            className="flex items-center gap-3 no-underline"
+            className="group flex items-center gap-2.5 rounded-lg no-underline outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)]"
           >
-            <span className="ui-avatar-tile h-10 w-10 text-[var(--accent-fg)] shadow-[var(--shadow-2)] [background:linear-gradient(180deg,color-mix(in_oklab,var(--accent)_76%,white),var(--accent-strong))]">
+            <span className="ui-avatar-tile h-10 w-10 text-base font-bold" aria-hidden>
               O
             </span>
-            <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] transition-opacity hover:opacity-85 sm:text-2xl">
+            <span className="text-lg font-bold leading-none tracking-tight text-[var(--text-primary)] transition-opacity group-hover:opacity-85 sm:text-xl">
               Oblixa
             </span>
           </Link>
-          <nav className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1 gap-y-0 sm:gap-x-2" aria-label="Site">
-            <Link
-              href="/product"
-              prefetch={false}
-              {...navLinkAttrs(pathname, "/product")}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px] data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4"
+
+          {/* Right cluster: public nav + Sign in (collapses to a drawer below
+              md), then the always-visible primary CTA + the drawer toggle. */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <nav
+              id="site-nav"
+              aria-label="Site"
+              className={
+                (menuOpen ? "flex" : "hidden") +
+                " absolute inset-x-0 top-full z-40 flex-col gap-1 rounded-b-xl border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] p-2.5 shadow-[var(--shadow-2)] md:static md:z-auto md:flex md:flex-row md:items-center md:gap-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+              }
             >
-              Product
-            </Link>
+              {PUBLIC_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch={false}
+                  onClick={closeMenu}
+                  {...navLinkAttrs(pathname, link.href)}
+                  className={publicLinkClass}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {/* public | account separator: vertical hairline inline at md+,
+                  a full-width rule inside the mobile drawer. */}
+              <span
+                aria-hidden
+                className="mx-1.5 hidden h-5 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] md:inline-block"
+              />
+              <span
+                aria-hidden
+                className="my-1 h-px w-full bg-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] md:hidden"
+              />
+              <Link
+                href="/login"
+                prefetch={false}
+                onClick={closeMenu}
+                className="ui-btn-ghost inline-flex min-h-10 w-full items-center justify-start whitespace-nowrap px-3 text-[14px] md:w-auto md:justify-center"
+              >
+                Sign in
+              </Link>
+            </nav>
+
+            {/* CTA matches the base .ui-btn-primary (and the sibling marketing
+                pages' CTAs) — radius, height, padding, halo all inherited;
+                living outside the Site nav drops the header-only shadow boost. */}
             <Link
-              href="/pricing"
-              prefetch={false}
-              {...navLinkAttrs(pathname, "/pricing")}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px] data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4"
+              href="/early-access"
+              className="ui-btn-primary inline-flex items-center justify-center whitespace-nowrap"
             >
-              Pricing
+              Request early access
             </Link>
-            <Link
-              href="/security"
-              prefetch={false}
-              {...navLinkAttrs(pathname, "/security")}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px] data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4"
+
+            <button
+              type="button"
+              aria-label="Site menu"
+              aria-expanded={menuOpen}
+              aria-controls="site-nav"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="ui-btn-ghost inline-flex h-10 w-10 items-center justify-center rounded-lg md:hidden"
             >
-              Security
-            </Link>
-            <Link
-              href="/contact"
-              prefetch={false}
-              {...navLinkAttrs(pathname, "/contact")}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px] data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4"
-            >
-              Contact
-            </Link>
-            <Link
-              href="/terms"
-              prefetch={false}
-              {...navLinkAttrs(pathname, "/terms")}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px] data-[active=true]:text-[var(--accent-strong)] data-[active=true]:underline data-[active=true]:underline-offset-4"
-            >
-              Legal
-            </Link>
-            <span aria-hidden className="hidden h-5 w-px bg-[var(--border-subtle)] sm:inline-block" />
-            <Link
-              href="/login"
-              prefetch={false}
-              className="ui-btn-ghost inline-flex min-h-10 items-center justify-center px-2.5 py-2 sm:px-3 sm:text-[14px]"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="ui-btn-primary inline-flex min-h-10 items-center justify-center px-3.5 py-2 text-sm font-semibold sm:px-4 sm:text-[14px]"
-            >
-              Start free trial
-            </Link>
-          </nav>
+              {menuOpen ? (
+                <X className="h-5 w-5" strokeWidth={1.85} aria-hidden />
+              ) : (
+                <Menu className="h-5 w-5" strokeWidth={1.85} aria-hidden />
+              )}
+            </button>
+          </div>
+
+          {/* Click-outside scrim for the mobile drawer. */}
+          {menuOpen ? (
+            <button
+              type="button"
+              aria-label="Close menu"
+              tabIndex={-1}
+              onClick={() => setMenuOpen(false)}
+              className="fixed inset-0 z-20 cursor-default md:hidden"
+            />
+          ) : null}
         </div>
+
         {secondaryNav != null ? (
-          <div className="border-t border-[var(--border-subtle)] py-2.5 sm:py-3 print:hidden">
+          <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] py-2 print:hidden">
             <nav
               className="flex flex-wrap items-center gap-x-0.5 gap-y-1 sm:gap-x-1"
               aria-label="On this page"
@@ -156,18 +212,21 @@ export function MarketingSiteFooter() {
           aria-label="Account"
         >
           <Link
-            href="/contact"
+            href="/early-access"
             prefetch={false}
             className="ui-btn-ghost inline-flex min-h-9 items-center px-3 text-[12.5px] font-semibold"
           >
-            Book setup call
+            Request early access
           </Link>
+          {/* v14: ghost (was primary) so the footer stops competing with the
+              page's final CTA; label aligned with the "View product tour"
+              secondary CTA. */}
           <Link
-            href="/signup"
+            href="/product"
             prefetch={false}
-            className="ui-btn-primary inline-flex min-h-9 items-center px-3.5 text-[12.5px] font-semibold"
+            className="ui-btn-ghost inline-flex min-h-9 items-center px-3.5 text-[12.5px] font-semibold"
           >
-            Start free trial
+            View product tour
           </Link>
         </nav>
       </div>

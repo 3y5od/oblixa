@@ -3,6 +3,7 @@ import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { ContractPagination } from "@/components/contracts/contract-pagination";
+import { PortaledPopover } from "@/components/contracts/portaled-popover";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
@@ -20,13 +21,19 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
+  Bookmark,
+  CalendarClock,
   CalendarDays,
   ChevronDown,
+  CircleCheck,
+  ClipboardCheck,
   Download,
   Eye,
   Files,
   FileText,
+  Hourglass,
   Link2,
+  ListChecks,
   SlidersHorizontal,
   Trash2,
   Upload,
@@ -36,7 +43,7 @@ import {
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { UiSelect } from "@/components/ui/ui-select";
+import { ContractsSearchForm } from "@/components/contracts/contracts-search-form";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import {
   combineContractListIntersectIds,
@@ -539,8 +546,28 @@ export default async function ContractsPage(props: {
     }
   });
 
+  // Filter params carried through a search/date/sort submit (the search form
+  // owns search/deadline/sort itself; everything else rides along as hidden
+  // inputs so a search doesn't drop the active status/owner/operational filters).
+  const searchFormHidden: Record<string, string> = {};
+  for (const key of [
+    "status",
+    "owner",
+    "counterparty",
+    "contract_type",
+    "region",
+    "exceptions",
+    "review",
+    "data_quality",
+    "evidence",
+    "work",
+  ] as const) {
+    const value = (searchParams as Record<string, string | undefined>)[key];
+    if (value) searchFormHidden[key] = value;
+  }
+
   return (
-    <div className="ui-page-stack">
+    <div className="ui-page-stack w-full min-w-0">
       <DashboardPageHeader
         icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         // "Contract tracking" mirrors the parent area name from
@@ -553,6 +580,27 @@ export default async function ContractsPage(props: {
           contractTotal === 0
             ? "Upload your first signed agreement to start tracking review, dates, owners, work, evidence, and reports."
             : "Track renewals, obligations, owners, and work for signed agreements."
+        }
+        // Workspace-total count — accurate across all pages (the pagination
+        // footer only renders on multi-page sets, so on a single page this
+        // is the only place the inventory size is shown). Page-scoped signal
+        // counts live in the quick-filter strip below, not here.
+        metaStrip={
+          contractTotal > 0 ? (
+            <div className="inline-flex items-center">
+              <dt className="sr-only">Contracts in workspace</dt>
+              {/* Structured count chip — a bordered pill anchored to the
+                  header cluster instead of a bare floating number. */}
+              <dd className="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] px-2.5 py-1 shadow-[var(--shadow-1)]">
+                <span className="font-mono text-[12.5px] font-semibold tabular-nums text-[var(--text-primary)]">
+                  {contractTotal}
+                </span>
+                <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">
+                  {contractTotal === 1 ? "Contract" : "Contracts"}
+                </span>
+              </dd>
+            </div>
+          ) : undefined
         }
         actions={
           <>
@@ -572,15 +620,22 @@ export default async function ContractsPage(props: {
               className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
             >
               <Upload className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              Import CSV
+              Import contracts
             </Link>
-            <details className="relative">
-              <summary className="ui-btn-secondary inline-flex cursor-pointer list-none items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold [&::-webkit-details-marker]:hidden">
-                <Download className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                Export
-                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              </summary>
-              <div className="ui-popover right-0 left-auto w-60 max-w-[calc(100vw-3rem)] p-0">
+            <PortaledPopover
+              ariaLabel="Export options"
+              align="right"
+              widthClassName="w-[15rem]"
+              scrollClassName="py-1"
+              triggerClassName="ui-btn-ghost inline-flex cursor-pointer items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
+              triggerContent={
+                <>
+                  <Download className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  Export
+                  <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                </>
+              }
+            >
                 <ul className="text-[12.5px]">
                   {exportItems.map((row) => {
                     const Icon = row.icon;
@@ -602,12 +657,11 @@ export default async function ContractsPage(props: {
                   })}
                 </ul>
                 {latestExportSummary ? (
-                  <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[10.5px] uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                  <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[10.5px] uppercase tracking-[0.14em] tabular-nums text-[var(--text-tertiary)]">
                     {latestExportSummary}
                   </p>
                 ) : null}
-              </div>
-            </details>
+            </PortaledPopover>
           </>
         }
       />
@@ -643,82 +697,38 @@ export default async function ContractsPage(props: {
           NB: the toolbar wrapper is a <div>; the <form> for SEARCH/DATE/SORT renders with className="contents"
           so children flex inline with the popover triggers without nesting <form> elements (the popovers
           contain their own action forms — delete view, create view — which cannot legally nest). */}
-      <section aria-label="Filters" className="space-y-2">
+      <section aria-label="Filters" className="min-w-0 space-y-2">
         <div className="ui-filter-toolbar">
-          <form action="/contracts" method="get" className="contents">
-            <input
-              aria-label="Search contracts by name, counterparty, owner, or tag"
-              id="contract-search"
-              name="search"
-              type="search"
-              placeholder="Search name, counterparty, owner, tag…"
-              defaultValue={searchParams.search || ""}
-              // Subtle chrome — faint hairline border + soft inset bg so
-              // the input reads as interactive (defect 2 / iter 18 made
-              // it transparent and it lost click affordance). Lighter
-              // than the canonical .ui-input-compact full-strength bg.
-              className="ui-input-compact h-8 min-w-0 flex-1 text-[12px] lg:max-w-md !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)]"
-              autoComplete="off"
-            />
-            <UiSelect
-              name="deadline"
-              defaultValue={deadline}
-              ariaLabel="Date preset"
-              placeholder="Any date"
-              // Matches the search input's subtle chrome: faint hairline
-              // + soft inset bg. Reads as interactive but doesn't pill-
-              // ify the row the way full .ui-input-compact chrome did.
-              buttonClassName="h-8 min-w-[10rem] text-[12px] !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] hover:!bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]"
-              options={DEADLINE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-            />
-            <UiSelect
-              name="sort"
-              defaultValue={searchParams.sort === "created" ? "created" : "activity"}
-              ariaLabel="Sort"
-              // Shortened labels eliminate the "Recent activi..." truncation
-              // inside the dropdown menu (the menu inherits the trigger's
-              // 8rem width, and "Recent activity" + Check icon exceeded
-              // that width).
-              buttonClassName="h-8 min-w-[10rem] text-[12px] !border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] !bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] hover:!bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]"
-              options={[
-                { value: "activity", label: "Last activity" },
-                { value: "created", label: "Last created" },
-              ]}
-            />
-            {searchParams.status ? <input type="hidden" name="status" value={searchParams.status} /> : null}
-            {searchParams.owner ? <input type="hidden" name="owner" value={searchParams.owner} /> : null}
-            {searchParams.counterparty ? <input type="hidden" name="counterparty" value={searchParams.counterparty} /> : null}
-            {searchParams.contract_type ? <input type="hidden" name="contract_type" value={searchParams.contract_type} /> : null}
-            {searchParams.region ? <input type="hidden" name="region" value={searchParams.region} /> : null}
-            {searchParams.exceptions ? <input type="hidden" name="exceptions" value={searchParams.exceptions} /> : null}
-            {searchParams.review ? <input type="hidden" name="review" value={searchParams.review} /> : null}
-            {searchParams.data_quality ? <input type="hidden" name="data_quality" value={searchParams.data_quality} /> : null}
-            {searchParams.evidence ? <input type="hidden" name="evidence" value={searchParams.evidence} /> : null}
-            {searchParams.work ? <input type="hidden" name="work" value={searchParams.work} /> : null}
-            <input type="hidden" name="page" value="1" />
-            <button
-              type="submit"
-              aria-label="Apply search, date, and sort"
-              className="inline-flex h-8 items-center rounded-md border border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_38%,var(--surface-raised))] px-3 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[var(--accent-strong)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_55%,var(--surface-raised))]"
-              title="Apply (or press Enter)"
-            >
-              Apply
-            </button>
-          </form>
+          <ContractsSearchForm
+            initialSearch={searchParams.search || ""}
+            initialDeadline={deadline}
+            initialSort={searchParams.sort === "created" ? "created" : "activity"}
+            deadlineOptions={DEADLINE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label,
+            }))}
+            hidden={searchFormHidden}
+          />
 
           {/* Filters popover */}
-          <details className="relative">
-            <summary className="ui-toolbar-dropdown" aria-haspopup="dialog">
-              <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              Filters
-              {activeFilterCount > 0 ? (
-                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--accent)_22%,var(--surface-raised))] px-1.5 text-[10.5px] font-bold tabular-nums text-[var(--accent-strong)]">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-              <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            </summary>
-            <div className="ui-popover left-0 right-auto w-[22rem] max-w-[calc(100vw-3rem)]" role="dialog" aria-label="Filter contracts">
+          <PortaledPopover
+            ariaLabel="Filter contracts"
+            align="left"
+            widthClassName="w-[22rem]"
+            triggerClassName="ui-toolbar-dropdown"
+            triggerContent={
+              <>
+                <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                Filters
+                {activeFilterCount > 0 ? (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--accent)_22%,var(--surface-raised))] px-1.5 text-[10.5px] font-bold tabular-nums text-[var(--accent-strong)]">
+                    {activeFilterCount}
+                  </span>
+                ) : null}
+                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              </>
+            }
+          >
               <div className="ui-popover-section">
                 <p className="ui-popover-section-heading">Status</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -889,21 +899,29 @@ export default async function ContractsPage(props: {
                   <span className="text-[11px] text-[var(--text-tertiary)]">{activeFilterCount} active</span>
                 </div>
               ) : null}
-            </div>
-          </details>
+          </PortaledPopover>
 
           {/* Saved views popover — trigger shows the current view's name
               so users can see at a glance which view is active without
               opening the popover. Defaults to "All contracts" when no
               saved view matches the current URL params (instead of the
               ambiguous "Views" trigger label). */}
-          <details className="relative">
-            <summary className="ui-toolbar-dropdown" aria-haspopup="dialog">
-              <Eye className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "All contracts"}</span>
-              <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            </summary>
-            <div className="ui-popover left-0 right-auto w-[22rem] max-w-[calc(100vw-3rem)]" role="dialog" aria-label="Saved views">
+          <PortaledPopover
+            ariaLabel="Saved views"
+            align="left"
+            widthClassName="w-[22rem]"
+            triggerClassName={`ui-toolbar-dropdown${activeSavedView ? " !border-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-subtle))] !text-[var(--accent-strong)]" : ""}`}
+            triggerContent={
+              <>
+                {/* Bookmark (not the Filters sliders) keeps Saved views
+                    visually distinct from the Filters control; an accent
+                    tint marks when a view is currently applied. */}
+                <Bookmark className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "All contracts"}</span>
+                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              </>
+            }
+          >
               <ul className="space-y-1">
                 {/* Only show the "All contracts" reset row when a saved
                     view is currently active — otherwise it duplicates
@@ -981,8 +999,19 @@ export default async function ContractsPage(props: {
                   }}
                 />
               </div>
-            </div>
-          </details>
+          </PortaledPopover>
+
+          {/* Visible reset — clearing filters shouldn't require opening the
+              Filters popover or hunting for a chip's × button. */}
+          {activeFilterCount > 0 ? (
+            <Link
+              href="/contracts"
+              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-[12px] font-semibold text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_8%,transparent)] hover:text-[var(--danger-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+              Clear
+            </Link>
+          ) : null}
         </div>
 
         {/* Active filter chips — renders only when filters are applied. */}
@@ -990,7 +1019,7 @@ export default async function ContractsPage(props: {
           <div
             role="group"
             aria-label="Active filters"
-            className="flex flex-wrap items-center gap-1.5 px-1"
+            className="flex flex-wrap items-center gap-1.5"
           >
             {searchParams.search ? (
               <Link
@@ -1161,7 +1190,7 @@ export default async function ContractsPage(props: {
           already applied AND the workspace has at least one contract.
           v15: eyebrow demoted to caps-3, renamed "Common filters", separated to its own line. */}
       {activeFilterCount === 0 && contractTotal > 0 ? (
-        <nav aria-label="Quick filters" className="space-y-1.5 px-1">
+        <nav aria-label="Quick filters" className="min-w-0 space-y-1.5">
           {/* Dot decoration dropped: the caps-tracked "Common filters" text
               already reads as an eyebrow. The leading dot was decorative
               chrome that competed with the filter chip row below. */}
@@ -1172,38 +1201,28 @@ export default async function ContractsPage(props: {
               info → success — so the user's eye lands on critical
               attention items first, operational work in the middle, and
               current-state filters at the end. */}
-          <div className="flex flex-wrap items-center gap-1.5">
-          {/* Only the unambiguously-critical signal keeps a tone tint —
-              "status earns color" per ui-design-principles §10.2. Other
-              filters render as neutral so a wall of tinted chips stops
-              competing with the table itself for attention. */}
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          {/* Every chip carries a leading icon slot + a tone tint for its
+              category — danger (exceptions) / warning (review, dates,
+              evidence) / accent (work, renewals) / success (active) — so the
+              strip reads as one consistent shortcut family. Icons give
+              non-color reinforcement (§7.7) so no signal is tone-only. */}
           {signalCounts.openExceptions > 0 ? (
             <Link
               href="/contracts?exceptions=open"
               className="ui-quick-chip ui-quick-chip-tone-danger"
             >
-              {/* AlertTriangle icon — non-color reinforcement so the
-                  critical signal isn't carried by red ink alone (§7.7).
-                  The icon also visually disambiguates Open exceptions
-                  from the neutral filter chips beside it. */}
-              <AlertTriangle
-                className="h-3 w-3 shrink-0"
-                strokeWidth={2}
-                aria-hidden
-              />
+              <AlertTriangle className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Open exceptions
               <span className="ui-quick-chip-count">{signalCounts.openExceptions}</span>
             </Link>
           ) : null}
-          {/* Each chip picks up the tone class for its semantic
-              category — risk / warning / info / success — so the row
-              reads as four differentiated families instead of seven
-              identical neutral chips. */}
           {pagePendingReview > 0 ? (
             <Link
               href="/contracts?status=pending_review"
               className="ui-quick-chip ui-quick-chip-tone-warning"
             >
+              <Hourglass className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Pending review
               <span className="ui-quick-chip-count">{pagePendingReview}</span>
             </Link>
@@ -1213,6 +1232,7 @@ export default async function ContractsPage(props: {
               href="/contracts?data_quality=missing_critical"
               className="ui-quick-chip ui-quick-chip-tone-warning"
             >
+              <CalendarDays className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Missing dates
               <span className="ui-quick-chip-count">{signalCounts.missingDates}</span>
             </Link>
@@ -1222,6 +1242,7 @@ export default async function ContractsPage(props: {
               href="/contracts?evidence=outstanding"
               className="ui-quick-chip ui-quick-chip-tone-warning"
             >
+              <ClipboardCheck className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Evidence due
               <span className="ui-quick-chip-count">{signalCounts.evidenceDue}</span>
             </Link>
@@ -1231,6 +1252,7 @@ export default async function ContractsPage(props: {
               href="/contracts?work=open"
               className="ui-quick-chip ui-quick-chip-tone-info"
             >
+              <ListChecks className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Open work
               <span className="ui-quick-chip-count">{signalCounts.openWork}</span>
             </Link>
@@ -1240,6 +1262,7 @@ export default async function ContractsPage(props: {
               href="/contracts?deadline=renewal_90"
               className="ui-quick-chip ui-quick-chip-tone-info"
             >
+              <CalendarClock className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Renewing in 90d
               <span className="ui-quick-chip-count">{signalCounts.renewingSoon}</span>
             </Link>
@@ -1249,6 +1272,7 @@ export default async function ContractsPage(props: {
               href="/contracts?status=active"
               className="ui-quick-chip ui-quick-chip-tone-success"
             >
+              <CircleCheck className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Active
               <span className="ui-quick-chip-count">{pageActive}</span>
             </Link>
@@ -1257,7 +1281,7 @@ export default async function ContractsPage(props: {
         </nav>
       ) : null}
 
-      <section>
+      <section className="min-w-0">
         {contractsPageError ? (
           <RecoverableState
             state="failed"

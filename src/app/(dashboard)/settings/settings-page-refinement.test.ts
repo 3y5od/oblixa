@@ -41,7 +41,7 @@ describe("settings page release-state compliance", () => {
     const raw = readFileSync(SETTINGS_STRINGS, "utf8");
     for (const phrase of [
       "Settings",
-      "Manage workspace, team, billing, notifications, security, and export settings.",
+      "Manage workspace, team, billing, notifications, security, and data export.",
       "Profile",
       "Workspace",
       "Team",

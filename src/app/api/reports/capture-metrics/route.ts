@@ -1,5 +1,6 @@
 import { withCronRoute } from "@/lib/cron/route-runner";
 import { RATE_LIMITS } from "@/lib/rate-limit";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -112,8 +113,9 @@ export const GET = withCronRoute({
       const overdueResolutionSamples = (obligationsRes.data ?? [])
         .filter((row) => !!row.due_date && !!row.completed_at)
         .map((row) => {
-          const dueAt = new Date(`${String(row.due_date)}T12:00:00`).getTime();
+          const dueAt = parseBusinessDateAtNoon(String(row.due_date))?.getTime();
           const completedAt = new Date(String(row.completed_at)).getTime();
+          if (dueAt == null || !Number.isFinite(completedAt)) return 0;
           return Math.max(0, (completedAt - dueAt) / (1000 * 60 * 60 * 24));
         });
       const overdueResolutionAvg =

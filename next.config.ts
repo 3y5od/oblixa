@@ -9,6 +9,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const isProd = process.env.NODE_ENV === "production";
 const isVercel = Boolean(process.env.VERCEL);
+const enableSentryNextConfig =
+  isProd ||
+  Boolean(process.env.CI) ||
+  process.env.OBLIXA_ENABLE_SENTRY_DEV === "1";
 const selfHostedHsts = process.env.OBLIXA_SELF_HOSTED_HSTS === "1";
 const deploymentStrictEnforcingCsp = isVercel || selfHostedHsts;
 const upgradeInsecureRequests =
@@ -53,7 +57,10 @@ const nextConfig: NextConfig = {
     : {}),
   /** gzip for Node server responses; CDN may apply Brotli at edge (EXT). */
   compress: true,
+  outputFileTracingRoot: process.cwd(),
   poweredByHeader: false,
+  /** Hide the dev-only on-page indicator so it doesn't pollute the UI / QA captures. */
+  devIndicators: false,
   serverExternalPackages: [
     "@react-pdf/renderer",
     "mammoth",
@@ -82,7 +89,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withBundleAnalyzer(nextConfig), {
+const configuredNextConfig = withBundleAnalyzer(nextConfig);
+const sentryNextConfigOptions = {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -118,4 +126,8 @@ export default withSentryConfig(withBundleAnalyzer(nextConfig), {
       removeDebugLogging: true,
     },
   },
-});
+};
+
+export default enableSentryNextConfig
+  ? withSentryConfig(configuredNextConfig, sentryNextConfigOptions)
+  : configuredNextConfig;

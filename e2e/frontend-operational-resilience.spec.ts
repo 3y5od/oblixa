@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
+import { settleWebKitWorker } from "./fixtures/webkit-worker-teardown";
 
 const statusPayload = (overrides: Record<string, unknown> = {}) => ({
   externalAction: {
@@ -13,6 +14,17 @@ const statusPayload = (overrides: Record<string, unknown> = {}) => ({
 });
 
 test.describe("@resilience frontend operational recovery", () => {
+  test.afterAll(async ({}, testInfo) => {
+    await settleWebKitWorker(testInfo);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+    if (!page.isClosed()) {
+      await page.close({ runBeforeUnload: false });
+    }
+  });
+
   test("offline status read keeps a visible retry path and reloads the form", async ({ page }) => {
     let statusCalls = 0;
     await page.route("**/api/external-actions/frontend-resilience-retry/status", async (route) => {
@@ -98,7 +110,9 @@ test.describe("@resilience frontend operational recovery", () => {
 
   test("zoomed public shell has no horizontal overflow", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.addStyleTag({ content: "html { font-size: 20px; }" });
+    await page.evaluate(() => {
+      document.documentElement.style.setProperty("font-size", "20px", "important");
+    });
 
     const horizontalOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth - document.documentElement.clientWidth;

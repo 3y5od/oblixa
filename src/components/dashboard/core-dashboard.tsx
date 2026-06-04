@@ -1,12 +1,14 @@
 import Link from "next/link";
 import {
   AlertTriangle,
-  ArrowRight,
   BadgeCheck,
+  Ban,
   Calendar,
   CalendarClock,
   Check,
   CheckSquare,
+  ChevronRight,
+  CircleAlert,
   FileSpreadsheet,
   Files,
   FileText,
@@ -23,6 +25,7 @@ import { ActionChip } from "@/components/ui/action-chip";
 import { ActivityFeed, type ActivityFeedItem } from "@/components/ui/activity-feed";
 import { CountChip } from "@/components/ui/count-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { FieldChip } from "@/components/ui/field-chip";
 import { KeyValueChip } from "@/components/ui/key-value-chip";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import type { StatTone } from "@/components/ui/stat-cell";
@@ -38,6 +41,7 @@ import type {
   CoreDashboardActivityRow,
   CoreDashboardDataGapRow,
   CoreDashboardDeadlineRow,
+  CoreDashboardImportStatus,
   CoreDashboardModel,
   CoreDashboardReviewRow,
   CoreDashboardSection,
@@ -67,22 +71,31 @@ const TOP_CARD_UNIT: Record<DashboardTopCardKey, string> = {
   evidence_requested: "REQUESTED",
 };
 
-function titleCasePlan(planTier: string | null): string | null {
-  if (!planTier) return null;
-  return `${planTier.charAt(0).toUpperCase()}${planTier.slice(1).toLowerCase()}`;
-}
-
-// Per-card semantic tone — only true time-pressure (upcoming deadlines) and
-// genuine blockage (blocked work, open exceptions) earn loud warning/danger
-// ink. Data-quality cards (missing owners, evidence requested) get neutral
-// secondary ink so amber stops dominating the strip.
+// Per-card semantic tone (release UI spec §Metric Strip): danger for genuine
+// blockage (blocked work, open exceptions); warning for time-pressure and an
+// actionable data gap (upcoming deadlines, missing owners); accent for the two
+// interactive queues the user works straight through (needs review, evidence
+// requested). Zero counts override to success ink — see cardInk.
 const CARD_TONE_INK: Record<DashboardTopCardKey, string> = {
   needs_review: "var(--accent-strong)",
   upcoming_deadlines: "var(--warning-ink)",
   blocked_work: "var(--danger-ink)",
-  missing_owners: "var(--text-secondary)",
+  missing_owners: "var(--warning-ink)",
   open_exceptions: "var(--danger-ink)",
-  evidence_requested: "var(--text-secondary)",
+  evidence_requested: "var(--accent-strong)",
+};
+
+// Each active cell renders a tone-tinted icon medallion immediately left of the
+// number so the stat reads as a mini-KPI cell with a fixed visual anchor
+// (§11.17) instead of a floating numeral. Zero cells swap this for the success
+// Check medallion (§2.11) — so every cell always fills the same 24px slot.
+const TOP_CARD_ICON: Record<DashboardTopCardKey, LucideIcon> = {
+  needs_review: CheckSquare,
+  upcoming_deadlines: CalendarClock,
+  blocked_work: Ban,
+  missing_owners: UserX,
+  open_exceptions: AlertTriangle,
+  evidence_requested: ShieldAlert,
 };
 
 function cardInk(card: CoreDashboardTopCard): string {
@@ -132,6 +145,9 @@ function workTypeIcon(type: string): LucideIcon {
   if (t.includes("obligation")) return Calendar;
   if (t.includes("exception")) return AlertTriangle;
   if (t.includes("evidence")) return ShieldAlert;
+  // Renewal checkpoints get their own glyph so they no longer collide with
+  // contract tasks — letting the icon carry the work kind without a text label.
+  if (t.includes("renewal") || t.includes("checkpoint")) return CalendarClock;
   return ListChecks;
 }
 
@@ -149,14 +165,29 @@ function activityVisual(row: CoreDashboardActivityRow): {
   if (text.includes("extract")) return { verb: CAPS_VERBS.extracted, icon: FileText };
   if (text.includes("approv")) return { verb: CAPS_VERBS.approved, icon: BadgeCheck, tone: "success" };
   if (text.includes("reject")) return { verb: CAPS_VERBS.rejected, icon: AlertTriangle, tone: "danger" };
+  if (text.includes("creat")) return { verb: CAPS_VERBS.created, icon: FileText };
+  if (text.includes("delet")) return { verb: CAPS_VERBS.deleted, icon: FileText };
+  // owner_changed keeps the Users glyph; other change events use a generic doc
+  // glyph. Both read as CHANGED and dedupe as one kind (see activityDedupeKind).
   if (text.includes("owner")) return { verb: CAPS_VERBS.changed, icon: Users };
+  if (
+    text.includes("updat") ||
+    text.includes("chang") ||
+    text.includes("status") ||
+    text.includes("supersed") ||
+    text.includes("applied")
+  )
+    return { verb: CAPS_VERBS.changed, icon: FileText };
   if (text.includes("complet") || text.includes("done"))
     return { verb: CAPS_VERBS.completed, icon: CheckSquare, tone: "success" };
   if (text.includes("evidence") || text.includes("receiv"))
     return { verb: CAPS_VERBS.received, icon: ShieldCheck };
   if (text.includes("export")) return { verb: CAPS_VERBS.exported, icon: FileSpreadsheet };
   if (text.includes("sign")) return { verb: CAPS_VERBS.signed, icon: BadgeCheck, tone: "success" };
-  const fallback = (row.label.trim().split(/\s+/)[0] || "Activity").toUpperCase();
+  // Last word of the label, not the leading noun, so an unmapped
+  // "Contract Template Pack Applied" reads "APPLIED", never a generic "CONTRACT".
+  const words = row.label.trim().split(/\s+/);
+  const fallback = (words[words.length - 1] || "Activity").toUpperCase();
   return { verb: fallback, icon: FileText };
 }
 
@@ -193,59 +224,47 @@ function TopSignal({ card }: { card: CoreDashboardTopCard }) {
   const isZero = card.count === 0;
   const ink = cardInk(card);
   const unit = TOP_CARD_UNIT[card.key];
-  // §2.11 stat cell: tone dot + caps label / number / unit chip. Active cells
-  // carry one status marker (the dot) and the tone-colored number — no second
-  // icon medallion. Zero cells swap the dot's emphasis for a success Check
-  // medallion beside a muted-green number, with no full-cell tint.
+  const CardIcon = TOP_CARD_ICON[card.key];
+  // §2.11 stat cell with a single leading anchor (§11.17): caps label / icon
+  // medallion + tone-colored number / unit chip. The medallion is the cell's
+  // only status marker — active cells show the metric's tone-tinted icon, zero
+  // cells swap it for a success Check beside a muted-green number. No competing
+  // tone-dot in the label row (the dot + icon + label together read as busy).
   return (
     <Link
       href={card.href}
       aria-label={`${card.label}: ${card.count}. ${card.actionLabel}.`}
-      className="group relative flex min-w-0 flex-col gap-1 rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_8%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+      className="group relative flex min-w-0 flex-col gap-1 rounded-lg px-3 py-3 transition-colors duration-150 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_8%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
     >
-      <span className="flex items-center gap-1.5">
-        <span
-          aria-hidden
-          className="relative inline-flex h-2 w-2 min-w-[0.625rem] shrink-0 items-center justify-center"
-        >
-          {isZero ? (
-            <span
-              className="relative h-1.5 w-1.5 rounded-full"
-              style={{
-                background: "color-mix(in oklab, var(--success-ink) 60%, transparent)",
-              }}
-            />
-          ) : (
-            <>
-              <span
-                className="absolute inset-0 rounded-full"
-                style={{ background: `color-mix(in oklab, ${ink} 30%, transparent)` }}
-              />
-              <span
-                className="relative h-1.5 w-1.5 rounded-full"
-                style={{ background: ink }}
-              />
-            </>
-          )}
-        </span>
-        <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">{card.label}</span>
-      </span>
+      <span className="ui-caps-2 block text-[10px] text-[var(--text-tertiary)]">{card.label}</span>
       <span className="mt-0.5 inline-flex items-center gap-2">
         {isZero ? (
           <span
             aria-hidden
-            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border"
             style={{
               borderColor: "color-mix(in oklab, var(--success-ink) 28%, var(--border-card))",
               background: "color-mix(in oklab, var(--success-ink) 12%, var(--surface))",
               color: "var(--success-ink)",
             }}
           >
-            <Check className="h-3 w-3" strokeWidth={2.2} />
+            <Check className="h-3.5 w-3.5" strokeWidth={2.2} />
           </span>
-        ) : null}
+        ) : (
+          <span
+            aria-hidden
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border"
+            style={{
+              borderColor: `color-mix(in oklab, ${ink} 26%, var(--border-card))`,
+              background: `color-mix(in oklab, ${ink} 12%, var(--surface))`,
+              color: ink,
+            }}
+          >
+            <CardIcon className="h-3.5 w-3.5" strokeWidth={2} />
+          </span>
+        )}
         <span
-          className="text-[1.75rem] font-semibold leading-none tabular-nums tracking-[-0.02em]"
+          className="text-[2rem] font-semibold leading-none tabular-nums tracking-[-0.02em]"
           style={{
             color: isZero
               ? "color-mix(in oklab, var(--success-ink) 55%, var(--text-tertiary))"
@@ -278,10 +297,15 @@ function SignalSurface({ children }: { children: React.ReactNode }) {
       aria-label="Top cards"
       // Six-column horizontal strip at xl breakpoint — denser scan path than a
       // 3×2 grid, no large empty areas. Collapses to 2 cols at sm and a single
-      // column on mobile.
-      className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)]"
+      // column on mobile. Shares the raised card surface (§2.1) so the summary
+      // band reads with the same presence as the section panels below.
+      className="ui-card-raised overflow-hidden"
     >
-      <div className="grid grid-cols-1 gap-0.5 p-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      {/* Subtle vertical hairlines between the six cells at xl (single row) give
+          the strip real stat-cell separation so it stops reading flat; below xl
+          the grid wraps to 2–3 columns, so dividers drop out in favor of gap
+          (§Metric Strip). */}
+      <div className="grid grid-cols-1 gap-1 p-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:gap-0 xl:[&>*+*]:border-l xl:[&>*+*]:border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
         {children}
       </div>
     </section>
@@ -290,26 +314,91 @@ function SignalSurface({ children }: { children: React.ReactNode }) {
 
 function PartialDataNotice({ count }: { count: number }) {
   if (count <= 0) return null;
-  // Standalone filled warning banner tied to the import workflow — not a
-  // detached footer capsule under the metric strip. Mirrors the plan banner so
-  // the dashboard's two system alerts read with the same weight.
+  // Reflects dashboard sections that failed to load — NOT import progress
+  // (that's ImportStatusNotice, fed by real contract_import_jobs). This banner
+  // previously claimed "imports still processing," which mislabeled a failed
+  // query as an import.
   return (
     <div
       role="status"
       aria-live="polite"
       aria-label="Dashboard partial data state"
-      className="ui-alert-warning flex flex-col gap-3 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between"
+      className="ui-alert-warning flex items-start gap-2.5 px-5 py-3"
     >
-      <div className="flex min-w-0 items-start gap-2.5">
-        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-        <p className="text-[13px] leading-snug">
-          <span className="font-semibold">
-            {count === 1 ? "1 import" : `${count} imports`} still processing.
-          </span>{" "}
-          Some counts may be incomplete until they finish.
-        </p>
+      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+      <p className="text-[13px] leading-snug">
+        <span className="font-semibold">Some dashboard data could not load.</span>{" "}
+        {count === 1 ? "One section" : `${count} sections`} may show incomplete
+        counts — reload to try again.
+      </p>
+    </div>
+  );
+}
+
+function ImportStatusNotice({ status }: { status: CoreDashboardImportStatus }) {
+  // Real contract-import state from contract_import_jobs: an info strip while
+  // imports are mid-flight (processing), a warning/error strip when the latest
+  // import failed or finished with rows needing correction (attention), and
+  // nothing once imports stop affecting counts — kind === "none" collapses the
+  // banner so a clean import doesn't nag.
+  if (status.kind === "none") return null;
+  const alertClass =
+    status.tone === "danger"
+      ? "ui-alert-error"
+      : status.tone === "warning"
+        ? "ui-alert-warning"
+        : "ui-alert-info";
+  const chipTone = status.tone === "danger" ? "danger" : status.tone === "warning" ? "warning" : undefined;
+  const ink =
+    status.tone === "danger"
+      ? "var(--danger-ink)"
+      : status.tone === "warning"
+        ? "var(--warning-ink)"
+        : "var(--accent-strong)";
+  const StatusIcon =
+    status.kind === "processing"
+      ? UploadCloud
+      : status.tone === "danger"
+        ? CircleAlert
+        : AlertTriangle;
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Contract import status"
+      className={`${alertClass} flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between`}
+    >
+      {/* Structured left: tone-tinted icon medallion + strong status phrase over
+          a quiet detail line. Anchors the banner so it stops reading
+          under-composed for its width (§Import Banner). */}
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          aria-hidden
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
+          style={{
+            borderColor: `color-mix(in oklab, ${ink} 30%, var(--border-card))`,
+            background: `color-mix(in oklab, ${ink} 14%, var(--surface-raised))`,
+            color: ink,
+          }}
+        >
+          <StatusIcon className="h-4 w-4" strokeWidth={2} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[13px] font-semibold leading-snug">{status.headline}</p>
+          <p className="mt-0.5 text-[12px] leading-snug">{status.detail}</p>
+        </div>
       </div>
-      <ActionChip verb="Manage imports" href="/contracts/bulk" tone="warning" className="shrink-0" />
+      <div className="flex shrink-0 items-center gap-2 self-start sm:self-center">
+        {status.occurredAt ? (
+          <TimeChip date={status.occurredAt} bordered className="shrink-0" />
+        ) : null}
+        <ActionChip
+          verb={status.canRetry ? "Retry import" : "View imports"}
+          href={status.href}
+          tone={chipTone}
+          className="shrink-0"
+        />
+      </div>
     </div>
   );
 }
@@ -326,20 +415,26 @@ function SectionShell({
   return (
     <section
       aria-labelledby={ariaId}
-      // Bordered panel so stacked sections in a column read as distinct
-      // surfaces. The header rule + row dividers carry the containment.
-      className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)]"
+      // Documented raised tier for page-level content blocks (§2.1): stronger
+      // accent-tinted border + accent wash + shadow-2 + refined inner highlight
+      // + a subtle accent halo. Lifts the panels off the canvas so they no
+      // longer read as pale/thin.
+      className="ui-card-raised min-w-0 overflow-hidden"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-4 py-3">
         <h2
           id={ariaId}
           className="ui-caps-2 flex min-w-0 items-center gap-2 text-[11px] text-[var(--text-secondary)]"
         >
-          <Icon
-            className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
-            strokeWidth={1.85}
+          {/* Accent icon-tile gives every panel header the same structured
+              left anchor (§Panel System) instead of a bare faint glyph, so the
+              raised panels stop reading pale/thin. */}
+          <span
             aria-hidden
-          />
+            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)]"
+          >
+            <Icon className="h-3.5 w-3.5" strokeWidth={1.85} />
+          </span>
           <span className="min-w-0 truncate">{section.title}</span>
           {section.count > 0 ? (
             <CountChip value={section.count} emphasis="strong" className="ml-0.5 shrink-0" />
@@ -356,8 +451,17 @@ function SectionShell({
 
 // Row hover treatment shared across review / work / data-gap rows: gentle bg
 // shift plus an accent rail that grows on hover.
-const ROW_LINK_CLASS =
-  "group relative flex items-center gap-3 rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none before:absolute before:left-0 before:top-1/2 before:h-0 before:w-[2.5px] before:-translate-y-1/2 before:rounded-full before:bg-gradient-to-b before:from-[var(--accent-strong)] before:to-[color:color-mix(in_oklab,var(--accent-strong)_70%,transparent)] before:transition-all before:duration-200 hover:before:h-[70%]";
+const ROW_LINK_BASE =
+  "group relative flex items-center gap-3 rounded-xl px-3 transition-colors duration-200 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none before:absolute before:left-0 before:top-1/2 before:h-0 before:w-[2.5px] before:-translate-y-1/2 before:rounded-full before:bg-gradient-to-b before:from-[var(--accent-strong)] before:to-[color:color-mix(in_oklab,var(--accent-strong)_70%,transparent)] before:transition-all before:duration-200 hover:before:h-[70%]";
+// Default row padding. Data Gaps overrides to a denser py-2 so its full-width
+// two-column list reads less sparse (§Data Gaps).
+const ROW_LINK_CLASS = `${ROW_LINK_BASE} py-3`;
+
+// Hover-revealed structured action chip shared by review / work / data-gap rows
+// (§8.6). The row itself is the link; this aria-hidden chip telegraphs the click
+// target on hover/focus instead of a static chevron, then drops out at rest.
+const HOVER_ACTION_CHIP_CLASS =
+  "inline-flex items-center gap-0.5 whitespace-nowrap rounded-md border border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COUNTERPARTY_FALLBACK_TOKENS = new Set([
@@ -407,10 +511,8 @@ function ReviewRows({ rows }: { rows: CoreDashboardReviewRow[] }) {
           COUNTERPARTY_FALLBACK_TOKENS.has(counterpartyText.toLowerCase());
         const ownerText = row.ownerLabel?.trim() || "";
         const ownerIsEmail = ownerText && EMAIL_RE.test(ownerText);
-        // Every queue row carries the same canonical status badge so review
-        // state reads consistently with Work statuses; the field count makes
-        // it informative rather than a generic "Pending".
-        const pendingLabel = row.pendingFields > 0 ? `${row.pendingFields} pending` : "Pending";
+        const shownFieldNames = row.pendingFieldNames.slice(0, 4);
+        const overflowFields = row.pendingFields - shownFieldNames.length;
         return (
           <li key={row.id}>
             <Link href={row.href} className={`${ROW_LINK_CLASS} min-h-[3rem] gap-3`}>
@@ -422,7 +524,7 @@ function ReviewRows({ rows }: { rows: CoreDashboardReviewRow[] }) {
                     canonical dot separator. Data-quality fallbacks
                     (Unassigned, unknown counterparty) still get the structured
                     warning flag for emphasis. */}
-                <p className="mt-0.5 inline-flex max-w-full flex-wrap items-center gap-x-1.5 text-[11.5px] leading-[1.4] text-[var(--text-tertiary)]">
+                <p className="mt-0.5 inline-flex max-w-full flex-wrap items-center gap-x-1.5 text-[11.5px] leading-[1.4] text-[var(--text-secondary)]">
                   {counterpartyText ? (
                     counterpartyIsUnknown ? (
                       <MetaDataFlag kind="counterparty" raw={counterpartyText} />
@@ -441,10 +543,37 @@ function ReviewRows({ rows }: { rows: CoreDashboardReviewRow[] }) {
                     )
                   ) : null}
                 </p>
+                {/* Name the suggested fields awaiting review, not just the
+                    count — the row's next action becomes "review THESE fields".
+                    The named chips plus a "N more" overflow already convey both
+                    which fields and how many, so the row carries no separate
+                    trailing count (matching Data Gaps, §11.18). The no-names
+                    fallback keeps the count visible as "N fields". */}
+                {row.pendingFields > 0 ? (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                    {shownFieldNames.map((name) => (
+                      <FieldChip key={name} label={name} />
+                    ))}
+                    {overflowFields > 0 ? (
+                      <FieldChip
+                        variant="dashed"
+                        label={shownFieldNames.length > 0 ? `${overflowFields} more` : `${row.pendingFields} fields`}
+                        aria-label={`${overflowFields} more suggested field${overflowFields === 1 ? "" : "s"}`}
+                      />
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
-              <StatusBadge status="in_review" className="shrink-0 self-center">
-                {pendingLabel}
-              </StatusBadge>
+              {/* The named field chips above are the source-backed review signal
+                  (release AI boundary: suggested fields aren't trusted until a
+                  human reviews them). The accent REVIEW chip appears on
+                  hover/focus to telegraph the action (§8.6). */}
+              <div className="flex shrink-0 items-center self-center">
+                <span aria-hidden className={HOVER_ACTION_CHIP_CLASS}>
+                  Review
+                  <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
+                </span>
+              </div>
             </Link>
           </li>
         );
@@ -468,21 +597,41 @@ function DeadlineRows({ rows }: { rows: CoreDashboardDeadlineRow[] }) {
             : row.daysRemaining === 1
               ? "1 DAY"
               : `${row.daysRemaining} DAYS`;
-        const reminderHref = `/contracts/renewals?contract=${row.contractId}`;
         return (
           <li key={row.id}>
-            {/* Row is a container, not a link, so the row-level "Remind" action
-                can sit beside the stretched primary link without nesting
-                anchors (§8.6). */}
-            <div className={`${ROW_LINK_CLASS} min-h-[3rem] gap-3`}>
-              <Link
-                href={row.href}
-                aria-label={`${row.label}: ${titleText}`}
-                className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
-              />
-              <div className="pointer-events-none relative z-[1] min-w-0 flex-1">
+            {/* Single row link to the contract record (mirrors the review row),
+                so the hover affordance is a structured span instead of a second
+                nested anchor. */}
+            <Link
+              href={row.href}
+              aria-label={`${row.label}: ${titleText}`}
+              className={`${ROW_LINK_CLASS} min-h-[3rem] gap-3`}
+            >
+              <div className="min-w-0 flex-1">
                 {showEyebrow ? (
-                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">{row.label}</p>
+                  <p className="inline-flex items-center gap-1.5">
+                    <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">{row.label}</span>
+                    {/* Trust provenance (release AI boundary): a human-approved
+                        field reads REVIEWED with the success tint (a real review
+                        state); a date computed from approved fields stays a
+                        quiet dashed COMPUTED chip, so it never reads as
+                        equivalent to an approval. */}
+                    {row.source === "derived" ? (
+                      <FieldChip
+                        variant="dashed"
+                        label="Computed"
+                        title="Computed from reviewed, source-backed dates"
+                        className="text-[9px]"
+                      />
+                    ) : (
+                      <FieldChip
+                        label="Reviewed"
+                        tone="success"
+                        title="Reviewed, source-backed date"
+                        className="text-[9px]"
+                      />
+                    )}
+                  </p>
                 ) : null}
                 <p
                   title={titleText}
@@ -491,33 +640,40 @@ function DeadlineRows({ rows }: { rows: CoreDashboardDeadlineRow[] }) {
                   {titleText}
                 </p>
                 {row.ownerLabel ? (
-                  <p className="mt-0.5 truncate text-[11.5px] leading-[1.4] text-[var(--text-tertiary)]">
+                  <p className="mt-0.5 truncate text-[11.5px] leading-[1.4] text-[var(--text-secondary)]">
                     {row.ownerLabel}
                   </p>
                 ) : null}
               </div>
-              <div className="relative z-[1] flex shrink-0 items-center gap-2.5 self-center">
-                {/* Calendar date is the anchor; the countdown reads as a caps
-                    sub-line. Urgent rows tint both as a single tonal unit. */}
-                <div className="pointer-events-none flex flex-col items-end gap-1 text-right">
-                  <TimeChip date={row.date} format="calendar" tone={urgent ? "warning" : undefined} />
+              <div className="flex shrink-0 items-center gap-2.5 self-center">
+                {/* Open affordance revealed on hover/focus (§8.6); it always
+                    occupies its slot (opacity-only), so the date column to its
+                    right never shifts on hover (§10.9). */}
+                <span aria-hidden className={HOVER_ACTION_CHIP_CLASS}>
+                  Open
+                  <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
+                </span>
+                {/* Calendar date is the stable right-edge anchor; the countdown
+                    is a caps sub-line. A min-width keeps "JUN 6" and "JUN 14"
+                    the same box so the column edge holds (§10.9); urgent rows
+                    tint both as one tonal unit. */}
+                <div className="flex flex-col items-end gap-1 text-right">
+                  <TimeChip
+                    date={row.date}
+                    format="calendar"
+                    tone={urgent ? "warning" : undefined}
+                    bordered
+                    className="min-w-[3.75rem] justify-center"
+                  />
                   <span
-                    className="ui-caps-3 text-[10px]"
+                    className="ui-caps-3 text-[10px] tabular-nums"
                     style={{ color: urgent ? "var(--warning-ink)" : "var(--text-tertiary)" }}
                   >
                     {countdown}
                   </span>
                 </div>
-                <Link
-                  href={reminderHref}
-                  prefetch={false}
-                  className="pointer-events-auto inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--accent)_8%,var(--surface-raised))] px-2.5 py-1 text-[11.5px] font-semibold leading-none text-[var(--accent-strong)] opacity-0 transition-opacity duration-150 hover:brightness-110 focus-visible:opacity-100 focus-visible:outline-none group-hover:opacity-100"
-                >
-                  Remind
-                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                </Link>
               </div>
-            </div>
+            </Link>
           </li>
         );
       })}
@@ -549,10 +705,25 @@ function WorkRows({ rows }: { rows: CoreDashboardWorkRow[] }) {
             <Link
               href={row.href}
               className={`${ROW_LINK_CLASS} min-h-[3rem] gap-3`}
-              style={isDanger ? { boxShadow: "inset 2.5px 0 0 0 var(--danger-ink)" } : undefined}
             >
+              {/* Persistent danger rail for blocked / overdue rows: a clear,
+                  intentional semantic bar that mirrors the hover accent rail's
+                  shape, replacing the faint inset shadow that read as
+                  decorative (§Work Needing Action). */}
+              {isDanger ? (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute left-0 top-1/2 h-[58%] w-[2.5px] -translate-y-1/2 rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, var(--danger-ink), color-mix(in oklab, var(--danger-ink) 65%, transparent))",
+                  }}
+                />
+              ) : null}
               <span
-                aria-hidden
+                role="img"
+                aria-label={typeLabel}
+                title={typeLabel}
                 className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
                 style={{
                   background: `color-mix(in oklab, ${ink} 14%, var(--surface))`,
@@ -571,27 +742,35 @@ function WorkRows({ rows }: { rows: CoreDashboardWorkRow[] }) {
                 </p>
                 {/* Status routes through the canonical badge; type and contract
                     stay quiet, joined by a dot separator. */}
-                <p className="mt-1 inline-flex max-w-full flex-wrap items-center gap-x-1.5 text-[11.5px] leading-[1.4] text-[var(--text-tertiary)]">
+                <p className="mt-1 inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 text-[11.5px] leading-[1.4] text-[var(--text-tertiary)]">
                   <StatusBadge status={status} className="self-center">
                     {statusLabel}
                   </StatusBadge>
-                  <span>{typeLabel}</span>
+                  {/* Type is carried by the left icon medallion (now distinct per
+                      work kind), so the redundant text label is dropped to
+                      shorten the chip chain (§Work Needing Action). */}
+                  {/* Owning contract as a structured chip (matches the activity
+                      feed's target chip) instead of a dot-separated tail. */}
                   {row.contractTitle ? (
-                    <>
-                      <span aria-hidden className="ui-dot-sep">·</span>
-                      <span className="truncate">{row.contractTitle}</span>
-                    </>
+                    <FieldChip
+                      label={row.contractTitle}
+                      title={row.contractTitle}
+                      className="max-w-[10rem] sm:max-w-[14rem]"
+                    />
                   ) : null}
                 </p>
               </div>
-              {row.dueAt ? (
-                <TimeChip
-                  date={row.dueAt}
-                  format="calendar"
-                  tone={dueTone}
-                  className="shrink-0 self-center"
-                />
-              ) : null}
+              <div className="flex shrink-0 items-center gap-2 self-center">
+                {/* Contextual action verb (Resolve / Approve / Open work …)
+                    revealed on hover/focus (§8.6). */}
+                <span aria-hidden className={HOVER_ACTION_CHIP_CLASS}>
+                  {row.actionLabel}
+                  <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
+                </span>
+                {row.dueAt ? (
+                  <TimeChip date={row.dueAt} format="calendar" tone={dueTone} className="shrink-0" bordered />
+                ) : null}
+              </div>
             </Link>
           </li>
         );
@@ -602,13 +781,21 @@ function WorkRows({ rows }: { rows: CoreDashboardWorkRow[] }) {
 
 function DataGapRows({ rows }: { rows: CoreDashboardDataGapRow[] }) {
   return (
-    <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
+    // Full-width section → two dense columns of gap rows so the width is used
+    // instead of leaving each row hugging the left edge.
+    <ul className="grid grid-cols-1 gap-x-10 md:grid-cols-2">
       {rows.map((row) => {
         const visibleFields = row.missing.slice(0, 3);
         const overflow = row.missing.slice(3);
         return (
-          <li key={row.id}>
-            <Link href={row.href} className={`${ROW_LINK_CLASS} min-h-[3rem]`}>
+          <li
+            key={row.id}
+            // Drop the bottom hairline on the last row of each column so the
+            // card ends cleanly on its rounded edge instead of reading as
+            // clipped at a cut line (§Data Gaps).
+            className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)] [&:nth-last-child(-n+2)]:border-b-0"
+          >
+            <Link href={row.href} className={`${ROW_LINK_BASE} min-h-[2.75rem] py-2`}>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13.5px] font-semibold leading-[1.3] tracking-tight text-[var(--text-primary)]">
                   {row.title}
@@ -618,32 +805,31 @@ function DataGapRows({ rows }: { rows: CoreDashboardDataGapRow[] }) {
                     right-side count. */}
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   {visibleFields.map((field) => (
-                    <span
-                      key={field}
-                      className="inline-flex max-w-[12rem] items-center rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] leading-none text-[var(--text-secondary)]"
-                    >
-                      <span className="truncate">{field}</span>
-                    </span>
+                    <FieldChip key={field} label={field} className="max-w-[12rem]" />
                   ))}
                   {overflow.length > 0 ? (
+                    // Overflow as a numeric +N count pill — visually distinct
+                    // from the field-identifier chips beside it (§Data Gaps).
                     <span
                       title={`Also missing: ${overflow.join(", ")}`}
                       aria-label={`${overflow.length} more field${overflow.length === 1 ? "" : "s"}: ${overflow.join(", ")}`}
-                      className="inline-flex cursor-help items-center rounded-md border border-dashed border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] leading-none text-[var(--text-tertiary)]"
+                      className="inline-flex shrink-0 cursor-help items-center rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold leading-none tabular-nums text-[var(--text-tertiary)]"
                     >
                       +{overflow.length}
                     </span>
                   ) : null}
                 </div>
               </div>
-              {/* Severity count chip — number only; the section title and field
-                  chips already supply the "gaps" noun. */}
-              <CountChip
-                value={row.missing.length}
-                tone="warning"
-                emphasis="strong"
-                className="hidden shrink-0 self-center sm:inline-flex"
-              />
+              {/* The visible field chips + "N more" already convey both which
+                  gaps and how many, so the old trailing count chip was redundant
+                  (§11.18) and read as disconnected. The FIX chip is revealed on
+                  hover/focus to telegraph the action (§8.6). */}
+              <div className="flex shrink-0 items-center gap-2 self-center">
+                <span aria-hidden className={HOVER_ACTION_CHIP_CLASS}>
+                  Fix
+                  <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
+                </span>
+              </div>
             </Link>
           </li>
         );
@@ -697,7 +883,6 @@ function getSection(model: CoreDashboardModel, key: DashboardSectionKey): CoreDa
 }
 
 export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
-  const planTier = titleCasePlan(model.planTier);
   const visiblePartialErrors = getCoreDashboardVisiblePartialErrors(model.partialErrors);
   const orderedSections: CoreDashboardSection[] = [
     getSection(model, "review_queue"),
@@ -706,46 +891,51 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
     getSection(model, "data_gaps"),
     getSection(model, "recent_activity"),
   ];
-  // Stack sections into two balanced columns so a short queue (e.g. Review
-  // Queue) flows straight into the next panel instead of leaving a tall void
-  // beside a long neighbour. The operational queues sit in the wider main
-  // column; the time/feed panels sit in the rail.
+  // Two-column operational/summary split, then Data Gaps spans full width
+  // beneath it. Keeping the long Data Gaps list out of a half-width column
+  // avoids the tall empty void that otherwise opens beside it once the columns'
+  // heights diverge.
   const sectionByKey = new Map<DashboardSectionKey, CoreDashboardSection>(
     orderedSections.map((section) => [section.key, section])
   );
-  const mainColumn: DashboardSectionKey[] = [
-    "review_queue",
-    "work_needing_action",
-    "data_gaps",
-  ];
+  const mainColumn: DashboardSectionKey[] = ["review_queue", "work_needing_action"];
   const railColumn: DashboardSectionKey[] = ["upcoming_deadlines", "recent_activity"];
+  const fullWidthColumn: DashboardSectionKey[] = ["data_gaps"];
 
   return (
-    <div className="ui-page-stack">
+    // Constrain the dashboard to a composed max width (the shared dashboard
+    // layout caps at 1440px — this page reads better tighter) and switch to a
+    // denser gap-5 rhythm so the metric strip sits closer to the first panel row.
+    <div className="ui-page-stack mx-auto w-full max-w-[1200px] gap-5">
       <DashboardPageHeader
-        density="compact"
-        icon={<Files className="h-[14px] w-[14px]" strokeWidth={1.85} />}
-        eyebrow={model.workspaceName}
-        suppressEyebrow={!model.workspaceName || model.workspaceName === "Workspace"}
+        icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        eyebrow="Dashboard"
         title={DASHBOARD_TITLE}
-        lead="Review queues, upcoming renewal dates, and open work across your contracts."
-        monogram={
-          model.workspaceName && model.workspaceName !== "Workspace"
-            ? model.workspaceName.slice(0, 2).toUpperCase()
-            : undefined
-        }
-        // Plan chip kept (user-relevant subscription context); contracts count
-        // dropped from the header — it's redundant with the cards below.
+        lead="Review queues, renewal deadlines, open work, evidence, and reports across your contracts."
+        // Vertically center the action cluster against the multi-line title
+        // block so the two CTAs read as attached to the title instead of
+        // floating detached in the top-right corner (§Header).
+        actionsAlign="center"
+        // Canonical flat page identity (§2.4 / §5.1): 40px product icon-tile +
+        // fixed "Dashboard" eyebrow. The workspace identity lives in the
+        // app-shell chrome, so the header uses the product icon-tile rather than
+        // a workspace monogram. A tracked-contracts count chip attaches to the
+        // h1 — portfolio size is distinct from the subset metric cards below and
+        // pulls header weight toward center so the title + actions read as one
+        // composed cluster instead of two far-apart ends.
         titleSuffix={
-          planTier ? <KeyValueChip label="Plan" value={planTier} /> : undefined
+          model.totalContracts > 0 ? (
+            <KeyValueChip label="Tracked" value={model.totalContracts} />
+          ) : undefined
         }
         actions={
           <>
             {/* Paired button treatment: primary + secondary share the same
-                pill scale so the two import affordances read as one cluster. */}
+                pill scale so the two contract-intake affordances read as one
+                cluster, top-aligned with the title block. */}
             <Link
               href="/contracts/new"
-              className="ui-btn-primary inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold"
+              className="ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-semibold"
             >
               <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               {DASHBOARD_PRIMARY_CTA}
@@ -753,7 +943,7 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
             <Link
               href="/contracts/bulk"
               prefetch={false}
-              className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold"
+              className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-semibold"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               {DASHBOARD_SECONDARY_CTA}
@@ -762,13 +952,9 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
         }
       />
 
-      <PartialDataNotice count={visiblePartialErrors.length} />
+      <ImportStatusNotice status={model.importStatus} />
 
-      <SignalSurface>
-        {model.topCards.map((card) => (
-          <TopSignal key={card.key} card={card} />
-        ))}
-      </SignalSurface>
+      <PartialDataNotice count={visiblePartialErrors.length} />
 
       {model.showPlanBanner ? (
         <div className="ui-alert-warning flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -781,19 +967,35 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
         </div>
       ) : null}
 
-      <div className="grid items-start gap-4 xl:grid-cols-12">
-        <div className="flex flex-col gap-4 xl:col-span-7">
-          {mainColumn.map((key) => {
-            const section = sectionByKey.get(key);
-            return section ? <DashboardSectionView key={key} section={section} /> : null;
-          })}
+      {/* Operational content grouped on a tighter gap-4 rhythm so the metric
+          strip sits closer to the first panel row, while the header + alerts
+          above keep the looser gap-5 stack rhythm (§Page Frame). */}
+      <div className="flex min-w-0 flex-col gap-4">
+        <SignalSurface>
+          {model.topCards.map((card) => (
+            <TopSignal key={card.key} card={card} />
+          ))}
+        </SignalSurface>
+
+        <div className="grid min-w-0 items-start gap-4 xl:grid-cols-12">
+          <div className="flex min-w-0 flex-col gap-4 xl:col-span-7">
+            {mainColumn.map((key) => {
+              const section = sectionByKey.get(key);
+              return section ? <DashboardSectionView key={key} section={section} /> : null;
+            })}
+          </div>
+          <div className="flex min-w-0 flex-col gap-4 xl:col-span-5">
+            {railColumn.map((key) => {
+              const section = sectionByKey.get(key);
+              return section ? <DashboardSectionView key={key} section={section} /> : null;
+            })}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 xl:col-span-5">
-          {railColumn.map((key) => {
-            const section = sectionByKey.get(key);
-            return section ? <DashboardSectionView key={key} section={section} /> : null;
-          })}
-        </div>
+
+        {fullWidthColumn.map((key) => {
+          const section = sectionByKey.get(key);
+          return section ? <DashboardSectionView key={key} section={section} /> : null;
+        })}
       </div>
     </div>
   );

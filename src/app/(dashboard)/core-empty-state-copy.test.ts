@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS } from "../../../e2e/authenticated-a11y-paths";
 
@@ -19,7 +19,7 @@ function dashboardPageFileForRoute(route: string): string | null {
   const trim = route.replace(/^\//, "");
   const segments = trim.split("/").filter(Boolean);
   const abs = join(process.cwd(), "src/app/(dashboard)", ...segments, "page.tsx");
-  return existsSync(abs) ? abs.replace(`${process.cwd()}/`, "") : null;
+  return existsSync(abs) ? relative(process.cwd(), abs).replace(/\\/g, "/") : null;
 }
 
 const A11Y_PAGE_FILES = [...new Set([...EXTRA_CORE_COPY_FILES, ...AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS.map(dashboardPageFileForRoute).filter(Boolean)])] as string[];

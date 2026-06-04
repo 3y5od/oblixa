@@ -58,29 +58,30 @@ export default async function NewContractPage() {
   });
 
   const nextSteps = [
-    "Review extracted fields",
+    "Review suggested fields",
     "Assign ownership",
-    "Track dates and follow-up",
+    "Track dates and work",
   ];
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-4">
-      <Link
-        href="/contracts"
-        className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
-      >
-        <ArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
-        Back to contracts
-      </Link>
-      <DashboardPageHeader
-        icon={<FilePlus2 className="h-4 w-4" strokeWidth={1.85} />}
-        eyebrow="New record"
-        title="Upload contract"
-        lead={null}
-        density="compact"
-      />
+    <div className="mx-auto flex max-w-[66rem] flex-col gap-5">
+      <div className="flex flex-col gap-2">
+        <Link
+          href="/contracts"
+          className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] shadow-[var(--shadow-1)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+        >
+          <ArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to contracts
+        </Link>
+        <DashboardPageHeader
+          icon={<FilePlus2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+          eyebrow="New contract"
+          title="Upload contract"
+          lead="Upload a signed contract, add the few fields you know, then review source-backed suggestions."
+        />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
         <section className="min-w-0">
           <UploadForm
             organizationId={ctx.orgId}
@@ -96,15 +97,15 @@ export default async function NewContractPage() {
           )}
         </section>
 
-        <aside className="overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)]">
-          <section className="px-4 py-4">
-            <p className="ui-eyebrow">After creation</p>
+        <aside className="flex flex-col gap-5 lg:sticky lg:top-6">
+          <section>
+            <p className="ui-eyebrow">Next steps</p>
             <ol className="mt-2.5 space-y-2">
               {nextSteps.map((label, index) => (
                 <li key={label} className="flex items-center gap-2.5">
                   <span
                     aria-hidden
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] font-mono text-[10px] font-semibold tabular-nums text-[var(--text-secondary)]"
+                    className="inline-flex h-5 w-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] font-mono text-[10px] font-semibold tabular-nums text-[var(--text-secondary)]"
                   >
                     {index + 1}
                   </span>
@@ -116,17 +117,20 @@ export default async function NewContractPage() {
             </ol>
           </section>
 
-          <section className="px-4 py-4">
-            <p className="ui-eyebrow">Migrate a spreadsheet</p>
-            <ActionChip
-              verb="Import CSV"
-              href="/contracts/bulk"
-              className="mt-2"
-            />
+          <section className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-5">
+            <RecentUploads files={recentFiles} />
           </section>
 
-          <section className="px-4 py-4">
-            <RecentUploads files={recentFiles} />
+          <section className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-5">
+            <p className="ui-eyebrow">Import existing tracker</p>
+            <p className="mt-1.5 text-[12px] leading-snug text-[var(--text-secondary)]">
+              Already tracking contracts in a spreadsheet? Bring the whole list in at once.
+            </p>
+            <ActionChip
+              verb="Import contracts"
+              href="/contracts/bulk"
+              className="mt-2.5"
+            />
           </section>
         </aside>
       </div>

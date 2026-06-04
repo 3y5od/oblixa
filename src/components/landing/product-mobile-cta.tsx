@@ -42,15 +42,15 @@ export function ProductMobileCta() {
     >
       <div className="product-anchor-nav-surface pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--accent-strong)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface-raised)_94%,transparent)] py-1 pl-3 pr-1 shadow-[var(--shadow-2)] backdrop-blur-md">
         <Link
-          href="/signup"
+          href="/early-access"
           className="ui-btn-primary inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold"
         >
-          Start free trial
+          Request access
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
         </Link>
         <button
           type="button"
-          aria-label="Dismiss start-free-trial banner"
+          aria-label="Dismiss early-access banner"
           onClick={() => {
             setDismissed(true);
             writeProductMobileCtaDismissed();

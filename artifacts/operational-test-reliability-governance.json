@@ -9,7 +9,7 @@
     "skipCount": 174,
     "skipProblemCount": 0,
     "testDataIsolationViolationCount": 0,
-    "visualSnapshotCount": 53,
+    "visualSnapshotCount": 138,
     "visualSuiteCount": 9
   },
   "requiredValidationCommands": [
@@ -129,16 +129,16 @@
       "test.skip": 161
     },
     "byClassification": {
-      "browser-skip": 7,
+      "browser-skip": 8,
       "ci-only-skip": 21,
-      "conditional-skip": 129,
-      "environment-skip": 122,
+      "conditional-skip": 128,
+      "environment-skip": 121,
       "file-name.skip": 11,
       "unconditional-skip": 72
     }
   },
   "testDataIsolation": {
-    "scannedTestFileCount": 1102,
+    "scannedTestFileCount": 1124,
     "requiredFixtureCount": 5,
     "missingFixtureCount": 0,
     "requiredCommandCount": 6,
@@ -228,7 +228,7 @@
     "routeMatrixCount": 4,
     "missingRouteMatrixCount": 0,
     "suiteCount": 9,
-    "snapshotCount": 53,
+    "snapshotCount": 138,
     "badSnapshotNameCount": 0,
     "routeMatrices": [
       {
@@ -258,7 +258,10 @@
         "updateCommand": "test:e2e:compatibility:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -272,7 +275,10 @@
         "updateCommand": "test:e2e:visual:persona:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -280,13 +286,16 @@
       {
         "spec": "e2e/visual.advanced.spec.ts",
         "snapshotRoot": "e2e/visual.advanced.spec.ts-snapshots",
-        "snapshotCount": 2,
+        "snapshotCount": 4,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual:advanced",
         "updateCommand": "test:e2e:visual:advanced:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -294,13 +303,16 @@
       {
         "spec": "e2e/visual.assurance.spec.ts",
         "snapshotRoot": "e2e/visual.assurance.spec.ts-snapshots",
-        "snapshotCount": 1,
+        "snapshotCount": 2,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual:assurance",
         "updateCommand": "test:e2e:visual:assurance:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -308,13 +320,16 @@
       {
         "spec": "e2e/visual.core.spec.ts",
         "snapshotRoot": "e2e/visual.core.spec.ts-snapshots",
-        "snapshotCount": 7,
+        "snapshotCount": 14,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual:auth",
         "updateCommand": "test:e2e:visual:auth:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -322,13 +337,16 @@
       {
         "spec": "e2e/visual.external.spec.ts",
         "snapshotRoot": "e2e/visual.external.spec.ts-snapshots",
-        "snapshotCount": 1,
+        "snapshotCount": 2,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual",
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -336,13 +354,16 @@
       {
         "spec": "e2e/visual.public.spec.ts",
         "snapshotRoot": "e2e/visual.public.spec.ts-snapshots",
-        "snapshotCount": 10,
+        "snapshotCount": 25,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual",
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -350,13 +371,16 @@
       {
         "spec": "e2e/visual.route-states.spec.ts",
         "snapshotRoot": "e2e/visual.route-states.spec.ts-snapshots",
-        "snapshotCount": 31,
+        "snapshotCount": 89,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual",
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0
@@ -364,13 +388,16 @@
       {
         "spec": "e2e/visual.shell.spec.ts",
         "snapshotRoot": "e2e/visual.shell.spec.ts-snapshots",
-        "snapshotCount": 1,
+        "snapshotCount": 2,
         "owner": "@test-platform",
         "runCommand": "test:e2e:visual:auth",
         "updateCommand": "test:e2e:visual:auth:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": [
+          "darwin",
+          "win32"
+        ],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance",
         "badSnapshotNameCount": 0

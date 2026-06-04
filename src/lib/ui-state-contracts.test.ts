@@ -101,6 +101,9 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     const sidebar = readFileSync(join(process.cwd(), "src/components/layout/sidebar.tsx"), "utf8");
 
     expect(globalsCss).toContain("prefers-reduced-motion");
+    expect(globalsCss).toMatch(/html\s*\{[\s\S]*overflow-x:\s*clip/);
+    expect(globalsCss).toMatch(/body\s*\{[\s\S]*overflow-x:\s*clip/);
+    expect(globalsCss).toMatch(/@supports not \(overflow: clip\)[\s\S]*html,[\s\S]*body[\s\S]*overflow-x:\s*hidden/);
     expect(globalsCss).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.ui-skeleton[\s\S]*animation:\s*none/);
     expect(loading).toContain('role="status"');
     expect(loading).toContain('aria-live="polite"');

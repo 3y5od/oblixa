@@ -637,6 +637,9 @@ jobs:
       - name: Operational public launch positioning
         run: npm run check:operational-public-launch-positioning
 
+      - name: Release-state implementation objectives
+        run: npm run check:release-state-implementation-objectives
+
       - name: Operational repository artifact hygiene
         run: npm run check:operational-repository-artifact-hygiene
 

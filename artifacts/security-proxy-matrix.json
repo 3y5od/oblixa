@@ -17,6 +17,7 @@
     ],
     "public_information_paths": [
       "/product",
+      "/early-access",
       "/pricing",
       "/contact",
       "/privacy",

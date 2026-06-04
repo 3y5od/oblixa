@@ -37,6 +37,14 @@ describe("settings policy refinement", () => {
     expect(raw).toContain("ctx.role !== \"admin\"");
   });
 
+  it("keeps the advanced registry textarea programmatically labelled", () => {
+    const raw = readFileSync(REGISTRY_FORM, "utf8");
+    expect(raw).toContain("useId");
+    expect(raw).toContain("htmlFor={registryTextareaId}");
+    expect(raw).toContain("id={registryTextareaId}");
+    expect(raw).toContain("aria-describedby={validationMessageId}");
+  });
+
   it("keeps implementation diagnostics isolated on the diagnostics route", () => {
     const raw = readFileSync(DIAGNOSTICS, "utf8");
     expect(raw).toContain("Policy diagnostics");
@@ -55,5 +63,14 @@ describe("settings policy refinement", () => {
     expect(raw).toContain("Preview only");
     expect(raw).toContain("Optional draft registry JSON");
     expect(raw).toContain('mode === "diagnostics"');
+  });
+
+  it("keeps simulation controls programmatically labelled", () => {
+    const raw = readFileSync(SIMULATION_PANEL, "utf8");
+    expect(raw).toContain("useId");
+    expect(raw).toContain("htmlFor={contractSelectId}");
+    expect(raw).toContain("id={contractSelectId}");
+    expect(raw).toContain("htmlFor={draftTextareaId}");
+    expect(raw).toContain("id={draftTextareaId}");
   });
 });

@@ -21,7 +21,7 @@ import { SEARCH_GROUP_LABELS } from "@/lib/navigation";
  *    rows visually quiet on dense lists.
  *  - `prefetch=false` by default; warmed on hover/focus.
  *  - `hidePath` strips the `/path` suffix in meta; `hideMeta` drops the line.
- *  - Synonym-match chip carries `aria-label="matched via synonym X"`.
+ *  - Synonym-match chip carries screen-reader-only context.
  */
 
 export interface ResultRowProps {
@@ -140,9 +140,7 @@ export function ResultRow({
       ref={anchorRef}
       href={item.href}
       prefetch={false}
-      role="option"
       id={rowId}
-      aria-selected={isActive}
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
@@ -163,19 +161,15 @@ export function ResultRow({
         <span className="flex items-center gap-2 text-[14px] font-semibold text-[var(--text-primary)]">
           <span>{highlightMatches(item.name, query)}</span>
           {isRecent ? (
-            <span
-              aria-label="Recently visited"
-              className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]"
-            >
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+              <span className="sr-only">Recently visited</span>
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
               <span aria-hidden>Recent</span>
             </span>
           ) : null}
           {synonymHit ? (
-            <span
-              className="inline-block rounded-full bg-[var(--surface-muted)] px-1.5 py-0.5 text-[10px] font-normal uppercase tracking-wide text-[var(--text-tertiary)]"
-              aria-label={`matched via synonym ${synonymHit.token}`}
-            >
+            <span className="inline-block rounded-full bg-[var(--surface-muted)] px-1.5 py-0.5 text-[10px] font-normal uppercase tracking-wide text-[var(--text-tertiary)]">
+              <span className="sr-only">Matched via synonym {synonymHit.token}</span>
               <span aria-hidden>via &ldquo;{synonymHit.token}&rdquo;</span>
             </span>
           ) : null}

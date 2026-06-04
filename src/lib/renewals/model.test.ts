@@ -53,6 +53,7 @@ function build(input: {
   owner?: string;
   counterparty?: string;
   status?: string;
+  review?: string;
   window?: string;
   horizon?: string;
   warnings?: string[];
@@ -66,6 +67,7 @@ function build(input: {
     owner: input.owner,
     counterparty: input.counterparty,
     status: input.status,
+    review: input.review,
     contracts: input.contracts ?? [],
     fields: input.fields ?? [],
     checkpoints: input.checkpoints ?? [],
@@ -83,7 +85,7 @@ describe("renewals page model", () => {
     expect(model.primaryCta).toBe("Create renewal task");
     expect(model.rows).toEqual([]);
     expect(model.windows.map((window) => window.label)).toEqual(["30 days", "60 days", "90 days", "180 days"]);
-    expect(RENEWALS_EMPTY_STATE).toBe("Add renewal and notice dates to see upcoming contract decisions.");
+    expect(RENEWALS_EMPTY_STATE).toBe("Add renewal and notice dates to track upcoming deadlines.");
   });
 
   it("normalizes release-state windows and legacy horizon aliases", () => {
@@ -107,6 +109,9 @@ describe("renewals page model", () => {
     });
     expect(explicit.rows[0]?.renewalDate).toBe("2026-06-20");
     expect(explicit.rows[0]?.noticeDate).toBe("2026-05-25");
+    expect(explicit.rows[0]?.renewalDateReview).toBe("reviewed");
+    expect(explicit.rows[0]?.noticeDateReview).toBe("reviewed");
+    expect(explicit.rows[0]?.noticeDateIsComputed).toBe(false);
 
     const computed = build({
       contracts: [contract()],
@@ -117,6 +122,45 @@ describe("renewals page model", () => {
       window: "90",
     });
     expect(computed.rows[0]?.noticeDate).toBe("2026-05-21");
+    // Notice date derived from the window reads as "computed", and the flag is set.
+    expect(computed.rows[0]?.noticeDateReview).toBe("computed");
+    expect(computed.rows[0]?.noticeDateIsComputed).toBe(true);
+  });
+
+  it("never reports 'reviewed' provenance for a date it cannot display", () => {
+    // An approved-but-unparseable value (e.g. "TBD") is not shown (em-dash), so
+    // its review chip must read "suggested", never "reviewed" over a blank cell.
+    const model = build({
+      contracts: [contract()],
+      fields: [
+        field("c1", "renewal_date", "TBD", "approved"),
+        field("c1", "notice_date", "2026-06-01", "approved"),
+      ],
+      window: "90",
+    });
+    expect(model.rows[0]?.renewalDate).toBeNull();
+    expect(model.rows[0]?.renewalDateReview).toBe("suggested");
+    expect(model.rows[0]?.noticeDateReview).toBe("reviewed");
+  });
+
+  it("filters rows by date review state", () => {
+    const fixtures = {
+      contracts: [
+        contract({ id: "c1", title: "Reviewed Co", counterparty: "Reviewed Co" }),
+        contract({ id: "c2", title: "Computed Co", counterparty: "Computed Co" }),
+      ],
+      fields: [
+        // c1: both dates explicitly approved → fully reviewed.
+        field("c1", "renewal_date", "2026-06-20"),
+        field("c1", "notice_date", "2026-05-25"),
+        // c2: renewal approved + notice window → notice date is computed.
+        field("c2", "renewal_date", "2026-06-20"),
+        field("c2", "notice_window", "30 days"),
+      ],
+      window: "90",
+    };
+    expect(build({ ...fixtures, review: "reviewed" }).rows.map((row) => row.id)).toEqual(["c1"]);
+    expect(build({ ...fixtures, review: "computed" }).rows.map((row) => row.id)).toEqual(["c2"]);
   });
 
   it("derives release-state statuses", () => {
@@ -135,6 +179,8 @@ describe("renewals page model", () => {
       status: "needs_review",
     });
     expect(needsReview.rows[0]?.status).toBe("needs_review");
+    // An unapproved extracted date reads as "suggested" provenance, not reviewed.
+    expect(needsReview.rows[0]?.renewalDateReview).toBe("suggested");
 
     const noticeOpen = build({
       contracts: [contract()],

@@ -6,6 +6,7 @@ export type WorkActionKey = keyof typeof WORK_ACTION_LABELS;
 
 export type WorkDueFilterKey = "" | "overdue" | "due_today" | "due_soon" | "no_due";
 export type WorkStatusFilterKey = "" | "open" | "in_progress" | "blocked" | "waiting" | "done" | "canceled";
+export type WorkSortKey = "urgency" | "due" | "updated" | "owner" | "type";
 
 export type WorkFilterState = {
   owner: string;
@@ -20,6 +21,25 @@ export type WorkActionCapability = {
   label: string;
   kind: "mutation" | "link";
   href?: string;
+  mutation?: "complete_task" | "complete_obligation";
+};
+
+export type WorkPrimaryVerb =
+  | "complete"
+  | "resolve"
+  | "review"
+  | "approve"
+  | "attach"
+  | "assign";
+
+/** The single status/type-aware primary action surfaced on each row. The
+ *  overflow menu still draws from `WorkItemRow.actions`; this only governs the
+ *  one elevated control so its verb can vary (Approve / Resolve / Attach / …). */
+export type WorkPrimaryAction = {
+  verb: WorkPrimaryVerb;
+  label: string;
+  kind: "mutation" | "link";
+  href: string;
   mutation?: "complete_task" | "complete_obligation";
 };
 
@@ -72,6 +92,7 @@ export type WorkItemRow = {
   lastUpdateLabel: string;
   href: string;
   display: WorkRowDisplayGroups;
+  primaryAction: WorkPrimaryAction;
   actions: WorkActionCapability[];
 };
 
@@ -102,8 +123,27 @@ export type WorkPageModel = {
   activeTab: WorkTabKey;
   filters: WorkFilterState;
   tabs: WorkTabSummary[];
+  /** The current page slice of the active tab's rows (already sorted). */
   rows: WorkItemRow[];
   totalVisibleRows: number;
+  /** Pagination for the active tab. `total` is the full tab row count; `rows`
+   *  holds only the current page. */
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+  /** Active sort key + the available sort options for the control. */
+  sort: WorkSortKey;
+  sortOptions: WorkOption[];
+  /** Queue-wide counts over the filtered set (pre-tab), for the header KPIs. */
+  summary: {
+    blocked: number;
+    overdue: number;
+    dueSoon: number;
+    unassigned: number;
+  };
   filterOptions: {
     owners: WorkOption[];
     contracts: WorkOption[];
@@ -124,6 +164,8 @@ export type WorkModelSearchInput = {
   status?: string | null;
   type?: string | null;
   create?: string | null;
+  page?: string | null;
+  sort?: string | null;
 };
 
 export type WorkModelLoadInput = WorkModelSearchInput & {

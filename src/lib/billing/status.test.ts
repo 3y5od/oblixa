@@ -15,7 +15,7 @@ describe("subscriptionStatusBadge", () => {
 
   it("returns info for trialing", () => {
     const badge = subscriptionStatusBadge({ status: "trialing" });
-    expect(badge.label).toBe("Trial");
+    expect(badge.label).toBe("Evaluation");
     expect(badge.tone).toBe("info");
   });
 
@@ -51,9 +51,9 @@ describe("subscriptionStatusBadge", () => {
 
   // Finishing-pass §1.9 + §1.12 — Free is the baseline zero-state per
   // spec §2.11, not info-tone. Reverted from polish-pass §8.1.
-  it("returns empty 'Free plan' for none (canonical zero-state tone)", () => {
+  it("returns early-access label for none (canonical zero-state tone)", () => {
     const badge = subscriptionStatusBadge({ status: "none" });
-    expect(badge.label).toBe("Free plan");
+    expect(badge.label).toBe("Early access");
     expect(badge.tone).toBe("empty");
   });
 

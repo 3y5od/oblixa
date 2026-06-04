@@ -15,11 +15,17 @@ import { parseFixedEnumParam } from "@/lib/security/validation";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 
 const ROUTE = "/api/export/reports";
+// Superset of every report-domain status the toolbar can offer
+// (see REPORT_STATUS_DOMAIN in src/lib/reports/model.ts). Keep these in sync —
+// a status the preview filters by but this enum rejects is silently dropped on
+// export, so the downloaded CSV would not match the on-screen preview.
 const REPORT_EXPORT_STATUSES = [
   "",
   "active",
   "pending_review",
   "draft",
+  "expired",
+  "terminated",
   "open",
   "in_progress",
   "blocked",

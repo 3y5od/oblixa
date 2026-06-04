@@ -1,5 +1,7 @@
 export const WORK_EYEBROW = "Contract work";
 export const WORK_PAGE_TITLE = "Work";
+export const WORK_LEAD =
+  "Track contract follow-up, approvals, obligations, exceptions, and evidence requests in one queue.";
 export const WORK_PRIMARY_CTA = "Create work item";
 export const WORK_EMPTY_STATE = "Create work from a contract date, obligation, approval, or exception.";
 export const WORK_PARTIAL_DATA_TITLE = "Work data is partially unavailable";
@@ -47,7 +49,19 @@ export const WORK_ACTION_LABELS = {
   change_due_date: "Change due date",
   comment: "Comment",
   link_evidence: "Link evidence",
-  escalate: "Escalate",
+} as const;
+
+// Status/type-aware verb for the single primary row action. Distinct from
+// WORK_ACTION_LABELS (the fixed overflow-menu vocabulary) so the primary
+// control can read "Approve"/"Resolve"/"Attach" without disturbing the
+// pinned menu action set.
+export const WORK_PRIMARY_ACTION_LABELS = {
+  complete: "Complete",
+  resolve: "Resolve",
+  review: "Review",
+  approve: "Approve",
+  attach: "Attach",
+  assign: "Assign",
 } as const;
 
 export const WORK_TYPE_LABELS = {

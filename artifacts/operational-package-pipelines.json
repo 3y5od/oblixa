@@ -3,16 +3,16 @@
   "schemaVersion": 1,
   "source": "code-owned-operational-package-pipeline-governance",
   "generatedFrom": "config/operational-package-pipelines.json",
-  "packageScriptCount": 909,
-  "operationalScriptCount": 867,
+  "packageScriptCount": 911,
+  "operationalScriptCount": 869,
   "packageGraph": {
-    "nodeCount": 909,
+    "nodeCount": 911,
     "edgeCount": 92,
     "cycleCount": 0,
     "aliasOnlyCount": 46,
     "missingReferenceCount": 0
   },
-  "workflowScriptReferenceCount": 448,
+  "workflowScriptReferenceCount": 449,
   "requiredCommands": [
     {
       "id": "ci-parity-pipeline",
@@ -76,9 +76,9 @@
     }
   ],
   "tierCoverage": {
-    "checkScripts": 536,
+    "checkScripts": 537,
     "manifestScripts": 108,
-    "allowlist": 478,
+    "allowlist": 479,
     "uncovered": 0,
     "orphanAllowlist": 0
   },
@@ -196,9 +196,9 @@
     "generatedArtifactHygiene": {
       "ok": true,
       "issueCount": 0,
-      "artifactCount": 104,
-      "deterministicArtifactCount": 83,
-      "safeToRegenerateCount": 85
+      "artifactCount": 105,
+      "deterministicArtifactCount": 84,
+      "safeToRegenerateCount": 86
     }
   },
   "generatedArtifacts": [
@@ -683,6 +683,13 @@
       "ownerArea": "frontend-platform",
       "deterministic": false,
       "writeCommand": null,
+      "cleanupPolicy": "regenerate-on-check-drift"
+    },
+    {
+      "path": "artifacts/release-state-implementation-objectives.json",
+      "ownerArea": "product-surface",
+      "deterministic": true,
+      "writeCommand": "npm run write:release-state-implementation-objectives",
       "cleanupPolicy": "regenerate-on-check-drift"
     },
     {

@@ -38,7 +38,8 @@ describe("refinement §14 contextual entry anchors", () => {
 
   it("work queue rows link to /contracts/[id] when contract_id is present", () => {
     const raw = readFileSync(join(process.cwd(), WORK), "utf8");
-    expect(raw).toContain("row.display.identity.linkedContract.href");
+    expect(raw).toContain("row.display.identity.linkedContract");
+    expect(raw).toContain("contract.href");
     expect(raw).toContain("row.display.identity.title.href ?? row.href");
   });
 });

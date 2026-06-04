@@ -1637,7 +1637,7 @@
         "authModel": "session",
         "runtime": "nodejs_default",
         "cachePolicy": "private_no_store",
-        "rateLimitPolicy": "standard_or_not_applicable",
+        "rateLimitPolicy": "explicit",
         "requestSchemaEvidence": "no_body_expected",
         "responseSchemaEvidence": {
           "openApiPath": "/api/command-palette/contracts",
@@ -7171,7 +7171,7 @@
         "authModel": "session",
         "runtime": "nodejs_default",
         "cachePolicy": "private_no_store",
-        "rateLimitPolicy": "standard_or_not_applicable",
+        "rateLimitPolicy": "explicit",
         "requestSchemaEvidence": "no_body_expected",
         "responseSchemaEvidence": {
           "openApiPath": "/api/report-packs/{id}/runs",

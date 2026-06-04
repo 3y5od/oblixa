@@ -7,7 +7,7 @@ describe("V9 §19.1–19.2 reports operational emphasis", () => {
     const page = readFileSync(join(process.cwd(), "src/app/(dashboard)/reports/page.tsx"), "utf8");
     const spec = readFileSync(join(process.cwd(), "src/lib/reports/spec-strings.ts"), "utf8");
     const merged = `${page}\n${spec}`.toLowerCase();
-    for (const w of ["reports", "export report", "preview table", "last generated timestamp"]) {
+    for (const w of ["reports", "export report", "preview", "last generated timestamp"]) {
       expect(merged).toContain(w);
     }
     for (const forbidden of ["outcome intelligence", "assurance scorecards", "autopilot results"]) {

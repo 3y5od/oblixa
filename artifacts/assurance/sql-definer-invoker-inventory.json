@@ -80,8 +80,8 @@
     {
       "function": "cleanup_code_owned_transient_data",
       "owner": "platform-security",
-      "file": "supabase/migrations/080_code_owned_transient_retention_cleanup.sql",
-      "line": 101,
+      "file": "supabase/migrations/090_fix_retention_cleanup_calendar_feed_reason.sql",
+      "line": 2,
       "language": "plpgsql",
       "volatility": "volatile",
       "search_path": "public, pg_temp",

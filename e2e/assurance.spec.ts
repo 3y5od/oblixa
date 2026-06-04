@@ -30,6 +30,12 @@ async function loginAsTestUser(page: Page) {
   throw new Error("Login did not reach /dashboard and was not rate-limited.");
 }
 
+async function expectAssuranceContentLoaded(page: Page) {
+  const main = page.getByRole("main");
+  await expect(main).toBeVisible();
+  await expect(main.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+}
+
 test.describe("assurance hub", () => {
   test.skip(
     !E2E_EMAIL || !E2E_PASSWORD,
@@ -57,7 +63,7 @@ test.describe("assurance hub", () => {
       }
       throw new Error("Unexpected 404 for /assurance/findings");
     }
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectAssuranceContentLoaded(page);
   });
 
   test("health graph, scorecards, and review boards pages load when deployed", async ({ page }) => {
@@ -78,7 +84,7 @@ test.describe("assurance hub", () => {
         }
         throw new Error(`Unexpected 404 for ${path}`);
       }
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 15_000 });
+      await expectAssuranceContentLoaded(page);
     }
   });
 
@@ -100,7 +106,7 @@ test.describe("assurance hub", () => {
         }
         throw new Error(`Unexpected 404 for ${path}`);
       }
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 15_000 });
+      await expectAssuranceContentLoaded(page);
     }
   });
 

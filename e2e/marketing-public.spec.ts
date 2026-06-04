@@ -1,8 +1,20 @@
 import { test, expect } from "./fixtures/app-fixture";
 import { GENERATED_PUBLIC_ROUTES } from "./generated/public-routes";
+import { settleWebKitWorker } from "./fixtures/webkit-worker-teardown";
 import { PublicMarketingPO } from "./page-objects/PublicMarketingPO";
 
 test.describe("public marketing surfaces", () => {
+  test.afterAll(async ({}, testInfo) => {
+    await settleWebKitWorker(testInfo);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+    if (!page.isClosed()) {
+      await page.close({ runBeforeUnload: false });
+    }
+  });
+
   test("unauthenticated pages return 200", async ({ page }) => {
     const marketing = new PublicMarketingPO(page);
     for (const route of GENERATED_PUBLIC_ROUTES) {

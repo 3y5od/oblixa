@@ -43,6 +43,13 @@ const ALLOWLIST = [
     expires: "2027-12-31",
   },
   {
+    path: "scripts/windows-enable-wsl-features.ps1",
+    rules: ["reviewed_script_extension"],
+    owner: "developer-experience",
+    reason: "Windows setup helper that requires explicit administrator execution to enable WSL2 prerequisites.",
+    expires: "2027-12-31",
+  },
+  {
     path: "visual-export.js",
     rules: ["shebang"],
     owner: "frontend-platform",

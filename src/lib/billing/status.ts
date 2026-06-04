@@ -82,11 +82,11 @@ export function subscriptionStatusBadge(
       };
     case "trialing":
       return {
-        label: "Trial",
+        label: "Evaluation",
         tone: "info",
         icon: CheckCircle,
         srLabel:
-          "Trial active. Convert to paid plan to retain access after trial ends.",
+          "Evaluation active. Contact support to review continued billing access.",
       };
     case "past_due":
       return {
@@ -128,21 +128,21 @@ export function subscriptionStatusBadge(
     case "none":
     default:
       return {
-        label: "Free plan",
+        label: "Early access",
         // Finishing-pass §1.9 + §1.12 — Per spec §10.2 "Status earns
         // color" + §2.11 zero-state pattern: Free is the baseline (not
         // an active risk/healthy/info state). Empty tone reads as
         // "intentional zero state" — the spec-faithful choice.
         tone: "empty",
         icon: CheckCircle,
-        srLabel: "Workspace is on the free plan.",
+        srLabel: "Workspace is in early-access billing review.",
       };
   }
 }
 
 /**
- * Trial-end edge cases. Per docs/billing-page-maximal-pass.md §7.3.
- * Computes a banner-friendly string from a Stripe `trial_end` epoch.
+ * Evaluation-end edge cases. Computes a banner-friendly string from a
+ * Stripe `trial_end` epoch when legacy Stripe state is present.
  */
 export function formatTrialEnd(trialEnd: number): string {
   const now = Date.now();

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const gateCronRequest = vi.fn();
 const createAdminClient = vi.fn();
@@ -40,6 +40,10 @@ vi.mock("@/lib/rate-limit", async () => {
 });
 
 describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -114,6 +118,45 @@ describe("GET /api/cron/v6/onboarding-calibration-stale", () => {
     expect(typeof body.orgs_processed).toBe("number");
     expect(typeof body.errors_count).toBe("number");
     expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
+  });
+
+  it("uses a static cron rate-limit key in non-Vercel production mode", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("OBLIXA_TRUST_FORWARDED_IP", "");
+    gateCronRequest.mockReturnValueOnce(null);
+    rateLimitCheck.mockResolvedValueOnce({ ok: true });
+    createAdminClient.mockResolvedValueOnce({});
+    runCron.mockResolvedValueOnce({
+      ok: true,
+      scanned: 0,
+      expired: 0,
+      would_expire: 0,
+      skipped_ineligible: 0,
+      skipped_stale_race: 0,
+      skipped_bad_timestamp: 0,
+      skipped_missing_org_created_at: 0,
+      errors_no_admin: 0,
+      errors_merge: 0,
+      errors_count: 0,
+      truncation_warning: false,
+      org_cap: 500,
+      backpressure_ms: 0,
+      dry_run: false,
+    });
+
+    const { GET } = await import("./route");
+    const res = await GET(
+      new Request("http://127.0.0.1:3000/api/cron/v6/onboarding-calibration-stale", {
+        headers: { "x-forwarded-for": "203.0.113.10" },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(rateLimitCheck).toHaveBeenCalledWith(
+      "cron:v6:onboarding-calibration-stale",
+      expect.objectContaining({ max: expect.any(Number), windowMs: expect.any(Number) })
+    );
   });
 
   it("returns 429 when rate limit fails", async () => {

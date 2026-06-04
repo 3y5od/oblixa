@@ -9,6 +9,11 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /security	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
 /accessibility	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
 /cookies	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
+/product	y	y	marketing_public,current_product_core	pending_human	y	0	n	product_segment_loading
+/pricing	y	y	marketing_public	pending_human	n	0	n	public_pricing
+/early-access	n	n	marketing_public	pending_human	n	0	n	public_signup_interest
+/contact	y	y	marketing_public	pending_human	n	0	n	public_contact_form
+/acceptable-use	n	n	marketing_public	pending_human	n	0	n	public_policy
 /dashboard	y	y	authenticated,v3,v5,v6	pending_human	y	0	n	
 /dashboard/persona	n	n	v3_workflows	pending_human	y	0	n	tier3_axe_candidate
 /work	y	y	authenticated	pending_human	y	0	n	dashboard_segment_loading
@@ -17,7 +22,7 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /settings	y	y	authenticated	pending_human	y	1	n	UI-2026-001_layout_fixed
 /settings/operations	y	y	authenticated	pending_human	n	0	n	
 /settings/security	y	y	authenticated	pending_human	y	0	n	settings_segment_loading
-/settings/billing	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/settings/billing	n	n	manual	pending_human	y	0	n	settings_billing_loading
 /settings/health	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
 /settings/health/diagnostics	n	n	authenticated_nav	pending_human	n	0	n	tier3_axe_candidate
 /settings/policy	y	y	authenticated	pending_human	n	0	n	
@@ -38,6 +43,7 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /contracts/review	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
 /contracts/review-cadence	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
 /contracts/bulk	n	n	manual	pending_human	n	0	n	tier3_axe_candidate
+/contracts/imports/[jobId]	n	n	authenticated,current_product_core	pending_human	y	0	n	import_job_status_loading
 /contracts/collaboration	y	y	authenticated	pending_human	n	0	n	tier3_axe_candidate
 /contracts/data-quality	y	y	authenticated,v3	pending_human	y	0	n	
 /contracts/analytics	y	y	authenticated,v3_workflows	pending_human	y	0	n	tier3_axe_candidate

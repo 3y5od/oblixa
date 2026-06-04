@@ -2,8 +2,9 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { revokeOrgInvite, resendOrgInvite } from "@/actions/settings";
+import { TimeChip } from "@/components/ui/time-chip";
+import { CountChip } from "@/components/ui/count-chip";
 
 export interface PendingInviteRow {
   id: string;
@@ -26,24 +27,35 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
   if (invites.length === 0) return null;
 
   return (
-    <div className="ui-page-shell mt-6 p-4">
-      <p className="ui-eyebrow">Access</p>
-      <h4 className="ui-section-title mt-1 text-base">Pending invites</h4>
-      <p className="ui-support-copy mt-1">
-        Invites that have not been accepted yet. Resend to refresh the email; revoke to cancel.
+    // §10.5 — flat hairline section, not a nested ui-page-shell card inside the
+    // Team access card. Matches the invite form's separator vocabulary.
+    <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
+      <div className="flex items-center gap-2">
+        <h4 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
+          Pending invites
+        </h4>
+        <CountChip value={invites.length} />
+      </div>
+      <p className="mt-1 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+        Not accepted yet. Resend to refresh the email, or revoke to cancel.
       </p>
-      <ul className="mt-3 divide-y divide-[var(--border-subtle)]/90">
+      <ul role="list" className="mt-3 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
         {invites.map((inv) => (
           <li
             key={inv.id}
-            className="flex flex-col gap-2 py-3 first:pt-0 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 py-2.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
           >
-            <div>
-              <p className="text-sm font-semibold tracking-tight text-[var(--text-primary)]">{inv.email}</p>
-              <p className="ui-support-copy text-xs">
-                {roleLabels[inv.role] || inv.role} · expires{" "}
-                {format(new Date(inv.expires_at), "MMM d, yyyy")}
-              </p>
+            <div className="min-w-0">
+              <p className="truncate font-mono text-[12.5px] text-[var(--text-secondary)]">{inv.email}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="ui-caps-2 inline-flex items-center whitespace-nowrap rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]">
+                  {roleLabels[inv.role] || inv.role}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Expires</span>
+                  <TimeChip date={inv.expires_at} format="calendar" bordered />
+                </span>
+              </div>
             </div>
             <div className="flex shrink-0 gap-2">
               <button
@@ -59,7 +71,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                     router.refresh();
                   });
                 }}
-                className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] disabled:opacity-50"
+                className="ui-chip-focus inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-strong))] hover:text-[var(--accent-strong)] disabled:pointer-events-none disabled:opacity-50"
               >
                 Resend invite
               </button>
@@ -77,7 +89,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                     router.refresh();
                   });
                 }}
-                className="ui-btn-danger min-h-0 px-3 py-1.5 text-xs disabled:opacity-50"
+                className="ui-btn-danger min-h-0 rounded-full px-3 py-1.5 text-xs disabled:pointer-events-none disabled:opacity-50"
               >
                 Revoke invite
               </button>

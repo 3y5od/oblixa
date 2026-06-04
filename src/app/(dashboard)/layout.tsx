@@ -74,12 +74,6 @@ export default async function DashboardLayout({
 
   return (
     <div className="ui-app-shell flex min-h-dvh">
-      <a
-        href={`#${MAIN_CONTENT_ID}`}
-        className="sr-only fixed left-3 top-3 z-[var(--z-modal,50)] focus:not-sr-only focus:inline-flex focus:items-center focus:rounded-md focus:bg-[var(--surface-raised)] focus:px-3 focus:py-2 focus:text-[12.5px] focus:font-semibold focus:text-[var(--accent-strong)] focus:shadow-[var(--shadow-2)] focus:outline-none focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent)_50%,var(--surface-raised)),0_0_0_4px_color-mix(in_oklab,var(--accent)_18%,transparent)]"
-      >
-        Skip to main content
-      </a>
       <UiRouteProgress />
       <RefetchOnWindowFocus />
       <V9PageLoadReporter />
@@ -89,7 +83,7 @@ export default async function DashboardLayout({
         navSurface={navSurface}
         showToolsLink={showHeaderUtilitiesLink}
       />
-      <div data-app-content className="flex min-h-dvh min-w-0 flex-1 flex-col bg-transparent">
+      <div data-app-content className="flex min-h-dvh min-w-0 flex-1 flex-col overflow-x-clip bg-transparent">
         <Header
           fullName={ctx?.user?.user_metadata?.full_name}
           email={ctx?.user?.email}
@@ -105,9 +99,9 @@ export default async function DashboardLayout({
         <main
           id={MAIN_CONTENT_ID}
           tabIndex={-1}
-          className="flex-1 px-4 py-5 outline-none md:px-6 md:py-6 xl:px-8"
+          className="flex-1 overflow-x-clip px-4 py-5 outline-none md:px-6 md:py-6 xl:px-8"
         >
-          <div className="ui-page-stack mx-auto max-w-[1440px] pb-2">{children}</div>
+          <div className="ui-page-stack mx-auto w-full min-w-0 max-w-[1440px] overflow-x-clip pb-2">{children}</div>
         </main>
         <LegalFooter />
       </div>

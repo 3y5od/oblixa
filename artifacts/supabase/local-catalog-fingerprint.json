@@ -4,7 +4,7 @@
   "sourceDirectory": "supabase/migrations",
   "migrationCount": 89,
   "latestMigration": "089_sql_neutral_table_view_aliases.sql",
-  "migrationRollupSha256": "3ae442bfabd09366bb06504bf128b890f6cbad52ffd4f07aff38e715591e2e77",
+  "migrationRollupSha256": "cf6e68da5741f8ab40e99c7716cd4f986e099a44a35020807f79d99d937230ba",
   "sectionOrder": [
     "tables",
     "columns",

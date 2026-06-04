@@ -460,9 +460,7 @@ export default async function PersonaDashboardPage(props: {
       </header>
       <section className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="shrink-0">
-            <h2 className="ui-section-title text-base">Work views</h2>
-          </div>
+          <div className="shrink-0"><h2 className="ui-section-title text-base" style={{ color: "var(--text-primary)" }}>Work views</h2></div>
           <nav aria-label="Work views" className="flex min-w-0 flex-wrap gap-2">
             {PERSONA_PRESETS.map((preset) => {
               const active = preset.persona === persona;
@@ -471,10 +469,11 @@ export default async function PersonaDashboardPage(props: {
                   key={preset.id}
                   href={preset.href}
                   aria-current={active ? "page" : undefined}
+                  style={active ? { backgroundColor: "var(--text-primary)", borderColor: "var(--text-primary)", color: "var(--surface)" } : { color: "var(--text-primary)" }}
                   className={`ui-operational-focusable rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
                     active
-                      ? "border-[var(--accent-strong)] bg-[var(--accent-strong)] text-[var(--accent-fg)] shadow-[var(--shadow-1)]"
-                      : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
+                      ? "shadow-[var(--shadow-1)]"
+                      : "border-[var(--border-subtle)] bg-[var(--surface)] hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,transparent)]"
                   }`}
                 >
                   {preset.label}

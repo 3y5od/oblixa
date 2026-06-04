@@ -4,6 +4,7 @@
  */
 // skip-meta-default: owner=@test-governance expiry=2026-12-31 reason=credential_gated_e2e_workflow_matrix
 import { test, expect } from "./fixtures/app-fixture";
+import { DASHBOARD_TITLE } from "@/lib/dashboard/spec-strings";
 import { AuthPO } from "./page-objects/AuthPO";
 import { ContractsPO } from "./page-objects/ContractsPO";
 import { DashboardPO } from "./page-objects/DashboardPO";
@@ -66,7 +67,7 @@ test.describe("auth workflow matrix", () => {
     if (E2E_ROLE_LABEL) {
       test.info().annotations.push({ type: "e2e-role", description: E2E_ROLE_LABEL });
     }
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: DASHBOARD_TITLE })).toBeVisible();
   });
 
   test("saved view mutation: save current filters when form is available", async ({ page, app }) => {

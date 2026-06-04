@@ -25,6 +25,8 @@ function writeValidFixture(root) {
       "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=",
       "NEXT_PUBLIC_APP_URL=http://localhost:3000",
       "# NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB=1",
+      "# NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY=1",
+      "# NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV=1",
       "# NEXT_PUBLIC_INLINE_QUEUE_ACTIONS=",
       "# NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS=",
       "# NEXT_PUBLIC_SUPPORT_DIAGNOSTICS=",
@@ -59,6 +61,16 @@ function writeValidFixture(root) {
     root,
     "src/lib/debugging-sweep/client-sweep-bridge.tsx",
     '"use client";\nimport * as Sentry from "@sentry/nextjs";\nexport function Bridge(){ if (process.env.NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB === "1") Sentry.addBreadcrumb({ category: "sweep_client", message: "client-bridge-mounted" }); return null; }\n'
+  );
+  write(
+    root,
+    "src/instrumentation-client.ts",
+    'export const enabled = process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV === "1";\n'
+  );
+  write(
+    root,
+    "src/components/layout/page-load-reporter.tsx",
+    'export const enabled = process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY === "1";\n'
   );
   write(
     root,

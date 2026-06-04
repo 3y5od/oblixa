@@ -747,13 +747,41 @@ async function queryRowsByContractIds(
   return rows;
 }
 
+const CONTRACT_SCOPED_ARCHIVE_TABLES = new Set([
+  "v10_activation_state",
+  "v10_work_items",
+  "v10_contract_health_snapshots",
+  "v10_job_run_visibility",
+  "v10_contract_activity_events",
+  "v10_field_provenance_records",
+  "v10_renewal_posture_snapshots",
+  "v10_evidence_request_statuses",
+  "v10_obligation_records",
+  "v10_approval_records",
+  "v10_exception_records",
+  "v10_notification_deliveries",
+  "v10_renewal_checkpoint_records",
+  "v10_external_evidence_submissions",
+]);
+
+function canArchiveBeforeScopedUpsert(
+  table: string,
+  rows: readonly Row[],
+  scopedContractId: string | null
+): boolean {
+  if (!scopedContractId) return true;
+  if (!CONTRACT_SCOPED_ARCHIVE_TABLES.has(table)) return false;
+  return rows.every((row) => asString(row.contract_id) === scopedContractId);
+}
+
 async function replaceRows(
   admin: Admin,
   table: string,
   organizationId: string,
   rows: Row[],
-  refreshedAt: string
-): Promise<string | null> {
+  refreshedAt: string,
+  options: { scopedContractId?: string | null } = {}
+): Promise<{ failure: string | null; archivedBeforeUpsert: boolean }> {
   const onConflict = getV10ReadModelUpsertConflict(table);
   const rpcAdmin = admin as Admin & {
     rpc?: (
@@ -761,7 +789,12 @@ async function replaceRows(
       args: Record<string, unknown>
     ) => Promise<{ data: unknown; error: { message?: string } | null }>;
   };
-  if (typeof rpcAdmin.rpc === "function") {
+  const archivedBeforeUpsert = canArchiveBeforeScopedUpsert(
+    table,
+    rows,
+    options.scopedContractId ?? null
+  );
+  if (typeof rpcAdmin.rpc === "function" && archivedBeforeUpsert) {
     const { error } = await rpcAdmin.rpc("replace_v10_read_model_rows", {
       p_table_name: table,
       p_organization_id: organizationId,
@@ -772,9 +805,9 @@ async function replaceRows(
     if (error) {
       const message = `[v10-refresh] replace ${table} failed: ${error.message ?? "unknown error"}`;
       console.error(message);
-      return message;
+      return { failure: message, archivedBeforeUpsert };
     }
-    return null;
+    return { failure: null, archivedBeforeUpsert };
   }
 
   if (rows.length > 0) {
@@ -782,10 +815,10 @@ async function replaceRows(
     if (error) {
       const message = `[v10-refresh] upsert ${table} failed: ${error.message}`;
       console.error(message);
-      return message;
+      return { failure: message, archivedBeforeUpsert: false };
     }
   }
-  return null;
+  return { failure: null, archivedBeforeUpsert: false };
 }
 
 function getV10ReadModelUpsertConflict(table: string): string {
@@ -3757,14 +3790,23 @@ export async function refreshV10ReadModelsForOrganization(
   ];
   const replaceCandidateBatches = writeBatches.filter((batch) => batch.rows.length > 0);
 
-  const writeFailures =
+  const writeResults =
     refreshScope === "dry_run" || sourceFailures.length > 0
       ? []
-      : (
-          await Promise.all(
-            replaceCandidateBatches.map((batch) => replaceRows(admin, batch.table, organizationId, batch.rows, refreshedAt))
-          )
-        ).filter((failure): failure is string => Boolean(failure));
+      : await Promise.all(
+          replaceCandidateBatches.map(async (batch) => ({
+            table: batch.table,
+            ...(await replaceRows(admin, batch.table, organizationId, batch.rows, refreshedAt, {
+              scopedContractId,
+            })),
+          }))
+        );
+  const writeFailures = writeResults
+    .map((result) => result.failure)
+    .filter((failure): failure is string => Boolean(failure));
+  const archivedBeforeUpsertTables = writeResults
+    .filter((result) => result.archivedBeforeUpsert)
+    .map((result) => result.table);
 
   const targetCounts = {
     work_items: scopedGenericReadModels.work_items.length,
@@ -3854,7 +3896,7 @@ export async function refreshV10ReadModelsForOrganization(
       scoped_contract_id: scopedContractId,
       changed_since: options.changedSince?.toISOString() ?? null,
       selected_model_keys: selectedModelKeys,
-      archived_before_upsert_tables: refreshScope === "dry_run" || sourceFailures.length > 0 ? [] : replaceCandidateBatches.map((batch) => batch.table),
+      archived_before_upsert_tables: archivedBeforeUpsertTables,
       failed_source_tables: failedSourceTables,
       stale_source_tables: [...diagnosticBackfillPlan.staleSourceTables],
       expected_source_table_count: diagnosticBackfillPlan.expectedSourceTables.length,

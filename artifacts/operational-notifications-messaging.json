@@ -12,7 +12,7 @@
   "delegatedCheckCount": 5,
   "runtimeInventory": {
     "operationalRegistryStaticRows": 5,
-    "releaseEmailTemplateKeys": 21,
+    "releaseEmailTemplateKeys": 15,
     "notificationTaxonomyRows": 26
   },
   "commands": [
@@ -175,7 +175,7 @@
       "path": "src/lib/operational-notifications-messaging.ts",
       "owner": "@billing",
       "validationCommand": "test:vitest:current-product",
-      "markerCount": 3,
+      "markerCount": 4,
       "missingCount": 0,
       "ok": true
     },
@@ -454,9 +454,9 @@
       "checkId": "user-facing-interactions",
       "ok": true,
       "issueCount": 0,
-      "routeCount": 77,
-      "interactionCount": 1027,
-      "openInteractionRiskCount": 59
+      "routeCount": 79,
+      "interactionCount": 1050,
+      "openInteractionRiskCount": 67
     }
   ],
   "manualBoundary": "Provider deliverability dashboards, recipient mailbox behavior, and live notification destination verification remain external; this artifact enforces repository-owned message inventory, eligibility, rendering, retry, and dead-letter controls.",

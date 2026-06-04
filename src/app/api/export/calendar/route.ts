@@ -114,7 +114,7 @@ export async function GET(request: Request) {
       organizationId: membership.organization_id,
       actorUserId: user.id,
       action: "export.calendar.completed",
-      targetType: "organization",
+      targetType: "runtime_artifact",
       targetId: membership.organization_id,
       outcome: "success",
       safeMetadata: {

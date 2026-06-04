@@ -46,7 +46,7 @@
       "validationCommand": "npm run check:versioned-exported-symbol-aliases",
       "safeActionStatus": "exhausted",
       "pendingSafeActionCount": 0,
-      "completedActionCount": 1130,
+      "completedActionCount": 1132,
       "reason": "All non-manual exported-symbol aliases must be added or intentionally queued."
     },
     {
@@ -108,10 +108,10 @@
         "apiRoutes": 1,
         "cronRoutes": 32,
         "environmentKeys": 24,
-        "exportedSymbolAliases": 1148,
+        "exportedSymbolAliases": 1150,
         "packageScriptAliases": 37,
         "sqlObjects": 75,
-        "telemetryEventNames": 74
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -146,8 +146,8 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1532,
-        "exportDownloadContracts": 171
+        "contentContractAliases": 1574,
+        "exportDownloadContracts": 168
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -173,12 +173,12 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1532,
+        "contentContractAliases": 1574,
         "cronRoutes": 32,
         "environmentKeys": 24,
         "packageScriptAliases": 37,
         "sqlObjects": 75,
-        "telemetryEventNames": 74
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -234,7 +234,7 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1532,
+        "contentContractAliases": 1574,
         "cronRoutes": 32
       },
       "uncoveredManualCount": 0,
@@ -260,7 +260,7 @@
         "migrationHistoryFilenames": 37,
         "seedVersionedNames": 1,
         "sqlObjects": 75,
-        "sqlSecurityAutomation": 67
+        "sqlSecurityAutomation": 68
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -295,8 +295,8 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1532,
-        "telemetryEventNames": 74
+        "contentContractAliases": 1574,
+        "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,

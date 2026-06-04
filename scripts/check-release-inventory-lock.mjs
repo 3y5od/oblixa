@@ -119,7 +119,7 @@ function classifyRouteBoundary(routePath) {
     [/^\/api\/assurance\/|^\/assurance\//, "assurance", "assurance", "assurance_route_catalog_promotion"],
     [/^\/api\/(autopilot|campaigns|capacity|command-centers|control-policies|decisions|intelligence|maintenance|playbooks|policy|program-evolution|programs|review-boards|segments|simulations)(\/|$)/, "advanced", "advanced", "advanced_route_catalog_promotion"],
     [/^\/(campaigns|decisions|relationship-workspaces|onboarding)\b/, "advanced", "advanced", "advanced_dashboard_catalog_promotion"],
-    [/^\/contracts\/(analytics|approvals\/sla-simulator|approvals\/workload|bulk|collaboration|data-quality|execution-graph|intake|maintenance|new|programs|review-cadence|watchlists)\b/, "contracts", "core", "contract_surface_catalog_promotion"],
+    [/^\/contracts\/(analytics|approvals\/sla-simulator|approvals\/workload|bulk|collaboration|data-quality|execution-graph|imports|intake|maintenance|new|programs|review-cadence|watchlists)\b/, "contracts", "core", "contract_surface_catalog_promotion"],
     [/^\/api\/external-actions\//, "evidence", "core", "external_token_boundary"],
     [/^\/api\/attestations\//, "evidence", "core", "attestation_response_boundary"],
     [/^\/api\/contact\b/, "home", "core", "public_contact_boundary"],

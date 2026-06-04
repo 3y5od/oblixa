@@ -2,6 +2,10 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+function normalizedPath(path: string): string {
+  return path.replace(/\\/g, "/");
+}
+
 function walk(dir: string, out: string[]): void {
   for (const ent of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, ent.name);
@@ -19,10 +23,11 @@ describe("V9 §28.3 auditability (audit_events inserts on mutations)", () => {
     walk(join(process.cwd(), "src", "actions"), files);
     const audited = files.filter((f) => readFileSync(f, "utf8").includes('.from("audit_events")'));
     expect(audited.length).toBeGreaterThanOrEqual(10);
-    expect(audited.some((f) => f.includes("onboarding-calibration"))).toBe(true);
-    expect(audited.some((f) => f.endsWith("/contracts.ts"))).toBe(true);
-    expect(audited.some((f) => f.includes("settings"))).toBe(true);
-    expect(audited.some((f) => f.endsWith("/exceptions.ts"))).toBe(true);
+    const normalizedAudited = audited.map(normalizedPath);
+    expect(normalizedAudited.some((f) => f.includes("onboarding-calibration"))).toBe(true);
+    expect(normalizedAudited.some((f) => f.endsWith("/contracts.ts"))).toBe(true);
+    expect(normalizedAudited.some((f) => f.includes("settings"))).toBe(true);
+    expect(normalizedAudited.some((f) => f.endsWith("/exceptions.ts"))).toBe(true);
   });
 
   it("onboarding calibration path still performs audit inserts (calibration anchor)", () => {

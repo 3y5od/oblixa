@@ -17,6 +17,8 @@ import {
 } from "./spec-strings";
 import type {
   ReportDefinition,
+  ReportExportRun,
+  ReportFilterKey,
   ReportFilterState,
   ReportKey,
   ReportOption,
@@ -105,6 +107,74 @@ export const REPORT_DEFINITIONS: Record<ReportKey, ReportDefinition> = {
     description: "Field review progress and pending review counts by contract.",
     columns: ["Contract", "Counterparty", "Approved fields", "Pending fields", "Review state", "Last update"],
   },
+};
+
+/**
+ * Status filter options scoped to the active report's domain. A renewals/contract
+ * report must not offer an evidence-only status like "Requested" (the value reads
+ * as cross-domain and never matches a contract row). Each value MUST also be a
+ * member of `REPORT_EXPORT_STATUSES` in src/app/api/export/reports/route.ts, or
+ * the export route silently drops the filter on download.
+ */
+const CONTRACT_STATUS_OPTIONS: ReportOption[] = [
+  { value: "active", label: "Active" },
+  { value: "pending_review", label: "Pending review" },
+  { value: "draft", label: "Incomplete" },
+  { value: "expired", label: "Expired" },
+  { value: "terminated", label: "Terminated" },
+];
+const WORK_STATUS_OPTIONS: ReportOption[] = [
+  { value: "open", label: "Open" },
+  { value: "in_progress", label: "In progress" },
+  { value: "blocked", label: "Blocked" },
+  { value: "overdue", label: "Overdue" },
+];
+const OBLIGATION_STATUS_OPTIONS: ReportOption[] = [
+  { value: "open", label: "Open" },
+  { value: "in_progress", label: "In progress" },
+  { value: "blocked", label: "Blocked" },
+];
+const EVIDENCE_STATUS_OPTIONS: ReportOption[] = [
+  { value: "requested", label: "Requested" },
+  { value: "received", label: "Received" },
+  { value: "accepted", label: "Accepted" },
+  { value: "rejected", label: "Rejected" },
+  { value: "overdue", label: "Overdue" },
+];
+
+const REPORT_STATUS_DOMAIN: Record<ReportKey, ReportOption[]> = {
+  upcoming_renewals: CONTRACT_STATUS_OPTIONS,
+  notice_deadlines: CONTRACT_STATUS_OPTIONS,
+  missing_owners: CONTRACT_STATUS_OPTIONS,
+  missing_key_fields: CONTRACT_STATUS_OPTIONS,
+  contract_inventory: CONTRACT_STATUS_OPTIONS,
+  review_completeness: CONTRACT_STATUS_OPTIONS,
+  open_obligations: OBLIGATION_STATUS_OPTIONS,
+  overdue_work: WORK_STATUS_OPTIONS,
+  evidence_requests: EVIDENCE_STATUS_OPTIONS,
+  // Rows are grouped per owner and are always "open" exceptions, so a status
+  // filter is a no-op here — the toolbar drops the control entirely.
+  exceptions_by_owner: [],
+};
+
+/**
+ * Filter dimensions each report actually supports, in display order. `window`
+ * only filters the two windowed reports; the owner-grouped exceptions report
+ * carries no counterparty/status on its rows, so it exposes only `owner`.
+ * Rendering a no-op control (and worse, one that empties the report when used)
+ * is removed by gating on this list.
+ */
+const REPORT_APPLICABLE_FILTERS: Record<ReportKey, ReportFilterKey[]> = {
+  upcoming_renewals: ["window", "owner", "counterparty", "status"],
+  notice_deadlines: ["window", "owner", "counterparty", "status"],
+  missing_owners: ["owner", "counterparty", "status"],
+  missing_key_fields: ["owner", "counterparty", "status"],
+  open_obligations: ["owner", "counterparty", "status"],
+  overdue_work: ["owner", "counterparty", "status"],
+  evidence_requests: ["owner", "counterparty", "status"],
+  contract_inventory: ["owner", "counterparty", "status"],
+  review_completeness: ["owner", "counterparty", "status"],
+  exceptions_by_owner: ["owner"],
 };
 
 const DEFAULT_REPORT: ReportKey = "upcoming_renewals";
@@ -208,6 +278,8 @@ export type ReportExportJobRow = {
   status?: string | null;
   completed_at?: string | null;
   created_at?: string | null;
+  exported_rows?: number | null;
+  export_format?: string | null;
   filter_json?: Record<string, unknown> | null;
 };
 
@@ -307,21 +379,30 @@ export function buildReportsPageModel(input: BuildReportsPageModelInput): Report
   const previewLimit = input.previewLimit === null ? null : input.previewLimit ?? 8;
   const previewRows = previewLimit === null ? allActiveRows : allActiveRows.slice(0, previewLimit);
   const lastGeneratedAt = getLastGeneratedAt(input.exportJobs, activeReport);
+  const activeLabel = REPORT_DEFINITIONS[activeReport].label;
 
   return {
     title: REPORTS_PAGE_TITLE,
     eyebrow: REPORTS_EYEBROW,
     lead: REPORTS_PAGE_LEAD,
     primaryCta: REPORTS_PRIMARY_CTA,
+    // Context-aware label so the CTA names what it exports ("Export upcoming
+    // renewals") instead of a generic verb. `primaryCta` keeps the generic
+    // wording for aria/fallback.
+    exportCtaLabel: `Export ${activeLabel.charAt(0).toLowerCase()}${activeLabel.slice(1)}`,
     activeReport,
     activeDefinition: REPORT_DEFINITIONS[activeReport],
     filters,
+    applicableFilters: REPORT_APPLICABLE_FILTERS[activeReport],
     reports: REPORT_ORDER.map((key) => ({
       key,
       label: REPORT_DEFINITIONS[key].label,
       description: REPORT_DEFINITIONS[key].description,
       count: rowSets.get(key)?.length ?? 0,
-      href: buildReportsHref({ report: key, filters }),
+      // Carry only the filters the target report can actually use, so switching
+      // reports never lands on an empty preview narrowed by a hidden, out-of-domain
+      // filter (e.g. a contract "Pending review" status dragged onto evidence).
+      href: buildReportsHref({ report: key, filters: sanitizeFiltersForReport(key, filters) }),
       active: key === activeReport,
     })),
     previewColumns: REPORT_DEFINITIONS[activeReport].columns,
@@ -333,11 +414,12 @@ export function buildReportsPageModel(input: BuildReportsPageModelInput): Report
     // — the previous "Never generated" duplicated the word in the rendered
     // pair ("Last generated · Never generated").
     lastGeneratedLabel: lastGeneratedAt ? formatDateTimeLabel(lastGeneratedAt) : "Never",
+    recentExports: buildRecentExports(input.exportJobs),
     filterOptions: {
       windows: REPORT_WINDOW_ORDER.map((value) => ({ value, label: REPORT_WINDOW_LABELS[value] })),
       owners: toOwnerOptions(input.members),
       counterparties: toCounterpartyOptions(contracts),
-      statuses: toStatusOptions(),
+      statuses: toStatusOptions(activeReport),
     },
     warnings: input.warnings ?? [],
   };
@@ -443,7 +525,7 @@ export async function loadReportsPageModel(
     "contract_export_jobs",
     admin
       .from("contract_export_jobs")
-      .select("status, completed_at, created_at, filter_json")
+      .select("status, completed_at, created_at, exported_rows, export_format, filter_json")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false })
       .limit(100)
@@ -535,7 +617,11 @@ function buildUpcomingRenewalsRows(context: ReportBuildContext) {
       if (!renewalDate || renewalDate < context.today || renewalDate > windowEnd) return null;
       return contractRow(contract, context, {
         "Renewal date": formatDateLabel(renewalDate),
-        "Next action": approvedDate(fields, NOTICE_DATE_FIELDS) || computedNoticeDate(fields) ? "Monitor renewal" : "Add notice date",
+        // These rows already have an approved renewal date, so the step is to
+        // open the renewal — not "review"/"monitor" it (which implied either
+        // unreviewed data or ongoing decision-intelligence). Missing-notice rows
+        // still need the date added first.
+        "Next action": approvedDate(fields, NOTICE_DATE_FIELDS) || computedNoticeDate(fields) ? "Open renewal" : "Add notice date",
       });
     })
     .filter(isPresent)
@@ -826,22 +912,29 @@ function toCounterpartyOptions(contracts: { counterparty?: string | null }[]): R
   return [{ value: "", label: "Any counterparty" }, ...values.map((value) => ({ value, label: value }))];
 }
 
-function toStatusOptions(): ReportOption[] {
-  return [
-    { value: "", label: "Any status" },
-    { value: "active", label: "Active" },
-    { value: "pending_review", label: "Pending review" },
-    { value: "draft", label: "Draft" },
-    { value: "open", label: "Open" },
-    { value: "in_progress", label: "In progress" },
-    { value: "blocked", label: "Blocked" },
-    { value: "requested", label: "Requested" },
-    { value: "overdue", label: "Overdue" },
-    { value: "received", label: "Received" },
-    { value: "accepted", label: "Accepted" },
-    { value: "rejected", label: "Rejected" },
-    { value: "completed", label: "Completed" },
-  ];
+function toStatusOptions(report: ReportKey): ReportOption[] {
+  const domain = REPORT_STATUS_DOMAIN[report] ?? [];
+  // No "Any status" entry when the report has no status dimension — the toolbar
+  // drops the control rather than showing a lone, meaningless option.
+  if (domain.length === 0) return [];
+  return [{ value: "", label: "Any status" }, ...domain];
+}
+
+/**
+ * Reduce a filter set to what the target report supports: drop any dimension it
+ * doesn't apply, and drop a status value that isn't in the target's domain.
+ * Used to build rail links so cross-report navigation can't smuggle a filter the
+ * destination silently honors but never displays.
+ */
+function sanitizeFiltersForReport(report: ReportKey, filters: ReportFilterState): ReportFilterState {
+  const applicable = new Set(REPORT_APPLICABLE_FILTERS[report]);
+  const statusInDomain = REPORT_STATUS_DOMAIN[report].some((option) => option.value === filters.status);
+  return {
+    window: applicable.has("window") ? filters.window : DEFAULT_WINDOW,
+    owner: applicable.has("owner") ? filters.owner : "",
+    counterparty: applicable.has("counterparty") ? filters.counterparty : "",
+    status: applicable.has("status") && statusInDomain ? filters.status : "",
+  };
 }
 
 function ownerLabel(context: ReportBuildContext, ownerId: string | null | undefined) {
@@ -856,6 +949,52 @@ function getLastGeneratedAt(jobs: ReportExportJobRow[], report: ReportKey) {
     return ["completed", "succeeded", "success"].includes(status) && normalizeToken(reportKey) === report;
   });
   return matching?.completed_at ?? matching?.created_at ?? null;
+}
+
+/**
+ * Recent report export runs for the "Recent exports" history band. Only jobs
+ * whose `filter_json.report_key` resolves to a Core report are included (so
+ * contract/renewal/calendar exports sharing the table are excluded), and each
+ * run is given a re-export link rebuilt from its stored report + filters.
+ */
+function buildRecentExports(jobs: ReportExportJobRow[], limit = 5): ReportExportRun[] {
+  const runs: ReportExportRun[] = [];
+  for (const job of jobs) {
+    const fj = (job.filter_json ?? {}) as Record<string, unknown>;
+    const token = normalizeToken(String(fj.report_key ?? fj.report ?? ""));
+    if (!token || !isReportKey(token)) continue;
+    const reportKey = token;
+    const rawFilters = (fj.filters ?? {}) as Partial<ReportFilterState>;
+    const windowValue = normalizeToken(rawFilters.window);
+    const filters: ReportFilterState = {
+      window: isReportWindowKey(windowValue) ? windowValue : DEFAULT_WINDOW,
+      owner: typeof rawFilters.owner === "string" ? rawFilters.owner : "",
+      counterparty: typeof rawFilters.counterparty === "string" ? rawFilters.counterparty : "",
+      status: typeof rawFilters.status === "string" ? rawFilters.status : "",
+    };
+    // Distinguishes otherwise-identical runs of the same report: the date
+    // window (for windowed reports) plus a "Filtered" marker when any
+    // owner/counterparty/status was applied.
+    const windowed = reportKey === "upcoming_renewals" || reportKey === "notice_deadlines";
+    const scopeParts: string[] = [];
+    if (windowed) scopeParts.push(REPORT_WINDOW_LABELS[filters.window]);
+    if (filters.owner || filters.counterparty || filters.status) scopeParts.push("Filtered");
+    const at = job.completed_at ?? job.created_at ?? null;
+    runs.push({
+      reportKey,
+      reportLabel:
+        (typeof fj.report_label === "string" && fj.report_label.trim()) || REPORT_DEFINITIONS[reportKey].label,
+      scope: scopeParts,
+      status: normalizeToken(job.status) || "completed",
+      at,
+      atLabel: at ? formatExportRunTime(at) : "",
+      rows: typeof job.exported_rows === "number" ? job.exported_rows : null,
+      format: typeof job.export_format === "string" ? job.export_format : null,
+      href: buildReportsExportHref({ report: reportKey, filters }),
+    });
+    if (runs.length >= limit) break;
+  }
+  return runs;
 }
 
 function countSubmittedFiles(submissions: ReportEvidenceSubmissionRow[]) {
@@ -903,6 +1042,12 @@ function formatDateLabel(date: Date | string | null | undefined) {
 function formatDateTimeLabel(raw: string | null | undefined) {
   const date = parseDateTime(raw);
   return date ? format(date, "MMM d, yyyy h:mm a") : "Never";
+}
+
+/** Compact exact run time for the export history (no year), e.g. "May 30, 3:42 PM". */
+function formatExportRunTime(raw: string | null | undefined) {
+  const date = parseDateTime(raw);
+  return date ? format(date, "MMM d, h:mm a") : "";
 }
 
 function compareRowsByColumn(column: string) {

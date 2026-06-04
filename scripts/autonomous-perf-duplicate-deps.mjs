@@ -3,12 +3,11 @@
  * Fails if multiple semver majors for react or next appear in npm ls (summary line).
  * npm ls output varies by version; this is a lightweight guardrail.
  */
-import { spawnSync } from "node:child_process";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 function majorsFor(pkg) {
-  const r = spawnSync("npm", ["ls", pkg, "--json", "--depth=10"], {
+  const r = spawnSyncCrossPlatform("npm", ["ls", pkg, "--json", "--depth=10"], {
     encoding: "utf8",
-    shell: process.platform === "win32",
   });
   if (!r.stdout) return null;
   try {

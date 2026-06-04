@@ -55,10 +55,10 @@
      /contact, and product-sections-data. Without this, var(--accent-warm,
      var(--accent)) silently falls back to --accent and warm-toned surfaces
      render identical to cool. */
-  --accent-warm: oklch(0.6 0.13 55);
+  --accent-warm: #96501d;
   --text-primary: oklch(0.225 0.018 255);
   --text-secondary: oklch(0.44 0.015 255);
-  --text-tertiary: oklch(0.59 0.012 255);
+  --text-tertiary: #626970;
   --text-inverse: oklch(0.97 0.006 250);
   --border-subtle: oklch(0.9 0.008 252);
   --border-strong: oklch(0.82 0.012 254);
@@ -66,14 +66,17 @@
   --sidebar: oklch(0.22 0.026 260);
   --sidebar-surface: oklch(0.27 0.026 259);
   --sidebar-border: oklch(0.35 0.022 258);
-  --sidebar-muted: oklch(0.76 0.024 255);
+  --sidebar-muted: oklch(0.79 0.022 255);
   --sidebar-fg: oklch(0.97 0.006 252);
   --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 48%, transparent);
   --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
-  --sidebar-active: color-mix(in oklab, var(--sidebar-surface) 92%, white);
-  --sidebar-active-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 9%, transparent);
   --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 66%, var(--accent));
+  /* Bright status inks for nav count chips. The sidebar is dark in BOTH color
+     schemes, so a single bright value stays legible without a per-mode flip;
+     the soft fill/border are mixed against transparent over the dark rail. */
+  --sidebar-warn-ink: oklch(0.85 0.11 80);
+  --sidebar-danger-ink: oklch(0.8 0.13 22);
   --success-soft: oklch(0.958 0.038 154);
   --success-ink: oklch(0.38 0.108 154);
   --warning-soft: oklch(0.968 0.046 86);
@@ -81,7 +84,7 @@
   --danger-soft: oklch(0.954 0.048 24);
   --danger-ink: oklch(0.44 0.15 24);
   --info-soft: oklch(0.958 0.036 250);
-  --info-ink: oklch(0.39 0.12 250);
+  --info-ink: #3f6f96;
   --focus-ring: color-mix(in oklab, var(--accent) 62%, var(--surface));
   --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px rgba(15, 23, 42, 0.04);
   --shadow-2: 0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.04);
@@ -143,14 +146,14 @@
     --sidebar: oklch(0.12 0.02 258);
     --sidebar-surface: oklch(0.17 0.022 258);
     --sidebar-border: oklch(0.27 0.02 258);
-    --sidebar-muted: oklch(0.66 0.018 254);
+    --sidebar-muted: oklch(0.71 0.018 254);
     --sidebar-fg: oklch(0.96 0.006 252);
     --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
     --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 11%, transparent);
-    --sidebar-active: color-mix(in oklab, var(--sidebar-surface) 90%, white);
-    --sidebar-active-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
     --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
     --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 70%, var(--accent));
+    --sidebar-warn-ink: oklch(0.86 0.12 84);
+    --sidebar-danger-ink: oklch(0.79 0.14 22);
     --success-soft: oklch(0.27 0.06 154);
     --success-ink: oklch(0.87 0.08 154);
     --warning-soft: oklch(0.34 0.06 86);
@@ -257,6 +260,25 @@
   }
 }
 
+/* Disclosure content reveal — modest fade + lift when a <details> opens.
+   Open-only: native <details> cannot animate the close without JS, and we
+   keep native details/summary for keyboard semantics (design §6). */
+@keyframes ui-details-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  details[open] > .ui-details-reveal {
+    animation: ui-details-reveal var(--ui-duration-slow) var(--ui-ease-out) both;
+  }
+}
+
 @keyframes ui-status-badge-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent);
@@ -291,6 +313,7 @@
 @layer base {
   html {
     background: var(--canvas);
+    overflow-x: clip;
     scrollbar-gutter: stable;
     scrollbar-color: color-mix(in oklab, var(--border-strong) 78%, transparent) transparent;
   }
@@ -307,12 +330,20 @@
 
   body {
     @apply min-h-full font-sans text-[15px] leading-[1.6] antialiased;
+    overflow-x: clip;
     color: var(--text-secondary);
     background:
       radial-gradient(circle at top left, color-mix(in oklab, var(--canvas-glow) 115%, transparent), transparent 30%),
       radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 118%, transparent), transparent 24%),
       linear-gradient(180deg, color-mix(in oklab, var(--canvas) 86%, white) 0%, var(--canvas) 46%, var(--canvas-strong) 100%);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "liga" 1;
+  }
+
+  @supports not (overflow: clip) {
+    html,
+    body {
+      overflow-x: hidden;
+    }
   }
 
   /* Cursor-following accent glow. Activates only when CursorGlow client
@@ -610,6 +641,16 @@
     border-color: color-mix(in oklab, var(--border-strong) 78%, transparent);
   }
 
+  /* Disabled inputs — token-anchored, mirrors input[type=checkbox].ui-checkbox:disabled.
+     Without this, a `disabled` text/number input is visually indistinguishable from an
+     editable one (it silently rejects input). */
+  .ui-input:disabled,
+  .ui-input-compact:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    background: color-mix(in oklab, var(--surface-muted) 60%, var(--surface-raised));
+  }
+
   .ui-input:focus-visible,
   .ui-input-compact:focus-visible {
     border-color: color-mix(in oklab, var(--accent) 50%, var(--border-strong));
@@ -892,6 +933,14 @@
 
   .ui-table-row:hover {
     background: color-mix(in oklab, var(--surface-contrast) 74%, transparent);
+  }
+
+  /* Selected row in the contracts table (bulk-select mode). Accent-tinted
+     wash that persists over :hover so the selection stays legible while
+     the pointer moves across the row. */
+  .ui-table-row-selected,
+  .ui-table-row-selected:hover {
+    background: color-mix(in oklab, var(--accent-soft) 22%, transparent);
   }
 
   /* Legacy page-title classes — flattened to the new flat-identity h1/h2 vocabulary.
@@ -1243,6 +1292,17 @@
     color: var(--text-tertiary);
   }
 
+  /* Portaled popover panel chrome (Export / Filters / Saved views) — bg,
+     border, radius, shadow, internal scroll, and the "more below" fade — is
+     set inline in <PortaledPopover> so the surface can't render see-through
+     if a freshly-added class fails to emit. Only the caret-rotation rule
+     below still needs CSS (it targets a descendant of the trigger). */
+  /* Caret rotates when its aria-expanded trigger (PortaledPopover button) is
+     open — parallels the details[open] rule used by the native popovers. */
+  [aria-expanded="true"] > .popover-caret {
+    transform: rotate(180deg);
+  }
+
   /* v13 — Active filter chip (renders only when a filter is applied; click × removes). */
   .ui-active-filter-chip {
     @apply inline-flex h-[26px] items-center gap-1.5 rounded-full border pl-2.5 pr-1.5 text-[11px] font-semibold leading-none;
@@ -1296,6 +1356,12 @@
     color: var(--text-primary);
     border-color: color-mix(in oklab, var(--accent) 30%, var(--border-strong));
     background: color-mix(in oklab, var(--accent) 5%, transparent);
+  }
+  .ui-quick-chip:focus-visible {
+    outline: none;
+    color: var(--text-primary);
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--border-strong));
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 22%, transparent);
   }
   .ui-quick-chip-count {
     @apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-[10.5px] font-bold tabular-nums leading-none;
@@ -1447,6 +1513,16 @@
     color: var(--text-tertiary);
   }
 
+  .ui-sidebar-surface {
+    color: var(--sidebar-fg);
+    /* Solid token fill first so the chrome can never fall back to a transparent
+       (page-canvas) surface if the gradient value is ever dropped; the gradient
+       layers on top for depth. */
+    background-color: var(--sidebar);
+    background-image:
+      linear-gradient(180deg, color-mix(in oklab, var(--sidebar-surface) 92%, var(--sidebar)) 0%, var(--sidebar) 100%);
+  }
+
   .ui-sidebar-link {
     @apply relative flex min-h-10 min-w-0 items-center gap-3 px-3 py-2 text-[13px] font-medium;
     border-radius: var(--radius-md);
@@ -1458,36 +1534,56 @@
 
   @media (min-width: 1024px) {
     .ui-sidebar-link {
-      min-height: 2.25rem;
+      min-height: 2.375rem;
       padding-top: 0.375rem;
       padding-bottom: 0.375rem;
     }
   }
 
+  /* Idle rows: muted label + icon (icon inherits currentColor so the glyph and
+     text never drift apart). The brighter active/parent states layer on top. */
+  .ui-sidebar-link-idle {
+    color: var(--sidebar-muted);
+  }
+
+  /* Parent-expanded section header (the active section's top row when its
+     subnav is showing): brighter text, no accent — the accent belongs to the
+     selected child row below it. */
+  .ui-sidebar-link-parent {
+    color: var(--sidebar-fg);
+  }
+
+  /* Refined selected state: a soft accent wash that fades to the right plus a
+     crisp left rail — no inset ring, so the row reads as "selected", not as a
+     pressed button. Text brightens to sidebar-fg; the rail carries the accent.
+     A solid token-anchored accent tint sits under the gradient so the row keeps
+     its accent identity even if the gradient layer is dropped. */
   .ui-sidebar-link-active {
     position: relative;
     color: var(--sidebar-fg);
-    background:
-      linear-gradient(90deg, color-mix(in oklab, var(--accent) 11%, transparent) 0%, color-mix(in oklab, var(--accent) 3%, transparent) 100%);
-    box-shadow:
-      inset 0 0 0 1px color-mix(in oklab, var(--accent) 14%, transparent),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+    background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+    background-image:
+      linear-gradient(90deg, color-mix(in oklab, var(--accent) 24%, transparent) 0%, color-mix(in oklab, var(--accent) 9%, transparent) 60%, transparent 100%);
   }
 
   .ui-sidebar-link-active::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 14%;
-    bottom: 14%;
-    width: 2px;
-    border-radius: 0 2px 2px 0;
+    top: 18%;
+    bottom: 18%;
+    width: 2.5px;
+    border-radius: 0 3px 3px 0;
     background: var(--accent-strong);
+    box-shadow: 0 0 10px -1px color-mix(in oklab, var(--accent) 60%, transparent);
     pointer-events: none;
   }
 
+  /* Collapsed rail variant: flat centered wash (the left-to-right gradient reads
+     oddly behind a centered icon) plus a centered rail bar. */
   .ui-sidebar-link-active-rail {
     @apply relative;
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
   }
 
   .ui-sidebar-link-active-rail::before {
@@ -1509,6 +1605,15 @@
     color: var(--sidebar-fg);
     background: color-mix(in oklab, var(--accent) 10%, transparent);
     box-shadow: inset 2px 0 0 color-mix(in oklab, var(--accent-strong) 60%, transparent);
+  }
+
+  .ui-sidebar-sublink-idle {
+    color: var(--sidebar-muted);
+  }
+
+  .ui-sidebar-sublink-idle:hover {
+    color: var(--sidebar-fg);
+    background: color-mix(in oklab, var(--sidebar-hover) 70%, transparent);
   }
 
   .ui-sidebar-sublink-indent {
@@ -1720,11 +1825,16 @@
   }
 
   .ui-table-shell {
-    @apply overflow-hidden border shadow-[var(--shadow-1)];
+    @apply overflow-hidden border;
     border-radius: var(--radius-2xl);
-    border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 12%, var(--border-subtle));
     background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+      radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 58%),
+      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, var(--surface-raised)) 0%, var(--surface-raised) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      var(--shadow-1),
+      0 14px 30px -18px color-mix(in oklab, var(--accent) 30%, transparent);
   }
 
   .ui-table-caption {
@@ -2017,6 +2127,18 @@
       0 22px 50px -20px oklch(0.55 0.18 268 / 0.45);
   }
 
+  /* The light recipe's 1px inset uses a pearl `white` highlight that doesn't
+     flip in dark mode (§9). Swap it for the cool inset tuned to the navy
+     backdrop, mirroring the calmer-cousin treatment of .ui-card-raised but
+     keeping the dense-surface halo softer. Border stays accent-anchored. */
+  .ui-table-shell {
+    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 16%, var(--border-subtle));
+    box-shadow:
+      inset 0 1px 0 oklch(0.92 0.04 270 / 0.05),
+      var(--shadow-1),
+      0 14px 30px -18px oklch(0.55 0.18 268 / 0.32);
+  }
+
   .ui-card-hero {
     background:
       radial-gradient(circle at top left, oklch(0.55 0.16 268 / 0.22), transparent 34%),
@@ -2182,7 +2304,11 @@
   }
 
   .ui-sidebar-link-active {
-    background: rgba(255, 255, 255, 0.16);
+    /* Reduced-transparency users get a flat, fully-opaque accent tint (mixed
+       against the sidebar surface, not transparent) so the selected row keeps
+       its accent identity without relying on a translucent wash. */
+    background-image: none;
+    background-color: color-mix(in oklab, var(--accent) 34%, var(--sidebar-surface));
   }
 }
 
@@ -2323,19 +2449,22 @@
   .landing-root > header.ui-footer-shell > div > div + div {
     border-top-color: color-mix(in oklab, var(--accent) 6%, var(--border-subtle));
   }
-  /* Avatar tile in header — slightly more depth */
+  /* Avatar tile in header — v17: softened bevel/halo (was shadow-2 + a 38%
+     accent glow that read as glossy). shadow-1 + a faint accent halo keeps it
+     premium without the heavy gloss. */
   .landing-root > header.ui-footer-shell .ui-avatar-tile {
     box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.25) inset,
-      var(--shadow-2),
-      0 10px 24px -10px color-mix(in oklab, var(--accent) 38%, transparent);
+      0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
+      var(--shadow-1),
+      0 6px 16px -12px color-mix(in oklab, var(--accent) 22%, transparent);
   }
 }
 
 @media (prefers-color-scheme: dark) {
   .landing-root > header.ui-footer-shell {
     background: transparent !important;
-    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    /* v18: tokenized subtle bottom hairline (was rgba white literal). */
+    border-bottom-color: color-mix(in oklab, var(--border-subtle) 65%, transparent) !important;
     backdrop-filter: none !important;
   }
   .landing-root > header.ui-footer-shell a > span:last-child {
@@ -2343,8 +2472,8 @@
   }
   .landing-root > header.ui-footer-shell .ui-avatar-tile {
     box-shadow:
-      0 12px 32px -12px oklch(0.62 0.18 265 / 0.55),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      0 8px 20px -14px oklch(0.62 0.18 265 / 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost {
     color: rgba(255, 255, 255, 0.78);
@@ -2489,14 +2618,17 @@
 
 .landing-card-premium {
   position: relative;
+  /* v14: tokenized the gradient anchors (were literal white) and softened the
+     accent halo (38%→18%, tighter) + top inset (0.55→0.4) so cards stop
+     reading as heavy "floating white boxes". Shared with /product (parity). */
   background:
     radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 58%),
-    linear-gradient(180deg, color-mix(in oklab, var(--surface) 98%, white) 0%, color-mix(in oklab, var(--surface-muted) 18%, white) 100%);
+    linear-gradient(180deg, color-mix(in oklab, var(--surface) 98%, var(--surface-raised)) 0%, color-mix(in oklab, var(--surface-muted) 18%, var(--surface-raised)) 100%);
   border-color: color-mix(in oklab, var(--accent) 14%, var(--border-subtle));
   box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.55) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
     var(--shadow-1),
-    0 14px 30px -18px color-mix(in oklab, var(--accent) 38%, transparent);
+    0 8px 20px -18px color-mix(in oklab, var(--accent) 18%, transparent);
   transition:
     transform var(--ui-duration) var(--ui-ease-out),
     box-shadow var(--ui-duration) var(--ui-ease-out),
@@ -2507,27 +2639,30 @@
   transform: translateY(-2px);
   border-color: color-mix(in oklab, var(--accent) 28%, var(--border-subtle));
   box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.6) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
     var(--shadow-2),
-    0 22px 44px -18px color-mix(in oklab, var(--accent) 48%, transparent);
+    0 14px 30px -20px color-mix(in oklab, var(--accent) 28%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
   .landing-card-premium {
+    /* v14: gradient anchor tokenized (was literal white → var(--text-primary),
+       which lightens correctly in dark) and the accent halo softened to match
+       the light-mode "less floaty" reduction. */
     background:
       radial-gradient(ellipse 70% 80% at 100% 0%, oklch(0.55 0.16 268 / 0.18), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 92%, white) 0%, var(--surface) 100%);
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 92%, var(--text-primary)) 0%, var(--surface) 100%);
     border-color: color-mix(in oklab, oklch(0.55 0.18 268) 22%, var(--border-subtle));
     box-shadow:
       0 1px 0 0 oklch(0.92 0.04 270 / 0.06) inset,
       var(--shadow-2),
-      0 22px 50px -20px oklch(0.55 0.18 268 / 0.45);
+      0 12px 28px -20px oklch(0.55 0.18 268 / 0.28);
   }
   .landing-card-premium:hover {
     box-shadow:
       0 1px 0 0 oklch(0.92 0.04 270 / 0.08) inset,
       var(--shadow-2),
-      0 28px 60px -22px oklch(0.55 0.18 268 / 0.55);
+      0 16px 34px -22px oklch(0.55 0.18 268 / 0.36);
   }
 }
 
@@ -2546,6 +2681,22 @@
 }
 .landing-card-premium:hover.landing-card-rail::after {
   opacity: 0.85;
+}
+
+/* Static modifier — for passive premium cards (e.g. the auth form panel) that
+   are containers, not click targets. Suppresses the hover lift/bob so the card
+   stays still while the pointer moves across the inputs inside it. */
+.landing-card-static:hover {
+  transform: none;
+}
+
+/* Quieter luminous backdrop for the auth surfaces — dials back the dotted grid
+   and ambient glow so the form card stays the focal surface. */
+.landing-luminous--quiet .landing-luminous__grid {
+  opacity: 0.26;
+}
+.landing-luminous--quiet .landing-luminous__glow {
+  opacity: 0.62;
 }
 
 /* Light-mode-only subtle background pattern for hero-adjacent sections */
@@ -3053,7 +3204,10 @@
 .landing-compare-badge {
   position: absolute;
   top: -0.75rem;
-  left: 1.5rem;
+  /* v14: centered (was left:1.5rem corner) + quieter fill — the corner-anchored
+     bright gradient pill read as loud/awkward. */
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -3067,10 +3221,10 @@
 }
 @media (prefers-color-scheme: light) {
   .landing-compare-badge {
-    background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 76%, white) 0%, var(--accent-strong) 100%);
-    color: white;
-    border-color: color-mix(in oklab, var(--accent-strong) 60%, transparent);
-    box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--accent) 55%, transparent);
+    background: color-mix(in oklab, var(--accent-soft) 55%, var(--surface-raised));
+    color: var(--accent-strong);
+    border-color: color-mix(in oklab, var(--accent) 22%, var(--border-subtle));
+    box-shadow: var(--shadow-1);
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -3385,6 +3539,14 @@
 
 .landing-root > footer.ui-footer-shell {
   position: relative;
+  /* The (marketing) layout wraps page content in MarketingPageWrapper, whose
+     inner layer is `position: relative; z-index: 1`. The footer is the last
+     child of .landing-root, so matching that z-index lets the footer paint
+     above the content layer (ties break by source order). Without this the
+     decorative crown (::after at top:-0.75rem) is clipped by the page content
+     on every marketing page, while the landing page — which has no wrapper —
+     renders it fully. This keeps the crown consistent across the public site. */
+  z-index: 1;
   padding-top: 3.5rem;
   padding-bottom: 3rem;
 }
@@ -3886,32 +4048,9 @@
   content: counter(faq-index, decimal-leading-zero);
 }
 
-/* v5 product page — gradient-text accent on a keyword (e.g. hero h1 "signed contracts").
-   @supports check provides solid-color fallback for browsers without
-   `background-clip: text` (older Firefox + some embedded browsers). */
-.product-hero-h1-grad {
-  color: var(--accent-strong);
-}
-@supports (background-clip: text) or (-webkit-background-clip: text) {
-  .product-hero-h1-grad {
-    background: linear-gradient(
-      90deg,
-      var(--text-primary) 0%,
-      color-mix(in oklab, var(--accent-strong) 72%, var(--text-primary)) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-}
-@media (forced-colors: active) {
-  .product-hero-h1-grad {
-    background: none;
-    -webkit-text-fill-color: LinkText;
-    color: LinkText;
-  }
-}
+/* The hero keyword gradient now uses the shared <GradientPhrase> primitive
+   (parity with /pricing + /security) — the bespoke .product-hero-h1-grad class
+   was removed. */
 
 /* Tabular display numerals on the section number lockups. */
 .product-hero-h1,
@@ -3929,17 +4068,6 @@ html {
    v5 product page — visual enhancements (T6, T11, T12, T13, T17)
    All animations respect prefers-reduced-motion.
    ──────────────────────────────────────────────────────────────────────── */
-
-/* T11.1 — Subtle 1-px dot grid pattern inside section cards. */
-.product-section-dot-grid {
-  background-image: radial-gradient(
-    circle,
-    color-mix(in oklab, var(--border-subtle) 60%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
-  opacity: 0.35;
-}
 
 /* T11.6 — Vertical hairline between bullet columns at sm+. */
 @media (min-width: 640px) {
@@ -3996,42 +4124,6 @@ html {
   }
   50% {
     transform: translateY(3px);
-  }
-}
-
-/* T6 — Vertical timeline rail at lg+ only. */
-@media (min-width: 1024px) {
-  .product-timeline-rail {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -2.5rem;
-    width: 2px;
-    background: linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--accent-strong) 22%, transparent) 0%,
-      color-mix(in oklab, var(--accent-warm, var(--accent)) 22%, transparent) 50%,
-      color-mix(in oklab, var(--success-ink) 22%, transparent) 100%
-    );
-    pointer-events: none;
-  }
-  .product-timeline-node {
-    position: absolute;
-    left: -3.25rem;
-    top: 2.5rem;
-    width: 32px;
-    height: 32px;
-    border-radius: 9999px;
-    border: 2px solid var(--section-tone, var(--accent-strong));
-    background: var(--surface-raised);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-variant-numeric: tabular-nums lining-nums slashed-zero;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: var(--section-tone, var(--accent-strong));
   }
 }
 
@@ -4144,38 +4236,13 @@ html {
   }
 }
 
-/* T2.2 — Conic gradient halo around video play button. */
-.product-video-play-halo {
-  position: relative;
-}
-.product-video-play-halo::before {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  border-radius: 9999px;
-  background: conic-gradient(
-    from 0deg,
-    var(--accent-strong) 0%,
-    transparent 45%,
-    transparent 55%,
-    var(--accent-strong) 100%
-  );
-  opacity: 0.45;
-  animation: product-video-play-halo-spin 8s linear infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-@keyframes product-video-play-halo-spin {
-  to { transform: rotate(360deg); }
-}
-
 /* T2.8 — Faux browser chrome bar. */
 .product-browser-chrome {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: color-mix(in oklab, var(--surface-contrast) 92%, white);
+  background: color-mix(in oklab, var(--surface-contrast) 92%, var(--surface-raised));
   border-bottom: 1px solid var(--border-subtle);
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
@@ -4194,38 +4261,6 @@ html {
 /* T3.3 — After card glow. */
 .product-after-card {
   box-shadow: 0 0 48px -12px color-mix(in oklab, var(--accent-strong) 22%, transparent);
-}
-
-/* T4.1 — Time to value progress line with shimmer. */
-.product-ttv-progress-line {
-  position: relative;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in oklab, var(--accent-strong) 38%, transparent) 0%,
-    color-mix(in oklab, var(--accent-warm, var(--accent)) 38%, transparent) 50%,
-    color-mix(in oklab, var(--success-ink) 38%, transparent) 100%
-  );
-  border-radius: 9999px;
-}
-.product-ttv-progress-line::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in oklab, white 80%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 30% 100%;
-  background-repeat: no-repeat;
-  animation: product-ttv-shimmer 3s ease-in-out infinite;
-  border-radius: 9999px;
-}
-@keyframes product-ttv-shimmer {
-  0% { background-position: -30% 0; }
-  100% { background-position: 130% 0; }
 }
 
 /* T7.3 — Phase header tone band. */
@@ -4278,14 +4313,9 @@ html {
   background: color-mix(in oklab, var(--border-subtle) 50%, transparent);
 }
 
-/* T12.3 — Tone-coded gradient bullet markers. */
-.product-bullet-gradient {
-  background: linear-gradient(
-    135deg,
-    var(--section-tone, var(--accent-strong)) 0%,
-    var(--accent-strong) 100%
-  );
-}
+/* Section-card bullet markers are neutral (§10.18 — per-section tone is carried
+   only by the eyebrow + medallion, not the bullets). The tone-gradient bullet
+   marker was removed. */
 
 /* T13.1 — Section card scroll-in fade-and-rise (via IntersectionObserver). */
 .product-section-fade-in {
@@ -4357,7 +4387,7 @@ html {
 @media (min-width: 768px) {
   .product-cv-auto {
     content-visibility: auto;
-    contain-intrinsic-size: auto 620px;
+    contain-intrinsic-size: auto 460px;
   }
 }
 
@@ -4377,8 +4407,6 @@ html {
 /* Reduced motion — disable all v6 animations (post-v7 cleanup). */
 @media (prefers-reduced-motion: reduce) {
   .product-cta-halo::before,
-  .product-video-play-halo::before,
-  .product-ttv-progress-line::after,
   .product-phase-underline::after,
   .product-section-fade-in {
     animation: none !important;
@@ -4687,13 +4715,15 @@ textarea.ui-input-compact::-webkit-scrollbar-thumb:hover,
   content: "";
   position: absolute;
   top: 0;
-  left: 12%;
-  right: 12%;
+  left: 18%;
+  right: 18%;
   height: 1px;
+  /* v16: softened the inter-section seam (accent 28%→13%, narrower span) —
+     it read as a hard horizontal band line between sections. */
   background: linear-gradient(
     to right,
     transparent,
-    color-mix(in oklab, var(--accent) 28%, transparent),
+    color-mix(in oklab, var(--accent) 13%, transparent),
     transparent
   );
   pointer-events: none;

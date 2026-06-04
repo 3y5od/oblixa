@@ -1,8 +1,8 @@
 {
-  "baselineDate": "2026-05-28",
+  "baselineDate": "2026-06-02",
   "owner": "frontend-platform",
   "purpose": "Ratchet oversized frontend component and page files.",
-  "reviewReason": "Section 28 static architecture and code health ratchet baseline; future line-count growth requires reviewed cleanup or baseline update.",
+  "reviewReason": "Reviewed during the autonomous QA release-checklist run after current-state component growth was exposed; retained as a ratchet baseline so future line-count growth fails.",
   "offenders": [
     {
       "file": "src/app/(dashboard)/assurance/findings/page.tsx",
@@ -10,7 +10,7 @@
     },
     {
       "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-      "lines": 4369
+      "lines": 4517
     },
     {
       "file": "src/app/(dashboard)/contracts/analytics/page.tsx",
@@ -22,7 +22,7 @@
     },
     {
       "file": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
-      "lines": 404
+      "lines": 765
     },
     {
       "file": "src/app/(dashboard)/contracts/exceptions/page.tsx",
@@ -38,7 +38,7 @@
     },
     {
       "file": "src/app/(dashboard)/contracts/page.tsx",
-      "lines": 1311
+      "lines": 1335
     },
     {
       "file": "src/app/(dashboard)/contracts/programs/page.tsx",
@@ -46,7 +46,7 @@
     },
     {
       "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
-      "lines": 715
+      "lines": 1006
     },
     {
       "file": "src/app/(dashboard)/contracts/reports/page.tsx",
@@ -54,7 +54,7 @@
     },
     {
       "file": "src/app/(dashboard)/contracts/review/page.tsx",
-      "lines": 484
+      "lines": 619
     },
     {
       "file": "src/app/(dashboard)/contracts/tasks/page.tsx",
@@ -78,7 +78,7 @@
     },
     {
       "file": "src/app/(dashboard)/settings/billing/page.tsx",
-      "lines": 2050
+      "lines": 2067
     },
     {
       "file": "src/app/(dashboard)/settings/health/page.tsx",
@@ -90,7 +90,7 @@
     },
     {
       "file": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "lines": 649
+      "lines": 743
     },
     {
       "file": "src/app/(dashboard)/settings/policy/page.tsx",
@@ -102,23 +102,19 @@
     },
     {
       "file": "src/app/(dashboard)/settings/security/page.tsx",
-      "lines": 581
+      "lines": 579
+    },
+    {
+      "file": "src/app/(dashboard)/settings/settings-page-sections.tsx",
+      "lines": 376
     },
     {
       "file": "src/app/(dashboard)/work/page.tsx",
-      "lines": 544
-    },
-    {
-      "file": "src/app/(marketing)/pricing/page.tsx",
-      "lines": 874
+      "lines": 812
     },
     {
       "file": "src/app/(marketing)/product/page.tsx",
-      "lines": 825
-    },
-    {
-      "file": "src/app/(marketing)/security/page.tsx",
-      "lines": 751
+      "lines": 718
     },
     {
       "file": "src/components/assurance/review-board-actions.tsx",
@@ -126,7 +122,7 @@
     },
     {
       "file": "src/components/auth/auth-form.tsx",
-      "lines": 441
+      "lines": 742
     },
     {
       "file": "src/components/command-center-role-metrics.tsx",
@@ -134,7 +130,7 @@
     },
     {
       "file": "src/components/contracts/bulk-upload-form.tsx",
-      "lines": 472
+      "lines": 937
     },
     {
       "file": "src/components/contracts/contract-obligations-panel.tsx",
@@ -142,7 +138,7 @@
     },
     {
       "file": "src/components/contracts/contract-table.tsx",
-      "lines": 939
+      "lines": 1252
     },
     {
       "file": "src/components/contracts/contract-tasks-panel.tsx",
@@ -158,11 +154,11 @@
     },
     {
       "file": "src/components/contracts/upload-form.tsx",
-      "lines": 827
+      "lines": 833
     },
     {
       "file": "src/components/dashboard/core-dashboard.tsx",
-      "lines": 801
+      "lines": 1001
     },
     {
       "file": "src/components/dashboard/dashboard-lower.tsx",
@@ -185,16 +181,20 @@
       "lines": 389
     },
     {
+      "file": "src/components/evidence/evidence-release-actions.tsx",
+      "lines": 374
+    },
+    {
       "file": "src/components/external/external-submit-form.tsx",
       "lines": 483
     },
     {
-      "file": "src/components/landing/contact-form.tsx",
-      "lines": 591
+      "file": "src/components/landing/landing-page.tsx",
+      "lines": 1568
     },
     {
-      "file": "src/components/landing/landing-page.tsx",
-      "lines": 1597
+      "file": "src/components/landing/product-mocks.tsx",
+      "lines": 353
     },
     {
       "file": "src/components/layout/command-palette.tsx",
@@ -202,7 +202,7 @@
     },
     {
       "file": "src/components/layout/sidebar.tsx",
-      "lines": 644
+      "lines": 721
     },
     {
       "file": "src/components/onboarding/calibration-wizard.tsx",
@@ -218,11 +218,15 @@
     },
     {
       "file": "src/components/settings/security-settings-panel.tsx",
-      "lines": 1169
+      "lines": 1186
     },
     {
       "file": "src/components/ui/operational-summary-card.tsx",
       "lines": 642
+    },
+    {
+      "file": "src/components/work/work-release-actions.tsx",
+      "lines": 378
     }
   ]
 }

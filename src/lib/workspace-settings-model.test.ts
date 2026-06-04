@@ -22,11 +22,10 @@ describe("workspace settings model", () => {
 
   it("emits only public Core settings destinations", () => {
     const titles = adminSettings().groups.flatMap((group) => group.destinations.map((dest) => dest.title));
+    // Profile, Workspace, and Team are edited inline (own cards), not directory
+    // rows — the directory lists only settings that open their own page.
     expect(titles).toEqual([
-      "Profile",
       "Security",
-      "Workspace",
-      "Team",
       "Billing",
       "Notifications",
       "Imports and exports",
@@ -51,18 +50,14 @@ describe("workspace settings model", () => {
 
   it("uses release-state destinations and actions", () => {
     const destinations = adminSettings().groups.flatMap((group) => group.destinations);
-    expect(destinations.find((dest) => dest.key === "profile")).toMatchObject({
-      href: "#profile",
-      actionLabel: "Edit profile",
+    expect(destinations.find((dest) => dest.key === "security")).toMatchObject({
+      href: "/settings/security",
+      actionLabel: "Open security",
     });
-    expect(destinations.find((dest) => dest.key === "workspace")).toMatchObject({
-      href: "#workspace-identity",
-      actionLabel: "Rename",
-    });
-    expect(destinations.find((dest) => dest.key === "team")).toMatchObject({
-      href: "#team-access",
-      actionLabel: "Invite member",
-      currentStateLabel: "4 members · 2 pending",
+    expect(destinations.find((dest) => dest.key === "billing")).toMatchObject({
+      href: "/settings/billing",
+      actionLabel: "Open billing",
+      currentStateLabel: "Early access",
     });
     expect(destinations.find((dest) => dest.key === "notifications")).toMatchObject({
       href: "/settings/operations#notifications",
@@ -87,12 +82,10 @@ describe("workspace settings model", () => {
       planLabel: "No plan",
     });
     const destinations = vm.groups.flatMap((group) => group.destinations);
-    expect(destinations.find((dest) => dest.key === "workspace")).toMatchObject({
+    expect(destinations.find((dest) => dest.key === "billing")).toMatchObject({
       state: "read_only",
       unavailableReason: "Only admins can change this setting.",
     });
-    expect(destinations.find((dest) => dest.key === "team")).toMatchObject({ state: "read_only" });
-    expect(destinations.find((dest) => dest.key === "billing")).toMatchObject({ state: "read_only" });
     expect(destinations.find((dest) => dest.key === "notifications")).toMatchObject({
       state: "read_only",
       unavailableReason: "Ask a workspace admin to change notification defaults.",

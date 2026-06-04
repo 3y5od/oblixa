@@ -146,7 +146,7 @@
     "helper": "e2e/visual-helpers.ts",
     "requiredBrowser": "chromium",
     "requiredDevice": "Desktop Chrome",
-    "requiredOsAssumption": "darwin",
+    "requiredOsAssumptions": ["darwin", "win32"],
     "suites": [
       {
         "spec": "e2e/visual.public.spec.ts",
@@ -156,7 +156,7 @@
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -168,7 +168,7 @@
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -180,7 +180,7 @@
         "updateCommand": "test:e2e:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -192,7 +192,7 @@
         "updateCommand": "test:e2e:visual:auth:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -204,7 +204,7 @@
         "updateCommand": "test:e2e:visual:auth:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -216,7 +216,7 @@
         "updateCommand": "test:e2e:visual:advanced:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -228,7 +228,7 @@
         "updateCommand": "test:e2e:visual:assurance:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -240,7 +240,7 @@
         "updateCommand": "test:e2e:visual:persona:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       },
@@ -252,7 +252,7 @@
         "updateCommand": "test:e2e:compatibility:visual:update",
         "browser": "chromium",
         "device": "Desktop Chrome",
-        "osAssumption": "darwin",
+        "osAssumptions": ["darwin", "win32"],
         "diffThreshold": "playwright-default",
         "reviewEvidenceCommand": "check:operational-test-reliability-governance"
       }

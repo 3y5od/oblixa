@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const strict = process.env.DR_DRILL_STRICT === "1" || process.env.DR_DRILL_STRICT === "true";
 const url = process.env.DR_VENDOR_STATUS_URL;
@@ -9,10 +9,9 @@ if (!strict) {
   process.exit(0);
 }
 if (process.env.DR_DRILL_INCLUDE_RPO === "1" || process.env.DR_DRILL_INCLUDE_RPO === "true") {
-  const r = spawnSync("npm", ["run", "report:rpo-rto-status"], {
+  const r = spawnSyncCrossPlatform("npm", ["run", "report:rpo-rto-status"], {
     cwd: path.resolve(process.cwd()),
     stdio: "inherit",
-    shell: true,
   });
   if (r.status !== 0) {
     console.error(JSON.stringify({ ok: false, error: "report_rpo_rto_status_failed" }, null, 2));

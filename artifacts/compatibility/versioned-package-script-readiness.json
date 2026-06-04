@@ -4,25 +4,23 @@
   "source": "package.json and PACKAGE_SCRIPT_ALIASES",
   "aliasCount": 37,
   "readyForRemovalCount": 0,
-  "localReadyForRemovalCount": 8,
+  "localReadyForRemovalCount": 37,
   "blockedAliasCount": 37,
-  "blockingReferenceCount": 57,
-  "repoLocalReferenceCount": 57,
+  "blockingReferenceCount": 0,
+  "repoLocalReferenceCount": 0,
   "docsOnlyReferenceCount": 0,
   "generatedArtifactReferenceCount": 0,
   "externalOrManualReferenceCount": 0,
   "byStatus": {
     "alias_added": 37
   },
-  "byBlockingClass": {
-    "ci_or_config": 57
-  },
+  "byBlockingClass": {},
   "byBlockerCategory": {
     "docs_only": 0,
     "external_or_manual": 0,
     "generated_artifact": 0,
     "ready_for_removal": 0,
-    "repo_local": 57
+    "repo_local": 0
   },
   "aliases": [
     {
@@ -30,9 +28,9 @@
       "neutralAlias": "check:complete-closure",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-complete-closure",
         "neutral": "npm run check:complete-closure"
@@ -43,8 +41,8 @@
       "neutralCommand": "vitest run src/lib/complete-closure.test.ts src/lib/zero-exclusion-report.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -53,7 +51,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -69,27 +67,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-inventory-lock",
       "neutralAlias": "check:release-inventory-lock",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-inventory-lock",
         "neutral": "npm run check:release-inventory-lock"
@@ -100,8 +87,8 @@
       "neutralCommand": "node scripts/check-release-inventory-lock.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -110,7 +97,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -126,27 +113,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-migration-smoke",
       "neutralAlias": "check:migration-smoke:current",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-migration-smoke",
         "neutral": "npm run check:migration-smoke:current"
@@ -157,8 +133,8 @@
       "neutralCommand": "node scripts/check-migration-smoke-current.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -167,7 +143,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -183,27 +159,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-migration-smoke:strict",
       "neutralAlias": "check:migration-smoke:current:strict",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-migration-smoke:strict",
         "neutral": "npm run check:migration-smoke:current:strict"
@@ -214,8 +179,8 @@
       "neutralCommand": "node scripts/check-migration-smoke-current.mjs --strict",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -224,7 +189,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -240,27 +205,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-privacy-scan",
       "neutralAlias": "check:release-privacy-scan",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-privacy-scan",
         "neutral": "npm run check:release-privacy-scan"
@@ -271,8 +225,8 @@
       "neutralCommand": "node scripts/check-release-evidence.mjs --privacy-scan all",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -281,7 +235,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -297,27 +251,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-promotable",
       "neutralAlias": "check:release-promotable",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-promotable",
         "neutral": "npm run check:release-promotable"
@@ -328,8 +271,8 @@
       "neutralCommand": "node scripts/check-release-promotable.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -338,7 +281,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -354,27 +297,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-promotable:report",
       "neutralAlias": "report:release-promotable",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-promotable:report",
         "neutral": "npm run report:release-promotable"
@@ -385,8 +317,8 @@
       "neutralCommand": "node scripts/check-release-promotable.mjs --report",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -395,7 +327,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -411,27 +343,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-release-evidence",
       "neutralAlias": "check:release-evidence",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-release-evidence",
         "neutral": "npm run check:release-evidence"
@@ -442,8 +363,8 @@
       "neutralCommand": "node scripts/check-release-evidence.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -452,7 +373,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -468,27 +389,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-runtime-evidence-plan",
       "neutralAlias": "report:runtime-evidence-plan",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-runtime-evidence-plan",
         "neutral": "npm run report:runtime-evidence-plan"
@@ -499,8 +409,8 @@
       "neutralCommand": "node scripts/check-release-evidence.mjs --runtime-plan v10-rc-runtime --metric all",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -509,7 +419,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -525,27 +435,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-suite",
       "neutralAlias": "check:release-suite-current",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-suite",
         "neutral": "npm run check:release-suite-current"
@@ -556,8 +455,8 @@
       "neutralCommand": "node scripts/check-release-suite-current.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -566,7 +465,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -582,27 +481,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v10-zero-exclusion-report",
       "neutralAlias": "check:zero-exclusion-report",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v10-zero-exclusion-report",
         "neutral": "npm run check:zero-exclusion-report"
@@ -613,8 +501,8 @@
       "neutralCommand": "vitest run src/lib/zero-exclusion-report.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -623,7 +511,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -639,27 +527,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v7-hrefs:strict",
       "neutralAlias": "check:surface-hrefs:compatibility:strict",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v7-hrefs:strict",
         "neutral": "npm run check:surface-hrefs:compatibility:strict"
@@ -670,8 +547,8 @@
       "neutralCommand": "npm run check:surface:hrefs:strict",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -680,7 +557,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -696,27 +573,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v7-suite",
       "neutralAlias": "check:surface-suite:compatibility",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v7-suite",
         "neutral": "npm run check:surface-suite:compatibility"
@@ -727,8 +593,8 @@
       "neutralCommand": "npm run check:surface:suite",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -737,7 +603,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -753,27 +619,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-acceptance-criteria",
       "neutralAlias": "check:surface:acceptance-criteria",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-acceptance-criteria",
         "neutral": "npm run check:surface:acceptance-criteria"
@@ -784,8 +639,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/acceptance-criteria.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -794,7 +649,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -810,27 +665,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-acceptance-matrix",
       "neutralAlias": "check:surface:acceptance-matrix",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-acceptance-matrix",
         "neutral": "npm run check:surface:acceptance-matrix"
@@ -841,8 +685,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/acceptance-matrix.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -851,7 +695,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -867,27 +711,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-action-eligibility",
       "neutralAlias": "check:surface:action-eligibility",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-action-eligibility",
         "neutral": "npm run check:surface:action-eligibility"
@@ -898,8 +731,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/action-eligibility-gate.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -908,7 +741,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -924,27 +757,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-action-inventory",
       "neutralAlias": "check:surface:action-inventory",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-action-inventory",
         "neutral": "npm run check:surface:action-inventory"
@@ -955,8 +777,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/server-action-inventory-coverage.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -965,7 +787,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -981,27 +803,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-api-eligibility",
       "neutralAlias": "check:surface:api-eligibility",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-api-eligibility",
         "neutral": "npm run check:surface:api-eligibility"
@@ -1012,8 +823,8 @@
       "neutralCommand": "npm run check:api-workspace-eligibility:strict",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1022,7 +833,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1038,27 +849,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-api-inventory",
       "neutralAlias": "check:surface:api-inventory",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-api-inventory",
         "neutral": "npm run check:surface:api-inventory"
@@ -1069,8 +869,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/api-inventory-coverage.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1079,7 +879,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1095,27 +895,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-denial-mapping",
       "neutralAlias": "check:surface:denial-mapping",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-denial-mapping",
         "neutral": "npm run check:surface:denial-mapping"
@@ -1126,8 +915,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/denial-status.test.ts src/lib/product-surface/denial-class-reachability.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1136,7 +925,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1152,27 +941,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-diagnostics-contract",
       "neutralAlias": "check:surface:diagnostics-contract",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-diagnostics-contract",
         "neutral": "npm run check:surface:diagnostics-contract"
@@ -1183,8 +961,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/diagnostics-contract.test.ts src/lib/product-surface/diagnostics-field-presence.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1193,7 +971,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1209,27 +987,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-hrefs",
       "neutralAlias": "check:surface:hrefs",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-hrefs",
         "neutral": "npm run check:surface:hrefs"
@@ -1240,8 +1007,8 @@
       "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1250,7 +1017,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1266,27 +1033,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-hrefs:strict",
       "neutralAlias": "check:surface:hrefs:strict",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-hrefs:strict",
         "neutral": "npm run check:surface:hrefs:strict"
@@ -1297,8 +1053,8 @@
       "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs --strict",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1307,7 +1063,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1323,27 +1079,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-page-inventory",
       "neutralAlias": "check:surface:page-inventory",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-page-inventory",
         "neutral": "npm run check:surface:page-inventory"
@@ -1354,8 +1099,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1364,7 +1109,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1380,27 +1125,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-suite",
       "neutralAlias": "check:surface:suite",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-suite",
         "neutral": "npm run check:surface:suite"
@@ -1411,8 +1145,8 @@
       "neutralCommand": "node scripts/pipelines/pipeline-surface-suite.mjs && echo \"check:surface:page-inventory check:surface:api-inventory check:surface:action-inventory check:surface:acceptance-matrix check:surface:api-eligibility check:surface:action-eligibility check:surface:hrefs:strict check:surface:vocabulary check:workflow-destinations check:api-route-tests check:api-route-auth-contract check:api-route-auth-route-index check:server-lib-admin check:surface:diagnostics-contract check:route-inventory check:surface:denial-mapping check:surface:supplemental-contracts refinement-contract.test.ts\"",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1421,7 +1155,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1437,27 +1171,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-supplemental-contracts",
       "neutralAlias": "check:surface:supplemental-contracts",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-supplemental-contracts",
         "neutral": "npm run check:surface:supplemental-contracts"
@@ -1468,8 +1191,8 @@
       "neutralCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts src/lib/product-surface/registry-contract.test.ts src/lib/product-surface/eligibility-output-contract.test.ts src/lib/product-surface/eligibility-surface-type-matrix.test.ts src/lib/product-surface/context-load-build-parity.test.ts src/lib/product-surface/proxy-path-policy-alignment.test.ts src/lib/product-surface/admin-bypass-boundary.test.ts src/lib/product-surface/cross-surface-consistency.test.ts src/lib/product-surface/href-audit-roots-contract.test.ts src/lib/product-surface/route-inventory-mapping.test.ts src/lib/product-surface/metadata-public-routes.test.ts src/lib/product-surface/sentry-scrub-bridge.test.ts src/lib/product-surface/workspace-role-matrix.test.ts src/lib/product-surface/governed-page-shell.test.ts src/lib/product-surface/capability-token-discoverability.test.ts src/lib/product-surface/external-actions-token-contract.test.ts src/lib/product-surface/nav-cmdk-utilities-parity.test.ts src/lib/auth/post-auth-redirect.test.ts src/lib/product-surface/objectives-trace.test.ts src/lib/product-surface/alias-compatibility-parity.test.ts src/lib/product-surface/test-exemptions-contract.test.ts src/lib/product-surface/outbound-link-sources.test.ts",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1478,7 +1201,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1494,27 +1217,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v8-vocabulary",
       "neutralAlias": "check:surface:vocabulary",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v8-vocabulary",
         "neutral": "npm run check:surface:vocabulary"
@@ -1525,8 +1237,8 @@
       "neutralCommand": "node scripts/check-product-surface-vocabulary.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1535,7 +1247,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1551,27 +1263,16 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "check:v9-suite",
       "neutralAlias": "check:previous-release-suite",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run check:v9-suite",
         "neutral": "npm run check:previous-release-suite"
@@ -1582,8 +1283,8 @@
       "neutralCommand": "node scripts/check-previous-release-suite.mjs",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 3,
-      "blockingReferenceCount": 2,
-      "repoLocalReferenceCount": 2,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1592,7 +1293,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 2
+        "repo_local": 0
       },
       "references": [
         {
@@ -1608,18 +1309,7 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/qa-comprehensive-taxonomy.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        },
-        {
-          "path": "config/qa-tier-coverage-allowlist.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "rebuild:v10-read-models",
@@ -1778,9 +1468,9 @@
       "neutralAlias": "test:e2e:compatibility",
       "owner": "platform-hardening",
       "status": "alias_added",
-      "readinessStatus": "blocked_by_repo_local_references",
-      "readinessBlocker": "1 repo-local reference(s) still point at the legacy package script.",
-      "localReadyForRemoval": false,
+      "readinessStatus": "blocked_by_manual_follow_up",
+      "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
+      "localReadyForRemoval": true,
       "validationCommands": {
         "legacy": "npm run test:e2e:v9",
         "neutral": "npm run test:e2e:compatibility"
@@ -1791,8 +1481,8 @@
       "neutralCommand": "playwright test --grep @compatibility",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 2,
-      "blockingReferenceCount": 1,
-      "repoLocalReferenceCount": 1,
+      "blockingReferenceCount": 0,
+      "repoLocalReferenceCount": 0,
       "docsOnlyReferenceCount": 0,
       "generatedArtifactReferenceCount": 0,
       "externalOrManualReferenceCount": 0,
@@ -1801,7 +1491,7 @@
         "external_or_manual": 0,
         "generated_artifact": 0,
         "ready_for_removal": 0,
-        "repo_local": 1
+        "repo_local": 0
       },
       "references": [
         {
@@ -1813,13 +1503,7 @@
           "class": "tooling"
         }
       ],
-      "blockingReferences": [
-        {
-          "path": "config/operational-schema-compatibility.json",
-          "class": "ci_or_config",
-          "blockerCategory": "repo_local"
-        }
-      ]
+      "blockingReferences": []
     },
     {
       "legacyName": "test:e2e:v9:visual",
@@ -1912,7 +1596,7 @@
       "earliestRemovalCondition": "All repo-local references use the neutral command and external runbooks/branch protection evidence no longer require the legacy command.",
       "manualFollowUp": "Remove the legacy package-script alias only after this row reports ready_for_removal.",
       "legacyCommand": "npm run test:vitest:current-product",
-      "neutralCommand": "vitest run v10.test",
+      "neutralCommand": "vitest run \"src/lib/objective-telemetry.test.ts\" \"src/lib/release-state-analytics.test.ts\" \"src/lib/release-state-email-templates.test.ts\" \"src/lib/product-surface/refinement-contract.test.ts\" \"src/lib/product-surface/workflow-destinations.test.ts\" \"src/lib/product-surface/resolver.test.ts\" \"src/lib/product-surface/nav-visibility.test.ts\" \"src/components/layout/sidebar-model.test.ts\" \"src/components/layout/command-palette.ui.test.tsx\" \"src/app/(dashboard)/core-empty-state-copy.test.ts\" \"src/app/(dashboard)/loading-error-consistency.test.ts\" \"src/app/(dashboard)/settings/billing/page.surface.test.ts\" \"src/components/landing/landing-page.ui.test.tsx\" \"src/components/landing/marketing-site-chrome.ui.test.tsx\" \"src/components/auth/auth-form.ui.test.tsx\"",
       "aliasDirection": "legacy_to_neutral",
       "referenceCount": 1,
       "blockingReferenceCount": 0,

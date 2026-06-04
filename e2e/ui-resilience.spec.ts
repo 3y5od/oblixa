@@ -3,10 +3,22 @@
  */
 import { test, expect } from "@playwright/test";
 import { applyTheme } from "./fixtures/theme-fixture";
+import { settleWebKitWorker } from "./fixtures/webkit-worker-teardown";
 
 test.describe("@resilience external status fetch", () => {
+  test.afterAll(async ({}, testInfo) => {
+    await settleWebKitWorker(testInfo);
+  });
+
   test.beforeEach(async ({ page }) => {
     await applyTheme(page, "light");
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+    if (!page.isClosed()) {
+      await page.close({ runBeforeUnload: false });
+    }
   });
 
   test("maps HTTP 500 on status read to a visible recovery message", async ({ page }) => {

@@ -66,14 +66,14 @@
       "lastReviewed": "2026-05-14",
       "freshnessWindowDays": 180,
       "requiredMarkers": [
-        "LAST_REVIEWED_ISO",
-        "SECURITY_EMAIL",
-        "security.txt",
-        "DPA",
-        "Subprocessors"
+        "early-access limits",
+        "Access and roles",
+        "Audit history",
+        "Data export and deletion",
+        "does not provide legal advice"
       ],
-      "contactPath": "mailto:[redacted]",
-      "manualBoundary": "security assurance approval remains manual"
+      "contactPath": "/early-access",
+      "manualBoundary": "formal security assurance approval remains manual"
     },
     {
       "id": "cookies",
@@ -136,12 +136,12 @@
       "freshnessWindowDays": 180,
       "requiredMarkers": [
         "LegalPageJsonLd",
-        "1-day reply",
+        "Request early access",
         "No marketing list",
-        "security and DPA requests"
+        "Browse Oblixa"
       ],
       "contactPath": "/contact",
-      "manualBoundary": "support response and sales qualification remain manual"
+      "manualBoundary": "support response and early-access qualification remain manual"
     },
     {
       "id": "security-txt",
@@ -176,19 +176,19 @@
       "manualBoundary": "subprocessor notice and legal review remain manual"
     },
     {
-      "id": "dpa-request",
+      "id": "early-access-security-boundary",
       "surfaceType": "public-trust-path",
-      "route": "/contact?interested=dpa",
+      "route": "/security",
       "path": "src/app/(marketing)/security/page.tsx",
       "ownerArea": "trust-compliance",
       "lastReviewed": "2026-05-28",
       "freshnessWindowDays": 180,
       "requiredMarkers": [
-        "Request a Data Processing Addendum (DPA)",
-        "/contact?interested=dpa"
+        "not intended for teams that require formal enterprise",
+        "Request early access"
       ],
-      "contactPath": "/contact?interested=dpa",
-      "manualBoundary": "DPA negotiation and signature remain manual"
+      "contactPath": "/early-access",
+      "manualBoundary": "formal procurement and security review remain manual"
     }
   ],
   "publicClaims": [
@@ -208,7 +208,7 @@
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "capabilityRefs": [
         "permissions-audit-export",
-        "dpa-security-contact"
+        "security-boundary-contact"
       ],
       "allowedScope": "security practice description, not certification",
       "validationCommand": "check:operational-legal-trust-compliance"
@@ -225,14 +225,14 @@
       "validationCommand": "audit:release-state-code-only:strict"
     },
     {
-      "id": "dpa-on-request",
-      "claim": "DPA available on request.",
+      "id": "early-access-security-review-boundary",
+      "claim": "Early access is not intended for teams that require formal enterprise security review before evaluation.",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "capabilityRefs": [
-        "dpa-security-contact"
+        "security-boundary-contact"
       ],
-      "manualBoundary": "DPA negotiation and signature remain manual",
-      "allowedScope": "request channel only",
+      "manualBoundary": "formal procurement and security review remain manual",
+      "allowedScope": "early-access fit boundary",
       "validationCommand": "check:public-seo-surface"
     }
   ],

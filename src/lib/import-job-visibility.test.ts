@@ -13,11 +13,13 @@ describe("import job visibility", () => {
       total_rows: 12,
       inserted_rows: 0,
       error_rows: 12,
-      failure_reason: "Contract insert failed",
+      // A raw database insert error — must never reach the user-visible detail.
+      failure_reason: 'null value in column "title" violates not-null constraint',
     };
     expect(getImportJobTone(job)).toBe("risk");
     expect(getImportJobHeadline(job)).toBe("Import failed");
-    expect(getImportJobDetail(job)).toContain("Contract insert failed");
+    expect(getImportJobDetail(job)).toContain("stopped before contracts were created");
+    expect(getImportJobDetail(job)).not.toContain("violates not-null constraint");
     expect(importJobCanRetry(job)).toBe(true);
   });
 

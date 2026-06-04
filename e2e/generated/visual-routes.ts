@@ -105,7 +105,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Product"
+    "expectedHeading": "Here’s how it fits together."
   },
   {
     "route": "/pricing",
@@ -117,13 +117,22 @@ export const GENERATED_VISUAL_ROUTES = [
     "expectedHeading": "Pricing"
   },
   {
+    "route": "/early-access",
+    "visitPath": "/early-access",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "mode": "public",
+    "expectedHeading": "Replace your contract-tracking spreadsheet."
+  },
+  {
     "route": "/contact",
     "visitPath": "/contact",
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Contact"
+    "expectedHeading": "Request early access."
   },
   {
     "route": "/",
@@ -132,7 +141,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Run renewals, approvals, and obligations from one trusted system"
+    "expectedHeading": "Replace your contract-tracking spreadsheet."
   },
   {
     "route": "/login",
@@ -150,7 +159,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "public",
-    "expectedHeading": "Create your account"
+    "expectedHeading": "Founder-led early access"
   },
   {
     "route": "/forgot-password",

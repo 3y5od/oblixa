@@ -22,12 +22,17 @@ const VIEW = join(
 const SPEC_STRINGS = join(process.cwd(), "src/lib/settings/spec-strings.ts");
 const ACTION = join(process.cwd(), "src/actions/notifications.ts");
 const GLOBALS = join(process.cwd(), "src/app/globals.css");
+const READONLY = join(
+  process.cwd(),
+  "src/app/(dashboard)/settings/operations/notifications-readonly.tsx"
+);
 
 const pageSrc = readFileSync(PAGE, "utf8");
 const viewSrc = readFileSync(VIEW, "utf8");
 const specSrc = readFileSync(SPEC_STRINGS, "utf8");
 const actionSrc = readFileSync(ACTION, "utf8");
 const globalsSrc = readFileSync(GLOBALS, "utf8");
+const readOnlySrc = readFileSync(READONLY, "utf8");
 
 describe("Notifications page — release-state §1704-1723 compliance", () => {
   it("all 8 required content items present", () => {
@@ -43,8 +48,10 @@ describe("Notifications page — release-state §1704-1723 compliance", () => {
     for (const cat of requiredCategories) {
       expect(keys).toContain(cat);
     }
-    // V3 — perUserCta retained but text changed to "Open account".
-    expect(viewSrc).toContain("perUserCta");
+    // V4 — the per-user "Open account" strip is removed (it pointed at a
+    // dead route). The summary rail is surface two now. perUserCta stays
+    // in spec-strings for backwards-compat but is no longer rendered.
+    expect(viewSrc).toContain("NotificationsSummary");
     // V3 §1.1 — WORKSPACE eyebrow constant retained for backwards
     // compat but no longer rendered in the view.
     expect(SETTINGS_NOTIFICATIONS_STRINGS.eyebrows.workspace).toBe("WORKSPACE");
@@ -92,8 +99,9 @@ describe("Notifications page — V1 maximal-pass defect fixes carried", () => {
     expect(viewSrc).not.toMatch(/name="slackEnabled"/);
   });
 
-  it("V1 §1.30 root has max-w-4xl mx-auto", () => {
-    expect(viewSrc).toMatch(/ui-page-stack mx-auto max-w-4xl/);
+  it("V4 §1.30 root widened to max-w-5xl mx-auto + two-column split", () => {
+    expect(viewSrc).toMatch(/ui-page-stack mx-auto max-w-5xl/);
+    expect(viewSrc).toMatch(/lg:grid-cols-\[minmax\(0,1fr\)_300px\]/);
   });
 
   it("V1 §1.31 actions slot dropped from DashboardPageHeader", () => {
@@ -126,18 +134,18 @@ describe("Notifications page — V3 Tier 0 defects", () => {
     expect(SETTINGS_NOTIFICATIONS_STRINGS.perUserCta).not.toContain("Adjust");
   });
 
-  it("V3 §0.6 Per-user strip medallion uses UserRound (not Mail)", () => {
-    expect(viewSrc).toContain("UserRound");
-    // Mail still used for Email reminders card medallion, but not on
-    // the per-user strip (UserRound differentiates the destination).
-    expect(viewSrc).toMatch(/UserRound[\s\S]{0,400}strokeWidth/);
+  it("V4 §0.6 dead 'Open account' per-user strip removed", () => {
+    // It pointed at /settings/account#notifications — a route that does
+    // not exist — and there is no personal-preference surface behind it.
+    expect(viewSrc).not.toContain("UserRound");
+    expect(viewSrc).not.toContain("/settings/account#notifications");
   });
 
-  it("V3 §0.7 Save button block has no top divider", () => {
-    // No border-t directly above the Save button block.
-    expect(viewSrc).not.toMatch(
-      /flex justify-end border-t border-\[color:color-mix\(in_oklab,var\(--border-subtle\)/
-    );
+  it("V4 §0.7 Save/Discard live in a bordered card-footer action bar", () => {
+    // V3 forbade a divider above an inline Save block; V4 moves Save +
+    // Discard into a card-footer (top border + dirty-state indicator).
+    expect(viewSrc).toMatch(/<footer[^>]*border-t/);
+    expect(viewSrc).toContain("Unsaved changes");
   });
 });
 
@@ -169,9 +177,11 @@ describe("Notifications page — V3 Tier 1 IA subtraction", () => {
     expect(viewSrc).not.toContain("emailRemindersToggleHelp");
   });
 
-  it("V3 §1.6 visible START/END caps labels not rendered (sr-only aria-labels used)", () => {
-    expect(viewSrc).not.toContain("quietStartLabel");
-    expect(viewSrc).not.toContain("quietEndLabel");
+  it("V4 §1.6 visible Start/End caps labels render above the inputs", () => {
+    // V3 hid these to sr-only, leaving an ambiguous "0 → 0" pair. V4 shows
+    // them while the descriptive aria-labels still carry range + UTC.
+    expect(viewSrc).toContain("quietStartLabel");
+    expect(viewSrc).toContain("quietEndLabel");
     expect(viewSrc).toContain('aria-label="Quiet hours start');
     expect(viewSrc).toContain('aria-label="Quiet hours end');
   });
@@ -283,21 +293,28 @@ describe("Notifications page — V3 Tier 4 form/save UX", () => {
   });
 });
 
-describe("Notifications page — V3 Tier 5 Per-user strip refactor", () => {
-  it("V3 §5.1 strip becomes a Link covering full bounding box", () => {
-    expect(viewSrc).toMatch(
-      /<Link\s+href="\/settings\/account#notifications"[\s\S]{0,200}min-h-\[56px\]/
-    );
+describe("Notifications page — V4 Tier 5 summary rail (replaces per-user strip)", () => {
+  const SUMMARY = join(
+    process.cwd(),
+    "src/app/(dashboard)/settings/operations/notifications-summary.tsx"
+  );
+  const summarySrc = readFileSync(SUMMARY, "utf8");
+
+  it("V4 §5.1 view renders the summary rail beside the form", () => {
+    expect(viewSrc).toContain('from "./notifications-summary"');
+    expect(viewSrc).toMatch(/<NotificationsSummary[\s\S]{0,400}digestEnabled=/);
   });
 
-  it("V3 §5.4 focus-visible outline on the strip", () => {
-    expect(viewSrc).toMatch(
-      /focus-visible:outline-2[\s\S]{0,200}focus-visible:outline-\[color:color-mix/
-    );
+  it("V4 §5.2 rail reflects derived posture via shared chip primitives", () => {
+    expect(summarySrc).toContain("StatusBadge");
+    expect(summarySrc).toContain("RatioChip");
+    expect(summarySrc).toMatch(/quietStart === quietEnd/);
+    expect(summarySrc).toMatch(/quietStart > quietEnd/);
   });
 
-  it("V3 §5.5 strip uses rounded-2xl (card radius)", () => {
-    expect(viewSrc).toMatch(/<Link\s+href="\/settings\/account#notifications"[\s\S]{0,400}rounded-2xl/);
+  it("V4 §5.3 rail is a calmer-cousin surface (no landing decoration)", () => {
+    expect(summarySrc).not.toContain("landing-eyebrow-dot");
+    expect(summarySrc).not.toContain("landing-corner-ring");
   });
 });
 
@@ -373,8 +390,18 @@ describe("Notifications page — V3 Tier 15 mobile/touch", () => {
     expect(viewSrc).toMatch(/min-h-\[44px\]/);
   });
 
-  it("V3 §15.2 Per-user strip min-h-[56px]", () => {
-    expect(viewSrc).toMatch(/min-h-\[56px\]/);
+  it("V4 §15.2 non-admins get a read-only view, not a disabled form", () => {
+    // The editable section is gated behind canEdit; non-admins render the
+    // read-only component (status rows + locked footer) so no checkbox or
+    // number input ever appears for a user who cannot edit.
+    expect(viewSrc).toMatch(/canEdit \?[\s\S]{0,30}<section/);
+    expect(viewSrc).toContain("<NotificationsReadOnly");
+    expect(viewSrc).toContain('from "./notifications-readonly"');
+    expect(readOnlySrc).toContain("readOnlyFooter");
+    expect(readOnlySrc).toContain("Lock");
+    // read-only rows are status badges, not editable controls.
+    expect(readOnlySrc).not.toContain("ui-checkbox");
+    expect(readOnlySrc).not.toContain('type="number"');
   });
 
   it("V3 §15.3 Save/Discard mobile stacking (flex-col-reverse sm:flex-row)", () => {
@@ -568,5 +595,38 @@ describe("Notifications server action", () => {
   it("action returns discriminated success | error", () => {
     expect(actionSrc).toMatch(/{\s*success:\s*true\s*}/);
     expect(actionSrc).toMatch(/{\s*error:\s*string\s*}/);
+  });
+});
+
+describe("Notifications page — V4 layout, read-only state, summary copy", () => {
+  it("V4 main card promoted to ui-card-raised", () => {
+    expect(viewSrc).toMatch(/id="notifications"[\s\S]{0,80}ui-card-raised/);
+  });
+
+  it("V4 non-admin read-only notice is a titled Lock notice, not a bare line", () => {
+    expect(viewSrc).toContain("readOnlyTitle");
+    expect(viewSrc).toContain("nonAdminBanner");
+    expect(viewSrc).toContain("Lock");
+    expect(SETTINGS_NOTIFICATIONS_STRINGS.readOnlyTitle).toBe("Read-only");
+  });
+
+  it("V4 quiet-hours UTC chip + derived any-time / overnight chip", () => {
+    expect(SETTINGS_NOTIFICATIONS_STRINGS.utcLabel).toBe("UTC");
+    expect(viewSrc).toContain("utcLabel");
+    expect(viewSrc).toContain("summary.anyTime");
+    expect(viewSrc).toContain("summary.overnight");
+  });
+
+  it("V4 summary spec-strings present + voice-clean (applies to everyone)", () => {
+    expect(SETTINGS_NOTIFICATIONS_STRINGS.summary.title).toBe("Current setup");
+    expect(SETTINGS_NOTIFICATIONS_STRINGS.summary.context).toContain("everyone");
+  });
+
+  it("V4 read-only view renders category status rows, no editable controls", () => {
+    expect(readOnlySrc).toContain("StatusBadge");
+    expect(readOnlySrc).toContain("S.categories.map");
+    expect(readOnlySrc).toContain("readOnlyFooter");
+    expect(readOnlySrc).not.toContain("onChange");
+    expect(readOnlySrc).not.toContain("<input");
   });
 });

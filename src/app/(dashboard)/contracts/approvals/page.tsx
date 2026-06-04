@@ -25,6 +25,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { StatCell, type StatTone } from "@/components/ui/stat-cell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 
 export const metadata = { title: "Approvals" };
 
@@ -554,7 +555,7 @@ export default async function ApprovalsPage(props: {
                             Target
                           </dt>
                           <dd className="font-mono text-[var(--text-secondary)]">
-                            {format(new Date(`${row.target_decision_date}T12:00:00`), "MMM d, yyyy")}
+                            {formatBusinessDateAtNoon(row.target_decision_date)}
                           </dd>
                         </div>
                       ) : null}
@@ -564,7 +565,7 @@ export default async function ApprovalsPage(props: {
                             Escalate
                           </dt>
                           <dd className="font-mono text-[var(--warning-ink)]">
-                            {format(new Date(`${row.escalation_date}T12:00:00`), "MMM d, yyyy")}
+                            {formatBusinessDateAtNoon(row.escalation_date)}
                           </dd>
                         </div>
                       ) : null}

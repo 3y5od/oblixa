@@ -3,11 +3,11 @@ export const FIELD_REVIEW_EYEBROW = "Field review";
 export const FIELD_REVIEW_EMPTY_STATE = "No fields need review.";
 
 export const FIELD_REVIEW_REQUIRED_CONTENT = [
-  "Field name",
+  "Field",
   "Suggested value",
   "Source snippet",
-  "Document preview",
-  "Confidence indicator",
+  "Source preview",
+  "Confidence",
   "Current approved value",
   "Review progress",
 ] as const;

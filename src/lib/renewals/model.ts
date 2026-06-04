@@ -15,6 +15,7 @@ import {
   RENEWALS_PRIMARY_CTA,
 } from "./spec-strings";
 import type {
+  RenewalDateReviewState,
   RenewalFilterState,
   RenewalOption,
   RenewalRow,
@@ -122,10 +123,12 @@ export function normalizeRenewalWindow(input: { window?: string | null; horizon?
 
 export function normalizeRenewalFilters(input: RenewalsModelSearchInput): RenewalFilterState {
   const status = normalizeToken(input.status);
+  const review = normalizeToken(input.review);
   return {
     owner: stringValue(input.owner),
     counterparty: stringValue(input.counterparty),
     status: isRenewalStatus(status) ? status : "",
+    review: isRenewalDateReviewState(review) ? review : "",
   };
 }
 
@@ -142,6 +145,7 @@ export function buildRenewalsHref(input: {
     if (filters.owner) params.set("owner", filters.owner);
     if (filters.counterparty) params.set("counterparty", filters.counterparty);
     if (filters.status) params.set("status", filters.status);
+    if (filters.review) params.set("review", filters.review);
   }
   if (input.create) params.set("create", "1");
   if (input.contract) params.set("contract", input.contract);
@@ -155,6 +159,7 @@ export function buildRenewalsExportHref(input: { window: RenewalWindowKey; filte
   if (input.filters.owner) params.set("owner", input.filters.owner);
   if (input.filters.counterparty) params.set("counterparty", input.filters.counterparty);
   if (input.filters.status) params.set("status", input.filters.status);
+  if (input.filters.review) params.set("review", input.filters.review);
   return `/api/export/renewals?${params.toString()}`;
 }
 
@@ -186,12 +191,14 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
   const filteredRows = allRows
     .filter((row) => matchesFilters(row, filters))
     .filter((row) => {
-      if (filters.status) return true;
+      // A status or review filter is a cross-horizon triage view (e.g. find every
+      // "missing"-date row), so it bypasses the window; otherwise scope to it.
+      if (filters.status || filters.review) return true;
       return rowsInWindow.some((candidate) => candidate.id === row.id);
     })
     .sort(compareRenewalRows);
 
-  const windowBaseFilters: RenewalFilterState = { ...filters, status: "" };
+  const windowBaseFilters: RenewalFilterState = { ...filters, status: "", review: "" };
   const windows = RENEWAL_WINDOW_ORDER.map((key) => ({
     key,
     label: RENEWAL_WINDOW_LABELS[key],
@@ -227,6 +234,13 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
       statuses: [
         { value: "", label: "Any status" },
         ...Object.entries(RENEWAL_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+      ],
+      reviewStates: [
+        { value: "", label: "Any review state" },
+        { value: "reviewed", label: "Reviewed" },
+        { value: "suggested", label: "Suggested" },
+        { value: "computed", label: "Computed" },
+        { value: "missing", label: "Missing" },
       ],
     },
     create: {
@@ -339,6 +353,21 @@ function shapeRenewalRow(
   const noticeDate = explicitNoticeDate ?? computedNoticeDate;
   const renewalDateRaw = renewalDate?.raw ?? null;
   const noticeDateRaw = noticeDate?.raw ?? null;
+  // Per-date provenance for the row's review chips, tied to the value actually
+  // displayed: a shown date is approved + parseable ("reviewed"), a notice date
+  // inferred from the window is "computed", and when no trusted value is shown
+  // we report whether an untrusted candidate exists ("suggested") or not
+  // ("missing"). Deriving from *Raw guarantees the chip never claims "reviewed"
+  // over an em-dash cell (e.g. an approved-but-unparseable value like "TBD").
+  const noticeDateIsComputed = !explicitNoticeDate && Boolean(computedNoticeDate);
+  const renewalDateReview: RenewalDateReviewState = renewalDateRaw
+    ? "reviewed"
+    : unshownDateReview(input.fields, RENEWAL_DATE_FIELDS);
+  const noticeDateReview: RenewalDateReviewState = noticeDateRaw
+    ? noticeDateIsComputed
+      ? "computed"
+      : "reviewed"
+    : unshownDateReview(input.fields, NOTICE_DATE_FIELDS);
   const relevantFields = input.fields.filter((field) =>
     RENEWAL_FIELD_NAMES.includes((field.field_name ?? "") as (typeof RENEWAL_FIELD_NAMES)[number])
   );
@@ -384,8 +413,11 @@ function shapeRenewalRow(
     contractStatus: normalizeToken(contract.status) || "unknown",
     renewalDate: renewalDateRaw,
     renewalDateLabel: dateLabel(renewalDateRaw),
+    renewalDateReview,
     noticeDate: noticeDateRaw,
     noticeDateLabel: dateLabel(noticeDateRaw),
+    noticeDateReview,
+    noticeDateIsComputed,
     daysUntilRenewal: renewalDate?.date ? differenceInCalendarDays(renewalDate.date, input.today) : null,
     daysUntilNotice: noticeDate?.date ? differenceInCalendarDays(noticeDate.date, input.today) : null,
     status,
@@ -507,7 +539,18 @@ function matchesFilters(row: RenewalRow, filters: RenewalFilterState) {
   if (filters.owner && filters.owner !== "unassigned" && row.ownerUserId !== filters.owner) return false;
   if (filters.counterparty && row.counterparty.toLowerCase() !== filters.counterparty.toLowerCase()) return false;
   if (filters.status && row.status !== filters.status) return false;
+  if (filters.review && !matchesReviewFilter(row, filters.review)) return false;
   return true;
+}
+
+function matchesReviewFilter(row: RenewalRow, review: RenewalDateReviewState) {
+  // "Reviewed" means the whole row is trusted (both dates approved). Every other
+  // state matches when EITHER date is in that state, so a single suggested or
+  // missing date surfaces the row for triage.
+  if (review === "reviewed") {
+    return row.renewalDateReview === "reviewed" && row.noticeDateReview === "reviewed";
+  }
+  return row.renewalDateReview === review || row.noticeDateReview === review;
 }
 
 function compareRenewalRows(a: RenewalRow, b: RenewalRow) {
@@ -538,6 +581,22 @@ function pickApprovedValue(fields: RenewalFieldRow[], names: readonly string[]) 
     .filter((field) => names.includes(field.field_name ?? "") && normalizeToken(field.status) === "approved")
     .sort((a, b) => String(b.updated_at ?? "").localeCompare(String(a.updated_at ?? "")))
     .find((field) => field.field_value?.trim())?.field_value?.trim() ?? null;
+}
+
+// Provenance of a date that is NOT being displayed (no approved + parseable
+// value was shown). A non-rejected extracted candidate means a value exists but
+// is not yet trusted → "suggested"; nothing usable → "missing". A displayed
+// date is always "reviewed"/"computed" and never routes here. Reads only the
+// `extracted_fields.status` already loaded — no extra columns or joins.
+function unshownDateReview(fields: RenewalFieldRow[], names: readonly string[]): RenewalDateReviewState {
+  const hasCandidate = fields.some(
+    (field) =>
+      names.includes(field.field_name ?? "") &&
+      Boolean(field.field_value?.trim()) &&
+      normalizeToken(field.status) !== "rejected"
+  );
+  // An extracted-but-unapproved value is a "suggested" date awaiting review.
+  return hasCandidate ? "suggested" : "missing";
 }
 
 function isNoticeWindowOpen(noticeDate: Date | null, renewalDate: Date | null, today: Date) {
@@ -613,6 +672,10 @@ function isRenewalWindowKey(value: string): value is RenewalWindowKey {
 
 function isRenewalStatus(value: string): value is RenewalStatus {
   return Object.prototype.hasOwnProperty.call(RENEWAL_STATUS_LABELS, value);
+}
+
+function isRenewalDateReviewState(value: string): value is RenewalDateReviewState {
+  return value === "reviewed" || value === "suggested" || value === "computed" || value === "missing";
 }
 
 function normalizeToken(value: unknown) {

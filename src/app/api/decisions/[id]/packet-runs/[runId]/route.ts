@@ -116,7 +116,7 @@ export async function GET(
       organizationId: ctx.orgId,
       actorUserId: ctx.userId,
       action: "decision_packet_artifact.download_url_created",
-      targetType: "decision_packet_run",
+      targetType: "runtime_artifact",
       targetId: runId,
       outcome: "success",
       safeMetadata: {

@@ -23,6 +23,9 @@ describe("Evidence release-state surface", () => {
     expect(raw).toContain("EvidenceRequestCreatePanel");
     expect(raw).toContain('id="live-request-queue"');
     expect(raw).toContain("WorkspaceRequiredState");
+    // Release-fit additions: a live filter bar + a semantic table shell.
+    expect(raw).toContain("EvidenceFilterBar");
+    expect(raw).toContain("<table");
     expect(raw).not.toContain("Evidence studio");
     expect(raw).not.toContain("Template starter");
     expect(raw).not.toContain("Saved templates");
@@ -30,9 +33,20 @@ describe("Evidence release-state surface", () => {
     expect(raw).not.toContain("Reusable pattern");
   });
 
+  it("ships an apply-live filter bar with a clear-filters reset", () => {
+    const bar = readFileSync(
+      join(process.cwd(), "src/components/evidence/evidence-filter-bar.tsx"),
+      "utf8"
+    );
+    expect(bar).toContain("Clear filters");
+    expect(bar).toContain("buildEvidenceHref");
+    // Apply-live: dropdowns navigate on change via the router, not a form submit.
+    expect(bar).toContain("useRouter");
+  });
+
   it("keeps release-state Evidence strings in the local spec module", () => {
     expect(EVIDENCE_PAGE_TITLE).toBe("Evidence");
-    expect(EVIDENCE_PAGE_LEAD).toBe("Track proof that contract work was completed.");
+    expect(EVIDENCE_PAGE_LEAD).toBe("Track proof for contract obligations and follow-up work.");
     expect(EVIDENCE_EMPTY_STATE).toBe(
       "Request evidence when a contract obligation needs proof of completion."
     );
@@ -40,7 +54,7 @@ describe("Evidence release-state surface", () => {
       "Open requests",
       "Overdue requests",
       "Received evidence",
-      "Evidence linked to obligations",
+      "Linked obligations",
     ]);
     expect(Object.values(EVIDENCE_ROW_LABELS)).toEqual([
       "Request title",

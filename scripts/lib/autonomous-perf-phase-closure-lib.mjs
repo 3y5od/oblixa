@@ -164,7 +164,7 @@ const OVERRIDES = {
   "phase-1-turbo-dev": {
     lane: "in_repo",
     refs: ["package.json", "scripts/check-next-config-surface.mjs"],
-    note: "Webpack dev default; turbopack gated by Next + check:next-config-surface policy.",
+    note: "Turbopack dev default; webpack fallback remains available for parity checks.",
   },
   "phase-5-workers-offthread": {
     lane: "na",

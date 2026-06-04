@@ -6,7 +6,7 @@ export const CRON_ROUTE_EXPECTED_KEYS = new Map([
   ["/api/reminders/send", ["sent", "candidates", "skipped_no_email"]],
   ["/api/reports/send-summaries", ["durationMs"]],
   ["/api/reports/capture-metrics", ["durationMs", "updated"]],
-  ["/api/webhooks/dispatch", ["durationMs"]],
+  ["/api/webhooks/dispatch", ["durationMs", "skippedNoSubscribers"]],
   ["/api/tasks/run-rules", ["durationMs"]],
   ["/api/contracts/recompute-signals", ["durationMs"]],
   ["/api/integrations/calendar/sync", ["durationMs"]],

@@ -5,7 +5,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Product",
+    "expectedHeading": "Here’s how it fits together.",
     "coverage": [
       "smoke",
       "a11y",
@@ -26,12 +26,25 @@ export const GENERATED_PUBLIC_ROUTES = [
     ]
   },
   {
+    "route": "/early-access",
+    "visitPath": "/early-access",
+    "fixtureId": null,
+    "routeFamily": "marketing",
+    "shellFamily": "marketing",
+    "expectedHeading": "Replace your contract-tracking spreadsheet.",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual"
+    ]
+  },
+  {
     "route": "/contact",
     "visitPath": "/contact",
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Contact",
+    "expectedHeading": "Request early access.",
     "coverage": [
       "smoke",
       "a11y",
@@ -44,7 +57,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Run renewals, approvals, and obligations from one trusted system",
+    "expectedHeading": "Replace your contract-tracking spreadsheet.",
     "coverage": [
       "smoke",
       "a11y",
@@ -72,7 +85,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
-    "expectedHeading": "Create your account",
+    "expectedHeading": "Founder-led early access",
     "coverage": [
       "smoke",
       "a11y",

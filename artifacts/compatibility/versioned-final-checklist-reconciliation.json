@@ -84,7 +84,7 @@
       "missingMetadataCount": 0,
       "evidence": {
         "requiresExternalOrProductionCutoverCount": 2,
-        "telemetryQueueCount": 74,
+        "telemetryQueueCount": 93,
         "apiRouteQueueCount": 1,
         "cronRouteQueueCount": 32
       }

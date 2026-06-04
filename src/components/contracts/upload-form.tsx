@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Upload, X, FileText, CheckCircle2, Tag } from "lucide-react";
+import { Upload, X, FileText, CheckCircle2, Tag, ChevronRight } from "lucide-react";
 import { createContract } from "@/actions/contracts";
 import { formatFileSize } from "@/lib/format-file-size";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 const CONTRACT_TYPE_OPTIONS: UiSelectOption[] = [
   { value: "MSA", label: "Master Service Agreement" },
@@ -75,6 +76,7 @@ export function UploadForm({
   const [metadata, setMetadata] = useState<MetadataDraft>(emptyMetadata);
   const [runExtraction, setRunExtraction] = useState(true);
   const [tagInput, setTagInput] = useState("");
+  const [titleTouched, setTitleTouched] = useState(false);
   const [hydratedFromStorage, setHydratedFromStorage] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -85,8 +87,6 @@ export function UploadForm({
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const totalFileBytes = files.reduce((sum, file) => sum + file.size, 0);
 
   const hasMeaningfulDraft = useMemo(() => {
     const m = metadata;
@@ -103,16 +103,6 @@ export function UploadForm({
       m.externalReferenceId.trim() !== ""
     );
   }, [files.length, metadata]);
-
-  const hasTypedMetadata = useMemo(() => {
-    const m = metadata;
-    return (
-      m.title.trim() !== "" ||
-      m.counterparty.trim() !== "" ||
-      m.ownerLabel.trim() !== "" ||
-      m.contractType.trim() !== ""
-    );
-  }, [metadata]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -193,7 +183,7 @@ export function UploadForm({
     const messageParts: string[] = [];
     if (accepted.length > 0) {
       messageParts.push(
-        `${accepted.length} file${accepted.length === 1 ? "" : "s"} ready for intake review.`
+        `${accepted.length} file${accepted.length === 1 ? "" : "s"} ready to upload.`
       );
     }
     if (skippedType > 0) {
@@ -278,9 +268,9 @@ export function UploadForm({
         );
       }
       if (result.extractionStatus === "queued") {
-        summaryParts.push("extraction queued");
+        summaryParts.push("field suggestions queued");
       } else if (result.extractionStatus === "not_available") {
-        summaryParts.push("extraction not available in this environment");
+        summaryParts.push("field suggestions unavailable in this environment");
       }
       setUploadOutcome(summaryParts.join(" · "));
       if (!pushAppHref(router, result.redirectTo)) {
@@ -289,20 +279,38 @@ export function UploadForm({
     });
   }
 
-  const submitLabel = files.length > 0 ? "Upload contract" : "Create record";
+  const canSubmit = metadata.title.trim().length > 0;
+  const titleInvalid = titleTouched && metadata.title.trim().length === 0;
+  // Lock every metadata control while the workspace can't create the record
+  // (viewer / no plan) or a submit is in flight — mirrors the dropzone + CTA.
+  const fieldsDisabled = !!disabled || isPending;
+  const submitLabel = files.length > 0 ? "Upload contract" : "Create without a file";
   const pendingLabel = files.length > 0 ? "Uploading…" : "Saving…";
   const pendingNotice =
     isPending && files.length > 0
-      ? "Uploading the contract and confirming which source files stored successfully. If any file fails, you will land on the detail page with recovery steps."
+      ? "Uploading the signed contract and confirming which files stored. If any file fails, you will land on the detail page with recovery steps."
       : isPending
-        ? "Saving the contract record. Add a signed source file later to unlock extraction and source-backed review."
+        ? "Saving the contract record. Attach a signed file later to unlock source-backed suggestions."
         : null;
 
-  const noSourceWarn = files.length === 0 && hasTypedMetadata;
   const parsedTags = metadata.tags
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
+
+  const noticeChipStyle = (tone: "success" | "warning" | "danger") => {
+    const ink =
+      tone === "success"
+        ? "var(--success-ink)"
+        : tone === "warning"
+          ? "var(--warning-ink)"
+          : "var(--danger-ink)";
+    return {
+      borderColor: `color-mix(in oklab, ${ink} 26%, var(--border-subtle))`,
+      background: `color-mix(in oklab, ${ink} 12%, var(--surface-raised))`,
+      color: ink,
+    };
+  };
 
   return (
     <form
@@ -311,25 +319,8 @@ export function UploadForm({
         e.preventDefault();
         handleSubmit();
       }}
-      className="overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)]"
+      className="ui-card-raised p-0"
     >
-      <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="ui-eyebrow">Contract intake</p>
-          {files.length > 0 ? (
-            <div className="flex shrink-0 flex-wrap items-center gap-1.5 text-[10.5px]">
-              <span className="font-mono tabular-nums text-[var(--text-tertiary)]">
-                {files.length} file{files.length === 1 ? "" : "s"}
-              </span>
-              <span className="text-[var(--text-tertiary)]">·</span>
-              <span className="font-mono tabular-nums text-[var(--text-tertiary)]">
-                {formatFileSize(totalFileBytes)}
-              </span>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
       {(disabled && disabledReason) ||
       error ||
       (uploadOutcome && !error) ||
@@ -375,70 +366,57 @@ export function UploadForm({
         </div>
       ) : null}
 
-      <section className="space-y-2.5 px-5 py-4 sm:px-6">
+      <section className="space-y-3 px-5 py-5 sm:px-6">
         <div className="flex items-center justify-between gap-2">
           <p className="ui-eyebrow">Source documents</p>
-          {files.length === 0 ? (
-            noSourceWarn ? (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--warning-ink)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_20%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--warning-ink)]">
-                <span
-                  aria-hidden
-                  className="inline-flex h-2 w-2 rounded-full"
-                  style={{
-                    background: "var(--warning-ink)",
-                    boxShadow:
-                      "0 0 0 3px color-mix(in oklab, var(--warning-soft) 42%, transparent)",
-                  }}
-                />
-                Attach a file to extract
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--text-tertiary)]">
-                <span
-                  aria-hidden
-                  className="inline-flex h-2 w-2 rounded-full"
-                  style={{
-                    background: "var(--border-strong)",
-                    boxShadow:
-                      "0 0 0 3px color-mix(in oklab, var(--border-strong) 28%, transparent)",
-                  }}
-                />
-                No source yet
-              </span>
-            )
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--success-ink)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_18%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--success-ink)]">
+          {files.length > 0 ? (
+            <StatusBadge status="healthy">
               <span
                 aria-hidden
-                className="inline-flex h-2 w-2 rounded-full"
-                style={{
-                  background: "var(--success-ink)",
-                  boxShadow:
-                    "0 0 0 3px color-mix(in oklab, var(--success-soft) 42%, transparent)",
-                }}
+                className="mr-1.5 inline-flex h-1.5 w-1.5 rounded-full"
+                style={{ background: "var(--success-ink)" }}
               />
               {files.length} attached
-            </span>
+            </StatusBadge>
+          ) : (
+            <StatusBadge status="empty">
+              <span
+                aria-hidden
+                className="mr-1.5 inline-flex h-1.5 w-1.5 rounded-full"
+                style={{ background: "var(--border-strong)" }}
+              />
+              No file selected
+            </StatusBadge>
           )}
         </div>
 
         {selectionNotice && (
-          <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-            <span className="ui-chip">{selectionNotice.accepted} accepted</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {selectionNotice.accepted > 0 ? (
+              <span className="ui-chip" style={noticeChipStyle("success")}>
+                {selectionNotice.accepted} accepted
+              </span>
+            ) : null}
             {selectionNotice.duplicate > 0 ? (
-              <span className="ui-chip">{selectionNotice.duplicate} duplicate</span>
+              <span className="ui-chip" style={noticeChipStyle("warning")}>
+                {selectionNotice.duplicate} duplicate
+              </span>
             ) : null}
             {selectionNotice.skippedType > 0 ? (
-              <span className="ui-chip">{selectionNotice.skippedType} unsupported</span>
+              <span className="ui-chip" style={noticeChipStyle("danger")}>
+                {selectionNotice.skippedType} unsupported
+              </span>
             ) : null}
             {selectionNotice.skippedSize > 0 ? (
-              <span className="ui-chip">{selectionNotice.skippedSize} over size limit</span>
+              <span className="ui-chip" style={noticeChipStyle("danger")}>
+                {selectionNotice.skippedSize} over size limit
+              </span>
             ) : null}
           </div>
         )}
 
         <span id="files-label" className="sr-only">
-          Contract files (PDF or DOCX)
+          Upload signed contract files (PDF or DOCX)
         </span>
         <div
           role="button"
@@ -452,12 +430,12 @@ export function UploadForm({
               fileInputRef.current?.click();
             }
           }}
-          className={`group flex min-h-[96px] items-center justify-center rounded-xl border border-dashed px-5 py-4 transition-[border-color,background-color,box-shadow,transform] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] ${
+          className={`group flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-5 py-6 text-center outline-none transition-[border-color,background-color,box-shadow,transform] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
             disabled
               ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] opacity-50"
               : isDragOver
-                ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_56%,transparent)] shadow-[var(--shadow-glow)]"
-                : "cursor-pointer border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-1)]"
+                ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_48%,transparent)] shadow-[var(--shadow-glow)]"
+                : "cursor-pointer border-[color:color-mix(in_oklab,var(--border-strong)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface)_45%,transparent)] hover:border-[color:color-mix(in_oklab,var(--accent)_45%,var(--border-strong))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,transparent)] hover:shadow-[var(--shadow-1)]"
           }`}
           onClick={() => !disabled && fileInputRef.current?.click()}
           onDragEnter={(e) => {
@@ -483,16 +461,19 @@ export function UploadForm({
             if (!disabled) handleFiles(e.dataTransfer.files);
           }}
         >
-          <div className="flex items-center gap-3 text-left">
-            <div className="ui-icon-tile h-9 w-9 shrink-0 transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.02]">
-              <Upload className="h-4 w-4 text-[var(--accent-strong)]" strokeWidth={1.85} aria-hidden />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[13px] font-semibold text-[var(--text-primary)]">
-                Drop files or click to browse
-              </p>
-              <p className="mt-0.5 text-[11px] text-[var(--text-tertiary)]">PDF or DOCX, max 20 MB each</p>
-            </div>
+          <span
+            aria-hidden
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)] transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.04]"
+          >
+            <Upload className="h-5 w-5" strokeWidth={1.85} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold text-[var(--text-primary)]">
+              Drop a signed contract or browse
+            </p>
+            <p className="mt-1 text-[11.5px] leading-none tabular-nums text-[var(--text-tertiary)]">
+              PDF or DOCX<span className="ui-dot-sep">·</span>max 20 MB
+            </p>
           </div>
         </div>
         <input
@@ -509,65 +490,63 @@ export function UploadForm({
         />
 
         {files.length > 0 ? (
-          <ul className="space-y-2">
+          <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
             {files.map((file, i) => (
               <li
                 key={`${file.name}-${i}`}
-                className="ui-support-panel flex items-center justify-between gap-3 px-4 py-3"
+                className="flex items-center justify-between gap-3 py-2.5"
               >
-                <div className="flex min-w-0 items-center gap-2">
-                  <FileText size={16} className="shrink-0 text-[var(--text-tertiary)]" />
-                  <span className="truncate text-sm text-[var(--text-primary)]">{file.name}</span>
-                  <span className="shrink-0 text-xs text-[var(--text-tertiary)]">
-                    ({formatFileSize(file.size)})
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <FileText
+                    className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
+                    strokeWidth={1.85}
+                    aria-hidden
+                  />
+                  <span className="truncate text-[12.5px] font-medium text-[var(--text-primary)]">
+                    {file.name}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-[var(--text-tertiary)]">
+                    {formatFileSize(file.size)}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
-                  className="ui-icon-button min-h-8 min-w-8 border-transparent bg-transparent p-1.5 shadow-none"
+                  className="ui-icon-button min-h-7 min-w-7 shrink-0 border-transparent bg-transparent p-1.5 shadow-none"
                   aria-label={`Remove ${file.name} from list`}
                 >
-                  <X size={16} aria-hidden />
+                  <X className="h-4 w-4" strokeWidth={1.85} aria-hidden />
                 </button>
               </li>
             ))}
           </ul>
         ) : null}
 
-        <label
-          className={`flex items-center gap-2 py-1 text-[12.5px] ${
-            files.length === 0
-              ? "cursor-not-allowed text-[var(--text-tertiary)]"
-              : "cursor-pointer text-[var(--text-secondary)]"
-          }`}
-        >
-          <input
-            type="checkbox"
-            className="ui-checkbox"
-            checked={files.length > 0 && runExtraction}
-            disabled={files.length === 0}
-            onChange={(e) => setRunExtraction(e.target.checked)}
-          />
-          Run extraction after upload
-          {files.length === 0 ? (
-            <span className="ml-auto inline-flex items-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--text-tertiary)]">
-              Needs file
+        {files.length > 0 ? (
+          <label className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] text-[var(--text-secondary)]">
+            <input
+              type="checkbox"
+              className="ui-checkbox"
+              checked={runExtraction}
+              onChange={(e) => setRunExtraction(e.target.checked)}
+            />
+            Suggest fields after upload
+            <span className="ml-2 ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
+              Suggestions require review
             </span>
-          ) : (
-            <span className="ml-auto inline-flex items-center rounded-md border border-[color:color-mix(in_oklab,var(--success-ink)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_18%,var(--surface-raised))] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--success-ink)]">
-              Recommended
-            </span>
-          )}
-        </label>
+          </label>
+        ) : null}
       </section>
 
-      <section className="space-y-3.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 sm:px-6">
-        <p className="ui-eyebrow">Record metadata</p>
+      <section className="space-y-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-5 sm:px-6">
+        <p className="ui-eyebrow">Contract details</p>
 
         <div>
-          <label htmlFor="title" className="ui-label">
+          <label htmlFor="title" className="ui-label flex items-center gap-1.5">
             Contract title
+            <span className="ui-caps-3 inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--accent-strong)]">
+              Required
+            </span>
           </label>
           <input
             id="title"
@@ -576,9 +555,26 @@ export function UploadForm({
             required
             value={metadata.title}
             onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
+            onBlur={() => setTitleTouched(true)}
             placeholder="Add a contract title"
-            className="ui-input-compact mt-1 w-full"
+            disabled={fieldsDisabled}
+            aria-invalid={titleInvalid || undefined}
+            aria-describedby={titleInvalid ? "title-error" : undefined}
+            className={`ui-input-compact mt-1 w-full ${
+              titleInvalid
+                ? "border-[color:color-mix(in_oklab,var(--danger-ink)_55%,var(--border-strong))] focus-visible:border-[color:color-mix(in_oklab,var(--danger-ink)_60%,var(--border-strong))] focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--danger-ink)_45%,transparent),0_0_0_4px_color-mix(in_oklab,var(--danger-ink)_18%,transparent)]"
+                : ""
+            }`}
           />
+          {titleInvalid ? (
+            <p
+              id="title-error"
+              className="ui-caps-3 mt-1.5 text-[10px] leading-none text-[var(--danger-ink)]"
+              role="alert"
+            >
+              Contract title is required
+            </p>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -593,6 +589,7 @@ export function UploadForm({
               value={metadata.counterparty}
               onChange={(e) => setMetadata((m) => ({ ...m, counterparty: e.target.value }))}
               placeholder="Counterparty name"
+              disabled={fieldsDisabled}
               className="ui-input-compact mt-1 w-full min-w-0"
             />
           </div>
@@ -606,35 +603,135 @@ export function UploadForm({
               type="text"
               value={metadata.ownerLabel}
               onChange={(e) => setMetadata((m) => ({ ...m, ownerLabel: e.target.value }))}
-              placeholder="Owner full name"
+              placeholder="Owner name"
+              disabled={fieldsDisabled}
               className="ui-input-compact mt-1 w-full min-w-0"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="contractType" className="ui-label">
-              Contract type
-            </label>
-            <UiSelect
-              className="mt-1 block w-full"
-              buttonClassName="w-full"
-              name="contractType"
-              value={metadata.contractType}
-              onChange={(value) => setMetadata((m) => ({ ...m, contractType: value }))}
-              options={CONTRACT_TYPE_OPTIONS}
-              placeholder="Select type"
-              ariaLabel="Contract type"
-            />
+        <div className="min-w-0">
+          <label htmlFor="contractType" className="ui-label">
+            Contract type
+          </label>
+          <UiSelect
+            className="mt-1 block w-full"
+            buttonClassName="w-full"
+            name="contractType"
+            value={metadata.contractType}
+            onChange={(value) => setMetadata((m) => ({ ...m, contractType: value }))}
+            options={CONTRACT_TYPE_OPTIONS}
+            placeholder="Select contract type"
+            ariaLabel="Contract type"
+            disabled={fieldsDisabled}
+          />
+        </div>
+      </section>
+
+      <details className="group border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
+        <summary className="flex cursor-pointer list-none items-center gap-2.5 px-5 py-4 outline-none transition-colors marker:hidden hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-6 [&::-webkit-details-marker]:hidden">
+          <span className="ui-caps-2 text-[11px] leading-none text-[var(--text-primary)]">
+            Add more details
+          </span>
+          <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
+            Optional
+          </span>
+          <ChevronRight
+            className="ml-auto h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform group-open:rotate-90"
+            strokeWidth={2}
+            aria-hidden
+          />
+        </summary>
+        <div className="ui-details-reveal space-y-3 px-5 pb-5 sm:px-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="region" className="ui-label">
+                Region
+              </label>
+              <input
+                id="region"
+                name="region"
+                type="text"
+                value={metadata.region}
+                onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
+                placeholder="Region or geography"
+                disabled={fieldsDisabled}
+                className="ui-input-compact mt-1 w-full min-w-0"
+              />
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="annualValue" className="ui-label">
+                Annual value
+              </label>
+              <div className="relative mt-1">
+                <span
+                  aria-hidden
+                  className="ui-caps-3 pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[10px] leading-none text-[var(--text-tertiary)]"
+                >
+                  USD
+                </span>
+                <input
+                  id="annualValue"
+                  name="annualValue"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  value={metadata.annualValue}
+                  onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
+                  placeholder="Annual amount"
+                  disabled={fieldsDisabled}
+                  className="ui-input-compact w-full min-w-0 pl-12 font-mono tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
           </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label htmlFor="sourceSystem" className="ui-label">
+                Source system
+              </label>
+              <input
+                id="sourceSystem"
+                name="sourceSystem"
+                type="text"
+                value={metadata.sourceSystem}
+                onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
+                placeholder="Where it came from"
+                disabled={fieldsDisabled}
+                className="ui-input-compact mt-1 w-full min-w-0"
+              />
+            </div>
+            <div className="min-w-0">
+              <label htmlFor="externalReferenceId" className="ui-label">
+                External reference
+              </label>
+              <input
+                id="externalReferenceId"
+                name="externalReferenceId"
+                type="text"
+                value={metadata.externalReferenceId}
+                onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
+                placeholder="External record ID"
+                disabled={fieldsDisabled}
+                className="ui-input-compact mt-1 w-full min-w-0 font-mono"
+              />
+            </div>
+          </div>
+
           <div className="min-w-0">
             <label htmlFor="tags" className="ui-label">
               Tags
             </label>
             <div
-              className="ui-input-compact mt-1 flex w-full min-w-0 flex-wrap items-center gap-1.5"
-              onClick={() => document.getElementById("tags")?.focus()}
+              aria-disabled={fieldsDisabled}
+              className={`ui-input-compact mt-1 flex w-full min-w-0 flex-wrap items-center gap-1.5 ${
+                fieldsDisabled ? "cursor-not-allowed opacity-[0.55]" : ""
+              }`}
+              onClick={() => {
+                if (!fieldsDisabled) document.getElementById("tags")?.focus();
+              }}
             >
               <Tag
                 className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]"
@@ -700,123 +797,32 @@ export function UploadForm({
                   }
                   setTagInput("");
                 }}
-                placeholder={parsedTags.length === 0 ? "Add a tag" : ""}
-                className="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm leading-tight text-[var(--text-primary)] outline-none placeholder:text-[color:color-mix(in_oklab,var(--text-tertiary)_70%,transparent)]"
+                placeholder={parsedTags.length === 0 ? "Add a tag and press Enter" : ""}
+                disabled={fieldsDisabled}
+                className="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm leading-tight text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] disabled:cursor-not-allowed"
               />
             </div>
             <input type="hidden" name="tags" value={metadata.tags} />
           </div>
         </div>
+      </details>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="region" className="ui-label">
-              Region
-            </label>
-            <input
-              id="region"
-              name="region"
-              type="text"
-              value={metadata.region}
-              onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
-              placeholder="Region or geography"
-              className="ui-input-compact mt-1 w-full min-w-0"
-            />
-          </div>
-          <div className="min-w-0">
-            <label htmlFor="annualValue" className="ui-label">
-              Annual value
-            </label>
-            <div className="relative mt-1">
-              <span
-                className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[color:color-mix(in_oklab,var(--text-tertiary)_75%,transparent)]"
-                aria-hidden
-              >
-                USD
-              </span>
-              <input
-                id="annualValue"
-                name="annualValue"
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                value={metadata.annualValue}
-                onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
-                placeholder="Annual amount"
-                className="ui-input-compact w-full min-w-0 pl-11"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="sourceSystem" className="ui-label">
-              Source system
-            </label>
-            <input
-              id="sourceSystem"
-              name="sourceSystem"
-              type="text"
-              value={metadata.sourceSystem}
-              onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
-              placeholder="Where it came from"
-              className="ui-input-compact mt-1 w-full min-w-0"
-            />
-          </div>
-          <div className="min-w-0">
-            <label htmlFor="externalReferenceId" className="ui-label">
-              External reference
-            </label>
-            <input
-              id="externalReferenceId"
-              name="externalReferenceId"
-              type="text"
-              value={metadata.externalReferenceId}
-              onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
-              placeholder="External record ID"
-              className="ui-input-compact mt-1 w-full min-w-0"
-            />
-          </div>
-        </div>
-      </section>
-
-      <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-2.5 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_94%,transparent)] px-5 py-3 backdrop-blur sm:px-6">
-        {files.length > 0 ? (
-          <span className="mr-auto inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--success-ink)]">
-            <span
-              aria-hidden
-              className="inline-flex h-2 w-2 rounded-full"
-              style={{
-                background: "var(--success-ink)",
-                boxShadow:
-                  "0 0 0 3px color-mix(in oklab, var(--success-soft) 42%, transparent)",
-              }}
-            />
-            Ready · {files.length} file{files.length === 1 ? "" : "s"}
-          </span>
-        ) : (
-          <span className="mr-auto inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--text-tertiary)]">
-            <span
-              aria-hidden
-              className="inline-flex h-2 w-2 rounded-full"
-              style={{
-                background: "var(--border-strong)",
-                boxShadow:
-                  "0 0 0 3px color-mix(in oklab, var(--border-strong) 24%, transparent)",
-              }}
-            />
-            Record only
-          </span>
-        )}
-        <Link href="/contracts" className="ui-btn-secondary px-4 py-2 text-[12px]">
+      <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 sm:px-6">
+        <Link
+          href="/contracts"
+          className="ui-btn-ghost rounded-full px-4 py-2 text-[13px]"
+        >
           Cancel
         </Link>
+        {/* §release-state /contracts/new: upload is the primary path. The
+            primary CTA appears once a file is attached; fileless creation is a
+            deliberate, de-emphasized secondary action ("Create without a file"). */}
         <button
           type="submit"
-          disabled={isPending || disabled}
-          className="ui-btn-primary px-4 py-2 text-[12px] disabled:opacity-50"
+          disabled={isPending || disabled || !canSubmit}
+          className={`rounded-full px-4 py-2 text-[13px] disabled:opacity-50 ${
+            files.length > 0 ? "ui-btn-primary" : "ui-btn-secondary"
+          }`}
         >
           {isPending ? pendingLabel : submitLabel}
         </button>

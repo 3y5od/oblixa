@@ -220,9 +220,7 @@ function mostSpecificActiveChild(
 function toSidebarItem(
   item: NavItem,
   input: SidebarModelInput,
-  current: SidebarParsedHref,
-  visiblePrimaryHrefs: ReadonlySet<string>,
-  exactPrimaryHref: string | null
+  current: SidebarParsedHref
 ): SidebarItemModel {
   const visibleChildren = (item.navChildren ?? []).filter((child) =>
     isNavChildVisibleForSurface(child, input.surface)
@@ -235,31 +233,40 @@ function toSidebarItem(
   const exactActive = isSidebarHrefExactActive(current, target);
   const active = isSidebarHrefVisuallyActive(current, target) || activeChildHref != null;
   const ownBadge = badgeForItem(item, input.navBadges);
+  // Contextual subnav: child rows only surface once the section is active
+  // (expanded). The active parent reads as a section header, and the child that
+  // matches the current route is the selected row — so "All contracts" appears
+  // only inside the Contracts area, never globally.
+  const children: SidebarItemModel[] = active
+    ? visibleChildren.map(
+        (child) =>
+          ({
+            name: child.name,
+            href: child.href,
+            description: child.name,
+            icon: undefined,
+            children: [],
+            active: child.href === activeChildHref,
+            exactActive: isSidebarHrefExactActive(current, parseSidebarHref(child.href)),
+            badge: badgeForKey(child.badgeKey, input.navBadges),
+            prefetch: sidebarPrefetch(child.href),
+            collapsedLabel: child.name,
+          }) satisfies SidebarItemModel
+      )
+    : [];
+  // When the section is inactive (no subnav) or the whole rail is collapsed,
+  // roll any child queue count up onto the parent so the pending count stays
+  // discoverable as a single chip instead of an always-on subnav row.
+  const rollupBadge = ownBadge ?? aggregateChildBadges(item, childBadges);
   return {
     name: item.name,
     href: item.href,
     description: item.description,
     icon: item.icon,
-    children: visibleChildren.map((child) => {
-      const childTarget = parseSidebarHref(child.href);
-      const childExact = isSidebarHrefExactActive(current, childTarget);
-      const duplicatePrimary = visiblePrimaryHrefs.has(child.href) && exactPrimaryHref === child.href;
-      return {
-        name: child.name,
-        href: child.href,
-        description: child.name,
-        icon: undefined,
-        children: [],
-        active: child.href === activeChildHref,
-        exactActive: childExact && !duplicatePrimary,
-        badge: badgeForKey(child.badgeKey, input.navBadges),
-        prefetch: sidebarPrefetch(child.href),
-        collapsedLabel: child.name,
-      } satisfies SidebarItemModel;
-    }),
+    children,
     exactActive,
     active,
-    badge: input.forcedCollapsed ? ownBadge ?? aggregateChildBadges(item, childBadges) : ownBadge,
+    badge: input.forcedCollapsed || !active ? rollupBadge : ownBadge,
     prefetch: sidebarPrefetch(item.href),
     collapsedLabel: item.name,
   };
@@ -295,7 +302,6 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
   const operations = visible.filter((item) => item.section === "operations");
   const personal = visible.filter((item) => item.section === "personal");
   const workspace = visible.filter((item) => item.section === "workspace");
-  const visiblePrimaryHrefs = new Set(primary.map((item) => item.href));
   const visiblePrimaryChildHrefs = new Set(
     primary.flatMap((item) =>
       (item.navChildren ?? [])
@@ -303,8 +309,7 @@ export function buildSidebarModel(input: SidebarModelInput): SidebarModel {
         .map((child) => child.href)
     )
   );
-  const exactPrimaryHref = primary.find((item) => isSidebarHrefExactActive(current, parseSidebarHref(item.href)))?.href ?? null;
-  const toItem = (item: NavItem) => toSidebarItem(item, input, current, visiblePrimaryHrefs, exactPrimaryHref);
+  const toItem = (item: NavItem) => toSidebarItem(item, input, current);
   const nonDuplicatedOperations =
     input.surface.mode === "core"
       ? []

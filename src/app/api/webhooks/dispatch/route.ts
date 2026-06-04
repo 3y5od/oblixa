@@ -94,6 +94,7 @@ export const GET = withCronRoute({
     let delivered = 0;
     let attempts = 0;
     let totalFailures = 0;
+    let skippedNoSubscribers = 0;
     const failures: string[] = [];
     const attemptStatusCounts: Record<string, number> = {};
     const nowIso = new Date().toISOString();
@@ -130,6 +131,7 @@ export const GET = withCronRoute({
         .update({ delivered: true, delivered_at: nowIso })
         .eq("id", event.id);
       delivered++;
+      skippedNoSubscribers++;
       continue;
     }
 
@@ -351,6 +353,7 @@ export const GET = withCronRoute({
         candidates: events?.length ?? 0,
         delivered,
         attempts,
+        skippedNoSubscribers,
         failures,
         failuresTruncated: totalFailures > failures.length,
         totalFailures,

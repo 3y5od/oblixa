@@ -1,6 +1,30 @@
+import {
+  AlertCircle,
+  AlertTriangle,
+  Ban,
+  CheckCircle2,
+  Clock,
+  Info,
+  MinusCircle,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import type { StatTone } from "@/components/ui/stat-cell";
 import type { SemanticStatus } from "@/components/ui/status-badge";
 import type { ReportKey } from "@/lib/reports/types";
+
+/** Per-semantic glyph so status reads without relying on color alone (§7.7). */
+export const STATUS_ICON: Record<SemanticStatus, LucideIcon> = {
+  healthy: CheckCircle2,
+  info: Info,
+  in_review: Clock,
+  warning: AlertTriangle,
+  blocked: Ban,
+  overdue: AlertCircle,
+  critical: XCircle,
+  empty: MinusCircle,
+  disabled: MinusCircle,
+};
 
 /**
  * Per-report risk tone. Color is rationed to the few reports where a non-zero
@@ -114,6 +138,11 @@ export function statusToSemantic(value: string): SemanticStatus {
     case "cancelled":
     case "expired":
       return "critical";
+    // Ended/inactive states read neutral (grey), not as an active problem —
+    // a terminated contract isn't something to "fix", unlike expired/rejected.
+    case "terminated":
+    case "inactive":
+      return "disabled";
     case "unknown":
     case "":
       return "empty";

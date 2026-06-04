@@ -186,13 +186,19 @@ export default async function IntakeQueuePage() {
                           name="source"
                           value={String((row.intake_source as string | null) || "manual")}
                         />
-                        <select name="status" className="ui-input h-7 text-[11px]">
+                        <select
+                          name="status"
+                          className="ui-input h-7 text-[11px]"
+                          aria-label={`Intake status for ${String(row.title ?? "contract")}`}
+                        >
                           <option value="triage">triage</option>
                           <option value="review">review</option>
                           <option value="ready">ready</option>
                           <option value="rejected">rejected</option>
                         </select>
-                        <input aria-label="score" name="completenessScore"
+                        <input
+                          aria-label={`Completeness score for ${String(row.title ?? "contract")}`}
+                          name="completenessScore"
                           type="number"
                           min={0}
                           max={100}

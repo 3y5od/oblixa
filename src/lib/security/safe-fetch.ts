@@ -25,6 +25,10 @@ function isProductionLike(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.VERCEL === "1" || env.NODE_ENV === "production";
 }
 
+function allowsLocalhostSafeFetchForLocalE2e(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.VERCEL !== "1" && env.OBLIXA_ALLOW_LOCALHOST_SAFE_FETCH === "1";
+}
+
 function ipv4ToInt(ip: string): number | null {
   const parts = ip.split(".").map((x) => Number(x));
   if (parts.length !== 4 || parts.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
@@ -156,7 +160,7 @@ function hostnameLooksSafe(hostname: string): boolean {
 }
 
 export function isAllowedDevLocalhostUrl(url: URL, env: NodeJS.ProcessEnv = process.env): boolean {
-  if (isProductionLike(env)) return false;
+  if (isProductionLike(env) && !allowsLocalhostSafeFetchForLocalE2e(env)) return false;
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   return hostname === "localhost" || hostname.endsWith(".localhost") || hostname === "127.0.0.1" || hostname === "::1";
 }

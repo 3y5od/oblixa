@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useId, useMemo, useState } from "react";
 import { validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
 
 type RegistryEditorState = { error?: string; success?: boolean };
@@ -14,6 +14,8 @@ export function PolicyRegistryEditorForm({
 }) {
   const [registryJson, setRegistryJson] = useState(initialJson);
   const [state, formAction, pending] = useActionState(saveAction, {});
+  const registryTextareaId = useId();
+  const validationMessageId = useId();
 
   const localValidation = useMemo(() => {
     try {
@@ -28,15 +30,21 @@ export function PolicyRegistryEditorForm({
 
   return (
     <form action={formAction} className="mt-4 space-y-3">
+      <label htmlFor={registryTextareaId} className="sr-only">
+        Registry JSON
+      </label>
       <textarea
+        id={registryTextareaId}
         name="registryJson"
         required
         rows={20}
         value={registryJson}
         onChange={(event) => setRegistryJson(event.target.value)}
+        aria-describedby={validationMessageId}
         className="ui-input font-mono text-xs"
       />
       <div
+        id={validationMessageId}
         className={
           localValidation.ok
             ? "rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800"

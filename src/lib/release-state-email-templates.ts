@@ -14,24 +14,28 @@ export const RELEASE_STATE_EMAIL_TEMPLATE_KEYS = [
   "evidence_requested",
   "evidence_overdue",
   "weekly_digest",
-  "trial_day_3",
-  "trial_day_10",
-  "trial_ending_2_days",
+] as const;
+
+export const RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS = [
   "payment_succeeded",
   "payment_failed",
   "cancellation_confirmation",
 ] as const;
 
 export type ReleaseStateEmailTemplateKey = (typeof RELEASE_STATE_EMAIL_TEMPLATE_KEYS)[number];
+export type ReleaseStateSecondaryBillingEmailTemplateKey =
+  (typeof RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS)[number];
 
-export type ReleaseStateEmailTemplate = {
-  key: ReleaseStateEmailTemplateKey;
+export type ReleaseStateEmailTemplateForKey<T extends string = ReleaseStateEmailTemplateKey> = {
+  key: T;
   subject: string;
   preview: string;
   body: string;
   ctaLabel: string;
   ctaHref: string;
 };
+
+export type ReleaseStateEmailTemplate = ReleaseStateEmailTemplateForKey<ReleaseStateEmailTemplateKey>;
 
 export const RELEASE_STATE_EMAIL_TEMPLATES: Record<
   ReleaseStateEmailTemplateKey,
@@ -47,9 +51,9 @@ export const RELEASE_STATE_EMAIL_TEMPLATES: Record<
   },
   welcome_after_signup: {
     key: "welcome_after_signup",
-    subject: "Welcome to Oblixa",
-    preview: "Start by uploading a few signed agreements.",
-    body: "Start by uploading a few signed agreements. Oblixa will help you review key terms, assign owners, track dates, and turn contract obligations into work.",
+    subject: "Welcome to Oblixa early access",
+    preview: "Start by uploading a small set of signed agreements.",
+    body: "Start by uploading a small set of signed agreements. Oblixa will help you review key terms, assign owners, track dates, and turn contract obligations into work.",
     ctaLabel: "Upload first contract",
     ctaHref: "/contracts/new",
   },
@@ -157,30 +161,12 @@ export const RELEASE_STATE_EMAIL_TEMPLATES: Record<
     ctaLabel: "Open dashboard",
     ctaHref: "/dashboard",
   },
-  trial_day_3: {
-    key: "trial_day_3",
-    subject: "Get value from your Oblixa trial",
-    preview: "Upload contracts and review fields early in the trial.",
-    body: "Start with a few signed agreements. Review suggested fields, assign owners, and add key dates so your dashboard becomes useful.",
-    ctaLabel: "Upload contract",
-    ctaHref: "/contracts/new",
-  },
-  trial_day_10: {
-    key: "trial_day_10",
-    subject: "Build your contract tracking workspace",
-    preview: "Review fields, assign owners, and export reports.",
-    body: "Your trial works best after reviewed fields, assigned owners, renewal dates, work, evidence, and reports are connected.",
-    ctaLabel: "Open dashboard",
-    ctaHref: "/dashboard",
-  },
-  trial_ending_2_days: {
-    key: "trial_ending_2_days",
-    subject: "Your Oblixa trial ends soon",
-    preview: "Choose a plan to keep editing your workspace.",
-    body: "Keep your reviewed terms, deadlines, owners, work, evidence, and reports active by choosing a plan.",
-    ctaLabel: "Choose plan",
-    ctaHref: "/settings/billing",
-  },
+};
+
+export const RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATES: Record<
+  ReleaseStateSecondaryBillingEmailTemplateKey,
+  ReleaseStateEmailTemplateForKey<ReleaseStateSecondaryBillingEmailTemplateKey>
+> = {
   payment_succeeded: {
     key: "payment_succeeded",
     subject: "Your Oblixa payment succeeded",

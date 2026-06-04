@@ -14,7 +14,12 @@ describe("V9 workspace tables keep horizontal scroll and aria labels", () => {
       "src/app/(dashboard)/contracts/watchlists/page.tsx",
     ]) {
       const raw = read(rel);
-      expect(raw, rel).toContain('className="overflow-x-auto"');
+      // Token match (not an exact className) so layout-containment utilities can
+      // sit alongside the scroll class — e.g. obligations now uses
+      // className="max-w-full overflow-x-auto [contain:inline-size]". The contract
+      // is "the queue table keeps horizontal scroll", not "the wrapper carries no
+      // other classes".
+      expect(raw, rel).toMatch(/className="[^"]*\boverflow-x-auto\b/);
       expect(raw, rel).toContain("aria-label=");
     }
 

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   V10_READ_MODEL_REFRESH_DEFERRED_SOURCE_TABLES,
@@ -99,7 +101,46 @@ function makeFakeAdmin(seed: FakeTableData) {
   };
 }
 
+function readContractScopedArchiveTablesFromSource(): string[] {
+  const source = readFileSync(join(process.cwd(), "src/lib/read-model-refresh.ts"), "utf8");
+  const match = source.match(/const CONTRACT_SCOPED_ARCHIVE_TABLES = new Set\(\[([\s\S]*?)\]\);/);
+  expect(match, "CONTRACT_SCOPED_ARCHIVE_TABLES constant missing").not.toBeNull();
+  return [...match![1]!.matchAll(/"([^"]+)"/g)].map((hit) => hit[1]!);
+}
+
+function readCreateTableBlock(sql: string, tableName: string): string {
+  const startToken = `create table if not exists public.${tableName} (`;
+  const start = sql.indexOf(startToken);
+  expect(start, `${tableName} create-table block missing`).toBeGreaterThanOrEqual(0);
+  const bodyStart = start + startToken.length;
+  const end = sql.indexOf("\n);", bodyStart);
+  expect(end, `${tableName} create-table block terminator missing`).toBeGreaterThan(bodyStart);
+  return sql.slice(bodyStart, end);
+}
+
 describe("V10 read model refresh", () => {
+  it("keeps the archive RPC allowlist limited to tables with explicit contract scope", () => {
+    const tables = readContractScopedArchiveTablesFromSource();
+    const migration = readFileSync(join(process.cwd(), "supabase/migrations/057_v10_runtime_contracts.sql"), "utf8");
+
+    expect(tables).toEqual(
+      expect.arrayContaining(["v10_work_items", "v10_contract_health_snapshots"])
+    );
+    for (const table of tables) {
+      expect(readCreateTableBlock(migration, table), table).toMatch(/\n\s+contract_id uuid\b/);
+    }
+    for (const unsafeTable of [
+      "v10_read_model_rows",
+      "v10_command_search_index",
+      "v10_read_model_lineage",
+      "v10_runtime_artifacts",
+      "v10_runtime_coverage_ledger",
+      "v10_advanced_assurance_linked_records",
+    ]) {
+      expect(tables, unsafeTable).not.toContain(unsafeTable);
+    }
+  });
+
   it("keeps source-object inventory covered by direct, indirect, or deferred refresh contracts", () => {
     expect(validateV10ReadModelRefreshCoverage()).toEqual([]);
     expect(V10_READ_MODEL_REFRESH_INDIRECT_SOURCE_TABLES).toEqual(
@@ -694,9 +735,7 @@ describe("V10 read model refresh", () => {
       stale_source_tables: [],
       drift_state: "fresh",
     });
-    expect(result.diagnostics.archived_before_upsert_tables).toEqual(
-      expect.arrayContaining(["v10_read_model_rows", "v10_work_items", "v10_read_model_lineage"])
-    );
+    expect(result.diagnostics.archived_before_upsert_tables).toEqual([]);
     expect(admin.updated.v10_read_model_rows).toBeUndefined();
     expect(admin.upsertConflicts.v10_work_items).toBe("organization_id,source_table,source_id,type");
     expect(admin.upsertConflicts.v10_read_model_rows).toBe("organization_id,model_key,source_table,source_id");
@@ -1263,9 +1302,7 @@ describe("V10 read model refresh", () => {
     expect(result.targetCounts.work_items).toBe(1);
     expect(result.targetCounts.contract_health_snapshots).toBe(0);
     expect(result.diagnostics.selected_model_keys).toEqual(["work_items"]);
-    expect(result.diagnostics.archived_before_upsert_tables).toEqual(
-      expect.arrayContaining(["v10_read_model_rows", "v10_work_items", "v10_read_model_lineage"])
-    );
+    expect(result.diagnostics.archived_before_upsert_tables).toEqual([]);
     expect(admin.inserted.v10_work_items).toHaveLength(1);
     expect(admin.inserted.v10_contract_health_snapshots).toBeUndefined();
     expect(admin.inserted.v10_read_model_rows.every((row) => row.model_key === "work_items")).toBe(true);
@@ -1341,6 +1378,91 @@ describe("V10 read model refresh", () => {
       refresh_scope: "one_contract",
       repair_mode: "replace_visible",
     });
+  });
+
+  it("does not use broad archive RPC for one-contract rows without table-level contract scope", async () => {
+    const orgId = "org_1";
+    const rpcCalls: Array<{ fn: string; args: Record<string, unknown> }> = [];
+    const admin = makeFakeAdmin({
+      contracts: [
+        {
+          id: "contract_1",
+          organization_id: orgId,
+          title: "Other contract",
+          counterparty: "Other",
+          status: "active",
+          owner_id: "user_1",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-20T00:00:00Z",
+        },
+        {
+          id: "contract_2",
+          organization_id: orgId,
+          title: "Target contract",
+          counterparty: "Target",
+          status: "active",
+          owner_id: "user_2",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-20T00:00:00Z",
+        },
+      ],
+      contract_tasks: [
+        {
+          id: "task_1",
+          contract_id: "contract_1",
+          title: "Other task",
+          status: "open",
+          assignee_id: "user_1",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-20T00:00:00Z",
+        },
+        {
+          id: "task_2",
+          contract_id: "contract_2",
+          title: "Target task",
+          status: "open",
+          assignee_id: "user_2",
+          created_at: "2026-04-20T00:00:00Z",
+          updated_at: "2026-04-20T00:00:00Z",
+        },
+      ],
+    });
+    (admin as typeof admin & {
+      rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: null }>;
+    }).rpc = async (fn, args) => {
+      rpcCalls.push({ fn, args });
+      return { data: [{ upserted_count: 0, archived_count: 0 }], error: null };
+    };
+
+    const result = await refreshV10ReadModelsForOrganization(admin as never, orgId, {
+      refreshJobId: "refresh_one_contract_rpc",
+      refreshScope: "one_contract",
+      contractId: "contract_2",
+      modelKeys: ["work_items", "contract_health_snapshots", "command_search_index"],
+      now: new Date("2026-04-21T00:00:00Z"),
+    });
+
+    expect(result.ok).toBe(true);
+    const rpcTables = rpcCalls.map((call) => call.args.p_table_name);
+    expect(rpcTables).toEqual(
+      expect.arrayContaining(["v10_work_items", "v10_contract_health_snapshots"])
+    );
+    expect(rpcTables).not.toContain("v10_read_model_rows");
+    expect(rpcTables).not.toContain("v10_command_search_index");
+    expect(rpcTables).not.toContain("v10_read_model_lineage");
+    expect(result.diagnostics.archived_before_upsert_tables).toEqual(
+      expect.arrayContaining(["v10_work_items", "v10_contract_health_snapshots"])
+    );
+    expect(result.diagnostics.archived_before_upsert_tables).not.toContain("v10_read_model_rows");
+    expect(result.diagnostics.archived_before_upsert_tables).not.toContain("v10_command_search_index");
+    for (const call of rpcCalls) {
+      const rows = call.args.p_rows as Array<Record<string, unknown>>;
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every((row) => row.contract_id === "contract_2")).toBe(true);
+    }
+    expect(admin.upsertConflicts.v10_read_model_rows).toBe("organization_id,model_key,source_table,source_id");
+    expect(admin.upsertConflicts.v10_command_search_index).toBeDefined();
+    expect(admin.inserted.v10_read_model_rows.every((row) => row.source_id === "task_2" || row.source_id === "contract_2")).toBe(true);
   });
 
   it("supports incremental refreshes that only materialize changed model rows", async () => {

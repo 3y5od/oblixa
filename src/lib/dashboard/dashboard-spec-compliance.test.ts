@@ -35,7 +35,7 @@ describe("dashboard spec compliance - Core route structure", () => {
 
   it("renders stable Core header CTAs and does not promote Review fields into the header", () => {
     expect(DASHBOARD_PRIMARY_CTA).toBe("Upload contract");
-    expect(DASHBOARD_SECONDARY_CTA).toBe("Import CSV");
+    expect(DASHBOARD_SECONDARY_CTA).toBe("Import contracts");
     expect(componentRaw).toContain("{DASHBOARD_PRIMARY_CTA}");
     expect(componentRaw).toContain("{DASHBOARD_SECONDARY_CTA}");
     expect(componentRaw).toContain('href="/contracts/new"');
@@ -162,6 +162,11 @@ describe("dashboard spec compliance - fixed main sections", () => {
     expect(componentRaw).toContain("getCoreDashboardVisiblePartialErrors");
     expect(componentRaw).toContain("PartialDataNotice count={visiblePartialErrors.length}");
     expect(modelRaw).toContain("NON_BLOCKING_PARTIAL_SOURCES");
+  });
+
+  it("does not make Core dashboard identity depend on optional billing columns", () => {
+    expect(modelRaw).toContain('from("organizations").select("name")');
+    expect(modelRaw).not.toContain('select("name, plan_tier")');
   });
 });
 

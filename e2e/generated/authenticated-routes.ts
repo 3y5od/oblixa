@@ -48,6 +48,16 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
     ]
   },
   {
+    "route": "/contracts/imports/[jobId]",
+    "visitPath": "/contracts/imports/00000000-0000-0000-0000-000000000005",
+    "fixtureId": "contract-import-job-default",
+    "routeFamily": "contracts",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke"
+    ]
+  },
+  {
     "route": "/contracts/new",
     "visitPath": "/contracts/new",
     "fixtureId": null,

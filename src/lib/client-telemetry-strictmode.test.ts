@@ -12,6 +12,15 @@ describe("V9 client telemetry StrictMode / churn guards", () => {
     expect(body).toContain("StrictMode");
   });
 
+  it("keeps page-load telemetry opt-in during local dev", () => {
+    const body = readFileSync(
+      join(process.cwd(), "src/components/layout/page-load-reporter.tsx"),
+      "utf8"
+    );
+    expect(body).toContain("NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY");
+    expect(body).toContain("PAGE_LOAD_TELEMETRY_ENABLED");
+  });
+
   it("uses nested requestAnimationFrame before telemetry so paint milestones are not doubled as StrictMode effects", () => {
     const body = readFileSync(
       join(process.cwd(), "src/components/layout/page-load-reporter.tsx"),

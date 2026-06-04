@@ -22,15 +22,26 @@ const coreSurface: NavSurfaceInput = {
 };
 
 describe("Header", () => {
-  it("renders context line and keeps Tools hidden in Core", () => {
+  it("renders a route-aware breadcrumb and keeps Tools hidden in Core", () => {
     setMockPathname("/dashboard");
     renderWithProviders(
       <Header navSurface={coreSurface} showUtilitiesLink />
     );
 
-    expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
-    expect(screen.getByText("Workspace")).toBeTruthy();
+    // Breadcrumb reflects real product hierarchy, not the workspace mode.
+    expect(screen.getByText("Dashboard")).toBeTruthy();
+    expect(screen.queryByText(/core/i)).toBeNull();
+    expect(screen.getByTestId("workspace-header-search")).toBeTruthy();
     expect(screen.queryByText("Tools")).toBeNull();
+  });
+
+  it("builds a parent/leaf breadcrumb for nested Core surfaces", () => {
+    setMockPathname("/contracts/review");
+    renderWithProviders(<Header navSurface={coreSurface} showUtilitiesLink />);
+
+    const contractsCrumb = screen.getByRole("link", { name: "Contracts" });
+    expect(contractsCrumb.getAttribute("href")).toBe("/contracts");
+    expect(screen.getByText("Review fields")).toBeTruthy();
   });
 
   it("submits header search to the global /search route", async () => {

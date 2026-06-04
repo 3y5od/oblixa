@@ -102,6 +102,33 @@ test("versioned package script readiness separates docs-only blockers from repo-
   assert.equal(artifact.docsOnlyReferenceCount, 1);
 });
 
+test("versioned package script readiness treats coverage registries as non-blocking evidence", () => {
+  const root = makeRoot();
+  const legacyScript = `check:${"v"}10-suite`;
+  writeJson(root, "package.json", { scripts: packageScripts() });
+  write(root, "scripts/example.mjs", "console.log('ok');\n");
+  writeJson(root, "config/operational-schema-compatibility.json", {
+    deprecatedName: legacyScript,
+    replacement: "check:release-suite-current",
+  });
+  writeJson(root, "config/qa-comprehensive-taxonomy.json", {
+    bindings: [{ kind: "npmScript", ref: legacyScript }],
+  });
+  writeJson(root, "config/qa-tier-coverage-allowlist.json", {
+    scripts: [legacyScript],
+  });
+
+  const artifact = buildVersionedPackageScriptReadiness(root);
+  const row = artifact.aliases.find((alias) => alias.legacyName === legacyScript);
+
+  assert.equal(row.referenceCount, 3);
+  assert.equal(row.blockingReferenceCount, 0);
+  assert.equal(row.repoLocalReferenceCount, 0);
+  assert.equal(row.localReadyForRemoval, true);
+  assert.equal(artifact.blockingReferenceCount, 0);
+  assert.equal(artifact.repoLocalReferenceCount, 0);
+});
+
 test("versioned package script aliases retain old commands as neutral bridges", () => {
   const scripts = packageScripts();
 
@@ -126,15 +153,15 @@ test("repository package script readiness matches current local blocker inventor
 
   assert.equal(artifact.aliasCount, PACKAGE_SCRIPT_ALIASES.length);
   assert.equal(artifact.readyForRemovalCount, 0);
-  assert.equal(artifact.localReadyForRemovalCount, 9);
-  assert.equal(artifact.blockingReferenceCount, 28);
-  assert.equal(artifact.repoLocalReferenceCount, 28);
+  assert.equal(artifact.localReadyForRemovalCount, PACKAGE_SCRIPT_ALIASES.length);
+  assert.equal(artifact.blockingReferenceCount, 0);
+  assert.equal(artifact.repoLocalReferenceCount, 0);
   assert.equal(artifact.docsOnlyReferenceCount, 0);
   assert.equal(artifact.generatedArtifactReferenceCount, 0);
   assert.equal(artifact.externalOrManualReferenceCount, 0);
   assert.ok(
     artifact.aliases.every((row) =>
-      ["blocked_by_manual_follow_up", "blocked_by_repo_local_references"].includes(row.readinessStatus)
+      ["blocked_by_manual_follow_up"].includes(row.readinessStatus)
     )
   );
 });

@@ -244,7 +244,12 @@ export async function recordV10AuditEvent(admin: Admin, input: V10AuditInput): P
       .maybeSingle();
 
     if (error) {
-      console.error("[v10-audit] insert failed:", error.message);
+      console.error("[v10-audit] insert failed:", error.message, {
+        action: input.action,
+        targetType: input.targetType,
+        outcome: input.outcome,
+        diagnosticId: input.diagnosticId ?? null,
+      });
       return null;
     }
     return (data?.audit_event_id as string | undefined) ?? null;
@@ -955,6 +960,8 @@ export type { V10AuditedMutationInput as AuditedMutationInput };
 export type { V10AuditedMutationRollbackInput as AuditedMutationRollbackInput };
 export type { V10AuditedMutationTransactionResult as AuditedMutationTransactionResult };
 export type { V10AuditInput as AuditInput };
+export type { V10AuditMetadata as AuditMetadata };
+export type { V10AuditMetadataValue as AuditMetadataValue };
 export type { V10AuditWriteMode as AuditWriteMode };
 export type { V10IdempotencyRpcClaimArgs as IdempotencyRpcClaimArgs };
 export type { V10IdempotencyRpcClaimResult as IdempotencyRpcClaimResult };

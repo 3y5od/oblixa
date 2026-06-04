@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-28T22:05:45.871Z",
+  "generatedAt": "2026-06-03T20:01:44.403Z",
   "rows": [
     {
       "route": "/",
@@ -666,8 +666,8 @@
         "all_clear"
       ],
       "present": [
-        "loading",
         "error",
+        "loading",
         "not_found"
       ],
       "inheritedShell": "dashboard"
@@ -698,6 +698,29 @@
     {
       "route": "/contracts/execution-graph",
       "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "loading",
+        "error",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
       "shellFamily": "dashboard",
       "required": [
         "loading",
@@ -1149,6 +1172,24 @@
         "not_found"
       ],
       "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/early-access",
+      "sourcePath": "src/app/(marketing)/early-access/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
     },
     {
       "route": "/external/[token]",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import {
   V10_ROUTE_API_CATALOG,
   V10_ROUTE_PERFORMANCE_SMOKE_CONTRACTS,
@@ -64,8 +64,8 @@ function collectApiRouteFiles(dir = join(process.cwd(), "src/app/api")): string[
 }
 
 function routePathForApiRouteFile(filePath: string): string {
-  return `/${filePath
-    .replace(join(process.cwd(), "src/app/"), "")
+  return `/${relative(join(process.cwd(), "src/app"), filePath)
+    .replace(/\\/g, "/")
     .replace(/\/route\.ts$/, "")}`;
 }
 

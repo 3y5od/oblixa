@@ -1,6 +1,5 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { surfaceTestIds } from "@/lib/qa/test-ids";
 
 export class WorkQueuePO {
   constructor(private readonly page: Page) {}
@@ -9,13 +8,13 @@ export class WorkQueuePO {
     await this.page.goto("/work", { waitUntil: "domcontentloaded" });
   }
 
-  summary() {
-    return this.page.getByTestId(surfaceTestIds.workPageSummary);
+  surface() {
+    return this.page.getByRole("region", { name: /^Work$/ });
   }
 
   async expectLoaded() {
-    await expect(this.page.getByRole("heading", { name: /work queue/i })).toBeVisible();
-    await expect(this.summary()).toBeVisible();
+    await expect(this.page.getByRole("heading", { level: 1, name: /^Work$/ })).toBeVisible();
+    await expect(this.surface()).toBeVisible();
+    await expect(this.surface().getByText("Active work")).toBeVisible();
   }
 }
-

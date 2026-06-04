@@ -31,6 +31,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { StatCell, type StatTone } from "@/components/ui/stat-cell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
+import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 export const metadata = { title: "Tasks" };
 
@@ -158,13 +159,14 @@ export default async function ContractTasksPage(props: {
   const doneTasks = tasks.filter((task) => task.status === "done").length;
   const dueSoonTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
-    const due = new Date(`${task.dueDate}T12:00:00`);
+    const due = parseBusinessDateAtNoon(task.dueDate);
+    if (!due) return false;
     const diff = due.getTime() - new Date().getTime();
     return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   return (
-    <div className="ui-page-stack mx-auto max-w-7xl">
+    <div className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl">
       <DashboardPageHeader
         icon={<ClipboardList className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Execution"
@@ -509,7 +511,7 @@ export default async function ContractTasksPage(props: {
                   const isOverdue =
                     Boolean(task.dueDate) &&
                     task.status !== "done" &&
-                    new Date(`${task.dueDate}T12:00:00`).getTime() < new Date().getTime();
+                    (parseBusinessDateAtNoon(task.dueDate)?.getTime() ?? Number.POSITIVE_INFINITY) < new Date().getTime();
                   return (
                     <tr key={task.id} className="align-top">
                       <td className="px-5 py-4">
@@ -566,7 +568,7 @@ export default async function ContractTasksPage(props: {
                       <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums">
                         {task.dueDate ? (
                           <span className={isOverdue ? "text-[var(--danger-ink)]" : "text-[var(--text-secondary)]"}>
-                            {format(new Date(`${task.dueDate}T12:00:00`), "MMM d, yyyy")}
+                            {formatBusinessDateAtNoon(task.dueDate)}
                           </span>
                         ) : (
                           <span className="text-[var(--text-tertiary)]">—</span>

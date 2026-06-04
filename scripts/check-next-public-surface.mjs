@@ -17,6 +17,8 @@ const ENV_EXAMPLE_REL = ".env.example";
 const PUBLIC_ENV_ALLOWLIST = new Set([
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+  "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+  "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV",
   "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
   "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
   "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
@@ -34,6 +36,8 @@ const PUBLIC_ENV_ALLOWLIST = new Set([
 ]);
 const PUBLIC_DIAGNOSTIC_KEYS = new Set([
   "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+  "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+  "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV",
   "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
   "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
   "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
@@ -41,6 +45,8 @@ const PUBLIC_DIAGNOSTIC_KEYS = new Set([
 ]);
 const PUBLIC_DIAGNOSTIC_ALLOWED_FILES = new Map([
   ["NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB", new Set(["src/lib/debugging-sweep/client-sweep-bridge.tsx"])],
+  ["NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY", new Set(["src/components/layout/page-load-reporter.tsx"])],
+  ["NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV", new Set(["src/instrumentation-client.ts"])],
   ["NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS", new Set(["src/lib/product-surface/dev-diagnostics.ts"])],
   ["NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS", new Set(["src/lib/observability/sentry-client.ts"])],
   ["NEXT_PUBLIC_SUPPORT_DIAGNOSTICS", new Set(["src/components/ui/recoverable-state.tsx"])],
@@ -116,6 +122,16 @@ function hasDevOnlyFlagGuard(source, key) {
   );
 }
 
+function hasProductionOrDevOptInGuard(source, key) {
+  const env = "process\\.env";
+  const prod = `${env}\\.NODE_ENV\\s*={2,3}\\s*["']production["']`;
+  const flag = `${env}\\.${key}\\s*={2,3}\\s*["']1["']`;
+  return (
+    new RegExp(`${prod}[\\s\\S]{0,160}\\|\\|[\\s\\S]{0,160}${flag}`).test(source) ||
+    new RegExp(`${flag}[\\s\\S]{0,160}\\|\\|[\\s\\S]{0,160}${prod}`).test(source)
+  );
+}
+
 function collectDiagnosticKeyIssues(root, refs) {
   const issues = [];
   const refsByKey = new Map();
@@ -177,6 +193,34 @@ function collectDiagnosticKeyIssues(root, refs) {
     }
   } else {
     issues.push({ issue: "missing_debugging_sweep_breadcrumb_guard", key: "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB", file: sweepRel });
+  }
+
+  const sentryClientRel = "src/instrumentation-client.ts";
+  const sentryClientSource = readIfExists(root, sentryClientRel) ?? "";
+  if (sentryClientSource.includes("NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV")) {
+    if (!hasProductionOrDevOptInGuard(sentryClientSource, "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV")) {
+      issues.push({ issue: "sentry_dev_enable_not_prod_or_dev_opt_in", key: "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV", file: sentryClientRel });
+    }
+  } else {
+    issues.push({ issue: "missing_sentry_dev_enable_guard", key: "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV", file: sentryClientRel });
+  }
+
+  const pageLoadRel = "src/components/layout/page-load-reporter.tsx";
+  const pageLoadSource = readIfExists(root, pageLoadRel) ?? "";
+  if (pageLoadSource.includes("NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY")) {
+    if (!hasProductionOrDevOptInGuard(pageLoadSource, "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY")) {
+      issues.push({
+        issue: "page_load_telemetry_dev_enable_not_prod_or_dev_opt_in",
+        key: "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+        file: pageLoadRel,
+      });
+    }
+  } else {
+    issues.push({
+      issue: "missing_page_load_telemetry_dev_enable_guard",
+      key: "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+      file: pageLoadRel,
+    });
   }
 
   return issues;

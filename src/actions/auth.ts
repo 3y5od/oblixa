@@ -31,6 +31,7 @@ const MAX_AUTH_PASSWORD_LEN = 128;
 const MIN_AUTH_PASSWORD_LEN = 8;
 const MAX_AUTH_NAME_LEN = 200;
 const MAX_AUTH_COMPANY_LEN = 200;
+const MAX_AUTH_ACCESS_CODE_LEN = 160;
 
 function readAuthEmail(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
   const validation = validateBoundedString(formData.get("email") ?? "", { maxLength: MAX_AUTH_EMAIL_LEN });
@@ -62,6 +63,23 @@ function readAuthCompanyName(formData: FormData): { ok: true; value: string } | 
     return { ok: false, error: "Company name contains unsupported characters." };
   }
   return { ok: true, value: validation.value };
+}
+
+function readAuthAccessCode(formData: FormData): { ok: true; value: string } | { ok: false; error: string } {
+  const validation = validateBoundedString(formData.get("accessCode") ?? "", {
+    maxLength: MAX_AUTH_ACCESS_CODE_LEN,
+    allowEmpty: true,
+  });
+  if (!validation.ok) {
+    return { ok: false, error: "Access code contains unsupported characters." };
+  }
+  return { ok: true, value: validation.value };
+}
+
+function isEarlyAccessSignupAllowed(accessCode: string): boolean {
+  if (process.env.OBLIXA_ALLOW_PUBLIC_SIGNUP === "1") return true;
+  const requiredCode = process.env.OBLIXA_EARLY_ACCESS_SIGNUP_CODE?.trim();
+  return Boolean(requiredCode && accessCode && accessCode === requiredCode);
 }
 
 function readAuthPassword(
@@ -133,6 +151,14 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
   if (!fullName.ok) return { error: fullName.error };
   const companyName = readAuthCompanyName(formData);
   if (!companyName.ok) return { error: companyName.error };
+  const accessCode = readAuthAccessCode(formData);
+  if (!accessCode.ok) return { error: accessCode.error };
+  if (!isEarlyAccessSignupAllowed(accessCode.value)) {
+    return {
+      error:
+        "Oblixa is currently in founder-led early access. Request access if your team is replacing a contract-tracking spreadsheet.",
+    };
+  }
 
   const supabase = await createClient();
 

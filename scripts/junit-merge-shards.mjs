@@ -10,6 +10,7 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const root = process.cwd();
 
@@ -18,7 +19,7 @@ function runJrm(dest, fileList) {
   const bin = fs.existsSync(jrm) ? jrm : null;
   return bin
     ? spawnSync(jrm, [dest, ...fileList], { stdio: "inherit", cwd: root })
-    : spawnSync("npx", ["--yes", "junit-report-merger@9.0.3", dest, ...fileList], { stdio: "inherit", cwd: root });
+    : spawnSyncCrossPlatform("npx", ["--yes", "junit-report-merger@9.0.3", dest, ...fileList], { stdio: "inherit", cwd: root });
 }
 
 function collectXmlFiles(dir) {

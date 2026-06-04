@@ -274,6 +274,7 @@
     "check:release-privacy-scan",
     "check:release-promotable",
     "check:release-promotable:report",
+    "check:release-state-implementation-objectives",
     "check:release-security-required-env",
     "check:release-suite-current",
     "check:replay-window-policy",

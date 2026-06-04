@@ -11,7 +11,12 @@
 export const DASHBOARD_TITLE = "Contract tracking";
 
 export const DASHBOARD_PRIMARY_CTA = "Upload contract";
-export const DASHBOARD_SECONDARY_CTA = "Import CSV";
+// Release-state §/dashboard mandates "Secondary action: import contracts" — not a
+// file-type-specific label. The import destination (/contracts/bulk) is itself
+// titled "Import contracts" and accepts CSV trackers *and* signed files, so the
+// narrow "Import CSV" entry label understated it. "Import CSV" still lives on the
+// bulk form where CSV is the actual format.
+export const DASHBOARD_SECONDARY_CTA = "Import contracts";
 
 /** Spec §Dashboard Page > Top cards. Exactly 6 cards in this order. */
 export const DASHBOARD_TOP_CARDS = [

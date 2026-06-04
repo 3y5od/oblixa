@@ -120,7 +120,10 @@ describe("Sidebar", () => {
 
     await waitFor(() => expect(screen.getByRole("link", { name: /^contracts$/i })).toBeTruthy());
     expect(screen.getByTitle("101 field review items need action").getAttribute("aria-hidden")).toBe("true");
-    expect(screen.getByRole("link", { name: /^contracts$/i }).textContent).not.toContain("99+");
+    // The visible count badge is decorative (aria-hidden); the collapsed link's
+    // accessible name stays terse via aria-label even though the badge now shows
+    // the number for sighted users.
+    expect(screen.getByRole("link", { name: /^contracts$/i }).getAttribute("aria-label")).toBe("Contracts");
   });
 
   it("exposes unique nav landmark names and collapse button state", () => {

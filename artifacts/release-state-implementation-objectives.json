@@ -1,0 +1,1051 @@
+{
+  "schemaVersion": 1,
+  "source": "code-owned-release-state-implementation-objectives",
+  "generatedBy": "scripts/check-release-state-implementation-objectives.mjs --write",
+  "generatedFrom": "config/release-state-implementation-objectives.json",
+  "objectiveCount": 26,
+  "routeCount": 78,
+  "expectedRouteCount": 78,
+  "boundaryPageCount": 4,
+  "expectedBoundaryPageCount": 4,
+  "requiredEmailCount": 12,
+  "expectedEmailCount": 12,
+  "completionCriterionCount": 11,
+  "manualBoundaryCount": 4,
+  "routeDispositionCounts": {
+    "admin_only": 4,
+    "contextual_only": 6,
+    "hide_for_release": 34,
+    "internal_only": 4,
+    "redirect_or_merge": 4,
+    "ship": 20,
+    "ship_gated": 1,
+    "ship_simplify": 5
+  },
+  "routeOwnerCounts": {
+    "activation": 1,
+    "analytics": 1,
+    "assurance": 12,
+    "auth": 4,
+    "billing": 1,
+    "campaigns": 3,
+    "collaboration": 1,
+    "contracts": 10,
+    "decisions": 4,
+    "evidence": 1,
+    "external-actions": 1,
+    "frontend": 1,
+    "operations": 3,
+    "product": 1,
+    "product-marketing": 5,
+    "product-surface": 3,
+    "programs": 1,
+    "relationships": 3,
+    "renewals": 1,
+    "reports": 2,
+    "security": 1,
+    "trust-compliance": 5,
+    "workflows": 7,
+    "workspace-admin": 6
+  },
+  "hiddenOrInternalRouteCount": 38,
+  "commandCount": 12,
+  "objectives": [
+    {
+      "id": "ai-human-review-boundary",
+      "ownerArea": "ai-extraction",
+      "validationCommand": "audit:release-state-code-only:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "human_review",
+        "source_backed_suggestions",
+        "trusted_operational_data"
+      ]
+    },
+    {
+      "id": "analytics-telemetry-reporting",
+      "ownerArea": "analytics",
+      "validationCommand": "check:operational-search-reporting-analytics-exports",
+      "artifact": "artifacts/operational-search-reporting-analytics-exports.json",
+      "manualBoundary": false,
+      "scope": [
+        "early_access_events",
+        "evaluation_events",
+        "operational_reports",
+        "telemetry_inventory"
+      ]
+    },
+    {
+      "id": "auth-signup-access-control",
+      "ownerArea": "auth",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "forgot_password",
+        "gated_access",
+        "login",
+        "reset_password",
+        "signup"
+      ]
+    },
+    {
+      "id": "billing-entitlements-access",
+      "ownerArea": "billing",
+      "validationCommand": "check:operational-billing-entitlements",
+      "artifact": "artifacts/operational-billing-entitlements.json",
+      "manualBoundary": false,
+      "scope": [
+        "access_status",
+        "entitlements",
+        "provider_config",
+        "secondary_billing"
+      ]
+    },
+    {
+      "id": "contract-data-workflow-semantics",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "activity",
+        "approvals",
+        "dates",
+        "evidence",
+        "exceptions",
+        "obligations",
+        "owners",
+        "signed_contract_records"
+      ]
+    },
+    {
+      "id": "contract-support-workflows",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "bulk_import",
+        "contract_detail",
+        "exceptions",
+        "redirect_merge_routes",
+        "review",
+        "upload"
+      ]
+    },
+    {
+      "id": "copy-vocabulary-ratchets",
+      "ownerArea": "product-marketing",
+      "validationCommand": "audit:release-state-code-only:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "ai_boundary",
+        "metadata",
+        "private_module_vocabulary",
+        "public_positioning"
+      ]
+    },
+    {
+      "id": "core-workspace-pages",
+      "ownerArea": "product",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "contracts",
+        "dashboard",
+        "evidence",
+        "renewals",
+        "reports",
+        "settings",
+        "work"
+      ]
+    },
+    {
+      "id": "design-accessibility-ui-calibration",
+      "ownerArea": "frontend",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "a11y",
+        "dense_core_ui",
+        "public_modesty",
+        "states"
+      ]
+    },
+    {
+      "id": "developer-experience-migration-safety",
+      "ownerArea": "platform",
+      "validationCommand": "check:release-state-implementation-objectives",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "actionable_failures",
+        "human_diffable_artifacts",
+        "migration_safety",
+        "private_module_additivity"
+      ]
+    },
+    {
+      "id": "email-notification-content",
+      "ownerArea": "notifications",
+      "validationCommand": "check:operational-notifications-messaging",
+      "artifact": "artifacts/operational-notifications-messaging.json",
+      "manualBoundary": false,
+      "scope": [
+        "private_surface_leakage",
+        "required_release_emails",
+        "secondary_billing_notices"
+      ]
+    },
+    {
+      "id": "import-export-external-actions",
+      "ownerArea": "product-operations",
+      "validationCommand": "check:operational-search-reporting-analytics-exports",
+      "artifact": "artifacts/operational-search-reporting-analytics-exports.json",
+      "manualBoundary": false,
+      "scope": [
+        "exports",
+        "external_tokens",
+        "file_privacy",
+        "imports"
+      ]
+    },
+    {
+      "id": "legal-trust-boundaries",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance",
+      "artifact": "artifacts/operational-legal-trust-compliance.json",
+      "manualBoundary": false,
+      "scope": [
+        "acceptable_use",
+        "accessibility",
+        "cookies",
+        "privacy",
+        "security_claims",
+        "terms"
+      ]
+    },
+    {
+      "id": "manual-external-boundaries",
+      "ownerArea": "release",
+      "validationCommand": "check:release-state-implementation-objectives",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": true,
+      "scope": [
+        "legal_approval",
+        "pricing_decisions",
+        "production_config",
+        "release_approval"
+      ]
+    },
+    {
+      "id": "onboarding-calibration",
+      "ownerArea": "activation",
+      "validationCommand": "audit:release-state-code-only:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "calibration",
+        "first_upload_handoff",
+        "no_mode_picker"
+      ]
+    },
+    {
+      "id": "primary-core-navigation",
+      "ownerArea": "product-surface",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "contracts",
+        "dashboard",
+        "evidence",
+        "renewals",
+        "reports",
+        "settings",
+        "work"
+      ]
+    },
+    {
+      "id": "private-surface-silence",
+      "ownerArea": "product-surface",
+      "validationCommand": "check:surface:hrefs:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "advanced",
+        "assurance",
+        "autopilot",
+        "campaigns",
+        "decisions",
+        "relationships"
+      ]
+    },
+    {
+      "id": "public-marketing-legal-pages",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "artifact": "artifacts/operational-public-launch-positioning.json",
+      "manualBoundary": false,
+      "scope": [
+        "contact",
+        "early_access",
+        "homepage",
+        "legal",
+        "pricing",
+        "product",
+        "security"
+      ]
+    },
+    {
+      "id": "release-thesis-product-shape",
+      "ownerArea": "product",
+      "validationCommand": "audit:release-state-code-only:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "core_loop",
+        "post_signature_boundary",
+        "release_thesis"
+      ]
+    },
+    {
+      "id": "route-dispositions-access-guards",
+      "ownerArea": "product-surface",
+      "validationCommand": "check:surface:hrefs:strict",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "admin_routes",
+        "contextual_routes",
+        "hidden_routes",
+        "internal_routes",
+        "route_dispositions"
+      ]
+    },
+    {
+      "id": "runtime-jobs-operational-reliability",
+      "ownerArea": "operations",
+      "validationCommand": "check:operational-search-reporting-analytics-exports",
+      "artifact": "artifacts/operational-search-reporting-analytics-exports.json",
+      "manualBoundary": false,
+      "scope": [
+        "digests",
+        "extraction_lifecycle",
+        "health",
+        "imports",
+        "provider_missing",
+        "reminders",
+        "reports"
+      ]
+    },
+    {
+      "id": "search-command-more-filtering",
+      "ownerArea": "product-surface",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "command_palette",
+        "empty_states",
+        "more",
+        "search"
+      ]
+    },
+    {
+      "id": "security-privacy-tenant-safety",
+      "ownerArea": "security",
+      "validationCommand": "check:operational-legal-trust-compliance",
+      "artifact": "artifacts/operational-legal-trust-compliance.json",
+      "manualBoundary": false,
+      "scope": [
+        "external_tokens",
+        "files",
+        "headers",
+        "privacy",
+        "roles",
+        "source_snippets",
+        "tenant_isolation"
+      ]
+    },
+    {
+      "id": "settings-admin-internal-operations",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "test:vitest:current-product",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "billing",
+        "diagnostics",
+        "health",
+        "operations",
+        "policy",
+        "product",
+        "settings_security"
+      ]
+    },
+    {
+      "id": "surface-calibration",
+      "ownerArea": "product-design",
+      "validationCommand": "check:release-state-implementation-objectives",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "auth_pages",
+        "core_app",
+        "dashboards",
+        "details",
+        "diagnostics",
+        "public_pages",
+        "reports",
+        "settings"
+      ]
+    },
+    {
+      "id": "test-artifact-ci-hygiene",
+      "ownerArea": "platform",
+      "validationCommand": "check:generated-artifact-hygiene",
+      "artifact": "artifacts/release-state-implementation-objectives.json",
+      "manualBoundary": false,
+      "scope": [
+        "ci_wiring",
+        "cross_platform_checks",
+        "deterministic_artifacts",
+        "route_inventory"
+      ]
+    }
+  ],
+  "routeDispositions": [
+    {
+      "path": "/",
+      "disposition": "ship",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/acceptable-use",
+      "disposition": "ship",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/accessibility",
+      "disposition": "ship",
+      "ownerArea": "frontend",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/accounts/[key]",
+      "disposition": "hide_for_release",
+      "ownerArea": "relationships",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/autopilot",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/control-policies",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/control-policies/[id]",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/findings",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/findings/[id]",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/health-graph",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/playbooks",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/program-evolution",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/review-boards",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/scorecards",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/assurance/segments",
+      "disposition": "hide_for_release",
+      "ownerArea": "assurance",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/campaigns",
+      "disposition": "hide_for_release",
+      "ownerArea": "campaigns",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/campaigns/[id]",
+      "disposition": "hide_for_release",
+      "ownerArea": "campaigns",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/campaigns/compare",
+      "disposition": "hide_for_release",
+      "ownerArea": "campaigns",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contact",
+      "disposition": "ship_simplify",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/contracts",
+      "disposition": "ship",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/[id]",
+      "disposition": "ship",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/analytics",
+      "disposition": "hide_for_release",
+      "ownerArea": "analytics",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/approvals",
+      "disposition": "redirect_or_merge",
+      "ownerArea": "workflows",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/approvals/sla-simulator",
+      "disposition": "hide_for_release",
+      "ownerArea": "workflows",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/approvals/workload",
+      "disposition": "hide_for_release",
+      "ownerArea": "workflows",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/bulk",
+      "disposition": "contextual_only",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/collaboration",
+      "disposition": "hide_for_release",
+      "ownerArea": "collaboration",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/data-quality",
+      "disposition": "hide_for_release",
+      "ownerArea": "contracts",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/evidence-studio",
+      "disposition": "ship",
+      "ownerArea": "evidence",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/exceptions",
+      "disposition": "contextual_only",
+      "ownerArea": "workflows",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/execution-graph",
+      "disposition": "hide_for_release",
+      "ownerArea": "contracts",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/intake",
+      "disposition": "hide_for_release",
+      "ownerArea": "contracts",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/maintenance",
+      "disposition": "internal_only",
+      "ownerArea": "operations",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/new",
+      "disposition": "contextual_only",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/obligations",
+      "disposition": "redirect_or_merge",
+      "ownerArea": "workflows",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/programs",
+      "disposition": "hide_for_release",
+      "ownerArea": "programs",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/renewals",
+      "disposition": "ship",
+      "ownerArea": "renewals",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/reports",
+      "disposition": "redirect_or_merge",
+      "ownerArea": "reports",
+      "validationCommand": "check:operational-search-reporting-analytics-exports"
+    },
+    {
+      "path": "/contracts/review",
+      "disposition": "contextual_only",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/review-cadence",
+      "disposition": "hide_for_release",
+      "ownerArea": "contracts",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/contracts/tasks",
+      "disposition": "redirect_or_merge",
+      "ownerArea": "workflows",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/contracts/watchlists",
+      "disposition": "hide_for_release",
+      "ownerArea": "contracts",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/cookies",
+      "disposition": "ship",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/counterparties/[key]",
+      "disposition": "hide_for_release",
+      "ownerArea": "relationships",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/dashboard",
+      "disposition": "ship",
+      "ownerArea": "product",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/dashboard/persona",
+      "disposition": "hide_for_release",
+      "ownerArea": "product-surface",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/decisions",
+      "disposition": "hide_for_release",
+      "ownerArea": "decisions",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/decisions/[id]",
+      "disposition": "hide_for_release",
+      "ownerArea": "decisions",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/decisions/compare",
+      "disposition": "hide_for_release",
+      "ownerArea": "decisions",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/decisions/review",
+      "disposition": "hide_for_release",
+      "ownerArea": "decisions",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/early-access",
+      "disposition": "ship_simplify",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/external/[token]",
+      "disposition": "contextual_only",
+      "ownerArea": "external-actions",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/forgot-password",
+      "disposition": "ship",
+      "ownerArea": "auth",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/login",
+      "disposition": "ship",
+      "ownerArea": "auth",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/more",
+      "disposition": "ship_simplify",
+      "ownerArea": "product-surface",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/onboarding/calibration",
+      "disposition": "ship_simplify",
+      "ownerArea": "activation",
+      "validationCommand": "audit:release-state-code-only:strict"
+    },
+    {
+      "path": "/pricing",
+      "disposition": "ship_simplify",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/privacy",
+      "disposition": "ship",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/product",
+      "disposition": "ship",
+      "ownerArea": "product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "path": "/relationship-workspaces",
+      "disposition": "hide_for_release",
+      "ownerArea": "relationships",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/reports",
+      "disposition": "ship",
+      "ownerArea": "reports",
+      "validationCommand": "check:operational-search-reporting-analytics-exports"
+    },
+    {
+      "path": "/reset-password",
+      "disposition": "ship",
+      "ownerArea": "auth",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/search",
+      "disposition": "contextual_only",
+      "ownerArea": "product-surface",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/security",
+      "disposition": "ship",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/settings",
+      "disposition": "ship",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/settings/billing",
+      "disposition": "admin_only",
+      "ownerArea": "billing",
+      "validationCommand": "check:operational-billing-entitlements"
+    },
+    {
+      "path": "/settings/health",
+      "disposition": "admin_only",
+      "ownerArea": "operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/settings/health/diagnostics",
+      "disposition": "internal_only",
+      "ownerArea": "operations",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/settings/operations",
+      "disposition": "admin_only",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/settings/policy",
+      "disposition": "hide_for_release",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/settings/policy/diagnostics",
+      "disposition": "internal_only",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/settings/policy/registry",
+      "disposition": "internal_only",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "path": "/settings/product",
+      "disposition": "admin_only",
+      "ownerArea": "workspace-admin",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/settings/security",
+      "disposition": "ship",
+      "ownerArea": "security",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/signup",
+      "disposition": "ship_gated",
+      "ownerArea": "auth",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "path": "/terms",
+      "disposition": "ship",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "path": "/work",
+      "disposition": "ship",
+      "ownerArea": "workflows",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "boundaryPages": [
+    {
+      "id": "contract-not-found",
+      "disposition": "boundary",
+      "ownerArea": "contracts",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "global-error",
+      "disposition": "boundary",
+      "ownerArea": "frontend",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "global-not-found",
+      "disposition": "boundary",
+      "ownerArea": "frontend",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "marketing-not-found",
+      "disposition": "boundary",
+      "ownerArea": "frontend",
+      "validationCommand": "test:vitest:current-product"
+    }
+  ],
+  "requiredEmails": [
+    {
+      "id": "evidence-overdue",
+      "ownerArea": "evidence",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "evidence-requested",
+      "ownerArea": "evidence",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "extraction-failed-or-manual-review-needed",
+      "ownerArea": "ai-extraction",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "extraction-ready",
+      "ownerArea": "ai-extraction",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "field-review-reminder",
+      "ownerArea": "notifications",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "first-contract-uploaded",
+      "ownerArea": "notifications",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "invite-teammate",
+      "ownerArea": "notifications",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "notice-deadline-reminder",
+      "ownerArea": "renewals",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "upcoming-renewal-reminder",
+      "ownerArea": "renewals",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "weekly-digest-when-stable",
+      "ownerArea": "notifications",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "work-item-assigned",
+      "ownerArea": "workflows",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "work-item-overdue",
+      "ownerArea": "workflows",
+      "validationCommand": "check:operational-notifications-messaging"
+    }
+  ],
+  "completionCriteria": [
+    {
+      "id": "access-gated",
+      "validationCommand": "audit:release-state-code-only:strict"
+    },
+    {
+      "id": "ai-human-review-boundary",
+      "validationCommand": "audit:release-state-code-only:strict"
+    },
+    {
+      "id": "artifacts-ci-wired",
+      "validationCommand": "check:generated-artifact-hygiene"
+    },
+    {
+      "id": "billing-secondary",
+      "validationCommand": "check:operational-billing-entitlements"
+    },
+    {
+      "id": "core-primary-nav-seven-surfaces",
+      "validationCommand": "test:vitest:current-product"
+    },
+    {
+      "id": "every-release-route-classified",
+      "validationCommand": "check:release-state-implementation-objectives"
+    },
+    {
+      "id": "legal-trust-claims-bounded",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "id": "private-routes-hidden-from-core",
+      "validationCommand": "check:surface:hrefs:strict"
+    },
+    {
+      "id": "public-positioning-modest",
+      "validationCommand": "check:operational-public-launch-positioning"
+    },
+    {
+      "id": "release-emails-operational",
+      "validationCommand": "check:operational-notifications-messaging"
+    },
+    {
+      "id": "telemetry-current",
+      "validationCommand": "check:telemetry-event-inventory"
+    }
+  ],
+  "manualBoundaries": [
+    {
+      "id": "legal-policy-approval",
+      "ownerArea": "trust-compliance",
+      "validationCommand": "check:operational-legal-trust-compliance"
+    },
+    {
+      "id": "pricing-access-decisions",
+      "ownerArea": "billing",
+      "validationCommand": "check:operational-billing-entitlements"
+    },
+    {
+      "id": "production-configuration",
+      "ownerArea": "release",
+      "validationCommand": "check:operational-release-readiness"
+    },
+    {
+      "id": "production-smoke-release-approval",
+      "ownerArea": "release",
+      "validationCommand": "check:operational-release-readiness"
+    }
+  ],
+  "issueCount": 0,
+  "issues": []
+}

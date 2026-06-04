@@ -47,6 +47,7 @@ describe("POST /api/stripe/checkout", () => {
     vi.clearAllMocks();
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_ID = "price_123";
+    process.env.OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT = "1";
     rateLimitCheck.mockResolvedValue({ ok: true });
     isKillBilling.mockReturnValue(false);
     killSwitchJsonResponse.mockReturnValue(new Response(JSON.stringify({ error: "billing disabled" }), { status: 503 }));
@@ -109,6 +110,26 @@ describe("POST /api/stripe/checkout", () => {
 
     expect(res.status).toBe(503);
     expect(killSwitchJsonResponse).toHaveBeenCalledWith("billing");
+    expect(getStripeClient).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when public billing checkout is not enabled", async () => {
+    delete process.env.OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT;
+    createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "owner@example.com" } } }) },
+    });
+    getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
+    createAdminClient.mockResolvedValue({ from: vi.fn() });
+
+    const { POST } = await import("@/app/api/stripe/checkout/route");
+    const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body).toMatchObject({
+      code: "billing_checkout_not_enabled",
+      diagnostic_id: "stripe_checkout_public_billing_disabled",
+    });
     expect(getStripeClient).not.toHaveBeenCalled();
   });
 

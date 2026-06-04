@@ -57,7 +57,6 @@ export type SettingsStatusSummary = { items: SettingsStatusItem[] };
 
 export type WorkspaceSettingsViewModel = {
   roleLabel: string;
-  planLabel?: string;
   groups: SettingsDestinationGroup[];
   statusSummary: SettingsStatusSummary;
   canInviteMembers: boolean;
@@ -80,20 +79,22 @@ type BaseDestination = Omit<SettingsDestination, "state" | "surfaceKind"> & {
 
 const GROUP_META: Array<Omit<SettingsDestinationGroup, "destinations">> = [
   { key: "account", title: SETTINGS_GROUP_STRINGS.account, description: "" },
-  { key: "workspace", title: SETTINGS_GROUP_STRINGS.workspace, description: "" },
+  // The Workspace group only links to Billing here because workspace name and
+  // team are edited inline below — name the reason so the single-row group does
+  // not read as incomplete.
+  {
+    key: "workspace",
+    title: SETTINGS_GROUP_STRINGS.workspace,
+    description: "Workspace name and team are managed in the editors below.",
+  },
   { key: "operations", title: SETTINGS_GROUP_STRINGS.operations, description: "" },
 ];
 
+// IA: the directory lists only settings that open their own page. Profile,
+// Workspace, and Team are edited inline in their own cards on /settings, so
+// they are intentionally NOT directory rows — that removes the "row + inline
+// card" duplication that made the page read as two competing surfaces.
 const BASE_DESTINATIONS: BaseDestination[] = [
-  {
-    key: "profile",
-    group: "account",
-    title: SETTINGS_DESTINATION_STRINGS.profile.title,
-    description: SETTINGS_DESTINATION_STRINGS.profile.description,
-    href: "#profile",
-    actionLabel: SETTINGS_DESTINATION_STRINGS.profile.actionLabel,
-    currentStateLabel: SETTINGS_DESTINATION_STRINGS.profile.currentStateLabel,
-  },
   {
     key: "security",
     group: "account",
@@ -102,24 +103,6 @@ const BASE_DESTINATIONS: BaseDestination[] = [
     href: "/settings/security",
     actionLabel: SETTINGS_DESTINATION_STRINGS.security.actionLabel,
     currentStateLabel: SETTINGS_DESTINATION_STRINGS.security.currentStateLabel,
-  },
-  {
-    key: "workspace",
-    group: "workspace",
-    title: SETTINGS_DESTINATION_STRINGS.workspace.title,
-    description: SETTINGS_DESTINATION_STRINGS.workspace.description,
-    href: "#workspace-identity",
-    actionLabel: SETTINGS_DESTINATION_STRINGS.workspace.actionLabel,
-    requiredRole: "admin",
-  },
-  {
-    key: "team",
-    group: "workspace",
-    title: SETTINGS_DESTINATION_STRINGS.team.title,
-    description: SETTINGS_DESTINATION_STRINGS.team.description,
-    href: "#team-access",
-    actionLabel: SETTINGS_DESTINATION_STRINGS.team.actionLabel,
-    requiredRole: "admin",
   },
   {
     key: "billing",
@@ -191,7 +174,9 @@ function destinationCurrentStateLabel(
     }`;
   }
   if (dest.key === "billing") {
-    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Free";
+    // Access-status framing, not a pricing tier: a workspace with no Stripe
+    // subscription is in the early-access period, not on a "Free" plan.
+    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Early access";
   }
   return dest.currentStateLabel;
 }
@@ -275,7 +260,6 @@ export function buildWorkspaceSettingsViewModel(input: {
 
   return {
     roleLabel: input.role ? WORKSPACE_SETTINGS_ROLE_LABELS[input.role] ?? input.role : "Unknown",
-    planLabel: input.planLabel ?? undefined,
     groups,
     statusSummary: { items: attentionItems(input) },
     canInviteMembers: input.role === "admin",

@@ -269,11 +269,14 @@ const REQUIRED_FILE_MARKERS = {
     "parseWorkflowHttpsUrl(",
     "parseWorkflowJsonObject(",
     "parseWorkflowInt(",
+    "normalizeOptionalExpiryIso(",
+    'textInputError("Webhook URL", urlValidation)',
+    "Invalid configJson payload",
+  ],
+  "src/actions/workflow-config-helpers.ts": [
     "parseFutureIsoTimestamp(",
     "hasUnsafeJsonKey(parsed)",
     "isJsonShapeWithinLimits(parsed",
-    'textInputError("Webhook URL", urlValidation)',
-    "Invalid configJson payload",
   ],
   "src/actions/workflow-config-action-scope.test.ts": [
     'it("createWebhookSubscriptionForm rejects unsafe webhook URLs before auth or writes"',

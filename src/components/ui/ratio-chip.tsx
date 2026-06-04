@@ -45,12 +45,12 @@ export function RatioChip({
       }}
     >
       <span className="tabular-nums font-semibold">{numerator}</span>
-      <span className="text-[var(--text-tertiary)]" aria-hidden>
+      <span className="text-[var(--text-secondary)]" aria-hidden>
         /
       </span>
-      <span className="tabular-nums text-[var(--text-tertiary)]">{denominator}</span>
+      <span className="tabular-nums text-[var(--text-secondary)]">{denominator}</span>
       {suffix ? (
-        <span className="ml-0.5 text-[var(--text-tertiary)]">{suffix}</span>
+        <span className="ml-0.5 text-[var(--text-secondary)]">{suffix}</span>
       ) : null}
     </span>
   );

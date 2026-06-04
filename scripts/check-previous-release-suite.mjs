@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 function walk(dir, out) {
   for (const ent of readdirSync(dir, { withFileTypes: true })) {
@@ -25,5 +25,5 @@ if (existsSync(acceptanceCriteria)) {
   files.push(acceptanceCriteria);
 }
 
-const r = spawnSync("npx", ["vitest", "run", ...files], { stdio: "inherit", cwd: root, shell: false });
+const r = spawnSyncCrossPlatform("npx", ["vitest", "run", ...files], { stdio: "inherit", cwd: root });
 process.exit(r.status ?? 1);

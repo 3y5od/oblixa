@@ -3,6 +3,8 @@ import { test, expect } from "./fixtures/app-fixture";
 // skip-meta-default: owner=@qa expiry=2027-12-31 reason=authenticated_dialog_coverage_requires_seed_credentials
 
 test.describe("a11y dialogs", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("auth flow exposes expected heading after redirect dialog-free login guard", async ({ page }) => {
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
     await page.waitForURL(/\/login/);
@@ -31,4 +33,3 @@ test.describe("a11y dialogs", () => {
     await expect(input).toBeHidden({ timeout: 10_000 });
   });
 });
-

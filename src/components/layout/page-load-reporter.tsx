@@ -20,6 +20,10 @@ const MEASURED_PREFIXES = [
   "/onboarding/calibration",
 ] as const;
 
+const PAGE_LOAD_TELEMETRY_ENABLED =
+  process.env.NODE_ENV === "production" ||
+  process.env.NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY === "1";
+
 function isMeasuredPath(path: string): boolean {
   for (const p of MEASURED_PREFIXES) {
     if (path === p || path.startsWith(`${p}/`)) return true;
@@ -42,7 +46,7 @@ export function V9PageLoadReporter() {
   const lastEmit = useRef<{ path: string; at: number } | null>(null);
 
   useEffect(() => {
-    if (!path || !isMeasuredPath(path)) return;
+    if (!PAGE_LOAD_TELEMETRY_ENABLED || !path || !isMeasuredPath(path)) return;
     const now = Date.now();
     const prev = lastEmit.current;
     if (prev && prev.path === path && now - prev.at < 8000) return;

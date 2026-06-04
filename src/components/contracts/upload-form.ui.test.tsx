@@ -30,10 +30,10 @@ describe("UploadForm", () => {
     expect(screen.getByLabelText(/annual value/i)).toBeTruthy();
     expect(screen.getByLabelText(/source system/i)).toBeTruthy();
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
-    expect(screen.getByText(/record metadata/i)).toBeTruthy();
+    expect(screen.getByText(/contract details/i)).toBeTruthy();
     expect(screen.getByText(/source documents/i)).toBeTruthy();
-    expect(screen.getByText(/no source yet/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^create record$/i })).toBeTruthy();
+    expect(screen.getByText(/no file selected/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^create without a file$/i })).toBeTruthy();
   });
 
   it("summarizes accepted, unsupported, oversized, and duplicate files", async () => {
@@ -80,7 +80,7 @@ describe("UploadForm", () => {
 
     const title = screen.getByLabelText(/contract title/i);
     await user.type(title, "Hold my title");
-    await user.click(screen.getByRole("button", { name: /^create record$/i }));
+    await user.click(screen.getByRole("button", { name: /^create without a file$/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalled());
     expect((screen.getByRole("alert").textContent ?? "").toLowerCase()).toMatch(/session/);

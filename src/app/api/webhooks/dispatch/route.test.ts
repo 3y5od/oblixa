@@ -295,6 +295,63 @@ describe("GET /api/webhooks/dispatch", () => {
     );
   });
 
+  it("reports events completed without eligible webhook subscribers", async () => {
+    process.env.CRON_SECRET = "secret";
+    const event = {
+      id: "evt_no_subscribers",
+      organization_id: "org_1",
+      event_type: "contract.updated",
+      entity_type: "contract",
+      entity_id: "ctr_1",
+      payload: { schema_version: "v2" },
+      created_at: "2026-05-04T17:00:00.000Z",
+    };
+    const outboundEventEq = vi.fn().mockResolvedValue({ error: null });
+
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "outbound_events") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn().mockReturnThis(),
+              order: vi.fn().mockReturnThis(),
+              limit: vi.fn().mockResolvedValue({ data: [event] }),
+            })),
+            update: vi.fn(() => ({ eq: outboundEventEq })),
+          };
+        }
+        if (table === "webhook_subscriptions") {
+          return {
+            select: vi.fn(() => ({
+              in: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockResolvedValue({ data: [] }),
+            })),
+          };
+        }
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    const { GET } = await import("@/app/api/webhooks/dispatch/route");
+    const req = new Request("http://localhost:3000/api/webhooks/dispatch", {
+      headers: { Authorization: "Bearer secret" },
+    });
+    const res = await GET(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      ok: true,
+      candidates: 1,
+      delivered: 1,
+      attempts: 0,
+      skippedNoSubscribers: 1,
+      totalFailures: 0,
+    });
+    expect(outboundEventEq).toHaveBeenCalledWith("id", "evt_no_subscribers");
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
   it("skips a webhook delivery row when another worker already claimed it", async () => {
     process.env.CRON_SECRET = "secret";
     const event = {

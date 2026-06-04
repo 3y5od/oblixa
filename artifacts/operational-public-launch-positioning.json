@@ -1,5 +1,5 @@
 {
-  "ok": true,
+  "ok": false,
   "schemaVersion": 1,
   "source": "code-owned-operational-public-launch-positioning",
   "generatedFrom": "config/operational-public-launch-positioning.json",
@@ -135,20 +135,20 @@
       "ok": true
     },
     {
-      "id": "early-access-assurance-workflows",
-      "path": "src/components/landing/contact-form.tsx",
-      "owner": "@product-marketing",
-      "validationCommand": "check:operational-public-launch-positioning",
-      "markerCount": 3,
-      "missingCount": 0,
-      "ok": true
-    },
-    {
       "id": "exportable-data",
       "path": "src/components/landing/landing-content.ts",
       "owner": "@product-marketing",
       "validationCommand": "audit:marketing-identity:strict",
       "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "gated-early-access-request",
+      "path": "src/app/(marketing)/early-access/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
       "missingCount": 0,
       "ok": true
     },
@@ -276,7 +276,7 @@
       "path": "src/lib/marketing/public-paths.ts",
       "owner": "@product-marketing",
       "validationCommand": "check:public-seo-surface",
-      "markerCount": 4,
+      "markerCount": 5,
       "missingCount": 0,
       "ok": true
     }
@@ -330,6 +330,15 @@
     {
       "id": "dpa-security-contact",
       "path": "src/app/(marketing)/contact/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "early-access-page",
+      "path": "src/app/(marketing)/early-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
       "markerCount": 3,
@@ -477,7 +486,7 @@
   "runtimeInventory": {
     "launchBoundaryIdCount": 10,
     "privateSurfaceIdCount": 11,
-    "conversionFlowIdCount": 8,
+    "conversionFlowIdCount": 9,
     "assetMetadataIdCount": 12,
     "boundaryRegistryCount": 10
   },
@@ -527,12 +536,18 @@
       },
       {
         "checkId": "next-public-surface",
-        "ok": true,
-        "issueCount": 0
+        "ok": false,
+        "issueCount": 4
       }
     ]
   },
-  "issueCount": 0,
-  "issues": [],
+  "issueCount": 1,
+  "issues": [
+    {
+      "issue": "operational_public_launch_delegated_check_failed",
+      "checkId": "next-public-surface",
+      "issueCount": 4
+    }
+  ],
   "generatedBy": "scripts/check-operational-public-launch-positioning.mjs --write"
 }

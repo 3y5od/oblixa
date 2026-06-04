@@ -22,10 +22,15 @@ import { test, expect } from "./fixtures/app-fixture";
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
+  SETTINGS_DESTINATION_STRINGS,
+  SETTINGS_PAGE_STRINGS,
+} from "@/lib/settings/spec-strings";
+import {
   AUTHENTICATED_VIEWPORT_OVERFLOW_EXCLUDED,
   getAuthenticatedA11yAndViewportPaths,
   REFINEMENT_S10_4_UTILITY_PATHS,
 } from "./authenticated-a11y-paths";
+import { DASHBOARD_MAIN_SECTIONS, DASHBOARD_TITLE } from "@/lib/dashboard/spec-strings";
 import { AppShellPO } from "./page-objects/AppShellPO";
 import { ContractsPO } from "./page-objects/ContractsPO";
 import { DashboardPO } from "./page-objects/DashboardPO";
@@ -46,9 +51,36 @@ async function loginAsTestUser(page: Page) {
   const email = E2E_EMAIL?.trim();
   const password = E2E_PASSWORD?.trim();
   test.skip(!email || !password, "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke.");
-  const { loginWithCredentials } = await import("./login-test-user");
-  await loginWithCredentials(page, email!, password!);
+  const { ensureAuthenticatedSession } = await import("./login-test-user");
+  await ensureAuthenticatedSession(page, email!, password!);
 }
+
+async function expectDashboardLoaded(page: Page) {
+  await expect(page.getByRole("heading", { level: 1, name: DASHBOARD_TITLE })).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
+async function gotoAuthenticatedPath(page: Page, path: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+      await expect(page.locator("body")).toBeVisible({ timeout: 15_000 });
+      return response;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === 1 || !message.includes("ERR_ABORTED")) {
+        throw error;
+      }
+      await page.waitForTimeout(250);
+    }
+  }
+  return null;
+}
+
+const dataGapsAction =
+  DASHBOARD_MAIN_SECTIONS.find((section) => section.name === "Data Gaps")?.action ??
+  "Fix missing data";
 
 test.describe("authenticated smoke", () => {
   test.skip(
@@ -67,21 +99,23 @@ test.describe("authenticated smoke", () => {
     await expect(page).toHaveURL(/\/settings\/operations/);
   });
 
-  test("dashboard View gaps navigates to data quality", async ({ page }) => {
+  test("dashboard data gaps action navigates to review queue", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
-    await page.getByRole("link", { name: /^View gaps$/i }).click();
-    await expect(page).toHaveURL(/\/contracts\/data-quality/);
+    await expectDashboardLoaded(page);
+    await page.getByRole("link", { name: dataGapsAction }).click();
+    await expect(page).toHaveURL(/\/contracts\/review/);
   });
 
-  test("reports KPI footer scrolls to digest runs section", async ({ page }) => {
+  test("reports page exposes current catalog and export action", async ({ page }) => {
     await loginAsTestUser(page);
-    await page.goto("/contracts/reports", { waitUntil: "domcontentloaded" });
-    await expect(page).toHaveURL(/\/contracts\/reports/);
-    await page.getByRole("link", { name: /^Open run list$/i }).click();
-    await expect(page).toHaveURL(/#digest-runs$/);
-    await expect(page.locator("#digest-runs")).toBeVisible();
+    await page.goto("/reports", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/reports/);
+    await expect(page.getByRole("heading", { level: 1, name: /^Reports$/i })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole("navigation", { name: /^Reports$/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Export upcoming renewals/i })).toBeVisible();
   });
 
   test("primary nav hides Decisions, Campaigns, Programs, and Assurance on Core workspace", async ({
@@ -123,7 +157,9 @@ test.describe("authenticated smoke", () => {
     await page.goto("/decisions", { waitUntil: "domcontentloaded" });
     const url = page.url();
     if (/\/decisions/.test(url)) {
-      await expect(page.getByRole("heading", { name: /decision/i })).toBeVisible({ timeout: 20_000 });
+      await expect(
+        page.getByRole("heading", { level: 1, name: /decision queue/i })
+      ).toBeVisible({ timeout: 20_000 });
     } else {
       await expect(page).toHaveURL(/\/dashboard/);
     }
@@ -132,7 +168,7 @@ test.describe("authenticated smoke", () => {
   test("command palette omits Campaigns for Core workspace", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
     const mod = process.platform === "darwin" ? "Meta" : "Control";
     await page.keyboard.press(`${mod}+KeyK`);
     const dlg = page.getByRole("dialog", { name: /command palette/i });
@@ -146,7 +182,7 @@ test.describe("authenticated smoke", () => {
   test("command palette omits Watchlists for Core workspace (§10.4 utility)", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
     const mod = process.platform === "darwin" ? "Meta" : "Control";
     await page.keyboard.press(`${mod}+KeyK`);
     const dlg = page.getByRole("dialog", { name: /command palette/i });
@@ -158,7 +194,7 @@ test.describe("authenticated smoke", () => {
   test("command palette omits Relationships for Core workspace (§7.2)", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
     const mod = process.platform === "darwin" ? "Meta" : "Control";
     await page.keyboard.press(`${mod}+KeyK`);
     const dlg = page.getByRole("dialog", { name: /command palette/i });
@@ -170,31 +206,31 @@ test.describe("authenticated smoke", () => {
   test("can access core execution routes (work, exceptions)", async ({ page }) => {
     await loginAsTestUser(page);
 
-    await page.goto("/work", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/work");
     await expect(page).toHaveURL(/\/work/);
 
-    await page.goto("/contracts/exceptions", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/exceptions");
     await expect(page).toHaveURL(/\/contracts\/exceptions/);
 
-    await page.goto("/contracts/maintenance", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/maintenance");
     await expect(page).toHaveURL(/\/contracts\/maintenance/);
 
-    await page.goto("/contracts/reports", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/reports");
     await expect(page).toHaveURL(/\/contracts\/reports/);
 
-    await page.goto("/work", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/work");
     await expect(page).toHaveURL(/\/work/);
 
-    await page.goto("/contracts/evidence-studio", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/evidence-studio");
     await expect(page).toHaveURL(/\/contracts\/evidence-studio/);
 
-    await page.goto("/settings/policy", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/settings/policy");
     await expect(page).toHaveURL(/\/settings\/policy/);
 
-    await page.goto("/contracts/approvals/sla-simulator", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/approvals/sla-simulator");
     await expect(page).toHaveURL(/\/contracts\/approvals\/sla-simulator/);
 
-    await page.goto("/contracts/approvals/workload", { waitUntil: "domcontentloaded" });
+    await gotoAuthenticatedPath(page, "/contracts/approvals/workload");
     await expect(page).toHaveURL(/\/contracts\/approvals\/workload/);
   });
 
@@ -212,7 +248,7 @@ test.describe("authenticated smoke", () => {
     await loginAsTestUser(page);
 
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
 
     const results = await new AxeBuilder({ page }).analyze();
     const blocking = results.violations.filter((v) =>
@@ -222,14 +258,27 @@ test.describe("authenticated smoke", () => {
   });
 
   test("authenticated Axe matrix: core routes have no serious violations", async ({ page }) => {
+    test.setTimeout(300_000);
     await loginAsTestUser(page);
 
     for (const path of getAuthenticatedA11yAndViewportPaths()) {
-      const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
+      const resp = await gotoAuthenticatedPath(page, path);
       if (resp?.status() === 404 || resp?.status() === 403) {
         continue;
       }
-      const results = await new AxeBuilder({ page }).analyze();
+      await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
+      await page.waitForTimeout(100);
+      let results;
+      try {
+        results = await new AxeBuilder({ page }).analyze();
+      } catch (error) {
+        if (!String(error).includes("Execution context was destroyed")) {
+          throw error;
+        }
+        await page.waitForLoadState("domcontentloaded", { timeout: 5_000 }).catch(() => undefined);
+        await page.waitForTimeout(250);
+        results = await new AxeBuilder({ page }).analyze();
+      }
       const blocking = results.violations.filter((v) =>
         ["serious", "critical"].includes(v.impact ?? "")
       );
@@ -240,23 +289,26 @@ test.describe("authenticated smoke", () => {
   test("skip link moves focus to main landmark", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
 
     await page.getByRole("link", { name: /skip to main content/i }).focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
   });
 
-  test("settings title and workflow action do not overlap at common viewports", async ({ page }) => {
+  test("settings title and directory action do not overlap at common viewports", async ({ page }) => {
     await loginAsTestUser(page);
     // Narrow main column (~1100) and wider (~1440): side-by-side headers used to overlap past xl
     // while the content area was still narrower than viewport minus sidebar.
     for (const width of [1100, 1440] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      const titleHeading = page.getByRole("heading", { name: /^Settings$/i });
+      const titleHeading = page.getByRole("heading", { level: 1, name: SETTINGS_PAGE_STRINGS.title });
       await expect(titleHeading).toBeVisible({ timeout: 20_000 });
-      const workflow = page.getByRole("link", { name: /workflow configuration/i });
+      const workflow = page.getByRole("link", {
+        name: new RegExp(`^${SETTINGS_DESTINATION_STRINGS.notifications.actionLabel}$`, "i"),
+      });
+      await expect(page.getByRole("heading", { name: SETTINGS_PAGE_STRINGS.directoryTitle })).toBeVisible();
       await expect(workflow).toBeVisible();
       const titleBox = await titleHeading.boundingBox();
       const actionBox = await workflow.boundingBox();
@@ -284,9 +336,10 @@ test.describe("refinement route visibility (product-surface policy §10, Core fi
   test("§10.1 core-visible paths resolve without landing only on /dashboard (except /dashboard and billing)", async ({
     page,
   }) => {
+    test.setTimeout(300_000);
     await loginAsTestUser(page);
     for (const path of getAuthenticatedA11yAndViewportPaths()) {
-      const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
+      const resp = await gotoAuthenticatedPath(page, path);
       if (resp?.status() === 404 || resp?.status() === 403) {
         continue;
       }
@@ -516,7 +569,7 @@ test.describe("refinement route visibility (product-surface policy §10, Core fi
   test("§22.3 dashboard does not foreground Assurance hero headings on Core", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /^Dashboard$/i })).toBeVisible({ timeout: 20_000 });
+    await expectDashboardLoaded(page);
     await expect(
       page.getByRole("heading", {
         level: 1,
@@ -547,14 +600,14 @@ test.describe("refinement route visibility (product-surface policy §10, Core fi
   });
 });
 
-/** §20 — Header search opens command palette; Core must not surface Advanced/Assurance jump links in-dialog. */
+/** §20 — Header search commits to /search; Core must not surface Advanced/Assurance jump links. */
 test.describe("refinement §20 global/header search", () => {
   test.skip(
     !E2E_EMAIL || !E2E_PASSWORD,
     "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke."
   );
 
-  test("Core workspace: global search results exclude Advanced destinations", async ({ page }) => {
+  test("Core workspace: committed search results exclude Advanced destinations", async ({ page }) => {
     await loginAsTestUser(page);
     const coreFixture = await isCoreWorkspaceByDecisionsProbe(page);
     test.skip(!coreFixture, "Core-only assertion skipped when org is Advanced+.");
@@ -564,11 +617,11 @@ test.describe("refinement §20 global/header search", () => {
     const search = page.getByTestId("workspace-header-search");
     await search.fill("decision");
     await search.press("Enter");
-    const dialog = page.getByRole("dialog", { name: /command palette/i });
-    await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await expect(dialog.locator('a[href^="/decisions"]')).toHaveCount(0);
-    await expect(dialog.locator('a[href^="/campaigns"]')).toHaveCount(0);
-    await expect(dialog.locator('a[href^="/assurance"]')).toHaveCount(0);
+    await expect(page).toHaveURL(/\/search\?q=decision/);
+    await expect(page.locator("#main-content")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#main-content a[href^="/decisions"]')).toHaveCount(0);
+    await expect(page.locator('#main-content a[href^="/campaigns"]')).toHaveCount(0);
+    await expect(page.locator('#main-content a[href^="/assurance"]')).toHaveCount(0);
   });
 });
 
@@ -580,16 +633,19 @@ test.describe("authenticated narrow viewport", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("dashboard and contracts do not widen the document", async ({ page }) => {
+    test.setTimeout(300_000);
     await loginAsTestUser(page);
 
     for (const path of getAuthenticatedA11yAndViewportPaths()) {
       if (AUTHENTICATED_VIEWPORT_OVERFLOW_EXCLUDED.has(path)) {
         continue;
       }
-      const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
+      const resp = await gotoAuthenticatedPath(page, path);
       if (resp?.status() === 404 || resp?.status() === 403) {
         continue;
       }
+      await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
+      await page.waitForTimeout(100);
       const delta = await page.evaluate(() => {
         const el = document.documentElement;
         return el.scrollWidth - el.clientWidth;
@@ -605,14 +661,13 @@ test.describe("V4 workspace mutations", () => {
     "Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run authenticated smoke."
   );
 
-  test("evidence studio saves a template", async ({ page }) => {
+  test("evidence workspace loads current Evidence surface", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/contracts/evidence-studio", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /evidence studio/i })).toBeVisible();
-    const name = `e2e-evidence-${Date.now()}`;
-    await page.locator('input[name="name"]').fill(name);
-    await page.getByRole("button", { name: /save template/i }).click();
-    await expect(page.getByText(name, { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { level: 1, name: /^Evidence$/i })).toBeVisible();
+    await expect(page.getByRole("table", { name: /evidence requests in this workspace/i })).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test("programs creates a draft program", async ({ page }) => {
@@ -659,4 +714,3 @@ test.describe("V4 workspace mutations", () => {
     }
   });
 });
-

@@ -58,9 +58,14 @@ test("analyzeExecutableMasqueradeGuards rejects disguised shebangs and executabl
   write(root, "src/components/card.tsx", "export function Card(){ return null; }\n", 0o755);
 
   const report = analyzeExecutableMasqueradeGuards(root, BASE_ALLOWLIST);
+  const executableBitRepresentable =
+    (fs.statSync(path.join(root, "src/components/card.tsx")).mode & 0o111) !== 0;
   assert.equal(report.ok, false);
   assert.equal(report.issues.some((issue) => issue.issue === "unexpected_shebang"), true);
-  assert.equal(report.issues.some((issue) => issue.issue === "unexpected_executable_bit"), true);
+  assert.equal(
+    report.issues.some((issue) => issue.issue === "unexpected_executable_bit"),
+    executableBitRepresentable
+  );
 });
 
 test("analyzeExecutableMasqueradeGuards rejects stale or incomplete allowlist metadata", () => {

@@ -14,6 +14,7 @@ import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import {
   getStripeFoundingCouponId,
+  isPublicBillingCheckoutEnabled,
   isStripeAchEnabled,
   isStripeTaxEnabled,
   isStripeTosCollectionEnabled,
@@ -97,6 +98,19 @@ export async function POST(request: Request) {
 
   if (isKillBilling()) {
     return killSwitchJsonResponse("billing");
+  }
+
+  if (!isPublicBillingCheckoutEnabled()) {
+    return jsonProblem(403, {
+      error: "Billing checkout is available only after an approved early-access evaluation.",
+      code: "billing_checkout_not_enabled",
+      diagnostic_id: "stripe_checkout_public_billing_disabled",
+      route: ROUTE,
+      details: {
+        required_env: "OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT=1",
+        degraded_policy: "early_access_manual_billing",
+      },
+    });
   }
 
   // SPEC: §3.9 read variant from body — schema allows {variant, founding}
@@ -227,12 +241,12 @@ export async function POST(request: Request) {
     });
   }
 
-  // SPEC: §7.5 — pin 21-day trial when env doesn't override
+  // Early access is evaluation-first; checkout adds a trial only if explicitly configured.
   const trialDaysOverride = parseInt(process.env.STRIPE_TRIAL_PERIOD_DAYS || "", 10);
   const trialPeriodDays =
     Number.isFinite(trialDaysOverride) && trialDaysOverride > 0
       ? trialDaysOverride
-      : 21;
+      : null;
 
   // SPEC: §3.28 modern discounts[] for founding-customer pre-apply (§3.22)
   const foundingCouponId = body.founding ? getStripeFoundingCouponId() : null;
@@ -285,7 +299,7 @@ export async function POST(request: Request) {
       // SPEC: §3.29 + §7.5 + §3.22 + §3.18
       subscription_data: {
         description: "Oblixa Core",
-        trial_period_days: trialPeriodDays,
+        ...(trialPeriodDays ? { trial_period_days: trialPeriodDays } : {}),
         metadata: {
           organization_id: org.id,
           app_user_id: user.id,

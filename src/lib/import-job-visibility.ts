@@ -44,7 +44,11 @@ export function getImportJobHeadline(input: ImportJobVisibilityInput): string {
 export function getImportJobDetail(input: ImportJobVisibilityInput): string {
   const status = normalizeV10JobStatus(input.status, { failed: input.error_rows ?? 0, retryable: input.error_rows ?? 0 });
   if (status === "failed_retryable" || status === "failed_terminal") {
-    return input.failure_reason?.trim() || "The import stopped before contracts were created.";
+    // Core-safe: never surface the raw failure_reason to users. For a fatal
+    // insert it is the verbatim database error (constraint/column/type text),
+    // which the release-state boundary rules forbid exposing. The raw value
+    // stays in the job record for operators; users get a recoverable summary.
+    return "The import stopped before contracts were created.";
   }
 
   if (input.superseded_by_job_id) {

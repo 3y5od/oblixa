@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import {
   ArrowLeft,
   Check,
-  ChevronRight,
   Inbox,
   Mail,
   ShieldCheck,
@@ -17,6 +16,7 @@ import { UiAlert } from "@/components/ui/ui-alert";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { ChipPair } from "@/components/ui/chip-pair";
+import { ActionChip } from "@/components/ui/action-chip";
 import { SecuritySettingsPanel } from "@/components/settings/security-settings-panel";
 import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
 import { readStepUpExpiry } from "@/lib/security/step-up-cookie";
@@ -182,10 +182,12 @@ export default async function SecuritySettingsPage({
   const showAtRiskBanner =
     isAdmin && factorCount === 0 && ctx.mfaRequired === true;
 
-  // V2 §1.54 dev environment marker.
-  const isProdLike = process.env.NODE_ENV === "production";
-  const showDevBanner =
-    !isProdLike && !process.env.OBLIXA_STEP_UP_SECRET;
+  // V2 §1.54 dev environment marker. Gated to local development only —
+  // NODE_ENV === "development" (not merely "not production") so the
+  // "step-up cookie validation is mocked" notice can never surface in a
+  // preview, test, or staging build a release user might reach.
+  const isDevEnv = process.env.NODE_ENV === "development";
+  const showDevBanner = isDevEnv && !process.env.OBLIXA_STEP_UP_SECRET;
 
   return (
     <div className="ui-page-stack mx-auto max-w-4xl gap-5">
@@ -249,12 +251,10 @@ export default async function SecuritySettingsPage({
               )}
             </dd>
           </div>
-          <div className="inline-flex items-center gap-2">
-            <dt className="ui-caps-3 text-[var(--text-tertiary)]">Role</dt>
-            <dd className="text-[13px] font-medium text-[var(--text-primary)]">
-              {ctx.role.charAt(0).toUpperCase() + ctx.role.slice(1)}
-            </dd>
-          </div>
+          {/* Role intentionally omitted from the identity strip — it is
+              already shown once in the "Team roles" row of Account &
+              workspace context below, so repeating it here duplicated the
+              same fact (§10.4 eliminate redundancy). */}
           {orgName ? (
             <div className="inline-flex min-w-0 items-center gap-2">
               <dt className="ui-caps-3 text-[var(--text-tertiary)]">
@@ -409,8 +409,12 @@ function AccountContext({
           <dt className={labelClass}>
             {SETTINGS_SECURITY_STRINGS.sections.teamRoles}
           </dt>
-          <dd className="inline-flex items-center gap-1.5 text-[13px]">
+          <dd className="inline-flex flex-wrap items-center justify-end gap-2 text-[13px]">
             <ChipPair primary={ctxRole.toUpperCase()} secondary="VIEW ONLY" />
+            {/* Roles are managed in Settings → Team access; this row is
+                view-only here, so it links there rather than reading as a
+                dead-end. /settings#team-access focuses the team section. */}
+            <ActionChip verb="Manage" href="/settings#team-access" />
           </dd>
         </div>
 
@@ -502,14 +506,11 @@ function AccountContext({
           <dt className={labelClass}>
             {SETTINGS_SECURITY_STRINGS.resources.auditHistory}
           </dt>
-          <dd className="text-[13px]">
-            <Link
-              href="/settings/security?filter=billing"
-              className="ui-link inline-flex items-center gap-1"
-            >
-              View audit history
-              <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-            </Link>
+          <dd className="inline-flex justify-end text-[13px]">
+            {/* Structured ActionChip (matches the Team roles "Manage"
+                chip) so the Resources action column reads as one
+                vocabulary rather than mixed inline links + chips. */}
+            <ActionChip verb="View audit history" href="/settings/security?filter=billing" />
           </dd>
         </div>
 
@@ -518,15 +519,12 @@ function AccountContext({
           <dt className={labelClass}>
             {SETTINGS_SECURITY_STRINGS.resources.dpaContact}
           </dt>
-          <dd className="text-[13px]">
-            <Link
+          <dd className="inline-flex justify-end text-[13px]">
+            <ActionChip
+              verb={SETTINGS_SECURITY_STRINGS.contactCta}
               href={`mailto:${SETTINGS_SECURITY_STRINGS.contactEmail}`}
-              className="ui-link inline-flex items-center gap-1.5"
-            >
-              <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              {SETTINGS_SECURITY_STRINGS.contactCta}
-              <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-            </Link>
+              icon={Mail}
+            />
           </dd>
         </div>
       </dl>

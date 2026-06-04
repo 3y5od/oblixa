@@ -31,6 +31,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { UiRadioGroup } from "@/components/ui/ui-radio-group";
 import { UiToggle } from "@/components/ui/ui-toggle";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
+import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 export const metadata = { title: "Obligations" };
 
@@ -162,15 +163,17 @@ export default async function ContractObligationsPage(props: {
   const nowMs = currentTimeMs();
   const overdueObligations = obligations.filter((ob) => {
     if (!ob.dueDate) return false;
+    const due = parseBusinessDateAtNoon(ob.dueDate);
+    if (!due) return false;
     return (
-      new Date(`${ob.dueDate}T12:00:00`).getTime() < nowMs &&
+      due.getTime() < nowMs &&
       (ob.status === "open" || ob.status === "in_progress")
     );
   }).length;
   const completedObligations = obligations.filter((ob) => ob.status === "done").length;
 
   return (
-    <div className="ui-page-stack mx-auto max-w-7xl">
+    <div className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl">
       <DashboardPageHeader
         icon={<ListChecks className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Portfolio commitments"
@@ -187,7 +190,7 @@ export default async function ContractObligationsPage(props: {
         }
       />
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Obligations summary">
+      <section className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Obligations summary">
         <StatCell
           label="Open obligations"
           display={String(openObligations)}
@@ -218,7 +221,7 @@ export default async function ContractObligationsPage(props: {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" aria-label="Obligations filters and saved queues">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" aria-label="Obligations filters and saved queues">
         <div className="ui-card min-w-0 overflow-hidden p-0">
           <SectionHeader
             eyebrow="Filters"
@@ -427,7 +430,7 @@ export default async function ContractObligationsPage(props: {
           </div>
         </section>
       ) : (
-        <section className="ui-card overflow-hidden p-0">
+        <section className="ui-card min-w-0 max-w-full overflow-hidden p-0">
           <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
@@ -445,7 +448,7 @@ export default async function ContractObligationsPage(props: {
               {obligations.length} {obligations.length === 1 ? "row" : "rows"}
             </span>
           </header>
-          <div className="overflow-x-auto">
+          <div className="max-w-full overflow-x-auto [contain:inline-size]">
             <table aria-label="Obligations in this queue" className="min-w-full divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] text-sm">
               <thead>
                 <tr className="text-left">
@@ -483,7 +486,7 @@ export default async function ContractObligationsPage(props: {
                   const isOverdue =
                     Boolean(ob.dueDate) &&
                     (ob.status === "open" || ob.status === "in_progress") &&
-                    new Date(`${ob.dueDate}T12:00:00`).getTime() < nowMs;
+                    (parseBusinessDateAtNoon(ob.dueDate)?.getTime() ?? Number.POSITIVE_INFINITY) < nowMs;
                   return (
                     <tr key={ob.id} className="align-top">
                       <td className="px-5 py-4">
@@ -523,7 +526,7 @@ export default async function ContractObligationsPage(props: {
                       <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums">
                         {ob.dueDate ? (
                           <span className={isOverdue ? "text-[var(--danger-ink)]" : "text-[var(--text-secondary)]"}>
-                            {format(new Date(`${ob.dueDate}T12:00:00`), "MMM d, yyyy")}
+                            {formatBusinessDateAtNoon(ob.dueDate)}
                           </span>
                         ) : (
                           <span className="text-[var(--text-tertiary)]">—</span>
@@ -531,7 +534,7 @@ export default async function ContractObligationsPage(props: {
                       </td>
                       <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums text-[var(--text-secondary)]">
                         {ob.nextDueDate
-                          ? format(new Date(`${ob.nextDueDate}T12:00:00`), "MMM d, yyyy")
+                          ? formatBusinessDateAtNoon(ob.nextDueDate)
                           : "—"}
                       </td>
                       <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums text-[var(--text-secondary)]">
@@ -573,4 +576,3 @@ export default async function ContractObligationsPage(props: {
     </div>
   );
 }
-

@@ -98,11 +98,11 @@
       "markers": ["your team reviews and approves", "source snippet"]
     },
     {
-      "id": "early-access-assurance-workflows",
-      "path": "src/components/landing/contact-form.tsx",
+      "id": "gated-early-access-request",
+      "path": "src/app/(marketing)/early-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["assurance_workflows", "Need assurance workflows for selected contract work", "ContactForm"]
+      "markers": ["Request early access", "Founder-led early access", "Redacted sample"]
     },
     {
       "id": "exportable-data",
@@ -132,7 +132,7 @@
       "path": "src/lib/marketing/public-paths.ts",
       "owner": "@product-marketing",
       "validationCommand": "check:public-seo-surface",
-      "markers": ["PUBLIC_INFORMATION_PATHS", "SITEMAP_PATHS", "\"/pricing\"", "\"/contact\""]
+      "markers": ["PUBLIC_INFORMATION_PATHS", "SITEMAP_PATHS", "\"/early-access\"", "\"/pricing\"", "\"/contact\""]
     },
     {
       "id": "proxy-public-policy",
@@ -160,7 +160,7 @@
       "path": "e2e/authenticated.spec.ts",
       "owner": "@product-marketing",
       "validationCommand": "check:surface:hrefs:strict",
-      "markers": ["global search results exclude Advanced destinations", "a[href^=\"/decisions\"]", "a[href^=\"/assurance\"]"]
+      "markers": ["Core workspace: committed search results exclude Advanced destinations", "a[href^=\"/decisions\"]", "a[href^=\"/assurance\"]"]
     }
   ],
   "conversionFlows": [
@@ -190,7 +190,14 @@
       "path": "src/app/(marketing)/pricing/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Core $249/mo billed annually", "href=\"/signup\"", "Book setup call"]
+      "markers": ["Simple pricing for", "href=\"/early-access\"", "founding monthly plan"]
+    },
+    {
+      "id": "early-access-page",
+      "path": "src/app/(marketing)/early-access/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markers": ["Request early access", "Redacted sample", "not intended for teams that require formal enterprise security review"]
     },
     {
       "id": "signup-form",
@@ -225,7 +232,7 @@
       "path": "src/app/(marketing)/contact/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["security and DPA requests", "Browse Oblixa", "Start free trial"]
+      "markers": ["Request early access", "View product tour", "Founder-led early access"]
     }
   ],
   "assetMetadata": [

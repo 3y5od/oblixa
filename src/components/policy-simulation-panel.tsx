@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/http/client-json";
 import { captureClientException } from "@/lib/observability/sentry-client";
 import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
@@ -51,6 +51,8 @@ export function PolicySimulationPanel({
   const [draftJson, setDraftJson] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseText, setResponseText] = useState<string | null>(null);
+  const contractSelectId = useId();
+  const draftTextareaId = useId();
   const isDiagnostics = mode === "diagnostics";
   const responsePreview = responseText && !isDiagnostics ? formatPreviewResponse(responseText) : null;
 
@@ -143,8 +145,11 @@ export function PolicySimulationPanel({
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-[var(--text-secondary)]">Contract</label>
+        <label htmlFor={contractSelectId} className="block text-xs font-medium text-[var(--text-secondary)]">
+          Contract
+        </label>
         <select
+          id={contractSelectId}
           className="ui-input text-sm"
           value={contractId}
           onChange={(e) => setContractId(e.target.value)}
@@ -159,8 +164,11 @@ export function PolicySimulationPanel({
 
       {isDiagnostics ? (
         <div className="space-y-2">
-          <label className="block text-xs font-medium text-[var(--text-secondary)]">Optional draft registry JSON</label>
+          <label htmlFor={draftTextareaId} className="block text-xs font-medium text-[var(--text-secondary)]">
+            Optional draft registry JSON
+          </label>
           <textarea
+            id={draftTextareaId}
             value={draftJson}
             onChange={(e) => setDraftJson(e.target.value)}
             rows={8}

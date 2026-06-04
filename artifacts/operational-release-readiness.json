@@ -3,7 +3,7 @@
   "source": "code-owned-operational-release-readiness",
   "generatedFrom": "config/operational-release-readiness.json",
   "manualBoundariesSource": "config/operational-manual-boundaries.json",
-  "commitSha": "16789e43e6369f82527bbf14f84f514f03f545f0",
+  "commitSha": "26f1b64754d81dec056d6fd088bcfdbdcee50f5c",
   "releaseCheckCount": 5,
   "requiredReleaseCheckCount": 5,
   "environmentContractCount": 4,
@@ -43,7 +43,7 @@
       {
         "name": "package-lock",
         "path": "package-lock.json",
-        "sha256": "b750917e16cb98a625d32ac2a7d5ab4b760a7abc3d78a730f2ce7bc1a6faee0b"
+        "sha256": "a6e1a99a7e1ba6e0966cd4288b877d440ef6a6880631c1b13b7a226b0ed704ba"
       },
       {
         "name": "qa-closure",
@@ -68,12 +68,12 @@
       {
         "name": "sbom-cyclonedx",
         "path": "cyclonedx-sbom.json",
-        "sha256": "fb766ca4310bfd0139caca7b9fbb584472588c960435c91a187b0a23044c37b2"
+        "sha256": "4f713b76422e14c53cb870b4777c9ece017ba09604ed61c24b13fa9d40bf8aa8"
       },
       {
         "name": "security-report-checksums",
         "path": "artifacts/security-report-checksums.json",
-        "sha256": "509f9fd57a74be0269d3257961314caa1c1f5b1c2d2bcfbe4c61cd5725ba9e31"
+        "sha256": "13043932ba2f53c6f1f8762519a29814ab9e02c5be666dd66b1b9fc776bd9e86"
       }
     ]
   },

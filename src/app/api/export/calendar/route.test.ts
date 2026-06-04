@@ -85,7 +85,7 @@ describe("GET /api/export/calendar", () => {
     expect(buildOrganizationCalendarIcs).toHaveBeenCalled();
     expect(recordV10AuditEvent).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ action: "export.calendar.completed", targetType: "organization" })
+      expect.objectContaining({ action: "export.calendar.completed", targetType: "runtime_artifact" })
     );
     expect(emitProductTelemetryEvent).toHaveBeenCalledWith(
       expect.anything(),

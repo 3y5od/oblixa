@@ -30,7 +30,11 @@ function toneInk(tone?: StatTone): string {
   if (tone === "success") return "var(--success-ink)";
   if (tone === "warning") return "var(--warning-ink)";
   if (tone === "danger") return "var(--danger-ink)";
-  return "var(--text-tertiary)";
+  // Untoned verbs (REVIEWED / CHANGED / CREATED …) read in secondary, not
+  // tertiary, so the bold caps verb is legible rather than washed out — the
+  // feed still stays quieter than action-queue row titles (text-primary), but
+  // it no longer disappears (§Recent Activity).
+  return "var(--text-secondary)";
 }
 
 export function ActivityFeed({
@@ -56,6 +60,11 @@ export function ActivityFeed({
       {items.map((item) => {
         const Icon = item.icon;
         const ink = toneInk(item.tone);
+        // Untoned verbs (CREATED / REVIEWED / CHANGED …) render in primary so the
+        // bold caps verb is legible at a glance; toned verbs keep their semantic
+        // ink. The icon + supporting chips stay quiet, so the feed still reads as
+        // subordinate to the action queues (§Recent Activity).
+        const verbInk = item.tone ? ink : "var(--text-primary)";
         const inner = (
           <>
             <span
@@ -67,7 +76,7 @@ export function ActivityFeed({
             </span>
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 truncate text-[10.5px] uppercase tracking-[0.12em] leading-tight">
-                <span className="font-bold" style={{ color: ink }}>
+                <span className="font-bold" style={{ color: verbInk }}>
                   {item.verb.toUpperCase()}
                 </span>
                 {item.detail ? (

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-28T22:05:45.870Z",
+  "generatedAt": "2026-06-03T20:01:44.400Z",
   "rows": [
     {
       "route": "/",
@@ -101,8 +101,10 @@
     {
       "route": "/",
       "sourcePath": "src/app/page.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "openai"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/acceptable-use",
@@ -414,7 +416,8 @@
       "sourcePath": "src/app/api/command-palette/contracts/route.ts",
       "providers": [
         "openai",
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -422,6 +425,7 @@
       "route": "/api/contact",
       "sourcePath": "src/app/api/contact/route.ts",
       "providers": [
+        "calendar",
         "resend",
         "upstash_or_memory_rate_limit",
         "webhook_outbox"
@@ -1706,7 +1710,8 @@
       "route": "/api/report-packs/[id]/runs",
       "sourcePath": "src/app/api/report-packs/[id]/runs/route.ts",
       "providers": [
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -2242,6 +2247,7 @@
       "route": "/contracts/bulk",
       "sourcePath": "src/app/(dashboard)/contracts/bulk/page.tsx",
       "providers": [
+        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2280,6 +2286,14 @@
       "providers": [
         "openai",
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
+      "providers": [
+        "sentry"
       ],
       "fallbackRequired": true
     },
@@ -2327,6 +2341,23 @@
       "fallbackRequired": true
     },
     {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/contracts/intake",
       "sourcePath": "src/app/(dashboard)/contracts/intake/layout.tsx",
       "providers": [],
@@ -2359,7 +2390,6 @@
       "route": "/contracts/new",
       "sourcePath": "src/app/(dashboard)/contracts/new/page.tsx",
       "providers": [
-        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2399,6 +2429,7 @@
       "sourcePath": "src/app/(dashboard)/contracts/renewals/page.tsx",
       "providers": [
         "calendar",
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -2436,8 +2467,10 @@
     {
       "route": "/contracts/review",
       "sourcePath": "src/app/(dashboard)/contracts/review/loading.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/contracts/review",
@@ -2581,6 +2614,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "/early-access",
+      "sourcePath": "src/app/(marketing)/early-access/page.tsx",
+      "providers": [
+        "calendar"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/external",
       "sourcePath": "src/app/external/error.tsx",
       "providers": [
@@ -2666,11 +2707,8 @@
     {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
-      "providers": [
-        "calendar",
-        "openai"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/privacy",
@@ -2719,8 +2757,10 @@
     {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/reports",
@@ -2733,8 +2773,10 @@
     {
       "route": "/reset-password",
       "sourcePath": "src/app/(auth)/reset-password/page.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/search",
@@ -2764,7 +2806,7 @@
       "route": "/security",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "providers": [
-        "webhook_outbox"
+        "openai"
       ],
       "fallbackRequired": true
     },
@@ -2920,6 +2962,7 @@
       "route": "/work",
       "sourcePath": "src/app/(dashboard)/work/page.tsx",
       "providers": [
+        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3064,9 +3107,6 @@
       "route": "action:applyPolicyPackForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3199,6 +3239,15 @@
         "sentry",
         "supabase",
         "upstash_or_memory_rate_limit"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:bulk-compatible-work-validation.test",
+      "sourcePath": "src/actions/bulk-compatible-work-validation.test.ts",
+      "providers": [
+        "openai",
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -3369,6 +3418,7 @@
       "sourcePath": "src/actions/contracts-action-scope.test.ts",
       "providers": [
         "crm",
+        "openai",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3401,9 +3451,6 @@
       "route": "action:createApprovalPolicyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3517,9 +3564,6 @@
       "route": "action:createFieldTemplateForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3529,9 +3573,6 @@
       "route": "action:createIntegrationApiKey",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3541,9 +3582,6 @@
       "route": "action:createIntegrationApiKeyFromOperationsForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3588,9 +3626,6 @@
       "route": "action:createReminderTemplateForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3600,9 +3635,6 @@
       "route": "action:createRenewalPlaybookTemplateForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3665,9 +3697,6 @@
       "route": "action:createTaskTemplateForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3677,9 +3706,6 @@
       "route": "action:createWebhookSubscriptionForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -3805,6 +3831,15 @@
       "sourcePath": "src/actions/demo-action-scope.test.ts",
       "providers": [],
       "fallbackRequired": false
+    },
+    {
+      "route": "action:disconnectIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "action:email-verification.test",
@@ -3994,6 +4029,14 @@
     {
       "route": "action:listMySessions",
       "sourcePath": "src/actions/sessions.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:loadPendingInviteSeatRows",
+      "sourcePath": "src/actions/settings-helpers.ts",
       "providers": [
         "supabase"
       ],
@@ -4217,6 +4260,14 @@
       "fallbackRequired": true
     },
     {
+      "route": "action:recoverSettingsAction",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "action:refreshV10SettingsReadModels",
       "sourcePath": "src/actions/product-surface-settings-helpers.ts",
       "providers": [
@@ -4330,9 +4381,6 @@
       "route": "action:revokeIntegrationApiKeyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4391,6 +4439,14 @@
       "providers": [
         "supabase",
         "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:safeInsertSettingsAuditEvent",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "providers": [
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -4484,9 +4540,6 @@
       "route": "action:setIntegrationTokenForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4636,9 +4689,6 @@
       "route": "action:toggleApprovalPolicyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4664,9 +4714,6 @@
       "route": "action:toggleRenewalPlaybookTemplate",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4676,9 +4723,6 @@
       "route": "action:toggleRenewalPlaybookTemplateForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4706,9 +4750,6 @@
       "route": "action:toggleWebhookSubscription",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4718,9 +4759,6 @@
       "route": "action:toggleWebhookSubscriptionForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -4932,9 +4970,6 @@
       "route": "action:updateIntegrationApiKeyPolicyForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -5126,9 +5161,6 @@
       "route": "action:upsertIntegrationConnectionForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -5172,9 +5204,6 @@
       "route": "action:upsertWorkflowSettingsForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -5206,6 +5235,18 @@
       "route": "action:workflow-config-action-scope.test",
       "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
       "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "action:workflow-config-helpers",
+      "sourcePath": "src/actions/workflow-config-helpers.ts",
+      "providers": [
+        "calendar",
+        "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],

@@ -162,7 +162,9 @@ export function resolveSeedUsers(env = process.env) {
     {
       email: requireEnv("E2E_TEST_EMAIL", env).toLowerCase(),
       password: requireEnv("E2E_TEST_PASSWORD", env),
-      fullName: "Local Dev User",
+      // Realistic display name so local/preview dashboards read as production-like
+      // (renders as the contract owner across the app) instead of "Local Dev User".
+      fullName: "Maya Chen",
       seedWorkspace: true,
     },
   ];
@@ -239,6 +241,16 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
     { onConflict: "organization_id" }
   );
 
+  // Source-of-truth fixture dates, reused in both the contract search_document
+  // (so the field-review source preview actually contains the value under
+  // review and its snippet) and the extracted_fields below.
+  const atlasEffectiveDate = dateOnly(now, -10);
+  const atlasRenewalDate = dateOnly(now, 80);
+  const northstarRenewalDate = dateOnly(now, 72);
+  const ridgewayRenewalDate = dateOnly(now, 37);
+  const ridgewayNoticeDate = dateOnly(now, 14);
+  const ridgewayEndDate = dateOnly(now, 37);
+
   await upsertRows(
     supabase,
     "contracts",
@@ -260,7 +272,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         external_reference_id: "local-atlas-dpa",
         annual_value: 82000,
         search_document:
-          "Atlas Cloud Systems data processing agreement covering security, subprocessors, audit support, breach notice, and renewal notice windows.",
+          `Atlas Cloud Systems Data Processing Agreement. 1. Term. Effective as of the latest signature date. The effective date is ${atlasEffectiveDate}, and this Agreement continues for an initial term of twelve months. 2. Renewal. The term renews unless either party gives timely notice. The next renewal date is ${atlasRenewalDate}. This Agreement covers security, subprocessors, audit support, breach notice, and renewal notice windows.`,
         received_at: timestamp(now, -12),
         owner_assigned_at: timestamp(now, -10),
         created_at: timestamp(now, -12),
@@ -283,7 +295,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         external_reference_id: "local-northstar-msa",
         annual_value: 245000,
         search_document:
-          "Northstar Analytics master services agreement with quarterly reporting, insurance evidence, service levels, and renewal planning.",
+          `Northstar Analytics Master Services Agreement. Renewal date approved from order form. The renewal date is ${northstarRenewalDate}. Either party may give notice at least 45 days before renewal. Includes quarterly reporting, insurance evidence, service levels, and renewal planning.`,
         received_at: timestamp(now, -35),
         reviewed_at: timestamp(now, -30),
         operationally_active_at: timestamp(now, -28),
@@ -308,7 +320,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         external_reference_id: "local-ridgeway-renewal",
         annual_value: 138000,
         search_document:
-          "Ridgeway support renewal with notice deadline approaching, commercial exception, service credit obligation, and renewal decision checkpoint.",
+          `Ridgeway Support Renewal. Support services renew on the anniversary date. The anniversary renewal date is ${ridgewayRenewalDate}. Notice of non-renewal must be delivered before the notice deadline. The notice deadline is ${ridgewayNoticeDate}. Current support term ends on the renewal date. Covers the commercial exception, service credit obligation, and renewal decision checkpoint.`,
         received_at: timestamp(now, -70),
         reviewed_at: timestamp(now, -63),
         operationally_active_at: timestamp(now, -60),
@@ -351,7 +363,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000501",
         contract_id: contractIds.atlasDpa,
         field_name: "effective_date",
-        field_value: dateOnly(now, -10),
+        field_value: atlasEffectiveDate,
         source_snippet: "Effective as of the latest signature date.",
         confidence: 0.74,
         status: "pending",
@@ -361,7 +373,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000502",
         contract_id: contractIds.atlasDpa,
         field_name: "renewal_date",
-        field_value: dateOnly(now, 80),
+        field_value: atlasRenewalDate,
         source_snippet: "The term renews unless either party gives timely notice.",
         confidence: 0.69,
         status: "pending",
@@ -371,7 +383,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000503",
         contract_id: contractIds.northstarMsa,
         field_name: "renewal_date",
-        field_value: dateOnly(now, 72),
+        field_value: northstarRenewalDate,
         source_snippet: "Renewal date approved from order form.",
         confidence: 0.95,
         status: "approved",
@@ -395,7 +407,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000505",
         contract_id: contractIds.ridgewayRenewal,
         field_name: "renewal_date",
-        field_value: dateOnly(now, 37),
+        field_value: ridgewayRenewalDate,
         source_snippet: "Support services renew on the anniversary date.",
         confidence: 0.94,
         status: "approved",
@@ -407,7 +419,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000506",
         contract_id: contractIds.ridgewayRenewal,
         field_name: "notice_date",
-        field_value: dateOnly(now, 14),
+        field_value: ridgewayNoticeDate,
         source_snippet: "Notice of non-renewal must be delivered before the notice deadline.",
         confidence: 0.93,
         status: "approved",
@@ -419,7 +431,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         id: "00000000-0000-4000-8000-000000000507",
         contract_id: contractIds.ridgewayRenewal,
         field_name: "end_date",
-        field_value: dateOnly(now, 37),
+        field_value: ridgewayEndDate,
         source_snippet: "Current support term ends on the renewal date.",
         confidence: 0.92,
         status: "approved",
@@ -869,7 +881,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         source_id: FIXTURE_IDS.auditEvents.northstarApproved,
         contract_id: contractIds.northstarMsa,
         actor_user_id: userId,
-        actor_display: "Local Dev User",
+        actor_display: "Maya Chen",
         action: "field.approved",
         target_type: "field",
         target_id: "renewal_date",
@@ -888,7 +900,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         source_id: FIXTURE_IDS.auditEvents.ridgewayTaskCreated,
         contract_id: contractIds.ridgewayRenewal,
         actor_user_id: userId,
-        actor_display: "Local Dev User",
+        actor_display: "Maya Chen",
         action: "contract.owner_changed",
         target_type: "contract",
         target_id: contractIds.ridgewayRenewal,

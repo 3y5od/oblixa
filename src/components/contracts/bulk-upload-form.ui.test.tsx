@@ -36,20 +36,15 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    // v23 aesthetic pass: the form h2 ("Replace the tracking
-    // spreadsheet") + verbose lead were dropped per §10.7 + §10.4.
-    // The form is now anchored by the eyebrow + tab buttons +
-    // surviving section eyebrows ("Minimum spreadsheet shape") +
-    // column-group values.
-    // "Import source" is now the aria-label on the underline-tab strip
-    // (the visible eyebrow was dropped — defect 3, segmented control
-    // chrome competed with the eyebrow).
+    // The tablist keeps its "Import source" aria-label; the two tabs are
+    // named by source ("Tracker spreadsheet" / "Signed contracts"). The
+    // requirements section is "Spreadsheet columns" and renders each
+    // importable column as a chip with its human label + snake_case
+    // authoring header.
     expect(screen.getByRole("tablist", { name: /import source/i })).toBeTruthy();
-    expect(screen.getByText(/minimum spreadsheet shape/i)).toBeTruthy();
-    // The column list renders both the human label ("Contract title,
-    // Counterparty") and the technical mono name ("title, counterparty")
-    // so the row shows what to author in the CSV header.
-    expect(screen.getAllByText(/title, counterparty/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/spreadsheet columns/i)).toBeTruthy();
+    expect(screen.getByText("Contract title")).toBeTruthy();
+    expect(screen.getByText("external_reference_id")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText(/csv file/i), {
       target: {
@@ -75,7 +70,7 @@ describe("BulkUploadForm", () => {
       "#recent-imports"
     );
     expect(screen.getByRole("link", { name: /open job details/i }).getAttribute("href")).toBe(
-      "/api/import/contracts/job-csv-1"
+      "/contracts/imports/job-csv-1"
     );
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
@@ -87,10 +82,10 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /signed files/i }));
-    // v23 aesthetic pass: the signed-files h3 ("Create one contract per
-    // signed source file") + sub-paragraph were dropped per §10.7. The
-    // section is now anchored by the field label + format chips.
+    fireEvent.click(screen.getByRole("tab", { name: /signed contracts/i }));
+    // The signed-contracts tab is anchored by the field label + dropzone
+    // + format hint; the file input keeps its "Signed PDF or DOCX files"
+    // accessible name.
     expect(screen.getByLabelText(/signed pdf or docx files/i)).toBeTruthy();
     const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
     if (!input) throw new Error("expected signed file input");
@@ -118,7 +113,7 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /signed files/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /signed contracts/i }));
     const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
     if (!input) throw new Error("expected signed file input");
     fireEvent.change(input, {
@@ -136,7 +131,7 @@ describe("BulkUploadForm", () => {
       "#recent-imports"
     );
     expect(screen.getByRole("link", { name: /open job details/i }).getAttribute("href")).toBe(
-      "/api/import/contracts/job-1"
+      "/contracts/imports/job-1"
     );
     expect(mockRouter.refresh).toHaveBeenCalled();
   });

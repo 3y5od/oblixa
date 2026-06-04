@@ -160,9 +160,10 @@ describe("Search page — T3 visual polish on ResultRow", () => {
     expect(rowSrc).toContain('aria-label="Press Enter to open"');
   });
 
-  it("ResultRow uses semantic role='option' with aria-selected (T5.1)", () => {
-    expect(rowSrc).toContain('role="option"');
-    expect(rowSrc).toContain("aria-selected={isActive}");
+  it("ResultRow keeps native link semantics with active-state data (T5.1)", () => {
+    expect(rowSrc).not.toContain('role="option"');
+    expect(rowSrc).not.toContain("aria-selected={isActive}");
+    expect(rowSrc).toContain('data-active={isActive ? "true" : undefined}');
   });
 });
 
@@ -222,11 +223,10 @@ describe("Search page — T5 a11y", () => {
     expect(viewSrc).toContain("<LiveRegion");
   });
 
-  it("/search wires combobox + listbox ARIA pattern (T5.1)", () => {
-    expect(viewSrc).toContain('role="listbox"');
+  it("/search keeps combobox semantics without invalid listbox ownership (T5.1)", () => {
+    expect(viewSrc).toContain('aria-label="Search results"');
     expect(fieldSrc).toContain('role="combobox"');
-    expect(fieldSrc).toContain("aria-controls");
-    expect(fieldSrc).toContain("aria-activedescendant");
+    expect(viewSrc).not.toContain("ariaActivedescendant={activeRowId}");
   });
 
   it("/search sets aria-busy during deferred filter (T15.5)", () => {
@@ -549,7 +549,7 @@ describe("Search V2 — T5 keyboard nav", () => {
   it("V2 T5.4 matchOriginToken helper + synonym chip render", () => {
     expect(helpersSrc).toContain("export function matchOriginToken");
     expect(rowSrc).toContain("matchOriginToken");
-    expect(rowSrc).toMatch(/aria-label=\{`matched via synonym/);
+    expect(rowSrc).toContain("Matched via synonym");
   });
 
   it("V2 T5.5 ESC clears query", () => {
@@ -584,16 +584,16 @@ describe("Search V2 — T12 edge cases", () => {
 });
 
 describe("Search V2 — T8 a11y refinements", () => {
-  it("V2 T8.1 group count carries aria-label '<group>, N results'", () => {
-    expect(viewSrc).toMatch(/aria-label=\{`\$\{count\} result/);
+  it("V2 T8.1 group count carries screen-reader-only result text", () => {
+    expect(viewSrc).toContain('className="sr-only">{count} result');
   });
 
   it("V2 T8.5 filter chips are <button aria-pressed>", () => {
     expect(viewSrc).toMatch(/<button[\s\S]{0,400}aria-pressed=\{isActive\}/);
   });
 
-  it("V2 T8.7 synonym chip aria-label for SR", () => {
-    expect(rowSrc).toMatch(/aria-label=\{`matched via synonym \$\{synonymHit\.token\}/);
+  it("V2 T8.7 synonym chip has screen-reader-only context", () => {
+    expect(rowSrc).toContain("Matched via synonym");
   });
 
   it("V2 T8.8 skip-link target has scroll-margin-top accommodation", () => {

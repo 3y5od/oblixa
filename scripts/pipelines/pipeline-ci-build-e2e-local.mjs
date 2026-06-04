@@ -6,6 +6,7 @@ import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
+import { spawnSyncCrossPlatform } from "../lib/cross-platform-spawn.mjs";
 
 export const CI_BUILD_E2E_LOCAL_STEPS = ["build", "test:e2e:smoke", "test:e2e:current-product", "test:e2e:a11y", "test:e2e:visual"];
 export const CI_BUILD_E2E_ONBOARDING_STEPS = ["test:e2e:onboarding-deep", "test:e2e:multi-browser"];
@@ -29,7 +30,7 @@ function evaluateGate(label, strictVariable, requiredKeys) {
 
 function runNpmScript(scriptName) {
   console.log(`==> npm run ${scriptName}`);
-  return spawnSync("npm", ["run", scriptName], { cwd: process.cwd(), stdio: "inherit" }).status ?? 1;
+  return spawnSyncCrossPlatform("npm", ["run", scriptName], { cwd: process.cwd(), stdio: "inherit" }).status ?? 1;
 }
 
 export function runPipelineCiBuildE2eLocal() {

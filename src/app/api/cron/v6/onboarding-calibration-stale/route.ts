@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withCronRoute } from "@/lib/cron/route-runner";
-import { RATE_LIMITS, getClientIpFromRequest } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import { isOnboardingCalibrationStaleCronDisabled } from "@/lib/onboarding/calibration-stale-env";
 import { runOnboardingCalibrationStaleCron } from "@/lib/onboarding/calibration-stale-run";
@@ -23,7 +23,7 @@ const CRON_SECURITY_HEADERS: Record<string, string> = {
 
 export const GET = withCronRoute({
   route: "/api/cron/v6/onboarding-calibration-stale",
-  rateLimitKey: (request) => `cron:v6:onboarding-calibration-stale:${getClientIpFromRequest(request)}`,
+  rateLimitKey: "cron:v6:onboarding-calibration-stale",
   rateLimit: RATE_LIMITS.v6OnboardingCalibrationStaleCron,
   responseHeaders: CRON_SECURITY_HEADERS,
   preflight: () => {

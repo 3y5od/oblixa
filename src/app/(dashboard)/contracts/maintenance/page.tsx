@@ -264,16 +264,12 @@ export default async function MaintenancePage() {
           <form action={createCampaignAction} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Create campaign</p>
             <input aria-label="Q2 owner backfill" name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
-            <select name="campaignType" className="ui-input w-full" defaultValue="data_remediation">
+            <select name="campaignType" className="ui-input w-full" defaultValue="data_remediation" aria-label="Campaign type">
               <option value="data_remediation">data remediation</option>
               <option value="owner_reassignment">owner reassignment</option>
               <option value="policy_backfill">policy backfill</option>
             </select>
-            <textarea
-              name="seedContractIds"
-              className="ui-input min-h-[72px] w-full"
-              placeholder="Optional contract IDs (comma/newline separated)"
-            />
+            <textarea aria-label="Seed contract IDs" name="seedContractIds" className="ui-input min-h-[72px] w-full" placeholder="Optional contract IDs (comma/newline separated)" />
             <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
               Create draft campaign
             </button>
@@ -356,7 +352,7 @@ export default async function MaintenancePage() {
                 </Link>
                 <form action={reassignOwnerForm} className="flex items-center gap-2">
                   <input type="hidden" name="contractId" value={row.id} />
-                  <select name="ownerId" className="ui-input h-8 min-w-[12rem] text-xs">
+                  <select name="ownerId" className="ui-input h-8 min-w-[12rem] text-xs" aria-label={`Owner for ${row.title}`}>
                     {members.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.label}
@@ -436,7 +432,7 @@ export default async function MaintenancePage() {
         <div className="grid gap-4 p-6 md:grid-cols-2">
           <form action={runCorrectionCampaignForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Normalization campaign</p>
-            <select name="campaignType" className="ui-input w-full">
+            <select name="campaignType" className="ui-input w-full" aria-label="Correction campaign type">
               <option value="normalize_counterparty">Normalize counterparty spacing</option>
               <option value="clear_stale_next_steps">Clear stale next steps on healthy contracts</option>
             </select>
@@ -447,7 +443,7 @@ export default async function MaintenancePage() {
           <form action={runDateBackfillCampaignForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Date backfill campaign</p>
             <input aria-label="Contract type (optional)" name="contractType" placeholder="Contract type (optional)" className="ui-input w-full" />
-            <select name="fieldName" className="ui-input w-full">
+            <select name="fieldName" className="ui-input w-full" aria-label="Date field to backfill">
               <option value="renewal_date">renewal_date</option>
               <option value="end_date">end_date</option>
               <option value="notice_window">notice_window</option>
@@ -470,18 +466,18 @@ export default async function MaintenancePage() {
           <form action={logContractChangeEventForm as never} className="ui-card-quiet space-y-2 p-4">
             <p className="ui-label-caps">Log change event</p>
             <input aria-label="Contract UUID" name="contractId" required placeholder="Contract UUID" className="ui-input w-full" />
-            <select name="eventType" defaultValue="amendment" className="ui-input w-full">
+            <select name="eventType" defaultValue="amendment" className="ui-input w-full" aria-label="Change event type">
               <option value="amendment">amendment</option>
               <option value="pricing_update">pricing_update</option>
               <option value="ownership_change">ownership_change</option>
               <option value="other">other</option>
             </select>
-            <select name="impactLevel" defaultValue="medium" className="ui-input w-full">
+            <select name="impactLevel" defaultValue="medium" className="ui-input w-full" aria-label="Change impact level">
               <option value="low">low</option>
               <option value="medium">medium</option>
               <option value="high">high</option>
             </select>
-            <textarea name="summary" required placeholder="What changed and why follow-up is needed" className="ui-input min-h-[70px] w-full" />
+            <textarea name="summary" required placeholder="What changed and why follow-up is needed" aria-label="Change summary" className="ui-input min-h-[70px] w-full" />
             <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
               Log change event
             </button>

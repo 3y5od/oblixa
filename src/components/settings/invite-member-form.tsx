@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, Mail, UserCircle2 } from "lucide-react";
+import { Check, ChevronDown, Clock, Mail, UserCircle2 } from "lucide-react";
 import { inviteOrgMember } from "@/actions/settings";
 
 interface InviteMemberFormProps {
@@ -12,10 +12,19 @@ interface InviteMemberFormProps {
 const ROLES = [
   { value: "editor", label: "Editor", description: "Edit contracts and operational data." },
   { value: "viewer", label: "Viewer", description: "Read-only access to workspace content." },
-  { value: "admin", label: "Admin", description: "Manage members, billing, and policies." },
+  { value: "admin", label: "Admin", description: "Manage members, billing, and workspace settings." },
 ] as const;
 
 type RoleValue = (typeof ROLES)[number]["value"];
+
+type MenuRect = {
+  placement: "down" | "up";
+  top?: number;
+  bottom?: number;
+  right: number;
+  width: number;
+  maxHeight: number;
+};
 
 function RoleDropdown({
   value,
@@ -26,9 +35,7 @@ function RoleDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [menuRect, setMenuRect] = useState<{ top: number; right: number; width: number } | null>(
-    null
-  );
+  const [menuRect, setMenuRect] = useState<MenuRect | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -41,11 +48,23 @@ function RoleDropdown({
       const btn = buttonRef.current;
       if (!btn) return;
       const rect = btn.getBoundingClientRect();
-      const menuWidth = 240;
+      const gap = 6;
+      const margin = 8; // viewport-edge breathing room
+      const width = Math.min(Math.max(240, rect.width), window.innerWidth - margin * 2);
+      const spaceBelow = window.innerHeight - rect.bottom - gap - margin;
+      const spaceAbove = rect.top - gap - margin;
+      // Flip upward only when there isn't comfortable room below AND there is
+      // more room above — this is what keeps the menu off the page footer.
+      const placeUp = spaceBelow < 220 && spaceAbove > spaceBelow;
+      const available = placeUp ? spaceAbove : spaceBelow;
+      const maxHeight = Math.max(140, Math.min(available, 320));
       setMenuRect({
-        top: rect.bottom + 6,
-        right: Math.max(8, window.innerWidth - rect.right),
-        width: Math.max(menuWidth, rect.width),
+        placement: placeUp ? "up" : "down",
+        top: placeUp ? undefined : rect.bottom + gap,
+        bottom: placeUp ? window.innerHeight - rect.top + gap : undefined,
+        right: Math.max(margin, window.innerWidth - rect.right),
+        width,
+        maxHeight,
       });
     };
     updateRect();
@@ -121,7 +140,7 @@ function RoleDropdown({
   };
 
   return (
-    <div ref={wrapperRef} className="relative shrink-0">
+    <div ref={wrapperRef} className="relative w-full sm:w-auto">
       <input type="hidden" name="role" value={value} />
       <button
         ref={buttonRef}
@@ -131,7 +150,7 @@ function RoleDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Role: ${selected.label}`}
-        className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] pl-3 pr-3 text-[12.5px] font-medium leading-tight text-[var(--text-primary)] outline-none transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:bg-[var(--surface-raised)] focus-visible:border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-strong))] focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent)_40%,transparent),0_0_0_4px_color-mix(in_oklab,var(--accent)_18%,transparent)] sm:w-40"
+        className="group inline-flex min-h-11 w-full items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,var(--surface-raised))] px-3 text-[12.5px] font-medium leading-tight text-[var(--text-primary)] outline-none transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:bg-[var(--surface-raised)] focus-visible:border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-strong))] focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent)_40%,transparent),0_0_0_4px_color-mix(in_oklab,var(--accent)_18%,transparent)] sm:w-40"
       >
         <UserCircle2
           className="h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-colors group-hover:text-[var(--accent-strong)] group-focus-visible:text-[var(--accent-strong)]"
@@ -156,11 +175,13 @@ function RoleDropdown({
               autoFocus
               style={{
                 position: "fixed",
-                top: menuRect.top,
+                top: menuRect.placement === "down" ? menuRect.top : undefined,
+                bottom: menuRect.placement === "up" ? menuRect.bottom : undefined,
                 right: menuRect.right,
                 width: menuRect.width,
+                maxHeight: menuRect.maxHeight,
               }}
-              className="z-[60] overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_8%,var(--border-subtle))] bg-[var(--surface-raised)] p-1 shadow-[var(--shadow-3)] outline-none"
+              className="z-[70] overflow-y-auto overflow-x-hidden overscroll-contain rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_8%,var(--border-subtle))] bg-[var(--surface-raised)] p-1 shadow-[var(--shadow-3)] outline-none"
             >
               {ROLES.map((role, index) => {
                 const isSelected = role.value === value;
@@ -210,17 +231,24 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
   );
   const [isPending, startTransition] = useTransition();
   const [role, setRole] = useState<RoleValue>("editor");
+  const [email, setEmail] = useState("");
+  const trimmedEmail = email.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+  const showInvalid = trimmedEmail.length > 0 && !emailValid;
 
   return (
-    <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-4">
-      <div className="flex items-baseline gap-2.5">
-        <h3 className="text-[12.5px] font-semibold tracking-tight text-[var(--text-primary)]">
+    <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <h3 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
           Invite teammate
         </h3>
-        <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Expires in 7 days</span>
+        <span className="ui-caps-3 inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] text-[var(--text-tertiary)]">
+          <Clock className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+          Expires in 7 days
+        </span>
       </div>
       <form
-        className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch"
+        className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-start"
         onSubmit={(e) => {
           e.preventDefault();
           setMessage(null);
@@ -234,11 +262,12 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
             }
             setMessage({ type: "ok", text: "Invitation sent." });
             (e.target as HTMLFormElement).reset();
+            setEmail("");
             setRole("editor");
           });
         }}
       >
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0">
           <label htmlFor="invite-email" className="sr-only">
             Email
           </label>
@@ -248,24 +277,35 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
           >
             <Mail className="h-3.5 w-3.5" />
           </span>
-          <input aria-label="colleague@company.com" id="invite-email"
+          <input
+            id="invite-email"
             name="email"
             type="email"
             required
             autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.currentTarget.value)}
             placeholder="colleague@company.com"
-            className="ui-input pl-9 font-mono text-[12.5px] placeholder:font-mono"
+            aria-invalid={showInvalid || undefined}
+            aria-describedby={showInvalid ? "invite-email-error" : undefined}
+            className="ui-input w-full pl-9 font-mono text-[12.5px] placeholder:font-mono"
           />
         </div>
         <RoleDropdown value={role} onChange={setRole} />
         <button
           type="submit"
-          disabled={isPending}
-          className="ui-btn-primary shrink-0 text-[12.5px] disabled:opacity-50"
+          disabled={isPending || !emailValid}
+          aria-disabled={isPending || !emailValid}
+          className="ui-btn-primary min-h-11 w-full whitespace-nowrap text-[12.5px] disabled:pointer-events-none disabled:opacity-50 sm:w-auto"
         >
           {isPending ? "Sending…" : "Send invite"}
         </button>
       </form>
+      {showInvalid ? (
+        <p id="invite-email-error" className="mt-2 text-[11.5px] text-[var(--text-tertiary)]">
+          Enter a valid email address.
+        </p>
+      ) : null}
       {message && (
         <p
           className={`mt-2 text-xs ${message.type === "ok" ? "ui-alert-success" : "ui-alert-error"}`}

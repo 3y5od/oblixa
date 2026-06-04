@@ -29,6 +29,7 @@ describe("POST /api/stripe/webhook", () => {
     const res = await POST(
       new Request("http://localhost/api/stripe/webhook", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: "{}",
       })
     );

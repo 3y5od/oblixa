@@ -21,6 +21,7 @@ import {
   updateContractTaskStatus,
 } from "@/actions/tasks";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import type { ContractTask, ContractTaskPriority, ContractTaskStatus } from "@/lib/types";
 import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
 
@@ -488,7 +489,7 @@ export function ContractTasksPanel({
                     )}
                     {task.due_date && (
                       <span className="text-[var(--text-tertiary)]">
-                        Due {format(new Date(`${task.due_date}T12:00:00`), "MMM d, yyyy")}
+                        Due {formatBusinessDateAtNoon(task.due_date)}
                       </span>
                     )}
                     {task.completed_at && (

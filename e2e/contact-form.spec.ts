@@ -10,29 +10,53 @@ import { test, expect } from "./fixtures/app-fixture";
  * unconfigured (it logs and short-circuits), so the test works in CI.
  */
 test.describe("public contact form", () => {
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
+
   test("renders, submits to /api/contact, and shows the success state", async ({ page }) => {
     await page.setExtraHTTPHeaders({ "x-forwarded-for": "203.0.113.201" });
     await page.goto("/contact", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /book a setup call/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /request early access/i })).toBeVisible();
 
     await page.getByLabel(/^name$/i).fill("Test Submitter");
     await page.getByLabel(/work email/i).fill("test-submitter@example.com");
     await page.getByLabel(/company/i).fill("Acme Co");
     await page.getByLabel(/^role$/i).fill("COO");
-    await page.getByLabel(/approximate number of contracts/i).selectOption("50-200");
-    // Interested in defaults to "core" — leave as-is.
+    // Custom comboboxes (portaled listbox) now replace the native <select>s, so
+    // drive them by opening the trigger and clicking the option. Target the
+    // trigger by button role (the open listbox shares the field label via
+    // aria-labelledby, so getByLabel would be ambiguous). The first click can
+    // also land before the marketing page hydrates (native inputs fill without
+    // JS), so retry the open if the listbox has not appeared yet.
+    const pick = async (nameRe: RegExp, optionName: string) => {
+      const trigger = page.getByRole("button", { name: nameRe });
+      const option = page.getByRole("option", { name: optionName, exact: true });
+      await trigger.click();
+      try {
+        await option.waitFor({ state: "visible", timeout: 2000 });
+      } catch {
+        await trigger.click();
+        await option.waitFor({ state: "visible", timeout: 5000 });
+      }
+      await option.click();
+    };
+    await pick(/approx\. signed contracts/i, "50-200");
+    await pick(/how tracked today/i, "Spreadsheet");
+    await pick(/current tracker available/i, "Yes");
+    await pick(/can share a redacted sample/i, "Yes");
+    await page.getByLabel(/main tracking pain/i).fill("Renewals and owner follow-up live in one shared tracker.");
+    await pick(/follow-up preference/i, "Async questions first");
 
-    const submit = page.getByRole("button", { name: /book setup call/i });
+    const submit = page.getByRole("button", { name: /request early access/i });
     await expect(submit).toBeEnabled();
     await submit.click();
 
-    await expect(page.getByText(/message received/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/request received/i)).toBeVisible({ timeout: 10_000 });
   });
 
   test("rejects malformed POST /api/contact bodies with 4xx", async ({ request }) => {
     const res = await request.post("/api/contact", {
       data: { name: "missing fields" },
-      headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.202" },
+      headers: { "content-type": "application/json", origin: appOrigin, "x-forwarded-for": "203.0.113.202" },
     });
     expect(res.status()).toBeGreaterThanOrEqual(400);
     expect(res.status()).toBeLessThan(500);
@@ -45,11 +69,16 @@ test.describe("public contact form", () => {
         email: "bot@example.com",
         company: "bot",
         role: "bot",
-        contracts: "1",
-        interested: "core",
+        contracts: "under_20",
+        interested: "early_access",
+        trackingMethod: "spreadsheet",
+        hasTracker: "yes",
+        redactedSample: "unsure",
+        preference: "async",
+        pain: "spam",
         website: "https://spammer.example/affiliate",
       },
-      headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.203" },
+      headers: { "content-type": "application/json", origin: appOrigin, "x-forwarded-for": "203.0.113.203" },
     });
     expect(res.status()).toBe(204);
   });

@@ -48,7 +48,7 @@ describe("Evidence page model", () => {
       "Open requests",
       "Overdue requests",
       "Received evidence",
-      "Evidence linked to obligations",
+      "Linked obligations",
     ]);
   });
 
@@ -222,9 +222,12 @@ describe("Evidence page model", () => {
     );
   });
 
-  it("exposes the required action vocabulary on each row", () => {
-    const model = buildEvidencePageModel(
+  it("exposes a state-contextual action set on each row", () => {
+    // An open request: upload + remind only — no "Accept" on a request with
+    // nothing submitted, no redundant "Request evidence".
+    const open = buildEvidencePageModel(
       baseInput({
+        section: "open_requests",
         requirements: [
           {
             id: "requested",
@@ -239,12 +242,208 @@ describe("Evidence page model", () => {
         ],
       })
     );
-    expect(model.rows[0]?.actions.map((action) => action.label)).toEqual([
-      "Request evidence",
+    expect(open.rows[0]?.actions.map((action) => action.label)).toEqual([
       "Upload evidence",
-      "Accept",
-      "Reject",
       "Send reminder",
     ]);
+    expect(open.rows[0]?.actions.map((action) => action.key)).not.toContain("accept");
+
+    // A received submission: the review actions appear instead.
+    const received = buildEvidencePageModel(
+      baseInput({
+        section: "received_evidence",
+        requirements: [
+          {
+            id: "received",
+            title: "Submit attestation",
+            status: "submitted",
+            due_at: "2026-05-27T12:00:00.000Z",
+            contract_id: "contract_a",
+            work_item_type: "obligation",
+            work_item_id: "obligation_a",
+            reviewer_id: "user_1",
+          },
+        ],
+        submissions: [
+          {
+            id: "sub_received",
+            requirement_id: "received",
+            status: "submitted",
+            submitted_at: "2026-05-19T10:00:00.000Z",
+            payload_json: { files: ["attestation.pdf"] },
+          },
+        ],
+      })
+    );
+    expect(received.rows[0]?.actions.map((action) => action.label)).toEqual(["Accept", "Reject"]);
+  });
+
+  it("applies owner, due, and file filters and builds filter options", () => {
+    const requirements = [
+      {
+        id: "soon",
+        title: "Upload SOC report",
+        status: "required",
+        due_at: "2026-05-24T12:00:00.000Z", // 4 days out → due_soon, missing file
+        contract_id: "contract_a",
+        work_item_type: "contract",
+        work_item_id: "contract_a",
+        reviewer_id: "user_1",
+      },
+      {
+        id: "later",
+        title: "Renewal proof",
+        status: "required",
+        due_at: "2026-06-30T12:00:00.000Z", // far out, has a file
+        contract_id: "contract_b",
+        work_item_type: "obligation",
+        work_item_id: "obligation_a",
+        reviewer_id: "reviewer_2",
+      },
+      {
+        id: "overdue",
+        title: "Insurance cert",
+        status: "required",
+        due_at: "2026-05-10T12:00:00.000Z", // overdue, unassigned, missing file
+        contract_id: "contract_a",
+        work_item_type: "contract",
+        work_item_id: "contract_a",
+        reviewer_id: null,
+      },
+    ];
+    const submissions = [
+      {
+        id: "sub_later",
+        requirement_id: "later",
+        status: "submitted",
+        submitted_at: "2026-05-19T10:00:00.000Z",
+        payload_json: { files: ["renewal.pdf"] },
+      },
+    ];
+
+    const all = buildEvidencePageModel(baseInput({ section: null, requirements, submissions }));
+    expect(all.totalUnfilteredRows).toBe(3);
+    expect(all.hasActiveFilters).toBe(false);
+    expect(all.summary.dueSoon).toBe(1);
+    expect(all.summary.missingFile).toBe(2);
+    expect(all.filterOptions.owners.map((option) => option.value)).toEqual(
+      expect.arrayContaining(["", "user_1", "reviewer_2", "unassigned"])
+    );
+    expect(all.filterOptions.contracts.map((option) => option.value)).toEqual(
+      expect.arrayContaining(["", "contract_a", "contract_b"])
+    );
+    expect(all.filterOptions.obligations.map((option) => option.value)).toEqual(
+      expect.arrayContaining(["", "obligation_a"])
+    );
+
+    const owned = buildEvidencePageModel(
+      baseInput({ section: null, requirements, submissions, owner: "user_1" })
+    );
+    expect(owned.hasActiveFilters).toBe(true);
+    expect(owned.totalVisibleRows).toBe(1);
+    expect(owned.rows.map((row) => row.id)).toEqual(["soon"]);
+
+    const unassigned = buildEvidencePageModel(
+      baseInput({ section: null, requirements, submissions, owner: "unassigned" })
+    );
+    expect(unassigned.rows.map((row) => row.id)).toEqual(["overdue"]);
+
+    const dueSoon = buildEvidencePageModel(
+      baseInput({ section: null, requirements, submissions, due: "due_soon" })
+    );
+    expect(dueSoon.totalVisibleRows).toBe(1);
+    expect(dueSoon.rows[0]?.id).toBe("soon");
+    expect(dueSoon.rows[0]?.dueState).toBe("due_soon");
+    expect(dueSoon.rows[0]?.dueInDays).toBe(4);
+
+    const missing = buildEvidencePageModel(
+      baseInput({ section: null, requirements, submissions, file: "missing_file" })
+    );
+    expect(missing.totalVisibleRows).toBe(2);
+    expect(missing.rows.every((row) => row.attachedFilesCount === 0)).toBe(true);
+  });
+
+  it("encodes filters into the evidence href", () => {
+    expect(
+      buildEvidenceHref({
+        section: "open_requests",
+        filters: {
+          owner: "user_1",
+          contract: "contract_a",
+          obligation: "",
+          due: "due_soon",
+          file: "missing_file",
+        },
+      })
+    ).toBe(
+      "/contracts/evidence-studio?section=open_requests&contract=contract_a&owner=user_1&due=due_soon&file=missing_file"
+    );
+  });
+
+  it("filters by status and surfaces status filter options", () => {
+    const requirements = [
+      {
+        id: "req",
+        title: "Open req",
+        status: "required",
+        due_at: "2026-06-10T12:00:00.000Z",
+        contract_id: "contract_a",
+        work_item_type: "contract",
+        work_item_id: "contract_a",
+        reviewer_id: "user_1",
+      },
+      {
+        id: "rej",
+        title: "Rejected proof",
+        status: "rejected",
+        due_at: "2026-06-10T12:00:00.000Z",
+        contract_id: "contract_a",
+        work_item_type: "contract",
+        work_item_id: "contract_a",
+        reviewer_id: "user_1",
+      },
+    ];
+    // Both land in Open requests (requested + rejected); status=rejected narrows it.
+    const model = buildEvidencePageModel(
+      baseInput({ section: "open_requests", requirements, status: "rejected" })
+    );
+    expect(model.hasActiveFilters).toBe(true);
+    expect(model.rows.map((row) => row.id)).toEqual(["rej"]);
+    expect(model.filterOptions.statuses.map((option) => option.value)).toEqual(
+      expect.arrayContaining(["", "requested", "rejected"])
+    );
+  });
+
+  it("paginates the active section and clamps an over-range page", () => {
+    const many = Array.from({ length: 30 }, (_, index) => ({
+      id: `r${index}`,
+      title: `Evidence request ${index}`,
+      status: "required",
+      due_at: "2026-06-10T12:00:00.000Z",
+      contract_id: "contract_a",
+      work_item_type: "contract",
+      work_item_id: "contract_a",
+      reviewer_id: "user_1",
+    }));
+
+    const p1 = buildEvidencePageModel(baseInput({ section: "open_requests", requirements: many }));
+    expect(p1.pageInfo.totalInSection).toBe(30);
+    expect(p1.pageInfo.totalPages).toBe(2);
+    expect(p1.pageInfo.page).toBe(1);
+    expect(p1.rows).toHaveLength(25);
+    // The header/footer totals still reflect the full filtered set, not the page.
+    expect(p1.totalVisibleRows).toBe(30);
+
+    const p2 = buildEvidencePageModel(
+      baseInput({ section: "open_requests", requirements: many, page: "2" })
+    );
+    expect(p2.pageInfo.page).toBe(2);
+    expect(p2.rows).toHaveLength(5);
+
+    const overRange = buildEvidencePageModel(
+      baseInput({ section: "open_requests", requirements: many, page: "9" })
+    );
+    expect(overRange.pageInfo.page).toBe(2);
+    expect(overRange.rows).toHaveLength(5);
   });
 });

@@ -1,1888 +1,2605 @@
 # Oblixa Release State
 
-This document describes the recommended release state for Oblixa in plain language.
+This document describes the intended release state for Oblixa.
 
-It is not a build spec. It is not runtime configuration. Product code, tests, scripts,
-and CI must not depend on this document.
+It is not runtime configuration. Product code, tests, scripts, and CI must not
+read this document as configuration. Use it as the product and route-level
+reference for release positioning, page contents, route visibility, and surface
+boundaries.
 
-The purpose of this document is to decide what Oblixa should say, who it should be
-for, what should be public at launch, what should stay private, and how outreach
-should be handled while the product is still founder-led.
+This document is descriptive. It defines product shape, page contents, route
+visibility, and release boundaries. It does not define non-product operating
+process.
 
-## Short Version
+## Release Posture
 
-Oblixa should not launch as a broad public self-serve SaaS product yet.
+Oblixa should release as a serious, gated, paid-capable product for small teams
+replacing manual post-signature contract tracking.
 
-Oblixa should launch as **gated early access with founder-observed onboarding**
-for small teams that currently track signed contracts in spreadsheets, folders,
-inboxes, calendar reminders, or someone's memory.
-
-The public promise should be:
+Primary positioning:
 
 > Replace your contract-tracking spreadsheet.
 
-The supporting promise should be:
-
-> Oblixa helps small teams track renewals, obligations, owners, evidence, and
-> reports from signed contracts, with AI-assisted extraction that stays
-> source-backed and human-reviewed.
-
-This keeps the wedge intact while lowering the trust, support, and domain-authority
-burden of a broad public launch.
-
-## Strategic Decision
-
-The right first release is:
-
-- Public website
-- Public explanation of the product
-- Public early-access request path
-- Invite-only or manually approved workspaces
-- 3 to 5 bounded early-access evaluations
-- Core product only
-- Founder-observed, not founder-delivered, onboarding
-- Async-first support
-- No public Advanced or Assurance launch
-- No public self-serve trial as the primary motion
-- No broad enterprise or compliance positioning
-
-The wrong first release is:
-
-- Open signup positioned as a mature self-serve product
-- Published enterprise-style pricing matrix
-- Public claims around assurance, governance, controls, autonomy, or full CLM
-- A promise of standard support, SLAs, or 24-hour issue response
-- Messaging that implies a large company, security team, legal team, or customer
-  success organization behind the product
-
-Oblixa can still be serious. It should be serious by being focused, honest, and
-useful, not by pretending to be institutionally mature.
-
-## Decision Hierarchy
-
-When product, website, pricing, or outreach decisions conflict, use this order:
-
-1. Protect trust.
-2. Keep the wedge narrow.
-3. Learn from real contract-tracking workflows.
-4. Reduce support burden.
-5. Convert to revenue after value is proven.
-6. Expand product breadth only after repeated evidence.
-
-Practical consequences:
-
-- If a phrase attracts a buyer who expects enterprise maturity, remove or soften it.
-- If a feature is impressive but creates support or trust risk, hide it from public
-  copy until it is needed by a real evaluation.
-- If a buyer wants drafting, negotiation, e-signature, legal advice, or compliance
-  certification, do not force-fit Oblixa.
-- If a prospect cannot show the current process, they are less useful than a
-  smaller prospect with a real spreadsheet and visible pain.
-- If a paid conversion would create a support obligation the founder cannot
-  handle, delay or narrow the commitment.
-
-## Founder Operating Reality
-
-The launch posture must fit the actual operating capacity.
-
-Current constraints:
-
-- Oblixa is a one-person operation.
-- Budget is limited.
-- Domain knowledge is developing but not yet deep contract-operations experience.
-- Customer calls are possible but should not be the default dependency.
-- Support can be attentive but should not promise guaranteed response times.
-- Revenue matters eventually, but immediate survival does not depend on charging
-  every early user.
-
-Implications:
-
-- The product should not attract enterprise procurement.
-- The first users should tolerate early-stage founder involvement.
-- The product should avoid regulated or high-security buyers at first.
-- Support should be best-effort and explicit.
-- Public copy should not claim legal, compliance, or operational authority beyond
-  what the product actually does.
-- The first commercial goal is evidence of real workflow value, then revenue.
-
-Do not mention the founder's age in public positioning. The public posture should
-be "founder-led early access," not "student project."
-
-## Operating Model
-
-The first operating model should be closer to a bounded evaluation program than a
-normal SaaS funnel or services engagement.
-
-Recommended model:
-
-- Website explains the product and collects early-access requests.
-- Founder reviews each request manually.
-- Qualified prospects receive discovery questions.
-- A call is optional, not mandatory.
-- The first workspace uses a small contract subset.
-- Support is async-first.
-- The evaluation has a defined start, goal, and review point.
-- Paid conversion is discussed only after the product has created value.
-
-Do not optimize for anonymous signups yet. Anonymous signups are weaker than
-learning from a team that can explain what the current tracker fails to do.
-
-Founder-led does not mean founder-delivered.
-
-Founder-led means the founder selects users, observes workflows, answers limited
-async product questions, and uses feedback to improve Oblixa. It does not mean the
-founder manually sets up every workspace, cleans customer data, reviews contracts,
-interprets legal terms, builds custom reports, or manages the customer's tracker.
-
-## Risk Register
-
-The main launch risks are not technical completeness alone.
-
-| Risk | Why It Matters | Mitigation |
-| --- | --- | --- |
-| Overclaiming maturity | Attracts enterprise expectations the founder cannot meet | Use early-access and founder-supported language |
-| Domain overreach | Contract workflows vary and legal/compliance expectations can be high | Focus on tracking, not legal judgment |
-| Security burden | Real contracts contain sensitive information | Start with small, low-procurement evaluations and allow redacted data |
-| Support overload | A one-person operation cannot support many urgent customers | Gate access and avoid SLAs |
-| Wrong buyer | CLM/e-signature/legal-review buyers will churn or demand missing features | Be explicit about what Oblixa is not |
-| Weak proof | Public claims without customer evidence will sound inflated | Use product proof first, customer proof only when real |
-| Pricing too early | Fixed pricing can create commitments before support burden is known | Discuss pricing after evaluation value |
-
-## What Oblixa Is At Launch
-
-Oblixa is a contract tracking workspace for signed agreements.
-
-It starts after signature, when contract details have to become operational:
-
-- What contracts do we have?
-- Which renewal, notice, termination, and effective dates matter?
-- Who owns each contract?
-- Which obligations need follow-up?
-- What work is overdue, blocked, or unassigned?
-- What evidence has been requested or received?
-- What can we report without rebuilding a spreadsheet?
-
-The first release should help a team move from a static tracker to an operational
-workspace:
-
-1. Import or upload a small set of signed contracts.
-2. Review source-backed suggested fields.
-3. Assign owners and key dates.
-4. Turn obligations and follow-up into work.
-5. Track renewals, evidence, exceptions, and reports.
-
-The product should make contract tracking more reliable. It should not claim to
-make legal or business decisions for the customer.
-
-## What Oblixa Is Not At Launch
-
-Oblixa should not publicly claim to be:
-
-- A full contract lifecycle management system
-- An e-signature product
-- A contract drafting or redlining product
-- A legal advice product
-- A replacement for lawyers
-- A GRC platform
-- A compliance automation product
-- A fully autonomous contract agent
-- A guarantee that no renewal will ever be missed
-- A mature enterprise assurance system
-
-These claims create unnecessary trust risk, attract the wrong buyer, and make the
-product sound broader than it needs to be.
-
-## Market Position
-
-Oblixa should be clear about overlap without adopting the wrong category.
-
-### Compared With CLM
-
-CLM usually covers creation, intake, drafting, review, negotiation, approvals,
-signature, storage, and lifecycle management.
-
-Oblixa should say:
-
-> Oblixa is not trying to replace a full CLM. It starts after contracts are signed,
-> when teams need to track dates, owners, obligations, evidence, and reports.
-
-### Compared With E-Signature
-
-E-signature tools help get agreements signed.
-
-Oblixa should say:
-
-> Oblixa starts after signature. It helps teams act on what the signed agreement
-> requires next.
-
-### Compared With A Contract Repository
-
-Repositories store and search agreements.
-
-Oblixa should say:
-
-> Oblixa keeps files and records together, but the main job is operational
-> tracking: dates, owners, obligations, evidence, and reports.
-
-### Compared With Spreadsheets
-
-Spreadsheets are flexible but fragile.
-
-Oblixa should say:
-
-> Oblixa replaces the contract-tracking spreadsheet with reviewed contract data,
-> owners, reminders, work, evidence, and exportable reports.
-
-## Recommended Public Positioning
-
-### Headline
-
-> Replace your contract-tracking spreadsheet.
-
-### Subheadline
-
-> Oblixa helps small teams track renewals, obligations, owners, evidence, and
-> reports from signed contracts, with AI-assisted extraction that stays
-> source-backed and human-reviewed.
-
-### One-Sentence Explanation
-
-> Oblixa starts after signature, turning signed contracts into reviewed fields,
-> accountable work, renewal tracking, evidence requests, and reports.
-
-### Category Line
-
-> Post-signature contract operations for teams outgrowing spreadsheets.
-
-This line is useful as a category explanation, but it should not be the first thing
-a cold visitor has to understand.
-
-### Early Access Line
-
-> Gated early access for a small number of teams replacing manual contract
-> trackers, with founder-observed onboarding.
-
-## Target Customer
-
-The first customer should not be "everyone with contracts."
-
-Best-fit first users:
-
-- Small B2B companies
-- Agencies and consultancies
-- Founder-led or operations-led teams
-- Teams without formal legal operations
-- Teams using spreadsheets, shared folders, email, or calendar reminders
-- Teams with enough signed agreements to feel tracking pain
-- Teams that can make a decision without enterprise procurement
-- Teams willing to use an early product with founder support
-
-Good first buyer roles:
-
-- Founder
-- COO
-- Operations lead
-- Finance lead
-- Admin or business operations owner
-- Legal-adjacent operator
-- Procurement owner in a small team
-
-Good first contract sets:
-
-- Vendor agreements
-- Customer agreements
-- Service agreements
-- SOWs
-- Agency/client agreements
-- Leases
-- Partnership agreements
-- Financing agreements
-- Renewal-heavy agreements
-
-Recommended first evaluation account range:
-
-- 20 to 200 signed agreements overall
-- 5 to 25 records in the first evaluation
-- Manual or semi-manual tracking today
-- At least one real renewal, owner, obligation, evidence, or reporting pain
-- Low procurement burden
-- Willing to share current process or a redacted tracker
-
-This is not a hard product limit. It is an outreach filter. A company may have
-200 agreements, but the first evaluation should not start by migrating 200.
-
-## Customers To Avoid At First
-
-Do not proactively target:
-
-- Large enterprises expecting full CLM migration
-- Public companies
-- Healthcare organizations
-- Financial institutions with formal vendor-security review
-- Government or education buyers with procurement requirements
-- Buyers who require SOC 2, ISO, HIPAA, custom DPA negotiation, or detailed
-  security questionnaires before an evaluation
-- Teams that primarily need drafting, negotiation, redlining, or e-signature
-- Teams that expect legal interpretation or compliance certification
-- Teams with urgent mission-critical deadlines that cannot tolerate early-product
-  risk
-
-These customers may be viable later. They are not optimal for the first release.
-
-## First ICP Hypotheses
-
-The first ideal-customer profile is a hypothesis, not a permanent market decision.
-Use early outreach to test which group has the clearest pain and lowest adoption
-friction.
-
-### Hypothesis A: B2B Service Firms
-
-Examples:
-
-- Agencies
-- Consultancies
-- Fractional service providers
-- B2B pipeline or growth firms
-- Managed service providers
-
-Why they may fit:
-
-- They often have customer agreements, SOWs, vendor agreements, and renewals.
-- They may be operationally mature enough to feel contract-tracking pain.
-- They may not have formal legal operations.
-- The buyer may be a founder or operations lead.
-
-What to test:
-
-- Do they track client renewals, SOW dates, cancellation windows, or deliverable
-  obligations manually?
-- Does leadership ask for contract status reports?
-- Are agreements scattered across Drive, email, and spreadsheets?
-
-### Hypothesis B: Small SaaS Or Tech Startups
-
-Why they may fit:
-
-- They may have customer agreements, vendor agreements, security addenda, and
-  renewal-heavy subscriptions.
-- They may understand software and tolerate early-access products.
-- A founder, COO, or finance lead may own contract operations.
-
-What to test:
-
-- Is contract tracking already painful before they have legal ops?
-- Do renewals, owners, and notice periods matter enough to justify a tool?
-- Are they blocked by security review even at small size?
-
-### Hypothesis C: Small Operations Or Finance Teams
-
-Why they may fit:
-
-- They care about dates, owners, obligations, spend, and reporting.
-- They are less likely to demand full legal workflow tooling.
-
-What to test:
-
-- Are they currently using a spreadsheet to track vendors, leases, financing, or
-  service contracts?
-- Do they have recurring reporting needs?
-- Does contract data affect finance or operational planning?
-
-### Deprioritized For First Outreach
-
-Deprioritize:
-
-- Legal departments at larger companies
-- Procurement-heavy enterprises
-- Regulated teams
-- Teams shopping for full CLM
-- Teams looking for AI legal review
-
-They may validate market interest, but they are less likely to be feasible first
-customers.
-
-## Product Modes
-
-Only Core should be public.
-
-The public product should not expose workspace mode switching, Advanced modules,
-Assurance modules, autopilot controls, or enterprise-style product configuration.
-
-### Core
-
-Core is the early-access product.
-
-It should include:
-
-- Contract upload
-- Spreadsheet or CSV import
-- AI-assisted extraction
-- Human review of important fields
-- Source-backed field confirmation
-- Owners
-- Dates
-- Renewals
-- Obligations
-- Approvals where they support contract follow-up
-- Work items
-- Exceptions
-- Evidence requests
-- Reports
-- Team settings
-- Data export
-
-Core should feel useful and coherent, but it does not need to pretend to be a
-fully self-serve mature business.
-
-### Advanced
-
-Advanced should remain private.
-
-It can exist in the product and be used selectively, but it should not be a public
-website promise during early access.
-
-Do not lead with:
-
-- Programs
-- Campaigns
-- Relationship workspaces
-- Advanced analytics
-- Large portfolio operations
-- Complex collaboration workflows
-
-### Assurance
-
-Assurance should remain private.
-
-Do not publicly sell:
-
-- Controls
-- Findings
-- Scorecards
-- Playbooks
-- Review boards
-- Health graph
-- Program evolution
+Primary subheadline:
+
+> Track renewals, owners, obligations, evidence, work, and reports from signed
+> agreements, with source-backed field suggestions your team reviews.
+
+Release stance:
+
+- Oblixa is usable by approved workspaces.
+- Access is gated to keep onboarding focused on teams with the right workflow.
+- The product should not present itself as experimental, a beta, a waitlist, a
+  free trial, or a broad public self-serve product.
+- The canonical CTA is "Request access."
+- Existing route names may remain for compatibility, but visible copy should say
+  "request access" or "limited rollout," not "early access" as the main message.
+- Pricing surfaces should describe paid-use state plainly. If no public number is
+  shown, the pricing page should still say continued use is paid after fit is
+  confirmed.
+
+Target user:
+
+- Small teams with signed contracts already in use.
+- Contract tracking currently happens in spreadsheets, folders, email,
+  calendars, shared drives, or memory.
+- The acute pains are renewals, notice dates, owners, obligations, exceptions,
+  evidence, and operational reports.
+- The first useful workspace can start with a bounded contract set, not a full
+  migration.
+
+Product boundary:
+
+- Oblixa starts after signature.
+- Oblixa tracks signed contracts, reviewed fields, renewals, notice deadlines,
+  owners, obligations, approvals, exceptions, evidence, work, reports, exports,
+  imports, and accountable follow-up.
+- Oblixa does not provide legal advice.
+- Oblixa is not a CLM, e-signature tool, drafting tool, redlining tool, formal
+  GRC platform, enterprise assurance product, or autonomous decision-maker.
+
+AI boundary:
+
+- AI is a support mechanism, not the headline category.
+- Public and app copy should describe "source-backed suggestions" or
+  "suggested fields."
+- Important suggested fields are not trusted operational data until reviewed.
+- Copy must not imply legal analysis, guaranteed extraction, autonomous
+  decisions, risk authority, compliance decisions, or renewal guarantees.
+
+Trust boundary:
+
+- Security and legal pages should make concrete supportable claims.
+- Boundaries belong in FAQ, legal, and security sections. They should not
+  dominate the homepage hero or make the product feel unfinished.
+- Formal enterprise procurement, certification, SLA, managed implementation, and
+  legal-review promises are outside this release unless independently supported.
+
+## Product Definition
+
+Category:
+
+- Oblixa is a post-signature contract tracking workspace.
+- It is closer to a live operational tracker than a contract repository.
+- It is narrower than CLM and broader than a renewal calendar.
+- It should be described as contract tracking, not contract lifecycle
+  management, legal AI, compliance automation, or enterprise governance.
+
+Release maturity:
+
+- The release should read as focused and usable, not tentative.
+- The gate exists because access is controlled, not because the product is only a
+  concept.
+- The product can be paid without implying broad self-serve availability.
+- Public copy should not apologize for the product's narrowness; the narrowness
+  is the positioning.
+
+Intended audience:
+
+- Small teams with real signed contracts and no reliable contract-operations
+  system.
+- Teams where ownership, dates, obligations, evidence, and reporting are handled
+  manually.
+- Operators, finance owners, legal-adjacent owners, administrators,
+  and team leads who are accountable for follow-up after contracts are signed.
+- Teams that can start with a bounded set of signed agreements.
+
+Non-audience:
+
+- Teams primarily looking for drafting, negotiation, redlining, e-signature, or
+  clause playbooks.
+- Teams needing legal advice or legal review.
+- Teams requiring formal procurement, security certification, implementation
+  services, or SLAs before any limited workspace use.
+- Enterprise legal-operations teams evaluating a full CLM replacement.
+- Teams looking for autonomous decisions, risk scoring, compliance findings, or
+  assurance programs.
+
+Primary job-to-be-done:
+
+> Keep signed-contract follow-up reliable when a spreadsheet, folder, inbox, or
+> calendar is no longer enough.
+
+Secondary jobs:
+
+- Know which contracts exist and who owns them.
+- See which fields are reviewed, missing, or still suggested.
+- Track renewal, notice, termination, effective, and end dates.
+- Convert obligations, approvals, exceptions, and follow-up into owned work.
+- Request and collect evidence.
+- Export reports without rebuilding a spreadsheet.
+
+Product promise:
+
+- Oblixa makes contract tracking more visible, accountable, and exportable.
+- Oblixa helps users operate on reviewed source-backed data.
+- Oblixa makes next actions easier to find across contracts, dates, work,
+  evidence, and reports.
+
+Product non-promise:
+
+- Oblixa does not guarantee that every renewal, notice, or obligation will be
+  found or acted on.
+- Oblixa does not guarantee extraction accuracy.
+- Oblixa does not interpret legal meaning or recommend legal action.
+- Oblixa does not replace counsel, procurement, finance approval, or business
+  judgment.
+- Oblixa does not promise managed migration, custom implementation, or customer
+  success coverage.
+
+Positioning hierarchy:
+
+1. Spreadsheet replacement for signed-contract tracking.
+2. Reviewed operational data.
+3. Dates, owners, work, evidence, and reports.
+4. Source-backed AI suggestions as an input to review.
+5. Controlled access and paid continuation.
+
+AI should never move above the first three items in public or app hierarchy.
+
+## Release State Description
+
+The release is defined by what an approved workspace can do, not by how a
+workspace receives access.
+
+An approved workspace should be able to:
+
+- Add signed agreements by upload or import.
+- Review source-backed suggested fields.
+- Maintain a contract inventory.
+- Assign owners.
+- Track critical dates.
+- See open, overdue, blocked, and unassigned work.
+- Track obligations, approvals, exceptions, and evidence requests.
+- Use external token links for bounded evidence/follow-up collection.
+- Run or export operational reports.
+- Manage team access, billing/access state, account security, and workspace
+  settings.
+
+The release should not require:
+
+- A full migration before value is visible.
+- Customer training material to complete basic workflows.
+- A call before a user can understand the product.
+- Advanced or Assurance modes.
+- Product-mode selection.
+- Legal, procurement, or security questionnaire completion as the normal path.
+
+Activation state:
+
+- A workspace is activated when at least one contract has been uploaded or
+  imported, at least one suggested field has been reviewed or corrected, and the
+  workspace shows meaningful dashboard, work, renewal, evidence, or report state.
+- Activation is a product-state concept, not an external status milestone.
+
+Release proof:
+
+- The release should prove itself with the product surfaces: Dashboard, Review
+  fields, Contracts, Work, Renewals, Evidence, Reports, Settings, and contextual
+  upload/import/detail routes.
+- Public pages should use product proof and precise boundaries.
+- Documentation, private operating knowledge, or non-product context are not
+  release proof.
+
+## Surface Vocabulary
+
+Preferred public and Core terms:
+
+- contract tracking
+- signed agreements
+- contract tracker
+- spreadsheet
+- reviewed fields
+- source-backed suggestions
+- owners
+- renewal dates
+- notice deadlines
+- obligations
+- approvals
+- exceptions
+- evidence
+- work
+- reports
+- export
+
+Use carefully:
+
+- AI, only as source-backed suggestions reviewed by the user.
+- Evaluation, only to describe a bounded product workspace or access review, not
+  a beta program.
+- Limited rollout, only to describe access control.
+
+Avoid in public and Core release surfaces:
+
+- beta
+- waitlist
+- autonomous
+- legal AI
+- legal advice
+- CLM replacement
+- governance
+- controls
+- compliance automation
+- Assurance
 - Autopilot
+- platform, unless immediately narrowed to contract tracking
+- enterprise-ready
+- guaranteed
+- SLA
+- dedicated success team
+
+## Known Non-Claims
+
+Oblixa must not claim or imply:
+
+- Legal advice, legal review, legal interpretation, or recommended legal action.
+- Guaranteed extraction accuracy.
+- Guaranteed renewal, notice, obligation, or evidence capture.
+- Autonomous decisions, autonomous execution, or risk authority.
+- Compliance findings, certification, control effectiveness, or assurance
+  conclusions.
+- Formal enterprise security certification, SLA, procurement readiness, or
+  managed implementation unless separately supported.
+- Full CLM replacement, drafting, negotiation, redlining, or e-signature.
+- Managed migration, spreadsheet cleanup, or dedicated customer-success coverage.
+
+## Route Status Terms
+
+- **Ship**: visible release surface.
+- **Ship gated**: visible only to approved, signed-in, or invited users.
+- **Ship simplify**: visible or reachable release surface with intentionally
+  narrower content than the current route may contain.
+- **Contextual**: reachable from a relevant workflow or direct link, not primary
+  navigation.
+- **Admin**: workspace-admin surface.
+- **Internal**: operator-only surface.
+- **Merge**: substantive content belongs in another release surface.
+- **Omit**: hide, guard, redirect, or return not found for ordinary release
+  users.
+- **Boundary**: error, not-found, loading, auth-callback, or layout boundary.
+- **Contained**: implementation can exist for contained workspaces or future
+  modules, but is not a release promise for Core users.
+
+Substantive routes are routes that let a user, operator, external participant,
+or system create, view, mutate, export, notify, bill, authenticate, administer,
+or shape the public promise. This document covers substantive page families in
+detail and route-handler families by release boundary.
+
+## Route Entry Schema
+
+Each substantive page route should be described with:
+
+- Status.
+- Release role.
+- Direct access behavior.
+- Visible contents.
+- Primary actions.
+- Empty, loading, degraded, invalid, or denied states where relevant.
+- Exclusions.
+- Acceptance condition.
+
+If a route entry omits direct access behavior, use these defaults:
+
+- Public marketing and legal pages are directly accessible.
+- Auth pages redirect authenticated users when a session makes the page
+  irrelevant.
+- Core app pages require an authenticated workspace and role authorization.
+- Contextual routes are reachable from owning workflows or direct links only.
+- Admin routes require workspace-admin authorization.
+- Internal routes require explicit operator authorization.
+- Omitted routes are hidden from ordinary users and must redirect, deny, or
+  return not found without leaking private module data.
+- Boundary routes render only safe recovery states.
+
+## Global Release Rules
+
+- Primary public promise: spreadsheet replacement for signed-contract tracking.
+- Primary app promise: every visible surface helps a user answer what exists,
+  what is trusted, who owns it, what is due, what is blocked, what proof exists,
+  and what can be exported.
+- Primary navigation contains exactly Dashboard, Contracts, Work, Renewals,
+  Evidence, Reports, and Settings.
+- Search and command palette may expose Core pages, Core queues, Core reports,
+  and Core tools only when the user can access them.
+- Hidden routes must not appear in primary navigation, global search, command
+  palette, onboarding, pricing, public pages, email, dashboard cards, empty
+  states, or upgrade prompts.
+- Advanced and Assurance implementation can exist, but it must not define the
+  public release narrative.
+- Public pages should use actual product proof where possible. Dashboard, Review
+  Fields, Contracts, Work, Renewals, Evidence, and Reports screenshots are
+  stronger than abstract diagrams.
+- Product copy should avoid "platform" unless the surrounding text immediately
+  narrows it to post-signature contract tracking.
+- Documentation is not proof of release readiness. Current runtime behavior,
+  route guards, tests, rendered UI, and production configuration are the
+  authoritative proof.
+
+## Data Confidence States
+
+Any page showing extracted or imported contract data should distinguish:
+
+- **Reviewed**: accepted or corrected by an authorized user; can drive
+  operational queues, reports, reminders, and exports.
+- **Suggested**: source-backed but not yet approved; may appear in review
+  surfaces and detail context, but should not be presented as trusted data.
+- **Missing**: expected field absent or not found.
+- **Unknown**: user intentionally marked the value unknown.
+- **Computed**: derived from reviewed or imported inputs; must label the source
+  of computation when it affects deadlines or reports.
+- **Unverified**: imported or inferred value that has not been reviewed.
+
+Display rules:
 
-Autopilot execution should not be public.
+- Reports, renewals, dashboard cards, work queues, and evidence workflows should
+  prefer reviewed data.
+- Suggested or unverified values need visible state labels before they influence
+  next actions.
+- Source snippets or source-preview links should be available where the user is
+  asked to approve or correct a value.
+- Missing and unknown states should be actionable when the user has permission to
+  edit or review.
 
-## AI Positioning
+## Public Routes
 
-AI should be helpful but not magical.
+### `/`
 
-Prefer:
+Status: Ship.
 
-- AI-assisted extraction
-- Suggested fields
-- Source-backed review
-- Human-approved values
-- Review before relying on a field
+Release role:
 
-Avoid:
+- First impression.
+- Makes the spreadsheet-replacement wedge obvious.
+- Sends qualified users to request access without implying the product is a
+  prototype.
 
-- AI lawyer
-- Autonomous contract management
-- Fully automated review
-- Guaranteed extraction
-- Legal analysis
-- Risk scoring as authority
-- Compliance decisions
+Direct access behavior:
 
-Required principle:
+- Publicly accessible.
+- Primary CTA goes to the request-access route.
+- Secondary CTA goes to the product tour.
 
-> Important AI-suggested fields should not become trusted operational data until a
-> human reviews them.
+Contains:
 
-## Public Website
+- H1: "Replace your contract-tracking spreadsheet."
+- Subheadline matching the primary subheadline above.
+- Primary CTA: "Request access."
+- Secondary CTA: "View product tour."
+- Risk reducer: limited rollout for teams replacing manual contract trackers;
+  export anytime; no annual commitment unless billing actually requires one.
+- Product proof showing the real workflow or faithful mock views.
+- Problem section: renewal and notice dates in spreadsheets, obligations buried
+  in PDFs, unclear owners, follow-up in email, evidence hard to collect, reports
+  rebuilt by hand.
+- Workflow section: upload/import, review fields, assign owners and dates, track
+  work, request evidence, report/export.
+- Outcome section: contracts needing review, upcoming renewals and notices,
+  owned work, evidence status, exportable reports.
+- Best-fit section: signed contracts already exist; manual tracker is becoming
+  unreliable; first evaluation can start small.
+- FAQ covering CLM boundary, no legal advice, starting small, file types, AI
+  review, export, and paid continuation.
 
-The launch website should be small, direct, and honest.
+Excludes:
 
-Recommended public pages:
+- Free-trial claim.
+- Guaranteed workspace access for every request.
+- Enterprise procurement, formal compliance, Autopilot, Assurance, GRC, or
+  autonomous-agent claims.
 
-- Home
-- Product
-- Early Access
-- Security
-- Contact
-- Login
-- Legal
+Acceptance:
 
-Pricing may exist later, but it should not be the main early-access page until
-there is evidence from bounded evaluations.
+- A qualified visitor understands the product without reading another page.
+- The page feels like a focused product, not a beta invitation.
+- CTAs lead to the access request and product tour.
 
-Do not launch thin pages just to look bigger.
+### `/product`
 
-## Not Included In Early Access
+Status: Ship.
 
-Early access is a product evaluation, not a managed implementation.
+Release role:
 
-Early access does not include:
+- Demonstrates that Oblixa is an operational product, not only a promise.
+- Reduces ambiguity before access request.
 
-- Full contract repository migration
-- Manual contract review by Oblixa
-- Legal interpretation
-- Manual customer spreadsheet cleanup
-- Custom workflow building
-- Custom report building
-- Custom security questionnaires
-- Guaranteed support response times
-- Production-critical deadline reliance
+Direct access behavior:
 
-The goal is to test whether a small contract set can move from manual tracking to
-reviewed fields, owners, dates, work, evidence, and reports with limited founder
-support.
+- Publicly accessible.
+- CTAs return to request access or relevant public trust pages.
 
-## Public Surface Revision Priority
+Contains:
 
-If the current product surfaces are revised, do the work in this order.
+- Product-tour H1 focused on signed-contract tracking.
+- Phase 1: replace the spreadsheet.
+- Phase 2: upload signed PDFs/DOCX files and import CSV tracker rows.
+- Phase 3: review source-backed suggested fields.
+- Phase 4: track renewal, notice, termination, effective, and end dates.
+- Phase 5: assign work across tasks, approvals, obligations, and exceptions.
+- Phase 6: request and track evidence tied to contracts or obligations.
+- Phase 7: run and export operational reports.
+- Product visuals or mockups that match the actual Core product.
+- CTA to request access.
 
-### Priority 1: Homepage
+Excludes:
 
-Change the homepage from public self-serve SaaS launch framing to early-access
-design-partner framing.
+- Repeating the homepage H1 as the page H1.
+- Pre-signature contracting, drafting, redlining, e-signature, legal advice,
+  GRC, or enterprise assurance.
+- Abstract AI positioning disconnected from the review workflow.
 
-Required changes:
+Acceptance:
 
-- H1 becomes "Replace your contract-tracking spreadsheet."
-- Primary CTA becomes "Request early access."
-- Secondary CTA becomes "See how it works" or "Review fit criteria."
-- Remove self-serve trial emphasis.
-- Remove any broad Advanced or Assurance promotion.
-- Add an explicit "not CLM, not e-signature" explanation.
-- Add a small "best fit" section for spreadsheet-based tracking.
+- A visitor can describe how a contract moves from file or CSV row to reviewed
+  record, owned work, evidence, and report.
 
-### Priority 2: Pricing
+### `/early-access`
 
-Pricing should not lead with a polished self-serve plan matrix yet.
+Status: Ship simplify.
 
-Required changes:
+Release role:
 
-- Replace fixed public plan cards with early-access guidance.
-- Explain that pricing is being finalized during early-access evaluations.
-- Keep any paid continuation language broad, such as "founding monthly plan."
-- Do not sell annual contracts publicly yet.
-- Do not publish Advanced or Assurance pricing.
+- Current access-request route.
+- Should behave as the request-access page even if the URL remains unchanged for
+  compatibility.
 
-### Priority 3: Signup And Access
+Direct access behavior:
 
-Signup should support the early-access motion.
+- Publicly accessible.
+- Authenticated users may continue to their workspace when they already have
+  access.
+- Submission creates an access request or contact record, not a workspace.
 
-Required changes:
+Contains:
 
-- If signup is open, set expectations that access is early and founder-supported.
-- If feasible, gate workspace creation or route new users through an access request.
-- Avoid language that implies a normal no-touch trial.
+- H1: "Request access."
+- Fit framing: limited rollout for teams replacing a manual tracker.
+- Form fields sufficient to judge fit:
+  - name, work email, company, role;
+  - number of signed contracts;
+  - current tracking method;
+  - top pain: renewals, owners, obligations, evidence, reporting, or work;
+  - whether a small contract set can be used first;
+  - optional notes.
+- Post-submit success state saying the request was received.
+- Post-submit failure state without infrastructure details.
+- Clear expectation that access is reviewed and not automatic.
 
-### Priority 4: Security
+Excludes:
 
-Security copy should be factual and modest.
+- Promise of workspace access for every requester.
+- Operational instructions about how requests are reviewed.
+- Enterprise procurement intake.
+- Managed migration or spreadsheet cleanup promises.
 
-Required changes:
+Acceptance:
 
-- Keep role, audit, export, deletion, and AI-review controls visible.
-- Add early-access limits.
-- Do not imply formal certification or enterprise procurement readiness.
-- Make the no-legal-advice statement visible.
+- Users see a serious access gate, not a waitlist or beta program.
+- The form captures enough information for asynchronous access review.
 
-### Priority 5: In-App Product Exposure
+### `/pricing`
 
-The in-app shell should keep users focused on Core.
+Status: Ship simplify.
 
-Required changes:
+Release role:
 
-- Core nav remains Dashboard, Contracts, Work, Renewals, Evidence, Reports, Settings.
-- Hide or suppress Advanced and Assurance surfaces for ordinary early-access users.
-- Do not expose workspace mode switching as a normal customer setting.
-- Keep billing subdued until paid conversion is proven.
+- Makes paid use credible.
+- Reduces uncertainty without inventing unsupported enterprise packaging.
 
-### Priority 6: Email And Lifecycle Copy
+Direct access behavior:
 
-Email should match early access.
+- Publicly accessible.
+- CTAs go to request access or contact.
+- No direct checkout is exposed unless checkout is configured and intentionally
+  public.
 
-Required changes:
+Contains:
 
-- Welcome email says "early access."
-- Payment lifecycle emails are secondary until public billing is active.
-- Extraction emails emphasize source-backed review.
-- Support language remains best-effort.
+- H1: "Simple pricing for contract tracking."
+- Statement that access starts with a bounded workspace evaluation and continued
+  use moves to a paid monthly plan if Oblixa becomes part of the workflow.
+- If public price is available: one simple monthly Core plan and clear included
+  limits.
+- If public price is not available: no fake tier matrix; say pricing is disclosed
+  after access is approved and continued use is paid monthly.
+- Included Core capabilities: upload/import, source-backed review, renewals,
+  notices, owners, obligations, evidence, work, reports, CSV export, support
+  during evaluation.
+- Not included: legal review, drafting/redlining, e-signature, managed migration,
+  spreadsheet cleanup, enterprise procurement, formal SLA, Advanced, Assurance.
+- CTA to request access and secondary link to contact.
 
-## Home Page
+Excludes:
 
-Purpose:
+- "Pricing is being finalized" as the main message.
+- Three-tier public matrix unless all tiers are real and supported.
+- Annual default, procurement workflow, custom enterprise support, or non-Core
+  upsells.
 
-Explain the spreadsheet/manual-tracking problem, show the product promise, and
-send serious visitors to early access.
+Acceptance:
 
-### Hero
+- An appropriate workspace requester understands the product is paid-capable.
+- No plan sells a hidden or unsupported surface.
 
-Headline:
+### `/contact`
 
-> Replace your contract-tracking spreadsheet.
+Status: Ship simplify.
 
-Subheadline:
+Release role:
 
-> Oblixa helps small teams track renewals, obligations, owners, evidence, and
-> reports from signed contracts, with AI-assisted extraction that stays
-> source-backed and human-reviewed.
+- Handles narrow access, pricing, security, support, and general questions.
+- Gives users a simple async contact path.
 
-Primary button:
+Direct access behavior:
 
-> Request early access
+- Publicly accessible.
+- Submission creates a contact record only.
+- Success and failure states stay on the page.
 
-Secondary button:
+Contains:
 
-> See how it works
+- H1: "Contact Oblixa" or "Ask about Oblixa."
+- Short statement that contact is asynchronous.
+- Name, work email, company, and message fields.
+- Optional contract-count, current-tracker, current pain, or follow-up
+  preference fields when the page is used for access-fit context.
+- Link to request access for users ready to apply.
+- Links to product, pricing, and security pages for users who need page-level
+  context before writing.
+- Success state.
+- Failure state without provider details.
 
-Do not use:
+Excludes:
 
-- Start free trial
-- Buy now
-- Talk to sales
-- Enterprise demo
+- Enterprise procurement promise.
+- Full duplication of the request-access page.
+- Mandatory call scheduling.
 
-### Problem Section
+Acceptance:
 
-Title:
+- User can submit a narrow question or fit note without being forced into a
+  procurement or call-scheduling flow.
 
-> Your contracts are signed. The follow-up is scattered.
+### `/security`
 
-Bullets:
+Status: Ship.
 
-- Renewal and notice dates live in spreadsheets
-- Obligations are buried in PDFs
-- Owners are unclear or outdated
-- Follow-up happens over email
-- Evidence is hard to request and collect
-- Reports take hours to rebuild
+Release role:
 
-### Workflow Section
+- Establishes enough trust for small-team contract-content evaluation.
+- Sets supported security expectations without implying formal certification.
 
-Title:
+Direct access behavior:
 
-> From tracker to workspace
+- Publicly accessible.
+- Security contact path is visible.
+- No authenticated workspace data appears on the public page.
 
-Steps:
+Contains:
 
-1. Import a tracker or upload signed contracts.
-2. Review suggested fields with source snippets.
-3. Assign owners, dates, reminders, and work.
-4. Track renewals, evidence, exceptions, and reports.
+- H1: "Security basics for contract records."
+- Access and role model.
+- Workspace scoping.
+- Account security and sessions.
+- Audit history.
+- Export and deletion path.
+- AI review boundary.
+- Data handling basics.
+- Security contact path.
+- Plain statement that the current release is not positioned for formal
+  enterprise security review unless separately agreed.
 
-### Best-Fit Section
+Excludes:
 
-Title:
+- H1 language that foregrounds product immaturity.
+- SOC, ISO, HIPAA, or certification claims unless actually supported.
+- Assurance module promotion.
 
-> Built for small teams outgrowing contract spreadsheets
+Acceptance:
 
-Content:
+- Claims are concrete, supportable, and not broader than the implementation.
 
-- Signed contracts already exist
-- Tracking is manual today
-- Owners, dates, obligations, or reports are unreliable
-- The team wants a focused workspace, not a full CLM rollout
+### `/privacy`
 
-### Proof Section
+Status: Ship.
 
-Do not fake customer proof.
+Release role:
 
-Use product proof:
+- Makes data handling clear enough for contract-content uploads.
 
-- Screenshots
-- Sample dashboard
-- Sample renewal report
-- Sample missing-owner report
-- Sample obligation and evidence queue
-- Plain explanation of source-backed review
+Contains:
 
-### CTA Section
+- Data categories: account, workspace, uploaded files, contract records, usage,
+  billing, contact/support data.
+- Processing purposes.
+- Providers/subprocessor posture.
+- Retention, export, deletion, and contact paths.
+- User responsibility to upload only data they are authorized to process.
 
-Message:
+Excludes:
 
-> I am onboarding a small number of early users who currently track signed
-> contracts manually.
+- Unsupported legal guarantees.
+- Certification claims.
 
-Button:
+Acceptance:
 
-> Request early access
+- A user can identify what data is processed and how to request export or
+  deletion.
 
-## Product Page
+### `/terms`
 
-Purpose:
+Status: Ship.
 
-Explain exactly how Core replaces manual contract tracking.
+Release role:
 
-Recommended sections:
+- Defines the service relationship before account creation or paid use.
 
-### Replace The Contract Spreadsheet
+Contains:
 
-> Move from a static tracker to a workspace that connects contracts, dates,
-> owners, obligations, evidence, and reports.
+- Service use.
+- Account and workspace responsibility.
+- Customer-content responsibility.
+- No legal advice.
+- Limited-rollout and availability limits.
+- Payment terms if billing is enabled.
+- Termination, suspension, disclaimers, liability limits, and contact.
 
-### Upload Or Import
+Excludes:
 
-> Start with a small contract set. Upload signed agreements or import existing
-> contract records from a spreadsheet.
+- Enterprise SLA terms.
+- Oblixa legal-review obligations.
 
-### Review Key Terms
+Acceptance:
 
-> Confirm important fields before they drive reminders, work, or reports.
+- Terms match the actual release scope and do not promise unsupported service
+  levels.
 
-Include:
+### `/acceptable-use`
 
-- Suggested extracted terms
-- Source snippets
-- Confidence indicators where available
-- Human approval
-- Manual correction
+Status: Ship.
 
-### Track Dates
+Release role:
 
-> Keep renewal, notice, termination, and effective dates visible.
+- Protects the service from abuse.
+- Sets upload and usage boundaries.
 
-### Assign Work
+Contains:
 
-> Turn contract obligations and follow-up into accountable work.
+- Prohibited illegal, harmful, abusive, infringing, or unauthorized use.
+- No bypassing, scraping, overloading, or disrupting the service.
+- No uploading data without the right to process it.
+- Suspension/removal rights.
+- Abuse contact path.
 
-### Collect Evidence
+Excludes:
 
-> Request and attach proof when contract work needs evidence.
+- Moderation operations detail that implies enterprise support.
 
-### Report And Export
+Acceptance:
 
-> Produce operational reports without rebuilding spreadsheets.
+- A user can identify prohibited use and the reporting path.
 
-## Early Access Page
+### `/accessibility`
 
-Purpose:
+Status: Ship.
 
-Qualify potential early users and route them into a bounded evaluation.
+Release role:
 
-Headline:
+- Supports trust and usability expectations.
 
-> Early access for teams replacing contract spreadsheets.
+Contains:
 
-Subheadline:
+- Accessibility commitment.
+- Known limitations only if accurate.
+- Contact path.
+- Information requested to reproduce an access barrier.
 
-> I am onboarding a small number of teams that already track signed contracts
-> manually and want a focused workspace for renewals, owners, obligations,
-> evidence, and reports.
+Excludes:
 
-Form fields:
+- Formal conformance claim unless verified.
 
-- Name
-- Work email
-- Company
-- Role
-- Approximate number of signed contracts
-- How contracts are tracked today
-- Main tracking pain
-- Whether there is an existing spreadsheet or tracker
-- Whether a redacted sample can be shared
-- Preference: async only, call if needed, or either
-- Message
+Acceptance:
 
-Confirmation message:
+- Page gives a concrete reporting path without overstating compliance.
 
-> Thanks. If there is a fit, I will follow up with a few questions about your
-> current tracking process. You do not need to migrate every contract to start.
+### `/cookies`
 
-## Pricing
+Status: Ship.
 
-Do not lead with public self-serve pricing yet.
+Release role:
 
-Early-access pricing should optimize for learning and trust, not immediate scale.
+- Supports privacy transparency for public and authenticated surfaces.
 
-Recommended approach:
+Contains:
 
-| Offer | Price | Public? | Purpose |
-| --- | ---: | --- | --- |
-| Early-access evaluation | Free or low-cost for a limited period | Yes, limited | Learn from real workflows and prove value |
-| Founding Core | $100 to $300/month | Not fixed publicly yet | Convert teams after value is proven |
-| Advanced | Quote-only | No | Private only |
-| Assurance | Quote-only | No | Private only |
+- Essential cookies.
+- Authentication/session cookies.
+- Preferences, analytics, or marketing cookies only if actually used.
+- Browser-management guidance.
+- Contact path.
 
-Public pricing page recommendation:
+Excludes:
 
-- Replace the current pricing-first framing with an Early Access page.
-- If a Pricing page remains, it should say pricing is being finalized during
-  early access.
-- Do not publish Advanced or Assurance prices.
-- Do not promise annual plans until support and retention are proven.
+- Cookie categories not used by the product.
 
-Suggested public copy:
+Acceptance:
 
-> Early access may be free during a limited evaluation period. Continued use after
-> evaluation will require a paid founding plan. Pricing is being finalized during
-> early access, but teams should expect paid continuation if Oblixa becomes part
-> of their workflow.
+- Cookie categories match runtime behavior.
 
-Internal rule:
+## Auth And Account Routes
 
-> No free workspace should remain active indefinitely unless it is producing
-> unusually valuable learning.
+### `/login`
 
-## Early-Access Evaluation
+Status: Ship.
 
-The first evaluation should be small and bounded.
+Release role:
 
-Recommended scope:
+- Returns approved users to the workspace quickly.
 
-- 14 to 30 days
-- 5 to 25 contracts or a redacted tracker sample
-- Async-first support
-- One optional 30-minute call only if needed
-- No full migration
-- No manual contract review by Oblixa
-- No production-critical reliance during evaluation
-- Clear export path
-- Clear deletion path
+Direct access behavior:
 
-Evaluation goal:
+- Publicly accessible when unauthenticated.
+- Authenticated users redirect to dashboard or the originally requested
+  workspace route.
 
-> Determine whether Oblixa can materially improve one current tracking workflow,
-> such as renewal tracking, missing-owner cleanup, obligation follow-up, evidence
-> tracking, or reporting.
+Contains:
 
-Evaluation success criteria:
+- Email/password sign-in.
+- Forgot-password link.
+- Request-access link.
+- Returning-user copy focused on contract deadlines, owners, work, evidence, and
+  reports.
+- Redirect for authenticated users.
 
-- The user imports or uploads a small contract set.
-- The user reviews at least one source-backed field.
-- The user assigns an owner or key date.
-- The user sees a useful dashboard, work item, renewal view, evidence request, or
-  report.
-- The user can explain what Oblixa did better than the current tracker.
-- Founder support required was low enough to repeat.
+Excludes:
 
-## Evaluation Terms
+- Free-trial language.
+- Product marketing that slows sign-in.
 
-Use plain expectations before starting an evaluation. These are product-positioning
-terms, not legal drafting instructions.
+Acceptance:
 
-The prospect should understand:
+- Existing user can sign in with minimal friction.
 
-- Oblixa is early access.
-- The evaluation is for workflow validation.
-- Oblixa is not providing legal advice.
-- AI-suggested fields require human review.
-- Support is founder-supported and best-effort.
-- The first contract set should be small enough to manage safely.
-- Redacted or sample documents are acceptable for evaluation.
-- The customer can export records and request deletion.
-- Feedback is expected.
-- Continued use after evaluation is paid unless explicitly extended for unusually
-  valuable learning.
+### `/signup`
 
-Recommended evaluation summary:
+Status: Ship gated.
 
-> We will use a limited contract set to test whether Oblixa can replace or improve
-> your current contract tracker. Oblixa will help organize and track contract
-> information, but your team remains responsible for reviewing extracted fields
-> and making business or legal decisions.
+Release role:
 
-## Evaluation Operating Checklist
+- Allows approved users to create accounts.
+- Prevents unsupported self-serve workspace creation.
 
-Before evaluation:
+Direct access behavior:
 
-- Confirm the current tracking process exists.
-- Identify the owner of the current tracker.
-- Collect a redacted tracker or describe its columns.
-- Choose the first contract subset.
-- Confirm whether real or redacted documents will be used.
-- Confirm the main success question.
-- Confirm support expectations.
+- Publicly accessible as a gated account-creation route.
+- Without valid access state, the route shows denial/request-access guidance and
+  does not create a workspace.
+- Authenticated users redirect to dashboard or onboarding.
 
-During evaluation:
+Contains:
 
-- Import or upload the initial contract set.
-- Review suggested fields for at least 3 to 5 contracts.
-- Assign owners and at least one key date.
-- Create at least one work item, obligation, evidence request, or renewal action.
-- Export or view at least one report.
-- Record every confusion point.
-- Track how much founder support was required.
+- Title: "Create your workspace account" or equivalent gated-access language.
+- Access-code or invite validation when signup is gated.
+- Email/password signup.
+- Full name and company fields when needed.
+- Denied-access state with link to `/early-access`.
+- Limited-access notice.
 
-End of evaluation:
+Excludes:
 
-- Ask what replaced spreadsheet work.
-- Ask what remained easier in the spreadsheet.
-- Ask what would block continued use.
-- Ask what they would pay, if anything, and why.
-- Ask whether they would be disappointed if access ended.
-- Decide whether to convert, extend, pause, or disqualify.
+- Promise that public signup creates a workspace.
+- Product-mode picker.
 
-## Data Handling Boundaries For Early Evaluations
+Direct access behavior:
 
-Early evaluations should minimize sensitive-data risk.
+- Without valid access code or public-signup flag, no workspace is created.
+- Approved user proceeds to Core setup or dashboard.
 
-Recommended boundaries:
+Acceptance:
 
-- Start with a small contract set.
-- Prefer redacted documents when the prospect is unsure.
-- Avoid regulated data.
-- Avoid contracts with unusually sensitive personal information.
-- Avoid production-critical deadline reliance during evaluation.
-- Keep export and deletion paths clear.
-- Do not ask for more documents than needed to test the workflow.
+- Unapproved user is routed to request access.
+- Approved user can create an account and enter Core setup.
 
-Public copy should make this sound practical, not alarming:
+### `/forgot-password`
 
-> You can start with a small or redacted contract set. The goal is to test whether
-> Oblixa improves the tracking workflow before you migrate everything.
+Status: Ship.
 
-## Founder Support Boundaries
+Release role:
 
-During early access, support is limited to product usage questions, bug reports,
-import guidance, and workflow feedback.
+- Reduces avoidable churn from account access loss.
 
-Oblixa will not provide:
+Direct access behavior:
 
-- Manual contract review
-- Legal interpretation
-- Manual spreadsheet cleanup
-- Full repository migration
-- Custom workflow implementation
-- Custom report building
-- Guaranteed response times
-- Production-critical deadline monitoring
-- Custom security questionnaires
+- Publicly accessible when unauthenticated.
+- Authenticated users redirect to dashboard.
+- Submission response is neutral whether or not an account exists.
 
-If an evaluation requires these services to reach value, that is evidence the
-current motion is not yet feasible for a one-person operation.
+Contains:
 
-## Support Promise
+- Email field.
+- Submit action.
+- Neutral success state that does not reveal account existence.
+- Login link.
 
-Do not promise standard business-day support, 24-hour support, or SLAs.
+Acceptance:
 
-Recommended public language:
+- Recovery flow avoids account-enumeration leakage.
 
-> Oblixa early access is founder-supported. Critical blockers are prioritized,
-> but response times are best-effort during this phase.
+### `/reset-password`
 
-Operational rule:
+Status: Ship.
 
-- Acknowledge serious blockers as quickly as practical.
-- Do not promise a guaranteed resolution time.
-- Keep routine support async by default.
-- Use calls only when the workflow is unclear or a blocker cannot be solved
-  asynchronously.
+Release role:
 
-## Security Page
+- Completes account recovery.
 
-Purpose:
+Direct access behavior:
 
-Reduce trust concerns without sounding like an enterprise security program.
+- Publicly accessible only with a valid recovery token/session.
+- Invalid or expired access renders a recoverable state with a path back to
+  forgot password or login.
 
-Headline:
+Contains:
 
-> Contract-record security basics, with early-access limits.
+- New-password and confirm-password fields.
+- Client-side mismatch handling.
+- Completion state.
+- Invalid/expired link state.
+- Login link.
 
-Subheadline:
+Acceptance:
 
-> Oblixa helps teams manage signed contract records with role-based access,
-> audit history, exportability, and security-conscious defaults. Early access is
-> not intended for teams that require formal enterprise security review before a
-> limited evaluation.
+- Valid reset completes and returns user to the workspace or sign-in.
 
-Recommended sections:
+### `/auth/callback`
 
-### Access And Roles
+Status: Boundary.
 
-- Team member roles
-- Admin controls
-- Workspace-level permissions
-- Restricted access to sensitive areas
+Release role:
 
-### Audit History
+- Completes provider/email auth handoff.
 
-- Track important changes
-- See who changed key records
-- Review contract activity
+Direct access behavior:
 
-### Data Export And Deletion
+- Token/callback-only route.
+- Never appears in navigation, sitemap, command palette, or marketing content.
+- Success redirects to the intended app destination; failure redirects to a safe
+  auth recovery state.
 
-- Export contract records and reports
-- Request deletion
-- Keep evaluation sets small at first
+Contains:
 
-### Account Security
+- Token/session processing.
+- Safe redirect to dashboard, onboarding, or login.
+- Recoverable failure redirect without raw provider errors.
 
-- Secure sessions
-- MFA where available
-- Team access management
+Excludes:
 
-### AI And Review
+- Visible marketing content.
+- Raw error details.
 
-- AI suggestions require review before operational reliance
-- Source snippets help users verify extracted values
-- Users remain responsible for decisions
+## External Participant Routes
 
-### Legal And Compliance Note
+### `/external/[token]`
 
-Required language:
+Status: Contextual.
 
-> Oblixa is not a law firm and does not provide legal advice. Users are
-> responsible for reviewing contract information and making business or legal
-> decisions.
+Release role:
 
-Do not claim:
+- Lets non-workspace participants complete requested evidence or follow-up
+  without becoming workspace users.
 
-- SOC 2
-- ISO certification
-- HIPAA readiness
-- Compliance guarantees
-- Enterprise procurement readiness
-- Dedicated security team
+Direct access behavior:
 
-## Contact Page
+- Direct-link only through a scoped token.
+- No app shell, workspace navigation, global search, settings, reports, or
+  account creation.
+- Expired, revoked, invalid, already-submitted, and inaccessible tokens show
+  safe terminal states.
 
-Purpose:
+Contains:
 
-Capture serious prospects and learn how they currently track contracts.
+- Token validation.
+- Requested-action summary.
+- Requested action type: upload evidence, answer follow-up, confirm status, or
+  complete the specific workflow step.
+- Due date, requester name/team, and minimal contract or obligation context when
+  needed for the recipient to act.
+- Contract/request/workflow context limited to recipient need.
+- Participant fields only when needed.
+- Submission form.
+- Upload control with file requirement, size/type validation, progress, success,
+  and recoverable failure states when evidence is requested.
+- Response/review controls when the token asks for a non-file answer.
+- Confirmation screen after submission.
+- Expired, invalid, already-submitted, revoked, and success states.
 
-Primary CTA:
+Excludes:
 
-> Request early access
+- App navigation.
+- Unrelated workspace data.
+- Marketing hero.
+- Account-creation pressure.
 
-Secondary CTA:
+Acceptance:
 
-> See the workflow
+- Token recipient can complete the intended action and cannot browse workspace
+  data.
 
-Form fields should match the Early Access page. Avoid "Book setup call" as the
-primary action because async onboarding is more realistic.
+### `/external`
 
-## Login And Signup Pages
+Status: Boundary.
 
-The public site may have login, but signup should be gated or clearly early-access
-oriented until the evaluation phase is complete.
+Release state:
 
-Recommended signup message:
+- No standalone destination.
+- Redirect to home or show a safe invalid-link state.
+- No marketing, workspace, or account-creation content beyond safe recovery.
 
-> Oblixa is currently in founder-led early access. Request access if your team is
-> replacing a contract-tracking spreadsheet.
+## Onboarding Routes
 
-If open signup remains technically available, public copy should still avoid
-promising a normal self-serve trial.
+### `/onboarding/calibration`
 
-## Legal Pages
+Status: Ship simplify.
 
-Required pages:
+Release role:
 
-- Terms of Service
-- Privacy Policy
-- Acceptable Use Policy
-- Cookie Policy if needed
-- DPA request path only if supportable
+- Gets a new workspace to useful defaults without exposing internal product
+  architecture.
+- Runs only for authorized workspace setup contexts.
 
-Plain-language principles:
+Direct access behavior:
 
-- Say what data is collected
-- Say how data is used
-- Say how users can export or delete data
-- Say who to contact
-- Avoid promises the product or company cannot yet support
+- Authenticated admin route.
+- Non-admin users redirect to dashboard.
+- Unauthenticated users redirect to login.
+- Already-complete workspaces show a ready state with upload/import and
+  dashboard links.
 
-## In-App Product
+Contains:
 
-The in-app product should be focused. Users should not feel like they are wandering
-through a large enterprise suite.
+- Title: "Set up your contract tracking workspace."
+- Questions for role, contract count, current tracking method, tracker
+  availability, biggest tracking problem, important dates, owner assignment,
+  reporting, and evidence needs.
+- Save/continue state.
+- Blocking state if setup is required before product use.
+- Already-complete state that points to upload/import or dashboard.
+- Recoverable save failure state without provider details.
 
-Recommended Core navigation:
+Excludes:
 
-- Dashboard
-- Contracts
-- Work
-- Renewals
-- Evidence
-- Reports
-- Settings
+- Product-mode picker.
+- Autopilot controls.
+- Governance or assurance vocabulary.
 
-Other pages may exist, but they should support this main flow.
+Acceptance:
 
-Do not expose:
+- User can complete setup quickly and proceed to upload/import.
 
-- Product mode switching
-- Advanced modules for every user
-- Assurance modules
-- Autopilot controls
-- Enterprise governance language
+## Core Primary Application Routes
 
-## Calibration Page
+### `/dashboard`
 
-Purpose:
+Status: Ship.
 
-Set up the workspace without making users choose a product mode.
+Release role:
 
-Page title:
+- Primary retention surface.
+- Shows immediate operational value after contracts are added.
 
-> Set up your contract tracking workspace
+Direct access behavior:
 
-Intro copy:
+- Authenticated workspace route.
+- Users without a workspace see a workspace-required state.
+- Users blocked by required setup go to onboarding calibration.
 
-> Answer a few questions so Oblixa can focus your workspace on the renewals,
-> owners, obligations, evidence, and reports that matter most.
+Contains:
 
-Recommended questions:
+- Page identity: Contract tracking.
+- Upload contract action.
+- Import contracts action.
+- Import-processing notice when relevant.
+- Top cards: Needs review, Upcoming deadlines, Blocked work, Missing owners,
+  Open exceptions, Evidence requested.
+- Review queue with fields/contracts needing review.
+- Upcoming deadlines with renewal/notice context.
+- Work needing action.
+- Data gaps.
+- Recent activity.
+- Empty state leading to upload/import and field review.
 
-- What is your role?
-- How many signed contracts do you manage?
-- How do you track contracts today?
-- Do you have a spreadsheet or tracker now?
-- What is the biggest tracking problem?
-- Which dates matter most?
-- Do multiple people own contract follow-up?
-- Do you need reports for leadership, finance, or operations?
-- Do you need to collect evidence for obligations?
+States:
 
-Do not show:
+- Empty: first contract upload/import CTA, explanation of reviewed fields, no
+  fake metrics.
+- Populated: operational counts, queues, deadlines, work, data gaps, and recent
+  activity reflect workspace data.
+- Degraded: partial-data notice when imports, extraction, or report data is
+  delayed.
+- Loading: skeleton structure preserves card and queue layout.
 
-- Core mode
-- Advanced mode
-- Assurance mode
-- Product configuration details
+Excludes:
 
-## Dashboard Page
+- Advanced, Assurance, private-module cards.
+- Product-mode badge or switch.
+- Decorative analytics unrelated to next action.
 
-Purpose:
+Acceptance:
 
-Show what needs attention today.
+- Empty workspace points to first activation.
+- Populated workspace shows next actions without requiring another page.
 
-Page title:
+### `/contracts`
 
-> Contract tracking
+Status: Ship.
 
-Primary CTA:
+Release role:
 
-> Upload contract
+- Primary working record.
+- Replaces the spreadsheet inventory.
 
-Secondary CTA:
+Direct access behavior:
 
-> Import CSV
+- Authenticated workspace route.
+- Row actions and export controls are role-gated.
 
-Top cards:
+Contains:
 
-- Needs review
-- Upcoming deadlines
-- Blocked work
-- Missing owners
-- Open exceptions
-- Evidence requested
+- Contract inventory table/list.
+- Contract name, counterparty, type, owner, lifecycle/status, next date, review
+  state, open work count, exception/evidence signals, updated time.
+- Search across contracts, counterparties, owners, and tags.
+- Date, status, owner, counterparty, type, renewal window, review state, missing
+  data, open work, evidence, and health filters.
+- Quick filters for open exceptions, pending review, missing dates, evidence due,
+  open work, renewing soon, and active contracts when backed by data.
+- Upload, import, export, and saved-view actions when complete.
+- Empty state for adding signed contracts.
 
-Main sections:
+States:
 
-- Review Queue
-- Upcoming Deadlines
-- Work Needing Action
-- Data Gaps
-- Recent Activity
+- Empty: upload/import CTAs and no placeholder rows.
+- Filtered empty: clear-filter action and retained filter context.
+- Loading: stable table skeleton.
+- Error/degraded: recoverable message without raw query/provider details.
 
-Empty state:
+Excludes:
 
-> Upload your first signed agreement to start tracking dates, owners, and work.
+- Passive repository framing where files matter more than tracked obligations,
+  dates, owners, and work.
 
-## Contracts Page
+Acceptance:
 
-Purpose:
+- User can answer what contracts exist, who owns them, what needs review, and
+  which dates matter.
 
-Provide the main contract inventory.
+### `/work`
 
-Primary actions:
+Status: Ship.
 
-- Upload contract
-- Import CSV
+Release role:
 
-Important filters:
+- Turns contract records into accountable action.
+- Consolidates tasks, approvals, obligations, and exceptions.
 
-- Status
-- Owner
-- Counterparty
-- Contract type
-- Renewal window
-- Review state
-- Missing data
-- Open work
+Direct access behavior:
 
-Empty state:
+- Authenticated workspace route.
+- Create/update actions require role authorization.
 
-> Add signed contracts to build your operational record.
+Contains:
 
-## Field Review Page
+- Header: Work.
+- Primary action to create a work item if the workflow is complete.
+- Summary chips: active, blocked, overdue, due soon, unassigned.
+- Tabs: All, My work, Overdue, Blocked, Approvals, Obligations, Exceptions.
+- Filters for owner, due date, contract, status, and type.
+- Sort by urgency and other implemented sort options.
+- Rows with work item, contract, owner, due date, status, updated time, and
+  primary action.
+- Actions for review, complete, assign, update, block, resolve, and more menu
+  only where backed by working mutations.
+- Empty and filtered-empty states.
 
-Purpose:
+States:
 
-Make contract data trustworthy.
+- Empty: explain that work appears from reviewed fields, dates, obligations,
+  approvals, exceptions, and manual work items.
+- Filtered empty: clear filters without leaving the page.
+- Degraded: counts may show partial-data state when work aggregation is delayed.
 
-Required principle:
+Absorbs:
 
-> Suggested fields are not trusted operational data until reviewed.
+- `/contracts/tasks`.
+- `/contracts/obligations`.
+- `/contracts/approvals`.
 
-Actions:
+Acceptance:
 
-- Approve
-- Edit
-- Mark unknown
-- Skip
+- User can identify overdue, blocked, assigned, and unassigned work in one
+  place.
 
-Empty state:
+### `/contracts/renewals`
 
-> No fields need review.
+Status: Ship.
 
-## Work Page
+Release role:
 
-Purpose:
+- High-value Core use case.
+- Reduces missed renewal/notice risk without claiming guarantees.
 
-Show all contract-related work in one place.
+Direct access behavior:
 
-Tabs:
+- Authenticated workspace route.
+- Export and task creation are role-gated.
 
-- All
-- My work
-- Overdue
-- Blocked
-- Approvals
-- Obligations
-- Exceptions
+Contains:
 
-Empty state:
+- Header: Renewals.
+- Export renewal report action.
+- Create renewal task action.
+- Upcoming renewals table.
+- Filters for due window, owner, counterparty, status, and review state.
+- Renewal date, notice date, owner, status, next action, and related work/evidence
+  context.
+- Reviewed/source/computed state for date fields where available.
+- Links to contracts and work.
+- Empty state prompting date review or upload.
 
-> Create work from a contract date, obligation, approval, or exception.
+States:
 
-## Renewals Page
+- Empty: upload/import and review-date CTAs.
+- Missing dates: show which contracts need renewal or notice review.
+- Partial data: visible warning when date freshness or recompute state is
+  degraded.
+- Filtered empty: clear filters and preserve selected window.
 
-Purpose:
+Excludes:
 
-Prevent missed renewal and notice dates.
+- Guarantee that renewals cannot be missed.
+- Decision-intelligence or legal recommendation framing.
 
-Filters:
+Acceptance:
 
-- 30 days
-- 60 days
-- 90 days
-- 180 days
-- Owner
-- Counterparty
-- Status
+- User can see upcoming dates, source/review status, owner, and next action.
 
-Empty state:
+### `/contracts/evidence-studio`
 
-> Add renewal and notice dates to see upcoming contract decisions.
+Status: Ship.
 
-## Evidence Page
+Release role:
 
-Purpose:
+- Supports proof collection for obligations and follow-up.
+- Differentiates Oblixa from a static tracker without becoming compliance
+  automation.
 
-Track proof that contract work was completed.
+Direct access behavior:
 
-Sections:
+- Authenticated workspace route.
+- Request, upload, review, and close actions are role-gated.
 
-- Open requests
-- Overdue requests
-- Received evidence
-- Evidence linked to obligations
+Contains:
 
-Empty state:
+- Header: Evidence.
+- Request evidence action.
+- Request counts: open, overdue, received, due soon, missing file.
+- Tabs for open requests, overdue requests, received evidence, linked
+  obligations.
+- Filters for owner, status, contract, obligation, due date, and file state.
+- Quick filters for due soon and missing file.
+- Rows with request title, linked obligation, owner, due date, status, updated
+  time, file count, upload/review action, and more menu.
+- Empty state for creating the first request.
 
-> Request evidence when a contract obligation needs proof of completion.
+States:
 
-## Reports Page
+- Empty: create first evidence request or open linked obligations.
+- Missing file: explicit file-needed state and upload action.
+- Received: distinguish uploaded proof from reviewed/accepted proof when the
+  workflow supports review.
+- External participant: link status is shown without exposing the raw token.
 
-Purpose:
+Terminology:
 
-Help users produce useful operational reports quickly.
+- Use "Evidence."
+- Do not use "Assurance" for Core users.
+
+Acceptance:
+
+- User can request, track, receive, and review evidence tied to a contract or
+  obligation.
+
+### `/reports`
+
+Status: Ship.
+
+Release role:
+
+- Converts tracked work into shareable outputs.
+- Makes replacing the spreadsheet defensible to leadership, finance,
+  operations, or legal-adjacent stakeholders.
+
+Direct access behavior:
+
+- Authenticated workspace route.
+- Run/export/send actions are role-gated and provider-config gated.
+
+Contains:
+
+- Header: Reports.
+- Export upcoming renewals action.
+- Recoverable partial-data state when data freshness is degraded.
+- Report catalog.
+- Report filters/parameters.
+- Preview table.
+- Run, export, download, retry, or send actions only when backed by working
+  permissions and job states.
+- Report history when report runs can be created or sent.
+
+Report preview requirements:
+
+- Preview identifies report type, selected filters, visible row count, partial
+  data state, and export availability.
+- Tables show contract, counterparty, owner, status, date, next action, or
+  request fields appropriate to the selected report.
+- Exports use the same filters as preview and disclose partial-data limitations.
 
 Core reports:
 
-- Upcoming renewals
-- Notice deadlines
-- Missing owners
-- Missing key fields
-- Open obligations
-- Overdue work
-- Exceptions by owner
-- Evidence requests
-- Contract inventory
-- Review completeness
+- Upcoming renewals.
+- Notice deadlines.
+- Missing owners.
+- Missing key fields.
+- Open obligations.
+- Overdue work.
+- Exceptions by owner.
+- Evidence requests.
+- Contract inventory.
+- Review completeness.
 
-Do not include:
+Excludes:
 
-- Outcome intelligence
-- Health graph
-- Assurance scorecards
-- Autopilot results
+- Assurance scorecards.
+- Health graph.
+- Outcome intelligence.
+- Autopilot results.
+- Portfolio analytics as primary content.
 
-## Billing Page
+Acceptance:
 
-During early access, billing should be secondary.
+- User can produce at least one useful operational report without rebuilding a
+  spreadsheet.
 
-Recommended state:
+### `/settings`
 
-- Show current access status
-- Show whether the workspace is in evaluation or founding access
-- Link to contact support for billing questions
-- Do not push checkout as the main in-app conversion until the first evaluations
-  prove willingness to pay and support burden
+Status: Ship.
 
-When paid conversion begins, month-to-month plans are safer than annual plans until
-retention and support expectations are understood.
+Release role:
+
+- Provides basic administration without surfacing product complexity.
+
+Direct access behavior:
+
+- Authenticated workspace route.
+- Admin-only panels are hidden or read-only for non-admin roles.
+
+Contains:
+
+- Header: Settings.
+- Workspace/account attention summary.
+- Directory linking to Profile, Workspace identity, Team, Billing, Security,
+  Notifications, Imports/exports, and other implemented settings destinations.
+- Profile settings.
+- Workspace identity.
+- Team members, roles, pending invites, and invite action when authorized.
+- Billing/access status entry.
+- Security entry.
+- Export/deletion entry when implemented.
+
+States:
+
+- Non-admin: read-only or limited settings view.
+- Missing workspace: workspace-required state.
+- Save failure: recoverable message without provider details.
+- Disabled provider: billing, email, or integration panels show safe
+  unavailable states instead of dead controls.
+
+Excludes:
+
+- Product-mode switch.
+- Advanced/Assurance upgrade tiles.
+- Inaccessible settings entries.
+- Policy/governance controls for ordinary Core users.
+
+Acceptance:
+
+- Workspace admin can manage team, access, billing status, security, and
+  workspace identity without encountering private product modes.
+
+## Core Contextual Routes
+
+### `/contracts/new`
+
+Status: Contextual.
+
+Release role:
+
+- Fastest path from signed agreement to tracked record.
+
+Direct access behavior:
+
+- Authenticated contextual route.
+- Reachable from dashboard, contracts, empty states, and upload CTAs.
+- Direct access without upload permission shows a denied or read-only recovery
+  state.
+
+Contains:
+
+- Supported file upload.
+- Accepted file types and size limits.
+- Required metadata.
+- File validation messages.
+- Upload progress and success/failure states.
+- Duplicate or already-uploaded handling where available.
+- Recent upload or next-step state.
+- Link to review fields after extraction begins or completes.
+
+Excludes:
+
+- Full contract-profile questionnaire before upload.
+
+Acceptance:
+
+- User can upload a signed contract and know the next step.
+
+### `/contracts/bulk`
+
+Status: Contextual.
+
+Release role:
+
+- Helps users move from a spreadsheet tracker to Oblixa.
+
+Direct access behavior:
+
+- Authenticated contextual route.
+- Reachable from contracts, dashboard import notice, and empty states.
+- Direct access without import permission shows denied or recovery copy.
+
+Contains:
+
+- CSV/import entry.
+- Format expectations.
+- Downloadable or visible CSV column expectations when available.
+- File validation.
+- Queued, processing, failed, partial, and completed states.
+- Duplicate row and invalid row handling.
+- Recent import jobs.
+- Links back to contracts and review queue.
+
+Excludes:
+
+- Manual spreadsheet-cleanup promise.
+- Full migration-center framing.
+
+Acceptance:
+
+- User can import tracker rows and inspect import results.
+
+### `/contracts/imports/[jobId]`
+
+Status: Contextual.
+
+Release role:
+
+- Makes import failures recoverable.
+- Reduces support burden from CSV/import issues.
+
+Direct access behavior:
+
+- Authenticated contextual detail route.
+- Only accessible for jobs in the current workspace.
+- Invalid, missing, or cross-workspace job IDs render safe not-found or
+  inaccessible states.
+
+Contains:
+
+- Import status and clear headline.
+- Row totals, created rows, rows needing correction.
+- Safe per-row correction messages.
+- Retry action when safe.
+- Link back to `/contracts/bulk`.
+- Link to `/contracts` when imported rows were created.
+- Not-found state for invalid, missing, or inaccessible jobs.
+
+Excludes:
+
+- Raw row blobs.
+- Provider internals.
+- General import operations center.
+
+Acceptance:
+
+- User can see which rows worked, which need correction, and what to do next.
+
+### `/contracts/[id]`
+
+Status: Ship.
+
+Release role:
+
+- Contract-level source of truth.
+- Proves Oblixa is more than a list of files.
+
+Direct access behavior:
+
+- Authenticated detail route.
+- Only accessible for contracts in the current workspace.
+- Missing or inaccessible IDs render a safe not-found state without confirming
+  cross-workspace existence.
+
+Contains:
+
+- Contract identity, counterparty, type, status, owner, and current next action.
+- Uploaded file/source context.
+- Reviewed key fields and missing/unreviewed field states.
+- Renewal and notice checkpoints.
+- Owner assignment.
+- Obligations.
+- Tasks/work.
+- Approvals.
+- Exceptions.
+- Evidence requirements and submissions.
+- Activity/audit history.
+- Notes only when create, edit, delete, permission, and audit states are
+  complete.
+- Download/export actions when authorized.
+- Not-found/inaccessible state without cross-workspace disclosure.
+
+Excludes:
+
+- Legal-advice summary.
+- Autonomous risk verdict.
+- Unimplemented collaboration surfaces.
+
+Acceptance:
+
+- User can determine trusted data, source context, owner, dates, evidence, and
+  next work from the page.
+
+### `/contracts/review`
+
+Status: Contextual.
+
+Release role:
+
+- Trust conversion surface.
+- Turns source-backed suggestions into reviewed operational data.
+
+Direct access behavior:
+
+- Authenticated contextual route.
+- Reachable from dashboard, contracts, contract detail, import/upload completion,
+  and review CTAs.
+- Review actions require review/edit permission.
+
+Contains:
+
+- Header: Review fields.
+- Progress indicator.
+- Field queue with contract list.
+- Suggested value, current approved value, confidence hint where used, source
+  snippet, source preview, and contract context.
+- Actions: approve, edit, mark unknown, skip.
+- Link to source and contract.
+- Empty state when no fields need review.
+- Recoverable state when source text or preview is temporarily unavailable.
+
+Acceptance:
+
+- User can approve or correct suggested values with source context visible.
+
+### `/contracts/exceptions`
+
+Status: Contextual.
+
+Release role:
+
+- Surfaces tracking problems that would otherwise stay hidden in a spreadsheet.
+
+Direct access behavior:
+
+- Authenticated contextual route.
+- Reachable from dashboard, contracts, work, and contract detail when exceptions
+  exist.
+- Create/update/resolve actions are role-gated.
+
+Contains:
+
+- Exception list with severity, owner, contract, status, due state, and next
+  action.
+- Create, update, assign, resolve, and reopen actions only where implemented.
+- Filters for status, owner, severity, due state, and contract.
+- Empty state when no exceptions are open.
+- Path back to `/work`.
+
+Terminology:
+
+- Exceptions are tracking issues, not compliance findings.
+
+Acceptance:
+
+- User can identify, assign, and resolve contract-tracking exceptions.
+
+### `/search`
+
+Status: Contextual.
+
+Release role:
+
+- Reduces navigation friction as the workspace grows.
+
+Direct access behavior:
+
+- Authenticated contextual route.
+- Search results are filtered by workspace, role, product mode, feature flags,
+  and hidden-module settings.
+
+Contains:
+
+- Search input.
+- Results grouped as Pages, Queues, Reports, and Tools.
+- Accessible result rows.
+- Recent destinations.
+- Empty, no-results, and recoverable error states.
+- Recovery suggestions for likely misses.
+
+Excludes:
+
+- Private routes the user cannot access.
+- `/search` as a search result.
+
+Acceptance:
+
+- Search returns only accessible destinations and records.
+
+## Merged Core Routes
+
+### `/contracts/tasks`
+
+Status: Merge.
+
+Release state:
+
+- Redirect or thin wrapper to `/work` with task context.
+- No separate primary nav, public copy, or dashboard promotion.
+- Task rows live in Work with owner, status, due date, contract, and action.
+
+### `/contracts/obligations`
+
+Status: Merge.
+
+Release state:
+
+- Redirect or thin wrapper to `/work` with obligations context.
+- Obligation detail belongs on contract detail.
+- Obligation rows include owner, contract, due date, status, evidence state, and
+  source/review state.
+
+### `/contracts/approvals`
+
+Status: Merge.
+
+Release state:
+
+- Redirect or thin wrapper to `/work` with approvals context.
+- Approval rows include requester, owner, status, due state, contract, and
+  action.
+- No SLA-simulator promotion for Core users.
+
+### `/contracts/reports`
+
+Status: Merge.
+
+Release state:
+
+- Redirect or thin wrapper to `/reports` or a report-history section.
+- Run history includes report type, status, created time, delivery/export state,
+  retry, and download actions.
+- No second Reports product.
+
+## Admin And Settings Routes
+
+### `/settings/security`
+
+Status: Ship.
+
+Release role:
+
+- Supports account and workspace trust after signup.
+
+Direct access behavior:
+
+- Authenticated settings route.
+- Sensitive actions require step-up where implemented.
+- Non-admin users see only account-level controls they are allowed to manage.
+
+Contains:
+
+- Account security header.
+- MFA status and setup/removal flows where implemented.
+- Session list and session controls where implemented.
+- Step-up state for sensitive actions.
+- Account and workspace context.
+- Email verification state.
+- Role and team-management link.
+- Audit-history link.
+- Legal/security contact.
+- No raw provider errors.
+
+Excludes:
+
+- Enterprise-security theater.
+- Raw session secrets or provider payloads.
+
+Acceptance:
+
+- User can inspect and manage supported account/workspace security controls.
+
+### `/settings/billing`
+
+Status: Admin.
+
+Release role:
+
+- Supports paid conversion and billing transparency.
+
+Direct access behavior:
+
+- Admin route.
+- Provider-backed actions appear only when billing is configured.
+- If billing is unavailable, the page shows access status and safe contact or
+  unavailable-state copy.
+
+Contains:
+
+- Current access/plan/subscription status.
+- Evaluation or paid-plan state.
+- Included Core capabilities.
+- Checkout, portal, invoice, and payment actions only when provider-backed and
+  configured.
+- Billing FAQ.
+- Billing contact path.
+- Disabled/unconfigured state.
+- Admin-only diagnostic utilities hidden behind role and environment boundaries.
+
+Excludes:
+
+- Advanced/Assurance upsell.
+- Public enterprise procurement language.
+- Unsupported annual commitment.
+
+Acceptance:
+
+- Admin can understand billing/access status and reach billing actions only when
+  configured.
+
+### `/settings/operations`
+
+Status: Admin.
+
+Release role:
+
+- Lets admins tune stable operational defaults without support.
+
+Direct access behavior:
+
+- Admin route.
+- Non-admin roles redirect, deny, or see read-only workspace defaults.
+
+Contains:
+
+- Notification/reminder defaults for renewals, work, and digest where
+  implemented.
+- Role-aware read-only state.
+- Validation and save states.
+- Explanation of operational effect.
+
+Excludes:
+
+- Controls requiring internal knowledge.
+- Policy language that implies automation beyond simple settings.
+
+Acceptance:
+
+- Admin can change only controls with clear workspace impact.
+
+### `/settings/health`
+
+Status: Admin.
+
+Release role:
+
+- Reduces support ambiguity by showing whether Core workflows are healthy.
+
+Direct access behavior:
+
+- Admin route.
+- Diagnostics links are visible only to authorized operator/admin contexts.
+
+Contains:
+
+- Workspace status summary.
+- Needs-action and clear-workflow counts.
+- Delivery, report, import, export, extraction, reminder, and background-job
+  health where configured.
+- Actionable degraded states.
+- Retry actions where safe.
+- Support diagnostics summary.
+- Role gate.
+
+Excludes:
+
+- Provider internals for non-admin users.
+- Advanced/Assurance health items for Core workspaces unless the workspace mode
+  permits them.
+
+Acceptance:
+
+- Admin can distinguish healthy, degraded, blocked, and configuration-needed
+  states.
+
+### `/settings/health/diagnostics`
+
+Status: Internal.
+
+Release state:
+
+- Operator troubleshooting only.
+- Hidden from ordinary workspace admins unless explicitly authorized.
+- No secrets.
+- No ordinary navigation, search, dashboard, email, or onboarding link.
+- Direct access by unauthorized users redirects, denies, or returns not found.
+
+### `/settings/product`
+
+Status: Admin.
+
+Release state:
+
+- Hidden from ordinary Core users.
+- No Core/Advanced/Assurance switch in the release.
+- No private module enablement for ordinary users.
+- If retained, it is admin/operator configuration and not a primary release
+  surface.
+- Direct access requires admin/operator authorization and must not expose a mode
+  picker to ordinary Core users.
+
+### `/settings/policy`
+
+Status: Omit.
+
+Release state:
+
+- Hidden from ordinary Core users.
+- Simple workflow defaults belong in owning Core surfaces or
+  `/settings/operations` when fully supported.
+- No governance, policy-registry, or simulation vocabulary in Core release.
+- Direct access by ordinary Core users redirects, denies, or returns not found.
+
+### `/settings/policy/registry`
+
+Status: Internal.
+
+Release state:
+
+- Operator/admin-only registry surface.
+- No public or ordinary workspace discovery.
+- Direct access requires explicit authorization.
+
+### `/settings/policy/diagnostics`
+
+Status: Internal.
+
+Release state:
+
+- Operator diagnostics only.
+- No ordinary workspace discovery.
+- Direct access requires explicit authorization.
+
+### `/more`
+
+Status: Ship simplify.
+
+Release state:
+
+- Not part of Core primary navigation.
+- Functions as an entitlement-filtered tools index when a workspace has
+  destinations outside the primary Core nav.
+- Can include search, section filtering, contextual shortcuts, and an empty
+  state.
+- Lists only destinations allowed by workspace mode, role, feature flags, and
+  hidden-module settings.
+- Never lists Advanced or Assurance routes for Core users.
+- No stub cards or links to unavailable surfaces.
+
+Direct access behavior:
+
+- Authenticated route.
+- Hidden from Core primary navigation and command palette when Core mode has no
+  eligible extra tools.
+- Direct access in Core mode shows only eligible Core-safe destinations or a
+  clear empty state.
+
+## Advanced Routes Contained From Core Release
+
+These routes can represent substantive implementation work, but they do not help
+the optimal release positioning. They must not shape public copy, pricing,
+onboarding, Core navigation, Core search, dashboard cards, or emails.
+
+### `/dashboard/persona`
+
+Status: Omit.
+
+Reason:
+
+- Duplicates Dashboard and implies role-program complexity.
+
+Release state:
+
+- Hide from Core users.
+- If retained later, make it a preference or role-specific view rather than a
+  separate release promise.
+
+### `/contracts/intake`
+
+Status: Omit.
+
+Reason:
+
+- Implies pre-contract or queue-management scope beyond signed-contract
+  tracking.
+
+Release state:
+
+- Import work stays in `/contracts/bulk`.
+
+### `/contracts/data-quality`
+
+Status: Omit.
+
+Reason:
+
+- Data quality matters, but a separate page adds conceptual load.
+
+Release state:
+
+- Missing fields and unreviewed suggestions surface in Dashboard, Contracts, and
+  `/contracts/review`.
+
+### `/contracts/review-cadence`
+
+Status: Omit.
+
+Reason:
+
+- Review rituals are process-heavy for launch positioning.
+
+Release state:
+
+- Review work stays in Dashboard and `/contracts/review`.
+
+### `/contracts/watchlists`
+
+Status: Omit.
+
+Reason:
+
+- Watchlists are secondary; filters and saved views cover the initial need.
+
+Release state:
+
+- Monitoring signals stay in Contracts and Dashboard.
+
+### `/contracts/execution-graph`
+
+Status: Omit.
+
+Reason:
+
+- Dependency graphs imply advanced orchestration.
+
+Release state:
+
+- Blockers remain visible in Work and Dashboard.
+
+### `/contracts/approvals/workload`
+
+Status: Omit.
+
+Reason:
+
+- Workload analysis implies mature approval operations.
+
+Release state:
+
+- Approval counts and owner filters live in `/work`.
+
+### `/contracts/approvals/sla-simulator`
+
+Status: Omit.
+
+Reason:
+
+- SLA simulation conflicts with the no-enterprise-SLA release boundary.
+
+Release state:
+
+- No Core link or promotion.
+
+### `/contracts/analytics`
+
+Status: Omit.
+
+Reason:
+
+- Analytics distract from operational reports and imply intelligence beyond the
+  release proof.
+
+Release state:
+
+- Core metrics live in Dashboard and Reports.
+
+### `/contracts/collaboration`
+
+Status: Omit.
+
+Reason:
+
+- A collaboration center increases permission and support surface.
+
+Release state:
+
+- Contract-specific notes/comments belong on contract detail only when complete.
+
+### `/contracts/programs`
+
+Status: Omit.
+
+Reason:
+
+- Program management is outside spreadsheet replacement.
+
+Release state:
+
+- No Core nav, search, pricing, email, or public copy references.
+
+### `/contracts/maintenance`
+
+Status: Internal.
+
+Reason:
+
+- Operator or admin utility, not user value positioning.
+
+Release state:
+
+- Ordinary users cannot access maintenance actions.
+- Any destructive or bulk action requires preview, audit, and rollback.
+
+### `/decisions`
+
+Status: Omit.
+
+Reason:
+
+- Decision workspace positioning broadens the product beyond tracking.
+
+Release state:
+
+- Renewal and exception decisions remain work items or contract context.
+
+### `/decisions/[id]`
+
+Status: Omit.
+
+Release state:
+
+- Guard or redirect for ordinary Core users.
+
+### `/decisions/review`
+
+Status: Omit.
+
+Release state:
+
+- No manager-review queue in Core release.
+
+### `/decisions/compare`
+
+Status: Omit.
+
+Release state:
+
+- No comparison workflow in Core release.
+
+### `/campaigns`
+
+Status: Omit.
+
+Reason:
+
+- Campaigns imply scale and change management beyond Core release.
+
+Release state:
+
+- No nav, search, dashboard, email, or public promotion.
+
+### `/campaigns/[id]`
+
+Status: Omit.
+
+Release state:
+
+- Guard or redirect for ordinary Core users.
+
+### `/campaigns/compare`
+
+Status: Omit.
+
+Release state:
+
+- No campaign comparison in Core release.
+
+### `/relationship-workspaces`
+
+Status: Omit.
+
+Reason:
+
+- Relationship intelligence broadens the product beyond contract tracking.
+
+Release state:
+
+- Counterparty visibility stays inside contract inventory/detail.
+
+### `/accounts/[key]`
+
+Status: Omit.
+
+Release state:
+
+- Account workspace links do not appear in Core navigation, search, command
+  palette, reports, dashboard, or emails.
+
+### `/accounts`
+
+Status: Boundary.
+
+Release state:
+
+- No standalone Core destination.
+- Redirect, not-found, or show safe unavailable state.
+
+### `/counterparties/[key]`
+
+Status: Omit.
+
+Release state:
+
+- Counterparty workspace links do not appear in Core navigation, search, command
+  palette, reports, dashboard, or emails.
+
+### `/counterparties`
+
+Status: Boundary.
+
+Release state:
+
+- No standalone Core destination.
+- Redirect, not-found, or show safe unavailable state.
+
+## Assurance Routes Contained From Core Release
+
+Assurance pages are not part of the optimal Core release positioning. They
+reframe Oblixa as compliance, controls, or risk governance, which weakens the
+contract-tracking wedge.
+
+### `/assurance`
+
+Status: Omit.
+
+Release state:
+
+- Hidden from Core users.
+- No public, nav, search, pricing, email, report, or dashboard references.
+
+### `/assurance/findings`
+
+Status: Omit.
+
+Reason:
+
+- Findings imply risk/compliance determinations.
+
+### `/assurance/findings/[id]`
+
+Status: Omit.
+
+Release state:
+
+- Finding detail links unavailable to ordinary Core users.
+
+### `/assurance/control-policies`
+
+Status: Omit.
+
+Reason:
+
+- Control policies are outside contract-tracking release.
+
+### `/assurance/control-policies/[id]`
+
+Status: Omit.
+
+Release state:
+
+- Control policy detail links unavailable to ordinary Core users.
+
+### `/assurance/scorecards`
+
+Status: Omit.
+
+Reason:
+
+- Scorecards imply formal assurance measurement.
+
+### `/assurance/playbooks`
+
+Status: Omit.
+
+Reason:
+
+- Playbooks imply managed assurance operations.
+
+### `/assurance/review-boards`
+
+Status: Omit.
+
+Reason:
+
+- Review boards imply enterprise governance.
+
+### `/assurance/segments`
+
+Status: Omit.
+
+Reason:
+
+- Segmentation is assurance infrastructure.
+
+### `/assurance/program-evolution`
+
+Status: Omit.
+
+Reason:
+
+- Program evolution is outside Core value.
+
+### `/assurance/health-graph`
+
+Status: Omit.
+
+Reason:
+
+- Health graph implies authoritative controls modeling.
+
+### `/assurance/autopilot`
+
+Status: Omit.
+
+Reason:
+
+- Autopilot conflicts with the non-autonomous release boundary.
+
+Release state:
+
+- No execution controls, dry-run links, or autonomous-action copy in Core
+  surfaces.
+
+## Boundary, Loading, And Error Routes
+
+### Global not found
+
+Status: Boundary.
+
+Direct access behavior:
+
+- Directly renderable for unknown public paths.
+- Authenticated app paths may offer dashboard/contracts recovery.
+
+Contains:
+
+- Clear not-found message.
+- Safe link to home or dashboard depending on auth state.
+- No stack traces, raw route details, or implementation details.
+- No confirmation that an inaccessible private route exists.
+
+### Marketing not found
+
+Status: Boundary.
+
+Direct access behavior:
+
+- Rendered for missing marketing routes.
+- Does not enter the authenticated app shell.
+
+Contains:
+
+- Missing-page state.
+- Links to home, product, request access, and contact.
+- Marketing chrome parity.
+
+### Contract not found
+
+Status: Boundary.
+
+Direct access behavior:
+
+- Rendered for missing or inaccessible contract detail routes.
+- Must not disclose cross-workspace existence.
+
+Contains:
+
+- Missing or inaccessible contract message.
+- Link back to contracts.
+- No disclosure of whether the contract exists in another workspace.
+
+### Global error and app error boundaries
+
+Status: Boundary.
+
+Direct access behavior:
+
+- Rendered only when an error reaches the relevant app or marketing boundary.
+- Retry and navigation actions must stay within the user's auth context.
+
+Contains:
+
+- Recovery message.
+- Retry or safe navigation action.
+- Sanitized diagnostic reference if available.
+
+Excludes:
+
+- Secrets, stack traces, SQL, provider IDs, raw exception details, document text,
+  tokens, or signed URLs.
+
+### Loading routes
+
+Status: Boundary.
+
+Direct access behavior:
+
+- Rendered only as route loading states.
+- Must preserve the owning page's information architecture.
+
+Contains:
+
+- Stable skeletons or loading panels matching the owning page structure.
+- No layout shift that changes page hierarchy after load.
+- Accessible busy state where appropriate.
+
+## API And Background Route Boundaries
+
+API routes are not public positioning surfaces. They must support the release
+without expanding what users are promised.
+
+### Public and auth API families
+
+Status: Ship.
+
+Families:
+
+- Contact submission.
+- Auth callback and post-sign-out.
+- Health endpoint.
+- Security report intake.
+- Product telemetry.
+
+Release rules:
+
+- Public routes validate input, rate-limit where needed, avoid enumeration, and
+  never leak provider errors.
+- Contact flows support async access, pricing, security, support, and general
+  questions.
+
+### Core operational API families
+
+Status: Ship gated.
+
+Families:
+
+- Contracts and command-palette contract search.
+- Upload, import, import-job detail, extraction, and recompute signals.
+- Field review.
+- Tasks, approvals, obligations, exceptions, renewals, reminders, evidence.
+- Reports, report packs, report runs, calendar export, contract export, renewal
+  export, review-packet export.
+- Workspace settings, account export, account data, notification preferences,
+  templates, events, integrations only where surfaced.
+
+Release rules:
+
+- Every route is tenant-scoped.
+- Mutations require authorization and role checks.
+- Upload/import/export routes validate file types, identifiers, filters, sizes,
+  and tenant ownership.
+- Export routes guard CSV formula injection and set intentional download
+  headers.
+- AI/document-processing routes keep source citations, output validation, and
+  redaction boundaries.
+- Recoverable failures return safe user-facing reasons, not raw provider
+  payloads.
+
+### External-token API families
+
+Status: Contextual.
+
+Families:
+
+- Create external link.
+- Token status.
+- Token submit.
+- Token workflow step and participant workflow step.
+
+Release rules:
+
+- Tokens are scoped, expiring, non-browsable, and redacted from logs.
+- Token routes expose only the requested action context.
+- Already-submitted, expired, invalid, and revoked states are safe and
+  non-enumerating.
+
+### Billing API families
+
+Status: Admin.
+
+Families:
+
+- Checkout.
+- Customer portal.
+- Invoices.
+- Webhook.
+
+Release rules:
+
+- Billing routes are disabled safely when provider configuration is absent.
+- Provider errors are redacted.
+- Webhooks verify signatures and remain idempotent.
+- Billing copy must not promise public checkout unless checkout is enabled.
+
+### Advanced and Assurance API families
+
+Status: Contained.
+
+Families:
+
+- Decisions, campaigns, simulations, intelligence, capacity, programs,
+  relationship summaries, maintenance.
+- Assurance findings, checks, control policies, scorecards, playbooks, review
+  boards, segments, program evolution, health graph, autopilot, outcomes.
+
+Release rules:
+
+- These APIs may exist for contained workspaces or future modules.
+- They must not be discoverable from Core public pages, Core nav, Core search,
+  Core reports, Core emails, or Core onboarding.
+- If directly reached by a Core user, they must be guarded, denied, or redirected
+  without exposing cross-surface data.
+
+### Cron and background route families
+
+Status: Internal.
+
+Families:
+
+- Contract import/export cleanup.
+- Extraction and read-model refresh.
+- Renewal recompute and reminders.
+- Evidence follow-up.
+- Exceptions detection.
+- Report generation.
+- Notification retry.
+- Billing sync.
+- Security retention cleanup.
+- Advanced and Assurance background jobs.
+- Legacy compatibility cron aliases.
+
+Release rules:
+
+- Background routes are not user-facing.
+- Jobs are idempotent, bounded, retry-safe, and protected by route auth.
+- Compatibility aliases are implementation details only and must not appear in
+  user-facing documentation or product copy.
+
+### Internal/debug/maintenance API families
+
+Status: Internal.
+
+Release rules:
+
+- Operator-only.
+- No public route discovery.
+- No secrets, raw documents, tokens, or provider payloads in responses.
+- Any destructive action requires preview, audit, and rollback or explicit
+  one-way confirmation.
 
 ## Email And Notification Content
 
-Emails should be operational, plain, and careful.
-
-Required early emails:
-
-- Invite teammate
-- First contract uploaded
-- Extraction ready
-- Extraction failed or manual review needed
-- Field review reminder
-- Upcoming renewal reminder
-- Notice deadline reminder
-- Work item assigned
-- Work item overdue
-- Evidence requested
-- Evidence overdue
-- Weekly digest if stable
-
-Do not prioritize payment lifecycle emails until public billing is part of the
-active motion.
-
-### Welcome Email
-
-Subject:
-
-> Welcome to Oblixa early access
-
-Message:
-
-> Start by uploading a small set of signed agreements. Oblixa will help you review
-> key terms, assign owners, track dates, and turn contract obligations into work.
-
-Primary CTA:
-
-> Upload first contract
-
-### Extraction Ready Email
-
-Subject:
-
-> Your contract is ready for review
-
-Message:
-
-> Oblixa found suggested fields for your contract. Review the source-backed
-> suggestions before relying on them for deadlines, work, or reports.
-
-Primary CTA:
-
-> Review fields
-
-## Outreach Strategy
-
-The first outreach goal is not immediate sales. It is workflow discovery and design
-partner qualification.
-
-Primary outreach ask:
-
-> Show me how you currently track signed contracts.
-
-Good outreach targets:
-
-- Known warm connections
-- Small B2B companies
-- Agencies
-- Consultancies
-- Founder-led teams
-- Teams with recurring customer/vendor agreements
-- Teams likely to use spreadsheets for operational tracking
-
-Avoid cold-pitching legal departments at mature companies.
-
-## First 30 Days
-
-The first month should be narrower than a launch push. The goal is to prove
-whether one qualified user can reach value without heavy founder labor.
-
-### Week 1: Prepare The Offer
-
-Actions:
-
-- Change homepage hero and CTA.
-- Add the early-access form.
-- Add clear "not CLM / not legal advice / early access" copy.
-- Prepare one demo workflow.
-- Prepare the warm outreach message.
-- Prepare one async questionnaire.
-- Define evaluation boundaries.
-
-Output:
-
-- One clear public CTA.
-- One warm outreach message.
-- One discovery questionnaire.
-- One product walkthrough path.
-
-### Week 2: Warm Outreach
-
-Actions:
-
-- Contact warm leads only.
-- Ask for workflow walkthroughs, not purchases.
-- Ask for a redacted tracker if a call is inconvenient.
-- Record the current process in detail.
-- Do not cold outreach yet unless warm leads are exhausted.
-
-Output:
-
-- Up to 3 workflow conversations or async walkthroughs.
-- A list of current spreadsheet columns or tracking steps.
-- A clearer answer to whether the wedge is painful for those teams.
-
-### Week 3: First Evaluation Or Refinement
-
-Actions:
-
-- Start one evaluation workspace only if there is a qualified user.
-- Otherwise refine copy, qualification, and outreach targets.
-- Fix only activation blockers.
-
-Output:
-
-- One evaluation started or a stronger ICP hypothesis.
-- Better language from real prospects.
-
-### Week 4: Add At Most One More Evaluation
-
-Actions:
-
-- Add at most one additional evaluation workspace.
-- If no qualified evaluation exists, begin targeted cold outreach.
-- Fix only activation blockers or severe trust issues.
-- Measure founder support time.
-
-Output:
-
-- One or two bounded evaluations, or a clearer reason why prospects are not
-  qualified.
-- A decision about whether the current website copy attracts the right buyer.
-
-## Outreach Cadence
-
-Use a small, disciplined cadence instead of high-volume generic outreach.
-
-Warm lead cadence:
-
-- Day 0: Intro message.
-- Day 3 or 4: Short follow-up with async option.
-- Day 10: Final note, no pressure.
-
-Cold lead cadence:
-
-- Day 0: Short question about contract tracking.
-- Day 4: Follow-up with the "not CLM, spreadsheet replacement" framing.
-- Day 11: Final note asking whether someone else owns the tracker.
-
-Stop after two follow-ups unless they engage.
-
-Track:
-
-- Company
-- Contact
-- Role
-- Segment
-- Current tracking method
-- Contract count estimate
-- Pain mentioned
-- Security/procurement burden
-- Response status
-- Fit verdict
-- Next action
-
-## Warm Outreach Template
-
-Use this for the first UpSpiral-style warm contact.
-
-```text
-Hi [Name],
-
-I am building Oblixa, a focused workspace for teams that track signed contracts
-in spreadsheets.
-
-It is not a CLM or e-signature tool. It starts after contracts are signed:
-renewals, owners, obligations, evidence, and simple reporting.
-
-I am looking for a few early users who can show me how they currently track
-agreements, even if the current system is just a spreadsheet, Drive folder, or
-someone's memory.
-
-Would you be open to a short walkthrough of how [Company] tracks signed customer
-or vendor agreements today? I am not asking you to buy anything. I am trying to
-learn whether Oblixa solves a real operational problem, and if there is a fit I
-can give you early access to test a small workspace around your current process.
-
-If a call is inconvenient, I can send a few questions and review a redacted
-tracker asynchronously.
-
-Best,
-[Name]
-```
-
-## Warm Follow-Up Template
-
-```text
-Hi [Name],
-
-Just following up on this. The useful thing for me would be seeing how signed
-agreements are tracked today, even if the answer is "we do not really have a
-system."
-
-If a call is not convenient, I can send a few questions instead. A redacted
-tracker or rough description would be enough.
-
-Best,
-[Name]
-```
-
-## Cold Outreach Template
-
-```text
-Subject: Quick question about your contract tracker
-
-Hi [Name],
-
-Do you track signed contracts in a spreadsheet today?
-
-I am building Oblixa for small teams that need to track renewals, owners,
-obligations, evidence, and reports after contracts are signed.
-
-It is deliberately not a full CLM, drafting tool, or e-signature product. The
-goal is to replace the contract-tracking spreadsheet with reviewed fields,
-owners, dates, work, evidence, and reports.
-
-I am looking for a few early users who can show me how contract tracking works
-today and test a small early-access workspace.
-
-If contract tracking is manual at [Company], would you be open to sharing how you
-handle it today?
-
-Best,
-[Name]
-```
-
-## Cold Follow-Up Template
-
-```text
-Hi [Name],
-
-Quick follow-up. Oblixa is not for drafting or signing contracts; it is for the
-mess after signature: renewal dates, owners, obligations, evidence, and reports.
-
-If [Company] already has this handled, no worries. If it lives in a spreadsheet
-or shared folder, I would be grateful to learn how you track it today.
-
-Best,
-[Name]
-```
-
-## Final Follow-Up Template
-
-```text
-Hi [Name],
-
-Last note from me. Is there someone else at [Company] who owns the contract
-tracker, renewals, vendor agreements, or signed customer agreements?
-
-If not relevant, I will leave it here.
-
-Best,
-[Name]
-```
-
-## Discovery Questions
-
-Use concrete questions. Do not ask prospects to invent product strategy.
-
-Ask:
-
-1. Where do signed contracts live today?
-2. Do you have a spreadsheet or tracker for them?
-3. Who updates the tracker after signature?
-4. Who owns renewal dates and notice deadlines?
-5. What happens when someone asks, "Which contracts renew in the next 90 days?"
-6. What contract detail is most annoying to find?
-7. Have you ever missed, almost missed, or manually chased a renewal or obligation?
-8. What reports or summaries do leadership, finance, customers, or auditors ask for?
-9. What would make the current process break as you grow?
-10. Would you trust AI-suggested contract fields if every value had a source snippet
-    and required review?
-
-## Discovery Notes Template
-
-Use the same note shape for every conversation.
-
-```text
-Company:
-Contact:
-Role:
-Segment:
-Contract types:
-Estimated contract count:
-Current system:
-Tracker owner:
-Spreadsheet columns:
-Most painful tracking job:
-Renewal / notice process:
-Owner assignment process:
-Obligation follow-up process:
-Reporting needs:
-Evidence needs:
-Security/procurement concerns:
-What would make them switch:
-What would block adoption:
-Exact phrases they used:
-Fit verdict:
-Next action:
-```
-
-## Qualification Rules
-
-A prospect is a good early-access fit if:
-
-- They already track signed contracts manually.
-- They can show the current process.
-- They have at least one recurring tracking pain.
-- They can start with a subset of contracts.
-- They do not require enterprise procurement.
-- They understand the product is early-access.
-- They are willing to give feedback.
-
-A prospect is a poor fit if:
-
-- They mainly need drafting, redlining, negotiation, or e-signature.
-- They require formal security review before any evaluation.
-- They need legal advice.
-- They need an SLA.
-- They want a full CLM migration.
-- They cannot tolerate early-product risk.
-
-## Objection Handling
-
-### "Is this a CLM?"
-
-Answer:
-
-> Not a full CLM. Oblixa starts after signature and focuses on replacing the
-> tracker for renewals, owners, obligations, evidence, and reports.
-
-### "Can it draft, redline, or negotiate contracts?"
-
-Answer:
-
-> No. Oblixa is intentionally focused on signed contracts and post-signature
-> tracking.
-
-### "Does it provide legal advice?"
-
-Answer:
-
-> No. Oblixa helps organize and track contract information. Your team remains
-> responsible for reviewing fields and making business or legal decisions.
-
-### "Can it guarantee we never miss a renewal?"
-
-Answer:
-
-> No system should promise that. Oblixa is designed to make renewal and notice
-> tracking more visible and accountable, especially compared with spreadsheets.
-
-### "Can you pass our security questionnaire?"
-
-Answer:
-
-> Oblixa has security-conscious defaults, roles, audit history, and exportability,
-> but early access is not intended for teams that require formal enterprise
-> security review before evaluation.
-
-### "Do we have to migrate every contract?"
-
-Answer:
-
-> No. The recommended evaluation starts with a small subset or a redacted sample
-> set. The goal is to validate the workflow before migrating everything.
-
-### "What does it cost?"
-
-Answer:
-
-> Early-access pricing is being shaped through evaluations. The first step is to
-> see whether Oblixa improves the current tracking workflow. If it becomes part
-> of your workflow, continued use should be expected to move to a paid founding
-> plan.
-
-### "Why not just keep using a spreadsheet?"
-
-Answer:
-
-> If the spreadsheet is reliable, owned, and easy to report from, keep it. Oblixa
-> is for teams where the tracker is becoming unreliable: missing owners, buried
-> obligations, unclear renewal dates, scattered evidence, or reports that take too
-> long to rebuild.
-
-## Success Metrics
-
-Early-access metrics should measure learning and repeatable value, not only
-self-serve conversion.
-
-Recommended first milestone:
-
-| Metric | Target |
-| --- | ---: |
-| Qualified workflow interviews | 10 |
-| Current trackers or tracker descriptions reviewed | 5 |
-| Evaluation workspaces started | 1 to 2 |
-| Users reaching activation | 1 |
-| Founder support required per activated workspace | Under 2 hours total |
-
-Product activation event:
-
-> A user imports or uploads contracts, approves at least one source-backed field,
-> assigns an owner or key date, and sees dashboard or work state update.
-
-Support metric:
-
-> Support burden per activated workspace should be low enough that the founder can
-> repeat the evaluation without becoming the customer's implementation team.
-
-Non-activation rule:
-
-> If a user does not import or upload, review a field, assign an owner or date, or
-> produce a useful dashboard or report within the evaluation window, the workspace
-> should be paused, closed, or treated as non-qualified unless there is a clear
-> product blocker.
-
-Do not optimize for website conversion before proving this.
-
-## Product Decision Triggers
-
-Use repeated evidence before changing the product roadmap.
-
-### Build Or Emphasize A Feature When
-
-- At least 2 qualified prospects describe the same pain without being prompted.
-- An evaluation reaches the same blocker more than once.
-- The feature helps the spreadsheet-replacement wedge directly.
-- The feature reduces support burden.
-- The feature improves activation: import/upload, review, owner/date assignment,
-  work tracking, evidence, or reporting.
-
-### Do Not Build Or Emphasize A Feature When
-
-- It mainly helps enterprise procurement.
-- It mainly helps full CLM replacement.
-- It requires domain authority the founder does not yet have.
-- It creates a support commitment without clear evaluation demand.
-- It belongs to Advanced or Assurance rather than Core.
-- It is impressive but not needed to replace the tracker.
-
-### Copy Change Trigger
-
-Change public copy when prospects repeatedly use clearer language than the
-website. Exact customer phrases should outrank internal terminology.
-
-### Pricing Change Trigger
-
-Introduce public pricing only after at least one qualified evaluation says the
-product is valuable enough to continue and the support burden is understood.
-
-## Graduation Criteria
-
-Move from early access to broader paid self-serve only after:
-
-- At least 3 evaluations have used the product with real or realistic contract
-  tracking workflows.
-- At least 2 evaluations reach activation.
-- At least 1 user would be disappointed to lose the product.
-- The same pain repeats across multiple prospects.
-- Onboarding can be completed mostly async.
-- Support issues are understandable and bounded.
-- Public copy reflects observed customer language.
-- Pricing has been tested with real buyers.
-- Security and deletion/export expectations are clear.
-
-Until then, the public website should drive early access, not instant checkout.
-
-## What To Keep Out Of Public Release
-
-Do not publicly launch:
-
-- Assurance as a normal mode
-- Autopilot execution
-- Product mode switching
-- Advanced modules for every user
-- Enterprise governance language
-- Broad AI chat as the main workflow
-- A complex pricing matrix
-- Fake customer proof
-- Compliance claims that are not complete
-- Standard support or SLA promises
-- Security questionnaire readiness
-
-## Voice And Language
-
-Use plain operational language.
-
-Prefer:
-
-- Contracts
-- Contract spreadsheet
-- Tracker
-- Work
-- Deadlines
-- Renewals
-- Notice dates
-- Approvals
-- Obligations
-- Evidence
-- Reports
-- Owners
-- Contract tracking
-- Missing data
-- Needs review
-- Early access
-- Founder-supported
-
-Avoid in the public Core experience:
-
-- Enterprise platform
-- Governance
-- Controls
-- Assurance
-- Autopilot
-- Autonomous
-- Legal AI
-- Compliance automation
-- Transformation
-- Guaranteed
-- Always-on support
-- Dedicated success team
-
-## Final Recommendation
-
-Launch Oblixa as a public early-access product, not a broad self-serve SaaS.
-
-Keep the wedge:
-
-> Replace the contract-tracking spreadsheet.
-
-Keep the product focused:
-
-> Signed contracts, reviewed fields, renewals, owners, obligations, evidence, and
-> reports.
-
-Keep the motion realistic:
-
-> 3 to 5 bounded early-access evaluations before public paid self-serve.
-
-The first release should win by helping real teams make signed contracts
-operational, then using that evidence to decide pricing, onboarding, support, and
-the next product surface.
+Contains:
+
+- Invite teammate.
+- First contract uploaded.
+- Import completed or needs correction.
+- Extraction ready.
+- Extraction failed or manual review needed.
+- Field review reminder.
+- Upcoming renewal reminder.
+- Notice deadline reminder.
+- Work item assigned.
+- Work item overdue.
+- Evidence requested.
+- Evidence overdue.
+- Report/export completed or failed when the user initiated it.
+- Weekly digest only when digest generation, preferences, and delivery failure
+  states are complete.
+
+Rules:
+
+- Welcome copy focuses on first product action.
+- Extraction emails require review of source-backed suggestions before reliance.
+- Renewal emails avoid guarantee language.
+- Evidence emails name requested proof and due date.
+- Billing lifecycle emails stay secondary until billing is active.
+- Emails do not promote Advanced, Assurance, Autopilot, campaigns, decisions,
+  relationship workspaces, control policies, scorecards, playbooks, or omitted
+  routes to Core users.
+
+## Release State Invariants
+
+- Public routes state the product boundary: post-signature contract tracking for
+  signed agreements.
+- Public and auth copy says "request access" or "limited rollout" when
+  describing access control; it does not use beta-like positioning.
+- Primary app navigation contains only Dashboard, Contracts, Work, Renewals,
+  Evidence, Reports, and Settings.
+- Core pages expose upload/import, review, ownership, dates, work, evidence,
+  reporting, and export paths.
+- Merged routes resolve into their parent Core surfaces.
+- Contextual routes are reachable from owning workflows or direct links, not
+  primary Core navigation.
+- Admin routes require admin authorization and do not become public product
+  promises.
+- Internal routes require operator authorization and never appear in public,
+  email, navigation, command palette, onboarding, pricing, empty states,
+  dashboard cards, sitemap, or reports.
+- Omitted routes do not appear in Core navigation, search, command palette,
+  onboarding, pricing, email, empty states, dashboard cards, sitemap, marketing
+  pages, or upgrade prompts unless explicitly allowed by this document.
+- Legal, security, pricing, billing, and contact surfaces avoid unsupported
+  maturity, support, legal, compliance, procurement, Assurance, and Autopilot
+  claims.
+- External-token routes are scoped, expiring, non-browsable, and limited to the
+  requested action.
+- API routes enforce auth, tenant scope, validation, redaction, rate limits, and
+  recoverable errors according to their family.
+- Background and internal routes are not public positioning surfaces.
+- Documentation remains documentation only; no runtime or implementation code
+  depends on this file.
+
+## Core Release Surface Map
+
+| Route | Status | Primary role | Direct access behavior |
+| --- | --- | --- | --- |
+| `/` | Ship | Homepage | Public; request-access CTA |
+| `/product` | Ship | Product tour | Public; request-access CTA |
+| `/early-access` | Ship simplify | Request access | Public; creates request, not workspace |
+| `/pricing` | Ship simplify | Paid-use clarity | Public; no checkout unless configured |
+| `/contact` | Ship simplify | Async contact | Public; creates contact record |
+| `/security` | Ship | Trust page | Public; no workspace data |
+| `/privacy` | Ship | Privacy policy | Public |
+| `/terms` | Ship | Terms | Public |
+| `/acceptable-use` | Ship | Acceptable use | Public |
+| `/accessibility` | Ship | Accessibility contact | Public |
+| `/cookies` | Ship | Cookie transparency | Public |
+| `/login` | Ship | Sign in | Public when unauthenticated; authenticated redirects |
+| `/signup` | Ship gated | Gated account creation | Public but access-gated |
+| `/forgot-password` | Ship | Recovery request | Public; neutral success |
+| `/reset-password` | Ship | Recovery completion | Token/session-gated |
+| `/auth/callback` | Boundary | Auth handoff | Callback only; safe redirect |
+| `/external/[token]` | Contextual | External action | Scoped token link only |
+| `/external` | Boundary | Invalid external link | Safe invalid-link state |
+| `/onboarding/calibration` | Ship simplify | Workspace setup | Authenticated admin setup |
+| `/dashboard` | Ship | Operational overview | Authenticated workspace route |
+| `/contracts` | Ship | Contract inventory | Authenticated workspace route |
+| `/work` | Ship | Owned work queue | Authenticated workspace route |
+| `/contracts/renewals` | Ship | Renewal tracking | Authenticated workspace route |
+| `/contracts/evidence-studio` | Ship | Evidence requests | Authenticated workspace route |
+| `/reports` | Ship | Operational reports | Authenticated workspace route |
+| `/settings` | Ship | Workspace administration | Authenticated; role-shaped panels |
+| `/contracts/new` | Contextual | Upload contract | Authenticated contextual upload |
+| `/contracts/bulk` | Contextual | Import contracts | Authenticated contextual import |
+| `/contracts/imports/[jobId]` | Contextual | Import job detail | Workspace-scoped detail route |
+| `/contracts/[id]` | Ship | Contract detail | Workspace-scoped detail route |
+| `/contracts/review` | Contextual | Field review | Authenticated contextual review |
+| `/contracts/exceptions` | Contextual | Tracking exceptions | Authenticated contextual queue |
+| `/search` | Contextual | Workspace search | Authenticated; filtered by access |
+| `/contracts/tasks` | Merge | Task context | Redirect or wrapper to Work |
+| `/contracts/obligations` | Merge | Obligation context | Redirect or wrapper to Work |
+| `/contracts/approvals` | Merge | Approval context | Redirect or wrapper to Work |
+| `/contracts/reports` | Merge | Report history | Redirect or wrapper to Reports |
+| `/settings/security` | Ship | Account/workspace security | Authenticated; sensitive actions step-up |
+| `/settings/billing` | Admin | Billing/access status | Admin; provider-config gated |
+| `/settings/operations` | Admin | Operational defaults | Admin or read-only for non-admin |
+| `/settings/health` | Admin | Workspace health | Admin; diagnostics gated |
+| `/settings/health/diagnostics` | Internal | Operator diagnostics | Explicit authorization only |
+| `/settings/product` | Admin | Operator/admin config | Admin/operator only; no ordinary mode picker |
+| `/settings/policy` | Omit | Policy defaults | Hidden or denied for ordinary Core users |
+| `/settings/policy/registry` | Internal | Policy registry | Explicit authorization only |
+| `/settings/policy/diagnostics` | Internal | Policy diagnostics | Explicit authorization only |
+| `/more` | Ship simplify | Tools index | Authenticated; entitlement-filtered |
+| `/dashboard/persona` | Omit | Persona dashboard | Hidden from Core |
+| `/contracts/intake` | Omit | Intake utility | Hidden from Core |
+| `/contracts/data-quality` | Omit | Data-quality utility | Hidden from Core |
+| `/contracts/review-cadence` | Omit | Review cadence | Hidden from Core |
+| `/contracts/watchlists` | Omit | Watchlists | Hidden from Core |
+| `/contracts/execution-graph` | Omit | Execution graph | Hidden from Core |
+| `/contracts/approvals/workload` | Omit | Approval workload | Hidden from Core |
+| `/contracts/approvals/sla-simulator` | Omit | SLA simulator | Hidden from Core |
+| `/contracts/analytics` | Omit | Advanced analytics | Hidden from Core |
+| `/contracts/collaboration` | Omit | Collaboration center | Hidden from Core |
+| `/contracts/programs` | Omit | Program management | Hidden from Core |
+| `/contracts/maintenance` | Internal | Maintenance utility | Operator/admin utility |
+| `/decisions` | Omit | Decisions hub | Hidden from Core |
+| `/decisions/[id]` | Omit | Decision detail | Hidden from Core |
+| `/decisions/review` | Omit | Decision review | Hidden from Core |
+| `/decisions/compare` | Omit | Decision comparison | Hidden from Core |
+| `/campaigns` | Omit | Campaigns hub | Hidden from Core |
+| `/campaigns/[id]` | Omit | Campaign detail | Hidden from Core |
+| `/campaigns/compare` | Omit | Campaign comparison | Hidden from Core |
+| `/relationship-workspaces` | Omit | Relationship workspace | Hidden from Core |
+| `/accounts/[key]` | Omit | Account workspace | Hidden from Core |
+| `/accounts` | Boundary | Account root | Safe unavailable state |
+| `/counterparties/[key]` | Omit | Counterparty workspace | Hidden from Core |
+| `/counterparties` | Boundary | Counterparty root | Safe unavailable state |
+| `/assurance` | Omit | Assurance hub | Hidden from Core |
+| `/assurance/findings` | Omit | Findings | Hidden from Core |
+| `/assurance/findings/[id]` | Omit | Finding detail | Hidden from Core |
+| `/assurance/control-policies` | Omit | Control policies | Hidden from Core |
+| `/assurance/control-policies/[id]` | Omit | Control policy detail | Hidden from Core |
+| `/assurance/scorecards` | Omit | Scorecards | Hidden from Core |
+| `/assurance/playbooks` | Omit | Playbooks | Hidden from Core |
+| `/assurance/review-boards` | Omit | Review boards | Hidden from Core |
+| `/assurance/segments` | Omit | Segments | Hidden from Core |
+| `/assurance/program-evolution` | Omit | Program evolution | Hidden from Core |
+| `/assurance/health-graph` | Omit | Health graph | Hidden from Core |
+| `/assurance/autopilot` | Omit | Autopilot | Hidden from Core |

@@ -471,7 +471,7 @@ export async function DashboardUpper(props: {
                 are contracts pending review, "Review fields" is the
                 dominant action (per release-state §Contract Detail's
                 state-aware header pattern). "Upload contract" demotes to
-                secondary, "Import CSV" to ghost. When the queue is empty,
+                secondary, "Import contracts" to ghost. When the queue is empty,
                 the spec-default order returns. */}
             {metrics.pendingReview > 0 ? (
               <>

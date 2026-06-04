@@ -19,6 +19,7 @@ export const ROUTE_INVENTORY: RouteInventoryEntry[] = [
   { pattern: "/dashboard", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts/[id]", tier: "core", refinementRef: "§10.1" },
+  { pattern: "/contracts/imports/[jobId]", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts/new", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts/bulk", tier: "core", refinementRef: "§10.1" },
   { pattern: "/contracts/review", tier: "core", refinementRef: "§10.1" },

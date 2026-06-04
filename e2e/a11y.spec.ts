@@ -5,6 +5,7 @@ import { GENERATED_PUBLIC_ROUTES } from "./generated/public-routes";
 test.describe("accessibility", () => {
   for (const route of GENERATED_PUBLIC_ROUTES.filter((entry) => entry.coverage.includes("a11y"))) {
     test(`${route.route} has no serious violations`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto(route.visitPath);
       await expect(page.locator("h1")).toBeVisible();
       const results = await new AxeBuilder({ page }).analyze();
@@ -15,4 +16,3 @@ test.describe("accessibility", () => {
     });
   }
 });
-

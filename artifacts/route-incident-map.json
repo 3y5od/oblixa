@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-28T22:05:45.870Z",
+  "generatedAt": "2026-06-03T20:01:44.402Z",
   "rows": [
     {
       "route": "/",
@@ -2006,6 +2006,13 @@
     },
     {
       "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_evidence_studio"
+    },
+    {
+      "route": "/contracts/evidence-studio",
       "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
       "owner": "engineering",
       "riskTier": "P3",
@@ -2045,6 +2052,20 @@
       "owner": "engineering",
       "riskTier": "P2",
       "diagnosticPrefix": "contracts_execution_graph"
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "contracts_imports_jobid"
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "contracts_imports_jobid"
     },
     {
       "route": "/contracts/intake",
@@ -2283,6 +2304,13 @@
       "owner": "engineering",
       "riskTier": "P2",
       "diagnosticPrefix": "decisions_review"
+    },
+    {
+      "route": "/early-access",
+      "sourcePath": "src/app/(marketing)/early-access/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "early_access"
     },
     {
       "route": "/external",
@@ -2817,6 +2845,13 @@
       "diagnosticPrefix": "action_beginrecalibration"
     },
     {
+      "route": "action:bulk-compatible-work-validation.test",
+      "sourcePath": "src/actions/bulk-compatible-work-validation.test.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_bulk_compatible_work_validation_test"
+    },
+    {
       "route": "action:bulk-compatible-work.test",
       "sourcePath": "src/actions/bulk-compatible-work.test.ts",
       "owner": "engineering",
@@ -3279,6 +3314,13 @@
       "diagnosticPrefix": "action_demo_action_scope_test"
     },
     {
+      "route": "action:disconnectIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_disconnectintegrationconnectionform"
+    },
+    {
       "route": "action:email-verification.test",
       "sourcePath": "src/actions/email-verification.test.ts",
       "owner": "engineering",
@@ -3431,6 +3473,13 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_listmysessions"
+    },
+    {
+      "route": "action:loadPendingInviteSeatRows",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_loadpendinginviteseatrows"
     },
     {
       "route": "action:logContractChangeEventForm",
@@ -3622,6 +3671,13 @@
       "diagnosticPrefix": "action_recordquestionnairestarted"
     },
     {
+      "route": "action:recoverSettingsAction",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_recoversettingsaction"
+    },
+    {
       "route": "action:refreshV10SettingsReadModels",
       "sourcePath": "src/actions/product-surface-settings-helpers.ts",
       "owner": "security",
@@ -3760,6 +3816,13 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_runtaskautomationrulesfororg"
+    },
+    {
+      "route": "action:safeInsertSettingsAuditEvent",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "owner": "security",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_safeinsertsettingsauditevent"
     },
     {
       "route": "action:saved-views-scope.test",
@@ -4355,6 +4418,13 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_workflow_config_action_scope_test"
+    },
+    {
+      "route": "action:workflow-config-helpers",
+      "sourcePath": "src/actions/workflow-config-helpers.ts",
+      "owner": "engineering",
+      "riskTier": "P1",
+      "diagnosticPrefix": "action_workflow_config_helpers"
     },
     {
       "route": "action:workflow-config-sanitize.test",

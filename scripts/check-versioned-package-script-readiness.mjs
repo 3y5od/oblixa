@@ -43,6 +43,9 @@ const TEXT_EXTENSIONS = new Set([
 const NON_BLOCKING_REFERENCE_PATHS = new Set([
   DEFAULT_ARTIFACT_REL,
   "artifacts/compatibility/removal-queue.json",
+  "config/operational-schema-compatibility.json",
+  "config/qa-comprehensive-taxonomy.json",
+  "config/qa-tier-coverage-allowlist.json",
   "scripts/check-compatibility-removal-queue.mjs",
   "scripts/check-versioned-package-script-readiness.mjs",
   "scripts/check-versioned-package-script-readiness.test.mjs",
@@ -97,7 +100,9 @@ function referenceClass(rel) {
 function referencesForScript(root, scriptName, files = walkTextFiles(root)) {
   return files
     .filter((rel) => {
-      const text = fs.readFileSync(path.join(root, rel), "utf8");
+      const abs = path.join(root, rel);
+      if (!fs.existsSync(abs)) return false;
+      const text = fs.readFileSync(abs, "utf8");
       return text.includes(scriptName);
     })
     .map((pathName) => ({ path: pathName, class: referenceClass(pathName) }))

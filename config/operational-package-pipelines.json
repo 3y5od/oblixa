@@ -141,6 +141,7 @@
   ],
   "generatedArtifactOwnerRules": [
     { "prefix": "artifacts/operational-", "ownerArea": "platform-hardening", "cleanupPolicy": "regenerate-on-check-drift" },
+    { "prefix": "artifacts/release-state-", "ownerArea": "product-surface", "cleanupPolicy": "regenerate-on-check-drift" },
     { "prefix": "artifacts/security", "ownerArea": "platform-security", "cleanupPolicy": "regenerate-on-check-drift" },
     { "prefix": "artifacts/stride-dread-threat-model.json", "ownerArea": "platform-security", "cleanupPolicy": "regenerate-on-check-drift" },
     { "prefix": "artifacts/assurance/", "ownerArea": "test-platform", "cleanupPolicy": "regenerate-on-check-drift" },

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { REQUIRED_V10_INDEXES } from "./lib/current-required-indexes.mjs";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const root = process.cwd();
 const V10_OBJECTIVE_METRICS = [
@@ -941,10 +941,9 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-const noExclusionsMatrixCheck = spawnSync("npx", ["vitest", "run", "src/lib/no-exclusions-matrix.test.ts"], {
+const noExclusionsMatrixCheck = spawnSyncCrossPlatform("npx", ["vitest", "run", "src/lib/no-exclusions-matrix.test.ts"], {
   stdio: "inherit",
   cwd: root,
-  shell: false,
 });
 if ((noExclusionsMatrixCheck.status ?? 1) !== 0) process.exit(noExclusionsMatrixCheck.status ?? 1);
 

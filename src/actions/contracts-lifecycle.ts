@@ -20,6 +20,7 @@ import { recomputeContractSignals } from "@/lib/workflow-signals";
 import { emitProductTelemetryIfFirstInOrganization } from "@/lib/product-telemetry";
 import { recordV10AuditEvent } from "@/lib/server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
@@ -809,8 +810,8 @@ export async function applyContractTemplatePack(contractId: string) {
     if (existingReminderKeys.has(reminderKey)) continue;
     const rawDate = fieldValueByName.get(tpl.field_name);
     if (!rawDate) continue;
-    const targetDate = new Date(`${rawDate}T12:00:00`);
-    if (Number.isNaN(targetDate.getTime())) continue;
+    const targetDate = parseBusinessDateAtNoon(rawDate);
+    if (!targetDate) continue;
     const reminderDate = new Date(targetDate.getTime() - Math.max(0, tpl.offset_days) * 24 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, 10);

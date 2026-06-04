@@ -96,6 +96,10 @@ describe("V10 objective telemetry contracts", () => {
     const v10Actions = PRODUCT_TELEMETRY_ACTIONS.filter((action) => action.startsWith("product.v10."));
 
     expect(v10Actions).toEqual([
+      "product.v10.access_requested",
+      "product.v10.request_qualified",
+      "product.v10.tracker_reviewed",
+      "product.v10.evaluation_workspace_started",
       "product.v10.activation_completed",
       "product.v10.signup_completed",
       "product.v10.calibration_completed",
@@ -107,8 +111,10 @@ describe("V10 objective telemetry contracts", () => {
       "product.v10.work_item_created",
       "product.v10.evidence_requested",
       "product.v10.report_exported",
-      "product.v10.trial_converted",
-      "product.v10.pilot_converted",
+      "product.v10.founder_support_time_recorded",
+      "product.v10.evaluation_converted",
+      "product.v10.evaluation_paused",
+      "product.v10.evaluation_closed",
       "product.v10.cancellation_recorded",
       "product.v10.first_work_item_generated",
       "product.v10.work_item_completed",

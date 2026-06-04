@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-versioned-exported-symbols.mjs --write",
   "policy": "Inventory exported source symbols carrying product version labels. Check mode is read-only and fails only on artifact drift or malformed metadata; compatibility-sensitive exports stay queued until neutral aliases can be adopted safely.",
-  "symbolCount": 1142,
-  "aliasAddedCount": 1130,
+  "symbolCount": 1144,
+  "aliasAddedCount": 1132,
   "aliasCandidateCount": 0,
   "queueOnlyCount": 12,
   "symbols": [
@@ -269,7 +269,7 @@
     },
     {
       "path": "src/actions/product-telemetry.ts",
-      "line": 134,
+      "line": 165,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -329,7 +329,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 24,
+      "line": 25,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -349,7 +349,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 30,
+      "line": 31,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -369,7 +369,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 58,
+      "line": 59,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -389,7 +389,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 64,
+      "line": 65,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -409,7 +409,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 107,
+      "line": 108,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -429,7 +429,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 240,
+      "line": 241,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -449,7 +449,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 304,
+      "line": 305,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -469,7 +469,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 332,
+      "line": 333,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -489,7 +489,7 @@
     },
     {
       "path": "src/app/api/command-palette/contracts/route.ts",
-      "line": 375,
+      "line": 376,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -629,7 +629,7 @@
     },
     {
       "path": "src/components/layout/page-load-reporter.tsx",
-      "line": 39,
+      "line": 43,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -3049,7 +3049,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 56,
+      "line": 58,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -3069,7 +3069,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 179,
+      "line": 193,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -3089,7 +3089,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 205,
+      "line": 219,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -3109,7 +3109,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 222,
+      "line": 236,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -3129,7 +3129,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 237,
+      "line": 251,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -3149,7 +3149,7 @@
     },
     {
       "path": "src/lib/assurance/org-settings.ts",
-      "line": 369,
+      "line": 383,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -10009,7 +10009,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 361,
+      "line": 459,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -10029,7 +10029,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 369,
+      "line": 467,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -13649,7 +13649,7 @@
     },
     {
       "path": "src/lib/product-surface/exempt-surfaces.ts",
-      "line": 131,
+      "line": 136,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13709,7 +13709,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 398,
+      "line": 395,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13729,7 +13729,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 406,
+      "line": 403,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13749,7 +13749,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 414,
+      "line": 411,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13769,7 +13769,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 422,
+      "line": 419,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13789,7 +13789,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 430,
+      "line": 427,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13809,7 +13809,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 438,
+      "line": 435,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -13829,7 +13829,7 @@
     },
     {
       "path": "src/lib/product-surface/feature-registry.ts",
-      "line": 446,
+      "line": 443,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -14269,7 +14269,7 @@
     },
     {
       "path": "src/lib/product-telemetry.ts",
-      "line": 99,
+      "line": 118,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -14289,7 +14289,7 @@
     },
     {
       "path": "src/lib/product-telemetry.ts",
-      "line": 110,
+      "line": 129,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -14309,7 +14309,7 @@
     },
     {
       "path": "src/lib/product-telemetry.ts",
-      "line": 127,
+      "line": 146,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -14329,7 +14329,7 @@
     },
     {
       "path": "src/lib/product-telemetry.ts",
-      "line": 269,
+      "line": 288,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20029,6 +20029,46 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
+      "line": 25,
+      "exportKind": "declaration",
+      "declarationKind": "type",
+      "typeOnly": true,
+      "sourceModule": null,
+      "exportedName": "V10AuditMetadataValue",
+      "localName": "V10AuditMetadataValue",
+      "sourceHash": "43d5187f7eefd790",
+      "surfaceClass": "app_library_export",
+      "owner": "platform-hardening",
+      "reason": "Source-owned exported symbol can move to a neutral name with a deprecated compatibility alias.",
+      "manualOnly": false,
+      "removalStrategy": "add_neutral_export_and_update_internal_callers",
+      "validationCommand": "npm run check:versioned-exported-symbols",
+      "suggestedNeutralName": "AuditMetadataValue",
+      "neutralExportPresent": true,
+      "compatibilityAction": "alias_added"
+    },
+    {
+      "path": "src/lib/server-contracts.ts",
+      "line": 32,
+      "exportKind": "declaration",
+      "declarationKind": "type",
+      "typeOnly": true,
+      "sourceModule": null,
+      "exportedName": "V10AuditMetadata",
+      "localName": "V10AuditMetadata",
+      "sourceHash": "3f9a3e9f0a34c5af",
+      "surfaceClass": "app_library_export",
+      "owner": "platform-hardening",
+      "reason": "Source-owned exported symbol can move to a neutral name with a deprecated compatibility alias.",
+      "manualOnly": false,
+      "removalStrategy": "add_neutral_export_and_update_internal_callers",
+      "validationCommand": "npm run check:versioned-exported-symbols",
+      "suggestedNeutralName": "AuditMetadata",
+      "neutralExportPresent": true,
+      "compatibilityAction": "alias_added"
+    },
+    {
+      "path": "src/lib/server-contracts.ts",
       "line": 33,
       "exportKind": "declaration",
       "declarationKind": "type",
@@ -20389,7 +20429,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 257,
+      "line": 262,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20409,7 +20449,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 265,
+      "line": 270,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20429,7 +20469,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 290,
+      "line": 295,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20449,7 +20489,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 321,
+      "line": 326,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20469,7 +20509,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 340,
+      "line": 345,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20489,7 +20529,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 453,
+      "line": 458,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20509,7 +20549,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 612,
+      "line": 617,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20529,7 +20569,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 672,
+      "line": 677,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -20549,7 +20589,7 @@
     },
     {
       "path": "src/lib/server-contracts.ts",
-      "line": 804,
+      "line": 809,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21789,7 +21829,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 518,
+      "line": 511,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -21809,7 +21849,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 536,
+      "line": 529,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -21829,7 +21869,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 543,
+      "line": 536,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21849,7 +21889,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 561,
+      "line": 554,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21869,7 +21909,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 600,
+      "line": 593,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21889,7 +21929,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 645,
+      "line": 637,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21909,7 +21949,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 668,
+      "line": 660,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21929,7 +21969,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 731,
+      "line": 723,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21949,7 +21989,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 751,
+      "line": 743,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -21969,7 +22009,7 @@
     },
     {
       "path": "src/lib/ui-state-contracts.ts",
-      "line": 763,
+      "line": 755,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,

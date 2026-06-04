@@ -8,6 +8,7 @@ import {
   WORK_EMPTY_STATE,
   WORK_EYEBROW,
   WORK_PAGE_TITLE,
+  WORK_PRIMARY_ACTION_LABELS,
   WORK_PRIMARY_CTA,
   WORK_ROW_LABELS,
   WORK_STATUS_LABELS,
@@ -23,6 +24,8 @@ import type {
   WorkModelSearchInput,
   WorkOption,
   WorkPageModel,
+  WorkPrimaryAction,
+  WorkSortKey,
   WorkStatusFilterKey,
   WorkTabKey,
   WorkTypeKey,
@@ -68,6 +71,14 @@ const STATUS_FILTER_OPTIONS: WorkOption[] = [
 const TYPE_FILTER_OPTIONS: WorkOption[] = [
   { value: "", label: "Any type" },
   ...CORE_WORK_ITEM_TYPES.map((value) => ({ value, label: WORK_TYPE_LABELS[value] })),
+];
+
+const SORT_OPTIONS: WorkOption[] = [
+  { value: "urgency", label: "Urgency" },
+  { value: "due", label: "Due date" },
+  { value: "updated", label: "Recently updated" },
+  { value: "owner", label: "Owner" },
+  { value: "type", label: "Type" },
 ];
 
 export type WorkReadModelRow = {
@@ -133,10 +144,14 @@ export function normalizeWorkFilters(input: WorkModelSearchInput): WorkFilterSta
   };
 }
 
+export const WORK_PAGE_SIZE = 25;
+
 export function buildWorkHref(input: {
   tab?: WorkTabKey;
   filters?: WorkFilterState;
   create?: boolean;
+  page?: number;
+  sort?: WorkSortKey;
 }) {
   const params = new URLSearchParams();
   if (input.tab && input.tab !== "all") params.set("tab", input.tab);
@@ -148,6 +163,10 @@ export function buildWorkHref(input: {
     if (filters.status) params.set("status", filters.status);
     if (filters.type) params.set("type", filters.type);
   }
+  if (input.sort && input.sort !== "urgency") params.set("sort", input.sort);
+  // Page 1 stays a clean URL; anything else (tab/filter change) drops the page
+  // entirely by not passing it, so the view resets to the first page.
+  if (input.page && input.page > 1) params.set("page", String(input.page));
   if (input.create) params.set("create", "1");
   const qs = params.toString();
   return qs ? `/work?${qs}` : "/work";
@@ -174,19 +193,43 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
 
   const activeRows = filters.status ? shapedRows : shapedRows.filter((row) => !TERMINAL_STATUSES.has(row.status));
   const filteredWithoutTab = activeRows.filter((row) => matchesFilters(row, filters));
+  const sortKey = isWorkSortKey(normalizeToken(input.sort))
+    ? (normalizeToken(input.sort) as WorkSortKey)
+    : "urgency";
+  // Sort is a view preference — keep it on the tab links so switching tabs
+  // doesn't silently revert to the default ordering.
   const tabs = WORK_TAB_ORDER.map((key) => ({
     key,
     label: WORK_TAB_LABELS[key],
     count: filteredWithoutTab.filter((row) => matchesTab(row, key, input.userId)).length,
-    href: buildWorkHref({ tab: key, filters }),
+    href: buildWorkHref({ tab: key, filters, sort: sortKey }),
     active: key === activeTab,
   }));
-  const rows = filteredWithoutTab
+  const tabRows = filteredWithoutTab
     .filter((row) => matchesTab(row, activeTab, input.userId))
-    .sort(compareWorkRows);
+    .sort(workComparator(sortKey));
+
+  // Paginate the active tab so the page never renders hundreds of rows in one
+  // scroll. Tab counts above stay full (computed over filteredWithoutTab).
+  const total = tabRows.length;
+  const totalPages = Math.max(1, Math.ceil(total / WORK_PAGE_SIZE));
+  const requestedPage = Number.parseInt(normalizeToken(input.page), 10);
+  const page =
+    Number.isFinite(requestedPage) && requestedPage > 0 ? Math.min(requestedPage, totalPages) : 1;
+  const rows = tabRows.slice((page - 1) * WORK_PAGE_SIZE, page * WORK_PAGE_SIZE);
 
   const contractOptions = toContractOptions(input.contracts);
   const ownerOptions = toOwnerOptions(input.members);
+
+  // Queue-wide KPI counts over the same filtered (pre-tab) set the tab counts
+  // use, so the header strip and the tabs always agree. Predicates mirror the
+  // blocked/overdue tab matchers (see matchesTab).
+  const summary = {
+    blocked: filteredWithoutTab.filter((row) => row.status === "blocked" || row.blocker !== "—").length,
+    overdue: filteredWithoutTab.filter((row) => row.dueState === "overdue").length,
+    dueSoon: filteredWithoutTab.filter((row) => row.dueState === "due_soon" || row.dueState === "due_today").length,
+    unassigned: filteredWithoutTab.filter((row) => !row.ownerUserId).length,
+  };
 
   return {
     title: WORK_PAGE_TITLE,
@@ -197,6 +240,10 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
     tabs,
     rows,
     totalVisibleRows: filteredWithoutTab.length,
+    pagination: { page, pageSize: WORK_PAGE_SIZE, total, totalPages },
+    sort: sortKey,
+    sortOptions: SORT_OPTIONS,
+    summary,
     filterOptions: {
       owners: [{ value: "", label: "Any owner" }, { value: "unassigned", label: "Unassigned" }, ...ownerOptions],
       contracts: [{ value: "", label: "Any contract" }, ...contractOptions],
@@ -303,6 +350,10 @@ function isWorkStatusFilterKey(value: string): value is WorkStatusFilterKey {
   return ["", "open", "in_progress", "blocked", "waiting", "done", "canceled"].includes(value);
 }
 
+function isWorkSortKey(value: string): value is WorkSortKey {
+  return ["urgency", "due", "updated", "owner", "type"].includes(value);
+}
+
 function shapeWorkRow(
   row: WorkReadModelRow,
   input: {
@@ -398,8 +449,58 @@ function shapeWorkRow(
         blocker: { label: WORK_ROW_LABELS.blocker, value: blocker },
       },
     },
+    primaryAction: derivePrimaryAction({ type, status, href }),
     actions: buildActionCapabilities({ type, status, sourceId, contractId, href, contractHref }),
   };
+}
+
+/** The complete mutation this row supports, if any. Shared by the primary
+ *  action and the overflow-menu builder so they never disagree. */
+function completeMutationFor(
+  type: WorkTypeKey,
+  status: string
+): "complete_task" | "complete_obligation" | null {
+  if (type === "contract_task" && ["open", "in_progress"].includes(status)) return "complete_task";
+  if (type === "obligation" && ["open", "in_progress"].includes(status)) return "complete_obligation";
+  return null;
+}
+
+/** Pick the one elevated row action. Verb varies by type/status so the queue
+ *  reads "Approve renewal", "Resolve exception", "Attach evidence" rather than
+ *  a uniform "Complete". Blocked work can't be completed, so its next step is to
+ *  review/clear the blocker. Links reuse `href` (already routed by
+ *  getV10WorkItemHref); only tasks/obligations carry a real complete mutation. */
+function derivePrimaryAction(input: {
+  type: WorkTypeKey;
+  status: string;
+  href: string;
+}): WorkPrimaryAction {
+  const mutation = completeMutationFor(input.type, input.status);
+  if (input.status === "blocked") {
+    return { verb: "review", label: WORK_PRIMARY_ACTION_LABELS.review, kind: "link", href: input.href };
+  }
+  switch (input.type) {
+    case "approval":
+      return { verb: "approve", label: WORK_PRIMARY_ACTION_LABELS.approve, kind: "link", href: input.href };
+    case "exception":
+      return { verb: "resolve", label: WORK_PRIMARY_ACTION_LABELS.resolve, kind: "link", href: input.href };
+    case "evidence_request":
+      return { verb: "attach", label: WORK_PRIMARY_ACTION_LABELS.attach, kind: "link", href: input.href };
+    case "renewal_checkpoint":
+      return { verb: "review", label: WORK_PRIMARY_ACTION_LABELS.review, kind: "link", href: input.href };
+    case "unassigned_work":
+      return { verb: "assign", label: WORK_PRIMARY_ACTION_LABELS.assign, kind: "link", href: input.href };
+  }
+  if (mutation) {
+    return {
+      verb: "complete",
+      label: WORK_PRIMARY_ACTION_LABELS.complete,
+      kind: "mutation",
+      href: input.href,
+      mutation,
+    };
+  }
+  return { verb: "review", label: WORK_PRIMARY_ACTION_LABELS.review, kind: "link", href: input.href };
 }
 
 function buildActionCapabilities(input: {
@@ -412,12 +513,7 @@ function buildActionCapabilities(input: {
 }): WorkActionCapability[] {
   const evidenceHref = input.contractId ? `/contracts/${input.contractId}?tab=overview#contract-evidence` : input.href;
   const notesHref = input.contractId ? `/contracts/${input.contractId}?tab=notes` : input.href;
-  const completeMutation =
-    input.type === "contract_task" && ["open", "in_progress"].includes(input.status)
-      ? "complete_task"
-      : input.type === "obligation" && ["open", "in_progress"].includes(input.status)
-        ? "complete_obligation"
-        : null;
+  const completeMutation = completeMutationFor(input.type, input.status);
   return [
     completeMutation
       ? {
@@ -436,7 +532,6 @@ function buildActionCapabilities(input: {
     { key: "change_due_date", label: WORK_ACTION_LABELS.change_due_date, kind: "link", href: input.href },
     { key: "comment", label: WORK_ACTION_LABELS.comment, kind: "link", href: notesHref },
     { key: "link_evidence", label: WORK_ACTION_LABELS.link_evidence, kind: "link", href: evidenceHref },
-    { key: "escalate", label: WORK_ACTION_LABELS.escalate, kind: "link", href: input.href },
   ];
 }
 
@@ -486,6 +581,42 @@ function compareWorkRows(a: WorkItemRow, b: WorkItemRow) {
   return (b.lastUpdateAt ?? "").localeCompare(a.lastUpdateAt ?? "");
 }
 
+function compareByDue(a: WorkItemRow, b: WorkItemRow) {
+  if (a.dueAt && b.dueAt && a.dueAt !== b.dueAt) return a.dueAt.localeCompare(b.dueAt);
+  if (a.dueAt && !b.dueAt) return -1;
+  if (!a.dueAt && b.dueAt) return 1;
+  return (b.lastUpdateAt ?? "").localeCompare(a.lastUpdateAt ?? "");
+}
+
+function compareByUpdated(a: WorkItemRow, b: WorkItemRow) {
+  return (b.lastUpdateAt ?? "").localeCompare(a.lastUpdateAt ?? "");
+}
+
+function compareByOwner(a: WorkItemRow, b: WorkItemRow) {
+  const owner = a.ownerLabel.localeCompare(b.ownerLabel);
+  return owner !== 0 ? owner : compareByDue(a, b);
+}
+
+function compareByType(a: WorkItemRow, b: WorkItemRow) {
+  const type = a.typeLabel.localeCompare(b.typeLabel);
+  return type !== 0 ? type : compareByDue(a, b);
+}
+
+function workComparator(sort: WorkSortKey): (a: WorkItemRow, b: WorkItemRow) => number {
+  switch (sort) {
+    case "due":
+      return compareByDue;
+    case "updated":
+      return compareByUpdated;
+    case "owner":
+      return compareByOwner;
+    case "type":
+      return compareByType;
+    default:
+      return compareWorkRows;
+  }
+}
+
 function toContractOptions(contracts: WorkContractOptionRow[]): WorkOption[] {
   return contracts
     .map((contract) => ({ value: contract.id, label: contract.title || "Untitled contract" }))
@@ -517,6 +648,10 @@ function statusTone(status: string, dueState: string, severity: string) {
   if (status === "in_progress") return "info";
   if (status === "done") return "healthy";
   if (status === "canceled" || status === "cancelled") return "disabled";
+  // "open" is the baseline, non-urgent state and shows up on most rows; keep it
+  // neutral so status color stays reserved for blocked/overdue/in-progress
+  // (§10.2 status earns color). Only genuinely unknown statuses get accent.
+  if (status === "open") return "empty";
   return "in_review";
 }
 

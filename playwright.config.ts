@@ -140,6 +140,7 @@ export default defineConfig({
         command: "npm run start",
         env: {
           ...process.env,
+          OBLIXA_ALLOW_LOCALHOST_SAFE_FETCH: process.env.OBLIXA_ALLOW_LOCALHOST_SAFE_FETCH ?? "1",
           OBLIXA_TRUST_FORWARDED_IP: process.env.OBLIXA_TRUST_FORWARDED_IP ?? "1",
         },
         url: "http://127.0.0.1:3000",

@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
 import {
   hasProductionDebugMisconfiguration,
   listStrictProductionSecretDeficits,
@@ -8,6 +7,14 @@ import {
 } from "@/lib/observability/instrumentation-env-warn";
 
 /** Server/edge hooks only; avoid adding raw hrefs or org identifiers here — rely on Sentry configs + `sentry-scrub`. */
+
+function isSentryRuntimeEnabled() {
+  return (
+    process.env.NODE_ENV === "production" ||
+    Boolean(process.env.CI) ||
+    process.env.OBLIXA_ENABLE_SENTRY_DEV === "1"
+  );
+}
 
 function warnIfProductionDebugEnabled() {
   if (!hasProductionDebugMisconfiguration()) return;
@@ -52,6 +59,8 @@ export async function register() {
   warnIfRuntimeProvidersMissing();
   warnIfSuspiciousNextPublic();
   warnIfUpstashRecommended();
+  if (!isSentryRuntimeEnabled()) return;
+
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("../sentry.server.config");
     const { registerDebuggingSweepRuntime } = await import("@/lib/debugging-sweep/register-runtime");
@@ -63,5 +72,8 @@ export async function register() {
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
-
+export const onRequestError: typeof import("@sentry/nextjs").captureRequestError = async (...args) => {
+  if (!isSentryRuntimeEnabled()) return;
+  const Sentry = await import("@sentry/nextjs");
+  return Sentry.captureRequestError(...args);
+};

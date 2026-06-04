@@ -1,230 +1,75 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   AlertTriangle,
   ArrowRight,
-  ArrowUpRight,
+  Briefcase,
+  Building2,
   CheckCircle2,
-  ChevronDown,
+  Info,
   Loader2,
+  Mail,
+  Target,
+  User,
+  type LucideIcon,
 } from "lucide-react";
 import { mutateJson } from "@/lib/http/client-json";
+import { UiSelect } from "@/components/ui/ui-select";
 
-type Tone = "cool" | "warm" | "success";
-
-const TONE_COLOR: Record<Tone, string> = {
-  cool: "var(--accent-strong)",
-  warm: "var(--accent-warm, var(--accent))",
-  success: "var(--success-ink)",
-};
-
-const interestedOptions = [
-  { value: "core", label: "Core plan" },
-  { value: "founding_customer", label: "Founding Customer offer" },
-  { value: "guided_pilot", label: "Guided pilot" },
-  { value: "larger_team", label: "Larger-team workflows" },
-  { value: "assurance_workflows", label: "Assurance workflows" },
-  { value: "custom", label: "Custom workflows" },
-  { value: "dpa", label: "Data Processing Addendum (DPA)" },
-  { value: "general", label: "General inquiry" },
+const contractRanges = [
+  { value: "under_20", label: "Under 20" },
+  { value: "20_50", label: "20-50" },
+  { value: "50_200", label: "50-200" },
+  { value: "200_plus", label: "More than 200" },
 ] as const;
 
-type InterestedValue = (typeof interestedOptions)[number]["value"];
-
-const contractsRanges = [
-  { value: "<50", label: "Under 50" },
-  { value: "50-200", label: "50–200" },
-  { value: "200-500", label: "200–500" },
-  { value: "500-2000", label: "500–2,000" },
-  { value: "2000+", label: "Over 2,000" },
+const trackingMethods = [
+  { value: "spreadsheet", label: "Spreadsheet" },
+  { value: "shared_folder", label: "Shared folder" },
+  { value: "email_calendar", label: "Email or calendar reminders" },
+  { value: "memory", label: "Someone's memory" },
+  { value: "mixed", label: "A mix of tools" },
+  { value: "other", label: "Other" },
 ] as const;
 
-const interestedValues = new Set<string>(interestedOptions.map((o) => o.value));
+const yesNoUnsure = [
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" },
+  { value: "unsure", label: "Not sure yet" },
+] as const;
 
-function isInterested(v: string): v is InterestedValue {
-  return interestedValues.has(v);
-}
+const preferences = [
+  { value: "async", label: "Async questions first" },
+  { value: "call", label: "Short call if there is a fit" },
+  { value: "either", label: "Either is fine" },
+] as const;
 
-function painPrefillFor(v: InterestedValue): string {
-  if (v === "dpa") return "Need a Data Processing Addendum";
-  if (v === "founding_customer") return "Interested in the Founding Customer offer";
-  if (v === "larger_team") return "Need a larger plan than Core's 10 seats";
-  if (v === "assurance_workflows") return "Need assurance workflows for selected contract work";
-  if (v === "custom") return "Custom workflows or SSO";
-  return "";
-}
-
-function FieldGroup({
-  heading,
-  hint,
-  tone,
-  children,
-}: {
-  heading: string;
-  hint?: string;
-  tone?: Tone;
-  children: ReactNode;
-}) {
-  const color = tone ? TONE_COLOR[tone] : "var(--accent-strong)";
-  const headingId = `fg-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-  return (
-    <section aria-labelledby={headingId}>
-      <h3
-        id={headingId}
-        className="text-[13px] font-bold uppercase leading-none tracking-[0.2em] sm:text-[13.5px]"
-        style={{ color }}
-      >
-        {heading}
-      </h3>
-      {hint ? (
-        <p className="mt-2 text-[12px] text-[var(--text-secondary)]">{hint}</p>
-      ) : null}
-      <div className="mt-5 space-y-4">{children}</div>
-    </section>
-  );
-}
-
-function CustomSelect({
-  id,
-  name,
-  required,
-  value,
-  onChange,
-  options,
-  placeholder,
-}: {
-  id: string;
-  name: string;
-  required?: boolean;
-  value: string;
-  onChange: (v: string) => void;
-  options: ReadonlyArray<{ readonly value: string; readonly label: string }>;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        buttonRef.current?.focus();
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [open]);
-
-  const selected = options.find((o) => o.value === value);
-
-  return (
-    <div ref={containerRef} className="relative">
-      <input type="hidden" name={name} value={value} required={required} />
-      <button
-        ref={buttonRef}
-        type="button"
-        id={id}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className="ui-input-compact flex h-10 w-full appearance-none items-center justify-between text-left text-[13.5px] disabled:cursor-not-allowed [background-image:none]"
-      >
-        <span
-          className={
-            selected
-              ? "text-[var(--text-primary)]"
-              : "text-[var(--text-tertiary)]"
-          }
-        >
-          {selected?.label ?? placeholder ?? "Select"}
-        </span>
-        <ChevronDown
-          aria-hidden
-          strokeWidth={1.85}
-          className={`h-4 w-4 shrink-0 text-[var(--text-secondary)] transition-transform duration-150 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      {open ? (
-        <ul
-          role="listbox"
-          aria-labelledby={id}
-          className="absolute left-0 right-0 z-20 mt-1 max-h-60 overflow-auto rounded-lg border py-1 shadow-lg"
-          style={{
-            borderColor: "color-mix(in oklab, var(--border-subtle) 85%, transparent)",
-            background: "color-mix(in oklab, var(--surface-raised) 96%, white)",
-            boxShadow: "0 12px 28px -12px color-mix(in oklab, var(--accent-strong) 25%, transparent), 0 4px 12px -4px rgba(0,0,0,0.4)",
-          }}
-        >
-          {options.map((o) => {
-            const isSelected = o.value === value;
-            return (
-              <li
-                key={o.value}
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => {
-                  onChange(o.value);
-                  setOpen(false);
-                  buttonRef.current?.focus();
-                }}
-                className={`cursor-pointer px-3 py-2 text-[13.5px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,transparent)] hover:text-[var(--text-primary)] ${
-                  isSelected
-                    ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)] text-[var(--text-primary)]"
-                    : "text-[var(--text-secondary)]"
-                }`}
-              >
-                {o.label}
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
-
-function ContactFormSkeleton() {
-  return (
-    <div aria-hidden className="space-y-6">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="space-y-3">
-          <div className="h-3 w-32 rounded animate-pulse motion-reduce:animate-none bg-[color:color-mix(in_oklab,var(--text-tertiary)_22%,transparent)]" />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="h-10 rounded-lg animate-pulse motion-reduce:animate-none bg-[color:color-mix(in_oklab,var(--surface)_70%,transparent)]" />
-            <div className="h-10 rounded-lg animate-pulse motion-reduce:animate-none bg-[color:color-mix(in_oklab,var(--surface)_70%,transparent)]" />
-          </div>
-        </div>
-      ))}
-      <div className="h-10 w-44 rounded-lg animate-pulse motion-reduce:animate-none bg-[color:color-mix(in_oklab,var(--surface)_70%,transparent)]" />
-    </div>
-  );
-}
+/**
+ * Three structured "what happens next" steps — number medallion + short label +
+ * one-line detail (§10.7: structured over prose). Step 2's detail keeps the
+ * "If there is a fit" phrase that the marketing voice-sweep pins to this file.
+ */
+const nextSteps = [
+  {
+    label: "Reviewed for fit",
+    detail: "Each request is reviewed against early-access fit.",
+  },
+  {
+    label: "We follow up",
+    detail: "If there is a fit, we follow up with a few questions.",
+  },
+  {
+    label: "Invite to evaluate",
+    detail: "If it still fits, you get an invite to a small evaluation.",
+  },
+] as const;
 
 function SubmittedState() {
   const headingRef = useRef<HTMLHeadingElement | null>(null);
 
   useEffect(() => {
-    const el = headingRef.current;
-    if (!el) return;
-    el.focus();
-    if (typeof window !== "undefined") {
-      const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-    }
+    headingRef.current?.focus();
   }, []);
 
   return (
@@ -239,127 +84,133 @@ function SubmittedState() {
     >
       <span
         aria-hidden
-        className="landing-corner-ring"
-        style={{ top: "-2rem", right: "-2rem", width: "8rem", height: "8rem" }}
-      />
+        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border"
+        style={{
+          borderColor: "color-mix(in oklab, var(--success-ink) 22%, var(--border-subtle))",
+          background: "color-mix(in oklab, var(--success-soft) 28%, var(--surface-raised))",
+          color: "var(--success-ink)",
+        }}
+      >
+        <CheckCircle2 className="h-5 w-5" strokeWidth={1.85} />
+      </span>
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        className="mt-3 text-[1.25rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)] outline-none"
+      >
+        Request received.
+      </h2>
+      <p className="mt-3 text-[13.5px] leading-[1.65] text-[var(--text-secondary)]">
+        Thanks. If there is a fit, we will follow up with a few questions about your
+        current tracker and whether a small evaluation makes sense.
+      </p>
+      <p className="mt-3 text-[12.5px] leading-[1.6] text-[var(--text-tertiary)]">
+        Submitting a request does not guarantee acceptance, a workspace, or a reply time.
+      </p>
+    </div>
+  );
+}
+
+/** Small bordered caps chip marking a non-required field (§7.4 inline tag). */
+function OptionalTag() {
+  return (
+    <span
+      className="ml-1.5 inline-flex items-center rounded-[5px] border px-1 py-px align-middle text-[8.5px] font-semibold uppercase leading-none tracking-[0.1em] text-[var(--text-tertiary)]"
+      style={{ borderColor: "var(--border-card)" }}
+    >
+      Optional
+    </span>
+  );
+}
+
+/** Icon-led text input (§7.2). Selects keep the trailing chevron instead, so
+ *  the two control types stay visually distinct within the same form. */
+function TextField({
+  id,
+  name,
+  label,
+  icon: Icon,
+  type = "text",
+  autoComplete,
+  placeholder,
+  mono = false,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  icon: LucideIcon;
+  type?: string;
+  autoComplete?: string;
+  placeholder?: string;
+  mono?: boolean;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="ui-label-caps">
+        {label}
+      </label>
       <div className="relative">
         <span
+          className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
           aria-hidden
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border motion-reduce:animate-none"
-          style={{
-            borderColor: "color-mix(in oklab, var(--success-ink) 22%, var(--border-subtle))",
-            background: "color-mix(in oklab, var(--success-soft) 28%, var(--surface-raised))",
-            color: "var(--success-ink)",
-            animation: "contact-success-medallion 240ms ease-out 1",
-          }}
         >
-          <CheckCircle2 className="h-5 w-5" strokeWidth={1.85} />
+          <Icon className="h-3.5 w-3.5" strokeWidth={1.85} />
         </span>
-        <h2
-          ref={headingRef}
-          id="contact-success-h"
-          tabIndex={-1}
-          className="mt-3 text-[1.25rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)] outline-none"
-        >
-          Message received.
-        </h2>
-        <p className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
-          <span
-            aria-hidden
-            className="inline-block h-1.5 w-1.5 rounded-full"
-            style={{ background: "var(--success-ink)" }}
-          />
-          What happens next
-        </p>
-        <ul className="mt-3 space-y-2 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
-          <li className="flex items-start gap-2">
-            <CheckCircle2
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--success-ink)]"
-              strokeWidth={2}
-              aria-hidden
-            />
-            Within 1 business day: a team member will email you back.
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckCircle2
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--success-ink)]"
-              strokeWidth={2}
-              aria-hidden
-            />
-            Optional: book a 30-minute setup call at your convenience.
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckCircle2
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--success-ink)]"
-              strokeWidth={2}
-              aria-hidden
-            />
-            While you wait:{" "}
-            <Link
-              href="/security"
-              className="ui-link font-medium text-[var(--text-primary)]"
-            >
-              review the security practices
-            </Link>
-            {" "}or{" "}
-            <Link
-              href="/pricing"
-              className="ui-link font-medium text-[var(--text-primary)]"
-            >
-              revisit pricing
-            </Link>
-            .
-          </li>
-        </ul>
-        <div className="mt-5">
-          <Link
-            href="/security"
-            className="ui-link inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          >
-            Review security practices
-            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-          </Link>
-        </div>
+        <input
+          id={id}
+          name={name}
+          type={type}
+          required
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          className={`ui-input-compact h-10 w-full pl-9 text-[13.5px]${mono ? " font-mono" : ""}`}
+        />
       </div>
     </div>
   );
 }
 
-function ContactFormInner() {
-  const params = useSearchParams();
+function SelectField({
+  id,
+  name,
+  label,
+  options,
+  required = true,
+  optional = false,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  options: ReadonlyArray<{ readonly value: string; readonly label: string }>;
+  required?: boolean;
+  optional?: boolean;
+}) {
+  return (
+    <div>
+      <label id={`${id}-label`} htmlFor={id} className="ui-label-caps">
+        {label}
+        {optional ? <OptionalTag /> : null}
+      </label>
+      <UiSelect
+        id={id}
+        name={name}
+        ariaLabelledBy={`${id}-label`}
+        required={required}
+        options={options}
+        placeholder="Select"
+        portal
+        menuWidth="trigger"
+        className="w-full"
+        buttonClassName="h-10 text-[13.5px]"
+      />
+    </div>
+  );
+}
+
+export function ContactForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const initialInterested: InterestedValue = (() => {
-    const raw = params?.get("interested")?.trim() ?? "";
-    return isInterested(raw) ? raw : "core";
-  })();
-  const [interested, setInterested] = useState<InterestedValue>(initialInterested);
-  const [contracts, setContracts] = useState<string>("");
-  const [pain, setPain] = useState<string>(painPrefillFor(initialInterested));
-
-  useEffect(() => {
-    setPain((prev) => {
-      const prefill = painPrefillFor(interested);
-      const previousPrefills = interestedOptions
-        .map((o) => painPrefillFor(o.value))
-        .filter(Boolean);
-      if (prev === "" || previousPrefills.includes(prev)) return prefill;
-      return prev;
-    });
-  }, [interested]);
-
-  // On submit failure, scroll the error card into view so the user notices it
-  // even if their viewport has scrolled past the bottom of the form.
-  useEffect(() => {
-    if (!error || typeof window === "undefined") return;
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    requestAnimationFrame(() => {
-      const el = document.querySelector<HTMLElement>('[role="alert"]');
-      el?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
-    });
-  }, [error]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -367,7 +218,6 @@ function ContactFormInner() {
     const form = e.currentTarget;
     const data = new FormData(form);
     if (String(data.get("website") || "").length > 0) {
-      // Honeypot — silently succeed.
       setSubmitted(true);
       return;
     }
@@ -382,36 +232,31 @@ function ContactFormInner() {
     try {
       const result = await mutateJson<null>("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Oblixa-Browser-Mutation": "same-origin",
+        },
         body: JSON.stringify(payload),
       });
       if (!result.ok) {
         throw new Error(
           result.message ||
-            "We could not deliver your message. Please try again or email hello@oblixa.com."
+            "We could not send your request. Try again, or email hello@oblixa.com."
         );
       }
       setSubmitted(true);
       form.reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "We could not deliver your message.");
+      setError(err instanceof Error ? err.message : "We could not send your request.");
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (submitted) {
-    return <SubmittedState />;
-  }
+  if (submitted) return <SubmittedState />;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-0 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]"
-      noValidate
-      aria-busy={submitting}
-    >
-      {/* Honeypot — invisible to humans, often filled by bots. */}
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate aria-busy={submitting}>
       <input
         type="text"
         name="website"
@@ -420,133 +265,133 @@ function ContactFormInner() {
         aria-hidden
         className="absolute -left-[10000px] h-0 w-0"
       />
+      <input type="hidden" name="interested" value="early_access" />
 
-      <fieldset disabled={submitting} className="border-0 p-0 disabled:opacity-60">
-        <div className="pb-6">
-          <FieldGroup heading="About you" tone="cool">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="contact-name" className="ui-label-caps">Name</label>
-                <input
-                  id="contact-name"
-                  name="name"
-                  type="text"
-                  required
-                  aria-required="true"
-                  autoComplete="name"
-                  className="ui-input-compact h-10 w-full text-[13.5px] disabled:cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-email" className="ui-label-caps">Work email</label>
-                <input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  required
-                  aria-required="true"
-                  autoComplete="email"
-                  className="ui-input-compact h-10 w-full text-[13.5px] disabled:cursor-not-allowed"
-                />
-              </div>
-            </div>
-          </FieldGroup>
+      <fieldset disabled={submitting} className="space-y-5 border-0 p-0 disabled:opacity-60">
+        <div>
+          <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">
+            What happens next
+          </p>
+          <ol className="mt-3 grid gap-2.5">
+            {nextSteps.map((step, i) => (
+              <li key={step.label} className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="mt-px inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border font-mono text-[10px] tabular-nums"
+                  style={{
+                    borderColor: "color-mix(in oklab, var(--accent) 22%, var(--border-subtle))",
+                    background: "color-mix(in oklab, var(--accent-soft) 30%, var(--surface-raised))",
+                    color: "var(--accent-strong)",
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[12.5px] font-semibold leading-snug text-[var(--text-primary)]">
+                    {step.label}
+                  </p>
+                  <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--text-secondary)]">
+                    {step.detail}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3.5 flex items-start gap-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
+            <Info className="mt-px h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
+            <span>
+              Not every request becomes a workspace, and there is no guaranteed reply time.
+            </span>
+          </p>
         </div>
 
-        <div className="py-6">
-          <FieldGroup heading="About your company" tone="warm">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="contact-company" className="ui-label-caps">Company</label>
-                <input
-                  id="contact-company"
-                  name="company"
-                  type="text"
-                  required
-                  aria-required="true"
-                  autoComplete="organization"
-                  className="ui-input-compact h-10 w-full text-[13.5px] disabled:cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-role" className="ui-label-caps">Role</label>
-                <input
-                  id="contact-role"
-                  name="role"
-                  type="text"
-                  required
-                  aria-required="true"
-                  autoComplete="organization-title"
-                  placeholder="e.g. COO, legal ops, founder"
-                  className="ui-input-compact h-10 w-full text-[13.5px] disabled:cursor-not-allowed"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="contact-contracts" className="ui-label-caps">
-                  Approximate number of contracts
-                </label>
-                <CustomSelect
-                  id="contact-contracts"
-                  name="contracts"
-                  required
-                  value={contracts}
-                  onChange={setContracts}
-                  options={contractsRanges}
-                  placeholder="Pick a range"
-                />
-              </div>
-            </div>
-          </FieldGroup>
-        </div>
+        <section
+          className="border-t pt-5"
+          style={{ borderColor: "color-mix(in oklab, var(--border-subtle) 70%, transparent)" }}
+        >
+          <h3 className="ui-caps-1 text-[11px] leading-none text-[var(--text-tertiary)]">
+            About you
+          </h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <TextField id="contact-name" name="name" label="Name" icon={User} autoComplete="name" />
+            <TextField
+              id="contact-email"
+              name="email"
+              label="Work email"
+              icon={Mail}
+              type="email"
+              autoComplete="email"
+              mono
+            />
+            <TextField
+              id="contact-company"
+              name="company"
+              label="Company"
+              icon={Building2}
+              autoComplete="organization"
+            />
+            <TextField
+              id="contact-role"
+              name="role"
+              label="Role"
+              icon={Briefcase}
+              autoComplete="organization-title"
+              placeholder="Founder, COO, ops, finance"
+            />
+          </div>
+        </section>
 
-        <div className="pt-6">
-          <FieldGroup heading="About your need" tone="success">
-            <div>
-              <label htmlFor="contact-interested" className="ui-label-caps">
-                Interested in
-              </label>
-              <CustomSelect
-                id="contact-interested"
-                name="interested"
-                required
-                value={interested}
-                onChange={(v) => {
-                  if (isInterested(v)) setInterested(v);
-                }}
-                options={interestedOptions}
-              />
-            </div>
-            <div>
-              <label htmlFor="contact-pain" className="ui-label-caps">Main pain</label>
-              <input
-                id="contact-pain"
-                name="pain"
-                type="text"
-                value={pain}
-                onChange={(e) => setPain(e.currentTarget.value)}
-                placeholder="e.g. Renewal dates are easy to miss. Obligations are buried in PDFs."
-                className="ui-input-compact h-10 w-full text-[13.5px] disabled:cursor-not-allowed"
-              />
-            </div>
+        <section
+          className="border-t pt-5"
+          style={{ borderColor: "color-mix(in oklab, var(--border-subtle) 70%, transparent)" }}
+        >
+          <h3 className="ui-caps-1 text-[11px] leading-none text-[var(--text-tertiary)]">
+            Current tracker
+          </h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <SelectField id="contact-contracts" name="contracts" label="Approx. signed contracts" options={contractRanges} />
+            <SelectField id="contact-tracking-method" name="trackingMethod" label="How tracked today" options={trackingMethods} />
+            <SelectField id="contact-has-tracker" name="hasTracker" label="Current tracker available" options={yesNoUnsure} required={false} optional />
+            <SelectField id="contact-redacted-sample" name="redactedSample" label="Can share a redacted sample" options={yesNoUnsure} required={false} optional />
+          </div>
+        </section>
+
+        <section
+          className="border-t pt-5"
+          style={{ borderColor: "color-mix(in oklab, var(--border-subtle) 70%, transparent)" }}
+        >
+          <h3 className="ui-caps-1 text-[11px] leading-none text-[var(--text-tertiary)]">
+            Evaluation fit
+          </h3>
+          <div className="mt-4 space-y-4">
+            <TextField
+              id="contact-pain"
+              name="pain"
+              label="Main tracking pain"
+              icon={Target}
+              placeholder="Renewals, owners, reports…"
+            />
+            <SelectField id="contact-preference" name="preference" label="Follow-up preference" options={preferences} />
             <div>
               <label htmlFor="contact-message" className="ui-label-caps">
-                Message (optional)
+                Message
+                <OptionalTag />
               </label>
               <textarea
                 id="contact-message"
                 name="message"
-                rows={4}
-                className="ui-input-compact w-full resize-y text-[13.5px] disabled:cursor-not-allowed"
+                rows={3}
+                className="ui-input-compact w-full resize-y text-[13.5px]"
               />
             </div>
-          </FieldGroup>
-        </div>
+          </div>
+        </section>
       </fieldset>
 
       {error ? (
         <div
           role="alert"
-          className="mt-6 flex items-start gap-2 rounded-lg border p-3 text-[12.5px]"
+          className="flex items-start gap-2 rounded-lg border p-3 text-[12.5px]"
           style={{
             borderColor: "color-mix(in oklab, var(--danger-ink) 28%, var(--border-subtle))",
             background: "color-mix(in oklab, var(--danger-soft) 22%, var(--surface-raised))",
@@ -558,11 +403,14 @@ function ContactFormInner() {
         </div>
       ) : null}
 
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
+      <div
+        className="flex flex-wrap items-center justify-start gap-3 border-t pt-5"
+        style={{ borderColor: "color-mix(in oklab, var(--border-subtle) 70%, transparent)" }}
+      >
         <button
           type="submit"
           disabled={submitting}
-          className="ui-btn-primary inline-flex w-full min-w-[180px] items-center justify-center gap-1.5 px-4 py-2 text-[13px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed sm:w-auto"
+          className="ui-btn-primary inline-flex w-full min-w-[180px] items-center justify-center gap-1.5 px-4 py-2 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {submitting ? (
             <>
@@ -571,20 +419,12 @@ function ContactFormInner() {
             </>
           ) : (
             <>
-              Book setup call
+              Request early access
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             </>
           )}
         </button>
       </div>
     </form>
-  );
-}
-
-export function ContactForm() {
-  return (
-    <Suspense fallback={<ContactFormSkeleton />}>
-      <ContactFormInner />
-    </Suspense>
   );
 }

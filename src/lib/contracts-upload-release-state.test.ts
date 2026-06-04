@@ -11,17 +11,13 @@ const formRaw = read("src/components/contracts/upload-form.tsx");
 
 describe("contract upload release-state surface", () => {
   it("keeps the upload page focused on signed-contract Core intake", () => {
-    expect(pageRaw).toContain('eyebrow="New record"');
+    expect(pageRaw).toContain('eyebrow="New contract"');
     expect(pageRaw).toContain('title="Upload contract"');
-    // v23 aesthetic pass: the multi-clause page lead ("Create one
-    // signed-contract record, attach PDF or DOCX source files, then
-    // review the extracted fields, dates, owners, work, evidence, and
-    // reports...") was dropped per §10.7 (no small plain text) +
-    // §10.4 (eliminate redundancy). Spec mandates only the page title
-    // + CTAs + spec content; the descriptive lead was authorial prose
-    // not in the release-state spec. The structural anchors that ARE
-    // in spec remain pinned below.
-    expect(pageRaw).toContain("Import CSV");
+    // Spreadsheet migration is offered as a quiet supporting action framed as
+    // importing an existing tracker — not a raw "Import CSV" mechanic or a
+    // migration center (release-state §/contracts/new + §/contracts/bulk).
+    expect(pageRaw).toContain("Import contracts");
+    expect(pageRaw).toContain("Import existing tracker");
     expect(pageRaw).not.toContain("Advanced");
     expect(pageRaw).not.toContain("Assurance");
     expect(pageRaw).not.toContain("redlines");
@@ -29,12 +25,12 @@ describe("contract upload release-state surface", () => {
   });
 
   it("keeps metadata, source documents, and review path visible in the form", () => {
-    // v23: subsection h3s ("Required identity first" / "Attach signed
-    // files now") + their accompanying leads were dropped — the column
-    // border + the field labels carry the structure. Spec-mandated
-    // field labels + eyebrows + primary CTA all remain.
+    // Required identity (title/counterparty/owner/type) sits above the fold
+    // under "Contract details"; region/value/source/reference/tags move into
+    // the optional "Add more details" disclosure but every spec-mandated
+    // field label still renders in the DOM.
     for (const label of [
-      "Record metadata",
+      "Contract details",
       "Contract title",
       "Counterparty",
       "Contract type",
@@ -47,9 +43,9 @@ describe("contract upload release-state surface", () => {
     ]) {
       expect(formRaw).toContain(label);
     }
-    // The "source-backed review" phrase was part of the dropped prose
-    // lead. `extraction` still surfaces in the warning chip + disabled
-    // reason copy. Banned anti-patterns retained.
+    // `extractionStatus` still drives the post-create outcome summary even
+    // though user-facing copy now says "field suggestions" per the AI
+    // boundary. Banned anti-patterns retained.
     expect(formRaw).toContain("extraction");
     expect(formRaw).not.toContain("Input workflow");
     expect(formRaw).not.toContain("Create contract without files");

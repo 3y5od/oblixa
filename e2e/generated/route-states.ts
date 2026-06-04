@@ -66,6 +66,12 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/contracts/imports/[jobId]",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/contracts/tasks",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/contracts/tasks/loading.tsx",
@@ -81,6 +87,12 @@ export const GENERATED_ROUTE_STATES = [
     "route": "/contracts/data-quality",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/contracts/data-quality/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/contracts/evidence-studio",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
     "shellFamily": "dashboard"
   },
   {

@@ -9,10 +9,10 @@ import {
   CreditCard,
   Download,
   FileText,
+  FlaskConical,
   HelpCircle,
   LifeBuoy,
   Mail,
-  RefreshCw,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -26,6 +26,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UiAlert } from "@/components/ui/ui-alert";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ChipPair } from "@/components/ui/chip-pair";
 import { getStripeClient, resolveSubscriptionStatus } from "@/lib/stripe";
 import {
   SubscribeButton,
@@ -50,7 +51,7 @@ import {
   listCustomerSubscriptions,
   retrieveConfiguredPrice,
 } from "@/lib/billing/runtime";
-import { isStripeTaxEnabled } from "@/lib/env/server";
+import { isPublicBillingCheckoutEnabled, isStripeTaxEnabled } from "@/lib/env/server";
 import {
   checkStripePriceDrift,
   maybeWarnPriceDrift,
@@ -126,6 +127,26 @@ type FactRow = {
   included?: boolean;
 };
 
+// Single-sourced included-feature medallion (success-tinted Check), reused by
+// the empty-state feature list and the BillingDl `included` rows.
+function IncludedCheck() {
+  return (
+    <span
+      aria-hidden
+      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border"
+      style={{
+        borderColor:
+          "color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle))",
+        background:
+          "color-mix(in oklab, var(--success-ink) 12%, var(--surface))",
+        color: "var(--success-ink)",
+      }}
+    >
+      <Check className="h-3 w-3" strokeWidth={2.2} aria-hidden />
+    </span>
+  );
+}
+
 function BillingDlRow({ row }: { row: FactRow }) {
   const isPlaceholder = isBillingPlaceholder(row.value);
   const displayValue: ReactNode = isPlaceholder ? (
@@ -150,21 +171,7 @@ function BillingDlRow({ row }: { row: FactRow }) {
       <dt className="ui-caps-2 text-[var(--text-tertiary)]">{row.label}</dt>
       <dd className={valueClasses}>
         {/* §3.16 — zero-state Check medallion for included items */}
-        {row.included ? (
-          <span
-            aria-hidden
-            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border"
-            style={{
-              borderColor:
-                "color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle))",
-              background:
-                "color-mix(in oklab, var(--success-ink) 12%, var(--surface))",
-              color: "var(--success-ink)",
-            }}
-          >
-            <Check className="h-3 w-3" strokeWidth={2.2} aria-hidden />
-          </span>
-        ) : null}
+        {row.included ? <IncludedCheck /> : null}
         <span>{displayValue}</span>
       </dd>
     </div>
@@ -198,9 +205,9 @@ function BillingDl({ rows }: { rows: ReadonlyArray<FactRow> }) {
 
 // §1.7 — vary FAQ medallion per topic (replaces uniform ShieldCheck)
 const FAQ_ICONS: Record<string, LucideIcon> = {
-  "What happens when the trial ends?": Clock,
+  "What happens after evaluation?": Clock,
   "Can I export before cancelling?": Download,
-  "Can I change plans?": RefreshCw,
+  "When would paid use start?": CircleDollarSign,
   "Can I add more contracts?": FileText,
   "Can I add more team members?": Users,
   "Do you offer setup help?": LifeBuoy,
@@ -228,16 +235,33 @@ function TrialChipPair({ caps }: { caps: { contracts: number; teamMembers: numbe
   );
 }
 
-// §1.3 — microcopy parts rendered as a ChipPair (no bare dot).
+// §1.3 — microcopy parts rendered as a real ChipPair primitive (weight
+// gradation, no bare dot): EARLY ACCESS / BILLING AFTER EVALUATION.
 function TrialMicrocopyChipPair() {
   return (
-    <span className="inline-flex items-center gap-3 text-[var(--text-tertiary)]">
-      {SETTINGS_BILLING_STRINGS.trialMicrocopyParts.map((part) => (
-        <span key={part} className="ui-caps-3">
-          {part}
-        </span>
-      ))}
-    </span>
+    <ChipPair
+      primary={SETTINGS_BILLING_STRINGS.trialMicrocopyParts[0]}
+      secondary={SETTINGS_BILLING_STRINGS.trialMicrocopyParts[1]}
+    />
+  );
+}
+
+function BillingHelpActions() {
+  return (
+    <>
+      <Link
+        href={SETTINGS_BILLING_STRINGS.contactSalesHref}
+        className="ui-btn-secondary inline-flex items-center justify-center gap-1 rounded-full px-4 py-2 text-[13px]"
+      >
+        {SETTINGS_BILLING_STRINGS.contactSalesCta}
+      </Link>
+      <Link
+        href={SETTINGS_BILLING_STRINGS.publicPricingHref}
+        className="ui-btn-ghost inline-flex items-center justify-center gap-1 rounded-full px-4 py-2 text-[13px]"
+      >
+        Review pricing guidance
+      </Link>
+    </>
   );
 }
 
@@ -374,6 +398,7 @@ export default async function BillingPage(props: {
 
   const stripeClient = await getStripeClient();
   const stripeConfigured = stripeClient.ok;
+  const billingCheckoutEnabled = stripeConfigured && isPublicBillingCheckoutEnabled();
   const isTestMode =
     stripeClient.ok &&
     typeof process.env.STRIPE_SECRET_KEY === "string" &&
@@ -676,7 +701,7 @@ export default async function BillingPage(props: {
   // §1.3 current plan derivation: 3-state
   const currentPlanLabel =
     subscriptionStatus === "none"
-      ? "Free"
+      ? "Early access"
       : subscriptionStatus === "active" || subscriptionStatus === "trialing"
         ? "Oblixa Pro"
         : "Oblixa Pro (lapsed)";
@@ -736,7 +761,7 @@ export default async function BillingPage(props: {
     // §1.5 drop Renewal date when metaStrip has it (currentPeriodEnd
     // non-null); keep for placeholder states.
     {
-      label: isTrialing ? "Trial ends" : "Renewal date",
+      label: isTrialing ? "Evaluation ends" : "Renewal date",
       value:
         currentPeriodEnd ??
         (isTrialing
@@ -776,7 +801,7 @@ export default async function BillingPage(props: {
     // §3.4 + §3.16 — Plan-includes group with INCLUDED sub-eyebrow +
     // Check medallions
     {
-      label: "AI extraction",
+      label: "Field suggestions",
       value: SETTINGS_BILLING_STRINGS.planContent.aiExtraction,
       group: "included" as const,
     },
@@ -1029,7 +1054,21 @@ export default async function BillingPage(props: {
     });
 
   function renderBillingActions(): ReactNode {
-    if (!isAdmin || !stripeConfigured) return null;
+    if (!isAdmin) return null;
+
+    if (!billingCheckoutEnabled) {
+      if (
+        stripeConfigured &&
+        org.stripe_customer_id &&
+        (subscriptionStatus === "active" ||
+          subscriptionStatus === "past_due" ||
+          subscriptionStatus === "unpaid" ||
+          subscriptionStatus === "trialing")
+      ) {
+        return <ManageSubscriptionButton />;
+      }
+      return <BillingHelpActions />;
+    }
 
     // §1.27 reactivate for canceled
     if (subscriptionStatus === "canceled") {
@@ -1177,8 +1216,8 @@ export default async function BillingPage(props: {
   const expiredBanner =
     subscriptionStatus === "incomplete_expired" ? (
       <UiAlert tone="warning">
-        Initial payment failed and the recovery window has elapsed. Start a
-        new checkout to subscribe.
+        Initial payment failed and the recovery window has elapsed. Contact
+        support to restart billing.
       </UiAlert>
     ) : null;
 
@@ -1287,9 +1326,9 @@ export default async function BillingPage(props: {
   const trialExpiredBanner =
     subscriptionStatus === "none" && stripeTrialEndedAt ? (
       <UiAlert tone="warning">
-        Trial ended on{" "}
+        Evaluation ended on{" "}
         {formatBillingDate(new Date(stripeTrialEndedAt))}.
-        Subscribe to restore editing, importing, and exporting.
+        Contact support to review continued access.
       </UiAlert>
     ) : null;
 
@@ -1303,12 +1342,21 @@ export default async function BillingPage(props: {
             {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.priceDisplay}.{" "}
             {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.description}
           </div>
-          <SubscribeButton
-            label={SETTINGS_BILLING_STRINGS.foundingCustomerOffer.ctaLabel}
-            variant="annual"
-            founding
-            className="ui-btn-secondary disabled:pointer-events-none disabled:opacity-45"
-          />
+          {billingCheckoutEnabled ? (
+            <SubscribeButton
+              label={SETTINGS_BILLING_STRINGS.foundingCustomerOffer.ctaLabel}
+              variant="annual"
+              founding
+              className="ui-btn-secondary disabled:pointer-events-none disabled:opacity-45"
+            />
+          ) : (
+            <Link
+              href={SETTINGS_BILLING_STRINGS.contactSalesHref}
+              className="ui-btn-secondary inline-flex items-center rounded-full px-4 py-2 text-[13px]"
+            >
+              Discuss billing
+            </Link>
+          )}
         </div>
       </UiAlert>
     ) : null;
@@ -1324,7 +1372,7 @@ export default async function BillingPage(props: {
    * | true    | true             | incomplete                    | <SubscribeButton label="Resume checkout">       |
    * | true    | true             | past_due / unpaid             | <ManageSubscriptionButton>                       |
    * | true    | true             | incomplete_expired            | <SubscribeButton> (fresh)                       |
-   * | true    | true             | trialing                      | <SubscribeButton label="Convert to paid plan">  |
+   * | true    | true             | trialing                      | <SubscribeButton label="Request billing help">  |
    * | true    | true             | none + recoverable            | annual + (monthly when configured)              |
    * | true    | true             | active                        | <ManageSubscriptionButton>                       |
    *
@@ -1372,34 +1420,39 @@ export default async function BillingPage(props: {
               ? SETTINGS_BILLING_STRINGS.leadFreeState
               : SETTINGS_BILLING_STRINGS.leadActiveState
           }
+          /* Couple the workspace identity to the title (inline, wraps under it
+             on narrow screens) instead of a right-floated block that left a
+             wide gap. */
+          titleSuffix={
+            subscriptionStatus === "none" ? (
+              <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-0.5">
+                <span className="ui-caps-3 shrink-0 text-[var(--text-tertiary)]">
+                  Workspace
+                </span>
+                <span className="min-w-0 truncate text-[12px] font-medium text-[var(--text-primary)]">
+                  {org.name}
+                </span>
+              </span>
+            ) : undefined
+          }
           metaStrip={
             // Finishing-pass §1.10 — on free state, surface workspace
             // identity + trial-ended date (when available) so the
             // right column isn't empty. The header otherwise reads
             // as missing data on the most common screen state.
             subscriptionStatus === "none" ? (
-              <>
+              stripeTrialEndedAt ? (
                 <div>
                   <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                    Workspace
+                    {SETTINGS_BILLING_STRINGS.trialEndedLabel}
                   </dt>
-                  <dd className="mt-0.5 max-w-[14rem] truncate font-medium text-[var(--text-primary)]">
-                    {org.name}
+                  <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
+                    {formatBillingDate(
+                      Math.floor(new Date(stripeTrialEndedAt).getTime() / 1000)
+                    )}
                   </dd>
                 </div>
-                {stripeTrialEndedAt ? (
-                  <div>
-                    <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                      {SETTINGS_BILLING_STRINGS.trialEndedLabel}
-                    </dt>
-                    <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
-                      {formatBillingDate(
-                        Math.floor(new Date(stripeTrialEndedAt).getTime() / 1000)
-                      )}
-                    </dd>
-                  </div>
-                ) : null}
-              </>
+              ) : undefined
             ) : (
               <>
                 {/* §2.4 Plan · Status · Renews */}
@@ -1431,7 +1484,7 @@ export default async function BillingPage(props: {
                 {currentPeriodEnd ? (
                   <div>
                     <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                      {isTrialing ? "Trial ends" : "Renews"}
+                      {isTrialing ? "Evaluation ends" : "Renews"}
                     </dt>
                     <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
                       {currentPeriodEnd}
@@ -1483,15 +1536,15 @@ export default async function BillingPage(props: {
           actions={
             // Gap fix #3 — when the premium empty-state takes over for
             // free admins, the empty-state's CTA cluster is the focal
-            // action. Drop the duplicate header CTA to avoid two
-            // "Choose annual plan" buttons on the same page (§10.4).
-            subscriptionStatus === "none" && isAdmin && stripeConfigured
+            // action. Drop the duplicate header CTA so the billing-help
+            // cluster stays in one place.
+            subscriptionStatus === "none" && isAdmin
               ? null
               : (
                 <div className="flex flex-col items-stretch gap-1.5">
                   {renderBillingActions()}
                   {/* §9.13 + §1.3 — ChipPair microcopy under CTA (none state) */}
-                  {subscriptionStatus === "none" && isAdmin && stripeConfigured ? (
+                  {subscriptionStatus === "none" && isAdmin ? (
                     <div className="flex justify-center">
                       <TrialMicrocopyChipPair />
                     </div>
@@ -1501,12 +1554,14 @@ export default async function BillingPage(props: {
           }
         />
 
-        {/* §1.31 test-mode banner — env signal above everything */}
-        {/* §11.1 short copy */}
+        {/* §1.31 test-mode signal — a compact environment pill (not a
+            full-width alert), so test mode never reads as a customer billing
+            state. Local/test contexts only (isTestMode gate). */}
         {isTestMode ? (
-          <UiAlert tone="neutral">
+          <span className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,var(--surface-raised))] px-2.5 py-1 text-[11.5px] text-[var(--text-secondary)]">
+            <FlaskConical className="h-3 w-3" strokeWidth={1.85} aria-hidden />
             {SETTINGS_BILLING_STRINGS.testModeBannerShort}
-          </UiAlert>
+          </span>
         ) : null}
 
         {/* Environmental alert (§6b.1 env first, transient after) */}
@@ -1514,6 +1569,18 @@ export default async function BillingPage(props: {
           <UiAlert tone="warning">
             {SETTINGS_BILLING_STRINGS.unavailableTitle}{" "}
             {SETTINGS_BILLING_STRINGS.unavailableCopy}
+          </UiAlert>
+        ) : null}
+        {/* Suppress this standalone notice in the empty-state card path — the
+            card already communicates the gated state (no Subscribe, Contact
+            support, "Founding monthly plan after evaluation"). Keep it for the
+            non-card states that have nothing else explaining the gate. */}
+        {stripeConfigured &&
+        !billingCheckoutEnabled &&
+        !(subscriptionStatus === "none" && isAdmin) ? (
+          <UiAlert tone="neutral">
+            Public billing checkout is disabled during early access.
+            Continued use is handled after evaluation fit is clear.
           </UiAlert>
         ) : null}
 
@@ -1617,37 +1684,31 @@ export default async function BillingPage(props: {
       {/* §6.6 — premium-card empty state for free-plan admin per
           [ui-design-principles §8.1]. Renders INSTEAD of the dl-only
           Plan section when the user has no subscription. */}
-      {subscriptionStatus === "none" && isAdmin && stripeConfigured ? (
+      {subscriptionStatus === "none" && isAdmin ? (
         <section
-          className="ui-card-raised relative overflow-hidden rounded-2xl border p-6 sm:p-8"
+          className="ui-card-raised rounded-2xl border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-strong))] p-6 sm:p-8"
           aria-labelledby="billing-empty-title"
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,transparent)] opacity-70"
-            style={{ top: "-2.25rem", right: "-2.25rem", width: "7rem", height: "7rem" }}
-          />
-          <div className="relative flex items-start gap-4">
+          <div className="flex items-start gap-4">
             <span
               aria-hidden
               className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
             >
-              {/* Polish-pass §2.6 + §2.8 — Sparkles for empty-state
-                  aspirational tone, distinct from page-header CreditCard;
-                  40px (was 44px) defers to the canonical page-header. */}
+              {/* CircleDollarSign at 40px (h-10) — distinct from, and
+                  deferring to, the page-header CreditCard tile. */}
               <CircleDollarSign className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
             </span>
             <div className="min-w-0 flex-1">
-              {/* Polish-pass §2.1 — FREE PLAN renders as StatusBadge
-                  (visual anchor); §2.2 — drop WHAT YOU GET eyebrow. */}
+              {/* The EARLY ACCESS status badge is the visual anchor beside the
+                  title; no separate eyebrow. */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h2
                   id="billing-empty-title"
                   className="text-xl sm:text-[1.4rem] font-semibold tracking-tight text-[var(--text-primary)]"
                 >
-                  Choose a plan
+                  Evaluation billing
                 </h2>
-                <StatusBadge status="info">FREE PLAN</StatusBadge>
+                <StatusBadge status="info">EARLY ACCESS</StatusBadge>
               </div>
               {/* Polish-pass §2.10 — body ≤ 80 chars (was 138). */}
               <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
@@ -1660,123 +1721,66 @@ export default async function BillingPage(props: {
               {/* Polish-pass §2.3 + §2.12 + finishing-pass §1.8 —
                   Check medallions + responsive grid + max-w to prevent
                   edge-to-edge sprawl at lg+. */}
-              <ul className="mt-2 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="mt-2 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
                 {[
-                  `${SETTINGS_BILLING_STRINGS.coreLimits.contracts} contracts`,
-                  `${SETTINGS_BILLING_STRINGS.coreLimits.teamMembers} team members`,
-                  "Fair-use AI extraction",
+                  "Contract upload and import for a small evaluation set",
+                  "Source-backed suggestions reviewed by your team",
                   "CSV export",
                   "Audit history",
-                  "Standard support",
+                  "Product support during evaluation",
                 ].map((feature) => (
                   <li key={feature} className="inline-flex items-center gap-2">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border"
-                      style={{
-                        borderColor:
-                          "color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle))",
-                        background:
-                          "color-mix(in oklab, var(--success-ink) 12%, var(--surface))",
-                        color: "var(--success-ink)",
-                      }}
-                    >
-                      <Check className="h-3 w-3" strokeWidth={2.2} aria-hidden />
-                    </span>
+                    <IncludedCheck />
                     <span className="text-[12.5px] text-[var(--text-secondary)]">
                       {feature}
                     </span>
                   </li>
                 ))}
               </ul>
-              {/* Finishing-pass §2.1 — consolidated CTA cluster into 3
-                  zones: (1) above CTA = h2 + body + PLAN INCLUDES grid;
-                  (2) CTA row = primary + VIEW PLAN DETAILS; (3) below =
-                  single compact row (price · trial · savings) separated
-                  by hairline pipes. Drops 6 stacked layers down to 3. */}
+              {/* Early-access billing keeps checkout behind an explicit server flag. */}
               <div className="mt-5 flex flex-wrap items-center gap-2">
-                <SubscribeButton
-                  label={SETTINGS_BILLING_STRINGS.primaryCta}
-                  variant="annual"
-                />
-                {/* §2.2 — py-2 matches `.ui-btn-primary` vertical padding
-                    so the chip baseline-aligns with the primary CTA. */}
+                {billingCheckoutEnabled ? (
+                  <SubscribeButton
+                    label={SETTINGS_BILLING_STRINGS.primaryCta}
+                    variant="annual"
+                  />
+                ) : (
+                  <Link
+                    href={SETTINGS_BILLING_STRINGS.contactSalesHref}
+                    className="ui-btn-secondary inline-flex items-center gap-1 rounded-full px-4 py-2 text-[13px]"
+                  >
+                    {SETTINGS_BILLING_STRINGS.contactSalesCta}
+                  </Link>
+                )}
+                {/* Quieter tertiary affordance — a ghost pill one altitude
+                    below the secondary Contact-support pill (no bespoke caps
+                    chip). py-2 baseline-aligns with the secondary CTA. */}
                 <Link
                   href={SETTINGS_BILLING_STRINGS.publicPricingHref}
-                  className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2 ui-caps-3 text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))]"
+                  className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px]"
                 >
-                  VIEW PLAN DETAILS
+                  View access details
                   <ChevronRight
-                    className="h-3 w-3"
+                    className="h-3.5 w-3.5"
                     strokeWidth={1.85}
                     aria-hidden
                   />
                 </Link>
               </div>
-              {/* §2.1 below-CTA single compact row — price · trial
-                  microcopy · savings, separated by hairline pipes.
-                  Per release-state §Pricing: $249/month billed annually. */}
-              <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
-                <span className="inline-flex items-baseline gap-1.5">
-                  <span className="text-[1.5rem] font-semibold tabular-nums leading-none text-[var(--text-primary)]">
-                    $249
-                  </span>
-                  <span className="text-[12.5px] text-[var(--text-tertiary)]">
-                    /month · billed annually
-                  </span>
+              {/* Early-access billing posture, without fixed public pricing.
+                  One quiet metadata row tied under a hairline — no standalone
+                  vertical divider, no large-caps prose. */}
+              <div className="mt-4 flex flex-col items-start gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3">
+                <span className="text-[12px] font-medium text-[var(--text-secondary)]">
+                  Founding monthly plan after evaluation
                 </span>
-                <span
-                  aria-hidden
-                  className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block"
-                />
                 <TrialMicrocopyChipPair />
-                {monthlyConfigured ? (
-                  <>
-                    <span
-                      aria-hidden
-                      className="hidden h-3 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] sm:inline-block"
-                    />
-                    <span className="ui-caps-3 text-[var(--success-ink)]">
-                      SAVE $600/YR
-                    </span>
-                  </>
-                ) : null}
               </div>
-              {/* §6.5 — plan comparison mini-table (when monthly configured) */}
-              {monthlyConfigured ? (
-                <div className="mt-5 grid gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-4 sm:grid-cols-2 sm:gap-4">
-                  <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-3">
-                    <p className="ui-caps-2 text-[var(--text-tertiary)]">Monthly</p>
-                    <p className="mt-1">
-                      <span className="text-[1.25rem] font-semibold tabular-nums">
-                        $299
-                      </span>{" "}
-                      <span className="text-[12.5px] text-[var(--text-tertiary)]">
-                        per month
-                      </span>
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] p-3">
-                    <p className="ui-caps-2 text-[var(--accent-strong)]">Annual</p>
-                    <p className="mt-1">
-                      <span className="text-[1.25rem] font-semibold tabular-nums">
-                        $249
-                      </span>{" "}
-                      <span className="text-[12.5px] text-[var(--text-tertiary)]">
-                        /month billed annually
-                      </span>
-                    </p>
-                    <p className="ui-caps-3 mt-1 text-[var(--success-ink)]">
-                      SAVE $600/YR
-                    </p>
-                  </div>
-                </div>
-              ) : null}
             </div>
           </div>
         </section>
       ) : (
-      <section className="ui-card p-0" aria-labelledby="billing-plan-title">
+      <section className="ui-card-raised p-0" aria-labelledby="billing-plan-title">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
           {/* §5.1 "Plan and account status" → "Plan"; §5.3 responsive
               §3.13 add WHAT YOU GET eyebrow */}
@@ -1824,7 +1828,17 @@ export default async function BillingPage(props: {
           with FAQ so the rhythm alternates with the prior single-col
           empty-state. Per spec §10.18 visual rhythm via layout variation.
           On <lg widths the grid degrades to single column. */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+      {/* Collapse to a single full-width column when invoices aren't rendered
+          (empty / never-trialed admin state) so the FAQ spans the same width as
+          the empty-state card above instead of sitting at half-width in column 1
+          of 2. Fixes the FAQ narrow / left-aligned imbalance + empty right gutter. */}
+      <div
+        className={`grid gap-4 ${
+          org.stripe_customer_id && isAdmin && stripeConfigured
+            ? "lg:grid-cols-2 lg:items-start"
+            : ""
+        }`}
+      >
         {org.stripe_customer_id && isAdmin && stripeConfigured ? (
           <Suspense
             fallback={
@@ -1854,12 +1868,12 @@ export default async function BillingPage(props: {
           <p className="ui-caps-1 text-[var(--accent)]">FAQ</p>
           <h2
             id="billing-faq-title"
-            className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.4rem]"
+            className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]"
           >
             Common billing questions
           </h2>
         </header>
-        <div className="px-5 py-2">
+        <div className="px-5 py-2 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)]">
           {SETTINGS_BILLING_STRINGS.faq.map((question, idx) => {
             const answer = (
               SETTINGS_BILLING_STRINGS.faqAnswers as Record<string, string>
@@ -1876,17 +1890,17 @@ export default async function BillingPage(props: {
                 className="ui-billing-faq group"
               >
                 <summary
-                  className="ui-billing-faq-summary flex min-h-[44px] cursor-pointer list-none items-center gap-3 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] py-3 outline-none transition-colors marker:hidden hover:border-[color:color-mix(in_oklab,var(--success)_18%,var(--border-subtle))] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] [&::-webkit-details-marker]:hidden"
+                  className="ui-billing-faq-summary flex min-h-[44px] cursor-pointer list-none items-center gap-3 py-3 outline-none transition-colors marker:hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] [&::-webkit-details-marker]:hidden"
                   /* §9.2 aria-label with question index */
                   aria-label={`Question ${idx + 1} of ${total}: ${question}`}
                 >
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)]">
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center text-[var(--accent-strong)]">
                     {(() => {
                       const Icon = FAQ_ICONS[question] ?? HelpCircle;
-                      return <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />;
+                      return <Icon className="h-4 w-4" strokeWidth={1.85} aria-hidden />;
                     })()}
                   </span>
-                  <span className="flex min-w-0 flex-1 items-baseline text-[13.5px] font-semibold text-[var(--text-primary)] group-open:text-[var(--accent-strong)]">
+                  <span className="flex min-w-0 flex-1 items-center text-[13.5px] font-semibold text-[var(--text-primary)]">
                     {question}
                   </span>
                   {/* §5.7 ChevronRight rotates 90° on open per spec §6 */}
@@ -1908,41 +1922,26 @@ export default async function BillingPage(props: {
         {/* Polish-pass §4.7 — release-state §305 exact phrasing, no `?`
             Polish-pass §4.2 — replace bare middle-dot separators with
             ui-rule-vert hairline per spec §2.9 tactic C. */}
-        <footer className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)] px-5 py-4 text-[12.5px]">
-          <span className="text-[var(--text-secondary)]">
+        <footer className="flex flex-wrap items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)] px-5 py-4">
+          <span className="mr-1 text-[12.5px] text-[var(--text-secondary)]">
             {SETTINGS_BILLING_STRINGS.contactSalesPromptSpec}
           </span>
           <Link
             href={SETTINGS_BILLING_STRINGS.contactSalesHref}
-            className="ui-link inline-flex items-center gap-1.5"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
           >
             <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            {SETTINGS_BILLING_STRINGS.contactSalesCta} →
+            {SETTINGS_BILLING_STRINGS.contactSalesCta}
           </Link>
-          <span
-            aria-hidden
-            className="hidden h-3 w-px bg-[var(--border-subtle)] sm:inline-block"
-          />
           <Link
             href={SETTINGS_BILLING_STRINGS.publicPricingHref}
-            className="ui-link"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
           >
-            {SETTINGS_BILLING_STRINGS.publicPricingLink}
+            {/* Drop the baked-in "→" so this matches the ChevronRight vocabulary
+                used by the other action links (admin / eval-card). */}
+            {SETTINGS_BILLING_STRINGS.publicPricingLink.replace(/\s*→\s*$/, "")}
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
           </Link>
-          {isAdmin ? (
-            <>
-              <span
-                aria-hidden
-                className="hidden h-3 w-px bg-[var(--border-subtle)] sm:inline-block"
-              />
-              <Link
-                href="/settings/security?filter=billing"
-                className="ui-link"
-              >
-                View billing change history →
-              </Link>
-            </>
-          ) : null}
         </footer>
       </section>
       </div>
@@ -1976,16 +1975,25 @@ export default async function BillingPage(props: {
           rotating ChevronRight on the test-cards details (no native
           marker). §7.5 — workspace-ID copy alongside customer-ID. */}
       {isAdmin && stripeConfigured ? (
-        <section
-          className="ui-card-quiet rounded-xl border border-[var(--border-subtle)] px-4 py-3 billing-no-print"
-          aria-labelledby="billing-admin-utility-title"
+        <details
+          className="billing-no-print group/admin border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3"
         >
-          <p
+          <summary
             id="billing-admin-utility-title"
-            className="ui-caps-3 text-[var(--text-tertiary)]"
+            className="ui-caps-3 inline-flex w-max cursor-pointer items-center gap-1.5 text-[var(--text-tertiary)] outline-none transition-colors marker:hidden hover:text-[var(--text-secondary)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] [&::-webkit-details-marker]:hidden"
           >
             {SETTINGS_BILLING_STRINGS.adminUtilityLabel}
-          </p>
+            {isTestMode ? (
+              <span className="ui-caps-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-1.5 py-0.5 text-[var(--text-tertiary)]">
+                Test mode
+              </span>
+            ) : null}
+            <ChevronRight
+              className="h-3.5 w-3.5 transition-transform group-open/admin:rotate-90 motion-reduce:transition-none"
+              strokeWidth={1.85}
+              aria-hidden
+            />
+          </summary>
           {/* Finishing-pass §6.2 — group CUSTOMER + WORKSPACE buttons
               under an "Identifiers" sub-eyebrow so they read as paired
               data displays (with copy as secondary affordance), while
@@ -2017,6 +2025,15 @@ export default async function BillingPage(props: {
                 suffix={4}
               />
             </div>
+            {/* Admin-only audit link — co-located with the other admin tools
+                (moved out of the public FAQ footer). */}
+            <Link
+              href="/settings/security?filter=billing"
+              className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
+            >
+              View change history
+              <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+            </Link>
             {isTestMode ? (
               <details className="group ml-auto">
                 {/* Finishing-pass §1.4 + §6.3 — bump chevron to h-3.5
@@ -2042,7 +2059,7 @@ export default async function BillingPage(props: {
               </details>
             ) : null}
           </div>
-        </section>
+        </details>
       ) : null}
     </div>
   );

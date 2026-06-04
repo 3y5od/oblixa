@@ -43,6 +43,7 @@ const E2E_URL_VISIT_TOKENS = new Set([
   "v6_assurance",
   "authenticated_nav",
   "auth-flow",
+  "current_product_core",
   "marketing_public",
   "onboarding_calibration_e2e",
   "security_api",

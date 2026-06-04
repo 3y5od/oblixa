@@ -1959,7 +1959,7 @@ export async function getFileDownloadUrl(storagePath: string) {
     organizationId: orgId,
     actorUserId: user.id,
     action: "contract_file.download_url_created",
-    targetType: "contract_file",
+    targetType: "file_upload",
     targetId: String(file.id ?? "unknown"),
     contractId: String(file.contract_id ?? ""),
     outcome: "success",

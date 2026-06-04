@@ -227,7 +227,7 @@ export default async function MoreToolsPage(props: {
               <Filter className="h-3.5 w-3.5" />
             </span>
             <select
-              name="section"
+              aria-label="Filter by section" name="section"
               defaultValue={selectedSection}
               className="ui-input cursor-pointer appearance-none pl-9 pr-8 text-[12.5px]"
             >

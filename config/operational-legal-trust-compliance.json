@@ -70,9 +70,9 @@
       "ownerArea": "platform-security",
       "lastReviewed": "2026-05-14",
       "freshnessWindowDays": 180,
-      "requiredMarkers": ["LAST_REVIEWED_ISO", "SECURITY_EMAIL", "security.txt", "DPA", "Subprocessors"],
-      "contactPath": "mailto:security@oblixa.com",
-      "manualBoundary": "security assurance approval remains manual"
+      "requiredMarkers": ["early-access limits", "Access and roles", "Audit history", "Data export and deletion", "does not provide legal advice"],
+      "contactPath": "/early-access",
+      "manualBoundary": "formal security assurance approval remains manual"
     },
     {
       "id": "cookies",
@@ -118,9 +118,9 @@
       "ownerArea": "product-operations",
       "lastReviewed": "2026-05-28",
       "freshnessWindowDays": 180,
-      "requiredMarkers": ["LegalPageJsonLd", "1-day reply", "No marketing list", "security and DPA requests"],
+      "requiredMarkers": ["LegalPageJsonLd", "Request early access", "No marketing list", "Browse Oblixa"],
       "contactPath": "/contact",
-      "manualBoundary": "support response and sales qualification remain manual"
+      "manualBoundary": "support response and early-access qualification remain manual"
     },
     {
       "id": "security-txt",
@@ -146,16 +146,16 @@
       "manualBoundary": "subprocessor notice and legal review remain manual"
     },
     {
-      "id": "dpa-request",
+      "id": "early-access-security-boundary",
       "surfaceType": "public-trust-path",
-      "route": "/contact?interested=dpa",
+      "route": "/security",
       "path": "src/app/(marketing)/security/page.tsx",
       "ownerArea": "trust-compliance",
       "lastReviewed": "2026-05-28",
       "freshnessWindowDays": 180,
-      "requiredMarkers": ["Request a Data Processing Addendum (DPA)", "/contact?interested=dpa"],
-      "contactPath": "/contact?interested=dpa",
-      "manualBoundary": "DPA negotiation and signature remain manual"
+      "requiredMarkers": ["not intended for teams that require formal enterprise", "Request early access"],
+      "contactPath": "/early-access",
+      "manualBoundary": "formal procurement and security review remain manual"
     }
   ],
   "capabilityEvidence": [
@@ -178,8 +178,8 @@
       "validationCommands": ["audit:release-state-code-only:strict"]
     },
     {
-      "id": "dpa-security-contact",
-      "capability": "DPA and security request contact path",
+      "id": "security-boundary-contact",
+      "capability": "security basics with early-access limits and request path",
       "evidenceRefs": ["src/app/(marketing)/security/page.tsx", "src/app/(marketing)/contact/page.tsx", "public/.well-known/security.txt"],
       "validationCommands": ["check:public-seo-surface"]
     }
@@ -254,7 +254,7 @@
       "id": "security-practices",
       "claim": "Oblixa documents permissions, audit history, exportability, transport, tenant isolation, and vulnerability disclosure.",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
-      "capabilityRefs": ["permissions-audit-export", "dpa-security-contact"],
+      "capabilityRefs": ["permissions-audit-export", "security-boundary-contact"],
       "allowedScope": "security practice description, not certification",
       "validationCommand": "check:operational-legal-trust-compliance"
     },
@@ -268,12 +268,12 @@
       "validationCommand": "audit:release-state-code-only:strict"
     },
     {
-      "id": "dpa-on-request",
-      "claim": "DPA available on request.",
+      "id": "early-access-security-review-boundary",
+      "claim": "Early access is not intended for teams that require formal enterprise security review before evaluation.",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
-      "capabilityRefs": ["dpa-security-contact"],
-      "manualBoundary": "DPA negotiation and signature remain manual",
-      "allowedScope": "request channel only",
+      "capabilityRefs": ["security-boundary-contact"],
+      "manualBoundary": "formal procurement and security review remain manual",
+      "allowedScope": "early-access fit boundary",
       "validationCommand": "check:public-seo-surface"
     }
   ],

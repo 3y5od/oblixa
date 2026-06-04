@@ -25,6 +25,6 @@ test.describe("@current-product current product device matrix (firefox desktop)"
   test("work inbox on firefox desktop en-GB", async ({ page, app }) => {
     await app.loginAsDefaultUser();
     await page.goto("/work", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText(/Daily action inbox/i)).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByRole("heading", { level: 1, name: /^Work$/ })).toBeVisible({ timeout: 25_000 });
   });
 });

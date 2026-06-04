@@ -1,5 +1,8 @@
 export const RELEASE_STATE_ANALYTICS_EVENTS = [
-  "product.v10.signup_completed",
+  "product.v10.access_requested",
+  "product.v10.request_qualified",
+  "product.v10.tracker_reviewed",
+  "product.v10.evaluation_workspace_started",
   "product.v10.calibration_completed",
   "product.v10.first_contract_uploaded",
   "product.v10.extraction_completed",
@@ -9,9 +12,11 @@ export const RELEASE_STATE_ANALYTICS_EVENTS = [
   "product.v10.work_item_created",
   "product.v10.evidence_requested",
   "product.v10.report_exported",
-  "product.v10.trial_converted",
-  "product.v10.pilot_converted",
-  "product.v10.cancellation_recorded",
+  "product.v10.activation_completed",
+  "product.v10.founder_support_time_recorded",
+  "product.v10.evaluation_converted",
+  "product.v10.evaluation_paused",
+  "product.v10.evaluation_closed",
 ] as const;
 
 export type ReleaseStateAnalyticsEvent = (typeof RELEASE_STATE_ANALYTICS_EVENTS)[number];
@@ -34,9 +39,19 @@ export function isReleaseStateActivationComplete(input: ReleaseStateActivationIn
 }
 
 export const RELEASE_STATE_METRIC_DEFINITIONS = {
-  signup_to_calibration_complete: {
+  access_request_to_qualified: {
+    numeratorEvent: "product.v10.request_qualified",
+    denominatorEvent: "product.v10.access_requested",
+    target: 0.3,
+  },
+  qualified_to_tracker_reviewed: {
+    numeratorEvent: "product.v10.tracker_reviewed",
+    denominatorEvent: "product.v10.request_qualified",
+    target: 0.5,
+  },
+  evaluation_started_to_calibration_complete: {
     numeratorEvent: "product.v10.calibration_completed",
-    denominatorEvent: "product.v10.signup_completed",
+    denominatorEvent: "product.v10.evaluation_workspace_started",
     target: 0.7,
   },
   calibration_to_first_upload: {
@@ -51,27 +66,17 @@ export const RELEASE_STATE_METRIC_DEFINITIONS = {
   },
   activation_complete: {
     numeratorEvent: "product.v10.activation_completed",
-    denominatorEvent: "product.v10.signup_completed",
+    denominatorEvent: "product.v10.evaluation_workspace_started",
     target: 0.25,
   },
-  self_serve_trial_to_paid: {
-    numeratorEvent: "product.v10.trial_converted",
-    denominatorEvent: "product.v10.signup_completed",
-    target: 0.05,
+  activation_to_evaluation_converted: {
+    numeratorEvent: "product.v10.evaluation_converted",
+    denominatorEvent: "product.v10.activation_completed",
+    target: 0.2,
   },
-  guided_pilot_to_paid: {
-    numeratorEvent: "product.v10.pilot_converted",
-    denominatorEvent: "product.v10.calibration_completed",
-    target: 0.3,
-  },
-  first_month_paid_retention: {
-    numeratorEvent: "product.v10.release_check_recorded",
-    denominatorEvent: "product.v10.trial_converted",
-    target: 0.85,
-  },
-  support_response_same_business_day: {
-    numeratorEvent: "product.v10.release_check_recorded",
-    denominatorEvent: "product.v10.release_check_recorded",
+  activated_workspace_support_burden_recorded: {
+    numeratorEvent: "product.v10.founder_support_time_recorded",
+    denominatorEvent: "product.v10.activation_completed",
     target: 1,
   },
 } as const;

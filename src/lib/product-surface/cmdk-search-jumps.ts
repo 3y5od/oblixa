@@ -140,7 +140,7 @@ function metaForSearchClass(row: SearchIndexClassDef, href: string, queryTrimmed
     case "exceptions":
       return "Exceptions queue · open only";
     case "evidence":
-      return "Evidence Studio · live request queue";
+      return "Evidence · live request queue";
     default:
       return `${row.label} · ${pathOnly(href)}`;
   }

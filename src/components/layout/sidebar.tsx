@@ -11,6 +11,7 @@ import {
   Boxes,
   Building2,
   CalendarClock,
+  ChevronDown,
   ClipboardCheck,
   CreditCard,
   Download,
@@ -35,7 +36,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { signOut } from "@/actions/auth";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
@@ -103,33 +104,56 @@ function fallbackNavSurface(role: WorkspaceRole, flags: Record<FeatureFlagKey, b
   };
 }
 
-function badgeToneClass(tone: SidebarBadgeModel["tone"]): string {
-  if (tone === "reviewQueue") {
-    return "border border-amber-400/30 bg-amber-300/15 text-amber-100";
-  }
-  if (tone === "approvals") {
-    return "border border-orange-400/30 bg-orange-300/15 text-orange-100";
-  }
+/* Nav count chip — tokenized status tones tuned for the always-dark sidebar
+   (the page-content CountChip's light-surface anchors wouldn't read here, so the
+   shared shape/typography is kept while the surface anchor differs). Review and
+   approval queues read as "needs attention" (warning); obligations escalate to
+   danger; everything else stays neutral. */
+function navCountToneStyle(tone: SidebarBadgeModel["tone"]): CSSProperties {
   if (tone === "obligations") {
-    return "border border-rose-400/30 bg-rose-300/15 text-rose-100";
+    return {
+      color: "var(--sidebar-danger-ink)",
+      background: "color-mix(in oklab, var(--sidebar-danger-ink) 16%, transparent)",
+      borderColor: "color-mix(in oklab, var(--sidebar-danger-ink) 34%, transparent)",
+    };
   }
-  return "border border-white/10 bg-white/[0.08] text-[color:color-mix(in_oklab,var(--sidebar-fg)_90%,transparent)]";
+  if (tone === "reviewQueue" || tone === "approvals") {
+    return {
+      color: "var(--sidebar-warn-ink)",
+      background: "color-mix(in oklab, var(--sidebar-warn-ink) 16%, transparent)",
+      borderColor: "color-mix(in oklab, var(--sidebar-warn-ink) 34%, transparent)",
+    };
+  }
+  return {
+    color: "color-mix(in oklab, var(--sidebar-fg) 80%, transparent)",
+    background: "color-mix(in oklab, var(--sidebar-fg) 10%, transparent)",
+    borderColor: "color-mix(in oklab, var(--sidebar-fg) 18%, transparent)",
+  };
 }
 
 function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; collapsed: boolean }) {
   if (!badge) return null;
-  if (collapsed && badge.showDotOnlyWhenCollapsed) {
+  const toneStyle = navCountToneStyle(badge.tone);
+  if (collapsed) {
+    // Collapsed rail: a compact numeric badge pinned to the icon's top-right
+    // corner, ringed against the sidebar so it reads as a count rather than a
+    // stray dot. Decorative (aria-hidden) — the link keeps a terse accessible
+    // name; the full count + label live in the tooltip/title.
     return (
       <span
         aria-hidden="true"
         title={badge.label}
-        className={`absolute right-1.5 top-1.5 h-2 min-w-2 rounded-full ring-1 ring-black/20 ${badgeToneClass(badge.tone)}`}
-      />
+        style={toneStyle}
+        className="absolute right-1 top-1 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full border px-1 text-[9px] font-semibold leading-none tabular-nums ring-2 ring-[var(--sidebar)]"
+      >
+        {badge.displayValue}
+      </span>
     );
   }
   return (
     <span
-      className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ${badgeToneClass(badge.tone)}`}
+      className="ml-auto inline-flex h-[1.125rem] min-w-[1.375rem] shrink-0 items-center justify-center rounded-md border px-1.5 text-[10.5px] font-semibold leading-none tabular-nums"
+      style={toneStyle}
       aria-label={badge.label}
       title={badge.label}
     >
@@ -156,13 +180,24 @@ function SidebarNavLink({
   const Icon = item.icon ? iconByKey[item.icon] : null;
   const tooltipId = `sidebar-tooltip-${item.href.replace(/[^a-z0-9]+/gi, "-")}`;
   const tooltipVisible = collapsed && tooltipHref === item.href;
+  // Three distinct top-level states: a "selected" leaf (accent rail + wash +
+  // accent icon), a "parent-expanded" section header (brighter text + chevron,
+  // no accent — the accent belongs to the selected child), and idle.
+  const isParentExpanded = !child && !collapsed && item.children.length > 0;
+  const selected = !child && item.active && !isParentExpanded;
   const childClass = child
     ? `ui-sidebar-sublink-indent text-[12.5px] ${
-        item.active ? "ui-sidebar-sublink-active" : "ui-sidebar-link-idle opacity-90"
+        item.active ? "ui-sidebar-sublink-active" : "ui-sidebar-sublink-idle"
       }`
-    : item.active
-      ? `ui-sidebar-link-active ${collapsed ? "ui-sidebar-link-active-rail" : ""}`
-      : "ui-sidebar-link-idle";
+    : collapsed
+      ? item.active
+        ? "ui-sidebar-link-active ui-sidebar-link-active-rail"
+        : "ui-sidebar-link-idle"
+      : isParentExpanded
+        ? "ui-sidebar-link-parent"
+        : item.active
+          ? "ui-sidebar-link-active"
+          : "ui-sidebar-link-idle";
 
   return (
     <Link
@@ -173,14 +208,23 @@ function SidebarNavLink({
       onBlur={() => collapsed && setTooltipHref(null)}
       onMouseEnter={() => collapsed && setTooltipHref(item.href)}
       onMouseLeave={() => collapsed && setTooltipHref(null)}
-      className={`ui-sidebar-link ${childClass}`}
+      className={`ui-sidebar-link ${collapsed && !child ? "justify-center" : ""} ${childClass}`}
       aria-current={item.exactActive ? "page" : undefined}
       aria-label={collapsed ? item.collapsedLabel : undefined}
       aria-describedby={tooltipVisible ? tooltipId : undefined}
       data-sidebar-href={item.href}
     >
       {Icon ? (
-        <Icon size={18} strokeWidth={1.85} className="shrink-0 opacity-90" aria-hidden />
+        // Icon inherits the link's currentColor (muted when idle, sidebar-fg on
+        // a parent header) so glyph and label never drift apart; the selected
+        // leaf is the one place the icon takes the accent.
+        <Icon
+          size={18}
+          strokeWidth={1.85}
+          className="shrink-0"
+          style={selected ? { color: "var(--accent-strong)" } : undefined}
+          aria-hidden
+        />
       ) : child ? null : (
         /* Top-level row without icon → render an empty-ring marker, not a
            filled gray dot. The empty ring communicates "indeterminate /
@@ -189,19 +233,23 @@ function SidebarNavLink({
           aria-hidden
           className={`h-1.5 w-1.5 shrink-0 rounded-full ${
             item.active
-              ? "bg-white"
-              : "border border-white/35 bg-transparent"
+              ? "bg-[var(--sidebar-fg)]"
+              : "border border-[color:color-mix(in_oklab,var(--sidebar-fg)_35%,transparent)] bg-transparent"
           }`}
         />
       )}
       {collapsed && <SidebarBadge badge={item.badge} collapsed />}
       {!collapsed && <span className="min-w-0 flex-1 truncate">{item.name}</span>}
-      {!collapsed && <SidebarBadge badge={item.badge} collapsed={false} />}
+      {!collapsed && isParentExpanded ? (
+        <ChevronDown className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--sidebar-muted)]" strokeWidth={2} aria-hidden />
+      ) : !collapsed ? (
+        <SidebarBadge badge={item.badge} collapsed={false} />
+      ) : null}
       {tooltipVisible ? (
         <span
           id={tooltipId}
           aria-hidden="true"
-          className="pointer-events-none absolute left-[calc(100%+0.5rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md border border-white/10 bg-[var(--sidebar-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--sidebar-fg)] shadow-[var(--shadow-2)]"
+          className="pointer-events-none absolute left-[calc(100%+0.5rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[var(--sidebar-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--sidebar-fg)] shadow-[var(--shadow-2)]"
         >
           {item.collapsedLabel}
         </span>
@@ -276,74 +324,107 @@ function SidebarSection({
 function SidebarHeader({
   mobile,
   collapsed,
-  forcedCollapsed,
   onToggleCollapsed,
   onCloseMobile,
   closeButtonRef,
 }: {
   mobile: boolean;
   collapsed: boolean;
-  forcedCollapsed: boolean;
   onToggleCollapsed: () => void;
   onCloseMobile: () => void;
   closeButtonRef: RefObject<HTMLButtonElement | null>;
 }) {
-  return (
-    <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--sidebar-section-border)] px-3">
-      {!collapsed && (
+  if (collapsed && !mobile) {
+    return (
+      <div className="flex h-14 shrink-0 items-center justify-center border-b border-[var(--sidebar-section-border)] px-2.5">
         <Link
           href="/dashboard"
-          className="group flex min-w-0 items-center gap-3 rounded-md pl-0.5 pr-2 py-1 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          aria-label="Oblixa — go to dashboard"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-[0.7rem] border border-[color:color-mix(in_oklab,var(--sidebar-fg)_16%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_8%,transparent)] text-[var(--sidebar-fg)] shadow-[0_2px_8px_rgba(0,0,0,0.22)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_36%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
         >
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,rgba(255,255,255,0.10))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,rgba(255,255,255,0.04))] text-[var(--accent-strong)] shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
-            <Orbit size={18} strokeWidth={1.85} aria-hidden />
-          </span>
-          <span className="block min-w-0 truncate text-[15px] font-bold tracking-tight text-white">
-            Oblixa
-          </span>
+          <Orbit size={18} strokeWidth={1.9} aria-hidden />
         </Link>
-      )}
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--sidebar-section-border)] px-2.5">
+      <Link
+        href="/dashboard"
+        className="group flex min-w-0 items-center gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-[color:var(--sidebar-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+      >
+        {/* Brand lockup: neutral icon tile + wordmark. Accent stays reserved for
+            the active-nav rail, so the tile uses sidebar-fg tints. The tile left
+            edge sits on the same 22px column as the nav icons below. */}
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.7rem] border border-[color:color-mix(in_oklab,var(--sidebar-fg)_16%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_8%,transparent)] text-[var(--sidebar-fg)] shadow-[0_2px_8px_rgba(0,0,0,0.22)]">
+          <Orbit size={18} strokeWidth={1.9} aria-hidden />
+        </span>
+        <span className="block min-w-0 truncate text-[15px] font-bold tracking-tight text-[var(--sidebar-fg)]">
+          Oblixa
+        </span>
+      </Link>
       {mobile ? (
         <button
           ref={closeButtonRef}
           type="button"
           onClick={onCloseMobile}
-          className="ui-icon-button border-white/10 bg-white/[0.02] p-2 text-[var(--sidebar-muted)] hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          className="ui-icon-button border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_3%,transparent)] p-2 text-[var(--sidebar-muted)] hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
           aria-label="Close navigation"
         >
           <X size={18} aria-hidden />
         </button>
-      ) : forcedCollapsed ? (
-        <div className="mx-auto h-10 w-10 shrink-0" aria-hidden />
       ) : (
         <button
           type="button"
           onClick={onToggleCollapsed}
           data-testid={shellTestIds.sidebarCollapseToggle}
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--sidebar-muted)] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)] ${collapsed ? "mx-auto" : ""}`}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_5%,transparent)] text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
           aria-controls={DESKTOP_SIDEBAR_BODY_ID}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar (⌘\\)" : "Collapse sidebar (⌘\\)"}
+          aria-expanded
+          aria-label="Collapse sidebar"
+          title="Collapse sidebar (⌘\\)"
         >
-          {collapsed ? <PanelLeftOpen size={16} strokeWidth={1.85} aria-hidden /> : <PanelLeftClose size={16} strokeWidth={1.85} aria-hidden />}
+          <PanelLeftClose size={18} strokeWidth={1.85} aria-hidden />
         </button>
       )}
     </div>
   );
 }
 
-function SidebarFooter({ collapsed }: { collapsed: boolean }) {
+function SidebarExpandControl({ onToggle }: { onToggle: () => void }) {
   return (
-    <div className="border-t border-[var(--sidebar-section-border)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <div className="mb-2 flex justify-center">
+      <button
+        type="button"
+        onClick={onToggle}
+        data-testid={shellTestIds.sidebarCollapseToggle}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_5%,transparent)] text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+        aria-controls={DESKTOP_SIDEBAR_BODY_ID}
+        aria-expanded={false}
+        aria-label="Expand sidebar"
+        title="Expand sidebar (⌘\\)"
+      >
+        <PanelLeftOpen size={18} strokeWidth={1.85} aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+function SidebarFooter({ collapsed, inset = true }: { collapsed: boolean; inset?: boolean }) {
+  // `inset` adds the body's horizontal frame when the footer is a direct child
+  // of the aside (collapsed rail / mobile drawer). When nested inside the
+  // scrolling body (expanded desktop) the body already pads, so we drop it —
+  // keeping the sign-out icon on the same 22px column as the nav icons.
+  return (
+    <div className={`border-t border-[var(--sidebar-section-border)] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${inset ? "px-2.5" : "px-0"}`}>
       <form action={signOut}>
         <button
           type="submit"
           data-testid={shellTestIds.sidebarSignOut}
-          className="group flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2 text-[12.5px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_18%,transparent)] hover:text-[color:color-mix(in_oklab,var(--danger-ink)_80%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          className={`group flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2 text-[12.5px] font-medium text-[var(--sidebar-muted)] transition-[background-color,color] duration-[var(--ui-duration)] hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_18%,transparent)] hover:text-[color:color-mix(in_oklab,var(--danger-ink)_82%,var(--sidebar-fg))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)] ${collapsed ? "justify-center" : ""}`}
           aria-label={collapsed ? "Sign out" : undefined}
         >
-          <LogOut size={16} strokeWidth={1.85} className="shrink-0" aria-hidden />
+          <LogOut size={18} strokeWidth={1.85} className="shrink-0" aria-hidden />
           {!collapsed && <span>Sign out</span>}
         </button>
       </form>
@@ -384,7 +465,7 @@ function MobileNavigationDrawer({
       aria-label="Navigation drawer"
       data-testid={shellTestIds.sidebarMobileDrawer}
     >
-      <aside className="flex h-dvh max-h-dvh min-h-0 w-[min(22rem,calc(100vw-1rem))] flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] pt-[env(safe-area-inset-top)]">
+      <aside className="ui-sidebar-surface flex h-dvh max-h-dvh min-h-0 w-[min(22rem,calc(100vw-1rem))] flex-col border-r border-[var(--sidebar-border)] pt-[env(safe-area-inset-top)]">
         {children}
       </aside>
       <button
@@ -532,9 +613,11 @@ export function Sidebar(props: {
         (appContent as HTMLElement & { inert?: boolean }).inert = previousInert;
       }
       const target = restoreFocusRef.current;
-      if (target?.isConnected) target.focus();
-      else if (mobileOpenButton?.isConnected) mobileOpenButton.focus();
-      else focusMobileOpenButton();
+      window.requestAnimationFrame(() => {
+        if (target?.isConnected) target.focus();
+        else if (mobileOpenButton?.isConnected) mobileOpenButton.focus();
+        else focusMobileOpenButton();
+      });
     };
   }, [focusMobileOpenButton, mobileOpen]);
 
@@ -593,12 +676,12 @@ export function Sidebar(props: {
         <SidebarHeader
           mobile={mobile}
           collapsed={bodyCollapsed}
-          forcedCollapsed={isOnboardingShell && !mobile}
           onToggleCollapsed={toggleCollapsed}
           onCloseMobile={closeMobileDrawer}
           closeButtonRef={mobileCloseButtonRef}
         />
         <div id={mobile ? undefined : DESKTOP_SIDEBAR_BODY_ID} className={bodyClassName}>
+          {bodyCollapsed && !isOnboardingShell ? <SidebarExpandControl onToggle={toggleCollapsed} /> : null}
           <div data-testid={shellTestIds.primaryNav} className={bodyCollapsed ? "space-y-2" : "space-y-1"}>
             {model.sections.map((section, index) => (
               <SidebarSection
@@ -612,7 +695,7 @@ export function Sidebar(props: {
               />
             ))}
           </div>
-          {footerInScrollBody ? <SidebarFooter collapsed={bodyCollapsed} /> : null}
+          {footerInScrollBody ? <SidebarFooter collapsed={bodyCollapsed} inset={false} /> : null}
         </div>
         {footerInScrollBody ? null : <SidebarFooter collapsed={bodyCollapsed} />}
       </>
@@ -632,7 +715,7 @@ export function Sidebar(props: {
       <aside
         aria-label="Workspace"
         data-testid={shellTestIds.sidebarDesktop}
-        className={`sticky top-0 hidden h-dvh max-h-dvh min-h-0 shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[linear-gradient(180deg,var(--sidebar),color-mix(in_oklab,var(--sidebar)_94%,black)_100%)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] motion-reduce:transition-none lg:flex ${
+        className={`ui-sidebar-surface sticky top-0 hidden h-dvh max-h-dvh min-h-0 shrink-0 flex-col border-r border-[var(--sidebar-border)] motion-safe:transition-[width] motion-safe:duration-[var(--ui-duration-slow)] motion-safe:ease-[var(--ui-ease-out)] motion-reduce:transition-none lg:flex ${
           model.collapsed ? "w-[4.75rem]" : "w-[18.5rem]"
         }`}
       >

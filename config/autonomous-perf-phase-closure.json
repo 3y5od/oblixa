@@ -42,7 +42,7 @@
         "package.json",
         "scripts/check-next-config-surface.mjs"
       ],
-      "note": "Webpack dev default; turbopack gated by Next + check:next-config-surface policy."
+      "note": "Turbopack dev default; webpack fallback remains available for parity checks."
     },
     "phase-10-heavy-parsers": {
       "lane": "in_repo",

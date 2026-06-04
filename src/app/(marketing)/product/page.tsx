@@ -12,7 +12,6 @@ import {
   FileSpreadsheet,
   FileText,
   ListChecks,
-  PlayCircle,
   ShieldCheck,
   TrendingUp,
   UploadCloud,
@@ -22,8 +21,10 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 import { JsonLdScript } from "@/components/landing/landing-json-ld";
 import { ProductAnchorNav } from "@/components/landing/product-anchor-nav";
 import { ProductMobileCta } from "@/components/landing/product-mobile-cta";
+import { ActionChip } from "@/components/ui/action-chip";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { GradientPhrase } from "@/components/ui/gradient-phrase";
 import {
-  OUTCOMES,
   PHASES,
   PHASE_DESCRIPTIONS,
   PRODUCT_SECTIONS,
@@ -34,6 +35,8 @@ import {
   type SectionTone,
 } from "@/components/landing/product-sections-data";
 import {
+  DashboardOverviewPreview,
+  EvidenceRequestPreview,
   ReportsExportPreview,
   ReviewFieldsPreview,
   UpcomingDatesPreview,
@@ -97,164 +100,57 @@ function ProductHowToJsonLd() {
 }
 
 /* ─── Hero ─────────────────────────────────────────────────────────────
-   v7 subtraction: dropped lead-in tag (T27.14), dropped 4-cell micro-stats
-   row (T27.16), dropped triple-chevron stack (T27.17), tightened gaps
-   (T27.15), font-weight 660 → 700 (T27.18), scroll cue sentence case (T27.2).
+   Tour-framed identity (the product positioning lives on the landing page).
+   Shares the marketing chrome recipe with /pricing + /security: eyebrow-dot,
+   GradientPhrase keyword, primary + ghost CTA cluster, product-top-hairline.
    ──────────────────────────────────────────────────────────────────── */
 function Hero() {
   return (
     <header className="relative text-center">
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 h-64 w-[640px] -translate-x-1/2 -translate-y-12 rounded-full opacity-60 blur-3xl"
-        style={{ background: "radial-gradient(ellipse 60% 60% at 50% 30%, color-mix(in oklab, var(--accent-strong) 12%, transparent), transparent 70%)" }}
+        className="pointer-events-none absolute left-1/2 top-0 h-56 w-[560px] -translate-x-1/2 -translate-y-12 rounded-full opacity-50 blur-3xl"
+        style={{ background: "radial-gradient(ellipse 60% 60% at 50% 30%, color-mix(in oklab, var(--accent-strong) 10%, transparent), transparent 70%)" }}
       />
       <p className="product-hero-rise ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
         <span className="landing-eyebrow-dot" aria-hidden />
         Product tour
       </p>
-      {/* Tour-framed h1 — the product positioning lives on the landing page;
-          this h1 sets the page's job, not the product's. */}
       <h1
         className="product-hero-h1 product-hero-rise mx-auto mt-3 max-w-[18ch] text-balance text-[2.25rem] font-bold leading-[1.05] tracking-tight text-[var(--text-primary)] sm:text-[3.25rem]"
         style={{ hangingPunctuation: "first allow-end last", letterSpacing: "-0.02em" }}
       >
         Here&rsquo;s how it{" "}
-        <span className="product-hero-h1-grad">fits together.</span>
+        <GradientPhrase>fits together.</GradientPhrase>
       </h1>
       <p className="product-hero-rise-2 mx-auto mt-4 max-w-[36rem] text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
-        Seven sections cover the whole journey. Jump to one with the nav below, or read straight through.
+        Upload signed contracts, review the suggested fields, assign owners and dates, then track work, evidence, and reports.
       </p>
-      {/* Hero CTA — registration component ("Start free trial") and trial
-          disclaimer dropped. /product is an informational tour; conversion
-          lives on /pricing. Hero pivots to the next-step actions: see pricing,
-          or book a setup call for a guided walkthrough. */}
+      {/* Hero CTA — product tour stays informational; conversion is early access. */}
       <div className="product-hero-rise-3 mt-7 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href="/pricing"
+          href="/early-access"
           className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
         >
-          View pricing
+          Request early access
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
         </Link>
         <Link
-          href="/contact?interested=core"
+          href="#replace"
           prefetch={false}
           className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
         >
-          Book setup call
+          View product tour
         </Link>
       </div>
 
-      {/* Video placeholder card */}
-      <Link
-        href="/contact?interested=core"
-        prefetch={false}
-        aria-label="Watch a 90-second tour (opens contact form to request demo)"
-        className="group relative mx-auto mt-10 block max-w-2xl overflow-hidden rounded-3xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_94%,transparent)] shadow-[var(--shadow-1)] transition-shadow hover:shadow-[0_24px_60px_-20px_color-mix(in_oklab,var(--accent-strong)_22%,transparent)] motion-reduce:transition-none"
-      >
-        {/* v7 T28.2: browser chrome 3 dots removed; only the URL + duration badge stay. */}
-        <div className="product-browser-chrome">
-          <span className="truncate font-mono text-[10px] text-[var(--text-tertiary)]">
-            oblixa.com/dashboard
-          </span>
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[color:color-mix(in_oklab,var(--accent-soft)_42%,var(--surface-raised))] px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.12em] text-[var(--accent-strong)]">
-            90 SEC
-          </span>
-        </div>
-        <div className="relative aspect-[16/9]">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%)",
-            }}
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <span className="product-video-play-halo relative inline-flex items-center justify-center">
-              <PlayCircle
-                className="relative z-10 h-16 w-16 text-[var(--accent-strong)] transition-transform group-hover:scale-110 motion-reduce:transition-none"
-                strokeWidth={1.5}
-                aria-hidden
-              />
-            </span>
-            <span className="mt-2 text-[14px] font-semibold text-[var(--text-primary)]">
-              Watch a 90-second tour
-            </span>
-            <span className="text-[11px] text-[var(--text-tertiary)]">
-              Request a walkthrough →
-            </span>
-          </div>
-        </div>
-      </Link>
+      {/* Dashboard preview — the shared product-mock frame (MockShell), so the
+          hero's lead preview shares chrome, shadow, and caption vocabulary with
+          the inter-section mocks instead of being a bespoke one-off. */}
+      <div className="mx-auto mt-10 max-w-2xl text-left">
+        <DashboardOverviewPreview />
+      </div>
     </header>
-  );
-}
-
-/* ─── Outcomes strip ──────────────────────────────────────────────── */
-function OutcomesStrip() {
-  const SECTION_BULLET_COUNTS: Record<string, number> = {
-    renewals: 5,
-    work: 6,
-    evidence: 4,
-    reports: 7,
-  };
-  return (
-    <section
-      aria-label="What teams use Oblixa for"
-      className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      {OUTCOMES.map((o) => {
-        const Icon = ICONS[o.iconName];
-        return (
-          <a
-            key={o.id}
-            href={o.anchor}
-            className="group relative overflow-hidden rounded-2xl border p-4 transition-all hover:-translate-y-px motion-reduce:hover:translate-y-0 motion-reduce:transition-none"
-            style={{
-              ...toneStyle(o.tone),
-              borderColor: "color-mix(in oklab, var(--section-tone) 24%, var(--border-subtle))",
-              background: "color-mix(in oklab, var(--section-tone) 6%, var(--surface-raised))",
-            }}
-          >
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-100 motion-reduce:transition-none"
-              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--section-tone) 30%, transparent), transparent 70%)" }}
-            />
-            <div className="flex items-start justify-between">
-              <span
-                aria-hidden
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl"
-                style={{
-                  background: "color-mix(in oklab, var(--section-tone) 18%, var(--surface-raised))",
-                  color: "var(--section-tone)",
-                }}
-              >
-                <Icon className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-              </span>
-              <span
-                aria-hidden
-                className="inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-md px-1 font-mono text-[10px] font-bold tabular-nums"
-                style={{
-                  background: "color-mix(in oklab, var(--section-tone) 12%, var(--surface-raised))",
-                  color: "var(--section-tone)",
-                }}
-              >
-                {SECTION_BULLET_COUNTS[o.id]}
-              </span>
-            </div>
-            <p className="mt-3 text-[13.5px] font-semibold text-[var(--text-primary)]">
-              {o.label}
-            </p>
-            <p className="mt-0.5 text-[11.5px] text-[var(--text-tertiary)]">
-              {o.subtitle}
-            </p>
-          </a>
-        );
-      })}
-    </section>
   );
 }
 
@@ -265,20 +161,19 @@ function BeforeAfter() {
       aria-label="What teams replace"
       className="relative mt-10 grid gap-3 sm:grid-cols-[1fr_auto_1fr]"
     >
-      <div className="product-before-card rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] p-5">
-        {/* v7 T27.19: both eyebrows dotless for parity. */}
+      <div className="product-before-card rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] p-4">
         <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Before</p>
         <p className="mt-1 text-[15px] font-semibold text-[var(--text-primary)]">
           Contract tracking spreadsheet
         </p>
-        <div className="mt-3 overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)]">
+        <div className="mt-3 overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_88%,var(--surface-raised))]">
           <div className="grid grid-cols-[1fr_auto] gap-x-2 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
             <span>Contract</span>
             <span>Owner</span>
           </div>
           {[
-            { name: "Acme — MSA", owner: "?" },
-            { name: "Initech — DPA", owner: "?" },
+            { name: "Acme — MSA", owner: "—" },
+            { name: "Initech — DPA", owner: "—" },
             { name: "Hooli — Lease", owner: "—" },
           ].map((row, i) => (
             <div
@@ -306,22 +201,16 @@ function BeforeAfter() {
         </ul>
       </div>
       <div className="hidden items-center justify-center sm:flex">
-        <span
-          aria-hidden
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_38%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
-        >
-          <ChevronRight className="h-5 w-5" strokeWidth={2} />
-        </span>
+        <ChevronRight className="h-5 w-5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
       </div>
       <div
-        className="product-after-card relative overflow-hidden rounded-2xl border p-5"
+        className="product-after-card relative overflow-hidden rounded-2xl border p-4"
         style={{
           borderColor: "color-mix(in oklab, var(--accent) 28%, var(--border-subtle))",
           background:
             "radial-gradient(ellipse 70% 80% at 0% 0%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 60%), color-mix(in oklab, var(--accent-soft) 6%, var(--surface-raised))",
         }}
       >
-        {/* v7 T27.19: dotless to match BEFORE. */}
         <p className="ui-caps-2 text-[10.5px] text-[var(--accent-strong)]">After</p>
         <p className="mt-1 text-[15px] font-semibold text-[var(--text-primary)]">
           Oblixa contract tracking workspace
@@ -342,7 +231,7 @@ function BeforeAfter() {
               className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 border-t border-[var(--border-subtle)] px-2 py-1 text-[10.5px]"
             >
               <span className="truncate text-[var(--text-primary)]">{row.name}</span>
-              <span className="inline-flex h-4 min-w-[1.25rem] items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,white)] px-1 font-mono text-[8.5px] font-bold text-[var(--accent-strong)]">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,var(--surface-raised))] font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
                 {row.owner}
               </span>
               <span className="font-mono tabular-nums text-[var(--text-tertiary)]">{row.date}</span>
@@ -356,7 +245,7 @@ function BeforeAfter() {
           </li>
           <li className="flex items-start gap-2">
             <CalendarClock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--accent-strong)]" strokeWidth={2} aria-hidden />
-            Renewals and notice dates in a single calendar
+            Renewals and notice dates in a single timeline
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--accent-strong)]" strokeWidth={2} aria-hidden />
@@ -386,7 +275,7 @@ function TimeToValue() {
         Time to value
       </p>
       <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((s, i) => {
+        {steps.map((s) => {
           const Icon = s.Icon;
           return (
             <li key={s.label} className="relative">
@@ -395,14 +284,10 @@ function TimeToValue() {
                   <Icon className="h-3 w-3" strokeWidth={2} aria-hidden />
                   {s.label}
                 </span>
-                {i < steps.length - 1 ? (
-                  <span aria-hidden className="product-ttv-progress-line hidden flex-1 sm:inline-block" />
-                ) : null}
               </div>
               <p className="mt-2 text-[13.5px] leading-[1.55] text-[var(--text-secondary)]">
                 {s.body}
               </p>
-              {/* v7 T27.1: example data sentence case (was CAPS). */}
               <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                 e.g. {s.example}
               </p>
@@ -415,14 +300,11 @@ function TimeToValue() {
 }
 
 /* ─── Section card ─────────────────────────────────────────────────────
-   v7 subtraction applied:
-   - T28.1 decoration SVG NO LONGER rendered
-   - T27.4  context strip caps line REMOVED
-   - T28.5  inline trial CTAs REMOVED from per-section bodies
-   - T27.13 drop cap REMOVED (no more `.product-drop-cap` class)
-   - T28.3  display numeral 2.75rem 700 → 2rem 600
-   - T28.6  eyebrow → h3 gap mt-2 → mt-1.5
-   - T28.4  badge stamp KEPT (owns top-right uncontested now)
+   Per §10.18: per-section tone is a restrained cue on the eyebrow + medallion
+   only — the card surface (shared landing-card-premium recipe), rail, bullets,
+   and metric chip stay neutral. The eyebrow inlines the section number as a
+   weight-graduated caps prefix (no middle-dot). The "Next" wayfinding affordance
+   sits inside the content column under the bullets, not in a detached footer band.
    ──────────────────────────────────────────────────────────────────── */
 function SectionCard({
   section,
@@ -442,179 +324,119 @@ function SectionCard({
       aria-labelledby={headingId}
       tabIndex={-1}
       className={
-        "product-section-card product-target-flash landing-card-premium group relative overflow-hidden rounded-3xl border-l-4 transition-all hover:-translate-y-0.5 hover:border-[color:color-mix(in_oklab,var(--section-tone)_36%,var(--border-strong))] active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
+        "product-section-card product-target-flash landing-card-premium group relative overflow-hidden rounded-2xl border " +
         (belowFold ? "product-cv-auto" : "")
       }
       style={{
         ...toneStyle(section.tone),
-        scrollMarginTop: "96px",
-        borderLeftColor: "var(--section-tone)",
-        background: "color-mix(in oklab, var(--section-tone) 5%, var(--surface-raised))",
+        scrollMarginTop: "124px",
       }}
     >
-      {/* Timeline node at lg+ — structural anchor for the journey */}
-      <span aria-hidden className="product-timeline-node hidden lg:inline-flex">
-        {number}
-      </span>
-      {/* Subtle dot grid overlay */}
-      <span aria-hidden className="product-section-dot-grid pointer-events-none absolute inset-0" />
-      {/* Tone-tinted radial orb in top-right */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-60 blur-3xl"
-        style={{
-          background: "radial-gradient(circle, color-mix(in oklab, var(--section-tone) 22%, transparent), transparent 70%)",
-        }}
-      />
-      {/* Badge stamp — top-right, single source of section identity (decoration SVG removed) */}
-      <span
-        aria-hidden
-        className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em]"
-        style={{
-          borderColor: "color-mix(in oklab, var(--section-tone) 28%, var(--border-subtle))",
-          background: "color-mix(in oklab, var(--section-tone) 14%, var(--surface-raised))",
-          color: "var(--section-tone)",
-        }}
-      >
-        {section.badge}
-      </span>
-      <div className="relative grid gap-5 p-6 sm:gap-6 sm:p-9 lg:grid-cols-[auto_minmax(0,1fr)]">
-        {/* Single visual identity: the medallion icon. The section number now
-            lives inline in the eyebrow as a tabular-nums prefix — no more
-            awkward "number above icon" stack. */}
+      <div className="grid gap-4 p-5 sm:gap-5 sm:p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
+        {/* Single visual identity: the tone-tinted medallion. The section number
+            lives inline in the eyebrow as a weight-graduated caps prefix. */}
         <span
           aria-hidden
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:h-14 sm:w-14"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-[var(--shadow-1)] sm:h-12 sm:w-12"
           style={{
-            border: "2px solid color-mix(in oklab, var(--section-tone) 20%, var(--border-subtle))",
-            background: "color-mix(in oklab, var(--section-tone) 14%, var(--surface-raised))",
+            border: "1px solid color-mix(in oklab, var(--section-tone) 30%, var(--border-subtle))",
+            background: "color-mix(in oklab, var(--section-tone) 16%, var(--surface-raised))",
             color: "var(--section-tone)",
-            boxShadow: "inset 0 1px 0 0 color-mix(in oklab, white 6%, transparent)",
           }}
         >
-          <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.85} />
+          <Icon className="h-5 w-5 sm:h-[1.375rem] sm:w-[1.375rem]" strokeWidth={1.85} />
         </span>
         <div className="min-w-0">
+          {/* Eyebrow — number (heavier) + label (lighter), weight gradation, no dot. */}
           <p
-            className="ui-caps-1 inline-flex items-center gap-2 text-[11px]"
+            className="inline-flex items-baseline gap-1.5 text-[11px] leading-none"
             style={{ color: "var(--section-tone)" }}
           >
             <span
-              className="font-bold tabular-nums tracking-[0.16em]"
+              className="ui-caps-1 tabular-nums"
               style={{ fontVariantNumeric: "tabular-nums lining-nums slashed-zero" }}
             >
               {number}
             </span>
-            <span
-              aria-hidden
-              className="inline-block h-1 w-1 rounded-full"
-              style={{ background: "var(--section-tone)" }}
-            />
-            {section.eyebrow}
+            <span className="ui-caps-2">{section.eyebrow}</span>
           </p>
-          {/* v7 T28.6: tighter eyebrow → h3 gap (mt-2 → mt-1.5). */}
-          {/* v7 T26.2: h3 (not h2) — nested inside phase h2 for heading hierarchy. */}
           <h3
             id={headingId}
-            className="mt-1.5 text-[1.5rem] font-semibold leading-[1.2] tracking-tight text-[var(--text-primary)] sm:text-[1.875rem]"
+            className="mt-2 text-[1.25rem] font-semibold leading-[1.25] tracking-tight text-[var(--text-primary)] sm:text-[1.5rem]"
           >
             {section.title}
           </h3>
-          {/* v7 T27.4: context strip caps line REMOVED. */}
-          <p className="mt-3 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
+          <p className="mt-2.5 max-w-2xl text-[14px] leading-[1.6] text-[var(--text-secondary)]">
             {section.message}
           </p>
-          {section.microStat ? (
-            <p className="mt-3 inline-flex items-center gap-2 rounded-md border border-[color:color-mix(in_oklab,var(--section-tone)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--section-tone)_6%,var(--surface-raised))] px-2.5 py-1 text-[11px] font-semibold text-[var(--text-secondary)]">
-              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--section-tone)" }} />
-              {section.microStat}
-            </p>
+          {section.metric ? (
+            <div className="mt-3">
+              <KeyValueChip label={section.metric.label} value={section.metric.value} />
+            </div>
           ) : null}
-          <ul className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
-            {section.bullets.map((b, i) => {
-              const isFirstBullet = i === 0;
-              return (
-                <li
-                  key={b}
-                  className={
-                    "flex items-start gap-2 leading-[1.55] text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] motion-reduce:transition-none " +
-                    (isFirstBullet ? "text-[15px] font-medium" : "text-[14px]")
-                  }
-                >
-                  {section.bulletVariant === "check" ? (
-                    <CheckCircle2
-                      className="mt-0.5 h-4 w-4 shrink-0"
-                      style={{ color: "var(--section-tone)" }}
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                  ) : (
-                    <span
-                      aria-hidden
-                      className="product-bullet-gradient mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-                    />
-                  )}
-                  {b}
-                </li>
-              );
-            })}
+          <ul className="mt-4 grid gap-x-4 gap-y-2 sm:grid-cols-2">
+            {section.bullets.map((b) => (
+              <li
+                key={b}
+                className="flex items-start gap-2 text-[13.5px] leading-[1.5] text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] motion-reduce:transition-none"
+              >
+                {section.bulletVariant === "check" ? (
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="mt-[0.4rem] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--border-strong)]"
+                  />
+                )}
+                {b}
+              </li>
+            ))}
           </ul>
-          {/* v7 T28.5: per-section inline trial CTAs REMOVED. */}
+          {/* Next-step wayfinding — kept inside the content column, under the
+              bullets, so it reads as tour progression rather than a detached CTA. */}
+          <div className="mt-5 flex items-center justify-end gap-2">
+            {nextSection ? (
+              <>
+                <span className="ui-caps-2 text-[10px] leading-none text-[var(--text-tertiary)]">
+                  Next
+                </span>
+                <ActionChip verb={nextSection.eyebrow} href={`#${nextSection.id}`} />
+              </>
+            ) : (
+              <a
+                href="#top"
+                className="ui-caps-2 inline-flex items-center gap-1.5 text-[10.5px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] motion-reduce:transition-none"
+              >
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                Back to top
+              </a>
+            )}
+          </div>
         </div>
       </div>
-      {/* Footer band */}
-      {nextSection ? (
-        <a
-          href={`#${nextSection.id}`}
-          className="relative flex items-center justify-between gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] px-7 py-3 text-[12px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--section-tone)_5%,transparent)] motion-reduce:transition-none sm:px-9"
-        >
-          <span className="font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
-            Next
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-[var(--text-secondary)]">
-            {nextSection.eyebrow}
-            <ArrowRight
-              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
-              strokeWidth={1.85}
-              aria-hidden
-            />
-          </span>
-        </a>
-      ) : (
-        <a
-          href="#top"
-          className="relative flex items-center justify-end gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] px-7 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] motion-reduce:transition-none sm:px-9"
-        >
-          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-          Back to top
-        </a>
-      )}
     </section>
   );
 }
 
-/* ─── Phase header (round-2 redesign) ───────────────────────────────────
-   The previous header was a baseline-shared row of [Phase 01 caps] [Title]
-   [Sections 01–02 caps] sitting on a half-tinted band with an underline
-   animation — read as ugly and over-styled. New shape: a clean separator,
-   small phase caps eyebrow, h2 title, and a one-line description. No band,
-   no animated underline, no redundant "Sections X–Y" suffix.
+/* ─── Phase header ──────────────────────────────────────────────────────
+   Clean separator + small phase caps eyebrow + h2 + one-line description.
+   No band, no animated underline, no redundant "Sections X–Y" suffix.
    ──────────────────────────────────────────────────────────────────── */
 function PhaseHeader({ phase }: { phase: Phase }) {
   return (
-    <div className="relative pt-8 sm:pt-12" style={phaseToneStyle(phase.id)}>
-      {/* Top separator — thin, full-width, decorative */}
+    <div className="relative pt-6 sm:pt-8" style={phaseToneStyle(phase.id)}>
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]"
       />
-      <p
-        className="ui-caps-2 text-[10.5px]"
-        style={{ color: "var(--phase-tone)" }}
-      >
+      <p className="ui-caps-2 text-[10.5px]" style={{ color: "var(--phase-tone)" }}>
         Phase {phase.number}
       </p>
-      <h2 className="mt-1.5 text-[1.5rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.75rem]">
+      <h2 className="mt-1.5 text-[1.4rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.6rem]">
         {phase.label}
       </h2>
       <p className="mt-2 max-w-2xl text-[14px] leading-[1.55] text-[var(--text-secondary)]">
@@ -624,92 +446,64 @@ function PhaseHeader({ phase }: { phase: Phase }) {
   );
 }
 
-/* ─── Closing CTA ──────────────────────────────────────────────────────
-   v7 subtraction:
-   - T27.5  "END OF TOUR · 7/7" caps line REMOVED
-   - T28.10 bottom-left 2nd corner ring REMOVED
-   - T27.29 reduced to 2 CTAs; "Or talk to founder" demoted below microcopy
-   - T27.30 7-dot recap bumped (1.5px → 2.5px, opacity 70% → 90%)
-   - T27.6  proof microbar reduced tracking + sentence case
-   ──────────────────────────────────────────────────────────────────── */
+/* ─── Closing CTA ────────────────────────────────────────────────────── */
 function ClosingCta() {
   return (
-    <section className="relative mt-16 overflow-hidden rounded-3xl border landing-card-premium p-8 text-center sm:mt-20 sm:p-12">
-      <span
-        aria-hidden
-        className="landing-corner-ring"
-        style={{ top: "-2rem", right: "-2rem", width: "8rem", height: "8rem" }}
-      />
+    <section className="relative mt-12 overflow-hidden rounded-2xl border landing-card-premium p-8 text-center sm:p-10">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 50% 50%, color-mix(in oklab, var(--success-ink) 14%, transparent), transparent 70%)",
+            "radial-gradient(ellipse 70% 50% at 50% 50%, color-mix(in oklab, var(--success-ink) 12%, transparent), transparent 70%)",
         }}
       />
       <div className="relative">
         <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--success-ink)]">
           <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--success-ink)]" />
-          Ready to replace the spreadsheet
+          Early access
         </p>
         <h2 className="mt-3 text-balance text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[2.125rem]">
-          Replace the spreadsheet this quarter.
+          Start replacing the spreadsheet this quarter.
         </h2>
-        {/* Proof bar — CSS-divided cells (no text middle-dots).
-            Reads as a structured 4-cell strip, not a comma-noise list. */}
+        {/* Proof bar — CSS-divided cells (no text middle-dots). */}
         <div className="mx-auto mt-4 inline-flex divide-x divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] text-[11.5px] font-semibold text-[var(--text-tertiary)]">
-          <span className="px-3 py-1.5"><span className="tabular-nums text-[var(--text-secondary)]">21</span>-day trial</span>
-          <span className="px-3 py-1.5"><span className="tabular-nums text-[var(--text-secondary)]">25</span> contracts</span>
-          <span className="px-3 py-1.5"><span className="tabular-nums text-[var(--text-secondary)]">3</span> users</span>
+          <span className="px-3 py-1.5">Small evaluation set</span>
+          <span className="px-3 py-1.5">Source-backed review</span>
           <span className="px-3 py-1.5">CSV export</span>
         </div>
-        {/* v7 T27.30: 7-dot recap visual weight bump. */}
-        <div className="mt-4 flex items-center justify-center gap-2" aria-hidden>
-          {PRODUCT_SECTIONS.map((s) => (
-            <span
-              key={s.id}
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ background: `color-mix(in oklab, ${TONE_TOKENS[s.tone]} 90%, transparent)` }}
-            />
-          ))}
-        </div>
-        {/* Closing CTA — registration component + trial disclaimer dropped.
-            /product points to /pricing where the actual conversion funnel
-            lives (with its own Start free trial CTA). Secondary path: book a
-            setup call. */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/pricing"
+            href="/early-access"
             className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
           >
-            View pricing
+            Request early access
             <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
           </Link>
           <Link
-            href="/contact?interested=core"
+            href="#replace"
             prefetch={false}
             className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
           >
-            Book setup call
+            View product tour
           </Link>
         </div>
-        {/* Tertiary actions stacked vertically — no middle-dot separator. */}
-        <div className="mt-4 flex flex-col items-center gap-1 text-[12px] text-[var(--text-tertiary)]">
+        {/* Tertiary actions — quiet ghost chips (no underlined prose links). */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <Link
-            href="/contact?interested=founding_customer"
+            href="/contact"
             prefetch={false}
-            className="ui-link inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
           >
-            Or talk to founder
+            Contact Oblixa
             <ArrowUpRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
           </Link>
           <Link
-            href="/pricing#pricing-faq-heading"
+            href="/pricing"
             prefetch={false}
-            className="ui-link inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
           >
-            Or skim the pricing FAQ
+            Early-access pricing
             <ArrowUpRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
           </Link>
         </div>
@@ -719,13 +513,11 @@ function ClosingCta() {
 }
 
 /* ─── Page ─────────────────────────────────────────────────────────────
-   v7 page-level subtraction:
-   - T28.8 aurora top bar REMOVED
-   - T28.7 phase-tone columns at far edges REMOVED
-   - T28.9 atmospheric blobs hidden < md (kept lg+ for depth)
-   - T27.10 pull quotes REMOVED entirely
-   - T27.26 phase header → first section gap bumped
-   - T27.25 section ↔ mock connector inserted
+   Calmer-cousin pass: max-w-6xl (parity with /pricing + /security), tighter
+   vertical rhythm, a single softened luminous glow, and the two large
+   decorative blur blobs removed (they fed the all-blue wash for negligible
+   return — §11.30). Section identity comes from phase headers + per-card
+   eyebrow/medallion tone, not a page-wide color field.
    ──────────────────────────────────────────────────────────────────── */
 export default function ProductPage() {
   const setupSections = PRODUCT_SECTIONS.filter((s) => s.phaseId === "setup");
@@ -757,42 +549,24 @@ export default function ProductPage() {
       >
         <span id="top" aria-hidden className="absolute top-0" />
         <div aria-hidden className="landing-luminous__base" />
-        <div aria-hidden className="landing-luminous__glow" />
+        <div aria-hidden className="landing-luminous__glow opacity-60" />
         <div aria-hidden className="landing-luminous__grid" />
-        {/* v7 T28.8: aurora bar removed. Accent gradient hairline alone. */}
         <div aria-hidden className="product-top-hairline" />
-        {/* v7 T28.7: phase-tone columns removed. */}
-        {/* v7 T28.9: atmospheric blobs hidden < md. */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-40 -top-32 hidden h-[480px] w-[480px] rounded-full opacity-50 blur-3xl md:block"
-          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-strong) 8%, transparent), transparent 70%)" }}
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -left-40 bottom-12 hidden h-[480px] w-[480px] rounded-full opacity-40 blur-3xl md:block"
-          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--success-ink) 8%, transparent), transparent 70%)" }}
-        />
 
-        <div className="relative mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <Hero />
           <BeforeAfter />
           <TimeToValue />
-          <OutcomesStrip />
           <ProductAnchorNav />
 
-          {/* Sections grouped by phase + vertical timeline rail (lg+).
-              Tighter vertical spacing (sm:space-y-8) — the wider canvas + lighter
-              phase headers reduce the need for big gaps. */}
+          {/* Sections grouped by phase. Phase 1 (entry) renders full-width;
+              phases 2–3 pair each section with a preview mock at lg+ to break
+              the centered-column rhythm and keep mocks from dominating width. */}
           <div className="relative mt-8 space-y-6 sm:space-y-8">
-            <span aria-hidden className="product-timeline-rail" />
-
             <PhaseHeader phase={PHASES[0]} />
             {setupSections.map((s) => renderSection(s))}
 
             <PhaseHeader phase={PHASES[1]} />
-            {/* Section + mock pairs render as 2-col grid at lg+ to break the
-                centered-column rhythm and stop mocks from dominating full width. */}
             <div className="grid items-start gap-4 lg:grid-cols-[3fr_2fr] lg:gap-6">
               {sectionAt("review") ? renderSection(sectionAt("review")!, { belowFold: true }) : null}
               <ReviewFieldsPreview />
@@ -807,8 +581,10 @@ export default function ProductPage() {
             </div>
 
             <PhaseHeader phase={PHASES[2]} />
-            {/* §6 evidence has no mock — full width. §7 reports pairs with the export mock. */}
-            {sectionAt("evidence") ? renderSection(sectionAt("evidence")!, { belowFold: true }) : null}
+            <div className="grid items-start gap-4 lg:grid-cols-[3fr_2fr] lg:gap-6">
+              {sectionAt("evidence") ? renderSection(sectionAt("evidence")!, { belowFold: true }) : null}
+              <EvidenceRequestPreview />
+            </div>
             <div className="grid items-start gap-4 lg:grid-cols-[3fr_2fr] lg:gap-6">
               {sectionAt("reports") ? renderSection(sectionAt("reports")!, { belowFold: true }) : null}
               <ReportsExportPreview />

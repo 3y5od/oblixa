@@ -6,6 +6,7 @@
 /** Readable without a session (not in `publicRoutes` — those redirect authed users to dashboard). */
 export const PUBLIC_INFORMATION_PATHS = [
   "/product",
+  "/early-access",
   "/pricing",
   "/contact",
   "/privacy",

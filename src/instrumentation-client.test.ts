@@ -24,9 +24,24 @@ describe("instrumentation-client", () => {
 
   it("initializes Sentry and re-exports captureRouterTransitionStart when DSN is set", async () => {
     vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@o1.ingest.sentry.io/1");
+    vi.stubEnv("NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV", "1");
     const Sentry = await import("@sentry/nextjs");
     const mod = await import("./instrumentation-client");
-    expect(mod.onRouterTransitionStart).toBe(Sentry.captureRouterTransitionStart);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (mod.onRouterTransitionStart as (...args: unknown[]) => void)("pathname", "navigation");
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(Sentry.init).toHaveBeenCalled();
+    expect(Sentry.captureRouterTransitionStart).toHaveBeenCalledWith("pathname", "navigation");
+  });
+
+  it("does not initialize Sentry in local dev unless opted in", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@o1.ingest.sentry.io/1");
+    const Sentry = await import("@sentry/nextjs");
+    const mod = await import("./instrumentation-client");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (mod.onRouterTransitionStart as (...args: unknown[]) => void)("pathname", "navigation");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(Sentry.init).not.toHaveBeenCalled();
+    expect(Sentry.captureRouterTransitionStart).not.toHaveBeenCalled();
   });
 });

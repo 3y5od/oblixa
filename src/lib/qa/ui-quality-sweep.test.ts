@@ -83,7 +83,7 @@ describe("app-wide UI quality sweep", () => {
       "src/components/dashboard/dashboard-upper.tsx",
     ]);
     const offenders = appUiSources().flatMap((path) => {
-      const relPath = relative(process.cwd(), path);
+      const relPath = relative(process.cwd(), path).replace(/\\/g, "/");
       if (SPEC_EXEMPT_FILES.has(relPath)) return [];
       const raw = readFileSync(path, "utf8");
       return genericCtaPatterns.some((pattern) => pattern.test(raw))

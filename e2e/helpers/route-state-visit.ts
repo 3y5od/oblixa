@@ -9,14 +9,20 @@ export const ROUTE_STATE_DYNAMIC_FIXTURES: Record<string, string> = Object.fromE
 );
 
 const AUTH_ROUTE_PREFIXES = [
-  "/dashboard",
-  "/work",
-  "/contracts",
-  "/reports",
-  "/settings",
-  "/onboarding",
+  "/accounts",
   "/assurance",
+  "/campaigns",
+  "/counterparties",
+  "/dashboard",
   "/decisions",
+  "/contracts",
+  "/more",
+  "/onboarding",
+  "/relationship-workspaces",
+  "/reports",
+  "/search",
+  "/settings",
+  "/work",
 ] as const;
 
 export function resolveRouteStateVisitPath(route: string): string {

@@ -3,7 +3,10 @@ import { NOTIFICATION_TAXONOMY } from "@/lib/notification-taxonomy";
 import {
   RELEASE_STATE_EMAIL_TEMPLATE_KEYS,
   RELEASE_STATE_EMAIL_TEMPLATES,
+  RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS,
+  RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATES,
   type ReleaseStateEmailTemplateKey,
+  type ReleaseStateSecondaryBillingEmailTemplateKey,
 } from "@/lib/release-state-email-templates";
 
 export const OPERATIONAL_MESSAGE_SURFACE_IDS = [
@@ -40,14 +43,6 @@ export type OperationalUserFacingMessage = {
 };
 
 function lifecycleSurface(key: ReleaseStateEmailTemplateKey): OperationalMessageSurface {
-  if (
-    key.startsWith("trial_") ||
-    key === "payment_succeeded" ||
-    key === "payment_failed" ||
-    key === "cancellation_confirmation"
-  ) {
-    return "billing_notice";
-  }
   if (key.includes("reminder") || key.includes("renewal") || key.includes("deadline")) return "reminder";
   if (key.startsWith("evidence_")) return "evidence_request";
   return "email";
@@ -69,6 +64,22 @@ const RELEASE_STATE_MESSAGE_REGISTRY: OperationalUserFacingMessage[] = RELEASE_S
   };
 });
 
+const RELEASE_STATE_SECONDARY_BILLING_MESSAGE_REGISTRY: OperationalUserFacingMessage[] =
+  RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS.map((key: ReleaseStateSecondaryBillingEmailTemplateKey) => {
+    const template = RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATES[key];
+    return {
+      id: `release_billing_email.${key}`,
+      surface: "billing_notice",
+      owner: "@billing",
+      trigger: template.key,
+      source: "src/lib/release-state-email-templates.ts",
+      sensitivityClass: "billing_metadata",
+      deliveryPolicy: "direct",
+      renderingPolicy: "plain_text",
+      testCoverage: "src/lib/release-state-email-templates.test.ts",
+    };
+  });
+
 const NOTIFICATION_TAXONOMY_MESSAGE_REGISTRY: OperationalUserFacingMessage[] = NOTIFICATION_TAXONOMY.map((entry) => {
   const isReminder = /reminder|due|renewal|obligation/.test(entry.notificationType);
   const isEvidence = /^evidence_/.test(entry.notificationType);
@@ -87,6 +98,7 @@ const NOTIFICATION_TAXONOMY_MESSAGE_REGISTRY: OperationalUserFacingMessage[] = N
 
 export const OPERATIONAL_USER_FACING_MESSAGE_REGISTRY: OperationalUserFacingMessage[] = [
   ...RELEASE_STATE_MESSAGE_REGISTRY,
+  ...RELEASE_STATE_SECONDARY_BILLING_MESSAGE_REGISTRY,
   ...NOTIFICATION_TAXONOMY_MESSAGE_REGISTRY,
   {
     id: "toast.settings.notifications_saved",

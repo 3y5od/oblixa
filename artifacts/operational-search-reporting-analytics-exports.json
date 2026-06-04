@@ -8,7 +8,7 @@
   "searchBehaviorCount": 9,
   "reportingWorkflowCount": 8,
   "spreadsheetAttackClassCount": 6,
-  "analyticsEventCount": 370,
+  "analyticsEventCount": 390,
   "delegatedCheckCount": 3,
   "commands": [
     {
@@ -306,7 +306,7 @@
   ],
   "analyticsEventGovernance": {
     "inventory": "artifacts/telemetry/event-inventory.json",
-    "eventCount": 370,
+    "eventCount": 390,
     "eventClassPolicyCount": 12,
     "requiredFields": [
       "destinations",
@@ -872,6 +872,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "billing.invoice_downloaded",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "billing.payment_failed",
         "payloadSchema": [
           "audit_action_reference"
@@ -888,6 +908,46 @@
         "destinations": [
           "audit_log",
           "operations_alert"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "billing.portal_opened",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "billing.seat_mismatch_detected",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
         ],
         "sourceCount": 1,
         "compatibilitySensitive": true
@@ -1512,6 +1572,26 @@
           "webhook_subscriber"
         ],
         "sourceCount": 2,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "contract.upload_requested",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
         "compatibilitySensitive": true
       },
       {
@@ -2544,6 +2624,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "export.requested",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "external_link.expired",
         "payloadSchema": [
           "action_event_reference"
@@ -2715,6 +2815,26 @@
       },
       {
         "eventName": "extraction.queued",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "extraction.requested",
         "payloadSchema": [
           "action_event_reference"
         ],
@@ -3280,6 +3400,86 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "member.invite_accept_blocked",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "member.invite_accepted",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "member.invite_blocked",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "member.invite_expired",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "member.invite_resent",
         "payloadSchema": [
           "action_event_reference"
@@ -3316,11 +3516,31 @@
         "destinations": [
           "analytics_dashboard"
         ],
-        "sourceCount": 1,
+        "sourceCount": 2,
         "compatibilitySensitive": true
       },
       {
         "eventName": "member.invited",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 4,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "member.role_changed",
         "payloadSchema": [
           "action_event_reference"
         ],
@@ -4296,6 +4516,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "product.v10.access_requested",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "product.v10.activation_completed",
         "payloadSchema": [
           "product_telemetry_definition",
@@ -4555,6 +4795,86 @@
           "analytics_dashboard"
         ],
         "sourceCount": 2,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "product.v10.evaluation_closed",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "product.v10.evaluation_converted",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "product.v10.evaluation_paused",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "product.v10.evaluation_workspace_started",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
         "compatibilitySensitive": true
       },
       {
@@ -4842,6 +5162,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "product.v10.founder_support_time_recorded",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "product.v10.import_extraction_failure_rate_sampled",
         "payloadSchema": [
           "product_telemetry_definition",
@@ -4884,26 +5224,6 @@
       },
       {
         "eventName": "product.v10.owner_assigned",
-        "payloadSchema": [
-          "product_telemetry_definition"
-        ],
-        "sensitivityClass": [
-          "pseudonymous_behavioral"
-        ],
-        "retentionClass": [
-          "analytics_retention"
-        ],
-        "owner": [
-          "@product-operations"
-        ],
-        "destinations": [
-          "analytics_dashboard"
-        ],
-        "sourceCount": 1,
-        "compatibilitySensitive": true
-      },
-      {
-        "eventName": "product.v10.pilot_converted",
         "payloadSchema": [
           "product_telemetry_definition"
         ],
@@ -5065,6 +5385,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "product.v10.request_qualified",
+        "payloadSchema": [
+          "product_telemetry_definition"
+        ],
+        "sensitivityClass": [
+          "pseudonymous_behavioral"
+        ],
+        "retentionClass": [
+          "analytics_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "product.v10.review_queue_cleared",
         "payloadSchema": [
           "product_telemetry_definition",
@@ -5131,7 +5471,7 @@
         "compatibilitySensitive": true
       },
       {
-        "eventName": "product.v10.trial_converted",
+        "eventName": "product.v10.tracker_reviewed",
         "payloadSchema": [
           "product_telemetry_definition"
         ],
@@ -6913,6 +7253,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "report_pack.generation_requested",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "report_run.completed",
         "payloadSchema": [
           "action_event_reference"
@@ -7431,6 +7791,27 @@
           "security_audit"
         ],
         "sourceCount": 2,
+        "compatibilitySensitive": true
+      },
+      {
+        "eventName": "security.integration_disconnected",
+        "payloadSchema": [
+          "audit_action_reference"
+        ],
+        "sensitivityClass": [
+          "audit_metadata"
+        ],
+        "retentionClass": [
+          "audit_retention"
+        ],
+        "owner": [
+          "@security"
+        ],
+        "destinations": [
+          "audit_log",
+          "security_audit"
+        ],
+        "sourceCount": 1,
         "compatibilitySensitive": true
       },
       {
@@ -8081,6 +8462,26 @@
         "compatibilitySensitive": true
       },
       {
+        "eventName": "workspace.mode_changed",
+        "payloadSchema": [
+          "action_event_reference"
+        ],
+        "sensitivityClass": [
+          "operational_metadata"
+        ],
+        "retentionClass": [
+          "operational_retention"
+        ],
+        "owner": [
+          "@product-operations"
+        ],
+        "destinations": [
+          "analytics_dashboard"
+        ],
+        "sourceCount": 1,
+        "compatibilitySensitive": true
+      },
+      {
         "eventName": "workspace.mode_updated",
         "payloadSchema": [
           "action_event_reference",
@@ -8279,8 +8680,8 @@
       "checkId": "telemetry-event-inventory",
       "ok": true,
       "issueCount": 0,
-      "eventCount": 370,
-      "compatibilitySensitiveCount": 370
+      "eventCount": 390,
+      "compatibilitySensitiveCount": 390
     },
     {
       "checkId": "export-security-guards",

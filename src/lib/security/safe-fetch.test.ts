@@ -63,6 +63,13 @@ describe("safe-fetch IP guards", () => {
     expect(isAllowedDevLocalhostUrl(new URL("http://localhost:3000/api/extract"))).toBe(false);
   });
 
+  it("allows localhost for local e2e production-mode server when explicitly opted in", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("OBLIXA_ALLOW_LOCALHOST_SAFE_FETCH", "1");
+    expect(isAllowedDevLocalhostUrl(new URL("http://127.0.0.1:54321/auth/v1/token"))).toBe(true);
+  });
+
   it("rejects DNS resolution to blocked IPs before fetch", async () => {
     vi.mocked(dns.lookup).mockResolvedValue([{ address: "169.254.169.254", family: 4 }] as unknown as Awaited<
       ReturnType<typeof dns.lookup>

@@ -5,6 +5,11 @@ export const uiRouteFixtureManifest = [
     visitPath: "/contracts/00000000-0000-0000-0000-000000000000",
   },
   {
+    route: "/contracts/imports/[jobId]",
+    fixtureId: "contract-import-job-default",
+    visitPath: "/contracts/imports/00000000-0000-0000-0000-000000000005",
+  },
+  {
     route: "/campaigns/[id]",
     fixtureId: "campaign-default",
     visitPath: "/campaigns/00000000-0000-0000-0000-000000000001",

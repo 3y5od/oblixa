@@ -30,17 +30,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:complete-closure",
         "neutralCommand": "vitest run src/lib/complete-closure.test.ts src/lib/zero-exclusion-report.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -49,7 +46,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -73,17 +70,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:release-inventory-lock",
         "neutralCommand": "node scripts/check-release-inventory-lock.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -92,7 +86,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -116,17 +110,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:migration-smoke:current",
         "neutralCommand": "node scripts/check-migration-smoke-current.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -135,7 +126,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -159,17 +150,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:migration-smoke:current:strict",
         "neutralCommand": "node scripts/check-migration-smoke-current.mjs --strict",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -178,7 +166,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -202,17 +190,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:release-privacy-scan",
         "neutralCommand": "node scripts/check-release-evidence.mjs --privacy-scan all",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -221,7 +206,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -245,17 +230,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:release-promotable",
         "neutralCommand": "node scripts/check-release-promotable.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -264,7 +246,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -288,17 +270,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run report:release-promotable",
         "neutralCommand": "node scripts/check-release-promotable.mjs --report",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -307,7 +286,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -331,17 +310,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:release-evidence",
         "neutralCommand": "node scripts/check-release-evidence.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -350,7 +326,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -374,17 +350,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run report:runtime-evidence-plan",
         "neutralCommand": "node scripts/check-release-evidence.mjs --runtime-plan v10-rc-runtime --metric all",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -393,7 +366,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -417,17 +390,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:release-suite-current",
         "neutralCommand": "node scripts/check-release-suite-current.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -436,7 +406,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -460,17 +430,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:zero-exclusion-report",
         "neutralCommand": "vitest run src/lib/zero-exclusion-report.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -479,7 +446,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -503,17 +470,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface-hrefs:compatibility:strict",
         "neutralCommand": "npm run check:surface:hrefs:strict",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -522,7 +486,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -546,17 +510,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface-suite:compatibility",
         "neutralCommand": "npm run check:surface:suite",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -565,7 +526,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -589,17 +550,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:acceptance-criteria",
         "neutralCommand": "vitest run src/lib/product-surface/acceptance-criteria.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -608,7 +566,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -632,17 +590,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:acceptance-matrix",
         "neutralCommand": "vitest run src/lib/product-surface/acceptance-matrix.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -651,7 +606,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -675,17 +630,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:action-eligibility",
         "neutralCommand": "vitest run src/lib/product-surface/action-eligibility-gate.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -694,7 +646,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -718,17 +670,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:action-inventory",
         "neutralCommand": "vitest run src/lib/product-surface/server-action-inventory-coverage.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -737,7 +686,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -761,17 +710,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:api-eligibility",
         "neutralCommand": "npm run check:api-workspace-eligibility:strict",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -780,7 +726,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -804,17 +750,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:api-inventory",
         "neutralCommand": "vitest run src/lib/product-surface/api-inventory-coverage.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -823,7 +766,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -847,17 +790,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:denial-mapping",
         "neutralCommand": "vitest run src/lib/product-surface/denial-status.test.ts src/lib/product-surface/denial-class-reachability.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -866,7 +806,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -890,17 +830,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:diagnostics-contract",
         "neutralCommand": "vitest run src/lib/product-surface/diagnostics-contract.test.ts src/lib/product-surface/diagnostics-field-presence.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -909,7 +846,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -933,17 +870,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:hrefs",
         "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -952,7 +886,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -976,17 +910,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:hrefs:strict",
         "neutralCommand": "node scripts/audit-product-surface-cross-surface-hrefs.mjs --strict",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -995,7 +926,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1019,17 +950,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:page-inventory",
         "neutralCommand": "vitest run src/lib/product-surface/page-inventory-coverage.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1038,7 +966,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1062,17 +990,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:suite",
         "neutralCommand": "node scripts/pipelines/pipeline-surface-suite.mjs && echo \"check:surface:page-inventory check:surface:api-inventory check:surface:action-inventory check:surface:acceptance-matrix check:surface:api-eligibility check:surface:action-eligibility check:surface:hrefs:strict check:surface:vocabulary check:workflow-destinations check:api-route-tests check:api-route-auth-contract check:api-route-auth-route-index check:server-lib-admin check:surface:diagnostics-contract check:route-inventory check:surface:denial-mapping check:surface:supplemental-contracts refinement-contract.test.ts\"",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1081,7 +1006,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1105,17 +1030,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:supplemental-contracts",
         "neutralCommand": "vitest run src/lib/product-surface/exempt-surfaces-exemplars.test.ts src/lib/product-surface/registry-contract.test.ts src/lib/product-surface/eligibility-output-contract.test.ts src/lib/product-surface/eligibility-surface-type-matrix.test.ts src/lib/product-surface/context-load-build-parity.test.ts src/lib/product-surface/proxy-path-policy-alignment.test.ts src/lib/product-surface/admin-bypass-boundary.test.ts src/lib/product-surface/cross-surface-consistency.test.ts src/lib/product-surface/href-audit-roots-contract.test.ts src/lib/product-surface/route-inventory-mapping.test.ts src/lib/product-surface/metadata-public-routes.test.ts src/lib/product-surface/sentry-scrub-bridge.test.ts src/lib/product-surface/workspace-role-matrix.test.ts src/lib/product-surface/governed-page-shell.test.ts src/lib/product-surface/capability-token-discoverability.test.ts src/lib/product-surface/external-actions-token-contract.test.ts src/lib/product-surface/nav-cmdk-utilities-parity.test.ts src/lib/auth/post-auth-redirect.test.ts src/lib/product-surface/objectives-trace.test.ts src/lib/product-surface/alias-compatibility-parity.test.ts src/lib/product-surface/test-exemptions-contract.test.ts src/lib/product-surface/outbound-link-sources.test.ts",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1124,7 +1046,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1148,17 +1070,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:surface:vocabulary",
         "neutralCommand": "node scripts/check-product-surface-vocabulary.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1167,7 +1086,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1191,17 +1110,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run check:previous-release-suite",
         "neutralCommand": "node scripts/check-previous-release-suite.mjs",
-        "externalReferenceCount": 2,
-        "externalReferences": [
-          "config/qa-comprehensive-taxonomy.json",
-          "config/qa-tier-coverage-allowlist.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "2 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 2,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1210,7 +1126,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 2
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1394,16 +1310,14 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run test:e2e:compatibility",
         "neutralCommand": "playwright test --grep @compatibility",
-        "externalReferenceCount": 1,
-        "externalReferences": [
-          "config/operational-schema-compatibility.json"
-        ],
+        "externalReferenceCount": 0,
+        "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
-        "readinessStatus": "blocked_by_repo_local_references",
-        "readinessBlocker": "1 repo-local reference(s) still point at the legacy package script.",
+        "readinessStatus": "blocked_by_manual_follow_up",
+        "readinessBlocker": "No repo-local blocking references remain, but external branch protection, runbooks, and manual compatibility evidence have not approved removal.",
         "readinessRule": "ready_for_removal only when the package-script readiness artifact reports ready_for_removal and no non-doc repo-local references remain.",
-        "localReadyForRemoval": false,
-        "repoLocalReferenceCount": 1,
+        "localReadyForRemoval": true,
+        "repoLocalReferenceCount": 0,
         "docsOnlyReferenceCount": 0,
         "generatedArtifactReferenceCount": 0,
         "externalOrManualReferenceCount": 0,
@@ -1412,7 +1326,7 @@
           "external_or_manual": 0,
           "generated_artifact": 0,
           "ready_for_removal": 0,
-          "repo_local": 1
+          "repo_local": 0
         },
         "aliasDirection": "legacy_to_neutral"
       },
@@ -1515,7 +1429,7 @@
         "analyticsDashboardFollowUp": "No analytics dashboard change is authorized by this package-script alias entry.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run test:vitest:current-product",
-        "neutralCommand": "vitest run v10.test",
+        "neutralCommand": "vitest run \"src/lib/objective-telemetry.test.ts\" \"src/lib/release-state-analytics.test.ts\" \"src/lib/release-state-email-templates.test.ts\" \"src/lib/product-surface/refinement-contract.test.ts\" \"src/lib/product-surface/workflow-destinations.test.ts\" \"src/lib/product-surface/resolver.test.ts\" \"src/lib/product-surface/nav-visibility.test.ts\" \"src/components/layout/sidebar-model.test.ts\" \"src/components/layout/command-palette.ui.test.tsx\" \"src/app/(dashboard)/core-empty-state-copy.test.ts\" \"src/app/(dashboard)/loading-error-consistency.test.ts\" \"src/app/(dashboard)/settings/billing/page.surface.test.ts\" \"src/components/landing/landing-page.ui.test.tsx\" \"src/components/landing/marketing-site-chrome.ui.test.tsx\" \"src/components/auth/auth-form.ui.test.tsx\"",
         "externalReferenceCount": 0,
         "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
@@ -1578,6 +1492,25 @@
       }
     ],
     "telemetryEventNames": [
+      {
+        "surface": "telemetry_event",
+        "legacyName": "product.v10.access_requested",
+        "neutralAlias": "product.access_requested",
+        "owner": "platform",
+        "reason": "Release-state early-access telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
       {
         "surface": "telemetry_event",
         "legacyName": "product.v10.activation_completed",
@@ -1793,6 +1726,82 @@
         "neutralAlias": "product.empty_state_cta_clicked",
         "owner": "platform",
         "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
+        "legacyName": "product.v10.evaluation_closed",
+        "neutralAlias": "product.evaluation_closed",
+        "owner": "platform",
+        "reason": "Release-state evaluation telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
+        "legacyName": "product.v10.evaluation_converted",
+        "neutralAlias": "product.evaluation_converted",
+        "owner": "platform",
+        "reason": "Release-state evaluation telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
+        "legacyName": "product.v10.evaluation_paused",
+        "neutralAlias": "product.evaluation_paused",
+        "owner": "platform",
+        "reason": "Release-state evaluation telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
+        "legacyName": "product.v10.evaluation_workspace_started",
+        "neutralAlias": "product.evaluation_workspace_started",
+        "owner": "platform",
+        "reason": "Release-state evaluation telemetry label retained for compatibility until neutral aliases and removal queue land.",
         "status": "awaiting_analytics_dashboard_cutover",
         "validationCommand": "npm run check:telemetry-event-inventory",
         "validationCommands": {
@@ -2055,6 +2064,25 @@
       },
       {
         "surface": "telemetry_event",
+        "legacyName": "product.v10.founder_support_time_recorded",
+        "neutralAlias": "product.founder_support_time_recorded",
+        "owner": "platform",
+        "reason": "Release-state evaluation telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
         "legacyName": "product.v10.import_extraction_failure_rate_sampled",
         "neutralAlias": "product.import_extraction_failure_rate_sampled",
         "owner": "platform",
@@ -2095,25 +2123,6 @@
         "surface": "telemetry_event",
         "legacyName": "product.v10.owner_assigned",
         "neutralAlias": "product.owner_assigned",
-        "owner": "platform",
-        "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
-        "status": "awaiting_analytics_dashboard_cutover",
-        "validationCommand": "npm run check:telemetry-event-inventory",
-        "validationCommands": {
-          "legacy": "npm run check:telemetry-event-inventory",
-          "neutral": "npm run check:telemetry-event-inventory"
-        },
-        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
-        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
-        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
-      },
-      {
-        "surface": "telemetry_event",
-        "legacyName": "product.v10.pilot_converted",
-        "neutralAlias": "product.pilot_converted",
         "owner": "platform",
         "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
         "status": "awaiting_analytics_dashboard_cutover",
@@ -2264,6 +2273,25 @@
       },
       {
         "surface": "telemetry_event",
+        "legacyName": "product.v10.request_qualified",
+        "neutralAlias": "product.request_qualified",
+        "owner": "platform",
+        "reason": "Release-state early-access telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:telemetry-event-inventory",
+        "validationCommands": {
+          "legacy": "npm run check:telemetry-event-inventory",
+          "neutral": "npm run check:telemetry-event-inventory"
+        },
+        "earliestRemovalCondition": "Dashboards, alerts, exports, and analytics consumers read the neutral alias and no longer depend on the legacy event name.",
+        "manualFollowUp": "Migrate analytics, dashboard, alert, webhook, or audit consumers before removing the legacy event label.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this telemetry queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this telemetry queue entry.",
+        "analyticsDashboardFollowUp": "Migrate analytics dashboards, alerts, exports, and warehouse consumers to the neutral event alias before removal.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this telemetry queue entry."
+      },
+      {
+        "surface": "telemetry_event",
         "legacyName": "product.v10.review_queue_cleared",
         "neutralAlias": "product.review_queue_cleared",
         "owner": "platform",
@@ -2321,10 +2349,10 @@
       },
       {
         "surface": "telemetry_event",
-        "legacyName": "product.v10.trial_converted",
-        "neutralAlias": "product.trial_converted",
+        "legacyName": "product.v10.tracker_reviewed",
+        "neutralAlias": "product.tracker_reviewed",
         "owner": "platform",
-        "reason": "Existing versioned telemetry label retained for compatibility until neutral aliases and removal queue land.",
+        "reason": "Release-state tracker review telemetry label retained for compatibility until neutral aliases and removal queue land.",
         "status": "awaiting_analytics_dashboard_cutover",
         "validationCommand": "npm run check:telemetry-event-inventory",
         "validationCommands": {
@@ -16433,6 +16461,52 @@
         "surface": "exported_symbol_alias",
         "legacyName": "V10AuditInput",
         "neutralAlias": "AuditInput",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/server-contracts.ts",
+        "exportKind": "declaration",
+        "declarationKind": "type",
+        "typeOnly": true
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "V10AuditMetadata",
+        "neutralAlias": "AuditMetadata",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/server-contracts.ts",
+        "exportKind": "declaration",
+        "declarationKind": "type",
+        "typeOnly": true
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "V10AuditMetadataValue",
+        "neutralAlias": "AuditMetadataValue",
         "owner": "platform-hardening",
         "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
         "status": "alias_added",
@@ -31639,6 +31713,29 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+        "manualOnly": false,
+        "contractCount": 1
+      },
+      {
+        "surface": "dom_or_test_selector",
+        "subSurface": "dom_data_attribute",
+        "legacyName": "data-v10-state",
+        "neutralAlias": "data-state",
+        "owner": "qa-platform",
+        "reason": "Repo-local dom_data_attribute version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "All repository references use the neutral content contract and check:versioned-content-contracts remains green.",
+        "manualFollowUp": "This dom_data_attribute can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/components/contracts/contract-table.ui.test.tsx",
         "manualOnly": false,
         "contractCount": 2
@@ -39729,7 +39826,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
         "manualOnly": true,
-        "contractCount": 12
+        "contractCount": 11
       },
       {
         "surface": "provider_or_crypto_format",
@@ -41314,6 +41411,29 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "config/operational-search-reporting-analytics-exports.json",
+        "manualOnly": true,
+        "contractCount": 2
+      },
+      {
+        "surface": "external_contract",
+        "subSurface": "source_owned_config_or_scanner_id",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-security",
+        "reason": "Compatibility-sensitive source_owned_config_or_scanner_id version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this source_owned_config_or_scanner_id until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "config/qa-comprehensive-taxonomy.json",
         "manualOnly": true,
         "contractCount": 33
@@ -41431,7 +41551,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "package.json",
         "manualOnly": false,
-        "contractCount": 16
+        "contractCount": 15
       },
       {
         "surface": "provider_or_crypto_format",
@@ -42167,7 +42287,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/dashboard/core-dashboard-model.test.ts",
         "manualOnly": true,
-        "contractCount": 2
+        "contractCount": 4
       },
       {
         "surface": "provider_or_crypto_format",
@@ -42190,7 +42310,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/dashboard/core-dashboard-model.ts",
         "manualOnly": true,
-        "contractCount": 6
+        "contractCount": 7
       },
       {
         "surface": "provider_or_crypto_format",
@@ -43455,7 +43575,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "scripts/audit-release-state-code-only.mjs",
         "manualOnly": false,
-        "contractCount": 13
+        "contractCount": 9
       },
       {
         "surface": "tooling_contract",
@@ -45294,6 +45414,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "config/operational-observability-redaction.json",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "external_contract",
+        "subSurface": "source_owned_config_or_scanner_id",
+        "legacyName": "V10",
+        "neutralAlias": null,
+        "owner": "platform-security",
+        "reason": "Compatibility-sensitive source_owned_config_or_scanner_id version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this source_owned_config_or_scanner_id until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "config/operational-search-reporting-analytics-exports.json",
         "manualOnly": true,
         "contractCount": 1
       },
@@ -47273,7 +47416,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/globals.css",
         "manualOnly": true,
-        "contractCount": 4
+        "contractCount": 7
       },
       {
         "surface": "provider_or_crypto_format",
@@ -47456,6 +47599,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/loading-error-consistency.test.ts",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "app_route_contract",
+        "subSurface": "page_route_or_deep_link_contract",
+        "legacyName": "v16",
+        "neutralAlias": null,
+        "owner": "frontend-platform",
+        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/globals.css",
         "manualOnly": true,
         "contractCount": 1
       },
@@ -47825,7 +47991,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/integrations/refresh-tokens/route.test.ts",
         "manualOnly": true,
-        "contractCount": 4
+        "contractCount": 7
       },
       {
         "surface": "provider_or_crypto_format",
@@ -49228,7 +49394,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
         "manualOnly": true,
-        "contractCount": 13
+        "contractCount": 17
       },
       {
         "surface": "app_route_contract",
@@ -49251,7 +49417,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
         "manualOnly": true,
-        "contractCount": 87
+        "contractCount": 80
       },
       {
         "surface": "app_route_contract",
@@ -50629,6 +50795,52 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "config/operational-notifications-messaging.json",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "external_contract",
+        "subSurface": "source_owned_config_or_scanner_id",
+        "legacyName": "v4",
+        "neutralAlias": null,
+        "owner": "platform-security",
+        "reason": "Compatibility-sensitive source_owned_config_or_scanner_id version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this source_owned_config_or_scanner_id until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "config/operational-search-reporting-analytics-exports.json",
+        "manualOnly": true,
+        "contractCount": 5
+      },
+      {
+        "surface": "external_contract",
+        "subSurface": "source_owned_config_or_scanner_id",
+        "legacyName": "v4",
+        "neutralAlias": null,
+        "owner": "platform-security",
+        "reason": "Compatibility-sensitive source_owned_config_or_scanner_id version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this source_owned_config_or_scanner_id until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "config/security-coverage-ledger.json",
         "manualOnly": true,
         "contractCount": 1
@@ -51071,6 +51283,121 @@
         "contractCount": 1
       },
       {
+        "surface": "tooling_contract",
+        "subSurface": "source_owned_config_or_scanner_id",
+        "legacyName": "v4",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local source_owned_config_or_scanner_id version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "All repository references use the neutral content contract and check:versioned-content-contracts remains green.",
+        "manualFollowUp": "This source_owned_config_or_scanner_id can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "scripts/route-handler-complexity-baseline.json",
+        "manualOnly": false,
+        "contractCount": 1
+      },
+      {
+        "surface": "app_route_contract",
+        "subSurface": "page_route_or_deep_link_contract",
+        "legacyName": "V4",
+        "neutralAlias": null,
+        "owner": "frontend-platform",
+        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/(dashboard)/settings/operations/notifications-readonly.tsx",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "app_route_contract",
+        "subSurface": "page_route_or_deep_link_contract",
+        "legacyName": "V4",
+        "neutralAlias": null,
+        "owner": "frontend-platform",
+        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/(dashboard)/settings/operations/notifications-summary.tsx",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "app_route_contract",
+        "subSurface": "page_route_or_deep_link_contract",
+        "legacyName": "V4",
+        "neutralAlias": null,
+        "owner": "frontend-platform",
+        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
+        "manualOnly": true,
+        "contractCount": 6
+      },
+      {
+        "surface": "app_route_contract",
+        "subSurface": "page_route_or_deep_link_contract",
+        "legacyName": "V4",
+        "neutralAlias": null,
+        "owner": "frontend-platform",
+        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
+        "manualOnly": true,
+        "contractCount": 18
+      },
+      {
         "surface": "app_route_contract",
         "subSurface": "page_route_or_deep_link_contract",
         "legacyName": "V4",
@@ -51091,7 +51418,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/settings/security/page.surface.test.ts",
         "manualOnly": true,
-        "contractCount": 29
+        "contractCount": 28
       },
       {
         "surface": "app_route_contract",
@@ -62451,32 +62778,9 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/(dashboard)/settings/billing/page.surface.test.ts",
-        "manualOnly": true,
-        "contractCount": 1
-      },
-      {
-        "surface": "app_route_contract",
-        "subSurface": "page_route_or_deep_link_contract",
-        "legacyName": "v7",
-        "neutralAlias": null,
-        "owner": "frontend-platform",
-        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(marketing)/product/page.tsx",
         "manualOnly": true,
-        "contractCount": 16
+        "contractCount": 14
       },
       {
         "surface": "app_route_contract",
@@ -63236,29 +63540,6 @@
         "sourcePath": "src/lib/global-constraints.test.ts",
         "manualOnly": true,
         "contractCount": 4
-      },
-      {
-        "surface": "provider_or_crypto_format",
-        "subSurface": "provider_or_protocol_version",
-        "legacyName": "v8",
-        "neutralAlias": null,
-        "owner": "platform-security",
-        "reason": "Compatibility-sensitive provider_or_protocol_version version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this provider_or_protocol_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/lib/marketing/voice-sweep.test.ts",
-        "manualOnly": true,
-        "contractCount": 6
       },
       {
         "surface": "provider_or_crypto_format",
@@ -64407,29 +64688,6 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/(dashboard)/contracts/[id]/page.tsx",
-        "manualOnly": true,
-        "contractCount": 1
-      },
-      {
-        "surface": "app_route_contract",
-        "subSurface": "page_route_or_deep_link_contract",
-        "legacyName": "v9",
-        "neutralAlias": null,
-        "owner": "frontend-platform",
-        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/(dashboard)/settings/billing/page.surface.test.ts",
         "manualOnly": true,
         "contractCount": 1
       },
@@ -69672,6 +69930,29 @@
       {
         "surface": "export_download_contract",
         "subSurface": "notification_or_export_contract",
+        "legacyName": "v14",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/components/landing/landing-content.ts",
+        "category": "export_import_diagnostics",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "notification_or_export_contract",
         "legacyName": "V10",
         "neutralAlias": null,
         "owner": "platform-hardening",
@@ -69760,29 +70041,6 @@
         "sourcePath": "src/lib/complete-closure.ts",
         "category": "export_import_diagnostics",
         "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "local_source_literal",
-        "legacyName": "v23",
-        "neutralAlias": null,
-        "owner": "platform-hardening",
-        "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/lib/contracts-import-release-state.test.ts",
-        "category": "export_import_diagnostics",
-        "manualOnly": false
       },
       {
         "surface": "export_download_contract",
@@ -70149,29 +70407,6 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
         "sourcePath": "src/lib/integrations/events.ts",
-        "category": "export_import_diagnostics",
-        "manualOnly": false
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "notification_or_export_contract",
-        "legacyName": "v9",
-        "neutralAlias": null,
-        "owner": "platform-hardening",
-        "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/lib/marketing/voice-sweep.test.ts",
         "category": "export_import_diagnostics",
         "manualOnly": false
       },

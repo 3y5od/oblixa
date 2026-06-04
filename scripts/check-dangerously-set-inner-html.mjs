@@ -7,6 +7,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const allowPath = path.join(root, "scripts", "dangerously-set-inner-html-allowlist.txt");
 
+function toRepoPath(p) {
+  return p.replace(/\\/g, "/");
+}
+
 function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, name.name);
@@ -25,13 +29,14 @@ function main() {
           .readFileSync(allowPath, "utf8")
           .split("\n")
           .map((l) => l.replace(/#.*$/, "").trim())
+          .map(toRepoPath)
           .filter(Boolean)
       : []
   );
   const files = walk(path.join(root, "src"));
   const hits = [];
   for (const f of files) {
-    const rel = path.relative(root, f);
+    const rel = toRepoPath(path.relative(root, f));
     if (allow.has(rel)) continue;
     const s = fs.readFileSync(f, "utf8");
     if (/\bdangerouslySetInnerHTML\s*=/.test(s)) hits.push(rel);

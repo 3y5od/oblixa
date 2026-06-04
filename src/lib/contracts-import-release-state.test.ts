@@ -45,25 +45,27 @@ describe("contract import release-state surface", () => {
   });
 
   it("keeps CSV and signed-file import paths visible without non-Core framing", () => {
-    // v23: the form h2 ("Replace the tracking spreadsheet"), the
-    // long form lead, the signed-files h3 + sub-paragraph, the prose
-    // queued-files counter, the Review path h3 + sub-lead, the
-    // selected-summary footer, and the sticky-footer prose were all
-    // dropped per §10.7 + §10.4 + §10.14 (subtraction is a design
-    // move). The eyebrow ("Import source"), method tabs, field
-    // labels, column-group eyebrow + values, file-format chips
-    // ("PDF or DOCX", "20 MB max"), Review path eyebrow + step list,
-    // and primary CTA remain as the spec-mandated anchors.
+    // The two import paths are named by source ("Tracker spreadsheet" /
+    // "Signed contracts"); the tablist keeps its "Import source"
+    // aria-label. The requirements section ("Spreadsheet columns")
+    // renders only the seven columns the importer actually persists
+    // (title, counterparty, owner_email, contract_type, region,
+    // source_system, external_reference_id) as chips with their
+    // snake_case authoring headers. Steps use the release-state AI
+    // boundary word "suggested" (not "extracted").
     for (const copy of [
-      "Import CSV",
-      "Signed files",
+      "Tracker spreadsheet",
+      "Signed contracts",
       "CSV file",
-      "Minimum spreadsheet shape",
-      "title, counterparty",
-      "contract_type, owner_email, region",
-      "source_system, external_reference_id",
+      "Spreadsheet columns",
+      "Contract title",
+      "External reference ID",
+      "owner_email",
+      "contract_type",
+      "source_system",
+      "external_reference_id",
       "Signed PDF or DOCX files",
-      "Review extracted fields",
+      "Review suggested fields",
       "Open job details",
     ]) {
       expect(formRaw).toContain(copy);
@@ -78,6 +80,11 @@ describe("contract import release-state surface", () => {
       "Advanced",
       "Assurance",
       "Inspect job diagnostics",
+      // Honesty guard: the CSV importer does not persist these, so the
+      // requirements section must not advertise them as importable.
+      "Termination date",
+      "Annual value",
+      "Review extracted fields",
     ]) {
       expect(formRaw).not.toContain(forbidden);
     }

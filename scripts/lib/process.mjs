@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
+import { commandForPlatform } from "./cross-platform-spawn.mjs";
 
 export function runCommand(command, args = [], options = {}) {
   const {
@@ -8,11 +9,14 @@ export function runCommand(command, args = [], options = {}) {
     env = process.env,
     stdio = "inherit",
     timeoutMs = 0,
-    shell = process.platform === "win32",
+    shell = false,
+    platform = process.platform,
+    runner = spawn,
   } = options;
+  const resolved = shell ? { cmd: command, args } : commandForPlatform(command, args, platform);
 
   return new Promise((resolve) => {
-    const child = spawn(command, args, { cwd, env, stdio, shell });
+    const child = runner(resolved.cmd, resolved.args, { cwd, env, stdio, shell });
     let timedOut = false;
     let timer = null;
 

@@ -32,7 +32,11 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     company: "Acme Co",
     role: "Operations lead",
     contracts: "50-200",
-    interested: "core",
+    interested: "early_access",
+    trackingMethod: "spreadsheet",
+    hasTracker: "yes",
+    redactedSample: "unsure",
+    preference: "async",
     pain: "Renewal dates are easy to miss.",
     message: "Please send details.",
     ...overrides,
@@ -62,20 +66,22 @@ describe("POST /api/contact", () => {
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
-  it("accepts the release-state assurance workflows interest value", async () => {
+  it("rejects legacy public interest values", async () => {
     const { POST } = await import("@/app/api/contact/route");
     const res = await POST(
       contactRequest(
         JSON.stringify(
           validPayload({
-            email: "valid-assurance@example.com",
+            email: "invalid-interest@example.com",
             interested: "assurance_workflows",
           })
         )
       )
     );
+    const body = await res.json();
 
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(400);
+    expect(body.details?.reason).toBe("invalid_interested");
   });
 
   it("rejects malformed JSON", async () => {

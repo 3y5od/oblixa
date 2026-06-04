@@ -696,7 +696,7 @@ A page that is N cards stacked vertically in a centered column reads as monotono
 
 Alternate full-width cards with 2-column splits. Group some cards into a 3- or 4-cell strip. Render some sections side-by-side with their preview. The rhythm of "full / split / full / split / split / full / split" breaks the centered-column monotony without sacrificing readability.
 
-Canonical example: `/product`'s 7 section cards. Phase 01 (sections 1-2) renders full-width. Phase 02 (sections 3-5) renders each section side-by-side with its preview mock at lg+. Phase 03 has §6 full-width and §7 + its mock side-by-side. The reader's eye experiences alternation: full / full / split / split / split / full / split. That alternation itself is information — phase 01 is "the entry," phase 02 is "the daily flow with previews," phase 03 is "the output."
+Canonical example: `/product`'s 7 section cards. Phase 1 (sections 1-2) renders full-width to establish the entry. Phases 2-3 (sections 3-7) each render side-by-side with a preview mock at lg+. The reader's eye experiences: full / full / split / split / split / split / split — two full-width entry cards, then five paired rows. That grouping itself is information — phase 1 is "the entry," phase 2 is "the daily flow," phase 3 is "the output." Section identity is carried by the phase headers plus a restrained tone cue on each card's eyebrow and icon medallion — **not** a full per-card color wash. The card rail, background, bullets, and micro-stat stay neutral, so the per-section tone reads as a quiet wayfinding cue rather than decorative color-coding (a deliberate calmer-cousin pass on what was once an all-blue/all-amber phase wash).
 
 ## 11. Anti-Patterns
 

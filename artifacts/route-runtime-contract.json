@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-28T22:05:45.870Z",
+  "generatedAt": "2026-06-03T20:01:44.400Z",
   "rows": [
     {
       "route": "/",
@@ -3150,6 +3150,17 @@
     },
     {
       "route": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/contracts/evidence-studio",
       "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
       "kind": "route_state",
       "runtime": "nodejs_default",
@@ -3206,6 +3217,28 @@
     {
       "route": "/contracts/execution-graph",
       "sourcePath": "src/app/(dashboard)/contracts/execution-graph/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/contracts/imports/[jobId]",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
       "kind": "page",
       "runtime": "server_component",
       "performanceBudget": {
@@ -3580,6 +3613,17 @@
     {
       "route": "/decisions/review",
       "sourcePath": "src/app/(dashboard)/decisions/review/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
+      "route": "/early-access",
+      "sourcePath": "src/app/(marketing)/early-access/page.tsx",
       "kind": "page",
       "runtime": "server_component",
       "performanceBudget": {
@@ -4425,6 +4469,17 @@
       }
     },
     {
+      "route": "action:bulk-compatible-work-validation.test",
+      "sourcePath": "src/actions/bulk-compatible-work-validation.test.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
       "route": "action:bulk-compatible-work.test",
       "sourcePath": "src/actions/bulk-compatible-work.test.ts",
       "kind": "server_action",
@@ -5151,6 +5206,17 @@
       }
     },
     {
+      "route": "action:disconnectIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
       "route": "action:email-verification.test",
       "sourcePath": "src/actions/email-verification.test.ts",
       "kind": "server_action",
@@ -5384,6 +5450,17 @@
     {
       "route": "action:listMySessions",
       "sourcePath": "src/actions/sessions.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "action:loadPendingInviteSeatRows",
+      "sourcePath": "src/actions/settings-helpers.ts",
       "kind": "server_action",
       "runtime": "server_action",
       "performanceBudget": {
@@ -5690,6 +5767,17 @@
       }
     },
     {
+      "route": "action:recoverSettingsAction",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
       "route": "action:refreshV10SettingsReadModels",
       "sourcePath": "src/actions/product-surface-settings-helpers.ts",
       "kind": "server_action",
@@ -5901,6 +5989,17 @@
     {
       "route": "action:runTaskAutomationRulesForOrg",
       "sourcePath": "src/actions/automation.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "action:safeInsertSettingsAuditEvent",
+      "sourcePath": "src/actions/settings-helpers.ts",
       "kind": "server_action",
       "runtime": "server_action",
       "performanceBudget": {
@@ -6836,6 +6935,17 @@
     {
       "route": "action:workflow-config-action-scope.test",
       "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
+      "kind": "server_action",
+      "runtime": "server_action",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "action:workflow-config-helpers",
+      "sourcePath": "src/actions/workflow-config-helpers.ts",
       "kind": "server_action",
       "runtime": "server_action",
       "performanceBudget": {

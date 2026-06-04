@@ -79,8 +79,8 @@ export function StatCell({
           color: statToneNumberColor(tone, isZero),
           animation: "ui-stat-value-enter 320ms var(--ui-ease-out, ease-out)",
         }}
-        aria-label={`${label}: ${display}`}
       >
+        <span className="sr-only">{label}: {display}</span>
         <span aria-hidden="true">{display}</span>
       </p>
       <div className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase leading-snug tracking-[0.14em] text-[var(--text-secondary)]">

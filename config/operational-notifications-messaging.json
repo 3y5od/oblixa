@@ -100,7 +100,7 @@
     {
       "id": "billing-notices",
       "path": "src/lib/operational-notifications-messaging.ts",
-      "markers": ["key.startsWith(\"trial_\")", "key === \"payment_failed\"", "owner: surface === \"billing_notice\" ? \"@billing\" : \"@notifications\""],
+      "markers": ["RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS.map", "id: `release_billing_email.${key}`", "surface: \"billing_notice\"", "owner: \"@billing\""],
       "owner": "@billing",
       "validationCommand": "test:vitest:current-product"
     }

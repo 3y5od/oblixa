@@ -2,10 +2,12 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isValid } from "date-fns";
 import {
+  AlertTriangle,
   Bell,
   CheckCheck,
   ChevronRight,
@@ -52,6 +54,49 @@ const CONTRACT_TYPE_FALLBACK_TOKENS = new Set([
 ]);
 const OWNER_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type CellChipTone = "danger" | "warning" | "success" | "neutral";
+
+const CELL_CHIP_BASE =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-md border bg-transparent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]";
+
+const CELL_CHIP_TONE: Record<CellChipTone, string> = {
+  danger:
+    "border-[color:color-mix(in_oklab,var(--danger-ink)_30%,var(--border-subtle))] text-[var(--danger-ink)] hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_20%,transparent)]",
+  warning:
+    "border-[color:color-mix(in_oklab,var(--warning-ink)_26%,var(--border-subtle))] text-[var(--warning-ink)] hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,transparent)]",
+  success:
+    "border-[color:color-mix(in_oklab,var(--success-ink)_30%,var(--border-subtle))] text-[var(--success-ink)] hover:bg-[color:color-mix(in_oklab,var(--success-soft)_22%,transparent)]",
+  neutral:
+    "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] hover:text-[var(--accent-strong)]",
+};
+
+function CellChip({
+  href,
+  tone,
+  dashed,
+  ariaLabel,
+  title,
+  children,
+}: {
+  href: string;
+  tone: CellChipTone;
+  dashed?: boolean;
+  ariaLabel?: string;
+  title?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={ariaLabel}
+      title={title}
+      className={`${CELL_CHIP_BASE} ${CELL_CHIP_TONE[tone]}${dashed ? " border-dashed" : ""}`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 interface ContractTableProps {
   contracts: Contract[];
   reviewStats?: Record<string, ContractReviewStats>;
@@ -79,61 +124,207 @@ function RowActionsMenu({
   contractId: string;
   hasOwner: boolean;
 }) {
-  // The row's visible OPEN affordance handles "Open contract" — the
-  // kebab only carries the three non-open spec actions. Items are
-  // left-aligned, icon + label, tight rows, lighter panel chrome.
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; right: number } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const r = triggerRef.current?.getBoundingClientRect();
+      if (!r) return;
+      const estHeight = 168;
+      const openUp = r.bottom + 6 + estHeight > window.innerHeight && r.top - estHeight - 6 > 0;
+      setCoords({
+        top: openUp ? r.top - estHeight - 6 : r.bottom + 6,
+        right: Math.max(8, window.innerWidth - r.right),
+      });
+    };
+    place();
+    const onPointerDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (triggerRef.current?.contains(t) || menuRef.current?.contains(t)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    const close = () => setOpen(false);
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open && coords) {
+      menuRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+    }
+  }, [open, coords]);
+
   const itemClass =
     "flex items-center gap-2 px-2.5 py-1.5 text-left text-[12px] text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] hover:text-[var(--accent-strong)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent)_10%,transparent)] focus-visible:text-[var(--accent-strong)] focus-visible:outline-none";
   const iconClass = "h-3.5 w-3.5 shrink-0";
   return (
-    <details className="relative inline-block">
-      <summary
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
         aria-label="Row actions"
-        className="inline-flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-md text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)] hover:text-[var(--accent-strong)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)] focus-visible:text-[var(--accent-strong)] group-hover:text-[var(--accent-strong)] [&::-webkit-details-marker]:hidden"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+          open
+            ? "border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_34%,transparent)] text-[var(--accent-strong)]"
+            : "border-transparent text-[var(--text-tertiary)] hover:border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)] hover:text-[var(--accent-strong)]"
+        }`}
       >
         <MoreHorizontal className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-      </summary>
-      <div className="absolute right-0 z-30 mt-1 w-40 overflow-hidden rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface-raised)] py-1 shadow-[var(--shadow-1)]">
-        <ul className="text-[12px]">
-          <li>
-            <Link
-              href={`/contracts/${contractId}#ownership-record`}
-              className={itemClass}
+      </button>
+      {open && coords
+        ? createPortal(
+            <div
+              ref={menuRef}
+              role="menu"
+              aria-label="Contract row actions"
+              style={{
+                position: "fixed",
+                top: coords.top,
+                right: coords.right,
+                zIndex: 60,
+              }}
+              className="w-44 overflow-hidden rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface-raised)] py-1 shadow-[var(--shadow-2)]"
             >
-              {hasOwner ? (
-                <UserCog
-                  className={iconClass}
-                  strokeWidth={1.85}
-                  aria-hidden
-                />
-              ) : (
-                <UserPlus
-                  className={iconClass}
-                  strokeWidth={1.85}
-                  aria-hidden
-                />
-              )}
-              {hasOwner ? "Reassign owner" : "Assign owner"}
-            </Link>
-          </li>
-          <li>
-            <Link href={`/contracts/${contractId}#dates`} className={itemClass}>
-              <Bell className={iconClass} strokeWidth={1.85} aria-hidden />
-              Add reminder
-            </Link>
-          </li>
-          <li>
-            <Link
-              href={`/contracts/${contractId}#contract-tasks`}
-              className={itemClass}
-            >
-              <Plus className={iconClass} strokeWidth={1.85} aria-hidden />
-              Create work
-            </Link>
-          </li>
-        </ul>
-      </div>
-    </details>
+              <ul className="text-[12px]">
+                <li>
+                  <Link
+                    href={`/contracts/${contractId}#ownership-record`}
+                    role="menuitem"
+                    className={itemClass}
+                    onClick={() => setOpen(false)}
+                  >
+                    {hasOwner ? (
+                      <UserCog
+                        className={iconClass}
+                        strokeWidth={1.85}
+                        aria-hidden
+                      />
+                    ) : (
+                      <UserPlus
+                        className={iconClass}
+                        strokeWidth={1.85}
+                        aria-hidden
+                      />
+                    )}
+                    {hasOwner ? "Reassign owner" : "Assign owner"}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={`/contracts/${contractId}#extracted-fields`}
+                    role="menuitem"
+                    className={itemClass}
+                    onClick={() => setOpen(false)}
+                  >
+                    <CheckCheck
+                      className={iconClass}
+                      strokeWidth={1.85}
+                      aria-hidden
+                    />
+                    Review fields
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={`/contracts/${contractId}#dates`}
+                    role="menuitem"
+                    className={itemClass}
+                    onClick={() => setOpen(false)}
+                  >
+                    <Bell className={iconClass} strokeWidth={1.85} aria-hidden />
+                    Add reminder
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={`/contracts/${contractId}#contract-tasks`}
+                    role="menuitem"
+                    className={itemClass}
+                    onClick={() => setOpen(false)}
+                  >
+                    <Plus className={iconClass} strokeWidth={1.85} aria-hidden />
+                    Create work
+                  </Link>
+                </li>
+              </ul>
+            </div>,
+            document.body
+          )
+        : null}
+    </>
+  );
+}
+
+// Structured row-action affordance. Replaces the loose "Open ›" text + bare
+// chevron (§8.6 / §11.22) with a bordered accent chip that telegraphs intent.
+// Kept visible at rest (not hover-only) because release-state names "Open
+// contract" the primary row action and touch/first-glance discovery matters.
+function OpenContractChip({
+  contractId,
+  title,
+}: {
+  contractId: string;
+  title: string;
+}) {
+  return (
+    <Link
+      href={`/contracts/${contractId}`}
+      aria-label={`Open contract: ${title}`}
+      className="group/open inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_46%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+    >
+      Open
+      <ChevronRight
+        className="h-3 w-3 transition-transform group-hover/open:translate-x-0.5"
+        strokeWidth={2}
+        aria-hidden
+      />
+    </Link>
+  );
+}
+
+// Exception flag for the status column. Mirrors the lifecycle StatusBadge's
+// 22px rounded-full silhouette so the two read as one chip family, and pairs an
+// icon with the count (never a bare colored pill — §7.7) behind a descriptive
+// accessible name. The danger-soft tint matches `.ui-status-badge-critical`
+// rather than a saturated alert red, so a single open flag doesn't shout.
+function ExceptionAlertChip({
+  contractId,
+  count,
+}: {
+  contractId: string;
+  count: number;
+}) {
+  return (
+    <Link
+      href={`/contracts/exceptions?status=open&contract=${contractId}`}
+      aria-label={`${count} exception${count === 1 ? "" : "s"}`}
+      title={`${count} open exception${count === 1 ? "" : "s"}`}
+      className="inline-flex h-[22px] shrink-0 items-center gap-1 rounded-full border px-2 text-[10.5px] font-semibold uppercase leading-none tracking-[0.1em] tabular-nums transition-colors border-[color:color-mix(in_oklab,var(--danger-soft)_52%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_50%,transparent)] text-[var(--danger-ink)] hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_78%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+    >
+      <AlertTriangle className="h-3 w-3" strokeWidth={2} aria-hidden />
+      <span className="tabular-nums">{count}</span>
+    </Link>
   );
 }
 
@@ -155,6 +346,23 @@ export function ContractTable({
   const [isBulkAssignPending, startBulkAssignTransition] = useTransition();
   const selectAllRef = useRef<HTMLInputElement>(null);
   const hydratedStorageScopeRef = useRef<string | null>(null);
+  // Viewport gate for the table↔cards swap. We render ONE layout (not both
+  // behind `hidden`/`md:hidden`) so there is a single set of row controls —
+  // duplicate-DOM would double the checkboxes/links and break unit tests that
+  // query globally. Default to the narrow cards for SSR so the desktop table's
+  // intrinsic width cannot widen mobile documents before hydration; wide
+  // clients promote to the table immediately after mount.
+  const [isNarrow, setIsNarrow] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+      return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
 
   const selectedList = useMemo(() => [...selected], [selected]);
   const visibleSelectedCount = useMemo(
@@ -332,32 +540,97 @@ export function ContractTable({
     const stats = reviewStats?.[contractId];
     if (!stats || stats.total <= 0) return null;
     if (stats.pending > 0) {
-      // `warning` (amber) — pending review is a "needs attention" state,
-      // not a primary-action state. Earlier `in_review` rendered accent
-      // blue and collided with primary-action color elsewhere.
+      // `warning` — pending review is "needs attention", not a primary action.
       return {
-        label: `${stats.pending} pending`,
         status: "warning" as const,
         href: `/contracts/${contractId}#extracted-fields`,
       };
     }
     return {
-      label: `${stats.approved} of ${stats.total}`,
-      status: "healthy" as const,
+      status: "success" as const,
       href: `/contracts/${contractId}#extracted-fields`,
     };
   };
 
   const headerCellClass =
-    "px-3 py-1.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] whitespace-nowrap";
-  const bodyCellClass = "px-3 py-2 align-middle";
-  // Small outline chip used uniformly for every "needs attention" missing-
-  // value cell (counterparty / owner / dates). Caps + tracking + warning
-  // tint align with the table's other caps-chip vocabulary (Status pills,
-  // work chip, review chip) so the row scans as one consistent shape
-  // family regardless of which column is empty.
-  const missingChipClass =
-    "inline-flex items-center rounded-sm border border-[color:color-mix(in_oklab,var(--warning-ink)_25%,var(--border-subtle))] bg-transparent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--warning-ink)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,transparent)]";
+    "px-3 py-2 text-left text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] whitespace-nowrap";
+  const bodyCellClass = "px-3 py-2.5 align-middle";
+
+  // Precompute a per-row view model once so the desktop table rows and the
+  // md:hidden mobile cards render from a single source (no divergence) and the
+  // per-render clock is sampled once.
+  // eslint-disable-next-line react-hooks/purity -- per-render clock used to compute Updated freshness gating
+  const renderNow = Date.now();
+  const FRESH_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  const rowModels = contracts.map((contract) => {
+    const stats = reviewStats?.[contract.id];
+    const sig = rowSignals?.[contract.id];
+    const updatedDate = new Date(contract.updated_at);
+    const updatedStale =
+      isValid(updatedDate) && renderNow - updatedDate.getTime() > FRESH_WINDOW_MS;
+    const owner = ownerDisplay(contract);
+    const review = reviewState(contract.id);
+    // Two-tier urgency on Next important date: past-due → danger, ≤14 days →
+    // warning, else neutral.
+    const nextDateTone: "danger" | "warning" | undefined =
+      sig?.nextHorizonDays == null
+        ? undefined
+        : sig.nextHorizonDays < 0
+          ? "danger"
+          : sig.nextHorizonDays <= 14
+            ? "warning"
+            : undefined;
+    const horizonTypeLabel = sig?.nextHorizonField
+      ? horizonLabel(sig.nextHorizonField)
+      : null;
+    const horizonRelative =
+      sig?.nextHorizonDays != null
+        ? sig.nextHorizonDays < 0
+          ? `Overdue ${Math.abs(sig.nextHorizonDays)}d`
+          : sig.nextHorizonDays === 0
+            ? "Due today"
+            : sig.nextHorizonDays === 1
+              ? "Due tomorrow"
+              : `In ${sig.nextHorizonDays}d`
+        : null;
+    const cp = contract.counterparty?.trim();
+    const cpFallback = !!cp && COUNTERPARTY_FALLBACK_TOKENS.has(cp.toLowerCase());
+    const type = contract.contract_type?.trim();
+    const typeFallback =
+      !!type && CONTRACT_TYPE_FALLBACK_TOKENS.has(type.toLowerCase());
+    return {
+      contract,
+      stats,
+      sig,
+      updatedDate,
+      updatedStale,
+      owner,
+      review,
+      nextDateTone,
+      horizonTypeLabel,
+      horizonRelative,
+      cp,
+      cpFallback,
+      type,
+      typeFallback,
+    };
+  });
+
+  type RowModel = (typeof rowModels)[number];
+
+  const nextDateColor = (tone: "danger" | "warning" | undefined) =>
+    tone === "danger"
+      ? "var(--danger-ink)"
+      : tone === "warning"
+        ? "var(--warning-ink)"
+        : "var(--text-primary)";
+
+  const reviewChipText = (m: RowModel) =>
+    m.stats
+      ? m.stats.pending === 0
+        ? `${m.stats.approved}/${m.stats.total} reviewed`
+        : `${m.stats.pending}/${m.stats.total} pending`
+      : "";
 
   return (
     <div className="space-y-3">
@@ -368,7 +641,7 @@ export function ContractTable({
           aria-live="polite"
         >
           <div className="flex flex-col gap-1">
-            <p className="inline-flex items-center gap-2 text-[12.5px] font-semibold tracking-tight text-[var(--text-primary)]">
+            <p className="inline-flex items-center gap-2 text-[12.5px] font-semibold tracking-tight tabular-nums text-[var(--text-primary)]">
               <span
                 aria-hidden
                 className="inline-flex h-1.5 w-1.5 rounded-full"
@@ -377,7 +650,7 @@ export function ContractTable({
               {selectedList.length} selected
             </p>
             {hiddenSelectedCount > 0 ? (
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-[var(--text-tertiary)]">
                 {hiddenSelectedCount} outside this page · Persists across filters
               </p>
             ) : filterFingerprint ? (
@@ -477,71 +750,74 @@ export function ContractTable({
         </div>
       ) : null}
 
-      {/* No outer card chrome — the table sits flush with the page so
-          the inventory reads as the page's content, not as another
-          surface tier. Structure comes from the thead's bottom border
-          and the per-row .ui-table-row dividers. */}
-      <div
-        data-testid={surfaceTestIds.contractsTable}
-        className="overflow-hidden"
-      >
-        <div className="overflow-x-auto">
+      {/* §7.5 canonical table treatment — the inventory sits inside a
+          .ui-table-shell card (rounded border + soft gradient + shadow) so it
+          reads as the page's single focal surface. Desktop renders the table;
+          a md:hidden card list takes over on narrow screens. The shell's
+          bottom edge closes the frame even when pagination is hidden. */}
+      <div data-testid={surfaceTestIds.contractsTable} className="ui-table-shell min-w-0 max-w-full">
+        {!isNarrow ? (
+          <div className="max-w-full overflow-x-auto [contain:inline-size]">
           <table
             className="w-full border-collapse text-[12.5px]"
             aria-label="Contracts in this workspace"
           >
-            <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface-raised))]">
+            <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_82%,var(--surface-raised))]">
               <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)]">
                 {bulkActions ? (
-                  <th
-                    scope="col"
-                    className="w-6 px-1.5 py-1.5 text-left align-middle"
-                  >
-                    <input
-                      ref={selectAllRef}
-                      type="checkbox"
-                      className="ui-checkbox"
-                      aria-label="Select all contracts on this page"
-                      checked={allVisibleSelected}
-                      onChange={toggleAllVisible}
-                    />
+                  // Calmer selection rail: the checkbox is centered in a w-12
+                  // column (was a cramped w-8 px-1.5) that shares its exact width
+                  // with the body cells below, so the select-all and per-row
+                  // boxes sit on one x-axis. No vertical divider — the rail reads
+                  // as part of each row, tied in by the row hover wash.
+                  <th scope="col" className="w-12 px-0 py-2 align-middle">
+                    <div className="flex items-center justify-center">
+                      <input
+                        ref={selectAllRef}
+                        type="checkbox"
+                        className="ui-checkbox"
+                        aria-label="Select all contracts on this page"
+                        checked={allVisibleSelected}
+                        onChange={toggleAllVisible}
+                      />
+                    </div>
                     <span className="sr-only">Select all on page</span>
                   </th>
                 ) : null}
-                <th scope="col" className={`${headerCellClass} min-w-[16rem]`}>
+                <th scope="col" className={`${headerCellClass} min-w-[15rem]`}>
                   Contract
                 </th>
                 <th scope="col" className={`${headerCellClass} min-w-[10rem]`}>
                   Counterparty
                 </th>
-                <th scope="col" className={`${headerCellClass} min-w-[8rem]`}>
+                <th scope="col" className={`${headerCellClass} min-w-[7rem]`}>
                   Owner
                 </th>
-                <th scope="col" className={`${headerCellClass} min-w-[7.5rem]`}>
+                <th scope="col" className={`${headerCellClass} min-w-[9.5rem]`}>
                   Status
                 </th>
                 {/* Short visible labels keep the header row on one line at
-                    operational widths; aria-label carries the full spec
-                    name from oblixa-release-state.md so screen readers and
-                    surface tests still see the canonical string. */}
+                    operational widths; aria-label carries the full spec name
+                    from oblixa-release-state.md so screen readers and surface
+                    tests still see the canonical string. */}
                 <th
                   scope="col"
                   aria-label="Next important date"
-                  className={`${headerCellClass} min-w-[7rem]`}
+                  className={`${headerCellClass} min-w-[8rem]`}
                 >
                   Next date
                 </th>
                 <th
                   scope="col"
                   aria-label="Review state"
-                  className={`${headerCellClass} min-w-[7rem]`}
+                  className={`${headerCellClass} min-w-[7.5rem]`}
                 >
                   Review
                 </th>
                 <th
                   scope="col"
                   aria-label="Open work"
-                  className={`${headerCellClass} min-w-[5rem]`}
+                  className={`${headerCellClass} min-w-[5.5rem]`}
                 >
                   Work
                 </th>
@@ -552,68 +828,27 @@ export function ContractTable({
                 >
                   Updated
                 </th>
-                <th scope="col" className="w-10 px-2 py-2.5">
+                <th scope="col" className="w-[6.5rem] px-3 py-2">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {(() => {
-                // eslint-disable-next-line react-hooks/purity -- per-render clock used to compute Updated freshness gating
-                const renderNow = Date.now();
-                const FRESH_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-                return contracts.map((contract) => {
-                  const stats = reviewStats?.[contract.id];
-                  const sig = rowSignals?.[contract.id];
-                  const updatedDate = new Date(contract.updated_at);
-                  const updatedStale =
-                    isValid(updatedDate) &&
-                    renderNow - updatedDate.getTime() > FRESH_WINDOW_MS;
-                  const owner = ownerDisplay(contract);
-                  const review = reviewState(contract.id);
-                  // Two-tier urgency on Next important date: past-due → danger,
-                  // ≤14 days → warning, else neutral. The earlier "soon" accent
-                  // tier was dropped per iteration 11 feedback because accent
-                  // blue overloaded with primary-action color elsewhere.
-                  const nextDateTone: "danger" | "warning" | undefined =
-                    sig?.nextHorizonDays == null
-                      ? undefined
-                      : sig.nextHorizonDays < 0
-                        ? "danger"
-                        : sig.nextHorizonDays <= 14
-                          ? "warning"
-                          : undefined;
-                  const horizonTypeLabel = sig?.nextHorizonField
-                    ? horizonLabel(sig.nextHorizonField)
-                    : null;
-                  const horizonRelative =
-                    sig?.nextHorizonDays != null
-                      ? sig.nextHorizonDays < 0
-                        ? `Overdue ${Math.abs(sig.nextHorizonDays)}d`
-                        : sig.nextHorizonDays === 0
-                          ? "Due today"
-                          : sig.nextHorizonDays === 1
-                            ? "Due tomorrow"
-                            : `In ${sig.nextHorizonDays}d`
-                      : null;
-                  const cp = contract.counterparty?.trim();
-                  const cpFallback =
-                    !!cp &&
-                    COUNTERPARTY_FALLBACK_TOKENS.has(cp.toLowerCase());
-                  const type = contract.contract_type?.trim();
-                  const typeFallback =
-                    !!type &&
-                    CONTRACT_TYPE_FALLBACK_TOKENS.has(type.toLowerCase());
-                  return (
-                    <tr key={contract.id} className="ui-table-row group">
-                      {bulkActions ? (
-                        // Inline padding — don't compose with bodyCellClass
-                        // (which has px-3) since the later px-1.5 in
-                        // composed Tailwind utilities loses to the earlier
-                        // px-3 in the generated CSS. Standalone className
-                        // ensures the checkbox cell matches the <th>
-                        // padding exactly so the column aligns.
-                        <td className="w-6 px-1.5 py-2 align-middle">
+              {rowModels.map((m) => {
+                const contract = m.contract;
+                const isSelected = !!bulkActions && selected.has(contract.id);
+                return (
+                  <tr
+                    key={contract.id}
+                    className={`ui-table-row group${isSelected ? " ui-table-row-selected" : ""}`}
+                  >
+                    {bulkActions ? (
+                      // Centered in a w-12 column matching the header cell so the
+                      // select-all and per-row checkboxes share one x-axis. px-0
+                      // + an inner flex sidesteps the old px-1.5-vs-px-3 Tailwind
+                      // ordering hazard while giving the control real breathing room.
+                      <td className="w-12 px-0 py-2.5 align-middle">
+                        <div className="flex items-center justify-center">
                           <input
                             type="checkbox"
                             className="ui-checkbox"
@@ -621,318 +856,418 @@ export function ContractTable({
                             checked={selected.has(contract.id)}
                             onChange={() => toggle(contract.id)}
                           />
-                        </td>
-                      ) : null}
-                      <td className={bodyCellClass}>
-                        <div className="min-w-0">
-                          <Link
-                            href={`/contracts/${contract.id}`}
-                            title={contract.title}
-                            dir="auto"
-                            className="block max-w-[28rem] truncate font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)] [unicode-bidi:isolate]"
-                          >
-                            {contract.title}
-                          </Link>
-                          {showContinuityLinks ? (
-                            <div className="mt-1">
-                              <ContractContinuityLinks
-                                contractId={contract.id}
-                                omit={["contract", "work"]}
-                              />
-                            </div>
-                          ) : null}
                         </div>
                       </td>
-                      <td className={bodyCellClass}>
-                        {!cp ? (
-                          <Link
-                            href={`/contracts/${contract.id}#counterparty`}
-                            className={missingChipClass}
-                            title="Counterparty not set"
+                    ) : null}
+                    <td className={bodyCellClass}>
+                      <div className="min-w-0">
+                        <Link
+                          href={`/contracts/${contract.id}`}
+                          title={contract.title}
+                          dir="auto"
+                          className="block truncate font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)] [unicode-bidi:isolate]"
+                        >
+                          {contract.title}
+                        </Link>
+                        {showContinuityLinks ? (
+                          <div className="mt-1">
+                            <ContractContinuityLinks
+                              contractId={contract.id}
+                              omit={["contract", "work"]}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className={bodyCellClass}>
+                      {!m.cp ? (
+                        <CellChip
+                          href={`/contracts/${contract.id}#counterparty`}
+                          tone="warning"
+                          dashed
+                          title="Counterparty not set"
+                        >
+                          Missing counterparty
+                        </CellChip>
+                      ) : (
+                        <div className="min-w-0">
+                          {/* Fallback values (Tenants/Vendor/Other) render
+                              identically to real names — a tertiary tint read
+                              as instability across rows. Title still explains
+                              the data-quality issue on hover. */}
+                          <span
+                            className="block truncate text-[var(--text-primary)]"
+                            title={
+                              m.cpFallback
+                                ? `Counterparty name missing — currently shows "${m.cp}"`
+                                : undefined
+                            }
                           >
-                            Missing counterparty
-                          </Link>
-                        ) : (
-                          <div className="min-w-0">
-                            {/* Fallback values (Tenants/Vendor/Other) render
-                                identically to real counterparty names — the
-                                earlier tertiary tint read as visual
-                                instability across rows. Title attr still
-                                explains the data-quality issue on hover. */}
+                            {m.cp}
+                          </span>
+                          {m.type ? (
                             <span
-                              className="block max-w-[14rem] truncate text-[var(--text-primary)]"
+                              className="block truncate text-[11px] text-[var(--text-tertiary)]"
                               title={
-                                cpFallback
-                                  ? `Counterparty name missing — currently shows "${cp}"`
+                                m.typeFallback
+                                  ? `Contract type unclassified — currently shows "${m.type}"`
                                   : undefined
                               }
                             >
-                              {cp}
+                              {m.type}
                             </span>
-                            {type ? (
-                              <span
-                                className="block max-w-[14rem] truncate text-[11px] text-[var(--text-tertiary)]"
-                                title={
-                                  typeFallback
-                                    ? `Contract type unclassified — currently shows "${type}"`
-                                    : undefined
-                                }
-                              >
-                                {type}
-                              </span>
-                            ) : null}
-                          </div>
-                        )}
-                      </td>
-                      <td className={bodyCellClass}>
-                        {!owner || owner.isEmailFallback ? (
-                          // Same outline chip shape as Counterparty
-                          // missing / Missing dates so the row's "needs
-                          // attention" cells scan as a single visual
-                          // vocabulary, not a mix of CTA + chip + em-dash.
-                          <Link
-                            href={`/contracts/${contract.id}#ownership-record`}
-                            className={missingChipClass}
-                            title={
-                              owner?.isEmailFallback
-                                ? `Owner not set — only email on file (${owner.tooltip ?? ""})`
-                                : "Owner not assigned"
-                            }
-                          >
-                            Missing owner
-                          </Link>
-                        ) : (
-                          <span
-                            className="block max-w-[10rem] truncate text-[var(--text-primary)]"
-                            title={owner.tooltip}
-                          >
-                            {owner.display}
-                          </span>
-                        )}
-                      </td>
-                      <td className={bodyCellClass}>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {/* Small filled status dot prefix — `bg-current`
-                              inherits the pill's ink color so each status
-                              carries a shape cue (dot + label) plus tone,
-                              not tone alone (ui-design-principles §7.7).
-                              The dot is the universal "status indicator"
-                              shape; no icon-glyph ambiguity to interpret. */}
-                          {/* Status dot with soft halo per
-                              ui-design-principles §2.5 — `bg-current`
-                              inherits the pill's ink, and the box-shadow
-                              halo mixes the current color at low alpha
-                              so each status has dot + halo + label +
-                              tone (four cues stacked, not just tone). */}
-                          <StatusBadge
-                            status={
-                              STATUS_SEMANTICS[contract.status] ??
-                              STATUS_SEMANTICS.draft
-                            }
-                            className="gap-1.5"
-                          >
-                            <span
-                              aria-hidden
-                              className="inline-block h-1.5 w-1.5 rounded-full bg-current"
-                              style={{
-                                boxShadow:
-                                  "0 0 0 2px color-mix(in oklab, currentColor 22%, transparent)",
-                              }}
-                            />
-                            {STATUS_LABELS[contract.status] || contract.status}
-                          </StatusBadge>
-                          {sig?.openExceptionCount &&
-                          sig.openExceptionCount > 0 ? (
-                            <Link
-                              href={`/contracts/exceptions?status=open&contract=${contract.id}`}
-                              aria-label={`${sig.openExceptionCount} exception${sig.openExceptionCount === 1 ? "" : "s"}`}
-                            >
-                              <StatusBadge status="critical" className="gap-1.5">
-                                <span
-                                  aria-hidden
-                                  className="inline-block h-1.5 w-1.5 rounded-full bg-current"
-                                  style={{
-                                    boxShadow:
-                                      "0 0 0 2px color-mix(in oklab, currentColor 22%, transparent)",
-                                  }}
-                                />
-                                {sig.openExceptionCount} exception
-                                {sig.openExceptionCount === 1 ? "" : "s"}
-                              </StatusBadge>
-                            </Link>
                           ) : null}
                         </div>
-                      </td>
-                      <td className={`${bodyCellClass} tabular-nums`}>
-                        {sig?.nextHorizonDate ? (
-                          <div className="min-w-0">
-                            <span
-                              title={new Date(
-                                sig.nextHorizonDate
-                              ).toISOString()}
-                              className="block truncate font-medium"
-                              style={{
-                                color:
-                                  nextDateTone === "danger"
-                                    ? "var(--danger-ink)"
-                                    : nextDateTone === "warning"
-                                      ? "var(--warning-ink)"
-                                      : "var(--text-primary)",
-                              }}
-                            >
-                              {horizonTypeLabel ? `${horizonTypeLabel} ` : ""}
-                              {new Date(
-                                sig.nextHorizonDate
-                              ).toLocaleDateString(undefined, {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                            {horizonRelative ? (
-                              <span className="block text-[11px] text-[var(--text-tertiary)]">
-                                {horizonRelative}
+                      )}
+                    </td>
+                    <td className={bodyCellClass}>
+                      {!m.owner || m.owner.isEmailFallback ? (
+                        // Same dashed "data gap" chip vocabulary as the other
+                        // missing cells so the owner column doesn't swap a name
+                        // for an odd status-looking pill.
+                        <CellChip
+                          href={`/contracts/${contract.id}#ownership-record`}
+                          tone="warning"
+                          dashed
+                          title={
+                            m.owner?.isEmailFallback
+                              ? `Owner not set — only email on file (${m.owner.tooltip ?? ""})`
+                              : "Owner not assigned"
+                          }
+                        >
+                          Missing owner
+                        </CellChip>
+                      ) : (
+                        <span
+                          className="block truncate text-[var(--text-primary)]"
+                          title={m.owner.tooltip}
+                        >
+                          {m.owner.display}
+                        </span>
+                      )}
+                    </td>
+                    <td className={bodyCellClass}>
+                      {/* Lifecycle StatusBadge on the left; the exception flag
+                          sits in a reserved slot at the right edge of the column
+                          (justify-between). Every cell in this column shares one
+                          width, so the flags line up vertically and a row without
+                          one never reflows the badge. Single line — no flex-wrap —
+                          so a second signal can't push the row to two. */}
+                      <div className="flex items-center justify-between gap-2">
+                        <StatusBadge
+                          status={
+                            STATUS_SEMANTICS[contract.status] ??
+                            STATUS_SEMANTICS.draft
+                          }
+                          className="gap-1.5"
+                        >
+                          <span
+                            aria-hidden
+                            className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+                            style={{
+                              boxShadow:
+                                "0 0 0 2px color-mix(in oklab, currentColor 22%, transparent)",
+                            }}
+                          />
+                          {STATUS_LABELS[contract.status] || contract.status}
+                        </StatusBadge>
+                        {m.sig?.openExceptionCount &&
+                        m.sig.openExceptionCount > 0 ? (
+                          <ExceptionAlertChip
+                            contractId={contract.id}
+                            count={m.sig.openExceptionCount}
+                          />
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className={`${bodyCellClass} tabular-nums`}>
+                      {m.sig?.nextHorizonDate ? (
+                        <div className="min-w-0">
+                          {/* Type reads as a quiet caps label (RENEWAL / END /
+                              NOTICE), the date as the bold value — weight + case
+                              gradation separates them without two literal pills
+                              (§10.8), keeping the column scannable, not noisy. */}
+                          <span className="flex items-baseline gap-1.5">
+                            {m.horizonTypeLabel ? (
+                              <span className="ui-caps-3 shrink-0 text-[9.5px] text-[var(--text-tertiary)]">
+                                {m.horizonTypeLabel}
                               </span>
                             ) : null}
-                          </div>
-                        ) : sig?.missingCriticalDates ? (
-                          <Link
-                            href={`/contracts/${contract.id}#dates`}
-                            aria-label="Critical contract dates missing"
-                            className={missingChipClass}
-                          >
-                            Missing dates
-                          </Link>
-                        ) : (
-                          <span className="text-[var(--text-tertiary)]">—</span>
-                        )}
-                      </td>
-                      <td className={`${bodyCellClass} tabular-nums`}>
-                        {review ? (
-                          // Outline chip (no fill) so review-state amber
-                          // doesn't blur into the filled PENDING REVIEW
-                          // status pill and the warning Missing chips.
-                          // Fraction format (`1/2`, `2/2`) scales better
-                          // than `2 of 2 reviewed` for large denominators.
-                          <Link
-                            href={review.href}
-                            aria-label="Continue field review"
-                            className={`inline-flex items-center gap-1 rounded-sm border bg-transparent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
-                              review.status === "healthy"
-                                ? "border-[color:color-mix(in_oklab,var(--success-ink)_30%,var(--border-subtle))] text-[var(--success-ink)] hover:bg-[color:color-mix(in_oklab,var(--success-soft)_22%,transparent)]"
-                                : "border-[color:color-mix(in_oklab,var(--warning-ink)_25%,var(--border-subtle))] text-[var(--warning-ink)] hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,transparent)]"
-                            }`}
-                          >
-                            {review.status === "healthy" ? (
-                              <CheckCheck
-                                aria-hidden
-                                className="h-3 w-3"
-                                strokeWidth={2}
-                              />
-                            ) : (
-                              <Hourglass
-                                aria-hidden
-                                className="h-3 w-3"
-                                strokeWidth={2}
-                              />
-                            )}
-                            {/* Parallel "X/Y verb" format across both
-                                states — same shape, different verb. The
-                                fraction X/Y reads as progress regardless
-                                of state; the verb ("pending" vs
-                                "reviewed") + tone (warning vs success)
-                                signals which side of done the row is on. */}
-                            {stats
-                              ? stats.pending === 0
-                                ? `${stats.approved}/${stats.total} reviewed`
-                                : `${stats.pending}/${stats.total} pending`
-                              : review.label}
-                          </Link>
-                        ) : (
-                          <span className="text-[var(--text-tertiary)]">—</span>
-                        )}
-                      </td>
-                      <td className={`${bodyCellClass} tabular-nums`}>
-                        {(sig?.openWorkCount ?? 0) > 0 ? (
-                          // "N open" — caps + the WORK column header
-                          // disambiguate from the row-level Open contract
-                          // action. "N work" read as grammatically off
-                          // (the chip carries a count + state, not a
-                          // count + noun).
-                          <Link
-                            href={`/work?contract=${contract.id}`}
-                            className="inline-flex items-center rounded-sm border border-[color:color-mix(in_oklab,var(--accent)_25%,var(--border-subtle))] bg-transparent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,transparent)]"
-                          >
-                            {sig?.openWorkCount} open
-                          </Link>
-                        ) : sig?.outstandingEvidenceCount &&
-                            sig.outstandingEvidenceCount > 0 ? (
-                          <Link
-                            href={`/contracts/evidence-studio?contract=${contract.id}`}
-                            className="inline-flex items-center rounded-sm border border-[color:color-mix(in_oklab,var(--warning-ink)_25%,var(--border-subtle))] bg-transparent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--warning-ink)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,transparent)]"
-                          >
-                            {sig.outstandingEvidenceCount} evidence
-                          </Link>
-                        ) : (
-                          <span className="text-[var(--text-tertiary)]">—</span>
-                        )}
-                      </td>
-                      <td
-                        className={`${bodyCellClass} tabular-nums`}
-                        suppressHydrationWarning
-                      >
-                        {isValid(updatedDate) ? (
-                          // Default `relative` format renders caps "10D"
-                          // (tabular, tight) per ui-design-principles §2.6
-                          // — the earlier `readable` format gave "10 d"
-                          // which read as loose prose.
-                          <span
-                            className={
-                              updatedStale
-                                ? "text-[var(--text-tertiary)]"
-                                : "text-[var(--text-secondary)]"
-                            }
-                          >
-                            <TimeChip date={updatedDate} />
+                            <span
+                              title={new Date(m.sig.nextHorizonDate).toISOString()}
+                              className="truncate text-[12.5px] font-semibold tabular-nums"
+                              style={{ color: nextDateColor(m.nextDateTone) }}
+                            >
+                              {new Date(m.sig.nextHorizonDate).toLocaleDateString(
+                                undefined,
+                                { month: "short", day: "numeric" }
+                              )}
+                            </span>
                           </span>
-                        ) : (
-                          <span className="text-[var(--text-tertiary)]">—</span>
-                        )}
-                      </td>
-                      <td className={`${bodyCellClass} w-20 px-2 text-right`}>
-                        <div className="flex items-center justify-end gap-2">
-                          {/* Visible at rest — release-state names Open
-                              contract as the primary row action; hiding
-                              it behind hover (per §8.6) made it
-                              undiscoverable on touch / first-glance. The
-                              small caps link has minimal chrome so it
-                              doesn't compete with the row's other weight. */}
-                          <Link
-                            href={`/contracts/${contract.id}`}
-                            aria-label={`Open contract: ${contract.title}`}
-                            className="inline-flex items-center gap-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)] transition-colors hover:underline"
-                          >
-                            Open
-                            <ChevronRight
-                              className="h-2.5 w-2.5"
-                              strokeWidth={2}
-                              aria-hidden
-                            />
-                          </Link>
-                          <RowActionsMenu
-                            contractId={contract.id}
-                            hasOwner={!!owner && !owner.isEmailFallback}
-                          />
+                          {m.horizonRelative ? (
+                            // Horizon caption bumped tertiary → secondary so it
+                            // stays legible (still clearly below the date);
+                            // urgency tone only when the deadline is near or past.
+                            <span
+                              className="mt-0.5 block text-[11px] tabular-nums"
+                              style={{
+                                color:
+                                  m.nextDateTone === "danger"
+                                    ? "var(--danger-ink)"
+                                    : m.nextDateTone === "warning"
+                                      ? "var(--warning-ink)"
+                                      : "var(--text-secondary)",
+                              }}
+                            >
+                              {m.horizonRelative}
+                            </span>
+                          ) : null}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                });
-              })()}
+                      ) : m.sig?.missingCriticalDates ? (
+                        <CellChip
+                          href={`/contracts/${contract.id}#dates`}
+                          tone="warning"
+                          dashed
+                          ariaLabel="Critical contract dates missing"
+                        >
+                          Missing dates
+                        </CellChip>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">—</span>
+                      )}
+                    </td>
+                    <td className={`${bodyCellClass} tabular-nums`}>
+                      {m.review ? (
+                        <CellChip
+                          href={m.review.href}
+                          tone={m.review.status === "success" ? "success" : "warning"}
+                          ariaLabel="Continue field review"
+                        >
+                          {m.review.status === "success" ? (
+                            <CheckCheck
+                              aria-hidden
+                              className="h-3 w-3"
+                              strokeWidth={2}
+                            />
+                          ) : (
+                            <Hourglass
+                              aria-hidden
+                              className="h-3 w-3"
+                              strokeWidth={2}
+                            />
+                          )}
+                          {/* Parallel "X/Y verb" — fraction reads as progress;
+                              verb + tone signal which side of done it is on. */}
+                          <span className="tabular-nums">{reviewChipText(m)}</span>
+                        </CellChip>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">—</span>
+                      )}
+                    </td>
+                    <td className={`${bodyCellClass} tabular-nums`}>
+                      {(m.sig?.openWorkCount ?? 0) > 0 ? (
+                        // Neutral — open work shouldn't carry the same tonal
+                        // weight as an exception or pending review unless urgent.
+                        <CellChip
+                          href={`/work?contract=${contract.id}`}
+                          tone="neutral"
+                        >
+                          {m.sig?.openWorkCount} open
+                        </CellChip>
+                      ) : m.sig?.outstandingEvidenceCount &&
+                        m.sig.outstandingEvidenceCount > 0 ? (
+                        <CellChip
+                          href={`/contracts/evidence-studio?contract=${contract.id}`}
+                          tone="warning"
+                        >
+                          {/* Count + word as adjacent text nodes (no inner
+                              span) so getByText("N evidence") resolves; the
+                              chip base already supplies tabular-nums. */}
+                          {m.sig.outstandingEvidenceCount} evidence
+                        </CellChip>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">—</span>
+                      )}
+                    </td>
+                    <td
+                      className={`${bodyCellClass} tabular-nums`}
+                      suppressHydrationWarning
+                    >
+                      {isValid(m.updatedDate) ? (
+                        <span
+                          className={
+                            m.updatedStale
+                              ? "text-[var(--text-tertiary)]"
+                              : "text-[var(--text-secondary)]"
+                          }
+                        >
+                          <TimeChip date={m.updatedDate} />
+                        </span>
+                      ) : (
+                        <span className="text-[var(--text-tertiary)]">—</span>
+                      )}
+                    </td>
+                    <td className={`${bodyCellClass} w-[6.5rem]`}>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <OpenContractChip
+                          contractId={contract.id}
+                          title={contract.title}
+                        />
+                        <RowActionsMenu
+                          contractId={contract.id}
+                          hasOwner={!!m.owner && !m.owner.isEmailFallback}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-        </div>
+          </div>
+        ) : (
+          /* Mobile: compact contract cards — the dense 9-column table doesn't
+             fit narrow viewports, and horizontally scrolling it is hostile.
+             Same data + operational signals, single-column card layout. */
+          <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)]">
+          {rowModels.map((m) => {
+            const contract = m.contract;
+            const isSelected = !!bulkActions && selected.has(contract.id);
+            return (
+              <li
+                key={contract.id}
+                className={`px-4 py-3 ${isSelected ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]" : ""}`}
+              >
+                <div className="flex items-start gap-2.5">
+                  {bulkActions ? (
+                    <input
+                      type="checkbox"
+                      className="ui-checkbox mt-0.5"
+                      aria-label={`Select ${contract.title}`}
+                      checked={selected.has(contract.id)}
+                      onChange={() => toggle(contract.id)}
+                    />
+                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link
+                        href={`/contracts/${contract.id}`}
+                        aria-label={`Open contract: ${contract.title}`}
+                        title={contract.title}
+                        dir="auto"
+                        className="block min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[var(--text-primary)] [unicode-bidi:isolate]"
+                      >
+                        {contract.title}
+                      </Link>
+                      <RowActionsMenu
+                        contractId={contract.id}
+                        hasOwner={!!m.owner && !m.owner.isEmailFallback}
+                      />
+                    </div>
+                    <p className="mt-0.5 truncate text-[11.5px] text-[var(--text-tertiary)]">
+                      {m.cp ? m.cp : "Missing counterparty"}
+                      {m.type ? ` · ${m.type}` : ""}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {/* Status + its exception flag stay welded together so they
+                          can't wrap onto separate lines as an awkward stack; the
+                          remaining signal chips wrap after this unit. */}
+                      <span className="inline-flex items-center gap-1.5">
+                        <StatusBadge
+                          status={
+                            STATUS_SEMANTICS[contract.status] ??
+                            STATUS_SEMANTICS.draft
+                          }
+                          className="gap-1.5"
+                        >
+                          <span
+                            aria-hidden
+                            className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+                            style={{
+                              boxShadow:
+                                "0 0 0 2px color-mix(in oklab, currentColor 22%, transparent)",
+                            }}
+                          />
+                          {STATUS_LABELS[contract.status] || contract.status}
+                        </StatusBadge>
+                        {m.sig?.openExceptionCount && m.sig.openExceptionCount > 0 ? (
+                          <ExceptionAlertChip
+                            contractId={contract.id}
+                            count={m.sig.openExceptionCount}
+                          />
+                        ) : null}
+                      </span>
+                      {!m.owner || m.owner.isEmailFallback ? (
+                        <CellChip
+                          href={`/contracts/${contract.id}#ownership-record`}
+                          tone="warning"
+                          dashed
+                        >
+                          Missing owner
+                        </CellChip>
+                      ) : null}
+                      {m.sig?.nextHorizonDate ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none tabular-nums"
+                          style={{ color: nextDateColor(m.nextDateTone) }}
+                        >
+                          {m.horizonTypeLabel ? `${m.horizonTypeLabel} ` : ""}
+                          {new Date(m.sig.nextHorizonDate).toLocaleDateString(
+                            undefined,
+                            { month: "short", day: "numeric" }
+                          )}
+                        </span>
+                      ) : m.sig?.missingCriticalDates ? (
+                        <CellChip
+                          href={`/contracts/${contract.id}#dates`}
+                          tone="warning"
+                          dashed
+                          ariaLabel="Critical contract dates missing"
+                        >
+                          Missing dates
+                        </CellChip>
+                      ) : null}
+                      {m.review ? (
+                        <CellChip
+                          href={m.review.href}
+                          tone={m.review.status === "success" ? "success" : "warning"}
+                          ariaLabel="Continue field review"
+                        >
+                          {m.review.status === "success" ? (
+                            <CheckCheck aria-hidden className="h-3 w-3" strokeWidth={2} />
+                          ) : (
+                            <Hourglass aria-hidden className="h-3 w-3" strokeWidth={2} />
+                          )}
+                          <span className="tabular-nums">{reviewChipText(m)}</span>
+                        </CellChip>
+                      ) : null}
+                      {(m.sig?.openWorkCount ?? 0) > 0 ? (
+                        <CellChip href={`/work?contract=${contract.id}`} tone="neutral">
+                          <span className="tabular-nums">{m.sig?.openWorkCount}</span> open
+                        </CellChip>
+                      ) : m.sig?.outstandingEvidenceCount &&
+                        m.sig.outstandingEvidenceCount > 0 ? (
+                        <CellChip
+                          href={`/contracts/evidence-studio?contract=${contract.id}`}
+                          tone="warning"
+                        >
+                          <span className="tabular-nums">
+                            {m.sig.outstandingEvidenceCount}
+                          </span>{" "}
+                          evidence
+                        </CellChip>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        )}
+
+        {footer}
       </div>
-      {footer}
     </div>
   );
 }

@@ -35,14 +35,14 @@ test.describe("@compatibility visual optional (dashboard/contracts/review/work s
     await captureShell(page, "/contracts", /^Contracts$/i);
   });
 
-  test("@compatibility review queue shell at 1280px", async ({ page, app }) => {
+  test("@compatibility field review shell at 1280px", async ({ page, app }) => {
     await app.loginAsDefaultUser();
-    await captureShell(page, "/contracts/review", /^Review queue$/i);
+    await captureShell(page, "/contracts/review", /^Review fields$/i);
   });
 
   test("@compatibility work queue shell at 1280px", async ({ page, app }) => {
     await app.loginAsDefaultUser();
-    await captureShell(page, "/work", /^Work Queue$/i);
+    await captureShell(page, "/work", /^Work$/i);
   });
 
   test("@compatibility reports shell at 1280px", async ({ page, app }) => {

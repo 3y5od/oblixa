@@ -12,6 +12,9 @@ export interface ChipCapsuleProps {
   href: string;
   tone?: StatTone;
   className?: string;
+  /** Optional descriptive accessible name. Defaults to the visible
+   *  "{value} {label} {verb}" text when omitted. */
+  ariaLabel?: string;
 }
 
 function toneInk(tone?: StatTone): string {
@@ -40,11 +43,13 @@ export function ChipCapsule({
   href,
   tone,
   className,
+  ariaLabel,
 }: ChipCapsuleProps) {
   const ink = toneInk(tone);
   return (
     <Link
       href={href}
+      aria-label={ariaLabel}
       className={`ui-chip-focus group inline-flex items-stretch overflow-hidden rounded-full border transition-all hover:brightness-105 ${className ?? ""}`.trim()}
       style={{
         borderColor: `color-mix(in oklab, ${ink} 36%, var(--border-card))`,
@@ -71,7 +76,7 @@ export function ChipCapsule({
       {/* Right segment — primary action. Tighter left-padding so the arrow
          doesn't push the verb away from the divider. */}
       <span
-        className="inline-flex items-baseline gap-1 pl-2 pr-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] leading-none transition-colors group-hover:brightness-115"
+        className="inline-flex items-baseline gap-1 pl-2 pr-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] leading-none whitespace-nowrap transition-colors group-hover:brightness-115"
         style={{
           color: ink,
           background: `color-mix(in oklab, ${ink} 16%, var(--surface-raised))`,

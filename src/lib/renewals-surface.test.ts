@@ -3,14 +3,17 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   RENEWAL_ACTION_LABELS,
+  RENEWAL_DATE_REVIEW_LABELS,
   RENEWAL_FILTER_LABELS,
   RENEWAL_ROW_LABELS,
   RENEWAL_STATUS_LABELS,
   RENEWAL_WINDOW_LABELS,
   RENEWALS_EMPTY_STATE,
+  RENEWALS_FILTERED_EMPTY_STATE,
   RENEWALS_PAGE_LEAD,
   RENEWALS_PAGE_TITLE,
   RENEWALS_PRIMARY_CTA,
+  RENEWALS_SECTION_EYEBROW,
 } from "@/lib/renewals/spec-strings";
 
 describe("Renewals release-state surface", () => {
@@ -28,14 +31,14 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("loadRenewalsPageModel");
     expect(page).toContain("model.exportHref");
     expect(RENEWALS_PAGE_TITLE).toBe("Renewals");
-    expect(RENEWALS_PAGE_LEAD).toBe("Prevent missed renewal and notice dates.");
+    expect(RENEWALS_PAGE_LEAD).toBe("Track renewal and notice deadlines before they need action.");
     expect(RENEWALS_PRIMARY_CTA).toBe("Create renewal task");
     expect(page).toContain("model.primaryCta");
   });
 
   it("keeps the exact filters, columns, statuses, actions, and empty state in spec strings", () => {
     expect(Object.values(RENEWAL_WINDOW_LABELS)).toEqual(["30 days", "60 days", "90 days", "180 days"]);
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status"]);
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Review"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
@@ -51,16 +54,16 @@ describe("Renewals release-state surface", () => {
       "Notice window open",
       "In progress",
       "Completed",
-      "No renewal action needed",
+      "No action needed",
     ]);
     expect(Object.values(RENEWAL_ACTION_LABELS)).toEqual([
       "Mark reviewed",
-      "Create renewal task",
-      "Complete",
+      "Create task",
+      "Complete task",
       "Reopen",
       "Export renewal report",
     ]);
-    expect(RENEWALS_EMPTY_STATE).toBe("Add renewal and notice dates to see upcoming contract decisions.");
+    expect(RENEWALS_EMPTY_STATE).toBe("Add renewal and notice dates to track upcoming deadlines.");
   });
 
   it("uses a responsive list row structure that prevents status and action overlap", () => {
@@ -112,5 +115,36 @@ describe("Renewals release-state surface", () => {
   it("uses release-state loading copy", () => {
     expect(loading).toContain("Loading renewals.");
     expect(loading).not.toContain("Loading renewals workspace");
+  });
+
+  it("keeps the section identity in renewal vocabulary, not the private decisions product", () => {
+    expect(RENEWALS_SECTION_EYEBROW).toBe("Upcoming renewals");
+    expect(page).toContain("RENEWALS_SECTION_EYEBROW");
+    // /decisions is Hide-for-release for Core users; the section eyebrow must
+    // not reintroduce "Upcoming decisions" framing.
+    expect(page).not.toContain("Upcoming decisions");
+  });
+
+  it("bounds the long renewal list with a scroll region and sticky header + footer bands", () => {
+    // At the 90/180-day horizons the list runs 20-40 rows; the body scrolls within
+    // a capped region between two opaque sticky bands — the column header pinned at
+    // the top and the count footer pinned at the bottom (both inside the scroll
+    // region) — so columns stay aligned and the count stays visible.
+    expect(page).toContain("overflow-y-auto");
+    expect(page).toContain("sticky top-0");
+    expect(page).toContain("sticky bottom-0");
+    expect(page).toContain("in view");
+  });
+
+  it("surfaces per-date review/source state and a filtered-empty escape", () => {
+    expect(Object.values(RENEWAL_DATE_REVIEW_LABELS)).toEqual([
+      "Reviewed",
+      "Suggested",
+      "Computed",
+      "Missing",
+    ]);
+    expect(RENEWALS_FILTERED_EMPTY_STATE).toBe("No renewals match the current filters.");
+    expect(page).toContain("RenewalReviewChip");
+    expect(page).toContain("RenewalsEmptyState");
   });
 });

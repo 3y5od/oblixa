@@ -318,6 +318,7 @@ describe("GET /api/decisions/[id]/packet-runs/[runId]", () => {
         expect.anything(),
         expect.objectContaining({
           action: "decision_packet_artifact.download_url_created",
+          targetType: "runtime_artifact",
           targetId: "run-1",
           safeMetadata: expect.objectContaining({ artifact: "json", expires_in_seconds: 300 }),
         })

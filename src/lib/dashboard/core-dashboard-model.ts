@@ -1,9 +1,19 @@
 import { differenceInCalendarDays, isValid, subDays } from "date-fns";
 import { parseNoticeDays } from "@/lib/contract-filters";
-import { getReviewStatsForContractIds, fetchReviewQueuePage } from "@/lib/contract-review-stats";
+import {
+  getReviewStatsForContractIds,
+  getPendingFieldNamesForContractIds,
+  fetchReviewQueuePage,
+} from "@/lib/contract-review-stats";
 import { attachOwnerProfiles } from "@/lib/contracts";
 import { EVIDENCE_GAP_STATUSES } from "@/lib/evidence-status";
 import { getV10WorkItemHref } from "@/lib/job-routing";
+import {
+  getImportJobDetail,
+  getImportJobHeadline,
+  getImportJobTone,
+  importJobCanRetry,
+} from "@/lib/import-job-visibility";
 import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import { compareV10WorkReadModelRows, getV10DueState } from "@/lib/work-semantics";
 import { parseBusinessDateAtNoon } from "@/lib/business-dates";
@@ -57,6 +67,9 @@ export type CoreDashboardReviewRow = {
   reviewed: number;
   totalFields: number;
   pendingFields: number;
+  /** Humanized names of the suggested fields awaiting review (e.g. "Renewal
+   *  date"), capped — so the row can name what needs review, not just count it. */
+  pendingFieldNames: string[];
   status: string;
 };
 
@@ -69,6 +82,11 @@ export type CoreDashboardDeadlineRow = {
   daysRemaining: number;
   ownerLabel: string | null;
   href: string;
+  /** Trust provenance (release AI boundary): `reviewed` = a human-approved
+   *  source-backed field; `derived` = computed from approved fields (e.g. the
+   *  notice deadline = renewal date − notice window). Both are source-backed;
+   *  the distinction surfaces as a screen-reader label on the deadline row. */
+  source: "reviewed" | "derived";
 };
 
 export type CoreDashboardWorkRow = {
@@ -151,12 +169,28 @@ export type CoreDashboardSection =
       rows: CoreDashboardActivityRow[];
     };
 
+export type CoreDashboardImportStatus = {
+  /** `none` → no banner; `processing` → imports are mid-flight; `attention` →
+   *  the most recent import failed or finished with rows that need correction. */
+  kind: "none" | "processing" | "attention";
+  processingCount: number;
+  /** `info` for in-flight processing (a neutral status, not a warning);
+   *  `warning`/`danger` reserved for degraded imports needing attention. */
+  tone: "info" | "warning" | "danger";
+  headline: string;
+  detail: string;
+  href: string;
+  occurredAt: string | null;
+  canRetry: boolean;
+};
+
 export type CoreDashboardModel = {
   workspaceName: string;
   planTier: string | null;
   totalContracts: number;
   showPlanBanner: boolean;
   partialErrors: string[];
+  importStatus: CoreDashboardImportStatus;
   topCards: CoreDashboardTopCard[];
   sections: CoreDashboardSection[];
 };
@@ -421,6 +455,7 @@ export function buildUpcomingDeadlineRows(
       daysRemaining,
       ownerLabel,
       href: `/contracts/${contract.id}`,
+      source: idSuffix === "computed" ? "derived" : "reviewed",
     });
   };
 
@@ -464,7 +499,7 @@ export function buildDataGapRows(
     approvedByContract.set(field.contract_id, set);
   }
 
-  return contracts.flatMap((contract) => {
+  const gapRows = contracts.flatMap((contract) => {
     const fields = approvedByContract.get(contract.id) ?? new Set<string>();
     const missing: string[] = [];
     if (!contract.owner_id) missing.push("Owner");
@@ -488,6 +523,23 @@ export function buildDataGapRows(
       },
     ];
   });
+
+  // Surface the gaps that block the core tracking loop first: an unowned
+  // contract (no accountability) and missing renewal/notice dates (no deadline
+  // to track) outrank softer metadata gaps like counterparty or value. Stable
+  // sort preserves the source `updated_at` ordering within each severity tier.
+  return [...gapRows].sort(
+    (a, b) => dataGapSeverity(b.missing) - dataGapSeverity(a.missing)
+  );
+}
+
+function dataGapSeverity(missing: string[]): number {
+  let score = 0;
+  if (missing.includes("Owner")) score += 4;
+  if (missing.includes("Renewal date")) score += 3;
+  if (missing.includes("Notice date")) score += 3;
+  if (missing.includes("Counterparty")) score += 1;
+  return score;
 }
 
 export function buildWorkRows(
@@ -613,6 +665,142 @@ export function buildAuditActivityRows(
   });
 }
 
+type ImportJobSummaryRow = {
+  id: string;
+  status: string;
+  total_rows: number | null;
+  inserted_rows: number | null;
+  error_rows: number | null;
+  failure_reason: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  completed_at: string | null;
+  superseded_by_job_id: string | null;
+  retry_of_job_id: string | null;
+};
+
+const IMPORT_ATTENTION_WINDOW_DAYS = 14;
+
+function importJobRecencyTs(row: ImportJobSummaryRow): string | null {
+  return row.completed_at ?? row.updated_at ?? row.created_at ?? null;
+}
+
+/**
+ * Collapse recent contract import jobs into the single banner state the
+ * dashboard shows. Mid-flight imports win (`processing`); otherwise the most
+ * recent failed / partially-failed import within a recency window surfaces as
+ * `attention` (reusing the shared import-job visibility copy). A clean
+ * completed import shows nothing — the dashboard shouldn't nag after success.
+ * Superseded jobs (replaced by a retry) are ignored.
+ */
+export function deriveImportStatusSummary(
+  rows: ImportJobSummaryRow[],
+  now = new Date()
+): CoreDashboardImportStatus {
+  const href = "/contracts/bulk";
+  const none: CoreDashboardImportStatus = {
+    kind: "none",
+    processingCount: 0,
+    tone: "warning",
+    headline: "",
+    detail: "",
+    href,
+    occurredAt: null,
+    canRetry: false,
+  };
+
+  const active = rows.filter((row) => !row.superseded_by_job_id);
+
+  const processing = active.filter((row) => row.status === "processing");
+  if (processing.length > 0) {
+    return {
+      kind: "processing",
+      processingCount: processing.length,
+      // In-flight import is informational, not a warning — reserve amber/red for
+      // degraded imports.
+      tone: "info",
+      headline:
+        processing.length === 1
+          ? "1 import processing"
+          : `${processing.length} imports processing`,
+      detail: "Contract counts may update as rows finish creating.",
+      href,
+      occurredAt: null,
+      canRetry: false,
+    };
+  }
+
+  const attention = active
+    .filter(
+      (row) =>
+        row.status === "failed" ||
+        (row.status === "completed" && (row.error_rows ?? 0) > 0)
+    )
+    .filter((row) => {
+      const ts = importJobRecencyTs(row);
+      if (!ts) return false;
+      const when = new Date(ts);
+      if (!Number.isFinite(when.getTime())) return false;
+      return differenceInCalendarDays(now, when) <= IMPORT_ATTENTION_WINDOW_DAYS;
+    })
+    .sort((a, b) => {
+      const at = new Date(importJobRecencyTs(a) ?? 0).getTime();
+      const bt = new Date(importJobRecencyTs(b) ?? 0).getTime();
+      return bt - at;
+    });
+
+  const job = attention[0];
+  if (job) {
+    return {
+      kind: "attention",
+      processingCount: 0,
+      tone: getImportJobTone(job) === "risk" ? "danger" : "warning",
+      headline: getImportJobHeadline(job),
+      detail: getImportJobDetail(job),
+      href,
+      occurredAt: job.completed_at ?? job.updated_at ?? null,
+      canRetry: importJobCanRetry(job),
+    };
+  }
+
+  return none;
+}
+
+/** Canonical activity kind, derived from the same label/summary/outcome text
+ *  the feed component maps to a caps verb. Two rows that classify the same way
+ *  on the same contract render identically (e.g. "CHANGED · RIDGEWAY"), so they
+ *  must dedupe — even when the two sources phrase the summary differently
+ *  ("Owner changed" vs "Updated the owner"). Keep these branches in lockstep
+ *  with `activityVisual` in core-dashboard.tsx. */
+export function activityDedupeKind(row: CoreDashboardActivityRow): string {
+  const text = `${row.label} ${row.summary} ${row.outcome ?? ""}`.toLowerCase();
+  if (text.includes("upload")) return "uploaded";
+  if (text.includes("extract")) return "extracted";
+  if (text.includes("approv")) return "approved";
+  if (text.includes("reject")) return "rejected";
+  if (text.includes("creat")) return "created";
+  if (text.includes("delet")) return "deleted";
+  // owner_changed / status_changed / *_updated / file_superseded all display as
+  // CHANGED, so they share a dedupe kind.
+  if (
+    text.includes("owner") ||
+    text.includes("updat") ||
+    text.includes("chang") ||
+    text.includes("status") ||
+    text.includes("supersed") ||
+    text.includes("applied")
+  )
+    return "changed";
+  if (text.includes("complet") || text.includes("done")) return "completed";
+  if (text.includes("evidence") || text.includes("receiv")) return "received";
+  if (text.includes("export")) return "exported";
+  if (text.includes("sign")) return "signed";
+  // Last word, not first: "Contract Created" → "created", not "contract"
+  // (which collapsed every unmapped contract event into one generic kind).
+  const words = row.label.trim().split(/\s+/);
+  return (words[words.length - 1] || "activity").toLowerCase();
+}
+
 export function mergeActivityRows(
   preferredRows: CoreDashboardActivityRow[],
   fallbackRows: CoreDashboardActivityRow[],
@@ -621,7 +809,11 @@ export function mergeActivityRows(
   const seen = new Set<string>();
   const merged: CoreDashboardActivityRow[] = [];
   for (const row of [...preferredRows, ...fallbackRows]) {
-    const key = `${row.contractTitle ?? row.href}:${row.summary}`;
+    // Dedupe on contract + displayed kind, not the raw summary string: the v10
+    // read model and the audit fallback describe the same event with different
+    // phrasings, which slipped past a summary-keyed check and surfaced as
+    // visually identical duplicate rows.
+    const key = `${row.contractTitle ?? row.href}:${activityDedupeKind(row)}`;
     if (seen.has(key)) continue;
     seen.add(key);
     merged.push(row);
@@ -674,7 +866,10 @@ export async function loadCoreDashboardModel(input: {
     activityRes,
     auditActivityRes,
   ] = await Promise.all([
-    admin.from("organizations").select("name, plan_tier").eq("id", orgId).maybeSingle(),
+    // Keep this query on durable org identity columns only. `plan_tier` is not
+    // present in all dev/staging schemas; selecting it turns the whole org load
+    // into a visible partial-data dashboard warning.
+    admin.from("organizations").select("name").eq("id", orgId).maybeSingle(),
     admin
       .from("organization_workflow_settings")
       .select("dashboard_tracking_enabled")
@@ -760,10 +955,12 @@ export async function loadCoreDashboardModel(input: {
   if (activityRes.error && !auditActivityRes.error) partialErrors.push("activity_read_model");
 
   const reviewContracts = await attachOwnerProfiles(admin, orgId, reviewQueue.contracts);
-  const reviewStats = await getReviewStatsForContractIds(
-    admin,
-    reviewContracts.map((contract) => contract.id)
-  );
+  const reviewContractIds = reviewContracts.map((contract) => contract.id);
+  const [reviewStats, pendingFieldNamesByContract] = await Promise.all([
+    getReviewStatsForContractIds(admin, reviewContractIds),
+    // Only the first 6 contracts render rows; name their suggested fields.
+    getPendingFieldNamesForContractIds(admin, reviewContractIds.slice(0, 6)),
+  ]);
 
   const ownerIds = new Set<string>();
   for (const contract of reviewContracts) if (contract.owner_id) ownerIds.add(contract.owner_id);
@@ -785,13 +982,30 @@ export async function loadCoreDashboardModel(input: {
     (deadlineFieldsRes.data ?? []) as unknown as DeadlineFieldRow[],
     ownerLabelById
   );
-  const dataGapFieldRowsRes = await admin
-    .from("extracted_fields")
-    .select("contract_id, field_name, field_value, status, contracts!inner(organization_id)")
-    .eq("contracts.organization_id", orgId)
-    .in("field_name", ["renewal_date", "notice_date", "notice_window", "notice_window_ends"])
-    .range(0, 4999);
+  const [dataGapFieldRowsRes, importJobsRes] = await Promise.all([
+    admin
+      .from("extracted_fields")
+      .select("contract_id, field_name, field_value, status, contracts!inner(organization_id)")
+      .eq("contracts.organization_id", orgId)
+      .in("field_name", ["renewal_date", "notice_date", "notice_window", "notice_window_ends"])
+      .range(0, 4999),
+    admin
+      .from("contract_import_jobs")
+      .select(
+        "id, status, total_rows, inserted_rows, error_rows, failure_reason, created_at, updated_at, completed_at, superseded_by_job_id, retry_of_job_id"
+      )
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
   if (dataGapFieldRowsRes.error) partialErrors.push("data_gap_fields");
+
+  // Import status is its own banner, distinct from the dashboard partial-data
+  // notice. A failed query just yields "none" — it must not masquerade as a
+  // partial-data error (the two states have different meanings and banners).
+  const importStatus = deriveImportStatusSummary(
+    (importJobsRes.error ? [] : (importJobsRes.data ?? [])) as ImportJobSummaryRow[]
+  );
 
   const dataGapRows = buildDataGapRows(
     (dataGapContractsRes.data ?? []) as ContractGapSourceRow[],
@@ -852,10 +1066,11 @@ export async function loadCoreDashboardModel(input: {
 
   return {
     workspaceName: orgRes.data?.name?.trim() || "Workspace",
-    planTier: orgRes.data?.plan_tier?.trim() || null,
+    planTier: null,
     totalContracts: countValue(totalContractsRes as CountResult, partialErrors, "total_contracts"),
     showPlanBanner: enforcePlan && !hasActivePlan,
     partialErrors,
+    importStatus,
     topCards: deriveCoreDashboardTopCards({
       needsReview,
       upcomingDeadlines,
@@ -884,6 +1099,7 @@ export async function loadCoreDashboardModel(input: {
             reviewed: stats.approved,
             totalFields: stats.total,
             pendingFields: stats.pending,
+            pendingFieldNames: (pendingFieldNamesByContract[contract.id] ?? []).map(toSentenceLabel),
             status: contract.status,
           };
         }),
@@ -913,7 +1129,7 @@ export async function loadCoreDashboardModel(input: {
         href: SECTION_CONFIG.data_gaps.href,
         count: dataGapRows.length,
         emptyState: SECTION_CONFIG.data_gaps.emptyState,
-        rows: dataGapRows.slice(0, 6),
+        rows: dataGapRows.slice(0, 8),
       },
       {
         key: "recent_activity",

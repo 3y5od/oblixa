@@ -8,7 +8,6 @@ import { hasRoleCapability } from "@/lib/access-control";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 import { isPlanEnforcementEnabled } from "@/lib/plan";
 import { SETTINGS_PAGE_STRINGS } from "@/lib/settings/spec-strings";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
 import {
   AccessManagementSection,
   ProfileSettingsSection,
@@ -101,47 +100,70 @@ export default async function SettingsPage() {
   });
 
   return (
-    <div className="ui-page-stack mx-auto max-w-6xl gap-4">
+    <div className="ui-page-stack mx-auto w-full max-w-5xl gap-4">
       <DashboardPageHeader
         icon={<Settings className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow={SETTINGS_PAGE_STRINGS.eyebrow}
         title={SETTINGS_PAGE_STRINGS.title}
         lead={SETTINGS_PAGE_STRINGS.lead}
-        actions={
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <KeyValueChip label="Role" value={viewModel.roleLabel} />
-            {viewModel.planLabel ? (
-              <KeyValueChip
-                label="Plan"
-                value={viewModel.planLabel === "No plan" ? "Free" : viewModel.planLabel}
-              />
-            ) : null}
-          </div>
-        }
       />
 
       <SettingsAttentionSummary summary={viewModel.statusSummary} />
       <SettingsDirectory groups={viewModel.groups} />
 
-      {membership && (
-        <>
-          <WorkspaceIdentitySection
-            organizationId={membership.organization_id}
-            orgName={orgName}
-            roleLabel={viewModel.roleLabel}
-            isAdmin={viewModel.canEditWorkspaceIdentity}
-          />
+      {membership ? (
+        // IA transition — the Directory above jumps to dedicated settings
+        // areas; the cards below edit workspace / account / team inline. The
+        // top hairline + caps eyebrow (not a heading, to keep the h1→h2
+        // hierarchy clean) marks the shift so the two no longer read as one
+        // competing surface.
+        <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
+          <div className="flex flex-col gap-1">
+            <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Workspace &amp; account</p>
+            <p className="text-[12.5px] leading-snug text-[var(--text-secondary)]">
+              Edit these directly — changes apply to your workspace right away.
+            </p>
+          </div>
+          {/* §10.17 + §10.18 — pair the two compact identity editors side by
+              side so neither sits half-empty at full width, then let the dense
+              Team access ledger span full width below. `lg:items-start` keeps
+              the shorter workspace card from stretching to match Profile. */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+            <WorkspaceIdentitySection
+              organizationId={membership.organization_id}
+              orgName={orgName}
+              isAdmin={viewModel.canEditWorkspaceIdentity}
+            />
+            <ProfileSettingsSection
+              fullName={profile?.full_name ?? null}
+              email={user.email || ""}
+              joinedAt={user.created_at}
+            />
+          </div>
           <AccessManagementSection
             members={members}
             organizationId={membership.organization_id}
             roleLabels={WORKSPACE_SETTINGS_ROLE_LABELS}
             canInvite={viewModel.canInviteMembers}
             pendingInvites={pendingInvites}
+            currentUserId={user.id}
           />
-        </>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
+          <div className="flex flex-col gap-1">
+            <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Your account</p>
+            <p className="text-[12.5px] leading-snug text-[var(--text-secondary)]">
+              Update how your name appears across workspace activity.
+            </p>
+          </div>
+          <ProfileSettingsSection
+            fullName={profile?.full_name ?? null}
+            email={user.email || ""}
+            joinedAt={user.created_at}
+          />
+        </div>
       )}
-
-      <ProfileSettingsSection fullName={profile?.full_name ?? null} email={user.email || ""} joinedAt={user.created_at} />
     </div>
   );
 }

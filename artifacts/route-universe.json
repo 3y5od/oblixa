@@ -1,15 +1,15 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-05-28T22:05:45.869Z",
+  "generatedAt": "2026-06-03T20:01:44.398Z",
   "counts": {
-    "route_state": 45,
+    "route_state": 47,
     "layout": 23,
-    "page": 77,
+    "page": 79,
     "api_route": 226,
-    "server_action": 253
+    "server_action": 259
   },
-  "total": 624,
+  "total": 634,
   "routes": [
     {
       "id": "route_state:/:src/app/(auth)/error.tsx",
@@ -888,7 +888,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "openai"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -3693,12 +3695,13 @@
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
-      "rateLimitPolicy": "standard_or_not_applicable",
+      "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
         "openai",
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
         "tables": [
@@ -3765,6 +3768,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
       "providers": [
+        "calendar",
         "resend",
         "upstash_or_memory_rate_limit",
         "webhook_outbox"
@@ -13894,11 +13898,12 @@
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
-      "rateLimitPolicy": "standard_or_not_applicable",
+      "rateLimitPolicy": "explicit",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
         "tables": [
@@ -18683,6 +18688,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -19117,6 +19123,83 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "route_state:/contracts/evidence-studio:src/app/(dashboard)/contracts/evidence-studio/error.tsx",
+      "route": "/contracts/evidence-studio",
+      "samplePath": "/contracts/evidence-studio",
+      "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "sentry"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
       "id": "route_state:/contracts/evidence-studio:src/app/(dashboard)/contracts/evidence-studio/loading.tsx",
       "route": "/contracts/evidence-studio",
       "samplePath": "/contracts/evidence-studio",
@@ -19165,8 +19248,8 @@
           "all_clear"
         ],
         "present": [
-          "loading",
           "error",
+          "loading",
           "not_found"
         ],
         "inheritedShell": "dashboard"
@@ -19241,8 +19324,8 @@
           "all_clear"
         ],
         "present": [
-          "loading",
           "error",
+          "loading",
           "not_found"
         ],
         "inheritedShell": "dashboard"
@@ -19534,6 +19617,166 @@
           "contract_tasks",
           "contracts",
           "execution_graph_edges"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "loading",
+          "error",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "route_state:/contracts/imports/[jobId]:src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+      "route": "/contracts/imports/[jobId]",
+      "samplePath": "/contracts/imports/00000000-0000-0000-0000-000000000002",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [
+        "jobId"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "loading",
+          "error",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/contracts/imports/[jobId]:src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
+      "route": "/contracts/imports/[jobId]",
+      "samplePath": "/contracts/imports/00000000-0000-0000-0000-000000000002",
+      "sourcePath": "src/app/(dashboard)/contracts/imports/[jobId]/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [
+        "jobId"
+      ],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "contract_import_job_rows",
+          "contract_import_jobs"
         ],
         "rpcs": []
       },
@@ -19918,7 +20161,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -20309,6 +20551,7 @@
       "orgScopeEvidence": true,
       "providers": [
         "calendar",
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -20698,7 +20941,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "supabase"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -22179,6 +22424,68 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "page:/early-access:src/app/(marketing)/early-access/page.tsx",
+      "route": "/early-access",
+      "samplePath": "/early-access",
+      "sourcePath": "src/app/(marketing)/early-access/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "calendar"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "route_state:/external:src/app/external/error.tsx",
       "route": "/external",
       "samplePath": "/external",
@@ -22949,10 +23256,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [
-        "calendar",
-        "openai"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23385,7 +23689,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "supabase"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23530,7 +23836,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "supabase"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23777,7 +24085,7 @@
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
       "providers": [
-        "webhook_outbox"
+        "openai"
       ],
       "dbDependencies": {
         "tables": [],
@@ -25234,6 +25542,7 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -26313,9 +26622,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -27299,6 +27605,64 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "server_action:bulk-compatible-work-validation.test:src/actions/bulk-compatible-work-validation.test.ts",
+      "route": "action:bulk-compatible-work-validation.test",
+      "samplePath": "action:bulk-compatible-work-validation.test",
+      "sourcePath": "src/actions/bulk-compatible-work-validation.test.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "openai",
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "server_action:bulk-compatible-work.test:src/actions/bulk-compatible-work.test.ts",
       "route": "action:bulk-compatible-work.test",
       "samplePath": "action:bulk-compatible-work.test",
@@ -28031,7 +28395,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -28457,6 +28820,7 @@
       "orgScopeEvidence": true,
       "providers": [
         "crm",
+        "openai",
         "supabase"
       ],
       "dbDependencies": {
@@ -28692,9 +29056,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -29562,9 +29923,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -29635,9 +29993,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -29708,9 +30063,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -30049,9 +30401,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -30122,9 +30471,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -30587,9 +30933,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -30660,9 +31003,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -31591,6 +31931,76 @@
       "providers": [],
       "dbDependencies": {
         "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:disconnectIntegrationConnectionForm:src/actions/workflow-config.ts",
+      "route": "action:disconnectIntegrationConnectionForm",
+      "samplePath": "action:disconnectIntegrationConnectionForm",
+      "sourcePath": "src/actions/workflow-config.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "approval_policies",
+          "audit_events",
+          "field_templates",
+          "integration_api_keys",
+          "integration_connections",
+          "organization_workflow_settings",
+          "reminder_templates",
+          "renewal_playbook_templates",
+          "task_templates",
+          "template_change_events",
+          "webhook_subscriptions"
+        ],
         "rpcs": []
       },
       "routeStates": {
@@ -32801,7 +33211,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -32932,6 +33341,66 @@
         "timeoutClass": "default"
       },
       "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:loadPendingInviteSeatRows:src/actions/settings-helpers.ts",
+      "route": "action:loadPendingInviteSeatRows",
+      "samplePath": "action:loadPendingInviteSeatRows",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "audit_events",
+          "organization_invites"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "security",
       "riskTier": "P1",
       "expectedStatuses": [
         200,
@@ -33951,15 +34420,14 @@
       "dynamicSegments": [],
       "authModel": "session",
       "rolePolicy": [
-        "editor",
-        "manager",
-        "admin"
+        "admin",
+        "manager"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "structured_action_payload",
+      "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
@@ -34549,6 +35017,66 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "server_action:recoverSettingsAction:src/actions/settings-helpers.ts",
+      "route": "action:recoverSettingsAction",
+      "samplePath": "action:recoverSettingsAction",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "audit_events",
+          "organization_invites"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "security",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "server_action:refreshV10SettingsReadModels:src/actions/product-surface-settings-helpers.ts",
       "route": "action:refreshV10SettingsReadModels",
       "samplePath": "action:refreshV10SettingsReadModels",
@@ -35077,7 +35605,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -35375,9 +35902,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -35454,7 +35978,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -35794,6 +36317,66 @@
         "timeoutClass": "default"
       },
       "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:safeInsertSettingsAuditEvent:src/actions/settings-helpers.ts",
+      "route": "action:safeInsertSettingsAuditEvent",
+      "samplePath": "action:safeInsertSettingsAuditEvent",
+      "sourcePath": "src/actions/settings-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "structured_action_payload",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "audit_events",
+          "organization_invites"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "security",
       "riskTier": "P1",
       "expectedStatuses": [
         200,
@@ -36468,9 +37051,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -37407,7 +37987,7 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "session_required_by_default",
+      "authModel": "session",
       "rolePolicy": [
         "admin",
         "manager"
@@ -37416,7 +37996,7 @@
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
-      "bodyPolicy": "structured_action_payload",
+      "bodyPolicy": "bounded_or_form_body",
       "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
@@ -37478,9 +38058,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -37677,9 +38254,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -37750,9 +38324,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -37943,9 +38514,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -38016,9 +38584,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -39505,9 +40070,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -39584,7 +40146,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -39769,7 +40330,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "audit_events",
           "organization_invites",
           "organization_members",
           "organizations",
@@ -40901,9 +41461,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -41227,9 +41784,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
-        "crm",
-        "openai",
         "supabase",
         "webhook_outbox"
       ],
@@ -41472,6 +42026,67 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
+        "supabase",
+        "webhook_outbox"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [],
+        "inheritedShell": "actions"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P1",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "server_action:workflow-config-helpers:src/actions/workflow-config-helpers.ts",
+      "route": "action:workflow-config-helpers",
+      "samplePath": "action:workflow-config-helpers",
+      "sourcePath": "src/actions/workflow-config-helpers.ts",
+      "kind": "server_action",
+      "class": "server_action",
+      "shellFamily": "actions",
+      "methods": [
+        "ACTION"
+      ],
+      "runtime": "server_action",
+      "dynamicSegments": [],
+      "authModel": "session_required_by_default",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "bounded_or_form_body",
+      "rateLimitPolicy": "mutation_required",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "calendar",
+        "crm",
+        "openai",
         "supabase",
         "webhook_outbox"
       ],

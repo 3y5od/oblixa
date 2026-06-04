@@ -18,10 +18,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createResult, finishWithResult } from "./lib/result.mjs";
 import { nowMs } from "./lib/timing.mjs";
+import { spawnSyncCrossPlatform } from "./lib/cross-platform-spawn.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -138,10 +138,9 @@ function infoChildProcessExec(rel, content) {
 }
 
 function runNpmAudit() {
-  const r = spawnSync("npm", ["audit", "--audit-level", auditLevel], {
+  const r = spawnSyncCrossPlatform("npm", ["audit", "--audit-level", auditLevel], {
     cwd: root,
     encoding: "utf8",
-    shell: process.platform === "win32",
   });
   if (r.stdout) process.stdout.write(r.stdout);
   if (r.stderr) process.stderr.write(r.stderr);

@@ -16,6 +16,7 @@ import { getAuthContext } from "@/lib/supabase/server";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { normalizeAnalyticsScope } from "@/lib/analytics-scope";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 
 function monthKey(dateIso: string): string {
   return dateIso.slice(0, 7);
@@ -116,7 +117,7 @@ export default async function ContractAnalyticsPage(props: {
     (o) =>
       (o.status === "open" || o.status === "in_progress") &&
       o.due_date &&
-      new Date(`${o.due_date}T12:00:00`).getTime() < now.getTime()
+      (parseBusinessDateAtNoon(String(o.due_date))?.getTime() ?? Number.POSITIVE_INFINITY) < now.getTime()
   ).length;
   const pendingApprovals = (approvalsRes.data ?? []).filter((a) => a.status === "pending").length;
   const resolvedApprovals = (approvalsRes.data ?? []).filter(
@@ -222,7 +223,7 @@ export default async function ContractAnalyticsPage(props: {
           <p className="ui-support-copy">Narrow the analytics slice by owner, region, or contract type before comparing workflow pressure and delivery behavior.</p>
         </div>
         <form action="/contracts/analytics" method="get" className="grid gap-2 sm:grid-cols-3">
-          <select name="owner" defaultValue={ownerFilter} className="ui-input">
+          <select name="owner" defaultValue={ownerFilter} className="ui-input" aria-label="Filter analytics by owner">
             <option value="all">Owner: all</option>
             {ownerOptions.map((owner) => (
               <option key={owner} value={owner}>
@@ -230,7 +231,7 @@ export default async function ContractAnalyticsPage(props: {
               </option>
             ))}
           </select>
-          <select name="region" defaultValue={regionFilter} className="ui-input">
+          <select name="region" defaultValue={regionFilter} className="ui-input" aria-label="Filter analytics by region">
             <option value="all">Region: all</option>
             {regionOptions.map((region) => (
               <option key={region} value={region}>
@@ -238,7 +239,7 @@ export default async function ContractAnalyticsPage(props: {
               </option>
             ))}
           </select>
-          <select name="type" defaultValue={typeFilter} className="ui-input">
+          <select name="type" defaultValue={typeFilter} className="ui-input" aria-label="Filter analytics by contract type">
             <option value="all">Type: all</option>
             {typeOptions.map((type) => (
               <option key={type} value={type}>

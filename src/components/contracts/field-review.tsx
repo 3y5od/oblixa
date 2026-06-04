@@ -8,17 +8,16 @@ import {
   useRef,
   type KeyboardEvent,
 } from "react";
-import { format } from "date-fns";
 import { ArrowRight, Check, CircleHelp, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
+import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function formatFieldValue(raw: string | null | undefined): string {
   if (!raw) return "";
   const trimmed = raw.trim();
   if (ISO_DATE_RE.test(trimmed)) {
-    const parsed = new Date(`${trimmed}T12:00:00`);
-    if (!Number.isNaN(parsed.getTime())) return format(parsed, "MMM d, yyyy");
+    return formatBusinessDateAtNoon(trimmed, raw);
   }
   return raw;
 }

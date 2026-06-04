@@ -342,8 +342,6 @@ export function SearchView({
         // the field is empty, swaps to `Esc` (clear shortcut) automatically
         // once the user has typed something.
         kbdHint={{ meta: "", key: "/" }}
-        ariaControls={listId}
-        ariaActivedescendant={activeRowId}
         ariaLabel="Search workspace"
         ariaKeyShortcuts="ArrowUp ArrowDown Enter Meta+Enter Escape /"
         autoFocusDeferred={!initialQuery}
@@ -477,10 +475,8 @@ function GroupBandHeader({
         {label}
       </h2>
       {showCount ? (
-        <span
-          aria-label={`${count} result${count === 1 ? "" : "s"}`}
-          className="text-[11px] font-medium tabular-nums text-[var(--text-tertiary)]"
-        >
+        <span className="text-[11px] font-medium tabular-nums text-[var(--text-tertiary)]">
+          <span className="sr-only">{count} result{count === 1 ? "" : "s"}</span>
           <span aria-hidden>{count}</span>
         </span>
       ) : null}
@@ -542,8 +538,7 @@ function ResultsCard({
   // Single outer card so the page reads as one cohesive surface rather than
   // a stack of detached panels. Hairline dividers separate the bands.
   return (
-    <div
-      role="listbox"
+    <section
       id={listId}
       aria-label="Search results"
       aria-busy={isStale ? "true" : "false"}
@@ -633,7 +628,7 @@ function ResultsCard({
           </BandSection>
         );
       })}
-    </div>
+    </section>
   );
 }
 

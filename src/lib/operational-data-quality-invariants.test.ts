@@ -217,7 +217,11 @@ describe("operational data quality property and fuzz coverage", () => {
 
     fc.assert(
       fc.property(
-        fc.date({ min: new Date("2000-01-01T00:00:00.000Z"), max: new Date("2030-12-31T00:00:00.000Z") }),
+        fc.date({
+          min: new Date("2000-01-01T00:00:00.000Z"),
+          max: new Date("2030-12-31T00:00:00.000Z"),
+          noInvalidDate: true,
+        }),
         fc.integer({ min: -730, max: 730 }),
         (date, days) => {
           const next = addUtcDays(date, days);
