@@ -16,6 +16,8 @@ function pathnameFromSitemapUrl(url: string): string {
 }
 
 describe("marketing public paths", () => {
+  const compatibilityReadableOnlyPaths = new Set<string>(["/early-access"]);
+
   it("isPublicInformationPath matches PUBLIC_INFORMATION_PATHS", () => {
     for (const path of PUBLIC_INFORMATION_PATHS) {
       expect(isPublicInformationPath(path), path).toBe(true);
@@ -26,6 +28,7 @@ describe("marketing public paths", () => {
   it("every PUBLIC_INFORMATION_PATH is listed in SITEMAP_PATHS", () => {
     const set = new Set(SITEMAP_PATHS as readonly string[]);
     for (const p of PUBLIC_INFORMATION_PATHS) {
+      if (compatibilityReadableOnlyPaths.has(p)) continue;
       expect(set.has(p), p).toBe(true);
     }
   });

@@ -25,7 +25,7 @@ const REQUIRED_TRUST_SURFACES = [
   "contact",
   "security-txt",
   "subprocessors",
-  "early-access-security-boundary",
+  "reviewed-access-security-boundary",
 ];
 const REQUIRED_FRAMEWORKS = ["SOC 2", "ISO 27001", "OWASP ASVS", "privacy", "internal"];
 const REQUIRED_SUBPROCESSOR_DATA_CLASSES = [

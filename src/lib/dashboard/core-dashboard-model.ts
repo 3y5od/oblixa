@@ -284,7 +284,7 @@ const SECTION_CONFIG: Record<
   upcoming_deadlines: {
     title: DASHBOARD_MAIN_SECTIONS[1].name,
     actionLabel: DASHBOARD_MAIN_SECTIONS[1].action,
-    href: "/contracts/renewals",
+    href: "/renewals",
     emptyState: DASHBOARD_EMPTY_STATES.upcomingDeadlines,
   },
   work_needing_action: {
@@ -312,11 +312,11 @@ const TOP_CARD_CONFIG: Record<
   { label: DashboardTopCardLabel; href: string; actionLabel: string }
 > = {
   needs_review: { label: DASHBOARD_TOP_CARDS[0], href: "/contracts/review", actionLabel: "Review fields" },
-  upcoming_deadlines: { label: DASHBOARD_TOP_CARDS[1], href: "/contracts/renewals", actionLabel: "Create reminder" },
+  upcoming_deadlines: { label: DASHBOARD_TOP_CARDS[1], href: "/renewals", actionLabel: "Create reminder" },
   blocked_work: { label: DASHBOARD_TOP_CARDS[2], href: "/work?lens=blocked", actionLabel: "Open work" },
   missing_owners: { label: DASHBOARD_TOP_CARDS[3], href: "/contracts?owner=missing", actionLabel: "Assign owners" },
   open_exceptions: { label: DASHBOARD_TOP_CARDS[4], href: "/contracts/exceptions?status=open", actionLabel: "Open" },
-  evidence_requested: { label: DASHBOARD_TOP_CARDS[5], href: "/contracts/evidence-studio", actionLabel: "Open evidence" },
+  evidence_requested: { label: DASHBOARD_TOP_CARDS[5], href: "/evidence", actionLabel: "Open evidence" },
 };
 
 const TOP_CARD_ORDER: DashboardTopCardKey[] = [

@@ -6,6 +6,7 @@ export type UiShellFamily =
   | "auth"
   | "marketing"
   | "external"
+  | "operator"
   | "global_error"
   | "not_found";
 
@@ -21,18 +22,22 @@ export type UiSurfaceFamily =
   | "work"
   | "settings"
   | "reports"
+  | "renewals"
+  | "evidence"
   | "utilities"
+  | "relationships"
   | "advanced"
   | "assurance"
   | "auth"
   | "marketing"
-  | "external";
+  | "external"
+  | "operator";
 
 export type UiSurfaceEntry = {
   route: string;
   routeFamily: UiSurfaceFamily;
-  mode: "authenticated" | "public" | "external";
-  workspaceModeTier: RouteInventoryTier | "public" | "external";
+  mode: "authenticated" | "public" | "auth" | "compatibility" | "external" | "boundary" | "internal";
+  workspaceModeTier: RouteInventoryTier | "public" | "external" | "boundary" | "internal";
   shellFamily: UiShellFamily;
   expectedHeading: string | null;
   visitPath: string | null;
@@ -55,4 +60,3 @@ export function getUiSurfaceByRoute(route: string): UiSurfaceEntry | undefined {
 export function getUiSurfacesByCoverage(level: UiCoverageLevel): UiSurfaceEntry[] {
   return UI_SURFACE_MANIFEST.filter((entry) => entry.coverage.includes(level));
 }
-

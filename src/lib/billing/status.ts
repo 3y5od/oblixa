@@ -128,14 +128,14 @@ export function subscriptionStatusBadge(
     case "none":
     default:
       return {
-        label: "Early access",
+        label: "Access review",
         // Finishing-pass §1.9 + §1.12 — Per spec §10.2 "Status earns
         // color" + §2.11 zero-state pattern: Free is the baseline (not
         // an active risk/healthy/info state). Empty tone reads as
         // "intentional zero state" — the spec-faithful choice.
         tone: "empty",
         icon: CheckCircle,
-        srLabel: "Workspace is in early-access billing review.",
+        srLabel: "Workspace is in access and billing review.",
       };
   }
 }

@@ -54,8 +54,8 @@ describe("v7 acceptance matrix", () => {
     // primary nav per spec §In-App Pages. Reports remains top-level.
     // Tier 5.6: Report packs child link removed from nav (route still
     // exists at /contracts/reports but is no longer surfaced).
-    expect(NAV_ITEMS.find((i) => i.href === "/contracts/evidence-studio")).toBeTruthy();
-    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/evidence")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/renewals")).toBeTruthy();
     expect(NAV_ITEMS.find((i) => i.href === "/reports")).toBeTruthy();
   });
 

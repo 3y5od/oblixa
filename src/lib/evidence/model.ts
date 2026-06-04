@@ -415,7 +415,7 @@ function shapeEvidenceRow(
       : ownerUserId
         ? input.memberLabelById.get(ownerUserId) ?? "Assigned teammate"
         : "Unassigned";
-  const href = contractHref ?? "/contracts/evidence-studio";
+  const href = contractHref ?? "/evidence";
 
   const rowModel: EvidenceRow = {
     id: requirementId,

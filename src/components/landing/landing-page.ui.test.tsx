@@ -7,7 +7,7 @@ describe("LandingPage", () => {
   it("renders the primary hero CTA and core sections", () => {
     renderWithProviders(<LandingPage />);
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: /request early access/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /request access/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: /^capabilities$/i })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /purpose-built for contract tracking/i })).toBeTruthy();
   });
@@ -16,6 +16,6 @@ describe("LandingPage", () => {
     renderWithProviders(<LandingPage />);
     expect(screen.getByRole("heading", { name: /know what needs attention before/i })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /built for teams outgrowing/i })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /start with a small contract set/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /request reviewed workspace access/i })).toBeTruthy();
   });
 });

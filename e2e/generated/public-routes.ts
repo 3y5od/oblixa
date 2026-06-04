@@ -26,12 +26,12 @@ export const GENERATED_PUBLIC_ROUTES = [
     ]
   },
   {
-    "route": "/early-access",
-    "visitPath": "/early-access",
+    "route": "/request-access",
+    "visitPath": "/request-access",
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Replace your contract-tracking spreadsheet.",
+    "expectedHeading": "Track what signed contracts require next.",
     "coverage": [
       "smoke",
       "a11y",
@@ -44,7 +44,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Request early access.",
+    "expectedHeading": "Request workspace access.",
     "coverage": [
       "smoke",
       "a11y",
@@ -57,65 +57,12 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Replace your contract-tracking spreadsheet.",
+    "expectedHeading": "Track what signed contracts require next.",
     "coverage": [
       "smoke",
       "a11y",
       "visual",
       "multi_browser"
-    ]
-  },
-  {
-    "route": "/login",
-    "visitPath": "/login",
-    "fixtureId": null,
-    "routeFamily": "auth",
-    "shellFamily": "auth",
-    "expectedHeading": "Sign in to your account",
-    "coverage": [
-      "smoke",
-      "a11y",
-      "visual",
-      "multi_browser"
-    ]
-  },
-  {
-    "route": "/signup",
-    "visitPath": "/signup",
-    "fixtureId": null,
-    "routeFamily": "auth",
-    "shellFamily": "auth",
-    "expectedHeading": "Founder-led early access",
-    "coverage": [
-      "smoke",
-      "a11y",
-      "visual"
-    ]
-  },
-  {
-    "route": "/forgot-password",
-    "visitPath": "/forgot-password",
-    "fixtureId": null,
-    "routeFamily": "auth",
-    "shellFamily": "auth",
-    "expectedHeading": "Reset your password",
-    "coverage": [
-      "smoke",
-      "a11y",
-      "visual"
-    ]
-  },
-  {
-    "route": "/reset-password",
-    "visitPath": "/reset-password",
-    "fixtureId": null,
-    "routeFamily": "auth",
-    "shellFamily": "auth",
-    "expectedHeading": "Set a new password",
-    "coverage": [
-      "smoke",
-      "a11y",
-      "visual"
     ]
   },
   {

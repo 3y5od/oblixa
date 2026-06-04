@@ -106,8 +106,9 @@ export async function createAdminClient() {
 
 /**
  * Backward-compatible membership resolver for older call sites.
- * It no longer chooses an "earliest" organization: callers without explicit org context only
- * resolve when the user has exactly one membership. Multi-org users fail closed.
+ * It no longer chooses an "earliest" organization or provisions a missing workspace:
+ * callers without explicit org context only resolve when the user has exactly one membership.
+ * First-workspace creation is intentionally limited to the access-grant signup flow.
  */
 export async function getDeterministicMembership(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -157,9 +158,7 @@ export async function getOrEnsureDeterministicMembership(
       role: resolution.membership.role as OrgRole,
     };
   }
-  if (resolution.reason !== "organization_membership_missing") return null;
-  await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user), admin);
-  return await getDeterministicMembership(admin, user.id);
+  return null;
 }
 
 export async function getUserOrgId(userId: string): Promise<string | null> {
@@ -222,7 +221,7 @@ export async function ensureUserOrg(
 
   const { data: org, error: orgError } = await admin
     .from("organizations")
-    .insert({ name: orgName })
+    .insert({ name: orgName, owner_user_id: userId })
     .select("id")
     .single();
 

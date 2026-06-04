@@ -834,7 +834,7 @@ export default async function SettingsHealthPage() {
       modes: ["core"],
       userImpact: dueReminderRuns > 0 || scheduledReminderRuns > 0 ? latestReminderHeadline : undefined,
       detail: latestReminderDetail,
-      primaryAction: { href: "/contracts/renewals", label: "Review renewals" },
+      primaryAction: { href: "/renewals", label: "Review renewals" },
       chips: [
         { label: "Due", value: String(dueReminderRuns) },
         { label: "Scheduled", value: String(scheduledReminderRuns) },
@@ -917,7 +917,7 @@ export default async function SettingsHealthPage() {
       requiredFeature: "utility:review_cadence",
       userImpact: rejectedEvidenceCount > 0 ? `${rejectedEvidenceCount} evidence request${rejectedEvidenceCount === 1 ? "" : "s"} were rejected.` : undefined,
       detail: `${requiredEvidenceCount} required evidence item${requiredEvidenceCount === 1 ? "" : "s"} and ${rejectedEvidenceCount} rejected item${rejectedEvidenceCount === 1 ? "" : "s"} in recent activity.`,
-      primaryAction: { href: "/contracts/evidence-studio", label: "Review evidence" },
+      primaryAction: { href: "/evidence", label: "Review evidence" },
       chips: [
         { label: "Required", value: String(requiredEvidenceCount) },
         { label: "Rejected", value: String(rejectedEvidenceCount) },

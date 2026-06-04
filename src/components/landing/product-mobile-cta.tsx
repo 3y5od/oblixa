@@ -42,7 +42,7 @@ export function ProductMobileCta() {
     >
       <div className="product-anchor-nav-surface pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--accent-strong)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface-raised)_94%,transparent)] py-1 pl-3 pr-1 shadow-[var(--shadow-2)] backdrop-blur-md">
         <Link
-          href="/early-access"
+          href="/request-access"
           className="ui-btn-primary inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold"
         >
           Request access
@@ -50,7 +50,7 @@ export function ProductMobileCta() {
         </Link>
         <button
           type="button"
-          aria-label="Dismiss early-access banner"
+          aria-label="Dismiss access request banner"
           onClick={() => {
             setDismissed(true);
             writeProductMobileCtaDismissed();

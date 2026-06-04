@@ -1,5 +1,11 @@
 import { SETTINGS_DESTINATION_STRINGS, SETTINGS_GROUP_STRINGS } from "@/lib/settings/spec-strings";
 import type { OrgRole } from "@/lib/types";
+import {
+  canInviteWorkspaceMembers,
+  canManageWorkspaceSettings,
+  canonicalRoleLabel,
+  isWorkspaceAdminRole,
+} from "@/lib/roles";
 
 export type WorkspaceSettingsRole = OrgRole;
 
@@ -64,13 +70,15 @@ export type WorkspaceSettingsViewModel = {
 };
 
 export const WORKSPACE_SETTINGS_ROLE_LABELS: Record<string, string> = {
+  owner: "Owner",
   admin: "Admin",
-  editor: "Editor",
+  editor: "Member",
+  member: "Member",
   viewer: "Viewer",
-  ops_manager: "Ops manager",
-  legal_reviewer: "Legal reviewer",
-  finance_reviewer: "Finance reviewer",
-  manager: "Manager",
+  ops_manager: "Member",
+  legal_reviewer: "Member",
+  finance_reviewer: "Member",
+  manager: "Member",
 };
 
 type BaseDestination = Omit<SettingsDestination, "state" | "surfaceKind"> & {
@@ -152,19 +160,25 @@ function surfaceKind(href: string): SettingsDestinationSurfaceKind {
 
 function destinationState(
   dest: BaseDestination,
-  input: { role: WorkspaceSettingsRole | null; canManageSettings: boolean }
+  input: { role: WorkspaceSettingsRole | null; canManageSettings: boolean; isWorkspaceOwner?: boolean }
 ): SettingsDestinationState | "hidden" {
   if (dest.visibility === "settings" && !input.canManageSettings) return "read_only";
-  if (dest.requiredRole === "admin" && input.role !== "admin") return "read_only";
+  if (dest.requiredRole === "admin" && !isWorkspaceAdminRole(input.role, input)) return "read_only";
   return "available";
 }
 
 function destinationCurrentStateLabel(
   dest: BaseDestination,
-  input: { role: WorkspaceSettingsRole | null; memberCount: number; pendingInviteCount: number; planLabel?: string | null }
+  input: {
+    role: WorkspaceSettingsRole | null;
+    memberCount: number;
+    pendingInviteCount: number;
+    planLabel?: string | null;
+    isWorkspaceOwner?: boolean;
+  }
 ) {
   if (dest.key === "workspace") {
-    return input.role === "admin"
+    return isWorkspaceAdminRole(input.role, input)
       ? SETTINGS_DESTINATION_STRINGS.workspace.currentStateLabel
       : SETTINGS_DESTINATION_STRINGS.workspace.readOnlyLabel;
   }
@@ -175,8 +189,8 @@ function destinationCurrentStateLabel(
   }
   if (dest.key === "billing") {
     // Access-status framing, not a pricing tier: a workspace with no Stripe
-    // subscription is in the early-access period, not on a "Free" plan.
-    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Early access";
+    // subscription is in access review, not on a "Free" plan.
+    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Access review";
   }
   return dest.currentStateLabel;
 }
@@ -189,6 +203,7 @@ function buildDestination(
     memberCount: number;
     pendingInviteCount: number;
     planLabel?: string | null;
+    isWorkspaceOwner?: boolean;
   }
 ): SettingsDestination | null {
   const state = destinationState(dest, input);
@@ -215,9 +230,10 @@ function attentionItems(input: {
   role: WorkspaceSettingsRole | null;
   pendingInviteCount: number;
   planBlockKnown?: boolean;
+  isWorkspaceOwner?: boolean;
 }) {
   const items: SettingsStatusItem[] = [];
-  if (input.role === "admin" && input.pendingInviteCount > 0) {
+  if (isWorkspaceAdminRole(input.role, input) && input.pendingInviteCount > 0) {
     items.push({
       key: "invites",
       label: "Pending invites",
@@ -249,6 +265,7 @@ export function buildWorkspaceSettingsViewModel(input: {
   pendingInviteCount: number;
   planLabel?: string | null;
   planBlockKnown?: boolean;
+  isWorkspaceOwner?: boolean;
 }): WorkspaceSettingsViewModel {
   const destinations = BASE_DESTINATIONS
     .map((dest) => buildDestination(dest, input))
@@ -259,10 +276,10 @@ export function buildWorkspaceSettingsViewModel(input: {
   })).filter((group) => group.destinations.length > 0);
 
   return {
-    roleLabel: input.role ? WORKSPACE_SETTINGS_ROLE_LABELS[input.role] ?? input.role : "Unknown",
+    roleLabel: canonicalRoleLabel(input.role, { isWorkspaceOwner: input.isWorkspaceOwner }),
     groups,
     statusSummary: { items: attentionItems(input) },
-    canInviteMembers: input.role === "admin",
-    canEditWorkspaceIdentity: input.role === "admin",
+    canInviteMembers: canInviteWorkspaceMembers(input.role, input),
+    canEditWorkspaceIdentity: canManageWorkspaceSettings(input.role, input),
   };
 }

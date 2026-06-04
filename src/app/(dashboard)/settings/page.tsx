@@ -42,7 +42,7 @@ export default async function SettingsPage() {
         .single(),
       admin
         .from("organization_members")
-        .select("id, organization_id, role, organizations(name, stripe_subscription_id, stripe_subscription_status)")
+        .select("id, organization_id, role, organizations(name, owner_user_id, stripe_subscription_id, stripe_subscription_status)")
         .eq("user_id", user.id)
         .eq("organization_id", orgId)
         .limit(1)
@@ -68,7 +68,17 @@ export default async function SettingsPage() {
   const members = (membersData ?? []) as unknown as OrganizationMember[];
 
   let pendingInvites: PendingInviteRow[] = [];
-  if (membership && membership.role === "admin") {
+  const org = (membership as OrganizationMember & {
+    organizations?: {
+      name?: string | null;
+      owner_user_id?: string | null;
+      stripe_subscription_id?: string | null;
+      stripe_subscription_status?: string | null;
+    } | null;
+  } | null)?.organizations ?? null;
+  const isWorkspaceOwner = org?.owner_user_id === user.id;
+
+  if (membership && (membership.role === "admin" || isWorkspaceOwner)) {
     const { data: invData } = await admin
       .from("organization_invites")
       .select("id, email, role, expires_at, created_at")
@@ -80,10 +90,8 @@ export default async function SettingsPage() {
     pendingInvites = (invData ?? []) as PendingInviteRow[];
   }
 
-  const orgName =
-    (membership as OrganizationMember & { organizations: { name: string } } | null)
-      ?.organizations?.name || "";
-  const orgBilling = (membership as OrganizationMember & { organizations: { stripe_subscription_id?: string | null; stripe_subscription_status?: string | null } } | null)?.organizations;
+  const orgName = org?.name || "";
+  const orgBilling = org;
   const planLabel = orgBilling?.stripe_subscription_id
     ? orgBilling.stripe_subscription_status
       ? orgBilling.stripe_subscription_status.replace(/_/g, " ")
@@ -97,6 +105,7 @@ export default async function SettingsPage() {
     pendingInviteCount: pendingInvites.length,
     planLabel,
     planBlockKnown,
+    isWorkspaceOwner,
   });
 
   return (

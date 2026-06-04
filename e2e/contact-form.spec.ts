@@ -15,7 +15,7 @@ test.describe("public contact form", () => {
   test("renders, submits to /api/contact, and shows the success state", async ({ page }) => {
     await page.setExtraHTTPHeaders({ "x-forwarded-for": "203.0.113.201" });
     await page.goto("/contact", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /request early access/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /request workspace access/i })).toBeVisible();
 
     await page.getByLabel(/^name$/i).fill("Test Submitter");
     await page.getByLabel(/work email/i).fill("test-submitter@example.com");
@@ -46,7 +46,7 @@ test.describe("public contact form", () => {
     await page.getByLabel(/main tracking pain/i).fill("Renewals and owner follow-up live in one shared tracker.");
     await pick(/follow-up preference/i, "Async questions first");
 
-    const submit = page.getByRole("button", { name: /request early access/i });
+    const submit = page.getByRole("button", { name: /request access/i });
     await expect(submit).toBeEnabled();
     await submit.click();
 
@@ -70,7 +70,7 @@ test.describe("public contact form", () => {
         company: "bot",
         role: "bot",
         contracts: "under_20",
-        interested: "early_access",
+        interested: "request_access",
         trackingMethod: "spreadsheet",
         hasTracker: "yes",
         redactedSample: "unsure",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T20:01:44.402Z",
+  "generatedAt": "2026-06-04T20:45:47.203Z",
   "rows": [
     {
       "route": "/",
@@ -126,6 +126,13 @@
       "sourcePath": "src/app/(dashboard)/accounts/layout.tsx",
       "owner": "engineering",
       "riskTier": "P3",
+      "diagnosticPrefix": "accounts"
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
       "diagnosticPrefix": "accounts"
     },
     {
@@ -2222,6 +2229,13 @@
       "diagnosticPrefix": "counterparties"
     },
     {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "counterparties"
+    },
+    {
       "route": "/counterparties/[key]",
       "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
       "owner": "engineering",
@@ -2313,6 +2327,27 @@
       "diagnosticPrefix": "early_access"
     },
     {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "evidence"
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "evidence"
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "evidence"
+    },
+    {
       "route": "/external",
       "sourcePath": "src/app/external/error.tsx",
       "owner": "engineering",
@@ -2331,6 +2366,13 @@
       "sourcePath": "src/app/external/loading.tsx",
       "owner": "engineering",
       "riskTier": "P3",
+      "diagnosticPrefix": "external"
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
       "diagnosticPrefix": "external"
     },
     {
@@ -2397,6 +2439,27 @@
       "diagnosticPrefix": "onboarding_calibration"
     },
     {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/error.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "operator_access_requests"
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "operator_access_requests"
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "operator_access_requests"
+    },
+    {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
       "owner": "engineering",
@@ -2446,6 +2509,20 @@
       "diagnosticPrefix": "relationship_workspaces"
     },
     {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/loading.tsx",
+      "owner": "engineering",
+      "riskTier": "P3",
+      "diagnosticPrefix": "renewals"
+    },
+    {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "renewals"
+    },
+    {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
       "owner": "release",
@@ -2458,6 +2535,13 @@
       "owner": "release",
       "riskTier": "P2",
       "diagnosticPrefix": "reports"
+    },
+    {
+      "route": "/request-access",
+      "sourcePath": "src/app/(marketing)/request-access/page.tsx",
+      "owner": "engineering",
+      "riskTier": "P2",
+      "diagnosticPrefix": "request_access"
     },
     {
       "route": "/reset-password",

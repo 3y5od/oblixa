@@ -37,7 +37,7 @@ export function buildEvidenceHref(input: {
   if (input.page && input.page > 1) params.set("page", String(input.page));
   if (input.create) params.set("create", "1");
   const qs = params.toString();
-  return qs ? `/contracts/evidence-studio?${qs}` : "/contracts/evidence-studio";
+  return qs ? `/evidence?${qs}` : "/evidence";
 }
 
 const EVIDENCE_DUE_FILTER_KEYS: readonly EvidenceDueFilterKey[] = [

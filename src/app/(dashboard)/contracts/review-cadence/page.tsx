@@ -138,7 +138,7 @@ export default async function ReviewCadencePage() {
             icon={CalendarDays}
             primaryValue={monthly.renewals90d}
             primaryUnit={`within ${renewalHorizonDays}d`}
-            action={{ href: "/contracts/renewals", label: "Review renewals" }}
+            action={{ href: "/renewals", label: "Review renewals" }}
             variant="compact"
           />
         </div>

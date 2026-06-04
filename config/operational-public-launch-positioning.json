@@ -98,11 +98,11 @@
       "markers": ["your team reviews and approves", "source snippet"]
     },
     {
-      "id": "gated-early-access-request",
-      "path": "src/app/(marketing)/early-access/page.tsx",
+      "id": "reviewed-access-request",
+      "path": "src/app/(marketing)/request-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request early access", "Founder-led early access", "Redacted sample"]
+      "markers": ["Request access", "Reviewed workspace access", "Redacted sample"]
     },
     {
       "id": "exportable-data",
@@ -190,21 +190,21 @@
       "path": "src/app/(marketing)/pricing/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Simple pricing for", "href=\"/early-access\"", "founding monthly plan"]
+      "markers": ["Simple pricing for", "href=\"/request-access\"", "Price disclosed before charge"]
     },
     {
-      "id": "early-access-page",
-      "path": "src/app/(marketing)/early-access/page.tsx",
+      "id": "request-access-page",
+      "path": "src/app/(marketing)/request-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request early access", "Redacted sample", "not intended for teams that require formal enterprise security review"]
+      "markers": ["Request access", "Redacted sample", "Not intended for teams that require formal enterprise security review"]
     },
     {
       "id": "signup-form",
       "path": "src/actions/auth.ts",
       "owner": "@product-marketing",
       "validationCommand": "test:operational-public-launch-positioning",
-      "markers": ["rateLimitCheck(`signup:${ip}`", "isKillSignup", "emailRedirectTo: `${appUrl}/auth/callback`"]
+      "markers": ["rateLimitCheck(`signup:${ip}`", "validateWorkspaceAccessGrant", "markWorkspaceAccessGrantUsed", "access_grant_id", "emailRedirectTo: `${appUrl}/auth/callback`"]
     },
     {
       "id": "password-recovery",
@@ -232,7 +232,7 @@
       "path": "src/app/(marketing)/contact/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request early access", "View product tour", "Founder-led early access"]
+      "markers": ["Request Oblixa workspace access", "View product tour", "Reviewed workspace access"]
     }
   ],
   "assetMetadata": [

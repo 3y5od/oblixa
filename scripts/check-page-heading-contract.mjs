@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { uiSurfaceManifest } from "../src/lib/qa/ui-surface-manifest.source.mjs";
+import { readEffectiveRouteSource } from "./lib/build-route-universe.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -23,6 +24,18 @@ function fileForRoute(route) {
   return path.join(root, "src/app/(dashboard)", route.replace(/^\//, ""), "page.tsx");
 }
 
+function filesForRoute(route) {
+  const primary = fileForRoute(route);
+  const files = primary ? [primary] : [];
+  if (route === "/settings/operations") {
+    files.push(
+      path.join(root, "src/app/(dashboard)/settings/operations/operations-settings-view.tsx"),
+      path.join(root, "src/lib/settings/spec-strings.ts")
+    );
+  }
+  return files;
+}
+
 const missing = [];
 for (const entry of uiSurfaceManifest) {
   if (!entry.expectedHeading) continue;
@@ -32,11 +45,11 @@ for (const entry of uiSurfaceManifest) {
       : entry.route === "/"
         ? entry.expectedHeading
         : entry.expectedHeading;
-  const filePath = fileForRoute(entry.route);
-  if (!filePath || !fs.existsSync(filePath)) continue;
-  const raw = fs.readFileSync(filePath, "utf8");
+  const filePaths = filesForRoute(entry.route).filter((filePath) => fs.existsSync(filePath));
+  if (filePaths.length === 0) continue;
+  const raw = filePaths.map((filePath) => readEffectiveRouteSource(filePath)).join("\n");
   if (!raw.includes(headingText)) {
-    missing.push(`${entry.route} -> ${path.relative(root, filePath)} missing heading text "${headingText}"`);
+    missing.push(`${entry.route} -> ${filePaths.map((filePath) => path.relative(root, filePath)).join(", ")} missing heading text "${headingText}"`);
   }
 }
 
@@ -47,4 +60,3 @@ if (missing.length) {
 }
 
 console.log(`check-page-heading-contract: OK (${uiSurfaceManifest.length} manifest routes checked)`);
-

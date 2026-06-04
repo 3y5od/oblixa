@@ -126,13 +126,13 @@ function Hero() {
       <p className="product-hero-rise-2 mx-auto mt-4 max-w-[36rem] text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
         Upload signed contracts, review the suggested fields, assign owners and dates, then track work, evidence, and reports.
       </p>
-      {/* Hero CTA — product tour stays informational; conversion is early access. */}
+      {/* Hero CTA — product tour stays informational; conversion is access request. */}
       <div className="product-hero-rise-3 mt-7 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href="/early-access"
+          href="/request-access"
           className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
         >
-          Request early access
+          Request access
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
         </Link>
         <Link
@@ -461,7 +461,7 @@ function ClosingCta() {
       <div className="relative">
         <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--success-ink)]">
           <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--success-ink)]" />
-          Early access
+          Reviewed access
         </p>
         <h2 className="mt-3 text-balance text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[2.125rem]">
           Start replacing the spreadsheet this quarter.
@@ -474,10 +474,10 @@ function ClosingCta() {
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/early-access"
+            href="/request-access"
             className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
           >
-            Request early access
+            Request access
             <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
           </Link>
           <Link

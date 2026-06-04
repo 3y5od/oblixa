@@ -5,11 +5,11 @@ import { LandingPage } from "@/components/landing/landing-page";
 /** Public landing ISR — aligns with (marketing) segment revalidate. */
 export const revalidate = 86400;
 
-const title = "Oblixa — Replace your contract-tracking spreadsheet";
+const title = "Oblixa — Track what signed contracts require next";
 const description =
-  "Oblixa helps small teams track renewals, obligations, owners, evidence, and reports from signed contracts, with AI-assisted extraction that stays source-backed and human-reviewed.";
+  "Oblixa helps small teams turn reviewed contract dates, owners, obligations, evidence, exceptions, and reports into accountable work.";
 const ogDescription =
-  "Replace your contract-tracking spreadsheet with source-backed reviewed fields, owners, work, evidence, and reports.";
+  "Upload agreements or import your tracker, review source-backed fields, and turn signed-contract follow-up into accountable work.";
 
 export const metadata: Metadata = {
   title,

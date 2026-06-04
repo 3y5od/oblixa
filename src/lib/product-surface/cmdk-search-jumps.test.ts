@@ -67,12 +67,8 @@ describe("getCmdkSearchJumpItems", () => {
     expect(items.find((i) => i.id === "search-jump:exceptions")?.href).toBe(
       "/contracts/exceptions?status=open"
     );
-    expect(items.find((i) => i.id === "search-jump:evidence")?.href).toBe(
-      "/contracts/evidence-studio#live-request-queue"
-    );
-    expect(items.find((i) => i.id === "search-jump:renewals")?.href).toBe(
-      "/contracts/renewals?window=90"
-    );
+    expect(items.find((i) => i.id === "search-jump:evidence")?.href).toBe("/evidence#live-request-queue");
+    expect(items.find((i) => i.id === "search-jump:renewals")?.href).toBe("/renewals?window=90");
   });
 
   it("omits decisions for core mode", () => {

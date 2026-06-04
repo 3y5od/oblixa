@@ -9,8 +9,8 @@ const CORE_PRIMARY_HREFS = [
   "/dashboard",
   "/contracts",
   "/work",
-  "/contracts/renewals",
-  "/contracts/evidence-studio",
+  "/renewals",
+  "/evidence",
   "/reports",
   "/settings",
 ] as const;
@@ -69,14 +69,14 @@ describe("refinement §7 navigation", () => {
 
   it("§9.2 Review and Renewals stay reachable from primary navigation", () => {
     expect(childByHref("/contracts/review")).toBeTruthy();
-    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/renewals")).toBeTruthy();
   });
 
   it("§9.1 Work is a single top-level destination with tabs inside the route", () => {
     const work = NAV_ITEMS.find((i) => i.name === "Work");
     expect(work?.navChildren ?? []).toEqual([]);
-    expect(NAV_ITEMS.find((i) => i.href === "/contracts/renewals")).toBeTruthy();
-    expect(NAV_ITEMS.find((i) => i.href === "/contracts/evidence-studio")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/renewals")).toBeTruthy();
+    expect(NAV_ITEMS.find((i) => i.href === "/evidence")).toBeTruthy();
   });
 
   it("keeps Settings as a single Core navigation destination", () => {

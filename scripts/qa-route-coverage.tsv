@@ -11,7 +11,8 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /cookies	n	n	marketing_public	pending_human	y	0	n	marketing_group_loading
 /product	y	y	marketing_public,current_product_core	pending_human	y	0	n	product_segment_loading
 /pricing	y	y	marketing_public	pending_human	n	0	n	public_pricing
-/early-access	n	n	marketing_public	pending_human	n	0	n	public_signup_interest
+/request-access	n	n	marketing_public	pending_human	n	0	n	public_access_request
+/early-access	n	n	marketing_public	pending_human	n	0	n	public_access_request_compat
 /contact	y	y	marketing_public	pending_human	n	0	n	public_contact_form
 /acceptable-use	n	n	marketing_public	pending_human	n	0	n	public_policy
 /dashboard	y	y	authenticated,v3,v5,v6	pending_human	y	0	n	

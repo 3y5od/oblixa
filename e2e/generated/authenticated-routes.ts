@@ -105,6 +105,32 @@ export const GENERATED_AUTHENTICATED_ROUTES = [
     ]
   },
   {
+    "route": "/renewals",
+    "visitPath": "/renewals",
+    "fixtureId": null,
+    "routeFamily": "renewals",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual",
+      "multi_browser"
+    ]
+  },
+  {
+    "route": "/evidence",
+    "visitPath": "/evidence",
+    "fixtureId": null,
+    "routeFamily": "evidence",
+    "workspaceModeTier": "core",
+    "coverage": [
+      "smoke",
+      "a11y",
+      "visual",
+      "multi_browser"
+    ]
+  },
+  {
     "route": "/contracts/tasks",
     "visitPath": "/contracts/tasks",
     "fixtureId": null,

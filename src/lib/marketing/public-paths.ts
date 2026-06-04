@@ -3,9 +3,10 @@
  * Keep in sync with `src/lib/auth/proxy-path-policy.ts` (used by `src/proxy.ts`).
  */
 
-/** Readable without a session (not in `publicRoutes` — those redirect authed users to dashboard). */
+/** Readable without a session. Compatibility paths may be readable without becoming sitemap entries. */
 export const PUBLIC_INFORMATION_PATHS = [
   "/product",
+  "/request-access",
   "/early-access",
   "/pricing",
   "/contact",
@@ -17,14 +18,19 @@ export const PUBLIC_INFORMATION_PATHS = [
   "/cookies",
 ] as const;
 
-/** Indexable-ish marketing URLs for sitemap (includes auth entry points). */
+/** Indexable marketing and legal URLs only. Auth and compatibility routes are intentionally excluded. */
 export const SITEMAP_PATHS = [
   "/",
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/reset-password",
-  ...PUBLIC_INFORMATION_PATHS,
+  "/product",
+  "/request-access",
+  "/pricing",
+  "/contact",
+  "/security",
+  "/privacy",
+  "/terms",
+  "/acceptable-use",
+  "/accessibility",
+  "/cookies",
 ] as const;
 
 export type PublicInformationPath = (typeof PUBLIC_INFORMATION_PATHS)[number];

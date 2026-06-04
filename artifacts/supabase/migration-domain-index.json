@@ -3,8 +3,8 @@
   "generatedBy": "scripts/check-migration-organization.mjs --write",
   "sourceManifest": "artifacts/supabase/migration-manifest.json",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 89,
-  "latestVersion": "089",
+  "migrationCount": 92,
+  "latestVersion": "092",
   "groups": [
     {
       "label": "Auth And Identity",
@@ -77,9 +77,10 @@
         "077_external_action_token_revocation_metadata.sql",
         "080_code_owned_transient_retention_cleanup.sql",
         "084_codify_transient_retention_indexes.sql",
-        "086_integration_oauth_states_retention_index.sql"
+        "086_integration_oauth_states_retention_index.sql",
+        "090_fix_retention_cleanup_calendar_feed_reason.sql"
       ],
-      "count": 5
+      "count": 6
     },
     {
       "label": "RLS And Security",
@@ -128,9 +129,11 @@
         "083_restore_anon_rls_helper_execute.sql",
         "085_contract_fields_compatibility_view.sql",
         "088_sql_neutral_function_aliases.sql",
-        "089_sql_neutral_table_view_aliases.sql"
+        "089_sql_neutral_table_view_aliases.sql",
+        "091_access_review_requests_and_grants.sql",
+        "092_workspace_owner_relation.sql"
       ],
-      "count": 45
+      "count": 47
     },
     {
       "label": "Storage",
@@ -223,6 +226,12 @@
       "file": "077_external_action_token_revocation_metadata.sql",
       "changeType": "data-changing",
       "domain": "data_retention",
+      "affectedTables": []
+    },
+    {
+      "file": "092_workspace_owner_relation.sql",
+      "changeType": "data-changing",
+      "domain": "security",
       "affectedTables": []
     }
   ],
@@ -925,6 +934,26 @@
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'verification_command_results' order by policyname;",
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'work_items' order by policyname;"
       ]
+    },
+    {
+      "file": "090_fix_retention_cleanup_calendar_feed_reason.sql",
+      "affectedTables": [],
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "file": "091_access_review_requests_and_grants.sql",
+      "affectedTables": [
+        "public.workspace_access_grants",
+        "public.workspace_access_request_events",
+        "public.workspace_access_requests"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_grants' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_request_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_requests' order by policyname;"
+      ]
     }
   ],
   "cleanupMigrations": [
@@ -952,6 +981,11 @@
       "file": "086_integration_oauth_states_retention_index.sql",
       "domain": "data_retention",
       "changeType": "schema-only"
+    },
+    {
+      "file": "090_fix_retention_cleanup_calendar_feed_reason.sql",
+      "domain": "data_retention",
+      "changeType": "policy-changing"
     }
   ],
   "migrations": [
@@ -2809,8 +2843,8 @@
       "cleanupMarked": true,
       "requiresAffectedTables": false,
       "affectedTables": [],
-      "lineCount": 268,
-      "byteCount": 11266,
+      "lineCount": 267,
+      "byteCount": 11198,
       "large": false,
       "descriptiveSlug": true,
       "verificationQueries": [
@@ -3049,6 +3083,72 @@
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'runtime_coverage_ledger' order by policyname;",
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'verification_command_results' order by policyname;",
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'work_items' order by policyname;"
+      ]
+    },
+    {
+      "version": "090",
+      "file": "090_fix_retention_cleanup_calendar_feed_reason.sql",
+      "domain": "data_retention",
+      "domainLabel": "Operational Cleanup",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": true,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 164,
+      "byteCount": 6539,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, indexname from pg_indexes where schemaname = 'public' and indexname ilike '%retention%' order by tablename, indexname;"
+      ]
+    },
+    {
+      "version": "091",
+      "file": "091_access_review_requests_and_grants.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.workspace_access_grants",
+        "public.workspace_access_request_events",
+        "public.workspace_access_requests"
+      ],
+      "lineCount": 87,
+      "byteCount": 3996,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_grants' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_request_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_requests' order by policyname;"
+      ]
+    },
+    {
+      "version": "092",
+      "file": "092_workspace_owner_relation.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 26,
+      "byteCount": 879,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
       ]
     }
   ]

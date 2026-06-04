@@ -22,6 +22,7 @@ const files = {
   productPage: read("src/app/(marketing)/product/page.tsx"),
   pricingPage: read("src/app/(marketing)/pricing/page.tsx"),
   contactPage: read("src/app/(marketing)/contact/page.tsx"),
+  requestAccessPage: read("src/app/(marketing)/request-access/page.tsx"),
   earlyAccessPage: read("src/app/(marketing)/early-access/page.tsx"),
   contactForm: read("src/components/landing/contact-form.tsx"),
   contactRoute: read("src/app/api/contact/route.ts"),
@@ -68,6 +69,7 @@ const publicSources = {
   productPage: files.productPage,
   pricingPage: files.pricingPage,
   contactPage: files.contactPage,
+  requestAccessPage: files.requestAccessPage,
   earlyAccessPage: files.earlyAccessPage,
   contactForm: files.contactForm,
   contactRoute: files.contactRoute,
@@ -94,61 +96,72 @@ const forbiddenPublicPhrases = [
   "Maintained by security team",
   "Standard support",
   "self-serve trial to paid",
+  "Founder-led early access",
+  "Request early access",
+  "early-access limits",
+  "founder-led early access",
 ];
 
 for (const [name, source] of Object.entries(publicSources)) {
   requireAllAbsent(name, source, forbiddenPublicPhrases);
 }
 
-requireContains("landingContent", files.landingContent, "Replace your contract-tracking spreadsheet.");
-requireContains("landingContent", files.landingContent, "source-backed and human-reviewed");
-requireContains("landingContent", files.landingContent, 'export const ctaPrimaryLabel = "Request early access"');
-requireContains("landingPage", files.landingPage, "Replace your contract-tracking spreadsheet.");
-requireContains("landingPage", files.landingPage, 'href="/early-access"');
-requireContains("landingPage", files.landingPage, 'href="#how-it-works"');
-requireContains("marketingChrome", files.marketingChrome, "Request early access");
-requireContains("marketingChrome", files.marketingChrome, 'href="/early-access"');
+requireContains("landingContent", files.landingContent, "Track what signed contracts require next.");
+requireContains("landingContent", files.landingContent, "review source-backed fields");
+requireContains("landingContent", files.landingContent, 'export const ctaPrimaryLabel = "Request access"');
+requireContains("landingPage", files.landingPage, "Track what signed contracts require next.");
+requireContains("landingPage", files.landingPage, 'href="/request-access"');
+requireContains("landingPage", files.landingPage, 'href="/product"');
+requireContains("marketingChrome", files.marketingChrome, "Request access");
+requireContains("marketingChrome", files.marketingChrome, 'href="/request-access"');
 requireContains("landingJsonLd", files.landingJsonLd, "SoftwareApplication");
 requireAbsent("landingJsonLd", files.landingJsonLd, "priceCurrency");
 requireAbsent("landingJsonLd", files.landingJsonLd, "UnitPriceSpecification");
 
+requireContains("publicPaths", files.publicPaths, '"/request-access"');
 requireContains("publicPaths", files.publicPaths, '"/early-access"');
 requireContains("pricingPage", files.pricingPage, "Simple pricing for");
-requireContains("pricingPage", files.pricingPage, "founding monthly plan");
+requireContains("pricingPage", files.pricingPage, "Price disclosed before charge");
 requireContains("contactForm", files.contactForm, 'name="trackingMethod"');
 requireContains("contactForm", files.contactForm, 'name="redactedSample"');
 requireContains("contactForm", files.contactForm, 'name="preference"');
-requireContains("contactRoute", files.contactRoute, '"early_access"');
+requireContains("contactRoute", files.contactRoute, '"request_access"');
 requireContains("contactRoute", files.contactRoute, "ALLOWED_TRACKING_METHODS");
-requireContains("earlyAccessPage", files.earlyAccessPage, "Redacted sample");
+requireContains("requestAccessPage", files.requestAccessPage, "Reviewed workspace access");
+requireContains("requestAccessPage", files.requestAccessPage, "Redacted sample contracts");
+requireContains("earlyAccessPage", files.earlyAccessPage, 'redirect("/request-access")');
 
 requireContains(
   "authForm",
   files.authForm,
-  "Oblixa is currently in founder-led early access"
+  "Signup is limited to approved or invited workspaces"
 );
-requireContains("authForm", files.authForm, 'name="accessCode"');
-requireContains("authActions", files.authActions, "OBLIXA_EARLY_ACCESS_SIGNUP_CODE");
-requireContains("authActions", files.authActions, "isEarlyAccessSignupAllowed");
+requireContains("authForm", files.authForm, 'type="hidden" name="accessCode"');
+requireContains("authActions", files.authActions, "validateWorkspaceAccessGrant");
+requireContains("authActions", files.authActions, "markWorkspaceAccessGrantUsed");
+requireContains("authActions", files.authActions, "access_grant_id");
+requireContains("authActions", files.authActions, "Signup requires approved workspace access");
+requireAbsent("authActions", files.authActions, "OBLIXA_EARLY_ACCESS_SIGNUP_CODE");
+requireAbsent("authActions", files.authActions, "isEarlyAccessSignupAllowed");
 
 requireContains(
   "securityPage",
   files.securityPage,
-  "Contract-record security basics, with"
+  "Security basics for contract records, with"
 );
-requireContains("securityPage", files.securityPage, "early-access limits");
+requireContains("securityPage", files.securityPage, "reviewed access");
 requireContains("securityPage", files.securityPage, "does not provide legal advice");
 
-requireContains("billingStrings", files.billingStrings, "Billing is secondary during early access");
-requireContains("billingStrings", files.billingStrings, "Product support during evaluation");
+requireContains("billingStrings", files.billingStrings, "Billing is available only after access approval");
+requireContains("billingStrings", files.billingStrings, "Product support during activation");
 requireContains("billingPage", files.billingPage, "billingCheckoutEnabled");
-requireContains("billingPage", files.billingPage, "Public billing checkout is disabled during early access");
+requireContains("billingPage", files.billingPage, "Public billing checkout is available only after access approval");
 requireContains("checkoutRoute", files.checkoutRoute, "isPublicBillingCheckoutEnabled");
 requireContains("checkoutRoute", files.checkoutRoute, "billing_checkout_not_enabled");
 requireContains("checkoutRoute", files.checkoutRoute, "OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT=1");
 requireContains("checkoutRoute", files.checkoutRoute, "checkout adds a trial only if explicitly configured");
 requireContains("privateControls", files.privateControls, "OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS");
-requireContains("emailTemplates", files.emailTemplates, "Welcome to Oblixa early access");
+requireContains("emailTemplates", files.emailTemplates, "Welcome to Oblixa");
 requireContains("emailTemplates", files.emailTemplates, "RELEASE_STATE_SECONDARY_BILLING_EMAIL_TEMPLATE_KEYS");
 requireAbsent("emailTemplates", files.emailTemplates, /trial_day_|trial_ending/i);
 

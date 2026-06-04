@@ -90,6 +90,18 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "dashboard"
   },
   {
+    "route": "/evidence",
+    "kind": "error",
+    "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/evidence",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/evidence/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
     "route": "/contracts/evidence-studio",
     "kind": "error",
     "sourcePath": "src/app/(dashboard)/contracts/evidence-studio/error.tsx",
@@ -111,6 +123,12 @@ export const GENERATED_ROUTE_STATES = [
     "route": "/contracts/reports",
     "kind": "loading",
     "sourcePath": "src/app/(dashboard)/contracts/reports/loading.tsx",
+    "shellFamily": "dashboard"
+  },
+  {
+    "route": "/renewals",
+    "kind": "loading",
+    "sourcePath": "src/app/(dashboard)/renewals/loading.tsx",
     "shellFamily": "dashboard"
   },
   {
@@ -336,6 +354,18 @@ export const GENERATED_ROUTE_STATES = [
     "shellFamily": "marketing"
   },
   {
+    "route": "/external",
+    "kind": "loading",
+    "sourcePath": "src/app/external/loading.tsx",
+    "shellFamily": "external"
+  },
+  {
+    "route": "/external",
+    "kind": "error",
+    "sourcePath": "src/app/external/error.tsx",
+    "shellFamily": "external"
+  },
+  {
     "route": "/external/[token]",
     "kind": "loading",
     "sourcePath": "src/app/external/loading.tsx",
@@ -346,5 +376,17 @@ export const GENERATED_ROUTE_STATES = [
     "kind": "error",
     "sourcePath": "src/app/external/error.tsx",
     "shellFamily": "external"
+  },
+  {
+    "route": "/operator/access-requests",
+    "kind": "loading",
+    "sourcePath": "src/app/operator/access-requests/loading.tsx",
+    "shellFamily": "operator"
+  },
+  {
+    "route": "/operator/access-requests",
+    "kind": "error",
+    "sourcePath": "src/app/operator/access-requests/error.tsx",
+    "shellFamily": "operator"
   }
 ] as const;

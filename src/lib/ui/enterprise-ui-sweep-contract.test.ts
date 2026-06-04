@@ -42,7 +42,7 @@ describe("enterprise UI sweep contract", () => {
         "/contracts/obligations",
         "/contracts/approvals",
         "/contracts/exceptions",
-        "/contracts/renewals",
+        "/renewals",
         "/contracts/review",
         "/settings/health",
         "/reports",

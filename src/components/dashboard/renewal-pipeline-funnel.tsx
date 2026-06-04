@@ -96,8 +96,8 @@ export async function RenewalPipelineFunnel({ orgId }: RenewalPipelineFunnelProp
   }> = [
     { primary: "ACTIVE", count: stage1, href: "/contracts?status=active", tone: "neutral" },
     { primary: "RENEWAL", secondary: "90D", count: stage2, href: "/contracts?end_within_days=90", tone: "accent" },
-    { primary: "NOTICE", secondary: "OPEN", count: stage3, href: "/contracts/renewals", tone: "warning" },
-    { primary: "DECISION", secondary: "OVERDUE", count: stage4, href: "/contracts/renewals?decision=overdue", tone: "danger" },
+    { primary: "NOTICE", secondary: "OPEN", count: stage3, href: "/renewals", tone: "warning" },
+    { primary: "DECISION", secondary: "OVERDUE", count: stage4, href: "/renewals?decision=overdue", tone: "danger" },
   ];
 
   const max = Math.max(stage1, 1);

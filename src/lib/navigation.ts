@@ -1,4 +1,5 @@
 import type { FeatureFlagKey } from "@/lib/feature-flags";
+import { isWorkspaceAdminRole, canMutateCoreWorkspaceRecords } from "@/lib/roles";
 
 /** Core-first navigation registry; release-state public Core exposes seven primary app surfaces. */
 
@@ -122,8 +123,8 @@ export const PRIMARY_NAV_GROUPS: ReadonlyArray<{
       "/dashboard",
       "/contracts",
       "/work",
-      "/contracts/renewals",
-      "/contracts/evidence-studio",
+      "/renewals",
+      "/evidence",
       "/reports",
       "/settings",
     ],
@@ -184,7 +185,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     name: "Renewals",
-    href: "/contracts/renewals",
+    href: "/renewals",
     description: "Upcoming renewal and notice dates.",
     section: "primary",
     icon: "renewals",
@@ -193,7 +194,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     name: "Evidence",
-    href: "/contracts/evidence-studio",
+    href: "/evidence",
     description: "Evidence requests, collection, and audit trail.",
     section: "primary",
     icon: "evidence",
@@ -398,6 +399,7 @@ export function resolveSearchGroupForNavItem(item: { searchGroup?: SearchGroup; 
     path === "/contracts/obligations" ||
     path === "/contracts/exceptions" ||
     path === "/contracts/tasks" ||
+    path === "/evidence" ||
     path === "/contracts/evidence-studio"
   ) {
     return "queues";
@@ -413,7 +415,9 @@ const ADDITIONAL_CONTRACTS_SUBROUTES = [
   "/contracts/bulk",
   "/contracts/reports",
   "/contracts/tasks",
+  "/contracts/renewals",
   "/contracts/exceptions",
+  "/contracts/evidence-studio",
 ];
 
 export const CONTRACTS_SUBROUTES = Array.from(
@@ -438,20 +442,17 @@ export function isContractsRoot(pathname: string): boolean {
 
 export function isActivePath(pathname: string, href: string): boolean {
   if (href === "/contracts") return isContractsRoot(pathname);
+  if (href === "/renewals") return pathname === "/renewals" || pathname.startsWith("/renewals/") || pathname === "/contracts/renewals" || pathname.startsWith("/contracts/renewals/");
+  if (href === "/evidence") return pathname === "/evidence" || pathname.startsWith("/evidence/") || pathname === "/contracts/evidence-studio" || pathname.startsWith("/contracts/evidence-studio/");
   if (href === "/settings") return pathname === "/settings" || pathname.startsWith("/settings/");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function canAccessItem(item: NavItem, role: WorkspaceRole): boolean {
   if (!item.minRole) return true;
-  if (item.minRole === "admin") return role === "admin";
+  if (item.minRole === "admin") return isWorkspaceAdminRole(role);
   if (item.minRole === "editor") {
-    return (
-      role === "admin" ||
-      role === "editor" ||
-      role === "ops_manager" ||
-      role === "manager"
-    );
+    return canMutateCoreWorkspaceRecords(role);
   }
   return true;
 }

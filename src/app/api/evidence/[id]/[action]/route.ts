@@ -248,6 +248,7 @@ export async function POST(
         "command_search_index",
       ],
     });
+    revalidatePath("/evidence");
     revalidatePath("/contracts/evidence-studio");
     if (cid) revalidatePath(`/contracts/${cid}`);
         return {
@@ -256,7 +257,7 @@ export async function POST(
             message: auditEventId ? "Evidence approved." : "Evidence was not approved because audit confirmation failed.",
             changedObjectType: "evidence_request",
             changedObjectId: String(submission.requirement_id),
-            nextDestinationHref: cid ? `/contracts/${cid}` : "/contracts/evidence-studio",
+            nextDestinationHref: cid ? `/contracts/${cid}` : "/evidence",
             auditEventId,
             diagnosticId: auditEventId ? null : "v10_evidence_approve_audit_missing",
           }),
@@ -352,6 +353,7 @@ export async function POST(
         "command_search_index",
       ],
     });
+    revalidatePath("/evidence");
     revalidatePath("/contracts/evidence-studio");
     if (cid) revalidatePath(`/contracts/${cid}`);
         return {
@@ -360,7 +362,7 @@ export async function POST(
             message: auditEventId ? "Evidence rejected." : "Evidence was not rejected because audit confirmation failed.",
             changedObjectType: "evidence_request",
             changedObjectId: String(submission.requirement_id),
-            nextDestinationHref: cid ? `/contracts/${cid}` : "/contracts/evidence-studio",
+            nextDestinationHref: cid ? `/contracts/${cid}` : "/evidence",
             auditEventId,
             diagnosticId: auditEventId ? null : "v10_evidence_reject_audit_missing",
           }),

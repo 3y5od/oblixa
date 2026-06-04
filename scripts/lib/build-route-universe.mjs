@@ -174,8 +174,9 @@ function authModel(route, source, cronPaths) {
   if (route.includes("/external-actions/") || route.startsWith("/external/")) return "external_token";
   if (route.includes("/reports/track/") || route.includes("/auth/") || route === "/login" || route === "/signup") return "public_or_token";
   if (route.startsWith("/api/internal/")) return "internal_bearer";
+  if (route.startsWith("/operator/")) return "internal_operator";
   if (route.startsWith("/api/")) return "session";
-  if (route.startsWith("/dashboard") || route.startsWith("/contracts") || route.startsWith("/assurance") || route.startsWith("/settings") || route.startsWith("/reports") || route.startsWith("/work") || route.startsWith("/decisions") || route.startsWith("/accounts") || route.startsWith("/counterparties") || route.startsWith("/campaigns")) return "session";
+  if (route.startsWith("/dashboard") || route.startsWith("/contracts") || route.startsWith("/renewals") || route.startsWith("/evidence") || route.startsWith("/assurance") || route.startsWith("/settings") || route.startsWith("/reports") || route.startsWith("/work") || route.startsWith("/decisions") || route.startsWith("/accounts") || route.startsWith("/counterparties") || route.startsWith("/campaigns")) return "session";
   return "public";
 }
 
@@ -187,6 +188,7 @@ function routeClass(route, kind, cronPaths) {
   if (route.includes("/reports/track/")) return "tracking";
   if (route.includes("/auth/") || route === "/login" || route === "/signup") return "auth";
   if (route.startsWith("/api/internal/")) return "internal";
+  if (route.startsWith("/operator/")) return "internal";
   if (route.startsWith("/api/")) return "api";
   if (kind === "page") return authModel(route, "", cronPaths) === "session" ? "authenticated_page" : "public_page";
   return kind;
@@ -216,9 +218,36 @@ function rateLimitPolicy(cls, methods, source) {
 }
 
 function workspaceMode(route) {
+  const normalized = route.split("?")[0] ?? route;
+  const omitRoutes = new Set(["/more", "/settings/operations", "/settings/policy"]);
+  const internalPrefixes = ["/operator/", "/settings/health", "/settings/product", "/settings/policy/registry", "/settings/policy/diagnostics", "/contracts/maintenance"];
+  const boundaryRoutes = new Set(["/external", "/accounts", "/counterparties"]);
+  const containedPrefixes = [
+    "/assurance",
+    "/campaigns",
+    "/decisions",
+    "/relationship-workspaces",
+    "/dashboard/persona",
+    "/contracts/intake",
+    "/contracts/data-quality",
+    "/contracts/review-cadence",
+    "/contracts/watchlists",
+    "/contracts/execution-graph",
+    "/contracts/approvals/workload",
+    "/contracts/approvals/sla-simulator",
+    "/contracts/analytics",
+    "/contracts/collaboration",
+    "/contracts/programs",
+    "/accounts/",
+    "/counterparties/",
+  ];
+  if (omitRoutes.has(normalized)) return ["omit"];
+  if (internalPrefixes.some((prefix) => normalized === prefix || normalized.startsWith(prefix.endsWith("/") ? prefix : `${prefix}/`))) return ["internal"];
+  if (boundaryRoutes.has(normalized)) return ["boundary"];
+  if (containedPrefixes.some((prefix) => normalized === prefix || normalized.startsWith(prefix.endsWith("/") ? prefix : `${prefix}/`))) return ["contained"];
   if (route.includes("assurance")) return ["assurance"];
   if (route.includes("autopilot") || route.includes("campaign") || route.includes("intelligence") || route.includes("simulation")) return ["advanced", "assurance"];
-  if (route.startsWith("/api/") || route.startsWith("/contracts") || route.startsWith("/dashboard") || route.startsWith("/work") || route.startsWith("/reports") || route.startsWith("/settings")) return ["core", "advanced", "assurance"];
+  if (route.startsWith("/api/") || route.startsWith("/contracts") || route.startsWith("/renewals") || route.startsWith("/evidence") || route.startsWith("/dashboard") || route.startsWith("/work") || route.startsWith("/reports") || route.startsWith("/settings")) return ["core", "advanced", "assurance"];
   return ["public_or_external"];
 }
 
@@ -319,7 +348,7 @@ function buildAppRouteRows(root, cronPaths) {
     const name = path.basename(file);
     const route = appFileToRoute(appRoot, file);
     const kind = name === "route.ts" ? "api_route" : name === "page.tsx" ? "page" : name === "layout.tsx" ? "layout" : "route_state";
-    const source = kind === "api_route" ? readEffectiveRouteSource(file) : read(file);
+    const source = kind === "api_route" || kind === "page" ? readEffectiveRouteSource(file) : read(file);
     const methods = kind === "api_route" ? methodsFromSource(source) : ["GET"];
     const auth = authModel(route, source, cronPaths);
     const cls = routeClass(route, kind === "api_route" ? "api" : kind, cronPaths);

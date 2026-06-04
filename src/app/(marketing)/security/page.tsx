@@ -17,7 +17,7 @@ import { GradientPhrase } from "@/components/ui/gradient-phrase";
 
 const title = "Security — Oblixa";
 const description =
-  "Security basics for contract records in Oblixa early access — roles, audit history, export, deletion, account security, and AI review, with early-access limits.";
+  "Security basics for contract records in Oblixa — roles, audit history, export, deletion, account security, and AI review.";
 
 export const metadata: Metadata = {
   title,
@@ -133,19 +133,19 @@ export default function SecurityPage() {
               className="mx-auto mt-3 max-w-[20ch] text-balance text-[2.35rem] font-bold leading-[1.04] tracking-tight text-[var(--text-primary)] sm:text-[3.5rem]"
               style={{ letterSpacing: "-0.02em" }}
             >
-              Security basics for contract records, with <GradientPhrase>early-access limits</GradientPhrase>.
+              Security basics for contract records, with <GradientPhrase>reviewed access</GradientPhrase>.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-balance text-[15px] leading-[1.65] text-[var(--text-secondary)] sm:text-[17px]">
               Oblixa keeps role, audit, export, deletion, and AI-review controls visible.
-              Early access is not intended for teams that require formal enterprise
-              security review before a limited evaluation.
+              Reviewed access is not intended for teams that require formal enterprise
+              security review before a first workspace.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/early-access"
+                href="/request-access"
                 className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
               >
-                Request early access
+                Request access
                 <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               </Link>
               <Link

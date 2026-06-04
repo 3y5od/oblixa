@@ -7,7 +7,7 @@ import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 
 const title = "Contact — Oblixa";
 const description =
-  "Request Oblixa early access for a small contract-tracking evaluation, or share how your team tracks signed contracts today.";
+  "Request Oblixa workspace access, ask a pricing or security question, or share how your team tracks signed contracts today.";
 
 export const metadata: Metadata = {
   title,
@@ -48,8 +48,8 @@ const quickLinks: Array<{
   {
     href: "/pricing",
     eyebrow: "Pricing",
-    title: "Review early-access pricing",
-    subtitle: "Month-to-month after a small evaluation.",
+    title: "Review access and pricing",
+    subtitle: "Month-to-month after approval and checkout.",
     tone: "cool",
     icon: BarChart3,
   },
@@ -87,13 +87,13 @@ export default function ContactPage() {
           <header className="text-center">
             <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
               <span className="landing-eyebrow-dot" aria-hidden />
-              Early access
+              Contact
             </p>
             <h1
               className="mx-auto mt-3 max-w-[20ch] text-balance text-[2rem] font-bold leading-[1.05] tracking-tight text-[var(--text-primary)] sm:text-[2.75rem]"
               style={{ letterSpacing: "-0.02em" }}
             >
-              Request <span className="text-[var(--accent-strong)]">early access</span>.
+              Request <span className="text-[var(--accent-strong)]">workspace access</span>.
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
               If a manual tracker is where your signed-contract renewals, owners, and
@@ -102,7 +102,7 @@ export default function ContactPage() {
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <a href="#contact-form" className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold">
-                Request early access
+                Request access
                 <ArrowDown className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               </a>
               <Link href="/product" className="ui-btn-secondary px-4 py-2 text-[13px] font-semibold">
@@ -110,7 +110,7 @@ export default function ContactPage() {
               </Link>
             </div>
             <p className="ui-caps-3 mt-4 text-[10px] leading-none text-[var(--text-tertiary)]">
-              Founder-led early access
+              Reviewed workspace access
               <span className="ui-dot-sep" aria-hidden>
                 ·
               </span>

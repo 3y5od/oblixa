@@ -287,7 +287,7 @@ export async function POST(request: Request) {
             changedObjectType: "evidence_request",
             changedObjectId: data.id,
             newVersion: data.id,
-            nextDestinationHref: "/contracts/evidence-studio",
+            nextDestinationHref: "/evidence",
             auditEventId,
           }),
           evidenceRequest: data,

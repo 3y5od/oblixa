@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T20:01:44.403Z",
+  "generatedAt": "2026-06-04T20:45:47.204Z",
   "rows": [
     {
       "route": "/",
@@ -55,6 +55,29 @@
         "not_found"
       ],
       "inheritedShell": "marketing"
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
     },
     {
       "route": "/accounts/[key]",
@@ -1013,6 +1036,29 @@
       "inheritedShell": "marketing"
     },
     {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
       "route": "/counterparties/[key]",
       "sourcePath": "src/app/(dashboard)/counterparties/[key]/page.tsx",
       "shellFamily": "dashboard",
@@ -1192,6 +1238,47 @@
       "inheritedShell": "marketing"
     },
     {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/page.tsx",
+      "shellFamily": "external",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "external"
+    },
+    {
       "route": "/external/[token]",
       "sourcePath": "src/app/external/[token]/page.tsx",
       "shellFamily": "external",
@@ -1285,6 +1372,18 @@
       "inheritedShell": "dashboard"
     },
     {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "shellFamily": "operator",
+      "required": [],
+      "present": [
+        "error",
+        "not_found",
+        "loading"
+      ],
+      "inheritedShell": "operator"
+    },
+    {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
       "shellFamily": "marketing",
@@ -1357,6 +1456,29 @@
       "inheritedShell": "dashboard"
     },
     {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/page.tsx",
+      "shellFamily": "dashboard",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard",
+        "forbidden",
+        "empty",
+        "partial_data",
+        "active_risk",
+        "all_clear"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "dashboard"
+    },
+    {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/page.tsx",
       "shellFamily": "dashboard",
@@ -1378,6 +1500,24 @@
         "not_found"
       ],
       "inheritedShell": "dashboard"
+    },
+    {
+      "route": "/request-access",
+      "sourcePath": "src/app/(marketing)/request-access/page.tsx",
+      "shellFamily": "marketing",
+      "required": [
+        "loading",
+        "error",
+        "not_found",
+        "mobile",
+        "keyboard"
+      ],
+      "present": [
+        "error",
+        "loading",
+        "not_found"
+      ],
+      "inheritedShell": "marketing"
     },
     {
       "route": "/reset-password",

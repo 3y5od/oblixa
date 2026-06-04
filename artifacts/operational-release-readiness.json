@@ -3,7 +3,7 @@
   "source": "code-owned-operational-release-readiness",
   "generatedFrom": "config/operational-release-readiness.json",
   "manualBoundariesSource": "config/operational-manual-boundaries.json",
-  "commitSha": "26f1b64754d81dec056d6fd088bcfdbdcee50f5c",
+  "commitSha": "873686430a3bb6a2d133368582a5b5811d1fbb04",
   "releaseCheckCount": 5,
   "requiredReleaseCheckCount": 5,
   "environmentContractCount": 4,
@@ -73,7 +73,7 @@
       {
         "name": "security-report-checksums",
         "path": "artifacts/security-report-checksums.json",
-        "sha256": "13043932ba2f53c6f1f8762519a29814ab9e02c5be666dd66b1b9fc776bd9e86"
+        "sha256": "1c15047576817518f4a0953d48a52d90095b7697be4891f214f84099c2870143"
       }
     ]
   },

@@ -454,9 +454,9 @@
       "checkId": "user-facing-interactions",
       "ok": true,
       "issueCount": 0,
-      "routeCount": 79,
-      "interactionCount": 1050,
-      "openInteractionRiskCount": 67
+      "routeCount": 86,
+      "interactionCount": 1065,
+      "openInteractionRiskCount": 71
     }
   ],
   "manualBoundary": "Provider deliverability dashboards, recipient mailbox behavior, and live notification destination verification remain external; this artifact enforces repository-owned message inventory, eligibility, rendering, retry, and dead-letter controls.",

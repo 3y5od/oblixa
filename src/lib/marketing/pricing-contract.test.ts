@@ -2,19 +2,19 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("early-access pricing contract", () => {
+describe("access and pricing contract", () => {
   const raw = readFileSync(join(process.cwd(), "src/app/(marketing)/pricing/page.tsx"), "utf8");
   const jsonLdRaw = readFileSync(
     join(process.cwd(), "src/components/landing/landing-json-ld.tsx"),
     "utf8"
   );
 
-  it("presents pricing as evaluation-first, not a fixed public plan matrix", () => {
-    expect(raw).toContain("Early-access pricing");
+  it("presents pricing as access-first, not a fixed public plan matrix", () => {
+    expect(raw).toContain("Access and pricing");
     expect(raw).toContain("Simple pricing for contract <GradientPhrase>tracking</GradientPhrase>.");
-    expect(raw).toContain("Request early access");
+    expect(raw).toContain("Request access");
     expect(raw).toContain("View product tour");
-    expect(raw).toContain("paid founding monthly plan");
+    expect(raw).toContain("Price disclosed before charge");
   });
 
   it("keeps unsupported public pricing and checkout claims out", () => {

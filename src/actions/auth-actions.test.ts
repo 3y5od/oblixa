@@ -22,8 +22,12 @@ const authServerMocks = vi.hoisted(() => ({
   resetPasswordForEmail: vi.fn(async () => ({ error: null })),
   getUser: vi.fn(async () => ({ data: { user: { id: "user-1" } } })),
   updateUser: vi.fn(async () => ({ error: null })),
+  signOut: vi.fn(async () => ({ error: null })),
   createAdminClient: vi.fn(async () => ({})),
-  getOrEnsureDeterministicMembership: vi.fn(async () => ({
+  getOrEnsureDeterministicMembership: vi.fn(async (): Promise<{
+    organization_id: string;
+    role: "admin";
+  } | null> => ({
     organization_id: "org-1",
     role: "admin" as const,
   })),
@@ -33,6 +37,25 @@ const authServerMocks = vi.hoisted(() => ({
 
 const calGateMocks = vi.hoisted(() => ({
   resolveBlockingCalibrationPathForAdminOrg: vi.fn(async () => null as string | null),
+}));
+
+const accessReviewMocks = vi.hoisted(() => ({
+  validateWorkspaceAccessGrant: vi.fn(async () => ({
+    ok: true as const,
+    grant: {
+      id: "grant-1",
+      request_id: "request-1",
+      normalized_email: "a@b.co",
+      status: "issued" as const,
+      expires_at: "2099-01-01T00:00:00.000Z",
+      issued_by: "operator-1",
+      used_by: null,
+      used_at: null,
+      revoked_at: null,
+      created_at: "2026-01-01T00:00:00.000Z",
+    },
+  })),
+  markWorkspaceAccessGrantUsed: vi.fn(async () => ({ ok: true as const })),
 }));
 
 vi.mock("@/lib/rate-limit", async (importOriginal) => {
@@ -56,6 +79,7 @@ vi.mock("@/lib/supabase/server", () => ({
       resetPasswordForEmail: authServerMocks.resetPasswordForEmail,
       getUser: authServerMocks.getUser,
       updateUser: authServerMocks.updateUser,
+      signOut: authServerMocks.signOut,
     },
   })),
   createAdminClient: authServerMocks.createAdminClient,
@@ -68,6 +92,11 @@ vi.mock("@/lib/app-url", () => ({
   resolveAppBaseUrl: vi.fn(async () => "http://localhost:3000"),
 }));
 
+vi.mock("@/lib/access-review", () => ({
+  validateWorkspaceAccessGrant: accessReviewMocks.validateWorkspaceAccessGrant,
+  markWorkspaceAccessGrantUsed: accessReviewMocks.markWorkspaceAccessGrantUsed,
+}));
+
 const redirect = vi.fn();
 vi.mock("next/navigation", () => ({ redirect }));
 
@@ -77,6 +106,23 @@ describe("auth actions rate limits", () => {
     vi.resetModules();
     rlMocks.rateLimitCheck.mockResolvedValue({ ok: false, retryAfterMs: 60_000 });
     calGateMocks.resolveBlockingCalibrationPathForAdminOrg.mockResolvedValue(null);
+    accessReviewMocks.validateWorkspaceAccessGrant.mockResolvedValue({
+      ok: true,
+      grant: {
+        id: "grant-1",
+        request_id: "request-1",
+        normalized_email: "a@b.co",
+        status: "issued",
+        expires_at: "2099-01-01T00:00:00.000Z",
+        issued_by: "operator-1",
+        used_by: null,
+        used_at: null,
+        revoked_at: null,
+        created_at: "2026-01-01T00:00:00.000Z",
+      },
+    });
+    accessReviewMocks.markWorkspaceAccessGrantUsed.mockResolvedValue({ ok: true });
+    authServerMocks.signUp.mockResolvedValue({ data: {}, error: null });
   });
 
   it("signIn returns error when rate limited", async () => {
@@ -194,6 +240,60 @@ describe("auth actions rate limits", () => {
       expect(res).toEqual({ error: "Name contains unsupported characters." });
       expect(authServerMocks.signUp).not.toHaveBeenCalled();
     });
+
+    it("denies signup without an approved access grant before calling Supabase signup", async () => {
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "longpassword123");
+      fd.set("fullName", "Test");
+      const res = await signUp(fd);
+      expect(res).toEqual({
+        error:
+          "Signup requires approved workspace access. Request access if your team tracks what signed contracts require next.",
+      });
+      expect(accessReviewMocks.validateWorkspaceAccessGrant).not.toHaveBeenCalled();
+      expect(authServerMocks.signUp).not.toHaveBeenCalled();
+    });
+
+    it("validates and consumes a workspace access grant when signup succeeds", async () => {
+      authServerMocks.signUp.mockResolvedValueOnce({
+        data: {
+          user: {
+            id: "user-1",
+            user_metadata: { full_name: "Test", company_name: "Acme" },
+          },
+          session: { access_token: "token" },
+        },
+        error: null,
+      });
+      const { signUp } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "longpassword123");
+      fd.set("fullName", "Test");
+      fd.set("companyName", "Acme");
+      fd.set("accessCode", "valid_access_grant_token_abcdefghijklmnopqrstuvwxyz");
+      const res = await signUp(fd);
+
+      expect(accessReviewMocks.validateWorkspaceAccessGrant).toHaveBeenCalledWith(expect.anything(), {
+        token: "valid_access_grant_token_abcdefghijklmnopqrstuvwxyz",
+        email: "a@b.co",
+      });
+      expect(authServerMocks.signUp).toHaveBeenCalledWith({
+        email: "a@b.co",
+        password: "longpassword123",
+        options: expect.objectContaining({
+          data: expect.objectContaining({ access_grant_id: "grant-1" }),
+          emailRedirectTo: "http://localhost:3000/auth/callback",
+        }),
+      });
+      expect(accessReviewMocks.markWorkspaceAccessGrantUsed).toHaveBeenCalledWith(expect.anything(), {
+        grantId: "grant-1",
+        userId: "user-1",
+      });
+      expect(res).toEqual({ redirectTo: "/dashboard" });
+    });
   });
 
   describe("signIn blocking calibration redirect", () => {
@@ -215,6 +315,33 @@ describe("auth actions rate limits", () => {
         { backendFailureMode: "memory-fallback", timeoutMs: 1500 }
       );
       expect(authServerMocks.getUser).not.toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it("signs out and returns a workspace access error when the account has no workspace membership", async () => {
+      authServerMocks.getOrEnsureDeterministicMembership.mockResolvedValueOnce(null);
+      const { signIn } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("email", "a@b.co");
+      fd.set("password", "secret");
+      const res = await signIn(fd);
+      expect(res).toEqual({
+        error: "No workspace is linked to this account. Request access or ask an admin for an invite.",
+      });
+      expect(authServerMocks.signOut).toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it("resetPassword signs out and returns a workspace access error when no workspace is linked", async () => {
+      authServerMocks.getOrEnsureDeterministicMembership.mockResolvedValueOnce(null);
+      const { resetPassword } = await import("@/actions/auth");
+      const fd = new FormData();
+      fd.set("password", "longpassword123");
+      const res = await resetPassword(fd);
+      expect(res).toEqual({
+        error: "No workspace is linked to this account. Request access or ask an admin for an invite.",
+      });
+      expect(authServerMocks.signOut).toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
 

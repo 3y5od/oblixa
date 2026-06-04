@@ -66,11 +66,11 @@ function hrefForSearchClass(row: SearchIndexClassDef, queryTrimmed: string): str
     case "approvals":
       return workSectionHref("approvals");
     case "renewals":
-      return "/contracts/renewals?window=90";
+      return "/renewals?window=90";
     case "exceptions":
       return "/contracts/exceptions?status=open";
     case "evidence":
-      return "/contracts/evidence-studio#live-request-queue";
+      return "/evidence#live-request-queue";
     case "reports":
       return "/reports";
     case "decisions":

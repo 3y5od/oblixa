@@ -210,8 +210,8 @@ describe("dashboard spec compliance - navigation and shell", () => {
       "/dashboard",
       "/contracts",
       "/work",
-      "/contracts/renewals",
-      "/contracts/evidence-studio",
+      "/renewals",
+      "/evidence",
       "/reports",
       "/settings",
     ]);

@@ -59,7 +59,7 @@ describe("operational public launch registry", () => {
     expect(isOperationalPrivateLaunchPath("/assurance/findings")).toBe(true);
     expect(isOperationalPrivateLaunchPath("/pricing")).toBe(false);
 
-    expect(validatePublicLaunchInventory(SITEMAP_PATHS).ok).toBe(true);
+    expect(validatePublicLaunchInventory([...SITEMAP_PATHS, "/early-access"]).ok).toBe(true);
     expect(validatePublicLaunchInventory(["/", "/pricing", "/assurance"])).toEqual(
       expect.objectContaining({
         ok: false,

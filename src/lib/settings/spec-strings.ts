@@ -230,12 +230,12 @@ export const SETTINGS_BILLING_STRINGS = {
   // Finishing-pass §1.11 + §5.1 — shortened from 92 chars to satisfy
   // spec §10.7 (≤80 chars between structured elements). State-specific
   // variants below; this `lead` is the generic fallback.
-  lead: "Review early-access status and billing questions.",
-  leadFreeState: "Billing starts after evaluation, once Oblixa is part of your workflow.",
+  lead: "Review access status and billing questions.",
+  leadFreeState: "Billing starts only after access approval and explicit checkout.",
   leadActiveState: "Review your current access and billing status.",
   backLabel: "Back to settings",
   primaryCta: "Contact support about billing",
-  secondaryCta: "Review early-access pricing",
+  secondaryCta: "Review access and pricing",
   trialCta: "Request billing help",
   reactivateCta: "Reactivate subscription",
   resumeCheckoutCta: "Resume checkout",
@@ -246,23 +246,23 @@ export const SETTINGS_BILLING_STRINGS = {
   unavailableTitle: "Billing checkout is unavailable in this environment.",
   unavailableCopy: "Account status remains visible. Configure billing on the server to enable checkout and customer portal actions.",
   // Polish-pass §2.10 + finishing-pass §2.5 — body ≤ 80 chars.
-  emptyStateBody: "Billing is secondary during early access.",
+  emptyStateBody: "Billing is available only after access approval.",
   trialEndedLabel: "EVALUATION",
   // Polish-pass §2.9 — sub-eyebrow above plan-includes feature list
-  planIncludesEyebrow: "Included during early access",
+  planIncludesEyebrow: "Included in Core",
   // Polish-pass §3.4 — invoices section eyebrow
   invoicesEyebrow: "Invoices",
   // Polish-pass §3.1 — compact empty invoices copy
   noInvoicesYet: "No invoices yet",
   // Polish-pass §4.7 — release-state §305 exact phrasing (drops ?)
   contactSalesPromptSpec:
-    "Larger teams and higher contract volumes are handled during early access.",
-  startTrialCta: "Request early-access billing help",
+    "Larger teams and higher contract volumes are handled during access review.",
+  startTrialCta: "Request billing help",
   // Polish-pass §7.2 — promo-code discoverability prompt
   promoCodePrompt: "Have a discount code?",
-  // Polish-pass §7.4 — founding ribbon (no emoji, no bare dot)
-  foundingRibbonLabel: "FOUNDING",
-  foundingRibbonSuffix: "spots left of 25",
+  // Polish-pass §7.4 — limited access ribbon (no emoji, no bare dot)
+  foundingRibbonLabel: "LIMITED ACCESS",
+  foundingRibbonSuffix: "reviewed before approval",
   // Polish-pass §7.5 — workspace ID label
   workspaceIdLabel: "WORKSPACE",
   customerIdLabel: "CUSTOMER",
@@ -275,9 +275,9 @@ export const SETTINGS_BILLING_STRINGS = {
   trialCapBadge: "EVALUATION SCOPE",
   // Polish-pass §6.2 — admin utility-row prefix
   adminUtilityLabel: "Billing administration",
-  trialMicrocopy: "Early access — Billing after evaluation",
-  taxNote: "Pricing is finalized during early-access evaluations.",
-  contactSalesPrompt: "Questions about billing during early access?",
+  trialMicrocopy: "Reviewed access - billing after approval",
+  taxNote: "Pricing is disclosed before any charge.",
+  contactSalesPrompt: "Questions about billing or access?",
   contactSalesCta: "Contact support",
   contactSalesHref: "mailto:support@oblixa.com",
   testModeBanner: "Stripe TEST MODE active — no real charges will be made.",
@@ -285,22 +285,22 @@ export const SETTINGS_BILLING_STRINGS = {
   coreLimits: { contracts: 500, teamMembers: 10 } as const,
   trialCaps: { contracts: 25, teamMembers: 3, days: 0 } as const,
   planContent: {
-    aiExtraction: "Source-backed, human-reviewed",
+    aiExtraction: "Source-backed, reviewer-approved",
     auditHistory: "Available in security",
     csvExport: "Available in imports & exports",
-    support: "Product support during evaluation",
+    support: "Product support during activation",
     emailReminders: "Included",
   } as const,
   foundingCustomerOffer: {
-    priceDisplay: "Founding monthly plan after evaluation",
+    priceDisplay: "Core monthly plan after approval",
     limit: 25,
-    ctaLabel: "Discuss founding access",
-    description: "Available only after evaluation value is clear.",
+    ctaLabel: "Discuss billing",
+    description: "Available only after access approval and price disclosure.",
   } as const,
   guidedPilotOffer: {
-    priceDisplay: "Evaluation first",
+    priceDisplay: "Access first",
     description:
-      "Start with a small contract subset. Continued use can move to a founding monthly plan.",
+      "Start with a small contract subset. Continued use moves to the Core monthly offer.",
   } as const,
   // Placeholder values rendered as em-dash sentinels — see §1.26, §17.1
   // NOTE: "Free" is NOT a placeholder — it's a legitimate plan label
@@ -317,12 +317,12 @@ export const SETTINGS_BILLING_STRINGS = {
   } as const,
   cancellationConfirmation:
     "You'll get a cancellation confirmation email and access continues through {date}. You can reactivate any time before then.",
-  contactSalesPromptShort: "Questions about early-access billing?",
+  contactSalesPromptShort: "Questions about billing?",
   whatYouGetEyebrow: "What you get",
   includedEyebrow: "Included",
   enterpriseInterestLabel: "Manual boundary",
   enterpriseInterestVerb: "Contact support",
-  publicPricingLink: "Review early-access pricing →",
+  publicPricingLink: "Review access and pricing ->",
   publicPricingHref: "/pricing",
   testModeBannerShort: "Test billing mode — no real charges.",
   testCardHints: [
@@ -346,8 +346,8 @@ export const SETTINGS_BILLING_STRINGS = {
   } as const,
   // §11.3 — structured microcopy parts for ChipPair rendering
   trialMicrocopyParts: [
-    "Early access",
-    "Billing after evaluation",
+    "Reviewed access",
+    "Billing after approval",
   ] as const,
   faq: [
     "What happens after evaluation?",
@@ -359,22 +359,22 @@ export const SETTINGS_BILLING_STRINGS = {
   ] as const,
   faqAnswers: {
     "What happens after evaluation?":
-      "If Oblixa becomes useful to your workflow, continued use can move to a paid founding monthly plan. You can also export records and reports.",
+      "If Oblixa becomes useful to your workflow, continued use moves to the Core monthly offer after price disclosure. You can also export records and reports.",
     "Can I export before cancelling?":
       "Yes. Export your contract inventory from Settings → Imports and exports before you cancel. Exports stop being available 7 days after cancellation.",
     "When would paid use start?":
-      "Paid use starts only after evaluation, if Oblixa becomes part of your workflow — continued use moves to a founding monthly plan.",
+      "Paid use starts only after access approval, price disclosure, and explicit checkout.",
     "Can I add more contracts?":
-      "Start with a small evaluation set. Larger migrations should wait until the workflow proves useful.",
+      "Start with a small contract set. Larger migrations should wait until the workflow proves useful.",
     "Can I add more team members?":
       "Invite teammates from Settings → Team when they need to help review fields, owners, work, or evidence.",
     "Do you offer setup help?":
-      "Early access includes product support during evaluation, not managed implementation. We don't run migrations, spreadsheet cleanup, or legal review.",
+      "Core access includes product support during activation, not managed implementation. We don't run migrations, spreadsheet cleanup, or legal review.",
   } as const,
 } as const;
 
 // Billing strings — keep in lockstep with the canonical release-state
-// spec: Billing Page + early-access evaluation billing guidance. Keep this
+// spec: Billing Page + reviewed-access evaluation billing guidance. Keep this
 // subdued until public billing is intentionally activated.
 
 // Security strings — structured spec-strings for the security

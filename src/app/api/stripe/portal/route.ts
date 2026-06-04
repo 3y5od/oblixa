@@ -12,6 +12,7 @@ import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switc
 import { enforceIdempotency } from "@/lib/idempotency";
 import { rejectUnexpectedBody } from "@/lib/security/read-json-body-limited";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { canManageWorkspaceBilling } from "@/lib/roles";
 
 // SPEC: docs/billing-page-maximal-pass.md §3.27 — Stripe SDK is Node-only.
 export const runtime = "nodejs";
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     });
   }
 
-  if (membership.role !== "admin") {
+  if (!canManageWorkspaceBilling(membership.role)) {
     return jsonForbidden(ROUTE);
   }
 
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
 
   const { data: orgRow, error: orgError } = await admin
     .from("organizations")
-    .select("stripe_customer_id")
+    .select("owner_user_id, stripe_customer_id")
     .eq("id", membership.organization_id)
     .single();
 

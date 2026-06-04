@@ -1380,7 +1380,7 @@ export default async function ContractDetailPage(props: {
     {
       label: "Renewal",
       value: v10RenewalPosture ? humanizeContractEnumLabel(v10RenewalPosture.posture) : "Not materialized",
-      href: "/contracts/renewals",
+      href: "/renewals",
       sourceObject: "renewal_checkpoint",
     },
     {
@@ -2493,7 +2493,7 @@ export default async function ContractDetailPage(props: {
                   eyebrow="Evidence"
                   title="Pending requests"
                   action={
-                    <Link href={`/contracts/evidence-studio?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
+                    <Link href={`/evidence?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
                       Request evidence
                     </Link>
                   }

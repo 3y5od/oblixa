@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "schemaVersion": 1,
   "source": "code-owned-operational-public-launch-positioning",
   "generatedFrom": "config/operational-public-launch-positioning.json",
@@ -144,15 +144,6 @@
       "ok": true
     },
     {
-      "id": "gated-early-access-request",
-      "path": "src/app/(marketing)/early-access/page.tsx",
-      "owner": "@product-marketing",
-      "validationCommand": "check:operational-public-launch-positioning",
-      "markerCount": 3,
-      "missingCount": 0,
-      "ok": true
-    },
-    {
       "id": "human-reviewed-ai",
       "path": "src/components/landing/landing-content.ts",
       "owner": "@product-marketing",
@@ -203,6 +194,15 @@
       "owner": "@product-marketing",
       "validationCommand": "audit:marketing-identity:strict",
       "markerCount": 2,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
+      "id": "reviewed-access-request",
+      "path": "src/app/(marketing)/request-access/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
       "missingCount": 0,
       "ok": true
     },
@@ -337,15 +337,6 @@
       "ok": true
     },
     {
-      "id": "early-access-page",
-      "path": "src/app/(marketing)/early-access/page.tsx",
-      "owner": "@product-marketing",
-      "validationCommand": "check:operational-public-launch-positioning",
-      "markerCount": 3,
-      "missingCount": 0,
-      "ok": true
-    },
-    {
       "id": "password-recovery",
       "path": "src/actions/auth.ts",
       "owner": "@product-marketing",
@@ -364,11 +355,20 @@
       "ok": true
     },
     {
+      "id": "request-access-page",
+      "path": "src/app/(marketing)/request-access/page.tsx",
+      "owner": "@product-marketing",
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 3,
+      "missingCount": 0,
+      "ok": true
+    },
+    {
       "id": "signup-form",
       "path": "src/actions/auth.ts",
       "owner": "@product-marketing",
       "validationCommand": "test:operational-public-launch-positioning",
-      "markerCount": 3,
+      "markerCount": 5,
       "missingCount": 0,
       "ok": true
     }
@@ -536,18 +536,12 @@
       },
       {
         "checkId": "next-public-surface",
-        "ok": false,
-        "issueCount": 4
+        "ok": true,
+        "issueCount": 0
       }
     ]
   },
-  "issueCount": 1,
-  "issues": [
-    {
-      "issue": "operational_public_launch_delegated_check_failed",
-      "checkId": "next-public-surface",
-      "issueCount": 4
-    }
-  ],
+  "issueCount": 0,
+  "issues": [],
   "generatedBy": "scripts/check-operational-public-launch-positioning.mjs --write"
 }

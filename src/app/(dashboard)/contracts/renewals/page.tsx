@@ -91,11 +91,12 @@ async function createRenewalTaskAction(formData: FormData) {
   });
 
   if ("error" in result && result.error) {
-    redirect(`/contracts/renewals?create=1&error=${encodeURIComponent(result.error)}`);
+    redirect(`/renewals?create=1&error=${encodeURIComponent(result.error)}`);
   }
 
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
-  redirect("/contracts/renewals");
+  redirect("/renewals");
 }
 
 async function updateRenewalAction(formData: FormData) {
@@ -113,6 +114,7 @@ async function updateRenewalAction(formData: FormData) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}error=${encodeURIComponent(result.error)}`);
   }
 
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
   redirect(returnTo);
 }
@@ -931,7 +933,7 @@ function RenewalActionCluster({
           );
         }
         return (
-          <Link key={action.key} href={action.href ?? "/contracts/renewals"} role="menuitem" tabIndex={-1} className={itemClass}>
+          <Link key={action.key} href={action.href ?? "/renewals"} role="menuitem" tabIndex={-1} className={itemClass}>
             {action.label}
           </Link>
         );
@@ -956,5 +958,6 @@ function stringFromForm(formData: FormData, name: string) {
 }
 
 function safeRenewalsReturnTo(value: string) {
-  return value.startsWith("/contracts/renewals") ? value : "/contracts/renewals";
+  if (value.startsWith("/renewals") || value.startsWith("/contracts/renewals")) return value;
+  return "/renewals";
 }

@@ -168,10 +168,13 @@ describe("sidebar model", () => {
   });
 
   it("renders Renewals as a top-level primary nav item active for its route", () => {
-    // v11 dashboard spec compliance: Renewals promoted from Work child to
-    // top-level primary nav per docs/oblixa-release-state.md §In-App Pages.
-    const m = model({ pathname: "/contracts/renewals" });
+    const m = model({ pathname: "/renewals" });
     expect(findItem("Renewals", m)).toBeDefined();
+    expect(findItem("Renewals", m)?.active).toBe(true);
+  });
+
+  it("keeps compatibility renewal URLs active under the canonical item", () => {
+    const m = model({ pathname: "/contracts/renewals" });
     expect(findItem("Renewals", m)?.active).toBe(true);
   });
 

@@ -30,6 +30,8 @@ export async function GET(request: Request) {
       const user = data.user;
       const meta = user.user_metadata as Record<string, unknown>;
       const inviteIdRaw = typeof meta.invite_id === "string" ? meta.invite_id : undefined;
+      const accessGrantIdRaw =
+        typeof meta.access_grant_id === "string" ? meta.access_grant_id : undefined;
 
       const admin = await createAdminClient();
       const emailLower = user.email?.trim().toLowerCase() ?? "";
@@ -94,8 +96,30 @@ export async function GET(request: Request) {
           .eq("id", inv.id);
         orgIdForLanding = inv.organization_id;
       } else {
-        await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user));
         orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
+        if (!orgIdForLanding) {
+          if (!accessGrantIdRaw || !isUuid(accessGrantIdRaw)) {
+            return NextResponse.redirect(`${origin}/login?error=access_grant_required`);
+          }
+
+          const { data: grant, error: grantErr } = await admin
+            .from("workspace_access_grants")
+            .select("id, normalized_email, status, used_by")
+            .eq("id", accessGrantIdRaw)
+            .maybeSingle();
+          if (
+            grantErr ||
+            !grant ||
+            grant.status !== "used" ||
+            grant.used_by !== user.id ||
+            !emailLower ||
+            grant.normalized_email !== emailLower
+          ) {
+            return NextResponse.redirect(`${origin}/login?error=access_grant_required`);
+          }
+          await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user));
+          orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
+        }
       }
 
       const destination = await resolvePostAuthRedirectPath(admin, orgIdForLanding, next);

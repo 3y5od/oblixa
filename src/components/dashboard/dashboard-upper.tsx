@@ -151,7 +151,7 @@ export async function DashboardUpper(props: {
           : v.view_type === "obligations"
             ? "/contracts/obligations"
             : v.view_type === "renewals"
-              ? "/contracts/renewals"
+              ? "/renewals"
               : "/contracts";
       const href =
         base === "/contracts"
@@ -256,7 +256,7 @@ export async function DashboardUpper(props: {
     {
       id: "renewals",
       title: "Renewals needing attention",
-      href: "/contracts/renewals?window=90",
+      href: "/renewals?window=90",
       why: "Contracts with renewal dates inside the active window.",
       count: operationalSignals.renewalAttention,
       icon: FolderClock,

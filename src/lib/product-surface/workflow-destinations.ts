@@ -297,7 +297,8 @@ export const WORKFLOW_DESTINATIONS = [
   },
   {
     key: "renewals",
-    href: "/contracts/renewals",
+    href: "/renewals",
+    aliases: ["/contracts/renewals"],
     featureFamily: "renewals",
     workflowArea: "workflows",
     minWorkspaceMode: "core",
@@ -323,7 +324,8 @@ export const WORKFLOW_DESTINATIONS = [
   },
   {
     key: "evidence",
-    href: "/contracts/evidence-studio",
+    href: "/evidence",
+    aliases: ["/contracts/evidence-studio"],
     featureFamily: "evidence",
     workflowArea: "workflows",
     minWorkspaceMode: "core",
@@ -926,8 +928,20 @@ export function listWorkflowDestinationsForSurface(
 export function workflowDestinationForHref(href: string): WorkflowDestinationDef | null {
   const path = href.split("?")[0]?.split("#")[0] ?? href;
   const normalized = href.startsWith("/reports#") ? href : path;
-  const sorted = [...WORKFLOW_DESTINATIONS].sort((a, b) => b.href.length - a.href.length);
-  return sorted.find((d) => normalized === d.href || path === d.href || path.startsWith(`${d.href}/`)) ?? null;
+  const candidates = (WORKFLOW_DESTINATIONS as readonly WorkflowDestinationDef[]).flatMap((destination) =>
+    [destination.href, ...(destination.aliases ?? [])].map((candidateHref) => ({
+      destination,
+      href: candidateHref,
+    }))
+  ).sort((a, b) => b.href.length - a.href.length);
+  return (
+    candidates.find(
+      (candidate) =>
+        normalized === candidate.href ||
+        path === candidate.href ||
+        path.startsWith(`${candidate.href}/`)
+    )?.destination ?? null
+  );
 }
 
 export function resolveMorePageChrome(surface: WorkflowDestinationSurface): {

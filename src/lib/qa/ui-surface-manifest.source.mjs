@@ -7,9 +7,11 @@ const coreRoutes = [
   ["/contracts/[id]", "contracts", null, ["smoke"]],
   ["/contracts/imports/[jobId]", "contracts", "Import job", ["smoke"]],
   ["/contracts/new", "contracts", "Upload contract", ["smoke", "a11y", "visual"]],
-  ["/contracts/bulk", "contracts", "Bulk import", ["smoke", "a11y"]],
+  ["/contracts/bulk", "contracts", "Import contracts", ["smoke", "a11y"]],
   ["/contracts/review", "contracts", "Review", ["smoke", "a11y"]],
-  ["/work", "work", "Work Queue", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/work", "work", "Work", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/renewals", "renewals", "Renewals", ["smoke", "a11y", "visual", "multi_browser"]],
+  ["/evidence", "evidence", "Evidence", ["smoke", "a11y", "visual", "multi_browser"]],
   ["/contracts/tasks", "contracts", "Tasks", ["smoke", "a11y"]],
   ["/contracts/obligations", "contracts", "Obligations", ["smoke", "a11y"]],
   ["/contracts/approvals", "contracts", "Approvals", ["smoke", "a11y"]],
@@ -28,20 +30,20 @@ const coreRoutes = [
   ["/settings/policy", "settings", "Workflow policies", ["smoke", "a11y"]],
   ["/settings/policy/diagnostics", "settings", "Policy diagnostics", ["smoke", "a11y"]],
   ["/settings/policy/registry", "settings", "Advanced policy editor", ["smoke", "a11y"]],
-  ["/settings/product", "settings", "Product settings", ["smoke", "a11y"]],
+  ["/settings/product", "settings", "Product experience", ["smoke", "a11y"]],
   ["/more", "utilities", "Tools index", ["smoke", "a11y", "visual", "multi_browser"]],
-  ["/onboarding/calibration", "dashboard", "Workspace calibration", ["smoke", "a11y"]],
+  ["/onboarding/calibration", "dashboard", "Set up your contract tracking workspace", ["smoke", "a11y"]],
 ];
 
 const advancedRoutes = [
-  ["/campaigns", "advanced", "Campaign Queue", ["smoke", "a11y", "visual"]],
+  ["/campaigns", "advanced", "Campaign queue", ["smoke", "a11y", "visual"]],
   ["/campaigns/[id]", "advanced", null, ["smoke"]],
   ["/campaigns/compare", "advanced", "Campaign and simulation compare", ["smoke"]],
-  ["/decisions", "advanced", "Decision Queue", ["smoke", "a11y", "visual"]],
+  ["/decisions", "advanced", "Decision queue", ["smoke", "a11y", "visual"]],
   ["/decisions/[id]", "advanced", null, ["smoke"]],
   ["/decisions/compare", "advanced", "Decision compare", ["smoke"]],
   ["/decisions/review", "advanced", "Decision review queue", ["smoke"]],
-  ["/contracts/programs", "advanced", "Contract Programs", ["smoke", "a11y"]],
+  ["/contracts/programs", "advanced", "Contract programs", ["smoke", "a11y"]],
   ["/relationship-workspaces", "advanced", "Relationship workspaces", ["smoke", "a11y"]],
   ["/accounts/[key]", "advanced", null, ["smoke"]],
   ["/counterparties/[key]", "advanced", null, ["smoke"]],
@@ -75,11 +77,21 @@ const utilityRoutes = [
   ["/contracts/approvals/sla-simulator", "utilities", null, ["smoke", "a11y"]],
 ];
 
+const boundaryRoutes = [
+  ["/accounts", "relationships", null, ["smoke"]],
+  ["/counterparties", "relationships", null, ["smoke"]],
+];
+
+const internalRoutes = [
+  ["/operator/access-requests", "operator", null, ["smoke"]],
+];
+
 function ownerForRouteFamily(routeFamily, route) {
   if (routeFamily === "marketing") return "growth";
   if (routeFamily === "auth" || routeFamily === "external") return "security";
   if (routeFamily === "settings" || route.startsWith("/settings/")) return "security";
   if (routeFamily === "assurance") return "assurance";
+  if (routeFamily === "operator") return "security";
   if (routeFamily === "reports") return "release";
   return "engineering";
 }
@@ -146,6 +158,32 @@ function toAuthenticatedEntry([route, routeFamily, expectedHeading, coverage]) {
   });
 }
 
+function toBoundaryEntry([route, routeFamily, expectedHeading, coverage]) {
+  return withManifestMetadata({
+    route,
+    routeFamily,
+    mode: "boundary",
+    workspaceModeTier: "boundary",
+    shellFamily: "dashboard",
+    expectedHeading,
+    visitPath: resolveUiRouteVisitPath(route),
+    coverage,
+  });
+}
+
+function toInternalEntry([route, routeFamily, expectedHeading, coverage]) {
+  return withManifestMetadata({
+    route,
+    routeFamily,
+    mode: "internal",
+    workspaceModeTier: "internal",
+    shellFamily: "operator",
+    expectedHeading,
+    visitPath: resolveUiRouteVisitPath(route),
+    coverage,
+  });
+}
+
 const publicRoutes = [
   withManifestMetadata({
     route: "/product",
@@ -168,14 +206,24 @@ const publicRoutes = [
     coverage: ["smoke", "a11y", "visual"],
   }),
   withManifestMetadata({
-    route: "/early-access",
+    route: "/request-access",
     routeFamily: "marketing",
     mode: "public",
     workspaceModeTier: "public",
     shellFamily: "marketing",
-    expectedHeading: "Replace your contract-tracking spreadsheet.",
-    visitPath: "/early-access",
+    expectedHeading: "Track what signed contracts require next.",
+    visitPath: "/request-access",
     coverage: ["smoke", "a11y", "visual"],
+  }),
+  withManifestMetadata({
+    route: "/early-access",
+    routeFamily: "marketing",
+    mode: "compatibility",
+    workspaceModeTier: "public",
+    shellFamily: "marketing",
+    expectedHeading: "Track what signed contracts require next.",
+    visitPath: "/early-access",
+    coverage: ["smoke"],
   }),
   withManifestMetadata({
     route: "/contact",
@@ -183,7 +231,7 @@ const publicRoutes = [
     mode: "public",
     workspaceModeTier: "public",
     shellFamily: "marketing",
-    expectedHeading: "Request early access.",
+    expectedHeading: "Request workspace access.",
     visitPath: "/contact",
     coverage: ["smoke", "a11y", "visual"],
   }),
@@ -193,14 +241,14 @@ const publicRoutes = [
     mode: "public",
     workspaceModeTier: "public",
     shellFamily: "marketing",
-    expectedHeading: "Replace your contract-tracking spreadsheet.",
+    expectedHeading: "Track what signed contracts require next.",
     visitPath: "/",
     coverage: ["smoke", "a11y", "visual", "multi_browser"],
   }),
   withManifestMetadata({
     route: "/login",
     routeFamily: "auth",
-    mode: "public",
+    mode: "auth",
     workspaceModeTier: "public",
     shellFamily: "auth",
     expectedHeading: "Sign in to your account",
@@ -210,17 +258,17 @@ const publicRoutes = [
   withManifestMetadata({
     route: "/signup",
     routeFamily: "auth",
-    mode: "public",
+    mode: "auth",
     workspaceModeTier: "public",
     shellFamily: "auth",
-    expectedHeading: "Founder-led early access",
+    expectedHeading: "Complete workspace access",
     visitPath: "/signup",
     coverage: ["smoke", "a11y", "visual"],
   }),
   withManifestMetadata({
     route: "/forgot-password",
     routeFamily: "auth",
-    mode: "public",
+    mode: "auth",
     workspaceModeTier: "public",
     shellFamily: "auth",
     expectedHeading: "Reset your password",
@@ -230,7 +278,7 @@ const publicRoutes = [
   withManifestMetadata({
     route: "/reset-password",
     routeFamily: "auth",
-    mode: "public",
+    mode: "auth",
     workspaceModeTier: "public",
     shellFamily: "auth",
     expectedHeading: "Set a new password",
@@ -301,6 +349,16 @@ const publicRoutes = [
 
 const externalRoutes = [
   withManifestMetadata({
+    route: "/external",
+    routeFamily: "external",
+    mode: "boundary",
+    workspaceModeTier: "boundary",
+    shellFamily: "external",
+    expectedHeading: null,
+    visitPath: "/external",
+    coverage: ["smoke"],
+  }),
+  withManifestMetadata({
     route: "/external/[token]",
     routeFamily: "external",
     mode: "external",
@@ -317,6 +375,8 @@ export const uiSurfaceManifest = [
   ...advancedRoutes.map(toAuthenticatedEntry),
   ...assuranceRoutes.map(toAuthenticatedEntry),
   ...utilityRoutes.map(toAuthenticatedEntry),
+  ...boundaryRoutes.map(toBoundaryEntry),
+  ...internalRoutes.map(toInternalEntry),
   ...publicRoutes,
   ...externalRoutes,
 ];

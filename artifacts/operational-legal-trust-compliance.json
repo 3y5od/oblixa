@@ -66,13 +66,13 @@
       "lastReviewed": "2026-05-14",
       "freshnessWindowDays": 180,
       "requiredMarkers": [
-        "early-access limits",
+        "reviewed access",
         "Access and roles",
         "Audit history",
         "Data export and deletion",
         "does not provide legal advice"
       ],
-      "contactPath": "/early-access",
+      "contactPath": "/request-access",
       "manualBoundary": "formal security assurance approval remains manual"
     },
     {
@@ -136,12 +136,12 @@
       "freshnessWindowDays": 180,
       "requiredMarkers": [
         "LegalPageJsonLd",
-        "Request early access",
+        "Request Oblixa workspace access",
         "No marketing list",
         "Browse Oblixa"
       ],
       "contactPath": "/contact",
-      "manualBoundary": "support response and early-access qualification remain manual"
+      "manualBoundary": "support response and access qualification remain manual"
     },
     {
       "id": "security-txt",
@@ -176,7 +176,7 @@
       "manualBoundary": "subprocessor notice and legal review remain manual"
     },
     {
-      "id": "early-access-security-boundary",
+      "id": "reviewed-access-security-boundary",
       "surfaceType": "public-trust-path",
       "route": "/security",
       "path": "src/app/(marketing)/security/page.tsx",
@@ -185,9 +185,9 @@
       "freshnessWindowDays": 180,
       "requiredMarkers": [
         "not intended for teams that require formal enterprise",
-        "Request early access"
+        "Request access"
       ],
-      "contactPath": "/early-access",
+      "contactPath": "/request-access",
       "manualBoundary": "formal procurement and security review remain manual"
     }
   ],
@@ -225,14 +225,14 @@
       "validationCommand": "audit:release-state-code-only:strict"
     },
     {
-      "id": "early-access-security-review-boundary",
-      "claim": "Early access is not intended for teams that require formal enterprise security review before evaluation.",
+      "id": "reviewed-access-security-review-boundary",
+      "claim": "Reviewed access is not intended for teams that require formal enterprise security review before evaluation.",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "capabilityRefs": [
         "security-boundary-contact"
       ],
       "manualBoundary": "formal procurement and security review remain manual",
-      "allowedScope": "early-access fit boundary",
+      "allowedScope": "reviewed-access fit boundary",
       "validationCommand": "check:public-seo-surface"
     }
   ],

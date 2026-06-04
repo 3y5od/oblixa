@@ -227,7 +227,7 @@ export default async function ApprovalsPage(props: {
                     </Link>
                   ) : (
                     <Link
-                      href="/contracts/renewals"
+                      href="/renewals"
                       className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
                     >
                       Browse renewals
@@ -488,7 +488,7 @@ export default async function ApprovalsPage(props: {
               </div>
             </div>
             <Link
-              href="/contracts/renewals"
+              href="/renewals"
               className="ui-btn-secondary inline-flex shrink-0 items-center gap-1.5 px-3.5 py-2 text-[12.5px]"
             >
               Review renewals

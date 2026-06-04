@@ -42,7 +42,7 @@ function read(relPath: string) {
 }
 
 describe("public marketing release-state voice sweep", () => {
-  it("keeps public surfaces in founder-led early access posture", () => {
+  it("keeps public surfaces in reviewed-access posture", () => {
     const cwd = process.cwd();
     const files = [
       ...ROOTS.flatMap((root) => walk(join(cwd, root))),
@@ -64,31 +64,31 @@ describe("public marketing release-state voice sweep", () => {
     expect(violations).toEqual([]);
   });
 
-  it("pins the homepage promise and early-access CTA", () => {
+  it("pins the homepage promise and request-access CTA", () => {
     const content = read("src/components/landing/landing-content.ts");
     const page = read("src/components/landing/landing-page.tsx");
 
-    expect(content).toContain('heroTitle = "Replace your contract-tracking spreadsheet."');
-    expect(content).toContain("Request early access");
-    expect(page).toContain('href="/early-access"');
+    expect(content).toContain('heroTitle = "Track what signed contracts require next."');
+    expect(content).toContain("Request access");
+    expect(page).toContain('href="/request-access"');
     expect(page).toContain("<ProblemSection />");
     expect(page).toContain("<OutcomesSection />");
     expect(page).toContain("<BestFitSection />");
     expect(page).toContain("<PricingCtaSection />");
   });
 
-  it("pins the early-access request flow and fit-based confirmation copy", () => {
-    const route = read("src/app/(marketing)/early-access/page.tsx");
+  it("pins the request-access flow and fit-based confirmation copy", () => {
+    const route = read("src/app/(marketing)/request-access/page.tsx");
     const form = read("src/components/landing/contact-form.tsx");
     const api = read("src/app/api/contact/route.ts");
 
-    expect(route).toContain("Founder-led early access");
+    expect(route).toContain("Reviewed workspace access");
     expect(route).toContain("Redacted sample contracts");
     expect(form).toContain("trackingMethod");
     expect(form).toContain("redactedSample");
     expect(form).toContain("preference");
     expect(form).toContain("If there is a fit");
-    expect(api).toContain('["early_access", "general"]');
+    expect(api).toContain('"request_access"');
     expect(api).toContain("invalid_tracking_method");
     expect(api).not.toContain("assurance_workflows");
   });
@@ -97,10 +97,10 @@ describe("public marketing release-state voice sweep", () => {
     const security = read("src/app/(marketing)/security/page.tsx");
     const contact = read("src/app/(marketing)/contact/page.tsx");
 
-    expect(security).toContain("early-access limits");
+    expect(security).toContain("reviewed access");
     expect(security).toContain("does not provide legal advice");
     expect(security).toContain("not intended for teams that require formal enterprise");
-    expect(contact).toContain("Request early access");
+    expect(contact).toContain("Request access");
     expect(contact).toContain("View product tour");
     expect(contact).not.toContain("1-day reply");
   });

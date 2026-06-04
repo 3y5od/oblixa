@@ -19,6 +19,7 @@ import {
   isStripeTaxEnabled,
   isStripeTosCollectionEnabled,
 } from "@/lib/env/server";
+import { canManageWorkspaceBilling } from "@/lib/roles";
 
 // SPEC: docs/billing-page-maximal-pass.md §3.27 — Stripe SDK is Node-only.
 export const runtime = "nodejs";
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
     });
   }
 
-  if (membership.role !== "admin") {
+  if (!canManageWorkspaceBilling(membership.role)) {
     return jsonForbidden(ROUTE);
   }
 
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
 
   if (!isPublicBillingCheckoutEnabled()) {
     return jsonProblem(403, {
-      error: "Billing checkout is available only after an approved early-access evaluation.",
+      error: "Billing checkout is available only after approved workspace access.",
       code: "billing_checkout_not_enabled",
       diagnostic_id: "stripe_checkout_public_billing_disabled",
       route: ROUTE,
@@ -151,7 +152,7 @@ export async function POST(request: Request) {
 
   const { data: orgRow, error: orgError } = await admin
     .from("organizations")
-    .select("id, name, stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
+    .select("id, name, owner_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
     .eq("id", membership.organization_id)
     .single();
 
@@ -241,7 +242,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // Early access is evaluation-first; checkout adds a trial only if explicitly configured.
+  // Access is reviewed first; checkout adds a trial only if explicitly configured.
   const trialDaysOverride = parseInt(process.env.STRIPE_TRIAL_PERIOD_DAYS || "", 10);
   const trialPeriodDays =
     Number.isFinite(trialDaysOverride) && trialDaysOverride > 0

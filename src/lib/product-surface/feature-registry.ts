@@ -201,13 +201,13 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
   },
   { key: "review", label: "Review", ...CORE_DEF, routePrefixes: ["/contracts/review"], apiPrefixes: [] },
   { key: "work", label: "Work", ...CORE_DEF, routePrefixes: ["/work", "/contracts/tasks", "/contracts/obligations", "/contracts/approvals"], apiPrefixes: ["/tasks", "/approvals"] },
-  { key: "renewals", label: "Renewals", ...CORE_DEF, routePrefixes: ["/contracts/renewals"], apiPrefixes: ["/renewals", "/export/renewals"] },
+  { key: "renewals", label: "Renewals", ...CORE_DEF, routePrefixes: ["/renewals", "/contracts/renewals"], apiPrefixes: ["/renewals", "/export/renewals"] },
   { key: "exceptions", label: "Exceptions", ...CORE_DEF, routePrefixes: ["/contracts/exceptions"], apiPrefixes: ["/exceptions"] },
   {
     key: "evidence",
     label: "Evidence",
     ...CORE_DEF,
-    routePrefixes: ["/contracts/evidence-studio"],
+    routePrefixes: ["/evidence", "/contracts/evidence-studio"],
     apiPrefixes: ["/evidence", "/evidence/export", "/attestations"],
   },
   {
@@ -245,7 +245,7 @@ export const PRODUCT_FEATURE_REGISTRY: ProductFeatureDef[] = [
   { key: "programs", label: "Programs", ...ADV_DEF, advancedModuleKey: "programs", featureFlagsAnyOf: ["v5PortfolioCampaigns"], routePrefixes: ["/contracts/programs"], apiPrefixes: ["/programs"] },
   { key: "decisions", label: "Decisions", ...ADV_DEF, advancedModuleKey: "decisions", featureFlagsAnyOf: ["v5DecisionFoundation"], routePrefixes: ["/decisions"], apiPrefixes: ["/decisions"] },
   { key: "campaigns", label: "Campaigns", ...ADV_DEF, advancedModuleKey: "campaigns", featureFlagsAnyOf: ["v5PortfolioCampaigns"], routePrefixes: ["/campaigns"], apiPrefixes: ["/campaigns"] },
-  { key: "relationship_workspaces", label: "Relationship workspaces", ...ADV_DEF, advancedModuleKey: "relationships", featureFlagsAnyOf: ["v5RelationshipLayer"], routePrefixes: ["/relationship-workspaces", "/accounts", "/counterparties"], apiPrefixes: ["/accounts", "/counterparties"] },
+  { key: "relationship_workspaces", label: "Relationship workspaces", ...ADV_DEF, advancedModuleKey: "relationships", featureFlagsAnyOf: ["v5RelationshipLayer"], routePrefixes: ["/relationship-workspaces", "/accounts/*", "/counterparties/*"], apiPrefixes: ["/accounts", "/counterparties"] },
   {
     key: "advanced_analytics",
     label: "Advanced Analytics",
@@ -453,13 +453,21 @@ function normalizePath(pathname: string): string {
   return p.split("#")[0] ?? p;
 }
 
+function pathMatchesRegistryPrefix(pathname: string, prefix: string): boolean {
+  if (prefix.endsWith("/*")) {
+    const base = prefix.slice(0, -1);
+    return pathname.startsWith(base) && pathname.length > base.length;
+  }
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
 export function minWorkspaceModeForRegistryPath(pathname: string): WorkspaceProductMode | null {
   const p = normalizePath(pathname);
   if (!p.startsWith("/")) return null;
   let best: { len: number; mode: WorkspaceProductMode } | null = null;
   for (const row of PRODUCT_FEATURE_REGISTRY) {
     for (const prefix of row.routePrefixes) {
-      if (p === prefix || p.startsWith(`${prefix}/`)) {
+      if (pathMatchesRegistryPrefix(p, prefix)) {
         if (!best || prefix.length > best.len) {
           best = { len: prefix.length, mode: row.minWorkspaceMode };
         }
@@ -475,7 +483,7 @@ export function featureFamilyForPath(pathname: string): FeatureFamilyKey | null 
   let best: { len: number; key: FeatureFamilyKey } | null = null;
   for (const row of PRODUCT_FEATURE_REGISTRY) {
     for (const prefix of row.routePrefixes) {
-      if (p === prefix || p.startsWith(`${prefix}/`)) {
+      if (pathMatchesRegistryPrefix(p, prefix)) {
         if (!best || prefix.length > best.len) {
           best = { len: prefix.length, key: row.key };
         }

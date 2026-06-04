@@ -103,7 +103,7 @@ describe("V10 route and API catalog", () => {
         "/api/contracts/recompute-signals",
         "/contracts/tasks",
         "/contracts/obligations",
-        "/contracts/evidence-studio",
+        "/evidence",
         "/contracts/reports",
         "/api/approvals/[id]/[action]",
         "/api/exceptions/[id]/[action]",

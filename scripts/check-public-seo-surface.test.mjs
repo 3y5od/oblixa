@@ -47,8 +47,8 @@ function writeValidFixture(root) {
     root,
     "src/lib/marketing/public-paths.ts",
     [
-      'export const PUBLIC_INFORMATION_PATHS = ["/privacy"] as const;',
-      'export const SITEMAP_PATHS = ["/", "/login", "/signup", "/forgot-password", "/reset-password", ...PUBLIC_INFORMATION_PATHS] as const;',
+      'export const PUBLIC_INFORMATION_PATHS = ["/product", "/request-access", "/early-access", "/pricing", "/contact", "/privacy", "/terms", "/security", "/acceptable-use", "/accessibility", "/cookies"] as const;',
+      'export const SITEMAP_PATHS = ["/", "/product", "/request-access", "/pricing", "/contact", "/security", "/privacy", "/terms", "/acceptable-use", "/accessibility", "/cookies"] as const;',
       "export function isPublicInformationPath(pathname) { return PUBLIC_INFORMATION_PATHS.includes(pathname); }",
       "export function isMetadataImageRoute(pathname) { return pathname === '/opengraph-image'; }",
       "",
@@ -60,11 +60,16 @@ function writeValidFixture(root) {
     `export const GENERATED_PUBLIC_ROUTES = ${JSON.stringify(
       [
         { route: "/", visitPath: "/", expectedHeading: "Home", coverage: ["smoke"] },
-        { route: "/login", visitPath: "/login", expectedHeading: "Login", coverage: ["smoke"] },
-        { route: "/signup", visitPath: "/signup", expectedHeading: "Signup", coverage: ["smoke"] },
-        { route: "/forgot-password", visitPath: "/forgot-password", expectedHeading: "Forgot", coverage: ["smoke"] },
-        { route: "/reset-password", visitPath: "/reset-password", expectedHeading: "Reset", coverage: ["smoke"] },
+        { route: "/product", visitPath: "/product", expectedHeading: "Product", coverage: ["smoke"] },
+        { route: "/request-access", visitPath: "/request-access", expectedHeading: "Request access", coverage: ["smoke"] },
+        { route: "/pricing", visitPath: "/pricing", expectedHeading: "Pricing", coverage: ["smoke"] },
+        { route: "/contact", visitPath: "/contact", expectedHeading: "Contact", coverage: ["smoke"] },
+        { route: "/security", visitPath: "/security", expectedHeading: "Security", coverage: ["smoke"] },
         { route: "/privacy", visitPath: "/privacy", expectedHeading: "Privacy", coverage: ["smoke"] },
+        { route: "/terms", visitPath: "/terms", expectedHeading: "Terms", coverage: ["smoke"] },
+        { route: "/acceptable-use", visitPath: "/acceptable-use", expectedHeading: "Acceptable use", coverage: ["smoke"] },
+        { route: "/accessibility", visitPath: "/accessibility", expectedHeading: "Accessibility", coverage: ["smoke"] },
+        { route: "/cookies", visitPath: "/cookies", expectedHeading: "Cookies", coverage: ["smoke"] },
       ],
       null,
       2
@@ -83,7 +88,10 @@ function writeValidFixture(root) {
   );
   write(root, "src/app/page.tsx", 'import { LandingPage } from "@/components/landing/landing-page";\nexport default function Page(){ return <LandingPage />; }\n');
   write(root, "src/components/landing/landing-page.tsx", "export function LandingPage(){ return <main />; }\n");
-  write(root, "src/app/(marketing)/privacy/page.tsx", "export default function Privacy(){ return <main />; }\n");
+  for (const route of ["product", "request-access", "pricing", "contact", "security", "privacy", "terms", "acceptable-use", "accessibility", "cookies"]) {
+    write(root, `src/app/(marketing)/${route}/page.tsx`, "export default function MarketingPage(){ return <main />; }\n");
+  }
+  write(root, "src/app/(marketing)/early-access/page.tsx", "export default function CompatibilityPage(){ return <main />; }\n");
   for (const route of ["login", "signup", "forgot-password", "reset-password"]) {
     write(root, `src/app/(auth)/${route}/page.tsx`, `import { AuthForm } from "@/components/auth/auth-form";\nexport default function Page(){ return <AuthForm mode="${route}" />; }\n`);
   }
@@ -96,7 +104,7 @@ function writeValidFixture(root) {
   write(
     root,
     "src/actions/auth.ts",
-    'emailRedirectTo: `${appUrl}/auth/callback`\nredirectTo: `${appUrl}/reset-password`\nredirectTo: await resolvePostAuthRedirectForUser(user)\n'
+    'emailRedirectTo: `${appUrl}/auth/callback`\nredirectTo: `${appUrl}/reset-password`\nconst postAuthPath = await resolvePostAuthRedirectForUser(user)\nNo workspace is linked to this account\nawait supabase.auth.signOut()\n'
   );
   write(root, "src/components/auth/auth-form.tsx", "state?.redirectTo\nassignNavigableHref(path)\n");
   write(
@@ -166,6 +174,21 @@ test("analyzePublicSeoSurface rejects private sitemap inventory paths", () => {
   const report = analyzePublicSeoSurface(root);
   assert.equal(report.ok, false);
   assert.equal(report.issues.some((issue) => issue.issue === "private_path_in_sitemap_inventory"), true);
+});
+
+test("analyzePublicSeoSurface rejects auth or compatibility paths in the sitemap inventory", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "oblixa-seo-forbidden-sitemap-"));
+  writeValidFixture(root);
+  write(
+    root,
+    "src/lib/marketing/public-paths.ts",
+    'export const PUBLIC_INFORMATION_PATHS = ["/product", "/early-access"] as const;\nexport const SITEMAP_PATHS = ["/", "/product", "/request-access", "/pricing", "/contact", "/security", "/privacy", "/terms", "/acceptable-use", "/accessibility", "/cookies", "/login", "/early-access"] as const;\n'
+  );
+
+  const report = analyzePublicSeoSurface(root);
+  assert.equal(report.ok, false);
+  assert.equal(report.issues.some((issue) => issue.issue === "forbidden_path_in_sitemap_inventory"), true);
+  assert.equal(report.issues.some((issue) => issue.issue === "sitemap_unexpected_public_path"), true);
 });
 
 test("analyzePublicSeoSurface rejects private layouts without noindex metadata", () => {

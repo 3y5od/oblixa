@@ -150,7 +150,7 @@ export const ENTERPRISE_UI_ROUTE_INVENTORY: readonly EnterpriseUiRouteInventoryR
     evidenceArtifacts: ["src/actions/exceptions.ts", "src/app/api/exceptions/[id]/[action]/route.ts"],
   },
   {
-    route: "/contracts/renewals",
+    route: "/renewals",
     ownerArtifact: "src/app/(dashboard)/contracts/renewals/page.tsx",
     primaryPattern: "queue-first",
     firstFoldAnswer: "notice deadline, renewal deadline, missing approved dates, blockers, and decision path",

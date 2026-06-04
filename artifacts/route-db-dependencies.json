@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T20:01:44.401Z",
+  "generatedAt": "2026-06-04T20:45:47.202Z",
   "rows": [
     {
       "route": "/accounts/[key]",
@@ -1891,7 +1891,8 @@
       "sourcePath": "src/app/auth/callback/route.ts",
       "tables": [
         "organization_invites",
-        "organization_members"
+        "organization_members",
+        "workspace_access_grants"
       ],
       "rpcs": [],
       "orgScopeRequired": false,
@@ -2285,6 +2286,18 @@
       "rpcs": [],
       "orgScopeRequired": true,
       "orgScopeEvidence": true
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_request_events",
+        "workspace_access_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false
     },
     {
       "route": "/settings",

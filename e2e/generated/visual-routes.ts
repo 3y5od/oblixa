@@ -42,7 +42,25 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "work",
     "shellFamily": "dashboard",
     "mode": "authenticated",
-    "expectedHeading": "Work Queue"
+    "expectedHeading": "Work"
+  },
+  {
+    "route": "/renewals",
+    "visitPath": "/renewals",
+    "fixtureId": null,
+    "routeFamily": "renewals",
+    "shellFamily": "dashboard",
+    "mode": "authenticated",
+    "expectedHeading": "Renewals"
+  },
+  {
+    "route": "/evidence",
+    "visitPath": "/evidence",
+    "fixtureId": null,
+    "routeFamily": "evidence",
+    "shellFamily": "dashboard",
+    "mode": "authenticated",
+    "expectedHeading": "Evidence"
   },
   {
     "route": "/reports",
@@ -78,7 +96,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "advanced",
     "shellFamily": "dashboard",
     "mode": "authenticated",
-    "expectedHeading": "Campaign Queue"
+    "expectedHeading": "Campaign queue"
   },
   {
     "route": "/decisions",
@@ -87,7 +105,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "advanced",
     "shellFamily": "dashboard",
     "mode": "authenticated",
-    "expectedHeading": "Decision Queue"
+    "expectedHeading": "Decision queue"
   },
   {
     "route": "/assurance",
@@ -117,13 +135,13 @@ export const GENERATED_VISUAL_ROUTES = [
     "expectedHeading": "Pricing"
   },
   {
-    "route": "/early-access",
-    "visitPath": "/early-access",
+    "route": "/request-access",
+    "visitPath": "/request-access",
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Replace your contract-tracking spreadsheet."
+    "expectedHeading": "Track what signed contracts require next."
   },
   {
     "route": "/contact",
@@ -132,7 +150,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Request early access."
+    "expectedHeading": "Request workspace access."
   },
   {
     "route": "/",
@@ -141,7 +159,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Replace your contract-tracking spreadsheet."
+    "expectedHeading": "Track what signed contracts require next."
   },
   {
     "route": "/login",
@@ -149,7 +167,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
-    "mode": "public",
+    "mode": "auth",
     "expectedHeading": "Sign in to your account"
   },
   {
@@ -158,8 +176,8 @@ export const GENERATED_VISUAL_ROUTES = [
     "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
-    "mode": "public",
-    "expectedHeading": "Founder-led early access"
+    "mode": "auth",
+    "expectedHeading": "Complete workspace access"
   },
   {
     "route": "/forgot-password",
@@ -167,7 +185,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
-    "mode": "public",
+    "mode": "auth",
     "expectedHeading": "Reset your password"
   },
   {
@@ -176,7 +194,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "fixtureId": null,
     "routeFamily": "auth",
     "shellFamily": "auth",
-    "mode": "public",
+    "mode": "auth",
     "expectedHeading": "Set a new password"
   },
   {

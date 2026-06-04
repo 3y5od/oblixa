@@ -18,6 +18,7 @@ import {
 import { mapWithConcurrency } from "@/lib/extraction/concurrency";
 import { getStripeClient } from "@/lib/stripe";
 import { isKillBilling, killSwitchJsonResponse } from "@/lib/security/kill-switches";
+import { canManageWorkspaceBilling } from "@/lib/roles";
 
 // SPEC: docs/billing-page-maximal-pass.md §3.27 — Stripe SDK is Node-only.
 export const runtime = "nodejs";
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
       route: ROUTE,
     });
   }
-  if (membership.role !== "admin") return jsonForbidden(ROUTE);
+  if (!canManageWorkspaceBilling(membership.role)) return jsonForbidden(ROUTE);
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(
@@ -78,7 +79,7 @@ export async function GET(request: Request) {
 
   const { data: orgRow } = await admin
     .from("organizations")
-    .select("stripe_customer_id")
+    .select("owner_user_id, stripe_customer_id")
     .eq("id", membership.organization_id)
     .single();
 

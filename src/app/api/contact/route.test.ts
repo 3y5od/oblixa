@@ -3,6 +3,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const rateLimitCheck = vi.fn();
 const getTrustedClientIpFromRequest = vi.fn();
 const safeFetch = vi.fn();
+const accessRequestMaybeSingle = vi.fn();
+const accessRequestEq = vi.fn(() => ({ maybeSingle: accessRequestMaybeSingle }));
+const accessRequestLookupSelect = vi.fn(() => ({ eq: accessRequestEq }));
+const accessRequestSingle = vi.fn();
+const accessRequestSelect = vi.fn(() => ({ single: accessRequestSingle }));
+const accessRequestInsert = vi.fn(() => ({ select: accessRequestSelect }));
+const accessRequestUpdateEq = vi.fn(async () => ({ error: null }));
+const accessRequestUpdate = vi.fn(() => ({ eq: accessRequestUpdateEq }));
+const accessRequestEventInsert = vi.fn(async () => ({ error: null }));
+const createAdminClient = vi.fn(async () => ({
+  from: vi.fn((table: string) => {
+    if (table === "workspace_access_requests") {
+      return { select: accessRequestLookupSelect, insert: accessRequestInsert, update: accessRequestUpdate };
+    }
+    if (table === "workspace_access_request_events") {
+      return { insert: accessRequestEventInsert };
+    }
+    throw new Error(`Unexpected table ${table}`);
+  }),
+}));
 
 vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: { marketingContact: { max: 5, windowMs: 60 * 60_000 } },
@@ -15,6 +35,10 @@ vi.mock("@/lib/security/trusted-forwarded", () => ({
 
 vi.mock("@/lib/security/safe-fetch", () => ({
   safeFetch,
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createAdminClient,
 }));
 
 function contactRequest(body: string, headers: HeadersInit = { "Content-Type": "application/json" }) {
@@ -32,7 +56,7 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     company: "Acme Co",
     role: "Operations lead",
     contracts: "50-200",
-    interested: "early_access",
+    interested: "request_access",
     trackingMethod: "spreadsheet",
     hasTracker: "yes",
     redactedSample: "unsure",
@@ -52,6 +76,8 @@ describe("POST /api/contact", () => {
     getTrustedClientIpFromRequest.mockReturnValue("203.0.113.10");
     rateLimitCheck.mockResolvedValue({ ok: true });
     safeFetch.mockResolvedValue(new Response(null, { status: 202 }));
+    accessRequestMaybeSingle.mockResolvedValue({ data: null, error: null });
+    accessRequestSingle.mockResolvedValue({ data: { id: "00000000-0000-0000-0000-000000000001" }, error: null });
   });
 
   it("accepts a valid public submission without requiring email provider config", async () => {
@@ -64,6 +90,43 @@ describe("POST /api/contact", () => {
       expect.objectContaining({ max: 5 })
     );
     expect(safeFetch).not.toHaveBeenCalled();
+    expect(accessRequestInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        normalized_email: "valid-1@example.com",
+        status: "pending",
+        source: "request_access",
+      })
+    );
+    expect(accessRequestEventInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        request_id: "00000000-0000-0000-0000-000000000001",
+        action: "access_request.received",
+      })
+    );
+  });
+
+  it("updates an existing access request instead of creating a duplicate row", async () => {
+    accessRequestMaybeSingle.mockResolvedValueOnce({
+      data: { id: "00000000-0000-0000-0000-0000000000aa", duplicate_count: 2 },
+      error: null,
+    });
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(contactRequest(JSON.stringify(validPayload({ email: "valid-duplicate@example.com" }))));
+
+    expect(res.status).toBe(204);
+    expect(accessRequestInsert).not.toHaveBeenCalled();
+    expect(accessRequestUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        duplicate_count: 3,
+        source: "request_access",
+      })
+    );
+    expect(accessRequestEventInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        request_id: "00000000-0000-0000-0000-0000000000aa",
+        action: "access_request.duplicate_received",
+      })
+    );
   });
 
   it("rejects legacy public interest values", async () => {

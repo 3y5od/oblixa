@@ -49,11 +49,9 @@ describe("subscriptionStatusBadge", () => {
     expect(badge.tone).toBe("critical");
   });
 
-  // Finishing-pass §1.9 + §1.12 — Free is the baseline zero-state per
-  // spec §2.11, not info-tone. Reverted from polish-pass §8.1.
-  it("returns early-access label for none (canonical zero-state tone)", () => {
+  it("returns access-review label for none (canonical zero-state tone)", () => {
     const badge = subscriptionStatusBadge({ status: "none" });
-    expect(badge.label).toBe("Early access");
+    expect(badge.label).toBe("Access review");
     expect(badge.tone).toBe("empty");
   });
 

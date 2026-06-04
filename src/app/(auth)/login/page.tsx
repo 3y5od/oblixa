@@ -19,6 +19,12 @@ export default async function LoginPage({
   } else if (q.error === "invite_seat_limit") {
     urlBanner =
       "This workspace has reached its team member limit. Ask an admin to revoke a pending invite or remove a member.";
+  } else if (q.error === "access_grant_required") {
+    urlBanner =
+      "Workspace creation requires an approved access link. Request access or use the link from your invite email.";
+  } else if (q.error === "workspace_access_required") {
+    urlBanner =
+      "No workspace is linked to this account. Request access or ask an admin for an invite.";
   } else if (q.error === "auth_callback_error") {
     urlBanner = "Sign-in could not be completed. Try again or request a new link.";
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { OrgRole } from "@/lib/types";
+import { normalizeWorkspaceRoleAlias } from "@/lib/roles";
 import { getApiAuthContext, type AuthContext } from "@/lib/contract-operations/api-auth";
 import { gateCronRequest } from "@/lib/security/cron-route-gate";
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
@@ -57,9 +58,11 @@ export function requireBearerSecret(
 }
 
 export function requireRoleAtLeast(ctx: SessionApiContext, minimum: OrgRole): NextResponse | null {
-  const order: OrgRole[] = ["viewer", "editor", "admin"];
-  const idx = (r: OrgRole) => order.indexOf(r);
-  if (idx(ctx.role) < idx(minimum)) {
+  const order = ["viewer", "member", "admin", "owner"] as const;
+  const current = normalizeWorkspaceRoleAlias(ctx.role);
+  const required = normalizeWorkspaceRoleAlias(minimum);
+  const idx = (r: typeof order[number] | null) => (r ? order.indexOf(r as typeof order[number]) : -1);
+  if (idx(current === "operator" ? null : current) < idx(required === "operator" ? null : required)) {
     return jsonForbidden();
   }
   return null;

@@ -60,9 +60,9 @@ export function tasksEmptyLensAction(lens: WorkHubLens): { href: string; label: 
     case "assigned":
       return { href: "/contracts", label: "Browse contracts" };
     case "due_soon":
-      return { href: "/contracts/renewals?horizon=renewal_30", label: `Review renewals (≤${DUE_SOON_DAYS}d)` };
+      return { href: "/renewals?window=30", label: `Review renewals (≤${DUE_SOON_DAYS}d)` };
     case "overdue":
-      return { href: "/contracts/renewals?horizon=end_30", label: "Review end-date pressure (≤30d)" };
+      return { href: "/renewals?window=30", label: "Review end-date pressure (≤30d)" };
     case "blocked":
       return { href: workSectionHref("blocked", "tasks"), label: "Stay on blocked tasks" };
     case "recent":

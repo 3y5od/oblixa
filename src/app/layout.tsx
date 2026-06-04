@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s — Oblixa",
   },
   description:
-    "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
+    "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
   applicationName: "Oblixa",
   openGraph: {
     type: "website",
@@ -33,14 +33,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
     description:
-      "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
+      "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Contract tracking workspace for renewals, owners, obligations, evidence, and reports" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
     description:
-      "Oblixa replaces contract tracking spreadsheets with a workspace for reviewed terms, key dates, assigned owners, obligation follow-up, evidence, and reports.",
+      "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
     images: ["/twitter-image"],
   },
   formatDetection: {

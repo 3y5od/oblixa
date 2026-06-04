@@ -38,6 +38,21 @@ const JSON_LD_COMPONENTS = [
   "src/components/landing/legal-page-json-ld.tsx",
 ];
 const AUTH_SURFACE_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const EXPECTED_SITEMAP_PATHS = [
+  "/",
+  "/product",
+  "/request-access",
+  "/pricing",
+  "/contact",
+  "/security",
+  "/privacy",
+  "/terms",
+  "/acceptable-use",
+  "/accessibility",
+  "/cookies",
+];
+const COMPATIBILITY_PUBLIC_PATHS = new Set(["/early-access"]);
+const SITEMAP_FORBIDDEN_PATHS = new Set([...AUTH_SURFACE_PATHS, ...COMPATIBILITY_PUBLIC_PATHS]);
 const PUBLIC_ROUTE_TEST_FILES = [
   "e2e/marketing-public.spec.ts",
   "e2e/external-public.spec.ts",
@@ -206,7 +221,20 @@ function collectSitemapIssues(root) {
   }
   const publicPaths = read(root, publicPathsRel);
   const { sitemapPaths } = extractPublicPathInventories(publicPaths);
+  const expectedSitemapSet = new Set(EXPECTED_SITEMAP_PATHS);
+  const actualSitemapSet = new Set(sitemapPaths);
+  for (const route of EXPECTED_SITEMAP_PATHS) {
+    if (!actualSitemapSet.has(route)) {
+      issues.push({ issue: "sitemap_missing_expected_public_path", rel: publicPathsRel, route });
+    }
+  }
   for (const route of sitemapPaths) {
+    if (!expectedSitemapSet.has(route)) {
+      issues.push({ issue: "sitemap_unexpected_public_path", rel: publicPathsRel, route });
+    }
+    if (SITEMAP_FORBIDDEN_PATHS.has(route)) {
+      issues.push({ issue: "forbidden_path_in_sitemap_inventory", rel: publicPathsRel, route });
+    }
     if (isPrivatePath(route)) {
       issues.push({ issue: "private_path_in_sitemap_inventory", rel: publicPathsRel, route });
     }
@@ -276,7 +304,7 @@ function collectPublicInventoryIssues(root) {
   }
 
   for (const route of publicInformationPaths) {
-    if (!sitemapPaths.includes(route)) {
+    if (!sitemapPaths.includes(route) && !COMPATIBILITY_PUBLIC_PATHS.has(route)) {
       issues.push({ issue: "public_information_path_missing_from_sitemap", rel: publicPathsRel, route });
     }
   }
@@ -367,7 +395,11 @@ function collectPublicAuthRedirectIssues(root) {
     if (!source.includes('redirectTo: `${appUrl}/reset-password`')) {
       issues.push({ issue: "password_reset_redirect_not_public_reset_page", rel: authActionRel });
     }
-    if (!source.includes("redirectTo: await resolvePostAuthRedirectForUser(user)")) {
+    if (
+      !source.includes("resolvePostAuthRedirectForUser(user)") ||
+      !source.includes("No workspace is linked to this account") ||
+      !source.includes("await supabase.auth.signOut()")
+    ) {
       issues.push({ issue: "auth_action_missing_post_auth_redirect_resolution", rel: authActionRel });
     }
   }

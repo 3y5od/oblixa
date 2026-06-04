@@ -82,7 +82,7 @@ function MockShell({
         </div>
       </div>
       <figcaption className="mt-2 text-center text-[12px] text-[var(--text-tertiary)]">
-        <span className="text-[var(--text-secondary)]">{sectionRef}</span> — early-access preview
+        <span className="text-[var(--text-secondary)]">{sectionRef}</span> - access preview
       </figcaption>
     </figure>
   );

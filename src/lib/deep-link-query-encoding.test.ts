@@ -43,7 +43,7 @@ describe("deep link query encoding (V9 §8.5 / §16)", () => {
     expect(overdue.searchParams.get("lens")).toBe("overdue");
 
     const renew = new URL(hrefV9SevenNotificationClass("renewal_horizon"), "https://app.example");
-    expect(renew.pathname).toBe("/contracts/renewals");
+    expect(renew.pathname).toBe("/renewals");
     expect(renew.searchParams.get("window")).toBe("90");
 
     const ex = new URL(hrefV9SevenNotificationClass("exception_assignment"), "https://app.example");

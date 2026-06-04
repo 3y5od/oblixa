@@ -827,7 +827,7 @@ export const V10_OPERATIONAL_ALERTS: readonly V10OperationalAlert[] = [
     incidentState: "mitigated",
     evidenceFreshness: "fresh",
     escalationOwner: "security",
-    recoveryDestination: "/contracts/evidence-studio",
+    recoveryDestination: "/evidence",
     customerSafeCopy: "Some evidence links need fresh scoped invitations from the workspace owner.",
   },
   {
@@ -998,7 +998,7 @@ export const V10_OPERATIONAL_RUNBOOK_COVERAGE: readonly V10OperationalRunbookCov
   { key: "failed_report_recovery", owner: "support", trigger: "failed_or_partial_report_run", command: "npm run check:release-evidence", recoveryDestination: "/settings/health#artifacts", releaseEvidenceKey: "ops:failed_report_recovery", supportSafe: true, incidentReadinessCheck: "report_retry_diagnostic_visible" },
   { key: "failed_export_recovery", owner: "support", trigger: "failed_or_truncated_export_job", command: "npm run check:release-evidence", recoveryDestination: "/settings/health#exports", releaseEvidenceKey: "ops:failed_export_recovery", supportSafe: true, incidentReadinessCheck: "export_redaction_and_retry_visible" },
   { key: "failed_import_recovery", owner: "support", trigger: "failed_import_or_extraction_job", command: "node scripts/rebuild-read-models.mjs --dry-run", recoveryDestination: "/work?lens=failed_jobs", releaseEvidenceKey: "ops:failed_import_recovery", supportSafe: true, incidentReadinessCheck: "failed_job_lens_contains_retry_path" },
-  { key: "evidence_escalation", owner: "operations", trigger: "overdue_evidence_request", command: "npm run check:release-evidence -- --metric evidence_follow_up --lock v10-rc:evidence_follow_up:100", recoveryDestination: "/contracts/evidence-studio", releaseEvidenceKey: "ops:evidence_escalation", supportSafe: true, incidentReadinessCheck: "evidence_owner_notification_escalates" },
+  { key: "evidence_escalation", owner: "operations", trigger: "overdue_evidence_request", command: "npm run check:release-evidence -- --metric evidence_follow_up --lock v10-rc:evidence_follow_up:100", recoveryDestination: "/evidence", releaseEvidenceKey: "ops:evidence_escalation", supportSafe: true, incidentReadinessCheck: "evidence_owner_notification_escalates" },
   { key: "notification_failure", owner: "operations", trigger: "notification_delivery_failure", command: "npm run check:release-evidence", recoveryDestination: "/settings/health#providers", releaseEvidenceKey: "ops:notification_failure", supportSafe: true, incidentReadinessCheck: "provider_outage_state_is_support_safe" },
   { key: "audit_write_failure", owner: "security", trigger: "audit_write_failed_mutation_envelope", command: "npm run check:release-suite-current", recoveryDestination: "/settings/health#support", releaseEvidenceKey: "ops:audit_write_failure", supportSafe: true, incidentReadinessCheck: "mutation_blocks_until_audit_safe" },
 ] as const;

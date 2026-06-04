@@ -59,8 +59,8 @@ describe("refinement §2 primary story routes", () => {
     expect(has("/contracts")).toBe(true);
     expect(has("/contracts/review")).toBe(true);
     expect(has("/work")).toBe(true);
-    expect(has("/contracts/renewals")).toBe(true);
-    expect(has("/contracts/evidence-studio")).toBe(true);
+    expect(has("/renewals")).toBe(true);
+    expect(has("/evidence")).toBe(true);
     expect(has("/reports") || has("/contracts/reports")).toBe(true);
     expect(has("/contracts/tasks")).toBe(false);
     const corePatterns = new Set(
@@ -79,8 +79,8 @@ describe("refinement §7.1 primary nav workspace group order", () => {
       "/dashboard",
       "/contracts",
       "/work",
-      "/contracts/renewals",
-      "/contracts/evidence-studio",
+      "/renewals",
+      "/evidence",
       "/reports",
       "/settings",
     ]);

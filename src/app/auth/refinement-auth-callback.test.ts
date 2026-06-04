@@ -50,12 +50,61 @@ describe("auth callback org provisioning", () => {
     resolveDestinationWithBlockingCalibration.mockReturnValue("/dashboard");
   });
 
-  it("provisions an org for non-invite callbacks and redirects to the resolved destination", async () => {
+  it("allows existing workspace members through non-invite callbacks", async () => {
     const { GET } = await import("@/app/auth/callback/route");
     const res = await GET(new Request("http://localhost:3000/auth/callback?code=abc"));
-    expect(ensureUserOrg).toHaveBeenCalledWith("user_1", "My Organization");
+    expect(ensureUserOrg).not.toHaveBeenCalled();
     expect(getUserPrimaryOrganizationId).toHaveBeenCalled();
     expect(resolvePostAuthRedirectPath).toHaveBeenCalled();
+    expect(res.headers.get("location")).toBe("http://localhost:3000/dashboard");
+  });
+
+  it("rejects first-workspace callbacks without a consumed access grant", async () => {
+    getUserPrimaryOrganizationId.mockResolvedValueOnce(null);
+
+    const { GET } = await import("@/app/auth/callback/route");
+    const res = await GET(new Request("http://localhost:3000/auth/callback?code=abc"));
+
+    expect(ensureUserOrg).not.toHaveBeenCalled();
+    expect(resolvePostAuthRedirectPath).not.toHaveBeenCalled();
+    expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=access_grant_required");
+  });
+
+  it("provisions a first workspace only when the callback user owns the consumed access grant", async () => {
+    const grantId = "00000000-0000-4000-8000-000000000010";
+    exchangeCodeForSession.mockResolvedValue({
+      data: {
+        user: {
+          id: "user_1",
+          email: "user@example.com",
+          user_metadata: { access_grant_id: grantId },
+        },
+      },
+      error: null,
+    });
+    getUserPrimaryOrganizationId.mockResolvedValueOnce(null).mockResolvedValueOnce("org_1");
+    adminFrom.mockImplementation((table: string) => {
+      expect(table).toBe("workspace_access_grants");
+      return {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            id: grantId,
+            normalized_email: "user@example.com",
+            status: "used",
+            used_by: "user_1",
+          },
+          error: null,
+        }),
+      };
+    });
+
+    const { GET } = await import("@/app/auth/callback/route");
+    const res = await GET(new Request("http://localhost:3000/auth/callback?code=abc"));
+
+    expect(ensureUserOrg).toHaveBeenCalledWith("user_1", "My Organization");
+    expect(resolvePostAuthRedirectPath).toHaveBeenCalledWith(expect.anything(), "org_1", "/dashboard");
     expect(res.headers.get("location")).toBe("http://localhost:3000/dashboard");
   });
 

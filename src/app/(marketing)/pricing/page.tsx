@@ -4,9 +4,9 @@ import { ArrowRight, CheckCircle2, ChevronDown, FileSpreadsheet, MinusCircle, Ti
 import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 import { GradientPhrase } from "@/components/ui/gradient-phrase";
 
-const title = "Early-access pricing — Oblixa";
+const title = "Access and Pricing — Oblixa";
 const description =
-  "Oblixa pricing is being finalized during bounded early-access evaluations for teams replacing contract-tracking spreadsheets.";
+  "Oblixa is paid after access approval and price disclosure, with one Core offer for signed-contract tracking.";
 
 export const metadata: Metadata = {
   title,
@@ -17,11 +17,11 @@ export const metadata: Metadata = {
 };
 
 const included = [
-  "Contract upload and CSV tracker import for a small evaluation set",
+  "Contract upload and CSV tracker import for a bounded workspace start",
   "Source-backed suggestions reviewed by your team",
   "Renewal, notice, owner, obligation, evidence, and report workflows",
   "Exportable contract records and operational reports",
-  "Product support during evaluation",
+  "Product support during workspace activation",
 ] as const;
 
 const notIncluded = [
@@ -34,19 +34,19 @@ const notIncluded = [
 
 const faq = [
   {
-    question: "What does early access cost?",
+    question: "What does Oblixa cost?",
     answer:
-      "Pricing is being finalized during early-access evaluations. The first step is to see whether Oblixa improves the current tracking workflow.",
+      "Pricing is disclosed during access review or immediately after approval before you are charged. The release has one Core paid offer.",
   },
   {
-    question: "What happens after the evaluation?",
+    question: "What happens after access is approved?",
     answer:
-      "If Oblixa becomes useful to your workflow, continued use should be expected to move to a paid founding monthly plan.",
+      "You can activate a workspace and choose whether to continue as a paid month-to-month customer after price disclosure.",
   },
   {
     question: "Do we need to migrate every contract?",
     answer:
-      "No. The recommended evaluation starts with a small subset or a redacted sample set so the workflow can be validated before any larger migration.",
+      "No. The recommended start is a small subset or a redacted sample set so the workflow can be validated before any larger migration.",
   },
   {
     question: "Does Oblixa replace contract drafting or e-signature tools?",
@@ -56,17 +56,17 @@ const faq = [
   {
     question: "Can we cancel or export our data?",
     answer:
-      "Yes. You can export contract records and operational reports at any time, and early access is month-to-month with no annual commitment.",
+      "Yes. You can export contract records and operational reports at any time. Paid continuation is month-to-month by default with no annual commitment.",
   },
   {
     question: "When would paid use start?",
     answer:
-      "Only after early access, and only if you choose to continue. There is no automatic conversion — you move to a paid monthly plan when Oblixa becomes part of your workflow.",
+      "Only after approval and explicit checkout. There is no automatic charge on access request, account creation, upload, import, or workspace activation.",
   },
 ] as const;
 
 const posture = [
-  "Pricing set during early access",
+  "Price disclosed before charge",
   "Month-to-month when paid",
   "No annual commitment",
 ] as const;
@@ -88,7 +88,7 @@ export default function PricingPage() {
           <header className="mx-auto max-w-3xl text-center">
             <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
               <span className="landing-eyebrow-dot" aria-hidden />
-              Early-access pricing
+              Access and pricing
             </p>
             <h1
               className="mx-auto mt-3 max-w-[20ch] text-balance text-[2.25rem] font-bold leading-[1.05] tracking-tight text-[var(--text-primary)] sm:text-[3.25rem]"
@@ -97,15 +97,15 @@ export default function PricingPage() {
               Simple pricing for contract <GradientPhrase>tracking</GradientPhrase>.
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
-              Oblixa is in early access. Begin with a bounded evaluation, then move to a
-              simple monthly plan if it becomes part of your workflow.
+              Request access first. Approved workspaces can continue on a simple monthly
+              Core plan after price disclosure and explicit checkout.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/early-access"
+                href="/request-access"
                 className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
               >
-                Request early access
+                Request access
                 <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               </Link>
               <Link
@@ -131,7 +131,7 @@ export default function PricingPage() {
             <article className="landing-card-premium landing-card-static relative overflow-hidden rounded-3xl border p-5 sm:p-6">
               <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
                 <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                Evaluation first
+                Access first
               </p>
               <h2 className="mt-3 text-[1.5rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
                 Start with a small contract set.
@@ -156,7 +156,7 @@ export default function PricingPage() {
                 Not public self-serve
               </p>
               <h2 className="mt-3 text-[1.5rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
-                What early access does not include.
+                What access and pricing do not include.
               </h2>
               <ul className="mt-5 grid gap-1.5">
                 {notIncluded.map((item) => (
@@ -178,7 +178,7 @@ export default function PricingPage() {
                 Pricing questions
               </h2>
               <p className="mt-3 text-[14px] leading-[1.6] text-[var(--text-secondary)]">
-                Plain answers while Oblixa is still in early access.
+                Plain answers for reviewed workspace access and paid continuation.
               </p>
             </header>
             <div className="landing-faq-list mx-auto mt-8 overflow-hidden rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] lg:grid lg:grid-cols-2 lg:divide-x lg:divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)]">

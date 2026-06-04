@@ -63,7 +63,7 @@ export function RenewalFilterBar({
     if (review) params.set("review", review);
     if (keepCreateOpen) params.set("create", "1");
     const qs = params.toString();
-    router.push(qs ? `/contracts/renewals?${qs}` : "/contracts/renewals");
+    router.push(qs ? `/renewals?${qs}` : "/renewals");
   }
 
   // §7.3 — stable per-control width keeps the toolbar from reflowing as values

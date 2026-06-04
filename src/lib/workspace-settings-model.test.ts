@@ -57,7 +57,7 @@ describe("workspace settings model", () => {
     expect(destinations.find((dest) => dest.key === "billing")).toMatchObject({
       href: "/settings/billing",
       actionLabel: "Open billing",
-      currentStateLabel: "Early access",
+      currentStateLabel: "Access review",
     });
     expect(destinations.find((dest) => dest.key === "notifications")).toMatchObject({
       href: "/settings/operations#notifications",

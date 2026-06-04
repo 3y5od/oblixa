@@ -764,7 +764,7 @@ function buildEvidenceRequestRows(context: ReportBuildContext) {
       const submissions = context.submissionsByRequirement.get(requirement.id) ?? [];
       return {
         id: requirement.id,
-        href: requirement.contract_id ? `/contracts/${requirement.contract_id}#evidence` : "/contracts/evidence-studio",
+        href: requirement.contract_id ? `/contracts/${requirement.contract_id}#evidence` : "/evidence",
         cells: {
           Request: requirement.title || "Untitled evidence request",
           Contract: contract?.title ?? "Unknown contract",

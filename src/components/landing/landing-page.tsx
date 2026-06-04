@@ -1260,7 +1260,7 @@ function PricingCtaSection() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/early-access"
+                href="/request-access"
                 className="product-cta-halo ui-btn-primary inline-flex min-h-11 items-center gap-1.5 px-5 py-2.5 text-[14px] font-semibold"
               >
                 {ctaPrimaryLabel}
@@ -1278,7 +1278,7 @@ function PricingCtaSection() {
 
             {/* v13: consolidated the two overlapping chip strips into one
                 evaluation-scope strip. Dropped "Async-first support" and
-                "Founder-led early access"; "CSV export" → "Exportable
+                the old founder-first access language; "CSV export" → "Exportable
                 records" so the homepage doesn't read as founder-first marketing. */}
             <div className="mt-7 flex justify-center">
               <div className="inline-flex flex-wrap justify-center divide-x divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_60%,transparent)] text-[10.5px] ui-caps-2 text-[var(--text-tertiary)]">
@@ -1341,7 +1341,7 @@ export function LandingPage() {
                 down for 320px safety. The heroTitle constant keeps the plain
                 hyphen for SEO/JSON-LD + the voice-sweep pin. */}
             <h1 className="landing-reveal-2 landing-luminous-headline mx-auto mt-6 text-balance text-[1.9rem] font-semibold leading-[1.07] tracking-[-0.025em] sm:text-[2.4rem] sm:leading-[1.05] lg:text-[2.7rem] xl:text-[2.85rem]">
-              Replace your contract‑tracking spreadsheet.
+              Track what signed contracts require next.
             </h1>
 
             <p className="landing-reveal-3 landing-luminous-body mx-auto mt-5 max-w-2xl text-pretty text-[15px] leading-[1.6] sm:text-[16px]">
@@ -1349,7 +1349,7 @@ export function LandingPage() {
             </p>
 
             <div className="landing-reveal-4 mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <Link href="/early-access" className="product-cta-halo landing-cta-primary group">
+              <Link href="/request-access" className="product-cta-halo landing-cta-primary group">
                 <Sparkles className="h-4 w-4 opacity-90" aria-hidden />
                 <span>{ctaPrimaryLabel}</span>
                 <ArrowRight
@@ -1601,9 +1601,9 @@ export function LandingPage() {
           <div aria-hidden className="landing-luminous__base" />
           <div aria-hidden className="landing-luminous__glow" />
           <div className="relative mx-auto max-w-3xl text-center">
-            <span className="landing-glass-pill">
-              <Clock className="h-3 w-3" aria-hidden />
-              Early access
+              <span className="landing-glass-pill">
+                <Clock className="h-3 w-3" aria-hidden />
+              Reviewed access
             </span>
             <h2
               id="cta-final-heading"
@@ -1617,7 +1617,7 @@ export function LandingPage() {
               with a focused evaluation.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <Link href="/early-access" className="product-cta-halo landing-cta-primary group">
+              <Link href="/request-access" className="product-cta-halo landing-cta-primary group">
                 {ctaPrimaryLabel}
                 <ArrowRight
                   className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

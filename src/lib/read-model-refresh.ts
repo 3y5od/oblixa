@@ -900,7 +900,7 @@ function v10SavedViewCommandMeta(row: Row): { href: string; featureFamily: strin
   if (asString(query.deadline)) params.set("horizon", String(query.deadline));
   const qs = params.toString();
   return {
-    href: qs ? `/contracts/renewals?${qs}` : "/contracts/renewals",
+    href: qs ? `/renewals?${qs}` : "/renewals",
     featureFamily: "renewals",
     moduleKey: "renewals",
   };
@@ -2528,7 +2528,7 @@ export async function refreshV10ReadModelsForOrganization(
         ]
           .filter(Boolean)
           .join(" · "),
-        href: contractId ? `/contracts/${contractId}?tab=renewals` : "/contracts/renewals",
+        href: contractId ? `/contracts/${contractId}?tab=renewals` : "/renewals",
         rank_terms_safe: [
           reminderType,
           fieldName,

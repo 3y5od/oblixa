@@ -12,7 +12,7 @@ export const OPERATIONAL_PUBLIC_LAUNCH_BOUNDARY_IDS = [
   "no-autonomous-agent",
   "no-enterprise-assurance",
   "human-reviewed-ai",
-  "gated-early-access-request",
+  "reviewed-access-request",
   "exportable-data",
 ] as const;
 
@@ -34,7 +34,7 @@ export const OPERATIONAL_CONVERSION_FLOW_IDS = [
   "contact-form",
   "contact-api",
   "pricing-page",
-  "early-access-page",
+  "request-access-page",
   "signup-form",
   "password-recovery",
   "billing-checkout-handoff",
@@ -99,12 +99,15 @@ export const OPERATIONAL_PUBLIC_LAUNCH_REQUIRED_PUBLIC_ROUTES = [
   "/",
   "/product",
   "/pricing",
+  "/request-access",
   "/early-access",
   "/contact",
-  "/signup",
-  "/login",
-  "/forgot-password",
-  "/reset-password",
+  "/security",
+  "/privacy",
+  "/terms",
+  "/acceptable-use",
+  "/accessibility",
+  "/cookies",
 ] as const;
 
 export const OPERATIONAL_PUBLIC_LAUNCH_CLAIM_RULES = [
@@ -187,9 +190,9 @@ export const OPERATIONAL_PUBLIC_LAUNCH_BOUNDARIES = [
     requiredEvidence: ["your team reviews and approves", "source snippet"],
   },
   {
-    id: "gated-early-access-request",
-    allowedPublicPositioning: "Public conversion is early-access request, not self-serve trial.",
-    requiredEvidence: ["/early-access", "Request early access"],
+    id: "reviewed-access-request",
+    allowedPublicPositioning: "Public conversion is reviewed access request, not self-serve trial.",
+    requiredEvidence: ["/request-access", "Request access"],
   },
   {
     id: "exportable-data",

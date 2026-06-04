@@ -15,10 +15,13 @@ export const routeStateManifest = [
   { route: "/contracts/tasks", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/tasks/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/analytics", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/analytics/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/data-quality", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/data-quality/loading.tsx", shellFamily: "dashboard" },
+  { route: "/evidence", kind: "error", sourcePath: "src/app/(dashboard)/evidence/error.tsx", shellFamily: "dashboard" },
+  { route: "/evidence", kind: "loading", sourcePath: "src/app/(dashboard)/evidence/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/evidence-studio", kind: "error", sourcePath: "src/app/(dashboard)/contracts/evidence-studio/error.tsx", shellFamily: "dashboard" },
   { route: "/contracts/evidence-studio", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/evidence-studio/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/exceptions", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/exceptions/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/reports", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/reports/loading.tsx", shellFamily: "dashboard" },
+  { route: "/renewals", kind: "loading", sourcePath: "src/app/(dashboard)/renewals/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/renewals", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/renewals/loading.tsx", shellFamily: "dashboard" },
   { route: "/contracts/review", kind: "loading", sourcePath: "src/app/(dashboard)/contracts/review/loading.tsx", shellFamily: "dashboard" },
   { route: "/reports", kind: "loading", sourcePath: "src/app/(dashboard)/reports/loading.tsx", shellFamily: "dashboard" },
@@ -59,6 +62,11 @@ export const routeStateManifest = [
   { route: "/", kind: "error", sourcePath: "src/app/(marketing)/error.tsx", shellFamily: "marketing" },
   { route: "/", kind: "not_found", sourcePath: "src/app/(marketing)/not-found.tsx", shellFamily: "marketing" },
 
+  { route: "/external", kind: "loading", sourcePath: "src/app/external/loading.tsx", shellFamily: "external" },
+  { route: "/external", kind: "error", sourcePath: "src/app/external/error.tsx", shellFamily: "external" },
   { route: "/external/[token]", kind: "loading", sourcePath: "src/app/external/loading.tsx", shellFamily: "external" },
   { route: "/external/[token]", kind: "error", sourcePath: "src/app/external/error.tsx", shellFamily: "external" },
+
+  { route: "/operator/access-requests", kind: "loading", sourcePath: "src/app/operator/access-requests/loading.tsx", shellFamily: "operator" },
+  { route: "/operator/access-requests", kind: "error", sourcePath: "src/app/operator/access-requests/error.tsx", shellFamily: "operator" },
 ];

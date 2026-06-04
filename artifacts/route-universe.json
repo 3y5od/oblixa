@@ -1,15 +1,15 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-06-03T20:01:44.398Z",
+  "generatedAt": "2026-06-04T20:45:47.199Z",
   "counts": {
-    "route_state": 47,
+    "route_state": 52,
     "layout": 23,
-    "page": 79,
+    "page": 86,
     "api_route": 226,
     "server_action": 259
   },
-  "total": 634,
+  "total": 646,
   "routes": [
     {
       "id": "route_state:/:src/app/(auth)/error.tsx",
@@ -888,9 +888,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [
-        "openai"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -1069,7 +1067,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "boundary"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -1122,6 +1120,79 @@
       "smokeTier": "inventory"
     },
     {
+      "id": "page:/accounts:src/app/(dashboard)/accounts/page.tsx",
+      "route": "/accounts",
+      "samplePath": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "boundary"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "route_state:/accounts/[key]:src/app/(dashboard)/accounts/[key]/loading.tsx",
       "route": "/accounts/[key]",
       "samplePath": "/accounts/smoke-key",
@@ -1144,7 +1215,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -1219,7 +1290,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -3753,9 +3824,8 @@
       "dynamicSegments": [],
       "authModel": "session",
       "rolePolicy": [
-        "editor",
-        "manager",
-        "admin"
+        "admin",
+        "manager"
       ],
       "workspaceModes": [
         "core",
@@ -3770,6 +3840,7 @@
       "providers": [
         "calendar",
         "resend",
+        "supabase",
         "upstash_or_memory_rate_limit",
         "webhook_outbox"
       ],
@@ -15964,7 +16035,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16039,7 +16110,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16110,7 +16181,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16185,7 +16256,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16262,7 +16333,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16339,7 +16410,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16418,7 +16489,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16498,7 +16569,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16576,7 +16647,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16652,7 +16723,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16729,7 +16800,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16805,7 +16876,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16881,7 +16952,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -16957,7 +17028,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17045,7 +17116,8 @@
       "dbDependencies": {
         "tables": [
           "organization_invites",
-          "organization_members"
+          "organization_members",
+          "workspace_access_grants"
         ],
         "rpcs": []
       },
@@ -17105,8 +17177,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17179,8 +17250,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17253,8 +17323,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17333,8 +17402,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17410,8 +17478,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -17983,9 +18050,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18058,9 +18123,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18133,9 +18196,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18299,9 +18360,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18374,9 +18433,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18451,9 +18508,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18524,9 +18579,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18758,9 +18811,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18831,9 +18882,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18912,9 +18961,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -18987,9 +19034,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19062,9 +19107,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19525,9 +19568,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19598,9 +19639,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19841,9 +19880,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19914,9 +19951,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -19996,9 +20031,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -20069,9 +20102,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -20309,9 +20340,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -20382,9 +20411,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -20776,9 +20803,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -20849,9 +20874,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21239,9 +21262,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21312,9 +21333,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21453,7 +21472,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "boundary"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21506,6 +21525,79 @@
       "smokeTier": "inventory"
     },
     {
+      "id": "page:/counterparties:src/app/(dashboard)/counterparties/page.tsx",
+      "route": "/counterparties",
+      "samplePath": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "boundary"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "route_state:/counterparties/[key]:src/app/(dashboard)/counterparties/[key]/loading.tsx",
       "route": "/counterparties/[key]",
       "samplePath": "/counterparties/smoke-key",
@@ -21528,7 +21620,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21603,7 +21695,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21834,9 +21926,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21907,9 +21997,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -21990,7 +22078,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22063,7 +22151,7 @@
         "admin"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22134,7 +22222,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22211,7 +22299,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22291,7 +22379,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22366,7 +22454,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -22448,9 +22536,7 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [
-        "calendar"
-      ],
+      "providers": [],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -22486,6 +22572,232 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "route_state:/evidence:src/app/(dashboard)/evidence/error.tsx",
+      "route": "/evidence",
+      "samplePath": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "route_state:/evidence:src/app/(dashboard)/evidence/loading.tsx",
+      "route": "/evidence",
+      "samplePath": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/evidence:src/app/(dashboard)/evidence/page.tsx",
+      "route": "/evidence",
+      "samplePath": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "calendar",
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
       "id": "route_state:/external:src/app/external/error.tsx",
       "route": "/external",
       "samplePath": "/external",
@@ -22503,7 +22815,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "boundary"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -22565,7 +22877,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "boundary"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -22625,7 +22937,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "boundary"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -22666,6 +22978,68 @@
       ],
       "observabilityRequired": false,
       "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/external:src/app/external/page.tsx",
+      "route": "/external",
+      "samplePath": "/external",
+      "sourcePath": "src/app/external/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "external",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "boundary"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "resend"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "external"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
     },
     {
       "id": "page:/external/[token]:src/app/external/[token]/page.tsx",
@@ -22880,7 +23254,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "omit"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -22942,7 +23316,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "omit"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -23232,6 +23606,192 @@
       "smokeTier": "nightly"
     },
     {
+      "id": "route_state:/operator/access-requests:src/app/operator/access-requests/error.tsx",
+      "route": "/operator/access-requests",
+      "samplePath": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/error.tsx",
+      "kind": "route_state",
+      "class": "internal",
+      "shellFamily": "operator",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "internal_operator",
+      "rolePolicy": [
+        "internal_operator"
+      ],
+      "workspaceModes": [
+        "internal"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found",
+          "loading"
+        ],
+        "inheritedShell": "operator"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "route_state:/operator/access-requests:src/app/operator/access-requests/loading.tsx",
+      "route": "/operator/access-requests",
+      "samplePath": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/loading.tsx",
+      "kind": "route_state",
+      "class": "internal",
+      "shellFamily": "operator",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "internal_operator",
+      "rolePolicy": [
+        "internal_operator"
+      ],
+      "workspaceModes": [
+        "internal"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found",
+          "loading"
+        ],
+        "inheritedShell": "operator"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/operator/access-requests:src/app/operator/access-requests/page.tsx",
+      "route": "/operator/access-requests",
+      "samplePath": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "kind": "page",
+      "class": "internal",
+      "shellFamily": "operator",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "internal_operator",
+      "rolePolicy": [
+        "internal_operator"
+      ],
+      "workspaceModes": [
+        "internal"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "resend",
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_request_events",
+          "workspace_access_requests"
+        ],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [],
+        "present": [
+          "error",
+          "not_found",
+          "loading"
+        ],
+        "inheritedShell": "operator"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "inventory"
+    },
+    {
       "id": "page:/pricing:src/app/(marketing)/pricing/page.tsx",
       "route": "/pricing",
       "samplePath": "/pricing",
@@ -23493,7 +24053,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -23553,7 +24113,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -23615,7 +24175,7 @@
         "public"
       ],
       "workspaceModes": [
-        "public_or_external"
+        "contained"
       ],
       "cachePolicy": "public_intentional",
       "bodyPolicy": "no_body_expected",
@@ -23654,6 +24214,160 @@
       "expectedStatuses": [
         200,
         404,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "route_state:/renewals:src/app/(dashboard)/renewals/loading.tsx",
+      "route": "/renewals",
+      "samplePath": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/loading.tsx",
+      "kind": "route_state",
+      "class": "route_state",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "nodejs_default",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": false,
+      "providers": [
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      },
+      "owner": "engineering",
+      "riskTier": "P3",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500
+      ],
+      "observabilityRequired": false,
+      "smokeTier": "inventory"
+    },
+    {
+      "id": "page:/renewals:src/app/(dashboard)/renewals/page.tsx",
+      "route": "/renewals",
+      "samplePath": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/page.tsx",
+      "kind": "page",
+      "class": "authenticated_page",
+      "shellFamily": "dashboard",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "session",
+      "rolePolicy": [
+        "admin",
+        "manager"
+      ],
+      "workspaceModes": [
+        "core",
+        "advanced",
+        "assurance"
+      ],
+      "cachePolicy": "private_no_store",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true,
+      "providers": [
+        "calendar",
+        "openai",
+        "supabase"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard",
+          "forbidden",
+          "empty",
+          "partial_data",
+          "active_risk",
+          "all_clear"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "dashboard"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
         500
       ],
       "observabilityRequired": true,
@@ -23806,6 +24520,68 @@
         404,
         409,
         429,
+        500
+      ],
+      "observabilityRequired": true,
+      "smokeTier": "nightly"
+    },
+    {
+      "id": "page:/request-access:src/app/(marketing)/request-access/page.tsx",
+      "route": "/request-access",
+      "samplePath": "/request-access",
+      "sourcePath": "src/app/(marketing)/request-access/page.tsx",
+      "kind": "page",
+      "class": "public_page",
+      "shellFamily": "marketing",
+      "methods": [
+        "GET"
+      ],
+      "runtime": "server_component",
+      "dynamicSegments": [],
+      "authModel": "public",
+      "rolePolicy": [
+        "public"
+      ],
+      "workspaceModes": [
+        "public_or_external"
+      ],
+      "cachePolicy": "public_intentional",
+      "bodyPolicy": "no_body_expected",
+      "rateLimitPolicy": "standard_or_not_applicable",
+      "orgScopeRequired": false,
+      "orgScopeEvidence": false,
+      "providers": [
+        "calendar"
+      ],
+      "dbDependencies": {
+        "tables": [],
+        "rpcs": []
+      },
+      "routeStates": {
+        "required": [
+          "loading",
+          "error",
+          "not_found",
+          "mobile",
+          "keyboard"
+        ],
+        "present": [
+          "error",
+          "loading",
+          "not_found"
+        ],
+        "inheritedShell": "marketing"
+      },
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      },
+      "owner": "engineering",
+      "riskTier": "P2",
+      "expectedStatuses": [
+        200,
+        404,
         500
       ],
       "observabilityRequired": true,
@@ -24526,9 +25302,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -24637,9 +25411,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -24714,9 +25486,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "omit"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -24791,9 +25561,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "omit"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -24869,9 +25637,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -24947,9 +25713,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -25024,9 +25788,7 @@
         "manager"
       ],
       "workspaceModes": [
-        "core",
-        "advanced",
-        "assurance"
+        "internal"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
@@ -25336,7 +26098,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "supabase"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []

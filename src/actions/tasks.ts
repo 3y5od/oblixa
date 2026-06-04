@@ -534,6 +534,7 @@ export async function createCheckpointClarificationTask(input: {
     return { error: res.error };
   }
   const { revalidatePath } = await import("next/cache");
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
   revalidatePath(`/contracts/${contractId}`);
   revalidatePath("/work");

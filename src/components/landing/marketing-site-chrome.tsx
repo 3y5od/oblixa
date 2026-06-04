@@ -115,10 +115,10 @@ export function MarketingSiteHeader({ secondaryNav }: MarketingSiteHeaderProps) 
                 pages' CTAs) — radius, height, padding, halo all inherited;
                 living outside the Site nav drops the header-only shadow boost. */}
             <Link
-              href="/early-access"
+              href="/request-access"
               className="ui-btn-primary inline-flex items-center justify-center whitespace-nowrap"
             >
-              Request early access
+              Request access
             </Link>
 
             <button
@@ -212,11 +212,11 @@ export function MarketingSiteFooter() {
           aria-label="Account"
         >
           <Link
-            href="/early-access"
+            href="/request-access"
             prefetch={false}
             className="ui-btn-ghost inline-flex min-h-9 items-center px-3 text-[12.5px] font-semibold"
           >
-            Request early access
+            Request access
           </Link>
           {/* v14: ghost (was primary) so the footer stops competing with the
               page's final CTA; label aligned with the "View product tour"

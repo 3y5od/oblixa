@@ -7,9 +7,7 @@ describe("home metadata", () => {
   it("sets absolute title string for SERP/social", () => {
     expect(typeof homeMetadata.title).toBe("string");
     expect(homeMetadata.title).toContain("Oblixa");
-    // Marketing pass: aligned to the release-state wedge, replacing the
-    // contract-tracking spreadsheet.
-    expect(homeMetadata.title).toContain("Replace your contract-tracking spreadsheet");
+    expect(homeMetadata.title).toContain("Track what signed contracts require next");
   });
 
   it("has canonical and openGraph url", () => {

@@ -19,7 +19,7 @@ describe("onboarding banner activation path anchors (V9 §7.1–7.2)", () => {
     expect(raw).toContain('href: "/contracts/review"');
     expect(raw).toContain('href: "/contracts?sort=activity"');
     expect(raw).toContain("/work?lens=assigned");
-    expect(raw).toContain("/contracts/renewals");
+    expect(raw).toContain("/renewals");
     expect(raw).toContain("/contracts/bulk");
     expect(raw).toContain("/contracts/bulk#recent-imports");
     expect(raw).toContain("bulk import status");

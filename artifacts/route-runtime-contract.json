@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T20:01:44.400Z",
+  "generatedAt": "2026-06-04T20:45:47.201Z",
   "rows": [
     {
       "route": "/",
@@ -198,6 +198,17 @@
         "p95Ms": 2000,
         "maxResponseBytes": 128000,
         "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
       }
     },
     {
@@ -3490,6 +3501,17 @@
       }
     },
     {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
       "route": "/counterparties/[key]",
       "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
       "kind": "route_state",
@@ -3633,6 +3655,39 @@
       }
     },
     {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/loading.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
       "route": "/external",
       "sourcePath": "src/app/external/error.tsx",
       "kind": "route_state",
@@ -3663,6 +3718,17 @@
         "p95Ms": 2000,
         "maxResponseBytes": 128000,
         "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
       }
     },
     {
@@ -3765,6 +3831,39 @@
       }
     },
     {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/error.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/loading.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
       "kind": "page",
@@ -3842,6 +3941,28 @@
       }
     },
     {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/loading.tsx",
+      "kind": "route_state",
+      "runtime": "nodejs_default",
+      "performanceBudget": {
+        "p95Ms": 2000,
+        "maxResponseBytes": 128000,
+        "timeoutClass": "default"
+      }
+    },
+    {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
       "kind": "route_state",
@@ -3855,6 +3976,17 @@
     {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/page.tsx",
+      "kind": "page",
+      "runtime": "server_component",
+      "performanceBudget": {
+        "p95Ms": 3000,
+        "maxResponseBytes": 512000,
+        "timeoutClass": "page"
+      }
+    },
+    {
+      "route": "/request-access",
+      "sourcePath": "src/app/(marketing)/request-access/page.tsx",
       "kind": "page",
       "runtime": "server_component",
       "performanceBudget": {

@@ -103,7 +103,7 @@ describe("contract detail mode separation", () => {
     expect(raw).toContain('activeTab === "evidence"');
     const coreEvidenceSummary = between(raw, 'id="contract-evidence"', "{showContractWorkflowOps");
     expect(coreEvidenceSummary).toContain('id="contract-evidence"');
-    expect(coreEvidenceSummary).toContain("/contracts/evidence-studio?contract=");
+    expect(coreEvidenceSummary).toContain("/evidence?contract=");
     expect(coreEvidenceSummary).not.toContain("Download evidence pack (JSON)");
   });
 

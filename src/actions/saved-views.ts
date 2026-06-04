@@ -69,7 +69,10 @@ function revalidateSavedViewPaths(viewType?: string | null) {
   revalidatePath("/contracts");
   if (viewType === "tasks") revalidatePath("/contracts/tasks");
   if (viewType === "obligations") revalidatePath("/contracts/obligations");
-  if (viewType === "renewals") revalidatePath("/contracts/renewals");
+  if (viewType === "renewals") {
+    revalidatePath("/renewals");
+    revalidatePath("/contracts/renewals");
+  }
 }
 
 export async function createContractsSavedView(formData: FormData) {

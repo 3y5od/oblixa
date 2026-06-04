@@ -2,9 +2,17 @@ import { describe, expect, it } from "vitest";
 import type { RoleCapability } from "@/lib/access-control";
 import { hasRoleCapability } from "@/lib/access-control";
 import type { OrgRole } from "@/lib/types";
+import type { CanonicalWorkspaceRole } from "@/lib/roles";
 
 /** Mirrors BASE_CAPABILITIES in access-control.ts — update both together. */
-const BASE_CAPABILITIES: Record<OrgRole, RoleCapability[]> = {
+const BASE_CAPABILITIES: Record<CanonicalWorkspaceRole, RoleCapability[]> = {
+  owner: [
+    "contracts_edit",
+    "approvals_manage",
+    "renewals_manage",
+    "maintenance_manage",
+    "settings_manage",
+  ],
   admin: [
     "contracts_edit",
     "approvals_manage",
@@ -12,12 +20,9 @@ const BASE_CAPABILITIES: Record<OrgRole, RoleCapability[]> = {
     "maintenance_manage",
     "settings_manage",
   ],
-  editor: ["contracts_edit", "approvals_manage", "renewals_manage"],
+  member: ["contracts_edit", "approvals_manage", "renewals_manage"],
   viewer: [],
-  ops_manager: ["contracts_edit", "renewals_manage", "maintenance_manage"],
-  legal_reviewer: ["approvals_manage"],
-  finance_reviewer: ["approvals_manage", "renewals_manage"],
-  manager: ["contracts_edit", "approvals_manage", "renewals_manage", "maintenance_manage"],
+  operator: [],
 };
 
 const ALL_ROLES: OrgRole[] = [
@@ -45,6 +50,9 @@ describe("hasRoleCapability", () => {
     ).toBe(true);
     expect(
       hasRoleCapability({ role: "legal_reviewer", capability: "contracts_edit" })
+    ).toBe(true);
+    expect(
+      hasRoleCapability({ role: "legal_reviewer", capability: "settings_manage" })
     ).toBe(false);
   });
 
@@ -56,6 +64,16 @@ describe("hasRoleCapability", () => {
         rolePolicyJson: { ops_manager: { approvals_manage: true } },
       })
     ).toBe(true);
+  });
+
+  it("does not let member aliases become workspace admins through overrides", () => {
+    expect(
+      hasRoleCapability({
+        role: "manager",
+        capability: "settings_manage",
+        rolePolicyJson: { manager: { settings_manage: true } },
+      })
+    ).toBe(false);
   });
 
   it("null role never grants", () => {
@@ -73,7 +91,9 @@ describe("hasRoleCapability", () => {
 
   it("exhaustive baseline matrix matches BASE_CAPABILITIES", () => {
     for (const role of ALL_ROLES) {
-      const allowed = new Set(BASE_CAPABILITIES[role] ?? []);
+      const canonical =
+        role === "admin" ? "admin" : role === "viewer" ? "viewer" : "member";
+      const allowed = new Set(BASE_CAPABILITIES[canonical] ?? []);
       for (const capability of ALL_CAPS) {
         expect(hasRoleCapability({ role, capability })).toBe(allowed.has(capability));
       }

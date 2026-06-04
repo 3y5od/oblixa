@@ -51,7 +51,7 @@ export const RELEASE_STATE_EMAIL_TEMPLATES: Record<
   },
   welcome_after_signup: {
     key: "welcome_after_signup",
-    subject: "Welcome to Oblixa early access",
+    subject: "Welcome to Oblixa",
     preview: "Start by uploading a small set of signed agreements.",
     body: "Start by uploading a small set of signed agreements. Oblixa will help you review key terms, assign owners, track dates, and turn contract obligations into work.",
     ctaLabel: "Upload first contract",

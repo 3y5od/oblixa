@@ -1,5 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import type { OrgRole } from "@/lib/types";
+import {
+  canDeleteCoreWorkspaceRecords,
+  canMutateCoreWorkspaceRecords,
+} from "@/lib/roles";
 
 export async function getOrgMemberRole(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
@@ -22,9 +26,9 @@ export async function getOrgMemberRole(
 }
 
 export function canEditContracts(role: OrgRole | null): boolean {
-  return role === "admin" || role === "editor" || role === "ops_manager" || role === "manager";
+  return canMutateCoreWorkspaceRecords(role);
 }
 
 export function canDeleteContracts(role: OrgRole | null): boolean {
-  return role === "admin" || role === "manager";
+  return canDeleteCoreWorkspaceRecords(role);
 }

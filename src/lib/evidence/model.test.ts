@@ -79,7 +79,7 @@ describe("Evidence page model", () => {
     // The Open tab carries an explicit, sticky section token (not the bare
     // path) so clicking it does not re-fire the auto-pick default.
     expect(model.sections.find((section) => section.key === "open_requests")?.href).toBe(
-      "/contracts/evidence-studio?section=open_requests"
+      "/evidence?section=open_requests"
     );
   });
 
@@ -218,7 +218,7 @@ describe("Evidence page model", () => {
     expect(model.rows[0]?.requestTitle).toBe("Northstar proof");
     expect(model.warnings).toEqual(["v10_evidence_request_statuses"]);
     expect(buildEvidenceHref({ section: "overdue_requests", contract: "contract_b", create: true })).toBe(
-      "/contracts/evidence-studio?section=overdue_requests&contract=contract_b&create=1"
+      "/evidence?section=overdue_requests&contract=contract_b&create=1"
     );
   });
 
@@ -376,7 +376,7 @@ describe("Evidence page model", () => {
         },
       })
     ).toBe(
-      "/contracts/evidence-studio?section=open_requests&contract=contract_a&owner=user_1&due=due_soon&file=missing_file"
+      "/evidence?section=open_requests&contract=contract_a&owner=user_1&due=due_soon&file=missing_file"
     );
   });
 

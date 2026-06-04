@@ -136,7 +136,7 @@ async function submitExternalEvidence(request: Request, body: EvidenceSubmitBody
         outcome: "dependency_blocked",
         message: "This evidence request is missing a workspace owner.",
         diagnosticId: "v10_external_evidence_submit_owner_missing",
-        nextDestinationHref: "/contracts/evidence-studio",
+        nextDestinationHref: "/evidence",
       })
     );
   }
@@ -311,7 +311,7 @@ export async function POST(request: Request) {
         outcome: "forbidden",
         message: "Access denied.",
         diagnosticId: "v10_evidence_submit_forbidden",
-        nextDestinationHref: "/contracts/evidence-studio",
+        nextDestinationHref: "/evidence",
       })
     );
   }
@@ -504,7 +504,7 @@ export async function POST(request: Request) {
             message: "Evidence submitted.",
             changedObjectType: "evidence_request",
             changedObjectId: requirementId,
-            nextDestinationHref: "/contracts/evidence-studio",
+            nextDestinationHref: "/evidence",
             auditEventId,
           }),
           submission,

@@ -527,6 +527,7 @@ export async function createEvidenceTemplateAction(formData: FormData) {
     created_by: ctx.userId,
   });
   if (error) return { error: mapDataSourceError(error.message) };
+  revalidatePath("/evidence");
   revalidatePath("/contracts/evidence-studio");
   return { success: true as const };
 }
@@ -687,6 +688,7 @@ export async function updateRenewalCheckpointWorkspaceAction(formData: FormData)
     .eq("id", checkpointId)
     .eq("organization_id", ctx.orgId);
   if (error) return { error: mapDataSourceError(error.message) };
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
   revalidatePath("/contracts");
   return { success: true as const };
@@ -735,6 +737,7 @@ export async function updateRenewalCheckpointRenewalStateAction(formData: FormDa
     .eq("id", checkpointId)
     .eq("organization_id", ctx.orgId);
   if (error) return { error: mapDataSourceError(error.message) };
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
   revalidatePath("/contracts");
   return { success: true as const };
@@ -837,6 +840,7 @@ export async function generateRenewalDecisionPacketAction(formData: FormData) {
     actorUserId: ctx.userId,
   });
 
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
   revalidatePath(`/contracts/${checkpoint.contract_id}`);
   return { success: true as const, packetId: packet.id as string };

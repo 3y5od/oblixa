@@ -1,15 +1,16 @@
-export const RELEASE_STATE_PUBLIC_PROMISE = "Replace your contract-tracking spreadsheet." as const;
+export const RELEASE_STATE_PUBLIC_PROMISE = "Track what signed contracts require next." as const;
 
 export const RELEASE_STATE_SUPPORTING_PROMISE =
-  "Oblixa helps small teams track renewals, obligations, owners, evidence, and reports from signed contracts, with AI-assisted extraction that stays source-backed and human-reviewed." as const;
+  "Upload agreements or import your tracker, review source-backed fields, and turn dates, owners, obligations, evidence, and exceptions into accountable work and exportable reports." as const;
 
 export const RELEASE_STATE_PUBLIC_PAGES = [
-  { path: "/", purpose: "Homepage and public promise", primaryCta: "Request early access" },
-  { path: "/product", purpose: "Core workflow explanation", primaryCta: "Request early access" },
-  { path: "/early-access", purpose: "Early-access request capture", primaryCta: "Request early access" },
-  { path: "/pricing", purpose: "Early-access pricing guidance", primaryCta: "Request early access" },
-  { path: "/security", purpose: "Security basics with early-access limits", primaryCta: "Request early access" },
-  { path: "/contact", purpose: "Early-access and support contact", primaryCta: "Request early access" },
+  { path: "/", purpose: "Homepage and public promise", primaryCta: "Request access" },
+  { path: "/product", purpose: "Core workflow explanation", primaryCta: "Request access" },
+  { path: "/request-access", purpose: "Access request capture", primaryCta: "Request access" },
+  { path: "/early-access", purpose: "Compatibility URL for access requests", primaryCta: "Request access" },
+  { path: "/pricing", purpose: "Access and paid-continuation guidance", primaryCta: "Request access" },
+  { path: "/security", purpose: "Security basics and reviewed-access boundaries", primaryCta: "Request access" },
+  { path: "/contact", purpose: "Access, pricing, security, and support contact", primaryCta: "Request access" },
   { path: "/login", purpose: "Existing approved-user login", primaryCta: "Sign in" },
 ] as const;
 
@@ -23,7 +24,7 @@ export const RELEASE_STATE_BEST_FIT_SIGNALS = [
   "visible_renewal_owner_obligation_evidence_or_reporting_pain",
   "can_start_with_small_contract_subset",
   "low_procurement_burden",
-  "willing_to_use_early_product_with_feedback",
+  "willing_to_use_controlled_access_product_with_feedback",
 ] as const;
 
 export const RELEASE_STATE_POOR_FIT_SIGNALS = [
@@ -124,19 +125,19 @@ export const RELEASE_STATE_OBJECTION_ANSWERS = [
     id: "security_questionnaire",
     question: "Can you pass our security questionnaire?",
     answer:
-      "Oblixa has security-conscious defaults, roles, audit history, and exportability, but early access is not intended for teams that require formal enterprise security review before evaluation.",
+      "Oblixa has security-conscious defaults, roles, audit history, and exportability, but reviewed access is not intended for teams that require formal enterprise security review before the first workspace.",
   },
   {
     id: "full_migration",
     question: "Do we have to migrate every contract?",
     answer:
-      "No. The recommended evaluation starts with a small subset or a redacted sample set. The goal is to validate the workflow before migrating everything.",
+      "No. The recommended start is a small subset or a redacted sample set. The goal is to validate the workflow before migrating everything.",
   },
   {
     id: "cost",
     question: "What does it cost?",
     answer:
-      "Early-access pricing is being shaped through evaluations. If Oblixa becomes part of your workflow, continued use should be expected to move to a paid founding monthly plan.",
+      "Pricing is disclosed during access review or after approval before any charge. Continued use is paid on the Core offer.",
   },
   {
     id: "keep_spreadsheet",
@@ -148,11 +149,11 @@ export const RELEASE_STATE_OBJECTION_ANSWERS = [
 
 export const RELEASE_STATE_OUTREACH_TEMPLATES = {
   warmInitial:
-    "I am building Oblixa for teams that track signed contracts in spreadsheets. It is not a CLM or e-signature tool. Would you be open to showing how you track signed agreements today?",
+    "I am building Oblixa for teams that track what signed contracts require next. It is not a CLM or e-signature tool. Would you be open to showing how you track signed agreements today?",
   warmFollowUp:
     "Just following up. A redacted tracker or rough async description would be enough if a call is inconvenient.",
   coldInitial:
-    "Do you track signed contracts in a spreadsheet today? I am looking for a few early users who can show me how contract tracking works today.",
+    "Do you track signed-contract follow-up manually today? I am looking for a few teams that can show me how contract tracking works today.",
   coldFollowUp:
     "Oblixa is not for drafting or signing contracts; it is for the work after signature: renewal dates, owners, obligations, evidence, and reports.",
   finalFollowUp:

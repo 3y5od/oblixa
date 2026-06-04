@@ -44,7 +44,7 @@ export function getStripeMonthlyPriceId(): string | null {
   return getOptionalServerEnv("STRIPE_MONTHLY_PRICE_ID");
 }
 
-/** Optional Stripe coupon ID applied after an approved early-access evaluation. */
+/** Optional Stripe coupon ID applied after an approved workspace evaluation. */
 export function getStripeFoundingCouponId(): string | null {
   return getOptionalServerEnv("STRIPE_FOUNDING_COUPON_ID");
 }
@@ -63,7 +63,7 @@ export function isStripeTosCollectionEnabled(): boolean {
   return getOptionalServerEnv("STRIPE_TOS_COLLECTION_ENABLED") === "1";
 }
 
-/** Fail-closed gate for launching public billing checkout after early-access approval. */
+/** Fail-closed gate for launching public billing checkout after workspace access approval. */
 export function isPublicBillingCheckoutEnabled(): boolean {
   return getOptionalServerEnv("OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT") === "1";
 }

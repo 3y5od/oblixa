@@ -392,7 +392,7 @@ export const GET = withCronRoute({
           href: `/contracts/${record.id}`,
           meta: `${record.counterparty ?? "No counterparty"} · ${record.status}`,
         }));
-        workspacePath = "/contracts/renewals";
+        workspacePath = "/renewals";
       } else {
         errors.push(reportError(scope, "transform", "report_summary_unknown_view_type", `unsupported view type: ${savedView.view_type}`));
         return null;

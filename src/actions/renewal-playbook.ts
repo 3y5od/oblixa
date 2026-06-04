@@ -34,6 +34,7 @@ function isCheckpointStatus(v: string): v is RenewalCheckpointStatus {
 async function revalidateRenewalPaths(contractId: string) {
   const { revalidatePath } = await import("next/cache");
   revalidatePath(`/contracts/${contractId}`);
+  revalidatePath("/renewals");
   revalidatePath("/contracts/renewals");
 }
 

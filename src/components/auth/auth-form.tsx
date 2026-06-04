@@ -43,6 +43,17 @@ interface AuthFormProps {
   mode: "login" | "signup" | "forgot-password" | "reset-password";
   /** Server-driven message (e.g. auth callback query errors) */
   urlBanner?: string;
+  /** Signup only: signed access grant, invite, or temporary compatibility token from the URL. */
+  accessCode?: string;
+  /** Signup only: route-level grant state, inspected server-side without exposing token details. */
+  signupGrantState?:
+    | "valid_workspace_creation"
+    | "missing"
+    | "invalid"
+    | "expired"
+    | "used"
+    | "revoked"
+    | "unavailable";
   /** Reset-password only: the recovery link is missing/expired (driven by the page's searchParams). */
   linkInvalid?: boolean;
 }
@@ -74,20 +85,20 @@ const config = {
     title: "Sign in to your account",
     submitLabel: "Sign in",
     altText: "Don't have an account?",
-    altLink: "/early-access",
+    altLink: "/request-access",
     altLinkText: "Request access",
     intro: "Continue managing contract deadlines, owners, work, evidence, and reports.",
     notice: "Workspace sign-in keeps contract work, approvals, and reminders scoped to your organization.",
   },
   signup: {
-    title: "Founder-led early access",
-    submitLabel: "Request workspace access",
+    title: "Complete workspace access",
+    submitLabel: "Create workspace account",
     altText: "Already have an account?",
     altLink: "/login",
     altLinkText: "Sign in",
     intro:
-      "Oblixa is in founder-led early access. Request access if your team is replacing a contract-tracking spreadsheet.",
-    notice: "Access is limited to invited workspaces during early access.",
+      "Create your account from an approved workspace grant or invite. If you do not have one, request access first.",
+    notice: "Signup is limited to approved or invited workspaces.",
   },
   "forgot-password": {
     title: "Reset your password",
@@ -284,7 +295,13 @@ function PasswordField({
   );
 }
 
-export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps) {
+export function AuthForm({
+  mode,
+  urlBanner,
+  accessCode = "",
+  signupGrantState,
+  linkInvalid = false,
+}: AuthFormProps) {
   const [state, setState] = useState<AuthState>(undefined);
   const [pending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
@@ -305,6 +322,10 @@ export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps
   const isInvalidLink = mode === "reset-password" && linkInvalid;
   const isResetComplete = mode === "reset-password" && Boolean(state?.redirectTo) && !isInvalidLink;
   const isSuccess = Boolean(state?.success) && !isInvalidLink && !isResetComplete;
+  const effectiveSignupGrantState =
+    mode === "signup" ? signupGrantState ?? (accessCode ? "valid_workspace_creation" : "missing") : undefined;
+  const blocksSignupForm =
+    mode === "signup" && effectiveSignupGrantState !== "valid_workspace_creation";
   const togglePassword = () => setShowPassword((v) => !v);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -410,7 +431,7 @@ export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps
     </section>
   );
 
-  const denied = mode === "signup" && state?.error?.includes("founder-led early access");
+  const denied = mode === "signup" && state?.error?.includes("approved workspace access");
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -428,15 +449,20 @@ export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps
           {urlBanner}
         </div>
       )}
+      {mode === "signup" && effectiveSignupGrantState === "valid_workspace_creation" ? (
+        <div className="ui-alert-success" role="status">
+          Access link ready. Create the account using the email this link was issued for.
+        </div>
+      ) : null}
       {state?.error && (
         <div id={formErrorId} className="ui-alert-error" role="alert">
           {state.error}
           {denied ? (
             <Link
-              href="/early-access"
+              href="/request-access"
               className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
-              Request early access
+              Request access
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             </Link>
           ) : null}
@@ -445,14 +471,7 @@ export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps
 
       {mode === "signup" && (
         <div className="space-y-4">
-          <IconField
-            id="accessCode"
-            name="accessCode"
-            label="Access code"
-            hint="from your invite"
-            icon={LockKeyhole}
-            autoComplete="off"
-          />
+          <input type="hidden" name="accessCode" value={accessCode} />
           <IconField id="fullName" name="fullName" label="Full name" icon={User} required autoComplete="name" />
           <IconField
             id="companyName"
@@ -633,14 +652,67 @@ export function AuthForm({ mode, urlBanner, linkInvalid = false }: AuthFormProps
     </>
   );
 
+  const signupGrantRecoveryContent = (() => {
+    if (!blocksSignupForm) return null;
+    const stateCopy = {
+      missing: {
+        heading: "Access link required",
+        body: "Signup opens after workspace access is approved or an invite is issued.",
+      },
+      invalid: {
+        heading: "Access link not recognized",
+        body: "This link cannot be used to create a workspace account.",
+      },
+      expired: {
+        heading: "Access link expired",
+        body: "Request a new access link before creating a workspace account.",
+      },
+      revoked: {
+        heading: "Access link no longer active",
+        body: "This link was revoked. Request access again or ask for a new invite.",
+      },
+      used: {
+        heading: "Access link already used",
+        body: "Sign in with the account that used this link, or request a new invite.",
+      },
+      unavailable: {
+        heading: "Access check unavailable",
+        body: "Grant validation is temporarily unavailable. Try again or request a fresh access link.",
+      },
+      valid_workspace_creation: {
+        heading: "Access link ready",
+        body: "Create the account using the email this link was issued for.",
+      },
+    }[effectiveSignupGrantState ?? "missing"];
+    return stateCard(
+      effectiveSignupGrantState === "unavailable" ? "warning" : "warning",
+      TriangleAlert,
+      stateCopy.heading,
+      stateCopy.body,
+      <>
+        <Link href="/request-access" className="ui-btn-primary h-10 rounded-full px-4 text-[13px]">
+          Request access
+        </Link>
+        <Link href="/login" className="ui-btn-ghost rounded-full px-3.5 py-1.5 text-[12.5px]">
+          Sign in
+        </Link>
+      </>
+    );
+  })();
+
   const cardBody = isInvalidLink
     ? invalidLinkContent
     : isResetComplete
       ? resetCompleteContent
       : isSuccess
         ? successContent
-        : formContent;
-  const showAltLink = Boolean(c.altLink) && !isSuccess && !isInvalidLink && !isResetComplete;
+        : signupGrantRecoveryContent ?? formContent;
+  const showAltLink =
+    Boolean(c.altLink) &&
+    !isSuccess &&
+    !isInvalidLink &&
+    !isResetComplete &&
+    !signupGrantRecoveryContent;
 
   const authColumn = (
     <div

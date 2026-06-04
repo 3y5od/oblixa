@@ -60,7 +60,7 @@ describe("OnboardingBanner", () => {
     expect(screen.getAllByText(/run extraction, then confirm fields with source-backed review/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/1 contract created/i)).toBeTruthy();
     const workLens = screen.getByText("renewals queue").closest("a");
-    expect(workLens?.getAttribute("href")).toBe("/contracts/renewals");
+    expect(workLens?.getAttribute("href")).toBe("/renewals");
   });
 
   it("does not render once the activation baseline is complete", () => {

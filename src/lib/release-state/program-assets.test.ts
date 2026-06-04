@@ -15,10 +15,10 @@ import {
 } from "./program-assets";
 
 describe("release-state program assets", () => {
-  it("keeps the public promise exact and early-access oriented", () => {
-    expect(RELEASE_STATE_PUBLIC_PROMISE).toBe("Replace your contract-tracking spreadsheet.");
-    expect(RELEASE_STATE_SUPPORTING_PROMISE).toContain("source-backed and human-reviewed");
-    expect(RELEASE_STATE_PUBLIC_PAGES.some((page) => page.path === "/early-access")).toBe(true);
+  it("keeps the public promise exact and access-request oriented", () => {
+    expect(RELEASE_STATE_PUBLIC_PROMISE).toBe("Track what signed contracts require next.");
+    expect(RELEASE_STATE_SUPPORTING_PROMISE).toContain("review source-backed fields");
+    expect(RELEASE_STATE_PUBLIC_PAGES.some((page) => page.path === "/request-access")).toBe(true);
   });
 
   it("covers qualification, discovery, objections, activation, graduation, and manual boundaries", () => {

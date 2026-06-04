@@ -103,11 +103,25 @@ describe("AuthForm", () => {
   });
 
   it("renders signup-specific full name field", () => {
-    renderWithProviders(<AuthForm mode="signup" />);
+    renderWithProviders(<AuthForm mode="signup" accessCode="grant_token" signupGrantState="valid_workspace_creation" />);
     expect(screen.getByLabelText("Full name")).toBeTruthy();
     expect(screen.getByLabelText(/Company name/i)).toBeTruthy();
-    expect(screen.getByLabelText(/Access code/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /request workspace access/i })).toBeTruthy();
+    expect(screen.queryByLabelText(/Access code/i)).toBeNull();
+    expect(screen.getByRole("button", { name: /create workspace account/i })).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toMatch(/access link ready/i);
+  });
+
+  it("blocks signup without a grant and sends users to request access", () => {
+    renderWithProviders(<AuthForm mode="signup" signupGrantState="missing" />);
+    expect(screen.getByRole("heading", { name: /access link required/i })).toBeTruthy();
+    expect(screen.queryByLabelText("Full name")).toBeNull();
+    expect(screen.getByRole("link", { name: /request access/i }).getAttribute("href")).toBe("/request-access");
+  });
+
+  it("renders revoked signup grants as a terminal recovery state", () => {
+    renderWithProviders(<AuthForm mode="signup" accessCode="grant_token" signupGrantState="revoked" />);
+    expect(screen.getByRole("heading", { name: /no longer active/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /create workspace account/i })).toBeNull();
   });
 
   it("renders forgot-password mode", () => {
@@ -142,19 +156,19 @@ describe("AuthForm", () => {
     expect(authMocks.forgotPassword).toHaveBeenCalledTimes(1);
   });
 
-  it("routes a denied signup toward early access", async () => {
+  it("routes a denied signup toward request access", async () => {
     authMocks.signUp.mockResolvedValueOnce({
       error:
-        "Oblixa is currently in founder-led early access. Request access if your team is replacing a contract-tracking spreadsheet.",
+        "Signup requires approved workspace access. Request access if your team tracks what signed contracts require next.",
     });
     const user = userEvent.setup();
-    renderWithProviders(<AuthForm mode="signup" />);
+    renderWithProviders(<AuthForm mode="signup" accessCode="grant_token" signupGrantState="valid_workspace_creation" />);
     await user.type(screen.getByLabelText("Full name"), "Dana Lee");
     await user.type(screen.getByLabelText("Email"), "dana@example.com");
     await user.type(screen.getByLabelText("Password"), "correct-password");
-    await user.click(screen.getByRole("button", { name: /request workspace access/i }));
+    await user.click(screen.getByRole("button", { name: /create workspace account/i }));
 
-    const link = await screen.findByRole("link", { name: /request early access/i });
-    expect(link.getAttribute("href")).toBe("/early-access");
+    const link = await screen.findByRole("link", { name: /request access/i });
+    expect(link.getAttribute("href")).toBe("/request-access");
   });
 });

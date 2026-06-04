@@ -237,7 +237,7 @@ export function OnboardingBanner({
     },
     work: {
       done: stepWork,
-      href: stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/contracts/renewals",
+      href: stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/renewals",
       actionLabel:
         stepWork && stats.visibleWorkItems > 0
           ? "Review assigned work"
@@ -253,7 +253,7 @@ export function OnboardingBanner({
         <span>
           Use the{" "}
           <Link
-            href={stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/contracts/renewals"}
+            href={stats.visibleWorkItems > 0 ? "/work?lens=assigned" : "/renewals"}
             className="ui-link"
           >
             {stats.visibleWorkItems > 0 ? "assigned work lens" : "renewals queue"}

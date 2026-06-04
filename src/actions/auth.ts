@@ -23,6 +23,10 @@ import {
   isReasonableEmail,
   validateBoundedString,
 } from "@/lib/security/validation";
+import {
+  markWorkspaceAccessGrantUsed,
+  validateWorkspaceAccessGrant,
+} from "@/lib/access-review";
 
 type AuthActionResult = { error: string } | { success: string } | { redirectTo: string };
 
@@ -76,12 +80,6 @@ function readAuthAccessCode(formData: FormData): { ok: true; value: string } | {
   return { ok: true, value: validation.value };
 }
 
-function isEarlyAccessSignupAllowed(accessCode: string): boolean {
-  if (process.env.OBLIXA_ALLOW_PUBLIC_SIGNUP === "1") return true;
-  const requiredCode = process.env.OBLIXA_EARLY_ACCESS_SIGNUP_CODE?.trim();
-  return Boolean(requiredCode && accessCode && accessCode === requiredCode);
-}
-
 function readAuthPassword(
   formData: FormData,
   options: { requireMinimum: boolean }
@@ -118,13 +116,14 @@ async function resolvePostAuthRedirectForUser(user: {
     full_name?: unknown;
     company_name?: unknown;
   } | null;
-}) {
+}): Promise<string | null> {
   const admin = await createAdminClient();
   const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership) return null;
   const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
     admin,
     userId: user.id,
-    orgId: membership?.organization_id ?? null,
+    orgId: membership.organization_id,
   });
   return calibrationPath ?? "/dashboard";
 }
@@ -153,14 +152,32 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
   if (!companyName.ok) return { error: companyName.error };
   const accessCode = readAuthAccessCode(formData);
   if (!accessCode.ok) return { error: accessCode.error };
-  if (!isEarlyAccessSignupAllowed(accessCode.value)) {
+  if (!accessCode.value) {
     return {
       error:
-        "Oblixa is currently in founder-led early access. Request access if your team is replacing a contract-tracking spreadsheet.",
+        "Signup requires approved workspace access. Request access if your team tracks what signed contracts require next.",
     };
   }
 
   const supabase = await createClient();
+  const admin = await createAdminClient();
+  const grant = await validateWorkspaceAccessGrant(admin, {
+    token: accessCode.value,
+    email: email.value,
+  });
+  if (!grant.ok) {
+    const grantError =
+      grant.error === "grant_email_mismatch"
+        ? "This access link is for a different email address."
+        : grant.error === "grant_expired"
+          ? "This access link has expired. Request access again or ask for a new invite."
+          : grant.error === "grant_revoked"
+            ? "This access link is no longer active. Request access again or ask for a new invite."
+          : grant.error === "grant_used"
+            ? "This access link has already been used. Sign in or request a new invite."
+            : "Signup requires approved workspace access. Request access if your team tracks what signed contracts require next.";
+    return { error: grantError };
+  }
 
   const appUrl = await resolveAppBaseUrl();
 
@@ -168,7 +185,11 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     email: email.value,
     password: password.value,
     options: {
-      data: { full_name: fullName.value, company_name: companyName.value },
+      data: {
+        full_name: fullName.value,
+        company_name: companyName.value,
+        access_grant_id: grant.grant.id,
+      },
       emailRedirectTo: `${appUrl}/auth/callback`,
     },
   });
@@ -177,13 +198,20 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     return { error: mapAuthError(error) };
   }
 
-  if (data.user && !data.session) {
-    return { success: "Check your email to confirm your account." };
-  }
-
   if (data.user) {
+    const consumed = await markWorkspaceAccessGrantUsed(admin, {
+      grantId: grant.grant.id,
+      userId: data.user.id,
+    });
+    if (!consumed.ok) {
+      console.error("[auth] access grant consume failed", { reason: consumed.error });
+      return { error: "Account setup failed. Please try again." };
+    }
+    if (!data.session) {
+      return { success: "Check your email to confirm your account." };
+    }
     try {
-      await ensureUserOrg(data.user.id, resolveDefaultOrganizationNameForUser(data.user));
+      await ensureUserOrg(data.user.id, resolveDefaultOrganizationNameForUser(data.user), admin);
     } catch (e) {
       console.error("[auth] ensureUserOrg failed", e);
       return { error: "Account setup failed. Please try again." };
@@ -227,7 +255,15 @@ async function signInUnsafe(formData: FormData): Promise<AuthActionResult> {
 
   if (data.user) {
     try {
-      return { redirectTo: await resolvePostAuthRedirectForUser(data.user) };
+      const postAuthPath = await resolvePostAuthRedirectForUser(data.user);
+      if (!postAuthPath) {
+        await supabase.auth.signOut();
+        return {
+          error:
+            "No workspace is linked to this account. Request access or ask an admin for an invite.",
+        };
+      }
+      return { redirectTo: postAuthPath };
     } catch (error) {
       console.error("[auth] post-sign-in redirect resolution failed", error);
       return { redirectTo: "/dashboard" };
@@ -314,7 +350,15 @@ async function resetPasswordUnsafe(formData: FormData): Promise<AuthActionResult
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    return { redirectTo: await resolvePostAuthRedirectForUser(user) };
+    const postAuthPath = await resolvePostAuthRedirectForUser(user);
+    if (!postAuthPath) {
+      await supabase.auth.signOut();
+      return {
+        error:
+          "No workspace is linked to this account. Request access or ask an admin for an invite.",
+      };
+    }
+    return { redirectTo: postAuthPath };
   }
   return { redirectTo: "/dashboard" };
 }

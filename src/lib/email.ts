@@ -193,6 +193,39 @@ export async function sendWorkspaceInviteLinkEmail(opts: {
   return { error };
 }
 
+export async function sendWorkspaceAccessGrantEmail(opts: {
+  to: string;
+  actionUrl: string;
+  expiresInDays: number;
+}): Promise<{ error: Error | null }> {
+  const safeUrl = escapeHtml(opts.actionUrl);
+  const expires = Number.isFinite(opts.expiresInDays) ? Math.max(1, Math.round(opts.expiresInDays)) : 14;
+  const { error } = await sendResendEmail({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to: opts.to,
+    subject: sanitizeSubject("Complete your Oblixa workspace access"),
+    html: `
+      <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
+        <h2 style="color: #111827; font-size: 18px;">Workspace access approved</h2>
+        <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+          Use the button below to create your Oblixa workspace account. This access link is
+          email-bound, single-use, and expires in ${expires} day${expires === 1 ? "" : "s"}.
+        </p>
+        <a href="${safeUrl}"
+           style="display: inline-block; margin-top: 16px; padding: 10px 20px;
+                  background-color: #2563eb; color: #ffffff; text-decoration: none;
+                  border-radius: 6px; font-size: 14px; font-weight: 500;">
+          Complete workspace access
+        </a>
+        <p style="margin-top: 24px; color: #9ca3af; font-size: 12px;">
+          If you did not request Oblixa access, ignore this email or contact support.
+        </p>
+      </div>
+    `,
+  });
+  return { error };
+}
+
 interface SavedViewSummaryEmailParams {
   to: string | string[];
   viewName: string;

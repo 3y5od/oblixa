@@ -22,6 +22,7 @@ import {
   formatBillingDateRange,
 } from "@/lib/billing/format";
 import { getAuthContext } from "@/lib/supabase/server";
+import { canManageWorkspaceBilling } from "@/lib/roles";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UiAlert } from "@/components/ui/ui-alert";
@@ -236,7 +237,7 @@ function TrialChipPair({ caps }: { caps: { contracts: number; teamMembers: numbe
 }
 
 // §1.3 — microcopy parts rendered as a real ChipPair primitive (weight
-// gradation, no bare dot): EARLY ACCESS / BILLING AFTER EVALUATION.
+// gradation, no bare dot): REVIEWED ACCESS / BILLING AFTER APPROVAL.
 function TrialMicrocopyChipPair() {
   return (
     <ChipPair
@@ -283,7 +284,7 @@ export default async function BillingPage(props: {
   const membershipResult = await admin
     .from("organization_members")
     .select(
-      "role, organizations(id, name, stripe_customer_id, stripe_subscription_id, stripe_subscription_status)"
+      "role, organizations(id, name, owner_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_status)"
     )
     .eq("user_id", user.id)
     .eq("organization_id", orgId)
@@ -330,6 +331,7 @@ export default async function BillingPage(props: {
     stripe_customer_id: string | null;
     stripe_subscription_id: string | null;
     stripe_subscription_status: string | null;
+    owner_user_id?: string | null;
   };
 
   // §7.6 — optional read of stripe_trial_ended_at via a defensive
@@ -348,7 +350,7 @@ export default async function BillingPage(props: {
   } catch {
     stripeTrialEndedAt = null;
   }
-  const isAdmin = membership.role === "admin";
+  const isAdmin = canManageWorkspaceBilling(membership.role, { isWorkspaceOwner: org.owner_user_id === user.id });
 
   let subscriptionStatus = resolveSubscriptionStatus(null);
   let cancelAtPeriodEnd = false;
@@ -701,7 +703,7 @@ export default async function BillingPage(props: {
   // §1.3 current plan derivation: 3-state
   const currentPlanLabel =
     subscriptionStatus === "none"
-      ? "Early access"
+      ? "Access review"
       : subscriptionStatus === "active" || subscriptionStatus === "trialing"
         ? "Oblixa Pro"
         : "Oblixa Pro (lapsed)";
@@ -1332,13 +1334,13 @@ export default async function BillingPage(props: {
       </UiAlert>
     ) : null;
 
-  // §9.11 founding-customer offer (when available + admin + no plan)
+  // §9.11 Core offer coupon path (when available + admin + no plan)
   const foundingBanner =
     foundingAvailable && isAdmin && subscriptionStatus === "none" ? (
       <UiAlert tone="neutral">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div>
-            <span className="font-semibold">Founding customer offer —</span>{" "}
+            <span className="font-semibold">Core monthly offer —</span>{" "}
             {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.priceDisplay}.{" "}
             {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.description}
           </div>
@@ -1579,8 +1581,8 @@ export default async function BillingPage(props: {
         !billingCheckoutEnabled &&
         !(subscriptionStatus === "none" && isAdmin) ? (
           <UiAlert tone="neutral">
-            Public billing checkout is disabled during early access.
-            Continued use is handled after evaluation fit is clear.
+            Public billing checkout is available only after access approval.
+            Continued use is handled after price disclosure and explicit checkout.
           </UiAlert>
         ) : null}
 
@@ -1699,16 +1701,16 @@ export default async function BillingPage(props: {
               <CircleDollarSign className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
             </span>
             <div className="min-w-0 flex-1">
-              {/* The EARLY ACCESS status badge is the visual anchor beside the
+              {/* The reviewed-access status badge is the visual anchor beside the
                   title; no separate eyebrow. */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h2
                   id="billing-empty-title"
                   className="text-xl sm:text-[1.4rem] font-semibold tracking-tight text-[var(--text-primary)]"
                 >
-                  Evaluation billing
+                  Access review billing
                 </h2>
-                <StatusBadge status="info">EARLY ACCESS</StatusBadge>
+                <StatusBadge status="info">REVIEWED ACCESS</StatusBadge>
               </div>
               {/* Polish-pass §2.10 — body ≤ 80 chars (was 138). */}
               <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
@@ -1737,7 +1739,7 @@ export default async function BillingPage(props: {
                   </li>
                 ))}
               </ul>
-              {/* Early-access billing keeps checkout behind an explicit server flag. */}
+              {/* Reviewed-access billing keeps checkout behind an explicit server flag. */}
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {billingCheckoutEnabled ? (
                   <SubscribeButton
@@ -1767,12 +1769,12 @@ export default async function BillingPage(props: {
                   />
                 </Link>
               </div>
-              {/* Early-access billing posture, without fixed public pricing.
+              {/* Reviewed-access billing posture, without fixed public pricing.
                   One quiet metadata row tied under a hairline — no standalone
                   vertical divider, no large-caps prose. */}
               <div className="mt-4 flex flex-col items-start gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3">
                 <span className="text-[12px] font-medium text-[var(--text-secondary)]">
-                  Founding monthly plan after evaluation
+                  Core monthly plan after approval
                 </span>
                 <TrialMicrocopyChipPair />
               </div>

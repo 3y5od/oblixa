@@ -11,6 +11,8 @@ import { BODY_LIMIT_SMALL_JSON, readJsonBodyLimited } from "@/lib/security/read-
 import { getTrustedClientIpFromRequest } from "@/lib/security/trusted-forwarded";
 import { safeFetch } from "@/lib/security/safe-fetch";
 import { validateOutboundHttpUrl } from "@/lib/security/url-policy";
+import { createAdminClient } from "@/lib/supabase/server";
+import { insertAccessRequestRecord } from "@/lib/access-review";
 
 const ROUTE = "/api/contact";
 const CONTACT_DUPLICATE_WINDOW_MS = 15 * 60_000;
@@ -32,7 +34,7 @@ const FIELD_MAX = {
   message: 4000,
 } as const;
 
-const ALLOWED_INTERESTED = ["early_access", "general"] as const;
+const ALLOWED_INTERESTED = ["request_access", "early_access", "general"] as const;
 const ALLOWED_TRACKING_METHODS = [
   "spreadsheet",
   "shared_folder",
@@ -157,8 +159,9 @@ async function sendNotificationEmail(payload: {
   }
   const interestedLabel =
     {
-      early_access: "Early access request",
-      general: "General early-access question",
+      request_access: "Access request",
+      early_access: "Access request",
+      general: "General question",
     }[payload.interested] ?? payload.interested;
 
   const rows: Array<[string, string]> = [
@@ -283,23 +286,51 @@ export async function POST(request: Request) {
     return jsonBadRequest(ROUTE, { reason: "invalid_preference" });
   }
 
-  if (
-    hasDuplicateContactSubmission({
-      name,
-      email,
-      company,
-      role,
-      contracts,
-      interested,
-      trackingMethod,
-      hasTracker,
-      redactedSample,
-      preference,
-      pain,
-      message,
-    })
-  ) {
+  const isAccessIntent = interested === "request_access" || interested === "early_access";
+  const isShortWindowDuplicate = hasDuplicateContactSubmission({
+    name,
+    email,
+    company,
+    role,
+    contracts,
+    interested,
+    trackingMethod,
+    hasTracker,
+    redactedSample,
+    preference,
+    pain,
+    message,
+  });
+
+  if (isShortWindowDuplicate && !isAccessIntent) {
     return new NextResponse(null, { status: 204, headers: PRIVATE_NO_STORE_HEADERS });
+  }
+
+  if (isAccessIntent) {
+    try {
+      const admin = await createAdminClient();
+      const inserted = await insertAccessRequestRecord(admin, {
+        normalizedEmail: email,
+        requesterName: name,
+        companyName: company,
+        requesterRole: role,
+        approximateContractCount: contracts,
+        currentTrackingMethod: trackingMethod,
+        hasTracker,
+        redactedSampleAvailable: redactedSample,
+        followUpPreference: preference,
+        painSummary: pain,
+        message,
+        source: "request_access",
+      });
+      if (!inserted.ok) {
+        console.error("[contact] access request persistence failed", { reason: inserted.error });
+        return jsonUnhandled(ROUTE);
+      }
+    } catch {
+      console.error("[contact] access request persistence failed", { reason: "unavailable" });
+      return jsonUnhandled(ROUTE);
+    }
   }
 
   try {

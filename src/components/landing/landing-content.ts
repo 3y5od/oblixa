@@ -1,24 +1,20 @@
 /** Marketing copy — single source for landing UI and JSON-LD FAQ.
- *  Aligned to docs/oblixa-release-state.md — the wedge is "Replace the contract
- *  tracking spreadsheet"; voice rules forbid several enterprise-heavy terms in
- *  public copy. */
+ *  Aligned to the intended release state: track what signed contracts require
+ *  next, with reviewed source-backed data and controlled workspace access. */
 
 export const heroEyebrow = "Contract tracking";
 
-export const heroTitle = "Replace your contract-tracking spreadsheet.";
+export const heroTitle = "Track what signed contracts require next.";
 
 export const heroSubcopy =
-  "Oblixa helps small teams track renewals, obligations, owners, evidence, and reports from signed contracts, with source-backed suggestions reviewed by your team.";
+  "Upload agreements or import your tracker, review source-backed fields, and turn dates, owners, obligations, evidence, and exceptions into accountable work and exportable reports.";
 
-export const ctaPrimaryLabel = "Request early access";
-/* v14: release-state §/ requires the secondary CTA to read "View product
-   tour" and point at the /product tour page (was "See how it works" →
-   #how-it-works). */
+export const ctaPrimaryLabel = "Request access";
 export const ctaSecondaryLabel = "View product tour";
-export const navGetStartedLabel = "Request early access";
+export const navGetStartedLabel = "Request access";
 
 export const riskReducerLine =
-  "Gated early access for a small number of teams replacing manual contract trackers.";
+  "Reviewed workspace access for teams tracking signed contracts in spreadsheets, folders, inboxes, calendars, or memory.";
 
 export const antiGoalSummary =
   "Oblixa is not a full CLM, legal-advice tool, or autonomous agent. It tracks renewals, obligations, owners, evidence, and reports from agreements you have already signed.";
@@ -57,9 +53,9 @@ export const faqItems = [
       "Yes. Start with a small contract set or import your existing tracking spreadsheet. You do not need to migrate every agreement before the workspace is useful.",
   },
   {
-    question: "Can Oblixa replace our contract spreadsheet?",
+    question: "Can Oblixa replace our manual tracker?",
     answer:
-      "Yes — that is what it is built for. Import your CSV, attach the signed agreements as you go, and turn renewals, owners, and obligations into reminders, work, and reports.",
+      "Yes. Import your CSV, attach the signed agreements as you go, and turn renewals, owners, obligations, evidence, and exceptions into reminders, work, and reports.",
   },
   {
     question: "What file types are supported?",
@@ -77,9 +73,9 @@ export const faqItems = [
       "Yes. Export operational reports and contract records as CSV at any time so you are never locked in.",
   },
   {
-    question: "What happens after early access?",
+    question: "What happens after access is approved?",
     answer:
-      "Early-access evaluations have a defined goal and review point. If Oblixa becomes useful to your workflow, continued use can move to a paid founding monthly plan; you can also export records and reports.",
+      "An approved workspace can start with a bounded contract set. Continued use is paid after access approval and price disclosure; you can also export records and reports.",
   },
 ] as const;
 
@@ -161,7 +157,7 @@ export const outcomesBullets = [
 
 /* Best-Fit section — release-state spec §Home Page > Best-Fit. Restored
    in v10 after v9 deletion violated the spec. */
-export const bestFitSectionTitle = "Built for teams outgrowing contract spreadsheets";
+export const bestFitSectionTitle = "Built for teams outgrowing manual contract tracking";
 export const bestFitItems = [
   "Signed contracts already exist and need operational follow-up",
   "Tracking happens in a spreadsheet, folder, email thread, calendar, or someone's memory",
@@ -174,9 +170,9 @@ export const bestFitItems = [
    shortened (was a 2-clause sentence rendered at display scale); the
    founding-plan caveat moves to a supporting lead so the headline reads
    as one clear promise. */
-export const pricingCtaMessage = "Start with an early-access evaluation.";
+export const pricingCtaMessage = "Request reviewed workspace access.";
 export const pricingCtaLead =
-  "Then discuss a founding monthly plan if the workflow proves useful — no fixed public pricing during early access.";
+  "Pricing is disclosed during access review or after approval before any charge. Continued use is paid; there is no public free-trial claim.";
 
 /* Trust chip badges — moved to the marketing footer in v9 (was a standalone
    Trust band section on the landing page). */
@@ -192,7 +188,7 @@ export const trustChipBadges = [
 
 export const softwareFeatureList = [
   "Upload signed agreements and import existing contract spreadsheets",
-  "AI-assisted extraction with source-backed human review",
+  "Source-backed suggestions your team reviews",
   "Renewal, notice, and termination date tracking with reminders",
   "Owner assignment, obligations, approvals, and exceptions",
   "Evidence requests linked to contract obligations",

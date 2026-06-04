@@ -11,4 +11,12 @@ describe("SITEMAP_PATHS (security / crawler hygiene)", () => {
       expect(p.startsWith("/decisions"), p).toBe(false);
     }
   });
+
+  it("does not list auth or compatibility-only routes", () => {
+    expect(SITEMAP_PATHS).not.toContain("/login");
+    expect(SITEMAP_PATHS).not.toContain("/signup");
+    expect(SITEMAP_PATHS).not.toContain("/forgot-password");
+    expect(SITEMAP_PATHS).not.toContain("/reset-password");
+    expect(SITEMAP_PATHS).not.toContain("/early-access");
+  });
 });

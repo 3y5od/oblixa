@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-migration-manifest.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 89,
+  "migrationCount": 92,
   "firstVersion": "001",
-  "latestVersion": "089",
+  "latestVersion": "092",
   "gaps": [],
   "migrations": [
     {
@@ -958,7 +958,7 @@
     {
       "version": "080",
       "file": "080_code_owned_transient_retention_cleanup.sql",
-      "sha256": "30a182be720b43992aaf60ca16d2b7a422e571b5802e8360fb2d9d229c26fddd",
+      "sha256": "edc7d640a846ea0eab1624245e7454e638ea45f798385f7d7d61d546a2559642",
       "slug": "code_owned_transient_retention_cleanup",
       "purpose": "Code Owned Transient Retention Cleanup",
       "domain": "data_retention",
@@ -1073,6 +1073,42 @@
       "changeType": "policy-changing",
       "riskLevel": "medium",
       "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "090",
+      "file": "090_fix_retention_cleanup_calendar_feed_reason.sql",
+      "sha256": "b2ad938ddb7610048682a64c0881024e55ce983296b92e409e63e7bc0e198923",
+      "slug": "fix_retention_cleanup_calendar_feed_reason",
+      "purpose": "Fix Retention Cleanup Calendar Feed Reason",
+      "domain": "data_retention",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "091",
+      "file": "091_access_review_requests_and_grants.sql",
+      "sha256": "1725f08bf6e0cc265db9c7e38d307d80042f73a55cfb98047864405867e9d81a",
+      "slug": "access_review_requests_and_grants",
+      "purpose": "Access Review Requests And Grants",
+      "domain": "security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "092",
+      "file": "092_workspace_owner_relation.sql",
+      "sha256": "ef939bf3244062ba13960bd6896ea5a4fb12e15715addc0f14bcb61b883e8cb5",
+      "slug": "workspace_owner_relation",
+      "purpose": "Workspace Owner Relation",
+      "domain": "security",
+      "changeType": "data-changing",
+      "riskLevel": "high",
+      "deployWindowSafe": false,
       "requiresFollowUpVerification": true
     }
   ]

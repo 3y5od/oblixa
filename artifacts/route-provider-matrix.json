@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T20:01:44.400Z",
+  "generatedAt": "2026-06-04T20:45:47.201Z",
   "rows": [
     {
       "route": "/",
@@ -101,10 +101,8 @@
     {
       "route": "/",
       "sourcePath": "src/app/page.tsx",
-      "providers": [
-        "openai"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "/acceptable-use",
@@ -124,6 +122,12 @@
     {
       "route": "/accounts",
       "sourcePath": "src/app/(dashboard)/accounts/layout.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/accounts",
+      "sourcePath": "src/app/(dashboard)/accounts/page.tsx",
       "providers": [],
       "fallbackRequired": false
     },
@@ -427,6 +431,7 @@
       "providers": [
         "calendar",
         "resend",
+        "supabase",
         "upstash_or_memory_rate_limit",
         "webhook_outbox"
       ],
@@ -2524,6 +2529,12 @@
       "fallbackRequired": false
     },
     {
+      "route": "/counterparties",
+      "sourcePath": "src/app/(dashboard)/counterparties/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
       "route": "/counterparties/[key]",
       "sourcePath": "src/app/(dashboard)/counterparties/[key]/loading.tsx",
       "providers": [
@@ -2616,8 +2627,27 @@
     {
       "route": "/early-access",
       "sourcePath": "src/app/(marketing)/early-access/page.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/loading.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/evidence",
+      "sourcePath": "src/app/(dashboard)/evidence/page.tsx",
       "providers": [
-        "calendar"
+        "calendar",
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -2640,6 +2670,14 @@
       "sourcePath": "src/app/external/loading.tsx",
       "providers": [],
       "fallbackRequired": false
+    },
+    {
+      "route": "/external",
+      "sourcePath": "src/app/external/page.tsx",
+      "providers": [
+        "resend"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/external/[token]",
@@ -2705,6 +2743,29 @@
       "fallbackRequired": true
     },
     {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/error.tsx",
+      "providers": [],
+      "fallbackRequired": false
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/operator/access-requests",
+      "sourcePath": "src/app/operator/access-requests/page.tsx",
+      "providers": [
+        "resend",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
       "providers": [],
@@ -2755,6 +2816,24 @@
       "fallbackRequired": true
     },
     {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/loading.tsx",
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/renewals",
+      "sourcePath": "src/app/(dashboard)/renewals/page.tsx",
+      "providers": [
+        "calendar",
+        "openai",
+        "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
       "route": "/reports",
       "sourcePath": "src/app/(dashboard)/reports/loading.tsx",
       "providers": [
@@ -2767,6 +2846,14 @@
       "sourcePath": "src/app/(dashboard)/reports/page.tsx",
       "providers": [
         "supabase"
+      ],
+      "fallbackRequired": true
+    },
+    {
+      "route": "/request-access",
+      "sourcePath": "src/app/(marketing)/request-access/page.tsx",
+      "providers": [
+        "calendar"
       ],
       "fallbackRequired": true
     },
@@ -2941,8 +3028,10 @@
     {
       "route": "/signup",
       "sourcePath": "src/app/(auth)/signup/page.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "supabase"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/terms",

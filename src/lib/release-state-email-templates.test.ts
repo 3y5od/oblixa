@@ -24,7 +24,7 @@ describe("release-state email templates", () => {
   });
 
   it("pins required release-state subjects and CTAs", () => {
-    expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.subject).toBe("Welcome to Oblixa early access");
+    expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.subject).toBe("Welcome to Oblixa");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.welcome_after_signup.ctaLabel).toBe("Upload first contract");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.extraction_ready.subject).toBe("Your contract is ready for review");
     expect(RELEASE_STATE_EMAIL_TEMPLATES.extraction_ready.ctaLabel).toBe("Review fields");

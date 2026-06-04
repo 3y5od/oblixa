@@ -12,6 +12,7 @@ type LegalJsonLdProps = {
     | "/product"
     | "/pricing"
     | "/contact"
+    | "/request-access"
     | "/early-access";
   title: string;
   description: string;

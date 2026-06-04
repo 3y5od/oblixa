@@ -52,7 +52,7 @@ export function EvidenceRequestCreatePanel({
         setMessage(result.userMessage);
         return;
       }
-      router.push("/contracts/evidence-studio");
+      router.push("/evidence");
       router.refresh();
     });
   }

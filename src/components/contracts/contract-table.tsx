@@ -1077,7 +1077,7 @@ export function ContractTable({
                       ) : m.sig?.outstandingEvidenceCount &&
                         m.sig.outstandingEvidenceCount > 0 ? (
                         <CellChip
-                          href={`/contracts/evidence-studio?contract=${contract.id}`}
+                          href={`/evidence?contract=${contract.id}`}
                           tone="warning"
                         >
                           {/* Count + word as adjacent text nodes (no inner
@@ -1248,7 +1248,7 @@ export function ContractTable({
                       ) : m.sig?.outstandingEvidenceCount &&
                         m.sig.outstandingEvidenceCount > 0 ? (
                         <CellChip
-                          href={`/contracts/evidence-studio?contract=${contract.id}`}
+                          href={`/evidence?contract=${contract.id}`}
                           tone="warning"
                         >
                           <span className="tabular-nums">

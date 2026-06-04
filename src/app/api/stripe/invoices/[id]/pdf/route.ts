@@ -16,6 +16,7 @@ import {
 } from "@/lib/supabase/server";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
 import { getStripeClient } from "@/lib/stripe";
+import { canManageWorkspaceBilling } from "@/lib/roles";
 
 // SPEC: docs/billing-page-refinement-pass.md §3.19 — invoice PDF
 // freshness proxy. Stripe `invoice_pdf` URLs are short-lived; older
@@ -56,7 +57,7 @@ export async function GET(
       route: ROUTE,
     });
   }
-  if (membership.role !== "admin") return jsonForbidden(ROUTE);
+  if (!canManageWorkspaceBilling(membership.role)) return jsonForbidden(ROUTE);
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(
@@ -67,7 +68,7 @@ export async function GET(
 
   const { data: orgRow } = await admin
     .from("organizations")
-    .select("stripe_customer_id")
+    .select("owner_user_id, stripe_customer_id")
     .eq("id", membership.organization_id)
     .single();
   if (!orgRow?.stripe_customer_id) return jsonForbidden(ROUTE);

@@ -403,7 +403,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={CalendarClock}
             primaryValue={behavior ? Number(behavior.missed_dates_prevented_7d ?? 0) : 0}
             primaryUnit="last 7 days"
-            action={{ href: "/contracts/renewals", label: "Review renewals" }}
+            action={{ href: "/renewals", label: "Review renewals" }}
             variant="compact"
           />
         </div>

@@ -53,7 +53,7 @@ const preferences = [
 const nextSteps = [
   {
     label: "Reviewed for fit",
-    detail: "Each request is reviewed against early-access fit.",
+    detail: "Each request is reviewed against workspace fit.",
   },
   {
     label: "We follow up",
@@ -265,7 +265,7 @@ export function ContactForm() {
         aria-hidden
         className="absolute -left-[10000px] h-0 w-0"
       />
-      <input type="hidden" name="interested" value="early_access" />
+      <input type="hidden" name="interested" value="request_access" />
 
       <fieldset disabled={submitting} className="space-y-5 border-0 p-0 disabled:opacity-60">
         <div>
@@ -419,7 +419,7 @@ export function ContactForm() {
             </>
           ) : (
             <>
-              Request early access
+              Request access
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             </>
           )}

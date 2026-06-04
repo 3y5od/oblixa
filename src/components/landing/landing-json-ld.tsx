@@ -33,7 +33,7 @@ export function LandingJsonLd() {
     name: "Oblixa",
     url: base,
     description:
-      "Replace your contract-tracking spreadsheet with a workspace for renewals, owners, obligations, evidence, and reports.",
+      "Track what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
   };
 
   const faqPage = {

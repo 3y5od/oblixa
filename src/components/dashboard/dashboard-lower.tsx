@@ -681,7 +681,7 @@ export async function DashboardLower(props: {
               );
             },
             renderEmpty: () => (
-              <ActionChip verb="Create reminder" href="/contracts/renewals" />
+              <ActionChip verb="Create reminder" href="/renewals" />
             ),
             quietLabel: "Upcoming deadlines",
             srEmptyDescription: DASHBOARD_EMPTY_STATES.upcomingDeadlines,

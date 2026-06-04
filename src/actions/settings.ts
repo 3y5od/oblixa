@@ -14,6 +14,7 @@ import {
 import { isKillInvites } from "@/lib/security/kill-switches";
 import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
 import { evaluateSeatMutation } from "@/lib/billing/operational-entitlements";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 import {
   INVITE_TTL_MS,
   MAX_INVITE_EMAIL_LEN,
@@ -26,6 +27,17 @@ import {
   recoverSettingsAction,
   safeInsertSettingsAuditEvent,
 } from "./settings-helpers";
+
+type MembershipPermissionRow = {
+  role?: string | null;
+  organizations?: { owner_user_id?: string | null } | null;
+};
+
+function canManageTeamOrWorkspace(row: MembershipPermissionRow | null | undefined, userId: string): boolean {
+  return isWorkspaceAdminRole(row?.role, {
+    isWorkspaceOwner: row?.organizations?.owner_user_id === userId,
+  });
+}
 
 export async function updateProfile(formData: FormData): Promise<SettingsActionResult> {
   return recoverSettingsAction("updateProfile", () => updateProfileUnsafe(formData));
@@ -97,7 +109,7 @@ async function updateOrganizationUnsafe(formData: FormData): Promise<SettingsAct
 
   const { data: membership, error: memErr } = await admin
     .from("organization_members")
-    .select("role")
+    .select("role, organizations(owner_user_id)")
     .eq("organization_id", orgId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -111,8 +123,8 @@ async function updateOrganizationUnsafe(formData: FormData): Promise<SettingsAct
     return { error: "You are not a member of this organization" };
   }
 
-  if (membership.role !== "admin") {
-    return { error: "Only admins can update the organization" };
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow, user.id)) {
+    return { error: "Only workspace owners or admins can update the organization" };
   }
 
   const { error } = await admin
@@ -173,7 +185,7 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
 
   const { data: membership, error: memErr } = await admin
     .from("organization_members")
-    .select("role")
+    .select("role, organizations(owner_user_id)")
     .eq("organization_id", orgId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -187,8 +199,8 @@ async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsAction
     return { error: "You are not a member of this organization" };
   }
 
-  if (membership.role !== "admin") {
-    return { error: "Only admins can invite team members" };
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow, user.id)) {
+    return { error: "Only workspace owners or admins can invite team members" };
   }
 
   if (isKillInvites()) {
@@ -338,13 +350,13 @@ async function revokeOrgInviteUnsafe(inviteId: string): Promise<SettingsActionRe
 
   const { data: membership } = await admin
     .from("organization_members")
-    .select("role")
+    .select("role, organizations(owner_user_id)")
     .eq("organization_id", inv.organization_id)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!membership || membership.role !== "admin") {
-    return { error: "Only admins can revoke invites" };
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow | null, user.id)) {
+    return { error: "Only workspace owners or admins can revoke invites" };
   }
 
   const { error: upErr } = await admin
@@ -404,13 +416,13 @@ async function resendOrgInviteUnsafe(inviteId: string): Promise<SettingsActionRe
 
   const { data: membership } = await admin
     .from("organization_members")
-    .select("role")
+    .select("role, organizations(owner_user_id)")
     .eq("organization_id", inv.organization_id)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!membership || membership.role !== "admin") {
-    return { error: "Only admins can resend invites" };
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow | null, user.id)) {
+    return { error: "Only workspace owners or admins can resend invites" };
   }
 
   const expiresAt = new Date(Date.now() + INVITE_TTL_MS).toISOString();

@@ -74,7 +74,7 @@ export async function POST(
         outcome: "forbidden",
         message: "Access denied.",
         diagnosticId: "v10_evidence_reminder_forbidden",
-        nextDestinationHref: "/contracts/evidence-studio",
+        nextDestinationHref: "/evidence",
       })
     );
   }
@@ -84,7 +84,7 @@ export async function POST(
     role: ctx.role,
     apiPath: "/api/evidence/requests/[id]/remind",
     v10MutationResponse: true,
-    nextDestinationHref: "/contracts/evidence-studio",
+    nextDestinationHref: "/evidence",
   });
   if (modeGate) return modeGate;
 
@@ -100,7 +100,7 @@ export async function POST(
         outcome: "not_found",
         message: "Evidence request not found.",
         diagnosticId: "v10_evidence_reminder_not_found",
-        nextDestinationHref: "/contracts/evidence-studio",
+        nextDestinationHref: "/evidence",
       })
     );
   }
@@ -112,7 +112,7 @@ export async function POST(
         outcome: "conflict",
         message: "This evidence request is already closed.",
         diagnosticId: "v10_evidence_reminder_closed",
-        nextDestinationHref: row.contract_id ? `/contracts/${row.contract_id}` : "/contracts/evidence-studio",
+        nextDestinationHref: row.contract_id ? `/contracts/${row.contract_id}` : "/evidence",
       })
     );
   }
@@ -185,6 +185,7 @@ export async function POST(
     reason: "evidence_manual_reminder",
     modelKeys: ["notification_deliveries", "work_items", "audit_events", "command_search_index"],
   });
+  revalidatePath("/evidence");
   revalidatePath("/contracts/evidence-studio");
   if (row.contract_id) revalidatePath(`/contracts/${row.contract_id}`);
 
@@ -194,7 +195,7 @@ export async function POST(
       message: error?.code === "23505" ? "Evidence reminder is already queued." : "Evidence reminder queued.",
       changedObjectType: "evidence_request",
       changedObjectId: row.id,
-      nextDestinationHref: "/contracts/evidence-studio",
+      nextDestinationHref: "/evidence",
       auditEventId,
       diagnosticId: auditEventId ? undefined : "v10_evidence_reminder_audit_write_failed",
     })

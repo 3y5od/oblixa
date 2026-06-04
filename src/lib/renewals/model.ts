@@ -150,7 +150,7 @@ export function buildRenewalsHref(input: {
   if (input.create) params.set("create", "1");
   if (input.contract) params.set("contract", input.contract);
   const qs = params.toString();
-  return qs ? `/contracts/renewals?${qs}` : "/contracts/renewals";
+  return qs ? `/renewals?${qs}` : "/renewals";
 }
 
 export function buildRenewalsExportHref(input: { window: RenewalWindowKey; filters: RenewalFilterState }) {

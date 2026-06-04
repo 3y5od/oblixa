@@ -61,8 +61,8 @@ function resolveBreadcrumb(pathname: string): Crumb[] {
   if (pathname.startsWith("/contracts/new")) return [CONTRACTS, { label: "New contract" }];
   if (pathname.startsWith("/contracts/bulk")) return [CONTRACTS, { label: "Import contracts" }];
   if (pathname.startsWith("/contracts/review")) return [CONTRACTS, { label: "Review fields" }];
-  if (pathname.startsWith("/contracts/renewals")) return [{ label: "Renewals" }];
-  if (pathname.startsWith("/contracts/evidence-studio")) return [{ label: "Evidence" }];
+  if (pathname.startsWith("/renewals") || pathname.startsWith("/contracts/renewals")) return [{ label: "Renewals" }];
+  if (pathname.startsWith("/evidence") || pathname.startsWith("/contracts/evidence-studio")) return [{ label: "Evidence" }];
   if (pathname.startsWith("/contracts/exceptions")) return [WORK, { label: "Exceptions" }];
   if (pathname.startsWith("/contracts/tasks")) return [WORK, { label: "Tasks" }];
   if (pathname.startsWith("/contracts/obligations")) return [WORK, { label: "Obligations" }];

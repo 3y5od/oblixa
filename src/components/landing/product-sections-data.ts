@@ -120,7 +120,7 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     eyebrow: "Review suggested fields",
     title: "Confirm suggested fields before you trust them",
     message:
-      "Suggested fields come back source-backed and human-reviewed — each tied to the snippet it was pulled from, and confirmed by a reviewer before it drives a reminder, work item, or report.",
+      "Suggested fields come back source-backed and awaiting review — each tied to the snippet it was pulled from, and confirmed by a reviewer before it drives a reminder, work item, or report.",
     bullets: [
       "Suggested fields",
       "Source snippets from the original document",

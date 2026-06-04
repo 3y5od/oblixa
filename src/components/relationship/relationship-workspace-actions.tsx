@@ -40,7 +40,7 @@ export function buildRelationshipWorkspaceActions(input: {
     },
     {
       label: "Review renewal horizon",
-      href: queryHref("/contracts/renewals", { horizon: "renewal_90", [scopeParam]: input.relationshipKey }),
+      href: queryHref("/renewals", { window: "90", [scopeParam]: input.relationshipKey }),
       description: "Inspect notice and renewal pressure across the relationship.",
     },
     {

@@ -26,8 +26,8 @@ describe("/api/stripe/invoices/[id]/pdf — proxy pins (§14.21)", () => {
     expect(SRC).toContain("jsonUnauthorized");
   });
 
-  it("requires admin role", () => {
-    expect(SRC).toContain('membership.role !== "admin"');
+  it("requires Owner/Admin billing role", () => {
+    expect(SRC).toContain("canManageWorkspaceBilling(membership.role)");
     expect(SRC).toContain("jsonForbidden");
   });
 
