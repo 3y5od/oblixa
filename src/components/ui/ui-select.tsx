@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
 
 export interface UiSelectOption {
   value: string;
@@ -28,6 +37,10 @@ export interface UiSelectProps {
   required?: boolean;
   className?: string;
   buttonClassName?: string;
+  /** Inline style applied to the trigger button. Used for the active-filter tint,
+   *  which must beat the base border/bg utilities reliably — utility-vs-utility
+   *  override order is not guaranteed, but an inline style always wins. */
+  buttonStyle?: CSSProperties;
   ariaLabel?: string;
   /** Optional caps prefix rendered inside the trigger — the §7.3 leading-label
    *  pill ("WINDOW  90 days"). Lets a dense toolbar drop separate stacked
@@ -43,6 +56,17 @@ export interface UiSelectProps {
    *  escapes ancestor `overflow-hidden` clipping (§7.3 / §11.12). Off by default
    *  to preserve the absolute-positioned behaviour of existing dense usages. */
   portal?: boolean;
+  /** Show a filter-as-you-type search row above the options. When omitted, falls
+   *  back to `options.length >= searchThreshold` ONLY if `searchThreshold` is set
+   *  — so existing callers (no `search`, no `searchThreshold`) are unaffected. */
+  search?: boolean;
+  /** Auto-enable the search row when the option count reaches this number. Unset
+   *  by default, so search never appears unless a caller opts in. */
+  searchThreshold?: number;
+  /** Placeholder for the search input. */
+  searchPlaceholder?: string;
+  /** Copy shown when a search query matches no options. */
+  emptyLabel?: string;
 }
 
 export function UiSelect({
@@ -58,16 +82,26 @@ export function UiSelect({
   required,
   className,
   buttonClassName,
+  buttonStyle,
   ariaLabel,
   label,
   menuWidth = "trigger",
   variant = "compact",
   portal = false,
+  search,
+  searchThreshold,
+  searchPlaceholder = "Search…",
+  emptyLabel = "No matches",
 }: UiSelectProps) {
   const [internalValue, setInternalValue] = useState(defaultValue);
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : internalValue;
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  // Highlighted option in the search-driven combobox model (aria-activedescendant).
+  // Unused in the roving-focus model (no search), where DOM focus tracks the active
+  // option directly.
+  const [activeIndex, setActiveIndex] = useState(0);
   const [menuPos, setMenuPos] = useState<{
     left: number;
     width: number;
@@ -77,11 +111,28 @@ export function UiSelect({
   } | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  // The scrolling listbox — used to enumerate option buttons for roving-focus keys.
   const menuRef = useRef<HTMLUListElement>(null);
+  // The whole popover (search row + listbox) — used for click-outside so clicking
+  // the search input does not dismiss the menu.
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const generatedId = useId();
   const buttonId = id ?? generatedId;
+  const listboxId = `${buttonId}-listbox`;
 
   const selected = options.find((o) => o.value === value);
+
+  // Search appears when explicitly requested, or when a caller sets a threshold and
+  // the list is long enough. Callers that pass neither keep the original behaviour.
+  const showSearch =
+    search ?? (typeof searchThreshold === "number" && options.length >= searchThreshold);
+
+  const visibleOptions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!showSearch || !q) return options;
+    return options.filter((o) => o.label.toLowerCase().includes(q));
+  }, [options, query, showSearch]);
 
   const computeMenuPos = useCallback(() => {
     const el = buttonRef.current;
@@ -103,15 +154,29 @@ export function UiSelect({
     };
   }, []);
 
+  // Move focus into the search input when a searchable menu opens so the user can
+  // type immediately (the §7.3 keyboard-first affordance).
+  useEffect(() => {
+    if (open && showSearch) searchInputRef.current?.focus();
+  }, [open, showSearch]);
+
+  // Keep the highlighted option scrolled into view during keyboard navigation.
+  useEffect(() => {
+    if (!open || !showSearch) return;
+    const node = document.getElementById(`${buttonId}-opt-${activeIndex}`);
+    node?.scrollIntoView({ block: "nearest" });
+  }, [open, showSearch, activeIndex, buttonId]);
+
   useEffect(() => {
     if (!open) return;
     function handlePointerDown(e: MouseEvent) {
       const target = e.target as Node;
       // Click-outside must exclude both the trigger wrapper and the (possibly
-      // portaled) menu — otherwise a portaled option click would close the menu
-      // on mousedown before its own click handler fires (§7.3).
+      // portaled) popover — otherwise a portaled option click would close the menu
+      // on mousedown before its own click handler fires, and clicking the search
+      // input would dismiss the menu (§7.3).
       if (wrapperRef.current?.contains(target)) return;
-      if (menuRef.current?.contains(target)) return;
+      if (popoverRef.current?.contains(target)) return;
       setOpen(false);
     }
     function handleKeyDown(e: KeyboardEvent) {
@@ -125,19 +190,22 @@ export function UiSelect({
         setOpen(false);
         return;
       }
+      // In the searchable model the input's own onKeyDown drives the highlight via
+      // aria-activedescendant; the document-level roving handler stands down.
+      if (showSearch) return;
       const opts = menuRef.current
         ? Array.from(
             menuRef.current.querySelectorAll<HTMLButtonElement>('[role="option"]:not([disabled])')
           )
         : [];
       if (opts.length === 0) return;
-      const activeIndex = opts.indexOf(document.activeElement as HTMLButtonElement);
+      const activeOpt = opts.indexOf(document.activeElement as HTMLButtonElement);
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        (opts[activeIndex + 1] ?? opts[0]).focus();
+        (opts[activeOpt + 1] ?? opts[0]).focus();
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        (opts[activeIndex - 1] ?? opts[opts.length - 1]).focus();
+        (opts[activeOpt - 1] ?? opts[opts.length - 1]).focus();
       } else if (e.key === "Home") {
         e.preventDefault();
         opts[0].focus();
@@ -164,10 +232,16 @@ export function UiSelect({
       window.removeEventListener("scroll", handleViewportChange, true);
       window.removeEventListener("resize", handleViewportChange);
     };
-  }, [open, portal, computeMenuPos]);
+  }, [open, portal, computeMenuPos, showSearch]);
 
   const toggle = () => {
-    if (!open && portal) setMenuPos(computeMenuPos());
+    if (!open) {
+      // Open fresh: clear any prior search query + highlight before showing the
+      // popover (resetting here, not in a close effect, avoids cascading renders).
+      setQuery("");
+      setActiveIndex(0);
+      if (portal) setMenuPos(computeMenuPos());
+    }
     setOpen((o) => !o);
   };
 
@@ -178,11 +252,39 @@ export function UiSelect({
     buttonRef.current?.focus();
   };
 
-  const optionList = (
-    <ul
-      ref={menuRef}
-      role="listbox"
-      aria-labelledby={ariaLabelledBy ?? buttonId}
+  // Search-input keyboard model: arrows/home/end move the highlight, Enter commits
+  // it, while DOM focus stays in the input. Escape/Tab bubble to the document
+  // handler which closes the menu.
+  const handleSearchKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(visibleOptions.length - 1, i + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(0, i - 1));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setActiveIndex(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setActiveIndex(visibleOptions.length - 1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const opt = visibleOptions[activeIndex];
+      if (opt && !opt.disabled) commit(opt.value);
+    }
+  };
+
+  const ulMaxHeight =
+    portal && menuPos
+      ? showSearch
+        ? Math.max(96, menuPos.maxHeight - 44)
+        : menuPos.maxHeight
+      : 256;
+
+  const popover = (
+    <div
+      ref={popoverRef}
       style={
         portal && menuPos
           ? {
@@ -193,7 +295,6 @@ export function UiSelect({
               // short-option popover (e.g. the renewals Review filter) never
               // renders as a too-narrow floating box misaligned with its trigger.
               minWidth: menuWidth === "trigger" ? undefined : menuPos.width,
-              maxHeight: menuPos.maxHeight,
               // Tight contact shadow over the ambient shadow-3, so the opaque
               // popover reads as clearly lifted above same-tone content beneath it
               // (e.g. a sticky table header directly below) instead of blending in.
@@ -207,40 +308,93 @@ export function UiSelect({
       }
       className={
         portal
-          ? "z-50 overflow-auto rounded-xl border border-[var(--border-strong)] bg-[var(--surface-raised)] py-1"
-          : `absolute left-0 z-30 mt-1.5 max-h-64 overflow-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] py-1 shadow-[var(--shadow-2)] ${
+          ? "z-50 overflow-hidden rounded-xl border border-[var(--border-strong)] bg-[var(--surface-raised)]"
+          : `absolute left-0 z-30 mt-1.5 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-[var(--shadow-2)] ${
               menuWidth === "trigger" ? "right-0" : "min-w-full"
             }`
       }
     >
-      {options.map((opt) => {
-        const isSelected = opt.value === value;
-        return (
-          <li key={opt.value || `__${opt.label}`}>
-            <button
-              type="button"
-              role="option"
-              aria-selected={isSelected}
-              disabled={opt.disabled}
-              onClick={() => {
-                if (opt.disabled) return;
-                commit(opt.value);
-              }}
-              className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-[12.5px] transition-colors focus-visible:outline-none focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 ${
-                isSelected
-                  ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
-              }`}
-            >
-              <span className="truncate">{opt.label}</span>
-              {isSelected ? (
-                <Check className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
-              ) : null}
-            </button>
+      {showSearch ? (
+        <div className="flex items-center gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-3 py-2">
+          <Search
+            className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
+            strokeWidth={1.85}
+            aria-hidden
+          />
+          <input
+            ref={searchInputRef}
+            type="text"
+            role="combobox"
+            aria-expanded
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={
+              visibleOptions[activeIndex] ? `${buttonId}-opt-${activeIndex}` : undefined
+            }
+            aria-label={`Search ${label ?? ariaLabel ?? "options"}`}
+            value={query}
+            placeholder={searchPlaceholder}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
+            onKeyDown={handleSearchKeyDown}
+            className="w-full bg-transparent text-[12.5px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
+          />
+        </div>
+      ) : null}
+      <ul
+        ref={menuRef}
+        id={listboxId}
+        role="listbox"
+        aria-labelledby={ariaLabelledBy ?? buttonId}
+        className="overflow-auto py-1"
+        style={{ maxHeight: ulMaxHeight }}
+      >
+        {visibleOptions.length === 0 ? (
+          <li
+            role="presentation"
+            className="px-3 py-2 text-[12.5px] text-[var(--text-tertiary)]"
+          >
+            {emptyLabel}
           </li>
-        );
-      })}
-    </ul>
+        ) : (
+          visibleOptions.map((opt, i) => {
+            const isSelected = opt.value === value;
+            const isActive = showSearch && i === activeIndex;
+            return (
+              <li key={opt.value || `__${opt.label}`}>
+                <button
+                  type="button"
+                  id={`${buttonId}-opt-${i}`}
+                  role="option"
+                  aria-selected={isSelected}
+                  disabled={opt.disabled}
+                  tabIndex={showSearch ? -1 : undefined}
+                  onMouseEnter={showSearch ? () => setActiveIndex(i) : undefined}
+                  onClick={() => {
+                    if (opt.disabled) return;
+                    commit(opt.value);
+                  }}
+                  className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-[12.5px] transition-colors focus-visible:outline-none focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 ${
+                    isSelected
+                      ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] text-[var(--accent-strong)]"
+                      : isActive
+                        ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] text-[var(--text-primary)]"
+                        : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected ? (
+                    <Check className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
+                  ) : null}
+                </button>
+              </li>
+            );
+          })
+        )}
+      </ul>
+    </div>
   );
 
   return (
@@ -264,6 +418,7 @@ export function UiSelect({
         aria-label={ariaLabelledBy ? undefined : ariaLabel}
         aria-labelledby={ariaLabelledBy}
         onClick={toggle}
+        style={buttonStyle}
         className={`${
           variant === "pill"
             ? "inline-flex min-h-9 w-full items-center justify-between gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3.5 py-1.5 text-[12.5px] text-left transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
@@ -300,9 +455,9 @@ export function UiSelect({
       {open
         ? portal
           ? menuPos && typeof document !== "undefined"
-            ? createPortal(optionList, document.body)
+            ? createPortal(popover, document.body)
             : null
-          : optionList
+          : popover
         : null}
     </div>
   );

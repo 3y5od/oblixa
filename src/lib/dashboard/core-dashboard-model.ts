@@ -723,7 +723,7 @@ export function deriveImportStatusSummary(
         processing.length === 1
           ? "1 import processing"
           : `${processing.length} imports processing`,
-      detail: "Contract counts may update as rows finish creating.",
+      detail: "Contract counts may update as import jobs finish.",
       href,
       occurredAt: null,
       canRetry: false,

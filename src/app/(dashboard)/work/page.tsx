@@ -46,7 +46,6 @@ import {
 } from "@/lib/work/spec-strings";
 import type { WorkFilterState, WorkItemRow, WorkOption, WorkPageModel, WorkTypeKey } from "@/lib/work/types";
 import { WorkFilterForm } from "./work-filter-form";
-import { WorkSortSelect } from "./work-sort-select";
 
 export const metadata = { title: WORK_PAGE_TITLE };
 
@@ -489,25 +488,16 @@ function WorkFilters({
 
   return (
     <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        {/* Keyed on the applied filters/tab so the controlled form resets in sync
-            with the URL after any navigation (Apply, chip removal, Clear, tab). */}
-        <WorkFilterForm
-          key={`${model.activeTab}:${filters.owner}:${filters.dueDate}:${filters.contract}:${filters.status}:${filters.type}`}
-          filters={filters}
-          filterOptions={model.filterOptions}
-          activeTab={model.activeTab}
-          sort={model.sort}
-          keepCreateOpen={keepCreateOpen}
-          clearHref={buildWorkHref({ tab: model.activeTab, sort: model.sort, create: keepCreateOpen })}
-        />
-        <WorkSortSelect
-          sort={model.sort}
-          options={model.sortOptions}
-          activeTab={model.activeTab}
-          filters={filters}
-        />
-      </div>
+      <WorkFilterForm
+        filters={filters}
+        filterOptions={model.filterOptions}
+        activeTab={model.activeTab}
+        sort={model.sort}
+        sortOptions={model.sortOptions}
+        keepCreateOpen={keepCreateOpen}
+        activeFilterCount={chips.length}
+        clearFiltersHref={buildWorkHref({ tab: model.activeTab, sort: model.sort, create: keepCreateOpen })}
+      />
 
       {chips.length > 0 ? (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5" aria-label="Active filters">

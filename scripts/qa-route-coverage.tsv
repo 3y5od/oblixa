@@ -13,11 +13,12 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /pricing	y	y	marketing_public	pending_human	n	0	n	public_pricing
 /request-access	n	n	marketing_public	pending_human	n	0	n	public_access_request
 /early-access	n	n	marketing_public	pending_human	n	0	n	public_access_request_compat
-/contact	y	y	marketing_public	pending_human	n	0	n	public_contact_form
+/contact	y	y	marketing_public	pending_human	n	0	n	public_contact_directory
 /acceptable-use	n	n	marketing_public	pending_human	n	0	n	public_policy
 /dashboard	y	y	authenticated,v3,v5,v6	pending_human	y	0	n	
 /dashboard/persona	n	n	v3_workflows	pending_human	y	0	n	tier3_axe_candidate
 /work	y	y	authenticated	pending_human	y	0	n	dashboard_segment_loading
+/evidence	y	y	authenticated,current_product_core	pending_human	y	0	n	evidence_segment_loading
 /more	y	y	v3_workflows	pending_human	n	0	n	
 /relationship-workspaces	n	n	v5_surfaces_optional	pending_human	n	0	n	404_if_flag_off
 /settings	y	y	authenticated	pending_human	y	1	n	UI-2026-001_layout_fixed
@@ -37,6 +38,7 @@ route	axe_auto	viewport_auto	e2e_url_visit	manual_3g_done	loading_checked	bugs_f
 /campaigns	y	y	v5_surfaces_if_enabled	pending_human	n	0	n	axe_skips_404_403
 /campaigns/compare	n	n	v5_surfaces	pending_human	n	0	n	tier3_axe_candidate
 /reports	y	y	authenticated,v5,v6	pending_human	y	0	n	reports_segment_loading
+/renewals	n	n	authenticated,current_product_core	pending_human	y	0	n	renewals_segment_loading
 /search	y	y	authenticated,current_product_core	pending_human	y	0	n	search_segment_loading
 /contracts	y	y	authenticated,auth-flow,v3	pending_human	y	0	n	
 /contracts/new	n	n	manual	pending_human	n	0	n	tier3_axe_candidate

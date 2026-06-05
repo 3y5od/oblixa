@@ -59,6 +59,13 @@ const SECTION_ICONS: Record<DashboardSectionKey, typeof CheckSquare> = {
   recent_activity: FileText,
 };
 
+// Altitude map (§10.6 single focal surface): which sections render at the
+// raised focal tier. Only the Review Queue — the primary working surface the
+// user works straight through — joins the metric strip as a focal surface;
+// every other panel recedes to the calmer standard tier so the page reads with
+// one clear focal pair instead of six equally-weighted raised boxes.
+const FOCAL_SECTIONS = new Set<DashboardSectionKey>(["review_queue"]);
+
 // Distinct unit label per card so the count reads as structured metric
 // anatomy (dot + label / number / unit) instead of a bare numeral. No two
 // cards share a unit — the scan path stays differentiated.
@@ -412,14 +419,17 @@ function SectionShell({
 }) {
   const Icon = SECTION_ICONS[section.key];
   const ariaId = `${section.key.replace(/_/g, "-")}-h`;
+  const isFocal = FOCAL_SECTIONS.has(section.key);
   return (
     <section
       aria-labelledby={ariaId}
-      // Documented raised tier for page-level content blocks (§2.1): stronger
-      // accent-tinted border + accent wash + shadow-2 + refined inner highlight
-      // + a subtle accent halo. Lifts the panels off the canvas so they no
-      // longer read as pale/thin.
-      className="ui-card-raised min-w-0 overflow-hidden"
+      // Altitude (§10.6 single focal surface / §2.1 tiers): the Review Queue —
+      // the page's primary working surface — keeps the raised tier alongside
+      // the metric strip, while the supporting panels (Upcoming Deadlines, Work,
+      // Recent Activity, Data Gaps) drop to the calmer standard ui-card tier.
+      // One clear focal pair instead of six equally-weighted raised boxes —
+      // less accent border, less glow, less card inflation.
+      className={`${isFocal ? "ui-card-raised" : "ui-card"} min-w-0 overflow-hidden`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-4 py-3">
         <h2
@@ -822,11 +832,13 @@ function DataGapRows({ rows }: { rows: CoreDashboardDataGapRow[] }) {
               </div>
               {/* The visible field chips + "N more" already convey both which
                   gaps and how many, so the old trailing count chip was redundant
-                  (§11.18) and read as disconnected. The FIX chip is revealed on
-                  hover/focus to telegraph the action (§8.6). */}
+                  (§11.18). The hover chip names the primary missing field
+                  ("Fix owner" / "Fix renewal date" …) so the row's action
+                  telegraphs exactly which gap it closes, not a generic "Fix"
+                  (§8.6). */}
               <div className="flex shrink-0 items-center gap-2 self-center">
                 <span aria-hidden className={HOVER_ACTION_CHIP_CLASS}>
-                  Fix
+                  Fix {row.missing[0]}
                   <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
                 </span>
               </div>
@@ -967,10 +979,11 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
         </div>
       ) : null}
 
-      {/* Operational content grouped on a tighter gap-4 rhythm so the metric
-          strip sits closer to the first panel row, while the header + alerts
-          above keep the looser gap-5 stack rhythm (§Page Frame). */}
-      <div className="flex min-w-0 flex-col gap-4">
+      {/* Operational content grouped on a tight gap-3 rhythm so the metric
+          strip and panels scan as one dense block, while the header + alerts
+          above keep the looser gap-5 stack rhythm for identity breathing room
+          (§Page Frame). */}
+      <div className="flex min-w-0 flex-col gap-3">
         <SignalSurface>
           {model.topCards.map((card) => (
             <TopSignal key={card.key} card={card} />
@@ -978,13 +991,13 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
         </SignalSurface>
 
         <div className="grid min-w-0 items-start gap-4 xl:grid-cols-12">
-          <div className="flex min-w-0 flex-col gap-4 xl:col-span-7">
+          <div className="flex min-w-0 flex-col gap-3 xl:col-span-7">
             {mainColumn.map((key) => {
               const section = sectionByKey.get(key);
               return section ? <DashboardSectionView key={key} section={section} /> : null;
             })}
           </div>
-          <div className="flex min-w-0 flex-col gap-4 xl:col-span-5">
+          <div className="flex min-w-0 flex-col gap-3 xl:col-span-5">
             {railColumn.map((key) => {
               const section = sectionByKey.get(key);
               return section ? <DashboardSectionView key={key} section={section} /> : null;

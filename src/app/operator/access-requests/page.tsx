@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CheckCircle2, CircleSlash, Copy, LockKeyhole, RotateCw, XCircle } from "lucide-react";
+import { CheckCircle2, CircleSlash, LockKeyhole, RotateCw, XCircle } from "lucide-react";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { sendWorkspaceAccessGrantEmail } from "@/lib/email";
@@ -110,7 +110,7 @@ export async function approveAccessRequest(formData: FormData) {
   });
   if (!grant.ok) redirect(`${ROUTE}?error=grant_failed`);
 
-  await admin
+  const { data: updatedRequest, error: updateError } = await admin
     .from("workspace_access_requests")
     .update({
       status: "approved",
@@ -119,7 +119,18 @@ export async function approveAccessRequest(formData: FormData) {
       decided_at: nowIso,
       updated_at: nowIso,
     })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updatedRequest?.id) {
+    await admin
+      .from("workspace_access_grants")
+      .update({ status: "revoked", revoked_at: nowIso })
+      .eq("id", grant.grant.id)
+      .eq("status", "issued");
+    redirect(`${ROUTE}?error=approval_update_failed`);
+  }
   await recordAccessRequestEvent(admin, {
     requestId,
     actorUserId: userId,
@@ -134,11 +145,7 @@ export async function approveAccessRequest(formData: FormData) {
     metadata: { grant_id: grant.grant.id },
   });
   revalidatePath(ROUTE);
-  redirect(
-    `${ROUTE}?grant=${encodeURIComponent(grant.token)}&email=${encodeURIComponent(request.normalized_email)}&delivery=${
-      delivery.ok ? "sent" : "failed"
-    }`
-  );
+  redirect(`${ROUTE}?notice=${delivery.ok ? "grant_sent" : "grant_delivery_failed"}`);
 }
 
 export async function resendAccessGrant(formData: FormData) {
@@ -169,11 +176,7 @@ export async function resendAccessGrant(formData: FormData) {
     metadata: { grant_id: grant.grant.id },
   });
   revalidatePath(ROUTE);
-  redirect(
-    `${ROUTE}?grant=${encodeURIComponent(grant.token)}&email=${encodeURIComponent(request.normalized_email)}&delivery=${
-      delivery.ok ? "sent" : "failed"
-    }`
-  );
+  redirect(`${ROUTE}?notice=${delivery.ok ? "grant_sent" : "grant_delivery_failed"}`);
 }
 
 export async function rejectAccessRequest(formData: FormData) {
@@ -182,8 +185,10 @@ export async function rejectAccessRequest(formData: FormData) {
   if (!isUuid(requestId)) notFound();
 
   const { admin, userId } = await requireOperatorContext();
+  const request = await loadAccessRequestForMutation(admin, requestId);
+  if (request.status !== "pending") redirect(`${ROUTE}?error=reject_state`);
   const nowIso = new Date().toISOString();
-  await admin
+  const { data: updatedRequest, error: updateError } = await admin
     .from("workspace_access_requests")
     .update({
       status: "rejected",
@@ -192,7 +197,11 @@ export async function rejectAccessRequest(formData: FormData) {
       decided_at: nowIso,
       updated_at: nowIso,
     })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updatedRequest?.id) redirect(`${ROUTE}?error=mutation_failed`);
   await recordAccessRequestEvent(admin, {
     requestId,
     actorUserId: userId,
@@ -207,8 +216,10 @@ export async function closeAccessRequest(formData: FormData) {
   if (!isUuid(requestId)) notFound();
 
   const { admin, userId } = await requireOperatorContext();
+  const request = await loadAccessRequestForMutation(admin, requestId);
+  if (request.status !== "pending") redirect(`${ROUTE}?error=close_state`);
   const nowIso = new Date().toISOString();
-  await admin
+  const { data: updatedRequest, error: updateError } = await admin
     .from("workspace_access_requests")
     .update({
       status: "closed",
@@ -217,7 +228,11 @@ export async function closeAccessRequest(formData: FormData) {
       decided_at: nowIso,
       updated_at: nowIso,
     })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updatedRequest?.id) redirect(`${ROUTE}?error=mutation_failed`);
   await recordAccessRequestEvent(admin, {
     requestId,
     actorUserId: userId,
@@ -232,8 +247,10 @@ export async function reopenAccessRequest(formData: FormData) {
   if (!isUuid(requestId)) notFound();
 
   const { admin, userId } = await requireOperatorContext();
+  const request = await loadAccessRequestForMutation(admin, requestId);
+  if (request.status !== "closed" && request.status !== "rejected") redirect(`${ROUTE}?error=reopen_state`);
   const nowIso = new Date().toISOString();
-  await admin
+  const { data: updatedRequest, error: updateError } = await admin
     .from("workspace_access_requests")
     .update({
       status: "pending",
@@ -242,7 +259,11 @@ export async function reopenAccessRequest(formData: FormData) {
       decided_at: null,
       updated_at: nowIso,
     })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .in("status", ["closed", "rejected"])
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updatedRequest?.id) redirect(`${ROUTE}?error=mutation_failed`);
   await recordAccessRequestEvent(admin, {
     requestId,
     actorUserId: userId,
@@ -265,11 +286,14 @@ export async function revokeAccessGrant(formData: FormData) {
     .maybeSingle();
   if (!grant || (grant as { status?: string }).status !== "issued") notFound();
   if (isUuid(requestId) && (grant as { request_id?: string | null }).request_id !== requestId) notFound();
-  await admin
+  const { data: updatedGrant, error: updateError } = await admin
     .from("workspace_access_grants")
     .update({ status: "revoked", revoked_at: new Date().toISOString() })
     .eq("id", grantId)
-    .eq("status", "issued");
+    .eq("status", "issued")
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updatedGrant?.id) notFound();
   if (isUuid(requestId)) {
     await recordAccessRequestEvent(admin, {
       requestId,
@@ -294,7 +318,7 @@ function formatDateTime(value: string | null | undefined): string {
 }
 
 function statusClass(status: string): string {
-  const base = "inline-flex w-fit items-center rounded-full border px-2 py-0.5 font-semibold uppercase tracking-[0.12em]";
+  const base = "inline-flex max-w-max items-center rounded-full border px-2 py-0.5 font-semibold uppercase tracking-[0.12em]";
   if (status === "approved" || status === "issued") {
     return `${base} border-[color:color-mix(in_oklab,var(--success)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_28%,var(--surface))] text-[var(--success-ink)]`;
   }
@@ -328,7 +352,7 @@ function GrantStatus({ grant }: { grant: AccessGrantRow | null }) {
 export default async function OperatorAccessRequestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ grant?: string; email?: string; error?: string; delivery?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
   const { admin } = await requireOperatorContext();
   const q = await searchParams;
@@ -389,29 +413,33 @@ export default async function OperatorAccessRequestsPage({
               ? "The request was updated only if the grant could be created. Try approving again after checking the grant table and provider configuration."
               : q.error === "approve_state"
                 ? "Only pending access requests can be approved. Reopen the request first if needed."
+                : q.error === "approval_update_failed"
+                  ? "The grant was revoked because the request could not be marked approved. Refresh and try again."
                 : q.error === "resend_state"
                   ? "Only approved access requests can receive a replacement grant."
-                  : "Access-review action failed. Refresh and try again."}
+                  : q.error === "reject_state"
+                    ? "Only pending access requests can be rejected."
+                    : q.error === "close_state"
+                      ? "Only pending access requests can be closed."
+                      : q.error === "reopen_state"
+                        ? "Only rejected or closed access requests can be reopened."
+                        : "Access-review action failed. Refresh and try again."}
           </div>
         ) : null}
 
-        {q.grant ? (
+        {q.notice ? (
           <section className="mt-5 rounded-2xl border border-[color:color-mix(in_oklab,var(--success)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_38%,var(--surface))] p-4">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="mt-0.5 h-5 w-5 text-[var(--success-ink)]" strokeWidth={1.85} aria-hidden />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[var(--text-primary)]">Signup grant created</p>
-                <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
-                  {q.delivery === "sent"
-                    ? `The grant email was sent to ${q.email || "the approved requester"}.`
-                    : q.delivery === "failed"
-                      ? `Email delivery failed; send this recovery link only to ${q.email || "the approved requester"}.`
-                      : `Send this link only to ${q.email || "the approved requester"}.`}{" "}
-                  It is shown once in this operator session and is stored only as a hash.
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  {q.notice === "grant_sent" ? "Signup grant sent" : "Signup grant created"}
                 </p>
-                <code className="mt-3 block overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-[12px] text-[var(--text-primary)]">
-                  {`/signup?grant=${q.grant}`}
-                </code>
+                <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
+                  {q.notice === "grant_sent"
+                    ? "The single-use access link was sent by email. Raw grant tokens are never placed in the operator URL."
+                    : "Email delivery failed. The raw token is not shown in-browser; fix provider configuration and resend the grant."}
+                </p>
               </div>
             </div>
           </section>
@@ -543,12 +571,6 @@ export default async function OperatorAccessRequestsPage({
                               Revoke grant
                             </button>
                           </form>
-                        ) : null}
-                        {q.grant ? (
-                          <span className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12px] text-[var(--text-tertiary)]">
-                            <Copy className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                            Copy from banner
-                          </span>
                         ) : null}
                       </div>
                       {requestEvents.length > 0 ? (

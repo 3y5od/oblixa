@@ -9,25 +9,24 @@ import {
 } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
-  BellRing,
   CalendarClock,
-  Check,
   CircleCheck,
+  ClipboardCheck,
+  Download,
   Eye,
   EyeOff,
   FileCheck,
   KeyRound,
   Loader2,
-  Lock,
-  LockKeyhole,
   Mail,
   MailCheck,
   ShieldCheck,
-  Sparkles,
   TriangleAlert,
   User,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -36,8 +35,16 @@ import {
   signIn,
   signUp,
 } from "@/actions/auth";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { LegalLinks } from "@/components/layout/legal-links";
+import { AuthLegalFooter } from "@/components/auth/auth-legal-footer";
+import { SPEC_MONTHLY_AMOUNT_MINOR } from "@/lib/billing/spec-prices";
 import { assignNavigableHref } from "@/lib/navigation/client-navigation";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
+
+/** Public Core monthly price, anchored to the billing constant so auth copy
+ *  can never drift from the canonical $249 per month offer. */
+const CORE_PRICE = `$${Math.round(SPEC_MONTHLY_AMOUNT_MINOR / 100)}/month`;
 
 interface AuthFormProps {
   mode: "login" | "signup" | "forgot-password" | "reset-password";
@@ -84,39 +91,43 @@ const config = {
   login: {
     title: "Sign in to your account",
     submitLabel: "Sign in",
-    altText: "Don't have an account?",
+    intro: "Continue tracking dates, owners, work, evidence, and reports.",
+    altText: "Need a workspace?",
     altLink: "/request-access",
     altLinkText: "Request access",
-    intro: "Continue managing contract deadlines, owners, work, evidence, and reports.",
-    notice: "Workspace sign-in keeps contract work, approvals, and reminders scoped to your organization.",
+    altHint: `New workspaces start through access review. Core is ${CORE_PRICE}.`,
+    note: "",
   },
   signup: {
     title: "Complete workspace access",
     submitLabel: "Create workspace account",
+    intro: "Finish creating your account from an approved workspace grant or invite.",
     altText: "Already have an account?",
     altLink: "/login",
     altLinkText: "Sign in",
-    intro:
-      "Create your account from an approved workspace grant or invite. If you do not have one, request access first.",
-    notice: "Signup is limited to approved or invited workspaces.",
+    altHint: "",
+    note: "Signup is limited to approved or invited workspaces.",
   },
   "forgot-password": {
     title: "Reset your password",
     submitLabel: "Send reset link",
+    intro: "Enter your workspace email and we'll send a reset link if an account exists.",
     altText: "Remember your password?",
     altLink: "/login",
     altLinkText: "Sign in",
-    intro: "Enter your workspace email and we'll send a reset link if an account exists.",
-    notice: "We never reveal whether an email has an account.",
+    altHint: "",
+    note: "For your security, we never reveal whether an email has an account.",
   },
   "reset-password": {
     title: "Set a new password",
     submitLabel: "Update password",
+    intro: "Choose a new password for your workspace account.",
     altText: "",
     altLink: "",
     altLinkText: "",
-    intro: "Choose a new password for your workspace account.",
-    notice: "Choose a strong password you don't reuse on other sites.",
+    altHint: "",
+    // Requirement lives under the field; no separate top note to avoid doubling.
+    note: "",
   },
 };
 
@@ -127,13 +138,12 @@ const pendingLabel: Record<AuthFormProps["mode"], string> = {
   "reset-password": "Updating password…",
 };
 
-/** Source-backed product proof, shown in the desktop side panel and as a
- *  compact strip on mobile so small screens still carry product context. */
-const PROOF_FEATURES = [
+/** Structured product facts mapped to Core release surfaces (not decorative bullets). */
+const PRODUCT_FACTS: { icon: LucideIcon; label: string }[] = [
   { icon: FileCheck, label: "Source-backed field review" },
-  { icon: BellRing, label: "Renewal and notice reminders" },
-  { icon: CalendarClock, label: "Owners, obligations, and work" },
-  { icon: Lock, label: "Reports and CSV export" },
+  { icon: Users, label: "Owners, dates, and work" },
+  { icon: ClipboardCheck, label: "Evidence requests and proof" },
+  { icon: Download, label: "Reports and CSV export" },
 ];
 
 /** Approved caps-token separator (§2.9 Tactic C) — never a bare middle dot. */
@@ -145,15 +155,31 @@ function DotSep() {
   );
 }
 
-/** Quiet bordered pill for the "Back to home" nav link (reads as intentional, not plain text). */
-function BackHomeLink({ className = "" }: { className?: string }) {
+/** Quiet bordered ghost-pill for the "Back to home" nav link — one consistent placement. */
+function BackHomeLink() {
   return (
     <Link
       href="/"
-      className={`inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] px-3 py-1.5 text-[13px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${className}`.trim()}
+      className="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
     >
       <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
       Back to home
+    </Link>
+  );
+}
+
+/** Brand lockup — one consistent header treatment across every auth state. */
+function BrandMark() {
+  return (
+    <Link
+      href="/"
+      aria-label="Oblixa home"
+      className="inline-flex items-center gap-2.5 rounded-full no-underline transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+    >
+      <span className="ui-avatar-tile h-8 w-8 text-[15px] font-bold text-[var(--accent-fg)] shadow-[var(--shadow-1)] [background:linear-gradient(180deg,var(--accent),var(--accent-strong))]">
+        O
+      </span>
+      <span className="text-[17px] font-bold tracking-tight text-[var(--text-primary)]">Oblixa</span>
     </Link>
   );
 }
@@ -220,7 +246,7 @@ function PasswordField({
   id,
   name,
   label,
-  labelHint,
+  requirementHint,
   autoComplete,
   autoFocus,
   show,
@@ -234,7 +260,9 @@ function PasswordField({
   id: string;
   name: string;
   label: string;
-  labelHint?: string;
+  /** Concise password requirement, rendered as a helper line below the input
+   *  (kept out of the label so the accessible name stays exactly `label`). */
+  requirementHint?: string;
   autoComplete: string;
   autoFocus?: boolean;
   show: boolean;
@@ -245,51 +273,54 @@ function PasswordField({
   invalid?: boolean;
   describedById?: string;
 }) {
+  const reqId = `${id}-req`;
   return (
     <div>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2 gap-y-1">
         <label htmlFor={id} className="ui-label col-start-1 row-start-1">
           {label}
-          {labelHint ? (
-            <span className="ml-1.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-              {labelHint}
-            </span>
-          ) : null}
         </label>
-        <div className="relative col-span-2 row-start-2">
-          <span
-            className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
-            aria-hidden
-          >
-            <KeyRound className="h-4 w-4" strokeWidth={1.85} />
-          </span>
-          <input
-            id={id}
-            name={name}
-            type={show ? "text" : "password"}
-            required
-            minLength={8}
-            autoComplete={autoComplete}
-            autoFocus={autoFocus}
-            className="ui-input pl-10 pr-12"
-            aria-invalid={invalid || undefined}
-            aria-describedby={invalid ? describedById : undefined}
-          />
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-pressed={show}
-            aria-label={show ? toggleHideLabel : toggleShowLabel}
-            className="absolute inset-y-1 right-1 inline-flex w-10 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_60%,transparent)] hover:text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-          >
-            {show ? (
-              <EyeOff className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-            ) : (
-              <Eye className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-            )}
-          </button>
+        <div className="col-span-2 row-start-2">
+          <div className="relative">
+            <span
+              className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
+              aria-hidden
+            >
+              <KeyRound className="h-4 w-4" strokeWidth={1.85} />
+            </span>
+            <input
+              id={id}
+              name={name}
+              type={show ? "text" : "password"}
+              required
+              minLength={8}
+              autoComplete={autoComplete}
+              autoFocus={autoFocus}
+              className="ui-input pl-10 pr-12"
+              aria-invalid={invalid || undefined}
+              aria-describedby={invalid ? describedById : requirementHint ? reqId : undefined}
+            />
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-pressed={show}
+              aria-label={show ? toggleHideLabel : toggleShowLabel}
+              className="absolute right-1.5 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_60%,transparent)] hover:text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            >
+              {show ? (
+                <EyeOff className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+              ) : (
+                <Eye className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+              )}
+            </button>
+          </div>
+          {requirementHint ? (
+            <p id={reqId} className="mt-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
+              {requirementHint}
+            </p>
+          ) : null}
         </div>
-        {labelAccessory ? <div className="col-start-2 row-start-1">{labelAccessory}</div> : null}
+        {labelAccessory ? <div className="col-start-2 row-start-1 justify-self-end">{labelAccessory}</div> : null}
       </div>
     </div>
   );
@@ -319,6 +350,8 @@ export function AuthForm({
   const formErrorId = "auth-form-error";
   const showFormError = Boolean(state?.error);
   const showProof = mode === "login" || mode === "signup";
+  const showNote = Boolean(c.note);
+  const NoteIcon = ShieldCheck;
   const isInvalidLink = mode === "reset-password" && linkInvalid;
   const isResetComplete = mode === "reset-password" && Boolean(state?.redirectTo) && !isInvalidLink;
   const isSuccess = Boolean(state?.success) && !isInvalidLink && !isResetComplete;
@@ -350,84 +383,86 @@ export function AuthForm({
     });
   }
 
-  const proofPanel = (
-    <section className="relative hidden overflow-hidden rounded-3xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_60%,transparent)] p-7 shadow-[var(--shadow-1)] lg:flex lg:flex-col lg:justify-center lg:gap-6">
-      <div>
-        <BackHomeLink />
-        <p className="mt-6">
-          <span className="landing-eyebrow-dot text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
-            Contract tracking
-          </span>
-        </p>
-        <p className="ui-display-title mt-3 max-w-[20ch]">
-          Replace your <span className="whitespace-nowrap">contract-tracking</span> spreadsheet.
-        </p>
-        <p className="ui-muted mt-3 max-w-md text-[13.5px]">
-          Upload signed agreements, then turn source-backed suggestions you review into owners,
-          dates, renewals, and accountable work.
-        </p>
-      </div>
+  const factList = (className: string) => (
+    <ul className={className}>
+      {PRODUCT_FACTS.map(({ icon: Icon, label }) => (
+        <li key={label} className="flex items-center gap-2.5 text-[12.5px] text-[var(--text-secondary)]">
+          <Icon className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+          <span className="leading-[1.35]">{label}</span>
+        </li>
+      ))}
+    </ul>
+  );
 
-      <div className="relative rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_65%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] p-4">
-        <div className="flex items-center justify-between">
+  /* Secondary product column — de-carded so the form is the single focal surface.
+     The review-queue preview is the one framed surface here (no card-in-card). */
+  const productPanel = (
+    <section className="hidden min-w-0 lg:block" aria-label="What Oblixa does">
+      <p>
+        <span className="landing-eyebrow-dot text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+          Contract tracking
+        </span>
+      </p>
+      <h2 className="mt-3 max-w-[18ch] text-[1.5rem] font-semibold leading-[1.12] tracking-tight text-[var(--text-primary)] xl:text-[1.7rem]">
+        Track what signed contracts require next.
+      </h2>
+      <p className="mt-3 max-w-md text-[13px] leading-[1.6] text-[var(--text-secondary)]">
+        Upload signed agreements or import your tracker, then turn reviewed dates, owners,
+        obligations, evidence, and exceptions into accountable work and exportable reports.
+      </p>
+
+      {/* Decorative product surface sample — hidden from assistive tech, no focusable controls.
+          Deliberately low-weight (no shadow, softer surface) so the sign-in form stays focal. */}
+      <div
+        aria-hidden
+        className="mt-6 rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_60%,var(--surface))] p-4"
+      >
+        <div className="flex items-center justify-between gap-2">
           <span className="ui-caps-2 inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--border-strong)]" aria-hidden />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--border-strong)]" />
             Review queue
           </span>
-          <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">Acme MSA</span>
+          <span className="text-[11.5px] font-medium text-[var(--text-secondary)]">Acme MSA</span>
         </div>
-        <div className="mt-3 flex items-start gap-2.5">
-          <span
-            className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_34%,var(--surface-raised))] text-[var(--accent-strong)]"
-            aria-hidden
-          >
-            <CalendarClock className="h-3.5 w-3.5" strokeWidth={1.85} />
+
+        <div className="mt-3 flex items-start gap-3">
+          <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface)] text-[var(--text-tertiary)]">
+            <CalendarClock className="h-[1.05rem] w-[1.05rem]" strokeWidth={1.85} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
-              Notice deadline<DotSep />Aug 14, 2026
-            </p>
-            <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
-              60 days before renewal<DotSep />owned by @priya
+            <p className="text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">Notice deadline</p>
+            <p className="mt-0.5 text-[12.5px] text-[var(--text-secondary)]">
+              Due Aug 14, 2026<DotSep />60-day notice
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
-            <Sparkles className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
+          <StatusBadge status="in_review" className="shrink-0">
             Suggested
-          </span>
+          </StatusBadge>
         </div>
-        <div className="mt-2.5 rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface-raised)] px-2.5 py-1.5 font-mono text-[10.5px] leading-relaxed text-[var(--text-secondary)]">
+
+        <div className="mt-3 rounded-lg border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface)] px-3 py-2 font-mono text-[12px] leading-relaxed text-[var(--text-secondary)]">
           &ldquo;…providing{" "}
-          <span className="rounded-sm bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,transparent)] px-1 text-[var(--accent-strong)]">
+          <span className="rounded-sm bg-[color:color-mix(in_oklab,var(--accent-soft)_55%,transparent)] px-1 text-[var(--accent-strong)]">
             sixty (60) days
           </span>{" "}
           written notice…&rdquo;
         </div>
-        <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-2.5">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] text-[var(--text-tertiary)]">
-            <Check className="h-3 w-3 text-[var(--success-ink)]" strokeWidth={2.4} aria-hidden />
-            Reviewed<DotSep />2d ago
+
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3">
+          <span className="inline-flex items-center gap-2">
+            <StatusBadge status="healthy">Reviewed</StatusBadge>
+            <span className="text-[11px] text-[var(--text-tertiary)]">2d ago</span>
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="rounded border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-tertiary)]">
-              notice.window
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-              Open
-              <ArrowRight className="h-2.5 w-2.5" strokeWidth={2} aria-hidden />
-            </span>
+          <span className="ui-caps-2 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--accent)_8%,var(--surface-raised))] px-2.5 py-1 text-[10.5px] text-[var(--accent-strong)]">
+            Open
+            <ArrowRight className="h-3 w-3" strokeWidth={2} />
           </span>
         </div>
       </div>
 
-      <ul className="relative grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
-        {PROOF_FEATURES.map(({ icon: Icon, label }) => (
-          <li key={label} className="flex items-center gap-2.5 text-[13px] text-[var(--text-secondary)]">
-            <Icon className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-            <span className="leading-[1.35]">{label}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] pt-5">
+        {factList("grid grid-cols-2 gap-x-6 gap-y-3")}
+      </div>
     </section>
   );
 
@@ -435,41 +470,47 @@ export function AuthForm({
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex items-start gap-2.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] pb-4 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-        <LockKeyhole
-          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
-          strokeWidth={1.85}
-          aria-hidden
-        />
-        <span>{c.notice}</span>
-      </div>
+      {showNote ? (
+        <p className="flex items-start gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] pb-4 text-[12px] leading-relaxed text-[var(--text-tertiary)]">
+          <NoteIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
+          <span>{c.note}</span>
+        </p>
+      ) : null}
 
-      {urlBanner && (
+      {urlBanner ? (
         <div className="ui-alert-warning" role="alert">
           {urlBanner}
         </div>
-      )}
+      ) : null}
       {mode === "signup" && effectiveSignupGrantState === "valid_workspace_creation" ? (
         <div className="ui-alert-success" role="status">
           Access link ready. Create the account using the email this link was issued for.
         </div>
       ) : null}
-      {state?.error && (
-        <div id={formErrorId} className="ui-alert-error" role="alert">
-          {state.error}
-          {denied ? (
-            <Link
-              href="/request-access"
-              className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-            >
-              Request access
-              <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            </Link>
-          ) : null}
+      {state?.error ? (
+        <div
+          id={formErrorId}
+          role="alert"
+          aria-live="assertive"
+          className="ui-alert-error flex items-start gap-2"
+        >
+          <AlertTriangle className="mt-[1px] h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          <div className="min-w-0 space-y-2.5">
+            <p>{state.error}</p>
+            {denied ? (
+              <Link
+                href="/request-access"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              >
+                Request access
+                <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              </Link>
+            ) : null}
+          </div>
         </div>
-      )}
+      ) : null}
 
-      {mode === "signup" && (
+      {mode === "signup" ? (
         <div className="space-y-4">
           <input type="hidden" name="accessCode" value={accessCode} />
           <IconField id="fullName" name="fullName" label="Full name" icon={User} required autoComplete="name" />
@@ -478,13 +519,13 @@ export function AuthForm({
             name="companyName"
             label="Company name"
             hint="(optional)"
-            icon={ShieldCheck}
+            icon={Users}
             autoComplete="organization"
           />
         </div>
-      )}
+      ) : null}
 
-      {mode !== "reset-password" && (
+      {mode !== "reset-password" ? (
         <IconField
           id="email"
           name="email"
@@ -498,13 +539,14 @@ export function AuthForm({
           invalid={showFormError}
           describedById={formErrorId}
         />
-      )}
+      ) : null}
 
-      {(mode === "login" || mode === "signup") && (
+      {mode === "login" || mode === "signup" ? (
         <PasswordField
           id="password"
           name="password"
           label="Password"
+          requirementHint={mode === "signup" ? "Use at least 8 characters." : undefined}
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           show={showPassword}
           onToggle={togglePassword}
@@ -516,22 +558,22 @@ export function AuthForm({
             mode === "login" ? (
               <Link
                 href="/forgot-password"
-                className="ui-link rounded text-[12px] hover:text-[var(--accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="rounded-sm text-[12px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 Forgot password?
               </Link>
             ) : undefined
           }
         />
-      )}
+      ) : null}
 
-      {mode === "reset-password" && (
+      {mode === "reset-password" ? (
         <>
           <PasswordField
             id="password"
             name="password"
             label="New password"
-            labelHint="min 8"
+            requirementHint="Use at least 8 characters you don't reuse."
             autoComplete="new-password"
             autoFocus
             show={showPassword}
@@ -554,29 +596,33 @@ export function AuthForm({
             describedById={formErrorId}
           />
         </>
-      )}
+      ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="ui-btn-primary h-12 w-full text-[14px]"
-        aria-busy={pending}
-      >
-        {pending ? (
-          <>
-            <Loader2 className="h-4 w-4 motion-safe:animate-spin" strokeWidth={1.85} aria-hidden />
-            {pendingLabel[mode]}
-          </>
-        ) : (
-          c.submitLabel
-        )}
-      </button>
+      <div className="space-y-2">
+        <button
+          type="submit"
+          disabled={pending}
+          className="ui-btn-primary h-12 w-full text-[14px]"
+          aria-busy={pending}
+        >
+          {pending ? (
+            <>
+              <Loader2 className="h-4 w-4 motion-safe:animate-spin" strokeWidth={1.85} aria-hidden />
+              {pendingLabel[mode]}
+            </>
+          ) : (
+            c.submitLabel
+          )}
+        </button>
 
-      <div className="flex items-center justify-center gap-1.5 pt-0.5 text-[11px] text-[var(--text-tertiary)]">
-        <ShieldCheck className="h-3 w-3 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-        <span>
-          Encrypted in transit<DotSep />Workspace-scoped sessions
-        </span>
+        {mode === "login" || mode === "signup" ? (
+          <p className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+            <ShieldCheck className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+            <span>
+              Encrypted in transit<DotSep />Workspace-scoped sessions
+            </span>
+          </p>
+        ) : null}
       </div>
     </form>
   );
@@ -616,8 +662,10 @@ export function AuthForm({
   const successContent = stateCard(
     "success",
     MailCheck,
-    mode === "signup" ? "Confirm your email" : "Reset link sent",
-    state?.success ?? "",
+    mode === "signup" ? "Confirm your email" : "Check your email",
+    mode === "signup"
+      ? state?.success ?? ""
+      : "If an account exists for that address, a password reset link is on its way.",
     <Link
       href="/login"
       className="ui-btn-ghost inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[12.5px]"
@@ -654,47 +702,71 @@ export function AuthForm({
 
   const signupGrantRecoveryContent = (() => {
     if (!blocksSignupForm) return null;
-    const stateCopy = {
+
+    const recoveryAction = {
+      "request-access": { href: "/request-access", label: "Request access" },
+      "sign-in": { href: "/login", label: "Sign in" },
+      contact: { href: "/contact", label: "Contact support" },
+    } as const;
+    type RecoveryActionKey = keyof typeof recoveryAction;
+
+    const recovery: Record<
+      Exclude<NonNullable<typeof effectiveSignupGrantState>, "valid_workspace_creation">,
+      { heading: string; body: string; primary: RecoveryActionKey; secondary: RecoveryActionKey }
+    > = {
       missing: {
         heading: "Access link required",
         body: "Signup opens after workspace access is approved or an invite is issued.",
+        primary: "request-access",
+        secondary: "sign-in",
       },
       invalid: {
         heading: "Access link not recognized",
-        body: "This link cannot be used to create a workspace account.",
+        body: "This link can't be used to create a workspace account. Request access to continue.",
+        primary: "request-access",
+        secondary: "sign-in",
       },
       expired: {
         heading: "Access link expired",
-        body: "Request a new access link before creating a workspace account.",
+        body: "Request a new access link to create your workspace account.",
+        primary: "request-access",
+        secondary: "contact",
       },
       revoked: {
         heading: "Access link no longer active",
         body: "This link was revoked. Request access again or ask for a new invite.",
+        primary: "request-access",
+        secondary: "contact",
       },
       used: {
         heading: "Access link already used",
-        body: "Sign in with the account that used this link, or request a new invite.",
+        body: "This link already created an account. Sign in, or request a new invite.",
+        primary: "sign-in",
+        secondary: "request-access",
       },
       unavailable: {
         heading: "Access check unavailable",
-        body: "Grant validation is temporarily unavailable. Try again or request a fresh access link.",
+        body: "We couldn't verify this link right now. Try again shortly or request a fresh link.",
+        primary: "request-access",
+        secondary: "contact",
       },
-      valid_workspace_creation: {
-        heading: "Access link ready",
-        body: "Create the account using the email this link was issued for.",
-      },
-    }[effectiveSignupGrantState ?? "missing"];
+    };
+
+    const copy = recovery[effectiveSignupGrantState as keyof typeof recovery];
+    const primary = recoveryAction[copy.primary];
+    const secondary = recoveryAction[copy.secondary];
+
     return stateCard(
-      effectiveSignupGrantState === "unavailable" ? "warning" : "warning",
+      "warning",
       TriangleAlert,
-      stateCopy.heading,
-      stateCopy.body,
+      copy.heading,
+      copy.body,
       <>
-        <Link href="/request-access" className="ui-btn-primary h-10 rounded-full px-4 text-[13px]">
-          Request access
+        <Link href={primary.href} className="ui-btn-primary h-10 rounded-full px-4 text-[13px]">
+          {primary.label}
         </Link>
-        <Link href="/login" className="ui-btn-ghost rounded-full px-3.5 py-1.5 text-[12.5px]">
-          Sign in
+        <Link href={secondary.href} className="ui-btn-ghost rounded-full px-3.5 py-1.5 text-[12.5px]">
+          {secondary.label}
         </Link>
       </>
     );
@@ -715,79 +787,41 @@ export function AuthForm({
     !signupGrantRecoveryContent;
 
   const authColumn = (
-    <div
-      className={`flex w-full flex-col ${
-        showProof ? "mx-auto max-w-[26rem] lg:mx-0 lg:max-w-none" : "mx-auto max-w-[26rem]"
-      }`}
-    >
-      <nav className={`mb-5 flex justify-center ${showProof ? "lg:hidden" : ""}`} aria-label="Site">
-        <BackHomeLink />
-      </nav>
-
-      <div className="mb-4 text-center sm:mb-5">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-3 no-underline transition-opacity hover:opacity-85"
-        >
-          <span className="ui-avatar-tile h-11 w-11 text-[var(--accent-fg)] shadow-[var(--shadow-2)] [background:linear-gradient(180deg,var(--accent),var(--accent-strong))]">
-            O
-          </span>
-          <span
-            className="text-2xl font-bold tracking-tight sm:text-3xl"
-            style={{
-              backgroundImage:
-                "linear-gradient(180deg, var(--text-primary) 0%, color-mix(in oklab, var(--text-primary) 68%, var(--accent-strong)) 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              letterSpacing: "-0.015em",
-            }}
-          >
-            Oblixa
-          </span>
-        </Link>
-        <p className="mt-4">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-            Workspace access
-          </span>
+    <div className={showProof ? "min-w-0" : "w-full"}>
+      <BrandMark />
+      <div className="mb-3 mt-5">
+        <p>
+          <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Workspace access</span>
         </p>
-        <h1 className="mx-auto mt-2 max-w-[28ch] text-pretty text-[1.5rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[1.75rem]">
+        <h1 className="mt-2 text-[1.5rem] font-semibold leading-[1.12] tracking-tight text-[var(--text-primary)] sm:text-[1.7rem]">
           {c.title}
         </h1>
         {c.intro ? (
-          <p className="mx-auto mt-2.5 max-w-[38ch] text-pretty text-[13px] leading-[1.55] text-[var(--text-secondary)] sm:text-[13.5px]">
-            {c.intro}
-          </p>
+          <p className="mt-2 max-w-[42ch] text-[13px] leading-[1.5] text-[var(--text-secondary)]">{c.intro}</p>
         ) : null}
       </div>
 
-      <div className="landing-card-premium landing-card-static relative overflow-hidden rounded-2xl border p-5 sm:p-6">
+      <div className="landing-card-premium landing-card-static landing-card-rail relative overflow-hidden rounded-2xl border p-5 sm:p-6">
         {cardBody}
-
-        {showAltLink && (
-          <div className="mt-6 flex flex-col items-center gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] pt-5 text-center">
-            <span className="text-[12px] text-[var(--text-tertiary)]">{c.altText}</span>
-            <Link
-              href={c.altLink}
-              className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--accent-strong)]"
-            >
-              {c.altLinkText}
-              <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            </Link>
-          </div>
-        )}
       </div>
 
-      {showProof && (
-        <ul className="mt-8 grid grid-cols-1 gap-x-5 gap-y-3 min-[480px]:grid-cols-2 lg:hidden">
-          {PROOF_FEATURES.map(({ icon: Icon, label }) => (
-            <li key={label} className="flex items-center gap-2.5 text-[12.5px] text-[var(--text-secondary)]">
-              <Icon className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-              <span className="leading-[1.35]">{label}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      {showAltLink ? (
+        <div className="mt-3 flex flex-col gap-2.5 rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface-raised))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[12.5px] font-semibold text-[var(--text-primary)]">{c.altText}</p>
+            {c.altHint ? <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--text-secondary)]">{c.altHint}</p> : null}
+          </div>
+          <Link
+            href={c.altLink}
+            className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] bg-[var(--surface-raised)] px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-subtle))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:self-auto"
+          >
+            {c.altLinkText}
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+          </Link>
+        </div>
+      ) : null}
+
+      {showProof ? factList("mt-6 grid grid-cols-1 gap-x-6 gap-y-2.5 min-[420px]:grid-cols-2 lg:hidden") : null}
     </div>
   );
 
@@ -795,19 +829,34 @@ export function AuthForm({
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="landing-luminous landing-luminous--quiet relative isolate flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 py-6 outline-none sm:px-6"
+      className="landing-luminous landing-luminous--auth relative isolate flex min-h-0 flex-1 flex-col justify-start overflow-hidden px-4 pb-10 pt-10 outline-none sm:px-6 sm:pt-14"
     >
       <div aria-hidden className="landing-luminous__base" />
       <div aria-hidden className="landing-luminous__glow" />
       <div aria-hidden className="landing-luminous__grid" />
-      {showProof ? (
-        <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:items-center">
-          {proofPanel}
-          {authColumn}
+      <div className={`mx-auto w-full ${showProof ? "max-w-[60rem]" : "max-w-[26rem]"}`}>
+        <div className="mb-6">
+          <BackHomeLink />
         </div>
-      ) : (
-        <div className="mx-auto w-full">{authColumn}</div>
-      )}
+
+        {showProof ? (
+          <div className="grid gap-x-8 gap-y-10 lg:grid-cols-[minmax(0,1fr)_27.5rem] lg:items-start">
+            {productPanel}
+            {authColumn}
+          </div>
+        ) : (
+          authColumn
+        )}
+
+        {/* Footer block kept with the content (legal links + notice) so it hugs the
+            columns instead of floating at the viewport bottom; the luminous fills below. */}
+        <div className="mt-12 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-6">
+          <LegalLinks className="flex-wrap justify-center gap-x-4 gap-y-1.5" />
+          <div className="mt-4">
+            <AuthLegalFooter />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

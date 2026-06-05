@@ -41,6 +41,33 @@ vi.mock("@/lib/security/kill-switches", () => ({
   killSwitchJsonResponse,
 }));
 
+function adminWithOrg(
+  org: Record<string, unknown> = {
+    id: "org_1",
+    name: "Acme Corp",
+    owner_user_id: null,
+    stripe_customer_id: "cus_existing",
+    stripe_subscription_id: null,
+    stripe_subscription_status: null,
+  }
+) {
+  return {
+    from: vi.fn((table: string) => {
+      if (table === "organizations") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn().mockResolvedValue({ data: org, error: null }),
+            })),
+          })),
+          update: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
+        };
+      }
+      return { update: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })) };
+    }),
+  };
+}
+
 describe("POST /api/stripe/checkout", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -86,7 +113,7 @@ describe("POST /api/stripe/checkout", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "viewer@example.com" } } }) },
     });
     getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "viewer" });
-    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    createAdminClient.mockResolvedValue(adminWithOrg({ owner_user_id: "other-user", stripe_customer_id: "cus_existing" }));
 
     const { POST } = await import("@/app/api/stripe/checkout/route");
     const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
@@ -103,7 +130,7 @@ describe("POST /api/stripe/checkout", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "owner@example.com" } } }) },
     });
     getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
-    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    createAdminClient.mockResolvedValue(adminWithOrg());
 
     const { POST } = await import("@/app/api/stripe/checkout/route");
     const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
@@ -119,7 +146,7 @@ describe("POST /api/stripe/checkout", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1", email: "owner@example.com" } } }) },
     });
     getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
-    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    createAdminClient.mockResolvedValue(adminWithOrg());
 
     const { POST } = await import("@/app/api/stripe/checkout/route");
     const res = await POST(new Request("http://localhost:3000/api/stripe/checkout", { method: "POST" }));
@@ -148,6 +175,7 @@ describe("POST /api/stripe/checkout", () => {
                   data: {
                     id: "org_1",
                     name: "Acme Corp",
+                    owner_user_id: null,
                     stripe_customer_id: "cus_existing",
                     stripe_subscription_id: null,
                     stripe_subscription_status: null,
@@ -216,6 +244,7 @@ describe("POST /api/stripe/checkout", () => {
                   data: {
                     id: "org_1",
                     name: "Acme Corp",
+                    owner_user_id: null,
                     stripe_customer_id: "cus_existing",
                     stripe_subscription_id: null,
                     stripe_subscription_status: null,
@@ -266,6 +295,7 @@ describe("POST /api/stripe/checkout", () => {
                   data: {
                     id: "org_1",
                     name: "Acme Corp",
+                    owner_user_id: null,
                     stripe_customer_id: null,
                     stripe_subscription_id: null,
                     stripe_subscription_status: null,

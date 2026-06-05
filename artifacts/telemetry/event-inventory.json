@@ -1395,7 +1395,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 161,
+          "line": 168,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1416,7 +1416,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 277,
+          "line": 301,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1437,7 +1437,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 126,
+          "line": 137,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1458,7 +1458,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 224,
+          "line": 239,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1479,7 +1479,7 @@
       "sources": [
         {
           "file": "src/lib/access-review.ts",
-          "line": 179,
+          "line": 170,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1500,7 +1500,7 @@
       "sources": [
         {
           "file": "src/lib/access-review.ts",
-          "line": 212,
+          "line": 242,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1521,7 +1521,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 199,
+          "line": 208,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1542,7 +1542,7 @@
       "sources": [
         {
           "file": "src/app/operator/access-requests/page.tsx",
-          "line": 249,
+          "line": 270,
           "eventClass": "action_event_reference",
           "property": "action"
         }

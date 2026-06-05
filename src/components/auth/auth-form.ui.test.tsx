@@ -54,6 +54,19 @@ describe("AuthForm", () => {
     expect(screen.getByText(/suggested/i)).toBeTruthy();
   });
 
+  it("leads the product panel with the canonical signed-contract frame", () => {
+    renderWithProviders(<AuthForm mode="login" />);
+    // Release-state positioning: the product frame is "what signed contracts require
+    // next", not the spreadsheet-replacement wedge.
+    expect(screen.getByText(/track what signed contracts require next/i)).toBeTruthy();
+  });
+
+  it("surfaces the policy links row under the auth columns", () => {
+    renderWithProviders(<AuthForm mode="login" />);
+    expect(screen.getByRole("navigation", { name: /legal and policies/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Contact" })).toBeTruthy();
+  });
+
   it("toggles password visibility with an accessible control", () => {
     renderWithProviders(<AuthForm mode="login" />);
     const password = screen.getByLabelText("Password") as HTMLInputElement;
@@ -152,7 +165,9 @@ describe("AuthForm", () => {
     await user.type(screen.getByLabelText("Email"), "demo@example.com");
     await user.click(screen.getByRole("button", { name: "Send reset link" }));
 
-    expect(await screen.findByRole("heading", { name: /reset link sent/i })).toBeTruthy();
+    // Non-enumerating success: neutral copy never confirms the account exists.
+    expect(await screen.findByRole("heading", { name: /check your email/i })).toBeTruthy();
+    expect(screen.getByText(/if an account exists for that address/i)).toBeTruthy();
     expect(authMocks.forgotPassword).toHaveBeenCalledTimes(1);
   });
 

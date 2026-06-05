@@ -36,6 +36,10 @@ describe("Billing page access and billing release state", () => {
       "21-day free trial",
       "Guided Pilot",
       "Founding Customer Offer",
+      // Single month-to-month offer: no annual/monthly checkout variant split,
+      // no founding-coupon checkout (retired with the founding banner).
+      'variant="annual"',
+      'variant="monthly"',
     ]) {
       expect(pageSrc).not.toContain(phrase);
       expect(specSrc).not.toContain(phrase);
@@ -55,7 +59,6 @@ describe("Billing page access and billing release state", () => {
     expect(pageSrc).toContain("<BillingHelpActions />");
     expect(pageSrc).toContain("Access review billing");
     expect(pageSrc).toContain("Access review");
-    expect(pageSrc).toContain("Core monthly plan after approval");
   });
 
   it("does not create a trial by default in checkout", () => {

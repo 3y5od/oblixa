@@ -27,7 +27,7 @@
       "ownerArea": "product-marketing",
       "commands": [
         { "command": "test:operational-public-launch-positioning", "ciRequired": false, "covers": ["contact_route", "signup_action", "asset_metadata_runtime"] },
-        { "command": "test:e2e:smoke", "ciRequired": true, "covers": ["public_route_smoke", "contact_form_smoke"] },
+        { "command": "test:e2e:smoke", "ciRequired": true, "covers": ["public_route_smoke", "request_access_form_smoke"] },
         { "command": "check:operational-billing-entitlements", "ciRequired": true, "covers": ["billing_checkout_and_portal_handoff"] }
       ]
     },
@@ -190,14 +190,14 @@
       "path": "src/app/(marketing)/pricing/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Simple pricing for", "href=\"/request-access\"", "Price disclosed before charge"]
+      "markers": ["Simple pricing for", "href=\"/request-access\"", "charged only after access is approved"]
     },
     {
       "id": "request-access-page",
       "path": "src/app/(marketing)/request-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request access", "Redacted sample", "Not intended for teams that require formal enterprise security review"]
+      "markers": ["Request access", "Redacted sample", "Not a formal enterprise procurement package"]
     },
     {
       "id": "signup-form",
@@ -228,11 +228,11 @@
       "markers": ["enforceIdempotency", "return_url", "stripe_portal_invalid_return_url"]
     },
     {
-      "id": "dpa-security-contact",
+      "id": "contact-directory",
       "path": "src/app/(marketing)/contact/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request Oblixa workspace access", "View product tour", "Reviewed workspace access"]
+      "markers": ["Contact Oblixa", "Request workspace access", "Security and vulnerability reports", "Existing workspace or billing issue"]
     }
   ],
   "assetMetadata": [

@@ -10,7 +10,7 @@ export const RELEASE_STATE_PUBLIC_PAGES = [
   { path: "/early-access", purpose: "Compatibility URL for access requests", primaryCta: "Request access" },
   { path: "/pricing", purpose: "Access and paid-continuation guidance", primaryCta: "Request access" },
   { path: "/security", purpose: "Security basics and reviewed-access boundaries", primaryCta: "Request access" },
-  { path: "/contact", purpose: "Access, pricing, security, and support contact", primaryCta: "Request access" },
+  { path: "/contact", purpose: "Contact-path directory for access, security, privacy, legal, billing, and support", primaryCta: "Request workspace access" },
   { path: "/login", purpose: "Existing approved-user login", primaryCta: "Sign in" },
 ] as const;
 

@@ -4,6 +4,7 @@ import type { createAdminClient } from "@/lib/supabase/server";
 import { isReasonableEmail } from "@/lib/security/validation";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
+type ExistingAccessRequestLookup = { id: string; duplicate_count?: number | null };
 
 export type AccessRequestStatus = "pending" | "approved" | "rejected" | "closed";
 export type AccessGrantStatus = "issued" | "used" | "revoked" | "expired";
@@ -123,6 +124,55 @@ export function isAccessGrantTokenShape(token: string): boolean {
   return ACCESS_GRANT_TOKEN_RE.test(token.trim());
 }
 
+function isUniqueConstraintError(error: unknown): boolean {
+  const e = error as { code?: unknown; message?: unknown; details?: unknown };
+  const code = typeof e.code === "string" ? e.code : "";
+  const message = typeof e.message === "string" ? e.message : "";
+  const details = typeof e.details === "string" ? e.details : "";
+  return code === "23505" || /duplicate key|unique/i.test(`${message} ${details}`);
+}
+
+async function updateExistingAccessRequestRecord(
+  admin: Admin,
+  existing: ExistingAccessRequestLookup,
+  input: AccessRequestInsert,
+  nowIso: string,
+  lastSubmission: Record<string, unknown>
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const duplicateCount =
+    typeof existing.duplicate_count === "number" && Number.isFinite(existing.duplicate_count)
+      ? existing.duplicate_count + 1
+      : 1;
+  const { error: updateError } = await admin
+    .from("workspace_access_requests")
+    .update({
+      requester_name: input.requesterName,
+      company_name: input.companyName,
+      requester_role: input.requesterRole,
+      approximate_contract_count: input.approximateContractCount,
+      current_tracking_method: input.currentTrackingMethod,
+      has_tracker: input.hasTracker,
+      redacted_sample_available: input.redactedSampleAvailable,
+      follow_up_preference: input.followUpPreference,
+      pain_summary: input.painSummary,
+      message: input.message,
+      source: input.source,
+      duplicate_count: duplicateCount,
+      last_submitted_at: nowIso,
+      last_submission_json: lastSubmission,
+      updated_at: nowIso,
+    })
+    .eq("id", existing.id);
+  if (updateError) return { ok: false, error: "update_failed" };
+  await admin.from("workspace_access_request_events").insert({
+    request_id: existing.id,
+    actor_user_id: null,
+    action: "access_request.duplicate_received",
+    metadata_json: lastSubmission,
+  });
+  return { ok: true, id: String(existing.id) };
+}
+
 export async function insertAccessRequestRecord(
   admin: Admin,
   input: AccessRequestInsert
@@ -148,38 +198,7 @@ export async function insertAccessRequestRecord(
 
   if (existingError) return { ok: false, error: "lookup_failed" };
   if (existing?.id) {
-    const duplicateCount =
-      typeof existing.duplicate_count === "number" && Number.isFinite(existing.duplicate_count)
-        ? existing.duplicate_count + 1
-        : 1;
-    const { error: updateError } = await admin
-      .from("workspace_access_requests")
-      .update({
-        requester_name: input.requesterName,
-        company_name: input.companyName,
-        requester_role: input.requesterRole,
-        approximate_contract_count: input.approximateContractCount,
-        current_tracking_method: input.currentTrackingMethod,
-        has_tracker: input.hasTracker,
-        redacted_sample_available: input.redactedSampleAvailable,
-        follow_up_preference: input.followUpPreference,
-        pain_summary: input.painSummary,
-        message: input.message,
-        source: input.source,
-        duplicate_count: duplicateCount,
-        last_submitted_at: nowIso,
-        last_submission_json: lastSubmission,
-        updated_at: nowIso,
-      })
-      .eq("id", existing.id);
-    if (updateError) return { ok: false, error: "update_failed" };
-    await admin.from("workspace_access_request_events").insert({
-      request_id: existing.id,
-      actor_user_id: null,
-      action: "access_request.duplicate_received",
-      metadata_json: lastSubmission,
-    });
-    return { ok: true, id: String(existing.id) };
+    return updateExistingAccessRequestRecord(admin, existing, input, nowIso, lastSubmission);
   }
 
   const { data, error } = await admin
@@ -205,7 +224,18 @@ export async function insertAccessRequestRecord(
     .select("id")
     .single();
 
-  if (error || !data?.id) return { ok: false, error: "insert_failed" };
+  if (error || !data?.id) {
+    if (error && isUniqueConstraintError(error)) {
+      const { data: raced, error: racedError } = await admin
+        .from("workspace_access_requests")
+        .select("id, duplicate_count")
+        .eq("normalized_email", normalizedEmail)
+        .maybeSingle();
+      if (racedError || !raced?.id) return { ok: false, error: "insert_failed" };
+      return updateExistingAccessRequestRecord(admin, raced as ExistingAccessRequestLookup, input, nowIso, lastSubmission);
+    }
+    return { ok: false, error: "insert_failed" };
+  }
   await admin.from("workspace_access_request_events").insert({
     request_id: String(data.id),
     actor_user_id: null,
@@ -233,11 +263,12 @@ export async function createWorkspaceAccessGrant(
   const tokenHash = hashAccessGrantToken(token);
 
   if (input.requestId) {
-    await admin
+    const { error: revokeError } = await admin
       .from("workspace_access_grants")
       .update({ status: "revoked", revoked_at: now.toISOString() })
       .eq("request_id", input.requestId)
       .eq("status", "issued");
+    if (revokeError) return { ok: false, error: "grant_revoke_failed" };
   }
 
   const { data, error } = await admin
@@ -348,11 +379,14 @@ export async function markWorkspaceAccessGrantUsed(
   input: { grantId: string; userId: string; now?: Date }
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const nowIso = (input.now ?? new Date()).toISOString();
-  const { error } = await admin
+  const { data, error } = await admin
     .from("workspace_access_grants")
     .update({ status: "used", used_by: input.userId, used_at: nowIso })
     .eq("id", input.grantId)
-    .eq("status", "issued");
+    .eq("status", "issued")
+    .select("id")
+    .maybeSingle();
   if (error) return { ok: false, error: "grant_consume_failed" };
+  if (!data?.id) return { ok: false, error: "grant_consume_stale" };
   return { ok: true };
 }

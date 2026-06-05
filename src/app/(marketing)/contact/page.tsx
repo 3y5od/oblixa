@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { ArrowDown, ArrowUpRight, BarChart3, Compass, ShieldCheck } from "lucide-react";
-import { ContactForm } from "@/components/landing/contact-form";
+import {
+  ArrowRight,
+  ChevronRight,
+  Compass,
+  KeyRound,
+  LogIn,
+  Mail,
+  Scale,
+  ShieldCheck,
+  Tag,
+} from "lucide-react";
 import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
 
 const title = "Contact — Oblixa";
 const description =
-  "Request Oblixa workspace access, ask a pricing or security question, or share how your team tracks signed contracts today.";
+  "Contact paths for Oblixa workspace access, security, privacy, legal, billing, and existing workspace support.";
 
 export const metadata: Metadata = {
   title,
@@ -17,59 +26,104 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
-type CardTone = "cool" | "warm" | "amber";
+// General async contact. Matches the support address published on /accessibility
+// and in the in-app billing/settings surfaces. Security reports have their own
+// path on /security (security@oblixa.io, mirrored in /.well-known/security.txt).
+const GENERAL_EMAIL = "support@oblixa.com";
+const GENERAL_MAILTO = `mailto:${GENERAL_EMAIL}?subject=Oblixa%20question`;
 
-const TONE_COLOR: Record<CardTone, string> = {
-  cool: "var(--accent-strong)",
-  warm: "var(--accent-warm, var(--accent))",
-  amber: "var(--warning-ink)",
-};
+// Published public Core price (mirrors /pricing + src/lib/billing/spec-prices.ts).
+const CORE_PRICE = "$249";
 
-const TONE_BG: Record<CardTone, string> = {
-  cool: "color-mix(in oklab, var(--accent-soft) 36%, var(--surface-raised))",
-  warm: "color-mix(in oklab, var(--accent-soft) 28%, var(--surface-raised))",
-  amber: "color-mix(in oklab, var(--warning-soft) 28%, var(--surface-raised))",
-};
+const HAIRLINE = "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]";
 
-const TONE_BORDER: Record<CardTone, string> = {
-  cool: "color-mix(in oklab, var(--accent) 24%, var(--border-subtle))",
-  warm: "color-mix(in oklab, var(--accent-warm, var(--accent)) 22%, var(--border-subtle))",
-  amber: "color-mix(in oklab, var(--warning-ink) 22%, var(--border-subtle))",
-};
-
-const quickLinks: Array<{
+type DirectoryRow = {
   href: string;
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  tone: CardTone;
   icon: LucideIcon;
-}> = [
-  {
-    href: "/pricing",
-    eyebrow: "Pricing",
-    title: "Review access and pricing",
-    subtitle: "Month-to-month after approval and checkout.",
-    tone: "cool",
-    icon: BarChart3,
-  },
+  title: string;
+  body: string;
+  verb: string;
+};
+
+// Self-serve destinations as a quiet directory. The titles
+// "Security and vulnerability reports" and "Existing workspace or billing issue"
+// are release-pinned positioning markers (voice-sweep + audit-release-state +
+// operational launch / legal-trust config) — keep them verbatim.
+const directory: DirectoryRow[] = [
   {
     href: "/security",
-    eyebrow: "Security",
-    title: "Read security basics",
-    subtitle: "Access, audit, export, deletion.",
-    tone: "amber",
     icon: ShieldCheck,
+    title: "Security and vulnerability reports",
+    body: "Security basics, data-handling boundaries, and the vulnerability disclosure path.",
+    verb: "Open security",
+  },
+  {
+    href: "/privacy",
+    icon: Scale,
+    title: "Privacy, terms, and policy questions",
+    body: "Public policies for privacy, terms, acceptable use, and cookies.",
+    verb: "View policies",
+  },
+  {
+    href: "/login",
+    icon: LogIn,
+    title: "Existing workspace or billing issue",
+    body: "Sign in first so support and billing stay tied to your workspace.",
+    verb: "Sign in",
   },
   {
     href: "/product",
-    eyebrow: "Product",
-    title: "View product tour",
-    subtitle: "Seven sections, one tour.",
-    tone: "warm",
     icon: Compass,
+    title: "See how Oblixa works",
+    body: "A short tour of contracts, review, renewals, work, evidence, and reports.",
+    verb: "View tour",
+  },
+  {
+    href: "/pricing",
+    icon: Tag,
+    title: "View Core pricing",
+    body: `Core is ${CORE_PRICE}/month per workspace, charged only after approval.`,
+    verb: "View pricing",
   },
 ];
+
+/** Quiet directory row — the whole row is the link (large hit area); a
+ *  hover/focus-revealed caps verb chip telegraphs intent (§8.6). No per-row
+ *  card border (§11.14); hairlines separate rows. */
+function DirectoryRowLink({ row }: { row: DirectoryRow }) {
+  const Icon = row.icon;
+  return (
+    <Link
+      href={row.href}
+      aria-label={`${row.verb} — ${row.title}`}
+      className={`group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3.5 border-t ${HAIRLINE} px-2 py-3.5 no-underline outline-none transition-colors first:border-t-0 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_8%,transparent)] focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]`}
+    >
+      <span
+        aria-hidden
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,var(--surface-raised))] text-[var(--text-tertiary)] transition-colors group-hover:border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] group-hover:text-[var(--accent-strong)]"
+      >
+        <Icon className="h-4 w-4" strokeWidth={1.85} />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[13.5px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
+          {row.title}
+        </span>
+        <span className="mt-0.5 block text-[12.5px] leading-snug text-[var(--text-secondary)]">
+          {row.body}
+        </span>
+      </span>
+      <span
+        aria-hidden
+        className="inline-flex justify-end opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+      >
+        <span className="ui-caps-2 inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-1 text-[10px] leading-none text-[var(--accent-strong)]">
+          {row.verb}
+          <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} />
+        </span>
+      </span>
+    </Link>
+  );
+}
 
 export default function ContactPage() {
   return (
@@ -80,111 +134,98 @@ export default function ContactPage() {
         tabIndex={-1}
         className="landing-luminous relative isolate flex min-h-full flex-1 flex-col overflow-hidden outline-none"
       >
+        {/* Restrained backdrop — base wash + faint glow, no dotted grid (parity
+            with /security and /pricing). */}
         <div aria-hidden className="landing-luminous__base" />
+        <div aria-hidden className="landing-luminous__glow opacity-30" />
         <div aria-hidden className="product-top-hairline" />
-        <div className="relative mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-          {/* Hero */}
-          <header className="text-center">
+
+        <div className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
+          <header className="mx-auto max-w-2xl text-center">
             <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
               <span className="landing-eyebrow-dot" aria-hidden />
               Contact
             </p>
             <h1
-              className="mx-auto mt-3 max-w-[20ch] text-balance text-[2rem] font-bold leading-[1.05] tracking-tight text-[var(--text-primary)] sm:text-[2.75rem]"
+              className="mx-auto mt-3 max-w-[14ch] text-balance text-[2rem] font-bold leading-[1.05] text-[var(--text-primary)] sm:text-[2.75rem]"
               style={{ letterSpacing: "-0.02em" }}
             >
-              Request <span className="text-[var(--accent-strong)]">workspace access</span>.
+              Contact Oblixa.
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-balance text-[15px] leading-[1.6] text-[var(--text-secondary)] sm:text-[16px]">
-              If a manual tracker is where your signed-contract renewals, owners, and
-              reporting live, tell us about it and we can evaluate replacing it on a small
-              set of contracts.
-            </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <a href="#contact-form" className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold">
-                Request access
-                <ArrowDown className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              </a>
-              <Link href="/product" className="ui-btn-secondary px-4 py-2 text-[13px] font-semibold">
-                View product tour
-              </Link>
-            </div>
-            <p className="ui-caps-3 mt-4 text-[10px] leading-none text-[var(--text-tertiary)]">
-              Reviewed workspace access
-              <span className="ui-dot-sep" aria-hidden>
-                ·
-              </span>
-              No marketing list
+            <p className="mx-auto mt-4 max-w-xl text-balance text-[13.5px] leading-[1.6] text-[var(--text-secondary)] sm:text-[14.5px]">
+              New workspace access starts on the request-access page; this page routes support,
+              security, privacy, legal, and billing questions.
             </p>
           </header>
 
-          {/* Form card — the single focal surface on the shared content column. */}
-          <div className="mt-8">
-            <section
-              id="contact-form"
-              aria-label="Contact form"
-              className="landing-card-premium relative overflow-hidden rounded-2xl border p-6 sm:p-8"
+          {/* Primary paths — the one accent surface (request access) paired with a
+              plain async email path. 60/40 split at lg so they read as connected. */}
+          <section aria-label="Primary contact paths" className="mt-8 grid gap-4 lg:grid-cols-[3fr_2fr]">
+            {/* Focal: request workspace access. */}
+            <Link
+              href="/request-access"
+              className="landing-card-premium landing-card-rail group relative flex flex-col overflow-hidden rounded-2xl border p-5 no-underline outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:p-6"
             >
-              <ContactForm />
-            </section>
-          </div>
-
-          {/* Below-fold quiet "Browse Oblixa" links on the shared content column. */}
-          <div className="mt-10">
-            <header className="text-center">
-              <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
-                <span className="landing-eyebrow-dot" aria-hidden />
-                Browse Oblixa
+              <span
+                aria-hidden
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_34%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
+              >
+                <KeyRound className="h-5 w-5" strokeWidth={1.85} />
+              </span>
+              <p className="ui-caps-1 mt-4 text-[10.5px] text-[var(--accent-strong)]">Workspace access</p>
+              <h2 className="mt-1 text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">
+                Request workspace access
+              </h2>
+              <p className="mt-2 text-[13.5px] leading-[1.55] text-[var(--text-secondary)]">
+                For new teams replacing a manual signed-contract follow-up tracker.
               </p>
-            </header>
-            <section
-              aria-label="Other paths"
-              className="mt-6 overflow-hidden rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)]"
+              <p className="mt-auto pt-4 text-[12px] leading-snug text-[var(--text-tertiary)]">
+                Requesting access does not create an account or charge a card.
+              </p>
+              <span className="ui-btn-primary mt-3 inline-flex max-w-max items-center gap-1.5 px-4 py-2 text-[13px] font-semibold">
+                Request access
+                <ArrowRight
+                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+                  strokeWidth={1.85}
+                  aria-hidden
+                />
+              </span>
+            </Link>
+
+            {/* General async email — a real contact path for anyone, no sign-in. */}
+            <Link
+              href={GENERAL_MAILTO}
+              className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-[var(--surface-raised)] p-5 no-underline shadow-[var(--shadow-1)] outline-none transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)] sm:p-6 ${HAIRLINE}`}
             >
-              {quickLinks.map((l) => {
-                const Icon = l.icon;
-                return (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className="group flex items-center gap-3.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-4 py-3.5 text-[13.5px] transition-colors first:border-t-0 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_8%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:px-5"
-                  >
-                    <span
-                      aria-hidden
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
-                      style={{
-                        borderColor: TONE_BORDER[l.tone],
-                        background: TONE_BG[l.tone],
-                        color: TONE_COLOR[l.tone],
-                      }}
-                    >
-                      <Icon className="h-4 w-4" strokeWidth={1.85} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="ui-caps-2 text-[10px] leading-none" style={{ color: TONE_COLOR[l.tone] }}>
-                        {l.eyebrow}
-                      </p>
-                      <p className="mt-1.5 text-[14px] font-semibold leading-snug text-[var(--text-primary)]">
-                        {l.title}
-                      </p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-[var(--text-secondary)]">
-                        {l.subtitle}
-                      </p>
-                    </div>
-                    <span
-                      aria-hidden
-                      className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-                    >
-                      <span className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
-                        OPEN
-                        <ArrowUpRight className="h-2.5 w-2.5" strokeWidth={1.85} />
-                      </span>
-                    </span>
-                  </Link>
-                );
-              })}
-            </section>
-          </div>
+              <span
+                aria-hidden
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_72%,var(--surface-raised))] text-[var(--text-tertiary)]"
+              >
+                <Mail className="h-5 w-5" strokeWidth={1.85} />
+              </span>
+              <p className="ui-caps-1 mt-4 text-[10.5px] text-[var(--text-tertiary)]">General questions</p>
+              <h2 className="mt-1 text-[1.25rem] font-semibold tracking-tight text-[var(--text-primary)]">
+                Email the team
+              </h2>
+              <p className="mt-2 flex-1 text-[13.5px] leading-[1.55] text-[var(--text-secondary)]">
+                Not sure which path fits? Send a note — async email, no account needed.
+              </p>
+              <span className="ui-btn-secondary mt-5 inline-flex max-w-max items-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-semibold">
+                <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                <span className="font-mono">{GENERAL_EMAIL}</span>
+              </span>
+            </Link>
+          </section>
+
+          {/* Self-serve directory — quiet hairline rows under a caps eyebrow. */}
+          <section aria-label="Find the right page" className={`mt-8 border-t pt-5 ${HAIRLINE}`}>
+            <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Find the right page</p>
+            <div className="mt-1.5">
+              {directory.map((row) => (
+                <DirectoryRowLink key={row.href} row={row} />
+              ))}
+            </div>
+          </section>
         </div>
       </main>
     </>

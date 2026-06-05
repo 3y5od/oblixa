@@ -405,10 +405,9 @@ export default async function BillingPage(props: {
     stripeClient.ok &&
     typeof process.env.STRIPE_SECRET_KEY === "string" &&
     process.env.STRIPE_SECRET_KEY.startsWith("sk_test_");
-  const monthlyConfigured = Boolean(process.env.STRIPE_MONTHLY_PRICE_ID);
-  const foundingAvailable =
-    process.env.STRIPE_FOUNDING_COUPON_ID != null &&
-    process.env.STRIPE_FOUNDING_AVAILABLE !== "0";
+  // Single month-to-month Core offer (oblixa-release-state.md §Billing, Pricing,
+  // And Cancellation): no annual variant and no founding coupon. Checkout uses
+  // the canonical price id resolved server-side.
 
   // §1.6: distinguish subscription load failure from "no subscription".
   if (org.stripe_subscription_id && stripeClient.ok) {
@@ -1100,22 +1099,8 @@ export default async function BillingPage(props: {
       return <SubscribeButton label={SETTINGS_BILLING_STRINGS.trialCta} />;
     }
     if (RECOVERABLE_SUBSCRIPTION_STATES.has(subscriptionStatus)) {
-      return (
-        <>
-          <SubscribeButton
-            label={SETTINGS_BILLING_STRINGS.primaryCta}
-            variant="annual"
-          />
-          {/* §1.2 + §3.9 secondary CTA gated on monthly priceId configured */}
-          {monthlyConfigured ? (
-            <SubscribeButton
-              label={SETTINGS_BILLING_STRINGS.secondaryCta}
-              variant="monthly"
-              className="ui-btn-secondary disabled:pointer-events-none disabled:opacity-45"
-            />
-          ) : null}
-        </>
-      );
+      // Single month-to-month offer — checkout uses the canonical price id.
+      return <SubscribeButton label={SETTINGS_BILLING_STRINGS.primaryCta} />;
     }
     return <ManageSubscriptionButton />;
   }
@@ -1335,33 +1320,8 @@ export default async function BillingPage(props: {
     ) : null;
 
   // §9.11 Core offer coupon path (when available + admin + no plan)
-  const foundingBanner =
-    foundingAvailable && isAdmin && subscriptionStatus === "none" ? (
-      <UiAlert tone="neutral">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <div>
-            <span className="font-semibold">Core monthly offer —</span>{" "}
-            {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.priceDisplay}.{" "}
-            {SETTINGS_BILLING_STRINGS.foundingCustomerOffer.description}
-          </div>
-          {billingCheckoutEnabled ? (
-            <SubscribeButton
-              label={SETTINGS_BILLING_STRINGS.foundingCustomerOffer.ctaLabel}
-              variant="annual"
-              founding
-              className="ui-btn-secondary disabled:pointer-events-none disabled:opacity-45"
-            />
-          ) : (
-            <Link
-              href={SETTINGS_BILLING_STRINGS.contactSalesHref}
-              className="ui-btn-secondary inline-flex items-center rounded-full px-4 py-2 text-[13px]"
-            >
-              Discuss billing
-            </Link>
-          )}
-        </div>
-      </UiAlert>
-    ) : null;
+  // Founding-customer banner removed — the release has a single month-to-month
+  // Core offer with no founding discount (oblixa-release-state.md §Pricing).
 
   /**
    * §19.1 renderBillingActions — branch matrix:
@@ -1375,7 +1335,7 @@ export default async function BillingPage(props: {
    * | true    | true             | past_due / unpaid             | <ManageSubscriptionButton>                       |
    * | true    | true             | incomplete_expired            | <SubscribeButton> (fresh)                       |
    * | true    | true             | trialing                      | <SubscribeButton label="Request billing help">  |
-   * | true    | true             | none + recoverable            | annual + (monthly when configured)              |
+   * | true    | true             | none + recoverable            | single month-to-month checkout                  |
    * | true    | true             | active                        | <ManageSubscriptionButton>                       |
    *
    * Modifiers (cancel_at_period_end, pause_collection, discount, cancel_at)
@@ -1653,7 +1613,6 @@ export default async function BillingPage(props: {
         {customerDeletedBanner}
         {unpaidBanner}
         {expiredBanner}
-        {foundingBanner}
 
         {/* §1.1 success / canceled redirect alerts (truthiness fix) */}
         {showSuccessAlert ? (
@@ -1742,10 +1701,7 @@ export default async function BillingPage(props: {
               {/* Reviewed-access billing keeps checkout behind an explicit server flag. */}
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {billingCheckoutEnabled ? (
-                  <SubscribeButton
-                    label={SETTINGS_BILLING_STRINGS.primaryCta}
-                    variant="annual"
-                  />
+                  <SubscribeButton label={SETTINGS_BILLING_STRINGS.primaryCta} />
                 ) : (
                   <Link
                     href={SETTINGS_BILLING_STRINGS.contactSalesHref}

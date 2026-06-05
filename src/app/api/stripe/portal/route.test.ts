@@ -32,6 +32,23 @@ vi.mock("@/lib/security/kill-switches", () => ({
   killSwitchJsonResponse,
 }));
 
+function adminWithOrg(org: Record<string, unknown> = { owner_user_id: null, stripe_customer_id: "cus_123" }) {
+  return {
+    from: vi.fn((table: string) => {
+      if (table === "organizations") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn().mockResolvedValue({ data: org, error: null }),
+            })),
+          })),
+        };
+      }
+      return {};
+    }),
+  };
+}
+
 describe("POST /api/stripe/portal", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -72,7 +89,7 @@ describe("POST /api/stripe/portal", () => {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user_1" } } }) },
     });
     getDeterministicMembership.mockResolvedValue({ organization_id: "org_1", role: "admin" });
-    createAdminClient.mockResolvedValue({ from: vi.fn() });
+    createAdminClient.mockResolvedValue(adminWithOrg());
 
     const { POST } = await import("@/app/api/stripe/portal/route");
     const res = await POST(new Request("http://localhost:3000/api/stripe/portal", { method: "POST" }));
@@ -93,7 +110,7 @@ describe("POST /api/stripe/portal", () => {
           return {
             select: vi.fn(() => ({
               eq: vi.fn(() => ({
-                single: vi.fn().mockResolvedValue({ data: { stripe_customer_id: "cus_123" }, error: null }),
+                single: vi.fn().mockResolvedValue({ data: { owner_user_id: null, stripe_customer_id: "cus_123" }, error: null }),
               })),
             })),
           };
@@ -133,7 +150,7 @@ describe("POST /api/stripe/portal", () => {
           return {
             select: vi.fn(() => ({
               eq: vi.fn(() => ({
-                single: vi.fn().mockResolvedValue({ data: { stripe_customer_id: "cus_123" }, error: null }),
+                single: vi.fn().mockResolvedValue({ data: { owner_user_id: null, stripe_customer_id: "cus_123" }, error: null }),
               })),
             })),
           };
@@ -173,7 +190,7 @@ describe("POST /api/stripe/portal", () => {
           return {
             select: vi.fn(() => ({
               eq: vi.fn(() => ({
-                single: vi.fn().mockResolvedValue({ data: { stripe_customer_id: "cus_123" }, error: null }),
+                single: vi.fn().mockResolvedValue({ data: { owner_user_id: null, stripe_customer_id: "cus_123" }, error: null }),
               })),
             })),
           };

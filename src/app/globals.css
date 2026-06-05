@@ -1561,29 +1561,31 @@
   .ui-sidebar-link-active {
     position: relative;
     color: var(--sidebar-fg);
-    background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+    background-color: color-mix(in oklab, var(--accent) 6%, transparent);
     background-image:
-      linear-gradient(90deg, color-mix(in oklab, var(--accent) 24%, transparent) 0%, color-mix(in oklab, var(--accent) 9%, transparent) 60%, transparent 100%);
+      linear-gradient(90deg, color-mix(in oklab, var(--accent) 13%, transparent) 0%, color-mix(in oklab, var(--accent) 4%, transparent) 52%, transparent 86%);
   }
 
   .ui-sidebar-link-active::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 18%;
-    bottom: 18%;
-    width: 2.5px;
+    top: 22%;
+    bottom: 22%;
+    width: 2px;
     border-radius: 0 3px 3px 0;
     background: var(--accent-strong);
-    box-shadow: 0 0 10px -1px color-mix(in oklab, var(--accent) 60%, transparent);
+    box-shadow: 0 0 8px -1px color-mix(in oklab, var(--accent) 50%, transparent);
     pointer-events: none;
   }
 
   /* Collapsed rail variant: flat centered wash (the left-to-right gradient reads
-     oddly behind a centered icon) plus a centered rail bar. */
+     oddly behind a centered icon) plus a centered rail bar. The component sizes
+     the collapsed link to a fixed square, so this wash reads as a compact tile
+     rather than a heavy full-width pill. */
   .ui-sidebar-link-active-rail {
     @apply relative;
-    background: color-mix(in oklab, var(--accent) 12%, transparent);
+    background: color-mix(in oklab, var(--accent) 7%, transparent);
   }
 
   .ui-sidebar-link-active-rail::before {
@@ -1868,8 +1870,10 @@
   .ui-footer-shell {
     @apply relative border-t backdrop-blur-md;
     border-top-color: transparent;
+    /* v15: dropped the top-center accent bloom — on short pages it read as a
+       floating blue dot above the footer. The single ::before hairline is now
+       the only footer/header section separator. */
     background:
-      radial-gradient(ellipse 80% 100% at 50% 0%, color-mix(in oklab, var(--accent) 6%, transparent), transparent 60%),
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, transparent) 0%, color-mix(in oklab, var(--surface-raised) 88%, transparent) 100%);
   }
 
@@ -1883,10 +1887,27 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      color-mix(in oklab, var(--accent) 30%, transparent) 50%,
+      color-mix(in oklab, var(--accent) 18%, transparent) 50%,
       transparent 100%
     );
     pointer-events: none;
+  }
+
+  /* Dashboard topbar — quiet utility chrome that reads as the top of the content
+     column rather than a marketing band. Token-anchored so it flips with the
+     color scheme (light over light content, dark next to the always-dark
+     sidebar); a single bottom hairline separates it from scrolling content. It
+     deliberately drops the marketing .ui-footer-shell accent glow so the chrome
+     stays calmer than landing surfaces. */
+  .ui-topbar {
+    @apply relative border-b backdrop-blur-md;
+    border-bottom-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--surface-raised) 94%, transparent) 0%,
+        color-mix(in oklab, var(--surface) 86%, transparent) 100%
+      );
   }
 
   .ui-legal-links {
@@ -2179,12 +2200,11 @@
 
   .ui-footer-shell {
     background:
-      radial-gradient(ellipse 80% 100% at 50% 0%, oklch(0.55 0.18 268 / 0.18), transparent 60%),
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 86%, transparent) 0%, color-mix(in oklab, var(--surface) 80%, black) 100%);
   }
 
   .ui-footer-shell::before {
-    background: linear-gradient(90deg, transparent 0%, oklch(0.55 0.18 268 / 0.45) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, oklch(0.55 0.18 268 / 0.26) 50%, transparent 100%);
   }
 
   .ui-app-shell {
@@ -2306,9 +2326,10 @@
   .ui-sidebar-link-active {
     /* Reduced-transparency users get a flat, fully-opaque accent tint (mixed
        against the sidebar surface, not transparent) so the selected row keeps
-       its accent identity without relying on a translucent wash. */
+       its accent identity without relying on a translucent wash. Kept solid for
+       legibility, but calmed to match the softer default gradient fill. */
     background-image: none;
-    background-color: color-mix(in oklab, var(--accent) 34%, var(--sidebar-surface));
+    background-color: color-mix(in oklab, var(--accent) 26%, var(--sidebar-surface));
   }
 }
 
@@ -2400,6 +2421,21 @@
   position: static !important;
 }
 
+/* Header CTA — soften the resting + hover halo so the primary action does not
+   sit heavier than the page content below it. The CTA lives outside the Site
+   nav, so it uses the base .ui-btn-primary; scope the softer halo to the header
+   to avoid touching primary buttons elsewhere. */
+.landing-root > header.ui-footer-shell a.ui-btn-primary {
+  box-shadow: var(--shadow-1), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+}
+.landing-root > header.ui-footer-shell a.ui-btn-primary:hover {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.20) inset,
+    var(--shadow-1),
+    0 10px 22px -14px color-mix(in oklab, var(--accent-strong) 45%, transparent);
+  filter: none;
+}
+
 @media (prefers-color-scheme: light) {
   .landing-root > header.ui-footer-shell {
     background:
@@ -2425,6 +2461,12 @@
   /* Sign in ghost button — refined hover */
   .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost:hover {
     background: color-mix(in oklab, var(--accent-soft) 30%, transparent);
+    color: var(--accent-strong);
+  }
+  /* Active route — accent-soft pill, clearer than text colour + underline alone
+     and consistent across both colour schemes. */
+  .landing-root > header.ui-footer-shell nav[aria-label="Site"] a[data-active="true"] {
+    background: color-mix(in oklab, var(--accent-soft) 42%, transparent);
     color: var(--accent-strong);
   }
   /* Get started primary button — subtle accent halo */
@@ -2456,7 +2498,7 @@
     box-shadow:
       0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
       var(--shadow-1),
-      0 6px 16px -12px color-mix(in oklab, var(--accent) 22%, transparent);
+      0 4px 12px -14px color-mix(in oklab, var(--accent) 12%, transparent);
   }
 }
 
@@ -2472,7 +2514,7 @@
   }
   .landing-root > header.ui-footer-shell .ui-avatar-tile {
     box-shadow:
-      0 8px 20px -14px oklch(0.62 0.18 265 / 0.4),
+      0 6px 16px -14px oklch(0.62 0.18 265 / 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost {
@@ -2483,6 +2525,10 @@
   .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost:hover {
     background: rgba(255, 255, 255, 0.08);
     color: white;
+  }
+  .landing-root > header.ui-footer-shell nav[aria-label="Site"] a[data-active="true"] {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
   }
   .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-primary {
     background: rgba(255, 255, 255, 0.95);
@@ -2697,6 +2743,15 @@
 }
 .landing-luminous--quiet .landing-luminous__glow {
   opacity: 0.62;
+}
+
+/* Auth surfaces dial the backdrop down further still — the focal form card is
+   the loud element, so the dotted grid and ambient glow recede behind it. */
+.landing-luminous--auth .landing-luminous__grid {
+  opacity: 0.09;
+}
+.landing-luminous--auth .landing-luminous__glow {
+  opacity: 0.45;
 }
 
 /* Light-mode-only subtle background pattern for hero-adjacent sections */
@@ -3540,21 +3595,19 @@
 .landing-root > footer.ui-footer-shell {
   position: relative;
   /* The (marketing) layout wraps page content in MarketingPageWrapper, whose
-     inner layer is `position: relative; z-index: 1`. The footer is the last
-     child of .landing-root, so matching that z-index lets the footer paint
-     above the content layer (ties break by source order). Without this the
-     decorative crown (::after at top:-0.75rem) is clipped by the page content
-     on every marketing page, while the landing page — which has no wrapper —
-     renders it fully. This keeps the crown consistent across the public site. */
+     inner layer is `position: relative; z-index: 1`. Matching that z-index lets
+     the footer's top seam (::before) paint above the content layer (ties break
+     by source order). The decorative ::after crown is disabled, so the top
+     padding no longer reserves space for it — closes the empty gap above. */
   z-index: 1;
-  padding-top: 3.5rem;
-  padding-bottom: 3rem;
+  padding-top: 2.75rem;
+  padding-bottom: 2.75rem;
 }
 
 @media (min-width: 640px) {
   .landing-root > footer.ui-footer-shell {
-    padding-top: 4rem;
-    padding-bottom: 3.5rem;
+    padding-top: 3.25rem;
+    padding-bottom: 3rem;
   }
 }
 
@@ -3575,34 +3628,25 @@
   );
 }
 
-/* Small "O" wordmark glyph as a decorative crown centered above the footer */
+/* Decorative brand "O" crown above the footer — disabled site-wide. It read as
+   a stray floating dot in the canvas above the footer on content pages. The
+   mode-specific ::after background rules below are now inert: content:none
+   generates no pseudo-element box. */
 .landing-root > footer.ui-footer-shell::after {
-  content: "O";
-  position: absolute;
-  top: -0.75rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-family: var(--font-sans);
+  content: none;
 }
 
 @media (prefers-color-scheme: light) {
   .landing-root > footer.ui-footer-shell {
+    /* No top-center radial — it concentrated into a stray "blue dot" in the gap
+       above the footer on content pages. The ::before hairline is the only
+       seam; the footer reads as a flat band. */
     background:
-      radial-gradient(ellipse 70% 100% at 50% 0%, color-mix(in oklab, var(--accent) 7%, transparent) 0%, transparent 65%),
       linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, color-mix(in oklab, var(--surface-muted) 40%, white) 100%) !important;
     border-top-color: transparent !important;
     box-shadow:
       0 1px 0 0 rgba(255, 255, 255, 0.65) inset,
-      0 -8px 24px -16px color-mix(in oklab, var(--accent) 28%, transparent);
+      0 -3px 12px -20px color-mix(in oklab, var(--accent) 14%, transparent);
     color: var(--text-secondary);
   }
   .landing-root > footer.ui-footer-shell::after {
@@ -3618,13 +3662,13 @@
 
 @media (prefers-color-scheme: dark) {
   .landing-root > footer.ui-footer-shell {
+    /* No top-center radial (see light-mode note) — flat band + ::before seam. */
     background:
-      radial-gradient(ellipse 70% 100% at 50% 0%, oklch(0.20 0.08 268 / 0.35) 0%, transparent 70%),
       linear-gradient(180deg, var(--surface) 0%, color-mix(in oklab, var(--surface) 85%, black) 100%) !important;
     border-top-color: transparent !important;
     box-shadow:
       0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-      0 -10px 30px -16px oklch(0.55 0.18 268 / 0.30);
+      0 -4px 14px -20px oklch(0.55 0.18 268 / 0.16);
   }
   .landing-root > footer.ui-footer-shell::after {
     background: linear-gradient(180deg, oklch(0.55 0.18 268) 0%, oklch(0.40 0.16 268) 100%);
@@ -3671,76 +3715,26 @@
   }
 }
 
-/* Account nav (Sign in / Sign up) — make them feel button-like, mode-aware */
+/* Account CTA pair — Request access (.ui-btn-primary) is the primary action and
+   the product tour (.ui-btn-ghost) is the ghost secondary. They carry their own
+   button styling; no account-nav overrides. The removed :last-child gradient
+   used to promote whichever link came last (the tour) to the blue button, which
+   inverted the intended hierarchy. */
 .landing-root > footer.ui-footer-shell nav[aria-label="Account"] {
   gap: 0.5rem;
 }
 
-.landing-root > footer.ui-footer-shell nav[aria-label="Account"] a {
-  padding: 0.5rem 0.875rem !important;
-  border-radius: 0.5rem;
-  text-decoration: none !important;
-  transition:
-    background var(--ui-duration) var(--ui-ease-out),
-    color var(--ui-duration) var(--ui-ease-out),
-    border-color var(--ui-duration) var(--ui-ease-out);
-  border: 1px solid transparent;
+/* Footer CTA — keep the primary's halo softer than page hero CTAs so the chrome
+   action does not out-shout page content. */
+.landing-root > footer.ui-footer-shell a.ui-btn-primary {
+  box-shadow: var(--shadow-1), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
-
-@media (prefers-color-scheme: light) {
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a {
-    color: var(--text-primary);
-  }
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:hover {
-    background: color-mix(in oklab, var(--accent-soft) 36%, transparent);
-    color: var(--accent-strong);
-    border-color: color-mix(in oklab, var(--accent) 22%, var(--border-subtle));
-  }
-  /* The second link (Sign up) gets a primary-ish styling so it pops */
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:last-child {
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--accent) 84%, white) 0%,
-      var(--accent-strong) 100%);
-    color: var(--accent-fg);
-    border-color: color-mix(in oklab, var(--accent-strong) 65%, transparent);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
-      0 6px 14px -6px color-mix(in oklab, var(--accent-strong) 45%, transparent);
-  }
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:last-child:hover {
-    filter: brightness(1.03);
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--accent) 84%, white) 0%,
-      var(--accent-strong) 100%);
-    color: var(--accent-fg);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.20) inset,
-      0 10px 22px -8px color-mix(in oklab, var(--accent-strong) 55%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a {
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:last-child {
-    background: rgba(255, 255, 255, 0.95);
-    color: oklch(0.18 0.05 260);
-    border-color: rgba(255, 255, 255, 0.55);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.30) inset,
-      0 10px 24px -10px oklch(0.55 0.18 268 / 0.45);
-  }
-  .landing-root > footer.ui-footer-shell nav[aria-label="Account"] a:last-child:hover {
-    background: white;
-    color: oklch(0.18 0.05 260);
-    filter: brightness(1.02);
-  }
+.landing-root > footer.ui-footer-shell a.ui-btn-primary:hover {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.20) inset,
+    var(--shadow-1),
+    0 10px 22px -14px color-mix(in oklab, var(--accent-strong) 45%, transparent);
+  filter: none;
 }
 
 /* Bottom accent flourish — small thin line at the very bottom of the footer */

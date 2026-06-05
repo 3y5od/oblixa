@@ -38,7 +38,16 @@ describe("Evidence release-state surface", () => {
       join(process.cwd(), "src/components/evidence/evidence-filter-bar.tsx"),
       "utf8"
     );
-    expect(bar).toContain("Clear filters");
+    const sharedBar = readFileSync(
+      join(process.cwd(), "src/components/ui/filter-bar.tsx"),
+      "utf8"
+    );
+    // The clear-filters reset now lives in the shared FilterBar, wired by the
+    // evidence bar's clearFiltersHref; the "Clear filters" affordance is in the
+    // shared component (one Clear, not one per bar).
+    expect(bar).toContain("FilterBar");
+    expect(bar).toContain("clearFiltersHref");
+    expect(sharedBar).toContain("Clear filters");
     expect(bar).toContain("buildEvidenceHref");
     // Apply-live: dropdowns navigate on change via the router, not a form submit.
     expect(bar).toContain("useRouter");

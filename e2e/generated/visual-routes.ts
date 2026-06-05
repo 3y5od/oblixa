@@ -150,7 +150,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Request workspace access."
+    "expectedHeading": "Contact Oblixa."
   },
   {
     "route": "/",

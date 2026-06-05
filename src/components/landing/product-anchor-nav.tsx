@@ -6,7 +6,7 @@ import { PRODUCT_SECTIONS } from "@/components/landing/product-sections-data";
 /** Short labels for the compact nav pills; full eyebrow is reused as the
  *  SectionCard heading, the 'Next' ActionChip verb, and the aria-live text. */
 const NAV_LABELS: Record<string, string> = {
-  replace: "Replace spreadsheet",
+  replace: "Spreadsheet",
   upload: "Upload",
   review: "Review",
   dates: "Dates",

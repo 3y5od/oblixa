@@ -39,7 +39,7 @@ export const OPERATIONAL_CONVERSION_FLOW_IDS = [
   "password-recovery",
   "billing-checkout-handoff",
   "billing-portal-handoff",
-  "dpa-security-contact",
+  "contact-directory",
 ] as const;
 
 export const OPERATIONAL_MARKETING_ASSET_METADATA_IDS = [

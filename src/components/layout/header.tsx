@@ -130,7 +130,7 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
   const showTools = showUtilitiesLink && navSurface?.mode !== "core";
 
   return (
-    <header className="ui-footer-shell sticky top-0 z-30 shrink-0 px-4 py-2.5 md:px-6 md:py-3">
+    <header className="ui-topbar sticky top-0 z-30 shrink-0 px-4 py-2.5 md:px-6 md:py-3">
       <div className="flex items-center gap-3 md:gap-4">
         <nav
           aria-label="Breadcrumb"
@@ -177,7 +177,7 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
               name="q"
               testId={shellTestIds.headerSearch}
               ariaLabel="Search workspace"
-              placeholder="Search workspace"
+              placeholder="Search contracts, work, reports…"
               kbdHint={{ meta: "⌘", key: "K" }}
               ariaKeyShortcuts="Meta+K Control+K"
               // Enter on the header search commits to the dedicated /search page.

@@ -29,7 +29,7 @@ export function WorkSortSelect({
       value={sort}
       options={options}
       ariaLabel="Sort work"
-      buttonClassName="h-9"
+      buttonClassName="h-10"
       menuWidth="fit"
       portal
       onChange={(value) =>

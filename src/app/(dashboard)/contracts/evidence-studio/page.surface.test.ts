@@ -15,7 +15,10 @@ describe("contracts evidence studio surface", () => {
     expect(page).toContain('className="min-w-0 max-w-full border-t');
     expect(page).toContain('className="min-w-0 divide-y');
     expect(filterBar).toContain('className="min-w-0 max-w-full space-y-3');
-    expect(filterBar).toContain('className="grid min-w-0 gap-x-3');
+    // The filter row is now the shared FilterBar/FilterSelect (de-formed from the
+    // old 6-col label grid), so it shares one recipe with Work, Renewals, Reports.
+    expect(filterBar).toContain("FilterBar");
+    expect(filterBar).toContain("FilterSelect");
     expect(filterBar).toContain('className="group inline-flex max-w-full');
   });
 });

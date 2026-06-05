@@ -136,12 +136,13 @@
       "freshnessWindowDays": 180,
       "requiredMarkers": [
         "LegalPageJsonLd",
-        "Request Oblixa workspace access",
-        "No marketing list",
-        "Browse Oblixa"
+        "Contact Oblixa",
+        "Request workspace access",
+        "Security and vulnerability reports",
+        "Existing workspace or billing issue"
       ],
       "contactPath": "/contact",
-      "manualBoundary": "support response and access qualification remain manual"
+      "manualBoundary": "support response, security triage, privacy/legal handling, billing support, and access qualification remain manual"
     },
     {
       "id": "security-txt",
@@ -184,7 +185,7 @@
       "lastReviewed": "2026-05-28",
       "freshnessWindowDays": 180,
       "requiredMarkers": [
-        "not intended for teams that require formal enterprise",
+        "procurement readiness",
         "Request access"
       ],
       "contactPath": "/request-access",
@@ -226,7 +227,7 @@
     },
     {
       "id": "reviewed-access-security-review-boundary",
-      "claim": "Reviewed access is not intended for teams that require formal enterprise security review before evaluation.",
+      "claim": "Reviewed access does not claim public security attestation, SLA or uptime guarantee, managed migration, or procurement readiness.",
       "sourcePath": "src/app/(marketing)/security/page.tsx",
       "capabilityRefs": [
         "security-boundary-contact"

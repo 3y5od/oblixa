@@ -1,12 +1,15 @@
-// SPEC: docs/billing-page-maximal-pass.md §3.10 — Stripe-config drift
-// assertion. Per oblixa-release-state.md §Pricing:
-//   Core Annual: $249/month billed annually ($2,988/year)
-//   Core Monthly: $299/month
-// Without anchoring at code, silent drift on the Stripe Dashboard
-// would change customer charges without code review.
+// SPEC: docs/oblixa-release-state.md §"Billing, Pricing, And Cancellation" —
+// the public Core offer is $249/month per workspace, month-to-month.
+// This anchors the Stripe price in code so silent drift on the Stripe
+// Dashboard can't change customer charges without code review.
+// (Supersedes the earlier $299/mo + $249-billed-annually model in
+//  docs/billing-page-maximal-pass.md §3.10; the release-state doc is the
+//  authority and defines a single month-to-month offer.)
+// The annual anchor is retained only as a drift guard should an annual
+// Stripe price exist; the public release offer is month-to-month.
 
 export const SPEC_ANNUAL_AMOUNT_MINOR = 298_800; // $2,988
-export const SPEC_MONTHLY_AMOUNT_MINOR = 29_900; // $299
+export const SPEC_MONTHLY_AMOUNT_MINOR = 24_900; // $249
 
 export type DriftCheck = {
   ok: boolean;
@@ -51,7 +54,7 @@ export function checkStripePriceDrift(input: {
       actual: input.amountMinor,
       interval: "month",
       message: ok
-        ? "Monthly price matches spec ($299/month)"
+        ? "Monthly price matches spec ($249/month)"
         : `Monthly price drift: expected ¢${SPEC_MONTHLY_AMOUNT_MINOR}, got ¢${input.amountMinor}`,
     };
   }

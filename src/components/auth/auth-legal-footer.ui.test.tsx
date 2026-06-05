@@ -4,10 +4,11 @@ import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { AuthLegalFooter } from "./auth-legal-footer";
 
 describe("AuthLegalFooter", () => {
-  it("renders policy links for auth surfaces", () => {
+  it("renders the operational no-legal-advice notice", () => {
+    // Policy links moved into the in-content legal row (see AuthForm); the page
+    // footer now carries only the operational notice, so it isn't duplicated.
     renderWithProviders(<AuthLegalFooter />);
-    expect(screen.getByRole("navigation", { name: /legal and policies/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Accessibility" })).toBeTruthy();
+    expect(screen.getByText(/does not provide legal advice/i)).toBeTruthy();
   });
 });
 

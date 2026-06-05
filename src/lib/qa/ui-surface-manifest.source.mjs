@@ -231,7 +231,7 @@ const publicRoutes = [
     mode: "public",
     workspaceModeTier: "public",
     shellFamily: "marketing",
-    expectedHeading: "Request workspace access.",
+    expectedHeading: "Contact Oblixa.",
     visitPath: "/contact",
     coverage: ["smoke", "a11y", "visual"],
   }),

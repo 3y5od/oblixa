@@ -158,7 +158,7 @@ export function AccountMenu({
                 if ((event.target as HTMLElement).closest('[role="menuitem"]')) setOpen(false);
               }}
               style={{ position: "fixed", top: rect.top, right: rect.right, minWidth: rect.minWidth }}
-              className="z-[60] flex w-max max-w-[20rem] flex-col rounded-[0.875rem] border border-[color:color-mix(in_oklab,var(--accent)_8%,var(--border-subtle))] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-3)]"
+              className="z-[60] flex w-max max-w-[20rem] flex-col rounded-[0.875rem] border border-[color:color-mix(in_oklab,var(--accent)_8%,var(--border-subtle))] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]"
             >
               <div className="flex items-center gap-2.5 px-2 py-2">
                 <span

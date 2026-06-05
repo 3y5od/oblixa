@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures/app-fixture";
 
 /**
  * Guards against /api/contact regressions:
- * - the marketing /contact page renders the form,
+ * - the marketing /request-access page renders the access request form,
  * - submitting valid data hits the POST endpoint without 4xx/5xx,
  * - the success state replaces the form.
  *
@@ -14,13 +14,15 @@ test.describe("public contact form", () => {
 
   test("renders, submits to /api/contact, and shows the success state", async ({ page }) => {
     await page.setExtraHTTPHeaders({ "x-forwarded-for": "203.0.113.201" });
-    await page.goto("/contact", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /request workspace access/i })).toBeVisible();
+    await page.goto("/request-access", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /track what signed contracts require next/i })).toBeVisible();
 
     await page.getByLabel(/^name$/i).fill("Test Submitter");
     await page.getByLabel(/work email/i).fill("test-submitter@example.com");
     await page.getByLabel(/company/i).fill("Acme Co");
-    await page.getByLabel(/^role$/i).fill("COO");
+    // "Role" label now carries an inline example hint, so match the start of
+    // the accessible name rather than the exact string.
+    await page.getByLabel(/^role/i).fill("COO");
     // Custom comboboxes (portaled listbox) now replace the native <select>s, so
     // drive them by opening the trigger and clicking the option. Target the
     // trigger by button role (the open listbox shares the field label via
@@ -41,8 +43,16 @@ test.describe("public contact form", () => {
     };
     await pick(/approx\. signed contracts/i, "50-200");
     await pick(/how tracked today/i, "Spreadsheet");
-    await pick(/current tracker available/i, "Yes");
-    await pick(/can share a redacted sample/i, "Yes");
+    // The yes/no answers are segmented radio groups (fieldset + legend), so
+    // pick the radio by its group's accessible name rather than a combobox.
+    const chooseSegment = async (groupName: RegExp, optionName: string) => {
+      await page
+        .getByRole("group", { name: groupName })
+        .getByRole("radio", { name: optionName, exact: true })
+        .check();
+    };
+    await chooseSegment(/current tracker available/i, "Yes");
+    await chooseSegment(/can share a redacted sample/i, "Yes");
     await page.getByLabel(/main tracking pain/i).fill("Renewals and owner follow-up live in one shared tracker.");
     await pick(/follow-up preference/i, "Async questions first");
 

@@ -3,7 +3,7 @@
   "source": "code-owned-operational-release-readiness",
   "generatedFrom": "config/operational-release-readiness.json",
   "manualBoundariesSource": "config/operational-manual-boundaries.json",
-  "commitSha": "873686430a3bb6a2d133368582a5b5811d1fbb04",
+  "commitSha": "9975dca650a1cca3660cef22820d9351c57e0f5a",
   "releaseCheckCount": 5,
   "requiredReleaseCheckCount": 5,
   "environmentContractCount": 4,
@@ -18,7 +18,7 @@
       {
         "name": "migration-manifest",
         "path": "artifacts/supabase/migration-manifest.json",
-        "sha256": "6e7dcc143b5608949e2fccd10118b9481af50866d6e6ab818f98f4bcaf38d449"
+        "sha256": "9f61dcd681cc881c59c94da78927b4db3c82ad0397cc12a8f7f8cddcfaaf6086"
       },
       {
         "name": "openapi",

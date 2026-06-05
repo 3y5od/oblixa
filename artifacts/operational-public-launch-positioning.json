@@ -23,8 +23,8 @@
       "packageScriptPresent": true,
       "ciPresent": true,
       "covers": [
-        "contact_form_smoke",
-        "public_route_smoke"
+        "public_route_smoke",
+        "request_access_form_smoke"
       ]
     },
     {
@@ -319,19 +319,19 @@
       "ok": true
     },
     {
-      "id": "contact-form",
-      "path": "src/components/landing/contact-form.tsx",
+      "id": "contact-directory",
+      "path": "src/app/(marketing)/contact/page.tsx",
       "owner": "@product-marketing",
-      "validationCommand": "test:operational-public-launch-positioning",
-      "markerCount": 3,
+      "validationCommand": "check:operational-public-launch-positioning",
+      "markerCount": 4,
       "missingCount": 0,
       "ok": true
     },
     {
-      "id": "dpa-security-contact",
-      "path": "src/app/(marketing)/contact/page.tsx",
+      "id": "contact-form",
+      "path": "src/components/landing/contact-form.tsx",
       "owner": "@product-marketing",
-      "validationCommand": "check:operational-public-launch-positioning",
+      "validationCommand": "test:operational-public-launch-positioning",
       "markerCount": 3,
       "missingCount": 0,
       "ok": true

@@ -1,20 +1,32 @@
 import type { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   Baby,
   Clock,
   Database,
   MessagesSquare,
+  Server,
   Shield,
   ShieldCheck,
   Sparkles,
   UserCog,
+  Users,
 } from "lucide-react";
 import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
+import { ActionChip } from "@/components/ui/action-chip";
 
 const title = "Privacy — Oblixa";
 const description =
-  "How Oblixa handles account data, workspace content, and operational activity for contract execution.";
+  "How Oblixa handles account data, workspace content, uploaded contract files, and operational activity for signed-contract follow-up.";
+
+// Review date is a code-owned constant (never a runtime date) so the published
+// stamp stays deterministic and the trust-compliance freshness check can reason
+// about it. LAST_REVIEWED_ISO feeds the <time> machine value; the display
+// string is the human-readable form. "Last reviewed" matches the /cookies chip.
 const LAST_REVIEWED_ISO = "2026-05-28";
+const LAST_REVIEWED_DISPLAY = "May 28, 2026";
 
 export const metadata: Metadata = {
   title,
@@ -23,6 +35,48 @@ export const metadata: Metadata = {
   openGraph: { title, description, url: "/privacy", type: "article" },
   twitter: { card: "summary_large_image", title, description },
 };
+
+// In-page contents strip — doubles as the quick summary of what the policy
+// covers. Each entry anchors to a section id below.
+const CONTENTS: ReadonlyArray<{ href: string; label: string }> = [
+  { href: "#process", label: "What we process" },
+  { href: "#why", label: "Why" },
+  { href: "#ai", label: "AI use" },
+  { href: "#providers", label: "Providers" },
+  { href: "#access", label: "Access" },
+  { href: "#retention", label: "Retention" },
+  { href: "#rights", label: "Your rights" },
+  { href: "#contact", label: "Contact" },
+];
+
+// Cross-page policy links — a quiet near-header row (the marketing footer also
+// carries the full legal-links set).
+const RELATED: ReadonlyArray<{ href: string; label: string }> = [
+  { href: "/security", label: "Security" },
+  { href: "/terms", label: "Terms" },
+  { href: "/acceptable-use", label: "Acceptable use" },
+  { href: "/contact", label: "Contact" },
+];
+
+// Data categories processed by the product, at a category level (not raw
+// infrastructure detail). Covers the release-state required set: account,
+// workspace, uploaded files, contract records, usage, billing, and
+// contact/support data. Account + billing lead so the account-level data reads
+// together.
+const PROCESSED: ReadonlyArray<{ term: string; detail: string }> = [
+  { term: "Account and sign-in", detail: "Name, email, and authentication identifiers." },
+  { term: "Billing data", detail: "Subscription and payment status (card data is held by our billing provider)." },
+  { term: "Workspace and team", detail: "Membership, roles, and workspace identity." },
+  { term: "Uploaded contract files", detail: "Signed agreements you upload (PDF, DOCX)." },
+  { term: "Extracted text and reviewed fields", detail: "Document text and the fields your team reviews." },
+  { term: "Operational records", detail: "Tasks, approvals, obligations, reminders, and evidence." },
+  { term: "Activity and audit events", detail: "Who did what, with actor and timestamp." },
+  { term: "Exports and reports", detail: "CSV exports and operational reports you generate." },
+  { term: "Access requests and contact messages", detail: "What you send through public forms." },
+  { term: "Technical and security logs", detail: "Request metadata and error diagnostics." },
+];
+
+const ROLES = ["Owner", "Admin", "Member", "Viewer"] as const;
 
 export default function PrivacyPage() {
   return (
@@ -33,172 +87,281 @@ export default function PrivacyPage() {
         tabIndex={-1}
         className="landing-luminous relative isolate flex min-h-full flex-1 flex-col overflow-hidden outline-none"
       >
+        {/* Restrained backdrop — base wash + a softened glow, no dotted grid. */}
         <div aria-hidden className="landing-luminous__base" />
-        <div aria-hidden className="landing-luminous__glow" />
-        <div aria-hidden className="landing-luminous__grid" />
-        <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-          <article className="landing-card-premium landing-card-rail relative overflow-hidden rounded-2xl border p-7 sm:p-10">
+        <div aria-hidden className="landing-luminous__glow opacity-50" />
+        <div aria-hidden className="product-top-hairline" />
+
+        <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+          {/* Intro — the single focal premium surface. Identity, lead, an in-page
+              contents strip, and a quiet related-policy row. Sections below are
+              quiet blocks rather than one giant card. */}
+          <article className="landing-card-premium landing-card-rail relative overflow-hidden rounded-2xl border p-6 sm:p-8">
             <div className="flex items-start gap-4">
               <span
                 className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_38%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
                 aria-hidden
               >
-                <Shield className="h-5 w-5" />
+                <Shield className="h-5 w-5" strokeWidth={1.85} />
               </span>
               <div className="min-w-0">
-                <p className="landing-eyebrow-dot text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+                <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
+                  <span className="landing-eyebrow-dot" aria-hidden />
                   Privacy practices
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
+                <h1 className="mt-1 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-3xl">
                   Privacy
                 </h1>
-                <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                  Last updated: {LAST_REVIEWED_ISO}
-                </p>
+                <span className="mt-2 inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_70%,transparent)] px-2.5 py-0.5">
+                  <span className="ui-caps-2 text-[9.5px] leading-none text-[var(--text-tertiary)]">Last reviewed</span>
+                  <time dateTime={LAST_REVIEWED_ISO} className="text-[11px] font-medium leading-none tabular-nums text-[var(--text-secondary)]">
+                    {LAST_REVIEWED_DISPLAY}
+                  </time>
+                </span>
               </div>
             </div>
 
-            <p className="mt-8 text-sm leading-relaxed text-[var(--text-secondary)]">
-              This page describes how Oblixa processes information in the product. It is a high-level summary
-              and may be updated as the service changes. For contractual commitments, rely on your agreement
-              with Oblixa and any order form or data processing terms your organization executes.
+            <p className="mt-5 max-w-prose text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
+              This page explains how Oblixa processes information in the product. For contractual commitments,
+              rely on your agreement with Oblixa and any order form or data processing terms your organization
+              executes.
             </p>
 
-            <div className="mt-10 space-y-7">
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
+            <nav
+              aria-label="On this page"
+              className="mt-5 flex flex-wrap items-center gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-4"
+            >
+              <span className="ui-caps-3 mr-1 text-[var(--text-tertiary)]">On this page</span>
+              {CONTENTS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_60%,transparent)] px-2.5 py-1 text-[12px] font-medium leading-none text-[var(--text-secondary)] outline-none transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:text-[var(--accent-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  <Database className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">What we process</h2>
-                  <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    <li>
-                      <strong>Account data</strong> such as name, email, and authentication identifiers needed to
-                      operate sign-in and workspace membership.
-                    </li>
-                    <li>
-                      <strong>Workspace and contract operations data</strong> you enter or upload—including
-                      agreement files, extracted fields, tasks, approvals, reminders, and audit events tied to your
-                      organization&apos;s use of the product.
-                    </li>
-                    <li>
-                      <strong>Technical and security data</strong> such as logs required to run, secure, and
-                      troubleshoot the service (for example request metadata and error diagnostics), subject to your
-                      deployment configuration and retention practices.
-                    </li>
-                  </ul>
-                </div>
-              </div>
+                  {item.label}
+                </a>
+              ))}
+            </nav>
 
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]">
+              <span className="ui-caps-3 text-[var(--text-tertiary)]">More policies</span>
+              {RELATED.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-sm text-[var(--text-tertiary)] underline-offset-2 outline-none transition-colors hover:text-[var(--accent-strong)] hover:underline focus-visible:text-[var(--accent-strong)] focus-visible:underline"
                 >
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">Why we process it</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    We use this information to provide the contract execution features you configure, to
-                    authenticate users, to enforce organization boundaries, to send operational notifications you
-                    enable, and to maintain the security and reliability of the service.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">AI-assisted extraction</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    Where you use extraction features, content you upload may be processed to suggest operational
-                    fields. Your team remains responsible for reviewing and approving values before they drive
-                    workflows. Oblixa does not provide legal advice.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
-                >
-                  <Clock className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">Retention</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    Retention depends on your workspace configuration, integrations, and administrative actions
-                    (for example exports, deletions, or contract lifecycle in the product). Administrators should use
-                    in-product tools and organizational policy to manage how long records are kept.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
-                >
-                  <UserCog className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">Your rights</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    Depending on your jurisdiction, you may have rights to access, correct, delete, or export
-                    personal data. Workspace administrators typically control membership and many operational
-                    records; contact your admin first, then reach out through the support channel your organization
-                    uses for Oblixa.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-                  aria-hidden
-                >
-                  <Baby className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">Children</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    The service is not directed to children and is intended for business use.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10 rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] p-5">
-              <div className="flex items-start gap-3">
-                <span
-                  className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] bg-[var(--surface-raised)] text-[var(--accent-strong)]"
-                  aria-hidden
-                >
-                  <MessagesSquare className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">Contact</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                    For privacy requests, use the support process established for your workspace. If you are unsure
-                    who that is, start from an authenticated session in the product or ask your organization&apos;s
-                    Oblixa administrator.
-                  </p>
-                </div>
-              </div>
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </article>
+
+          {/* What we process — full-width card with a scannable two-column
+              category grid instead of dense bullets. */}
+          <section className="mt-3">
+            <PolicyCard id="process" eyebrow="Information we process" title="What we process" icon={Database}>
+              <dl className="grid gap-x-10 sm:grid-cols-2">
+                {PROCESSED.map((item) => (
+                  <div
+                    key={item.term}
+                    className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] py-2.5"
+                  >
+                    <dt className="text-[12.5px] font-semibold text-[var(--text-primary)]">{item.term}</dt>
+                    <dd className="mt-0.5 text-[12.5px] leading-snug text-[var(--text-secondary)]">{item.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </PolicyCard>
+          </section>
+
+          {/* Why + AI — paired cards. */}
+          <section className="mt-3 grid gap-3 md:grid-cols-2 md:items-stretch">
+            <PolicyCard id="why" eyebrow="Purpose" title="Why we process it" icon={ShieldCheck}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                We use this information to provide the signed-contract follow-up features you configure, to
+                authenticate users, to enforce workspace boundaries, to send the operational notifications you
+                enable, and to keep the service secure and reliable.
+              </p>
+            </PolicyCard>
+
+            <PolicyCard id="ai" eyebrow="AI and review" title="AI-assisted extraction" icon={Sparkles}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                Where you use extraction, uploaded files or extracted text may be sent to an AI provider only to
+                suggest operational fields. A source snippet backs each suggestion where available, and values are
+                not trusted until your team reviews and approves them. Oblixa does not provide legal advice.
+              </p>
+              <p className="mt-2.5 text-[12px] leading-snug text-[var(--text-tertiary)]">
+                You remain responsible for only uploading data your organization is authorized to process.
+              </p>
+            </PolicyCard>
+          </section>
+
+          {/* Providers + Access — paired cards. */}
+          <section className="mt-3 grid gap-3 md:grid-cols-2 md:items-stretch">
+            <PolicyCard id="providers" eyebrow="Service providers" title="Providers and subprocessors" icon={Server}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                We rely on service providers (subprocessors) to operate Oblixa — for hosting and storage, email
+                delivery, billing, and AI-assisted extraction. We work to limit each provider to the data needed
+                for its function.
+              </p>
+            </PolicyCard>
+
+            <PolicyCard id="access" eyebrow="Access controls" title="Access and workspace controls" icon={Users}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                Workspace data is visible to members of that workspace, scoped by role. Cross-workspace access is
+                blocked. Authorized Oblixa support may access data only with controls and audit when needed to
+                operate or troubleshoot the service.
+              </p>
+              <div className="mt-3">
+                <p className="ui-caps-3 text-[var(--text-tertiary)]">Roles</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {ROLES.map((role) => (
+                    <span
+                      key={role}
+                      className="ui-caps-3 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_50%,transparent)] px-1.5 py-0.5 text-[var(--text-tertiary)]"
+                    >
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </PolicyCard>
+          </section>
+
+          {/* Retention + Your rights — flattened to quiet hairline sections (no
+              card boxes) so the lower half of the page breaks the card rhythm.
+              Export and deletion paths are named explicitly under Your rights. */}
+          <section className="mt-6 grid gap-x-10 gap-y-6 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-6 sm:grid-cols-2">
+            <FlatSection id="retention" eyebrow="Retention" title="How long records are kept" icon={Clock}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                Retention depends on your workspace configuration and administrative actions — exports, deletions,
+                and contract lifecycle in the product. Administrators control retention through in-product tools
+                and organizational policy. Some records, such as audit history, are retained to keep the service
+                secure and accountable.
+              </p>
+            </FlatSection>
+
+            <FlatSection id="rights" eyebrow="Your data" title="Your rights" icon={UserCog}>
+              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                Your rights over personal data — to access, correct, delete, or export it — depend on your
+                jurisdiction. In the product you can export contract records and reports as CSV, and workspace
+                data deletion is available by request.
+              </p>
+              <p className="mt-2.5 text-[12px] leading-snug text-[var(--text-tertiary)]">
+                Many operational records are controlled by your workspace administrators — contact your admin
+                first, then use the contact path below.
+              </p>
+            </FlatSection>
+          </section>
+
+          {/* Children — a quiet hairline note. */}
+          <section
+            id="children"
+            aria-labelledby="privacy-children-h"
+            className="mt-6 flex items-start gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-5"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-tertiary)]"
+            >
+              <Baby className="h-[1.05rem] w-[1.05rem]" strokeWidth={1.85} />
+            </span>
+            <div className="min-w-0">
+              <p className="ui-caps-3 text-[var(--text-tertiary)]">Children</p>
+              <h2 id="privacy-children-h" className="mt-0.5 text-[1rem] font-semibold tracking-tight text-[var(--text-primary)]">
+                Intended for business use
+              </h2>
+              <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                The service is not directed to children and is intended for business use.
+              </p>
+            </div>
+          </section>
+
+          {/* Contact — actionable, with clear public and signed-in paths. */}
+          <section className="mt-6">
+            <PolicyCard id="contact" eyebrow="Contact" title="Privacy and data requests" icon={MessagesSquare}>
+              <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
+                <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                  For privacy, export, or deletion requests, contact Oblixa. Signed-in users can also reach
+                  support from inside the product; if you are not signed in, use the contact page.
+                </p>
+                <div className="flex flex-col items-start gap-2 sm:items-end">
+                  <ActionChip verb="Contact Oblixa" href="/contact" />
+                  <ActionChip verb="Security practices" href="/security" />
+                </div>
+              </div>
+            </PolicyCard>
+          </section>
         </div>
       </main>
     </>
+  );
+}
+
+/** Quiet supporting section card — neutral icon tile keeps accent reserved for
+ *  the focal intro card, links, and action chips. Mirrors the /security cohort.
+ *  The `id` is the anchor target for the in-page contents strip. */
+function PolicyCard({
+  id,
+  eyebrow,
+  title,
+  icon: Icon,
+  children,
+}: {
+  id?: string;
+  eyebrow: string;
+  title: string;
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <article
+      id={id}
+      className="relative flex scroll-mt-24 flex-col rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] p-5"
+    >
+      <span
+        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]"
+        aria-hidden
+      >
+        <Icon className="h-[1.05rem] w-[1.05rem]" strokeWidth={1.85} />
+      </span>
+      <p className="ui-caps-1 mt-3.5 text-[10.5px] text-[var(--accent-strong)]">{eyebrow}</p>
+      <h2 className="mt-1.5 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">{title}</h2>
+      <div className="mt-3 flex-1">{children}</div>
+    </article>
+  );
+}
+
+/** Flat (no-box) section — neutral icon tile + eyebrow + title + body on a
+ *  shared hairline. Used for lower-priority sections so they read lighter than
+ *  the bordered PolicyCards above. */
+function FlatSection({
+  id,
+  eyebrow,
+  title,
+  icon: Icon,
+  children,
+}: {
+  id?: string;
+  eyebrow: string;
+  title: string;
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <div id={id} className="flex scroll-mt-24 items-start gap-3">
+      <span
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]"
+        aria-hidden
+      >
+        <Icon className="h-[1.05rem] w-[1.05rem]" strokeWidth={1.85} />
+      </span>
+      <div className="min-w-0">
+        <p className="ui-caps-1 text-[10.5px] text-[var(--accent-strong)]">{eyebrow}</p>
+        <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">{title}</h2>
+        <div className="mt-2">{children}</div>
+      </div>
+    </div>
   );
 }

@@ -83,7 +83,7 @@ export const faqItems = [
    (`docs/oblixa-release-state.md` §Home Page > Problem). v9 trim to 4
    violated the spec; v10 restores all 6 bullets. */
 export const problemSectionTitle =
-  "Your contracts are signed. The follow‑up is scattered.";
+  "Your contracts are signed. The follow-up is scattered.";
 export const problemBullets = [
   "Renewal and notice dates live in spreadsheets",
   "Obligations are buried in PDFs",
@@ -165,14 +165,15 @@ export const bestFitItems = [
   "The first evaluation can start with a small contract subset, not a full migration",
 ] as const;
 
-/* Pricing CTA section — release-state spec §Home Page > Pricing CTA.
-   Restored in v10 after v9 deletion violated the spec. v13: heading
-   shortened (was a 2-clause sentence rendered at display scale); the
-   founding-plan caveat moves to a supporting lead so the headline reads
-   as one clear promise. */
-export const pricingCtaMessage = "Request reviewed workspace access.";
+/* Pricing CTA section — release-state spec §"Billing, Pricing, And
+   Cancellation": the public Core offer is decided and published plainly
+   ($249 per month per workspace, month-to-month, charged only after approval +
+   explicit checkout). Access review is a condition, not the headline — the
+   prior "Request reviewed workspace access" framing led with access and hid
+   the price, which the release-state pricing posture forbids. */
+export const pricingCtaMessage = "One Core plan. $249 per workspace, monthly.";
 export const pricingCtaLead =
-  "Pricing is disclosed during access review or after approval before any charge. Continued use is paid; there is no public free-trial claim.";
+  "Billed month-to-month, with up to 500 active contracts and 10 users. You're charged only after access is approved and you explicitly check out — no free trial, no annual lock-in.";
 
 /* Trust chip badges — moved to the marketing footer in v9 (was a standalone
    Trust band section on the landing page). */

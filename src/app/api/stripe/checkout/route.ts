@@ -87,7 +87,32 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!canManageWorkspaceBilling(membership.role)) {
+  const { data: orgRow, error: orgError } = await admin
+    .from("organizations")
+    .select("id, name, owner_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
+    .eq("id", membership.organization_id)
+    .single();
+
+  if (orgError) {
+    console.error("[stripe/checkout] organization query:", orgError.message);
+    return jsonProblem(500, {
+      error: "Could not load organization",
+      code: "organization_load_failed",
+      diagnostic_id: "stripe_checkout_organization_load_failed",
+      route: ROUTE,
+    });
+  }
+
+  if (!orgRow) {
+    return jsonProblem(400, {
+      error: "No organization membership",
+      code: "organization_membership_missing",
+      diagnostic_id: "stripe_checkout_membership_missing",
+      route: ROUTE,
+    });
+  }
+
+  if (!canManageWorkspaceBilling(membership.role, { isWorkspaceOwner: orgRow.owner_user_id === user.id })) {
     return jsonForbidden(ROUTE);
   }
 
@@ -150,30 +175,6 @@ export async function POST(request: Request) {
     method: "POST",
   }).catch(() => undefined);
 
-  const { data: orgRow, error: orgError } = await admin
-    .from("organizations")
-    .select("id, name, owner_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_status")
-    .eq("id", membership.organization_id)
-    .single();
-
-  if (orgError) {
-    console.error("[stripe/checkout] organization query:", orgError.message);
-    return jsonProblem(500, {
-      error: "Could not load organization",
-      code: "organization_load_failed",
-      diagnostic_id: "stripe_checkout_organization_load_failed",
-      route: ROUTE,
-    });
-  }
-
-  if (!orgRow) {
-    return jsonProblem(400, {
-      error: "No organization membership",
-      code: "organization_membership_missing",
-      diagnostic_id: "stripe_checkout_membership_missing",
-      route: ROUTE,
-    });
-  }
   const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
     console.error("[stripe/checkout] config:", stripeClient.error);

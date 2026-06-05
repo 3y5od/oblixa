@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/acceptable-use", label: "Acceptable use" },
   { href: "/accessibility", label: "Accessibility" },
   { href: "/cookies", label: "Cookies" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 export function LegalLinks({

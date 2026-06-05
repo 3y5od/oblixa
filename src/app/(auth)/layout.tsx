@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AuthLegalFooter } from "@/components/auth/auth-legal-footer";
 
 export const metadata: Metadata = {
   title: "Sign in — Oblixa",
@@ -13,13 +12,12 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   // Single coherent backdrop: the auth <main> renders its own `landing-luminous`
-  // layer, so the page no longer stacks a header-backdrop + marketing atmosphere
-  // on top of it. Rendering children directly as a flex child lets the main fill
-  // the viewport and keeps the legal footer pinned to the bottom.
+  // layer and fills the viewport. The legal links + operational notice live
+  // inside that content block (see AuthForm) so they hug the columns and the
+  // luminous backdrop fills the calm space below — no viewport-pinned footer.
   return (
     <div className="landing-root relative flex min-h-screen flex-col overflow-x-clip bg-canvas text-[var(--text-primary)] antialiased">
       {children}
-      <AuthLegalFooter />
     </div>
   );
 }

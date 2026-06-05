@@ -81,7 +81,7 @@ export async function GET(request: Request) {
           return NextResponse.redirect(`${origin}/login?error=invite_seat_limit`);
         }
 
-        await admin.from("organization_members").upsert(
+        const { error: memberUpsertError } = await admin.from("organization_members").upsert(
           {
             organization_id: inv.organization_id,
             user_id: user.id,
@@ -89,11 +89,23 @@ export async function GET(request: Request) {
           },
           { onConflict: "organization_id,user_id" }
         );
+        if (memberUpsertError) {
+          console.error("[auth/callback] invite membership upsert failed", memberUpsertError.message);
+          return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
+        }
 
-        await admin
+        const { data: consumedInvite, error: inviteConsumeError } = await admin
           .from("organization_invites")
           .update({ consumed_at: new Date().toISOString() })
-          .eq("id", inv.id);
+          .eq("id", inv.id)
+          .is("consumed_at", null)
+          .is("revoked_at", null)
+          .select("id")
+          .maybeSingle();
+        if (inviteConsumeError || !consumedInvite?.id) {
+          console.error("[auth/callback] invite consume failed", inviteConsumeError?.message);
+          return NextResponse.redirect(`${origin}/login?error=invite_invalid`);
+        }
         orgIdForLanding = inv.organization_id;
       } else {
         orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
@@ -119,6 +131,9 @@ export async function GET(request: Request) {
           }
           await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user));
           orgIdForLanding = await getUserPrimaryOrganizationId(admin, user.id);
+          if (!orgIdForLanding) {
+            return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
+          }
         }
       }
 

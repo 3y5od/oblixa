@@ -46,7 +46,7 @@ const REQUIRED_CONVERSION_FLOWS = new Set([
   "password-recovery",
   "billing-checkout-handoff",
   "billing-portal-handoff",
-  "dpa-security-contact",
+  "contact-directory",
 ]);
 
 const REQUIRED_ASSET_METADATA = new Set([

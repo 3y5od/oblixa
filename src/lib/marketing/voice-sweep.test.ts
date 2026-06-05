@@ -10,7 +10,6 @@ const FORBIDDEN_PUBLIC_COPY = [
   "Book setup call",
   "Try Oblixa free",
   "Create free account",
-  "$249",
   "$299",
   "Founding Customer",
   "Guided Pilot",
@@ -99,9 +98,12 @@ describe("public marketing release-state voice sweep", () => {
 
     expect(security).toContain("reviewed access");
     expect(security).toContain("does not provide legal advice");
-    expect(security).toContain("not intended for teams that require formal enterprise");
-    expect(contact).toContain("Request access");
-    expect(contact).toContain("View product tour");
+    expect(security).toContain("procurement readiness");
+    expect(contact).toContain("Contact Oblixa");
+    expect(contact).toContain("Request workspace access");
+    expect(contact).toContain("Security and vulnerability reports");
+    expect(contact).toContain("Existing workspace or billing issue");
+    expect(contact).not.toContain("ContactForm");
     expect(contact).not.toContain("1-day reply");
   });
 });

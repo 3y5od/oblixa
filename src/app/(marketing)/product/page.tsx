@@ -136,18 +136,17 @@ function Hero() {
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
         </Link>
         <Link
-          href="#replace"
-          prefetch={false}
+          href="/pricing"
           className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
         >
-          View product tour
+          See pricing
         </Link>
       </div>
 
       {/* Dashboard preview — the shared product-mock frame (MockShell), so the
           hero's lead preview shares chrome, shadow, and caption vocabulary with
           the inter-section mocks instead of being a bespoke one-off. */}
-      <div className="mx-auto mt-10 max-w-2xl text-left">
+      <div className="mx-auto mt-8 max-w-3xl text-left">
         <DashboardOverviewPreview />
       </div>
     </header>
@@ -461,10 +460,10 @@ function ClosingCta() {
       <div className="relative">
         <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--success-ink)]">
           <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--success-ink)]" />
-          Reviewed access
+          Start now
         </p>
         <h2 className="mt-3 text-balance text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[2.125rem]">
-          Start replacing the spreadsheet this quarter.
+          Start tracking your signed-contract follow-up this quarter.
         </h2>
         {/* Proof bar — CSS-divided cells (no text middle-dots). */}
         <div className="mx-auto mt-4 inline-flex divide-x divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] text-[11.5px] font-semibold text-[var(--text-tertiary)]">
@@ -479,13 +478,6 @@ function ClosingCta() {
           >
             Request access
             <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-          </Link>
-          <Link
-            href="#replace"
-            prefetch={false}
-            className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
-          >
-            View product tour
           </Link>
         </div>
         {/* Tertiary actions — quiet ghost chips (no underlined prose links). */}
@@ -503,7 +495,7 @@ function ClosingCta() {
             prefetch={false}
             className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
           >
-            Early-access pricing
+            Pricing
             <ArrowUpRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
           </Link>
         </div>
@@ -550,10 +542,10 @@ export default function ProductPage() {
         <span id="top" aria-hidden className="absolute top-0" />
         <div aria-hidden className="landing-luminous__base" />
         <div aria-hidden className="landing-luminous__glow opacity-60" />
-        <div aria-hidden className="landing-luminous__grid" />
+        <div aria-hidden className="landing-luminous__grid opacity-50" />
         <div aria-hidden className="product-top-hairline" />
 
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
           <Hero />
           <BeforeAfter />
           <TimeToValue />

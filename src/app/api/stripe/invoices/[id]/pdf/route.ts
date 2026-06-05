@@ -57,7 +57,14 @@ export async function GET(
       route: ROUTE,
     });
   }
-  if (!canManageWorkspaceBilling(membership.role)) return jsonForbidden(ROUTE);
+  const { data: orgRow } = await admin
+    .from("organizations")
+    .select("owner_user_id, stripe_customer_id")
+    .eq("id", membership.organization_id)
+    .single();
+  if (!orgRow || !canManageWorkspaceBilling(membership.role, { isWorkspaceOwner: orgRow.owner_user_id === user.id })) {
+    return jsonForbidden(ROUTE);
+  }
 
   const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(
@@ -66,11 +73,6 @@ export async function GET(
   );
   if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
 
-  const { data: orgRow } = await admin
-    .from("organizations")
-    .select("owner_user_id, stripe_customer_id")
-    .eq("id", membership.organization_id)
-    .single();
   if (!orgRow?.stripe_customer_id) return jsonForbidden(ROUTE);
 
   const stripeClient = await getStripeClient();

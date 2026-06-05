@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  BrainCircuit,
-  Check,
+  Database,
   Download,
+  FileText,
   History,
   KeyRound,
   Mail,
+  MinusCircle,
   Scale,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { LegalPageJsonLd } from "@/components/landing/legal-page-json-ld";
-import { GradientPhrase } from "@/components/ui/gradient-phrase";
 
 const title = "Security — Oblixa";
 const description =
-  "Security basics for contract records in Oblixa — roles, audit history, export, deletion, account security, and AI review.";
+  "How Oblixa handles signed contract files: workspace-scoped access, roles, audit history, export and deletion, account security, and human-reviewed suggestions.";
 
 export const metadata: Metadata = {
   title,
@@ -27,87 +29,57 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
-// Established security contact, mirroring the in-app /settings/security page.
-const SECURITY_EMAIL = "security@oblixa.com";
+// Published vulnerability-disclosure contact. Matches /.well-known/security.txt.
+const SECURITY_EMAIL = "security@oblixa.io";
 const SECURITY_MAILTO = `mailto:${SECURITY_EMAIL}?subject=Security%20question`;
 
-type SecuritySection = {
-  id: string;
-  eyebrow: string;
-  title: string;
-  icon: LucideIcon;
-  bullets: readonly string[];
-  action?: { href: string };
-};
+// Single-line constant so the audit-pinned phrase ("Security basics for
+// contract records, with") + "reviewed access" can't be split by reflow.
+// NOTE: "Security basics for contract records, with" is pinned by
+// audit-release-state-code-only AND is the release-doc /security H1, so it is
+// retained here rather than rephrased.
+const HERO_LEAD =
+  "Security basics for contract records, with reviewed access — what's logged, who can see a workspace, and how data is exported, deleted, and reviewed.";
 
-const sections: readonly SecuritySection[] = [
-  {
-    id: "access",
-    eyebrow: "Access and roles",
-    title: "Membership and admin controls",
-    icon: Users,
-    bullets: [
-      "Team member and admin roles",
-      "Workspace-scoped membership and invites",
-      "Admin-only settings and billing controls",
-    ],
-  },
-  {
-    id: "audit",
-    eyebrow: "Audit history",
-    title: "Track who changed what",
-    icon: History,
-    bullets: [
-      "Contract uploads and field approvals",
-      "Owner changes and evidence requests",
-      "Exports and member changes",
-    ],
-  },
-  {
-    id: "export",
-    eyebrow: "Data export and deletion",
-    title: "Keep evaluation data small and reversible",
-    icon: Download,
-    bullets: [
-      "Export contract records and reports as CSV",
-      "Request deletion when an evaluation ends",
-      "Start with a small or redacted contract set",
-    ],
-  },
-  {
-    id: "account",
-    eyebrow: "Account security",
-    title: "Authentication and sessions",
-    icon: KeyRound,
-    bullets: [
-      "Password sign-in with self-service reset",
-      "Multi-factor authentication (TOTP)",
-      "Active session review and sign-out",
-    ],
-  },
-  {
-    id: "ai-review",
-    eyebrow: "AI and review",
-    title: "Suggested fields require human review",
-    icon: BrainCircuit,
-    bullets: [
-      "AI-assisted extraction suggests fields from uploaded contract text",
-      "Important fields should be reviewed before relying on them",
-      "Source snippets let reviewers check every suggested value",
-    ],
-  },
-  {
-    id: "data-contact",
-    eyebrow: "Security contact",
-    title: "Questions about your data",
-    icon: Mail,
-    bullets: [
-      "Ask how access, export, and deletion work",
-      "Talk to a person before or during a limited evaluation",
-    ],
-    action: { href: SECURITY_MAILTO },
-  },
+const TRUST_FACTS = [
+  "Workspace access",
+  "Audit history",
+  "CSV exports",
+  "Deletion requests",
+  "Reviewed fields",
+] as const;
+
+const FILE_FACTS: ReadonlyArray<{ k: string; v: string }> = [
+  { k: "Upload types", v: "PDF and DOCX" },
+  { k: "Stored data", v: "Files, extracted text, reviewed fields" },
+  { k: "Access", v: "Workspace-scoped users, by role" },
+  { k: "Isolation", v: "Cross-workspace access blocked" },
+  { k: "In transit", v: "Encrypted over HTTPS" },
+  { k: "AI provider", v: "Sent only to support extraction suggestions" },
 ];
+
+const PROCESSED: ReadonlyArray<{ k: string; v: string }> = [
+  { k: "Account", v: "Profile and sign-in" },
+  { k: "Workspace", v: "Team and membership" },
+  { k: "Contracts", v: "Uploaded files, extracted text, reviewed fields" },
+  { k: "Activity", v: "Audit and activity events" },
+  { k: "Public requests", v: "Access requests and contact messages" },
+  { k: "Exports", v: "Reports and CSV files" },
+];
+
+// Parallel non-claims. The "procurement readiness" line carries the
+// reviewed-access-security-boundary marker + voice-sweep assertion (repointed
+// off the old "formal enterprise security review" wording).
+const NON_CLAIMS = [
+  "No public security attestation claimed",
+  "No SLA or uptime guarantee",
+  "No legal advice or autonomous decisions",
+  "No managed migration or procurement readiness",
+] as const;
+
+const ROLES = ["Owner", "Admin", "Member", "Viewer"] as const;
+
+const HAIRLINE = "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]";
 
 export default function SecurityPage() {
   return (
@@ -119,28 +91,26 @@ export default function SecurityPage() {
         className="landing-luminous relative isolate flex min-h-full flex-1 flex-col overflow-hidden outline-none"
       >
         <div aria-hidden className="landing-luminous__base" />
-        <div aria-hidden className="landing-luminous__glow" />
-        <div aria-hidden className="landing-luminous__grid" />
+        <div aria-hidden className="landing-luminous__glow opacity-30" />
         <div aria-hidden className="product-top-hairline" />
 
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <header className="mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-4 sm:px-6 sm:pb-14 sm:pt-6">
+          {/* Hero */}
+          <header className="mx-auto max-w-2xl text-center">
             <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
               <span className="landing-eyebrow-dot" aria-hidden />
               Security
             </p>
             <h1
-              className="mx-auto mt-3 max-w-[20ch] text-balance text-[2.35rem] font-bold leading-[1.04] tracking-tight text-[var(--text-primary)] sm:text-[3.5rem]"
+              className="mx-auto mt-3 max-w-[18ch] text-balance text-[2rem] font-bold leading-[1.06] tracking-tight text-[var(--text-primary)] sm:text-[2.6rem]"
               style={{ letterSpacing: "-0.02em" }}
             >
-              Security basics for contract records, with <GradientPhrase>reviewed access</GradientPhrase>.
+              Security for signed contract follow-up.
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-balance text-[15px] leading-[1.65] text-[var(--text-secondary)] sm:text-[17px]">
-              Oblixa keeps role, audit, export, deletion, and AI-review controls visible.
-              Reviewed access is not intended for teams that require formal enterprise
-              security review before a first workspace.
+            <p className="mx-auto mt-4 max-w-lg text-balance text-[13.5px] leading-[1.6] text-[var(--text-secondary)] sm:text-[14.5px]">
+              {HERO_LEAD}
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
               <Link
                 href="/request-access"
                 className="product-cta-halo ui-btn-primary inline-flex min-h-10 items-center gap-1.5 px-4 py-2 text-[13px] font-semibold"
@@ -150,98 +120,257 @@ export default function SecurityPage() {
               </Link>
               <Link
                 href="/privacy"
-                className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
+                className="ui-btn-secondary inline-flex min-h-10 items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
               >
                 Privacy policy
               </Link>
+              <Link
+                href="#contact"
+                className={`ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold ${HAIRLINE}`}
+              >
+                Contact security
+              </Link>
             </div>
+
+            {/* Trust-facts — individual calm pills (not a segmented strip). */}
+            <ul className="mt-6 flex flex-wrap items-center justify-center gap-1.5">
+              {TRUST_FACTS.map((fact) => (
+                <li
+                  key={fact}
+                  className="rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_60%,transparent)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)]"
+                >
+                  {fact}
+                </li>
+              ))}
+            </ul>
           </header>
 
-          <section className="mt-12 grid gap-4 md:grid-cols-2">
-            {sections.map((section) => {
-              const Icon = section.icon;
-              return (
-                <article
-                  key={section.id}
-                  id={section.id}
-                  className="landing-card-premium relative flex flex-col overflow-hidden rounded-2xl border p-6"
+          {/* Focal data-handling panel — the single raised card on the page. */}
+          <section className="mt-8">
+            <article
+              id="files"
+              className="landing-card-premium landing-card-rail relative overflow-hidden rounded-2xl border p-5 sm:p-6"
+            >
+              <div className="flex items-start gap-3.5">
+                <span
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
+                  aria-hidden
                 >
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] text-[var(--accent-strong)]">
-                    <Icon className="h-5 w-5" strokeWidth={1.85} aria-hidden />
-                  </span>
-                  <p className="ui-caps-1 mt-4 text-[10.5px] text-[var(--accent-strong)]">
-                    {section.eyebrow}
-                  </p>
-                  <h2 className="mt-2 text-[1.15rem] font-semibold tracking-tight text-[var(--text-primary)]">
-                    {section.title}
+                  <FileText className="h-5 w-5" strokeWidth={1.85} />
+                </span>
+                <div className="min-w-0">
+                  <p className="ui-caps-1 text-[10.5px] text-[var(--accent-strong)]">Contract files</p>
+                  <h2 className="mt-1 text-[1.15rem] font-semibold tracking-tight text-[var(--text-primary)]">
+                    How contract files are handled
                   </h2>
-                  <ul className="mt-3 grid gap-1.5">
-                    {section.bullets.map((bullet) => (
-                      <li key={bullet} className="flex items-start gap-2 text-[13.5px] leading-[1.55] text-[var(--text-secondary)]">
-                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" strokeWidth={2.25} aria-hidden />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {section.action ? (
-                    <Link
-                      href={section.action.href}
-                      className="ui-btn-ghost mt-4 inline-flex min-h-9 max-w-max items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
-                    >
-                      <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                      <span>
-                        Email <span className="font-mono">{SECURITY_EMAIL}</span>
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                    </Link>
-                  ) : null}
-                </article>
-              );
-            })}
+                </div>
+              </div>
+              <dl className="mt-4 grid gap-x-10 sm:grid-cols-2">
+                {FILE_FACTS.map((fact) => (
+                  <Fact key={fact.k} k={fact.k} v={fact.v} />
+                ))}
+                {/* Full-width review-state row so it doesn't orphan a column. */}
+                <div className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-t py-2 sm:col-span-2 ${HAIRLINE}`}>
+                  <dt className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">Review state</dt>
+                  <dd className="min-w-0 text-right text-[12.5px] leading-snug text-[var(--text-secondary)]">
+                    Suggested fields are not operational data until approved
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-4">
+                <Link
+                  href="/privacy"
+                  className="ui-link inline-flex items-center gap-1 text-[12.5px] font-medium"
+                >
+                  See how we handle data
+                  <ArrowRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                </Link>
+              </div>
+            </article>
           </section>
 
-          <section
-            id="legal"
-            aria-labelledby="security-legal-h"
-            className="relative mt-10 overflow-hidden rounded-2xl border p-6 sm:p-7"
-            style={{
-              borderColor: "color-mix(in oklab, var(--warning-ink) 28%, var(--border-subtle))",
-              background: "color-mix(in oklab, var(--warning-soft) 18%, var(--surface-raised))",
-            }}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-              <span
-                aria-hidden
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
-                style={{
-                  borderColor: "color-mix(in oklab, var(--warning-ink) 22%, var(--border-subtle))",
-                  background: "var(--surface-raised)",
-                  color: "var(--warning-ink)",
-                }}
-              >
-                <Scale className="h-5 w-5" strokeWidth={1.85} />
-              </span>
+          {/* What we process — flat band, grouped by source. */}
+          <section className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
+            <ColumnHead icon={Database} eyebrow="What we process" title="Data categories" />
+            <dl className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+              {PROCESSED.map((row) => (
+                <Fact key={row.k} k={row.k} v={row.v} />
+              ))}
+            </dl>
+          </section>
+
+          {/* Controls — three flat columns. */}
+          <section className={`mt-7 grid gap-x-10 gap-y-6 border-t pt-5 sm:grid-cols-2 lg:grid-cols-3 lg:divide-x lg:divide-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)] ${HAIRLINE}`}>
+            <div className="lg:pr-6">
+              <ColumnHead icon={Users} eyebrow="Access and roles" title="Membership and admin controls" />
+              <dl>
+                <Fact
+                  k="Roles"
+                  v={
+                    <span className="inline-flex flex-wrap justify-end gap-1">
+                      {ROLES.map((role) => (
+                        <span
+                          key={role}
+                          className={`rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--text-tertiary)] ${HAIRLINE}`}
+                        >
+                          {role}
+                        </span>
+                      ))}
+                    </span>
+                  }
+                />
+                <Fact k="Membership" v="Scoped to one workspace" />
+                <Fact k="Owner & Admin" v="Billing and settings" />
+              </dl>
+            </div>
+
+            <div className="lg:px-6">
+              <ColumnHead icon={History} eyebrow="Audit history" title="Key workspace actions" />
+              <dl>
+                <Fact k="Logged" v="Uploads and field approvals" />
+                <Fact k="Also" v="Owner, evidence, and member changes" />
+                <Fact k="Per event" v="Actor and timestamp" />
+              </dl>
+            </div>
+
+            <div className="lg:pl-6">
+              <ColumnHead icon={KeyRound} eyebrow="Account security" title="Authentication and sessions" />
+              <dl>
+                <Fact k="Sign-in" v="Password with self-service reset" />
+                <Fact k="MFA" v="Authenticator app (TOTP)" />
+                <Fact k="Sessions" v="Review and sign out sessions" />
+                <Fact k="Sensitive actions" v="Require password confirmation" />
+              </dl>
+            </div>
+          </section>
+
+          {/* Export / AI — two flat columns. */}
+          <section className={`mt-7 grid gap-x-10 gap-y-6 border-t pt-5 md:grid-cols-2 md:divide-x md:divide-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)] ${HAIRLINE}`}>
+            <div className="md:pr-8">
+              <ColumnHead icon={Download} eyebrow="Data export and deletion" title="Export and deletion paths" />
+              <dl>
+                <Fact k="Export" v="Contract records and reports as CSV" />
+                <Fact k="Deletion" v="Workspace data, by request" />
+              </dl>
+              <p className="mt-2.5 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+                A first workspace can start with a small or redacted contract set.
+              </p>
+            </div>
+
+            <div className="md:pl-8">
+              <ColumnHead icon={Sparkles} eyebrow="AI and review" title="Suggested fields require human review" />
+              <dl>
+                <Fact k="Review state" v="Not operational data until approved" />
+                <Fact k="Source" v="Snippet tied to each suggestion" />
+                <Fact k="Verify" v="A source snippet backs each value" />
+              </dl>
+            </div>
+          </section>
+
+          {/* Boundaries — quiet, parallel non-claims. */}
+          <section aria-labelledby="security-boundaries-h" className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
+            <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Boundaries</p>
+            <h2
+              id="security-boundaries-h"
+              className="mt-1 text-[0.95rem] font-semibold tracking-tight text-[var(--text-primary)]"
+            >
+              What we do not claim
+            </h2>
+            <ul className="mt-2.5 grid max-w-2xl gap-1.5">
+              {NON_CLAIMS.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-[12px] leading-[1.45] text-[var(--text-tertiary)]">
+                  <MinusCircle className="mt-[2px] h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Security contact — compact split; two equal-weight action pills. */}
+          <section id="contact" className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
               <div className="min-w-0">
-                <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[10.5px] text-[var(--warning-ink)]">
-                  <span className="landing-eyebrow-dot" aria-hidden />
-                  Legal note
-                </p>
-                <h2
-                  id="security-legal-h"
-                  className="mt-2 text-[1rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)] sm:text-[1.1rem]"
-                >
-                  Oblixa does not provide legal advice
-                </h2>
-                <p className="mt-2 text-[13.5px] leading-[1.55] text-[var(--text-secondary)]">
-                  Oblixa is not a law firm and does not provide legal advice. Your team
-                  remains responsible for reviewing contract information and making
-                  business or legal decisions.
+                <ColumnHead icon={Mail} eyebrow="Security contact" title="Questions about your data" />
+                <p className="max-w-md text-[12.5px] leading-snug text-[var(--text-secondary)]">
+                  For access, export, and deletion questions, AI and data-handling questions, or to
+                  report a security concern.
                 </p>
               </div>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                <Link
+                  href={SECURITY_MAILTO}
+                  className="ui-btn-secondary inline-flex min-h-9 max-w-max items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold"
+                >
+                  <Mail className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                  <span>
+                    Email <span className="font-mono">{SECURITY_EMAIL}</span>
+                  </span>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="ui-btn-secondary inline-flex min-h-9 max-w-max items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold"
+                >
+                  Contact page
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* Legal boundary — quiet hairline note. */}
+          <section id="legal" aria-labelledby="security-legal-h" className={`mt-7 flex gap-3 border-t pt-5 ${HAIRLINE}`}>
+            <Scale className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+            <div className="min-w-0">
+              <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Legal note</p>
+              <h2
+                id="security-legal-h"
+                className="mt-1 text-[0.95rem] font-semibold tracking-tight text-[var(--text-primary)]"
+              >
+                Oblixa does not provide legal advice
+              </h2>
+              <p className="mt-1 max-w-2xl text-[12.5px] leading-[1.5] text-[var(--text-secondary)]">
+                Oblixa is not a law firm and does not provide legal advice. Your team reviews
+                suggestions before acting. See the{" "}
+                <Link href="/terms" className="ui-link font-medium">
+                  terms
+                </Link>{" "}
+                and{" "}
+                <Link href="/acceptable-use" className="ui-link font-medium">
+                  acceptable use
+                </Link>{" "}
+                policies.
+              </p>
             </div>
           </section>
         </div>
       </main>
     </>
+  );
+}
+
+/** Compact caps label + value row on a hairline. Small caps keep dense
+ *  key-value sections from shouting. */
+function Fact({ k, v }: { k: string; v: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)] py-1.5 first:border-t-0 first:pt-0">
+      <dt className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">{k}</dt>
+      <dd className="min-w-0 text-right text-[12.5px] leading-snug text-[var(--text-secondary)]">{v}</dd>
+    </div>
+  );
+}
+
+/** Icon-led header for the flat (borderless) supporting sections. Neutral by
+ *  default so accent stays reserved for the focal panel, links, and CTA. */
+function ColumnHead({ icon: Icon, eyebrow, title }: { icon: LucideIcon; eyebrow: string; title: string }) {
+  return (
+    <div className="mb-3">
+      <p className="ui-caps-2 inline-flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
+        <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+        {eyebrow}
+      </p>
+      <h2 className="mt-1.5 text-[0.95rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
+        {title}
+      </h2>
+    </div>
   );
 }

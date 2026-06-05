@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
-import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
+import { type UiSelectOption } from "@/components/ui/ui-select";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-bar";
 import { buildEvidenceHref } from "@/lib/evidence/href";
 import {
   EVIDENCE_DUE_FILTER_LABELS,
@@ -65,17 +66,26 @@ export function EvidenceFilterBar({
   const showMissing = summary.missingFile > 0 || missingActive;
   const showQuick = showDueSoon || showMissing;
   const activeChips = buildActiveChips(activeSection, filters, filterOptions);
+  const activeFilterCount = [
+    filters.owner,
+    filters.status,
+    filters.contract,
+    filters.obligation,
+    filters.due,
+    filters.file,
+  ].filter(Boolean).length;
+  const clearFiltersHref = buildEvidenceHref({ section: activeSection });
 
   return (
     <div className="min-w-0 max-w-full space-y-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
-      <div className="grid min-w-0 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6">
-        <FilterField label={EVIDENCE_FILTER_LABELS.owner} value={filters.owner} options={filterOptions.owners} onChange={(v) => apply({ owner: v })} />
-        <FilterField label={EVIDENCE_FILTER_LABELS.status} value={filters.status} options={filterOptions.statuses} onChange={(v) => apply({ status: v as EvidenceFilterState["status"] })} />
-        <FilterField label={EVIDENCE_FILTER_LABELS.contract} value={filters.contract} options={filterOptions.contracts} onChange={(v) => apply({ contract: v })} />
-        <FilterField label={EVIDENCE_FILTER_LABELS.obligation} value={filters.obligation} options={filterOptions.obligations} onChange={(v) => apply({ obligation: v })} />
-        <FilterField label={EVIDENCE_FILTER_LABELS.dueDate} value={filters.due} options={dueOptions} onChange={(v) => apply({ due: v as EvidenceFilterState["due"] })} />
-        <FilterField label={EVIDENCE_FILTER_LABELS.fileState} value={filters.file} options={fileOptions} onChange={(v) => apply({ file: v as EvidenceFilterState["file"] })} />
-      </div>
+      <FilterBar activeFilterCount={activeFilterCount} clearFiltersHref={clearFiltersHref}>
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.owner} value={filters.owner} options={filterOptions.owners} onChange={(v) => apply({ owner: v })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.status} value={filters.status} options={filterOptions.statuses} onChange={(v) => apply({ status: v as EvidenceFilterState["status"] })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.contract} value={filters.contract} options={filterOptions.contracts} onChange={(v) => apply({ contract: v })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.obligation} value={filters.obligation} options={filterOptions.obligations} onChange={(v) => apply({ obligation: v })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.dueDate} value={filters.due} options={dueOptions} onChange={(v) => apply({ due: v as EvidenceFilterState["due"] })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.fileState} value={filters.file} options={fileOptions} onChange={(v) => apply({ file: v as EvidenceFilterState["file"] })} />
+      </FilterBar>
 
       {showQuick || hasActiveFilters ? (
         <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -129,50 +139,10 @@ export function EvidenceFilterBar({
                   />
                 </Link>
               ))}
-              <Link
-                href={buildEvidenceHref({ section: activeSection })}
-                className="ui-btn-ghost inline-flex items-center rounded-full px-3 py-1 text-[12px]"
-              >
-                Clear filters
-              </Link>
             </>
           ) : null}
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function FilterField({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: UiSelectOption[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="block min-w-0 max-w-full">
-      <p className="mb-1.5 block text-[12.5px] font-medium text-[var(--text-secondary)]">{label}</p>
-      <UiSelect
-        className="block w-full"
-        // Selected filters (non-default value) get an accent-tinted trigger so
-        // an active filter reads at a glance, not just via the chips below.
-        buttonClassName={`h-10 w-full ${
-          value ? "border-[color:color-mix(in_oklab,var(--accent)_45%,var(--border-strong))]" : ""
-        }`}
-        value={value}
-        onChange={onChange}
-        options={options}
-        placeholder={options[0]?.label ?? `Any ${label.toLowerCase()}`}
-        ariaLabel={label}
-        // Portal the popover so it layers above the table instead of blending
-        // into it (and never clips inside the shell).
-        portal
-      />
     </div>
   );
 }

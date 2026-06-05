@@ -8,7 +8,7 @@ describe("/api/stripe/invoices route contract", () => {
   it("requires authenticated admin access before Stripe invoice reads", () => {
     expect(SRC).toContain("supabase.auth.getUser()");
     expect(SRC).toContain("getDeterministicMembership");
-    expect(SRC).toContain("canManageWorkspaceBilling(membership.role)");
+    expect(SRC).toContain("canManageWorkspaceBilling(membership.role, { isWorkspaceOwner:");
     expect(SRC).toContain("jsonForbidden");
   });
 

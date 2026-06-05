@@ -198,7 +198,7 @@ async function sendNotificationEmail(payload: {
   `;
 
   try {
-    await safeFetch(RESEND_EMAILS_URL, {
+    const res = await safeFetch(RESEND_EMAILS_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -212,6 +212,9 @@ async function sendNotificationEmail(payload: {
         html,
       }),
     });
+    if (!res.ok) {
+      throw new Error(`Email provider send failed (${res.status})`);
+    }
   } catch (err) {
     // Swallow — we already accepted the submission. Log and move on.
     console.error("[contact] notification email failed", formatContactDeliveryError(err));
@@ -260,8 +263,6 @@ export async function POST(request: Request) {
     !contracts ||
     !interested ||
     !trackingMethod ||
-    !hasTracker ||
-    !redactedSample ||
     !preference ||
     !pain
   ) {
@@ -276,10 +277,13 @@ export async function POST(request: Request) {
   if (!(ALLOWED_TRACKING_METHODS as readonly string[]).includes(trackingMethod)) {
     return jsonBadRequest(ROUTE, { reason: "invalid_tracking_method" });
   }
-  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(hasTracker)) {
+  const hasTrackerForReview = hasTracker || "unsure";
+  const redactedSampleForReview = redactedSample || "unsure";
+
+  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(hasTrackerForReview)) {
     return jsonBadRequest(ROUTE, { reason: "invalid_has_tracker" });
   }
-  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(redactedSample)) {
+  if (!(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(redactedSampleForReview)) {
     return jsonBadRequest(ROUTE, { reason: "invalid_redacted_sample" });
   }
   if (!(ALLOWED_PREFERENCES as readonly string[]).includes(preference)) {
@@ -295,8 +299,8 @@ export async function POST(request: Request) {
     contracts,
     interested,
     trackingMethod,
-    hasTracker,
-    redactedSample,
+    hasTracker: hasTrackerForReview,
+    redactedSample: redactedSampleForReview,
     preference,
     pain,
     message,
@@ -316,8 +320,8 @@ export async function POST(request: Request) {
         requesterRole: role,
         approximateContractCount: contracts,
         currentTrackingMethod: trackingMethod,
-        hasTracker,
-        redactedSampleAvailable: redactedSample,
+        hasTracker: hasTrackerForReview,
+        redactedSampleAvailable: redactedSampleForReview,
         followUpPreference: preference,
         painSummary: pain,
         message,
@@ -342,8 +346,8 @@ export async function POST(request: Request) {
       contracts,
       interested,
       trackingMethod,
-      hasTracker,
-      redactedSample,
+      hasTracker: hasTrackerForReview,
+      redactedSample: redactedSampleForReview,
       preference,
       pain,
       message,

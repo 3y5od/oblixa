@@ -105,6 +105,30 @@ describe("POST /api/contact", () => {
     );
   });
 
+  it("accepts blank optional tracker/sample fields and records them as unsure", async () => {
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "optional-fields@example.com",
+            hasTracker: "",
+            redactedSample: "",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(accessRequestInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        normalized_email: "optional-fields@example.com",
+        has_tracker: "unsure",
+        redacted_sample_available: "unsure",
+      })
+    );
+  });
+
   it("updates an existing access request instead of creating a duplicate row", async () => {
     accessRequestMaybeSingle.mockResolvedValueOnce({
       data: { id: "00000000-0000-0000-0000-0000000000aa", duplicate_count: 2 },
@@ -254,6 +278,35 @@ describe("POST /api/contact", () => {
     expect(logText).not.toContain("provider-failure@example.com");
     expect(logText).not.toContain("Sensitive free-text launch inquiry.");
     expect(logText).not.toContain("re_private_contact_key");
+    error.mockRestore();
+  });
+
+  it("logs non-OK email provider responses without rejecting accepted submissions", async () => {
+    process.env.RESEND_API_KEY = "re_private_contact_key";
+    process.env.EMAIL_FROM = "hello@oblixa.test";
+    process.env.CONTACT_NOTIFY_EMAIL = "sales@oblixa.test";
+    safeFetch.mockResolvedValueOnce(new Response("provider unavailable", { status: 503 }));
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "provider-non-ok@example.com",
+            interested: "general",
+            message: "Sensitive free-text launch inquiry.",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(safeFetch).toHaveBeenCalledOnce();
+    const logText = JSON.stringify(error.mock.calls);
+    expect(logText).toContain("[contact] notification email failed");
+    expect(logText).not.toContain("provider-non-ok@example.com");
+    expect(logText).not.toContain("Sensitive free-text launch inquiry.");
     error.mockRestore();
   });
 });

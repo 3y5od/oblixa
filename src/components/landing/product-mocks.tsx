@@ -50,14 +50,11 @@ function BrowserChrome({ path }: { path: string }) {
 
 function MockShell({
   caption,
-  sectionRef,
   tone,
   chromePath,
   children,
 }: {
   caption: string;
-  /** v6 T9.2 — anchor reference so the caption can tie back ("What §3 looks like...") */
-  sectionRef: string;
   tone: ToneName;
   chromePath: string;
   children: React.ReactNode;
@@ -82,22 +79,22 @@ function MockShell({
         </div>
       </div>
       <figcaption className="mt-2 text-center text-[12px] text-[var(--text-tertiary)]">
-        <span className="text-[var(--text-secondary)]">{sectionRef}</span> - access preview
+        <span className="text-[var(--text-secondary)]">{caption}</span> preview
       </figcaption>
     </figure>
   );
 }
 
 /**
- * Lead preview for the /product hero — a Core "what needs attention" dashboard.
+ * Lead preview for the /product hero — a Core "what needs action" dashboard.
  *
  * Mirrors the real dashboard top-cards vocabulary (src/components/dashboard/
  * dashboard-upper.tsx): each KPI cell is a tone-anchored icon medallion next to
  * a tone-colored count (so the number never floats), with semantics matching the
- * app — exceptions + blocked work read as risk (danger); review, deadlines,
- * owners, evidence read as attention (warning). The contract table reuses the
- * app's .ui-table-header / .ui-table-row classes. Neutral frame — accent stays
- * reserved for real status + interaction.
+ * app — exceptions, blocked work, and upcoming deadlines read as risk (danger);
+ * review, owners, and evidence read as attention (warning). The contract table
+ * reuses the app's .ui-table-header / .ui-table-row classes. Neutral frame —
+ * accent stays reserved for real status + interaction.
  */
 export function DashboardOverviewPreview() {
   const cells: Array<{
@@ -107,7 +104,7 @@ export function DashboardOverviewPreview() {
     Icon: typeof ClipboardCheck;
   }> = [
     { label: "Needs review", value: 4, tone: "warning", Icon: ClipboardCheck },
-    { label: "Upcoming deadlines", value: 6, tone: "warning", Icon: CalendarClock },
+    { label: "Upcoming deadlines", value: 6, tone: "danger", Icon: CalendarClock },
     { label: "Blocked work", value: 2, tone: "danger", Icon: Slash },
     { label: "Missing owners", value: 2, tone: "warning", Icon: UserX },
     { label: "Open exceptions", value: 1, tone: "danger", Icon: AlertTriangle },
@@ -122,12 +119,11 @@ export function DashboardOverviewPreview() {
   ];
   return (
     <MockShell
-      caption="Contract dashboard"
-      sectionRef="Dashboard"
+      caption="Dashboard"
       tone="neutral"
       chromePath="oblixa.com/dashboard"
     >
-      <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">What needs attention</p>
+      <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">What needs action</p>
       <div className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
         {cells.map((c) => {
           const i = ink(c.tone);
@@ -161,6 +157,9 @@ export function DashboardOverviewPreview() {
         })}
       </div>
       <div className="mt-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3.5">
+        <p className="ui-caps-2 mb-2 text-[10px] text-[var(--text-tertiary)]">
+          Recent contracts — 3 of 24
+        </p>
         <div className="ui-table-header grid grid-cols-[minmax(0,1fr)_auto_3.25rem] items-center gap-x-3 rounded-md px-2.5 py-1.5 text-[9.5px]">
           <span>Contract</span>
           <span className="justify-self-center">Owner</span>
@@ -186,7 +185,7 @@ export function DashboardOverviewPreview() {
               </span>
               {!r.reviewed ? (
                 <span className="ml-0.5 inline-flex shrink-0 items-center rounded border border-[color:color-mix(in_oklab,var(--warning-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_40%,var(--surface-raised))] px-1 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] leading-none text-[var(--warning-ink)]">
-                  Review
+                  Needs review
                 </span>
               ) : null}
             </span>
@@ -207,7 +206,6 @@ export function ReviewFieldsPreview() {
   return (
     <MockShell
       caption="Field review"
-      sectionRef="Review suggested fields"
       tone="warm"
       chromePath="oblixa.com/contracts/acme-msa/fields"
     >
@@ -217,7 +215,7 @@ export function ReviewFieldsPreview() {
             Renewal date
           </p>
           <span className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] bg-[var(--surface-raised)] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tabular-nums text-[var(--accent-strong)]">
-            SOURCE MATCH 96%
+            SOURCE LOCATED
           </span>
         </div>
         <p className="mt-2 text-[16px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[20px]">
@@ -252,20 +250,19 @@ export function ReviewFieldsPreview() {
 
 export function UpcomingDatesPreview() {
   const reminders = [
-    { name: "Acme renewal", days: "30d", owner: "SO", date: "Apr 12", tone: "accent" as const },
-    { name: "Initech audit", days: "14d", owner: "MD", date: "May 20", tone: "amber" as const },
-    { name: "Hooli notice", days: "60d", owner: "TK", date: "Apr 15", tone: "green" as const },
+    { name: "Acme renewal", days: "11d", owner: "SO", date: "Apr 12", tone: "accent" as const },
+    { name: "Hooli notice", days: "14d", owner: "TK", date: "Apr 15", tone: "green" as const },
+    { name: "Initech audit", days: "49d", owner: "MD", date: "May 20", tone: "amber" as const },
   ];
   return (
     <MockShell
       caption="Upcoming dates"
-      sectionRef="Track dates"
       tone="warm"
       chromePath="oblixa.com/dashboard/upcoming"
     >
       <div className="space-y-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-          Reminders this week
+          Upcoming reminders
         </p>
         <ul className="space-y-1.5">
           {reminders.map((r) => {
@@ -310,7 +307,6 @@ export function WorkQueuePreview() {
   return (
     <MockShell
       caption="Work queue"
-      sectionRef="Assign work"
       tone="warm"
       chromePath="oblixa.com/work?owner=me"
     >
@@ -365,7 +361,6 @@ export function EvidenceRequestPreview() {
   return (
     <MockShell
       caption="Evidence requests"
-      sectionRef="Collect evidence"
       tone="amber"
       chromePath="oblixa.com/contracts/evidence"
     >
@@ -424,7 +419,6 @@ export function ReportsExportPreview() {
   return (
     <MockShell
       caption="Reports export"
-      sectionRef="Report and export"
       tone="success"
       chromePath="oblixa.com/reports/upcoming-renewals"
     >

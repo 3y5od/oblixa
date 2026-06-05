@@ -44,7 +44,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "Request workspace access.",
+    "expectedHeading": "Contact Oblixa.",
     "coverage": [
       "smoke",
       "a11y",

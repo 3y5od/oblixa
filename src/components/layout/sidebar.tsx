@@ -144,7 +144,7 @@ function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; collaps
         aria-hidden="true"
         title={badge.label}
         style={toneStyle}
-        className="absolute right-1 top-1 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full border px-1 text-[9px] font-semibold leading-none tabular-nums ring-2 ring-[var(--sidebar)]"
+        className="absolute right-0.5 top-0.5 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full border px-1 text-[9px] font-semibold leading-none tabular-nums ring-2 ring-[var(--sidebar)]"
       >
         {badge.displayValue}
       </span>
@@ -152,7 +152,7 @@ function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; collaps
   }
   return (
     <span
-      className="ml-auto inline-flex h-[1.125rem] min-w-[1.375rem] shrink-0 items-center justify-center rounded-md border px-1.5 text-[10.5px] font-semibold leading-none tabular-nums"
+      className="ml-auto inline-flex h-5 min-w-[1.5rem] shrink-0 items-center justify-center rounded-md border px-1.5 text-[11px] font-semibold leading-none tabular-nums"
       style={toneStyle}
       aria-label={badge.label}
       title={badge.label}
@@ -208,7 +208,7 @@ function SidebarNavLink({
       onBlur={() => collapsed && setTooltipHref(null)}
       onMouseEnter={() => collapsed && setTooltipHref(item.href)}
       onMouseLeave={() => collapsed && setTooltipHref(null)}
-      className={`ui-sidebar-link ${collapsed && !child ? "justify-center" : ""} ${childClass}`}
+      className={`ui-sidebar-link ${collapsed && !child ? "mx-auto h-11 w-11 justify-center px-0" : ""} ${childClass}`}
       aria-current={item.exactActive ? "page" : undefined}
       aria-label={collapsed ? item.collapsedLabel : undefined}
       aria-describedby={tooltipVisible ? tooltipId : undefined}
@@ -378,7 +378,7 @@ function SidebarHeader({
           type="button"
           onClick={onToggleCollapsed}
           data-testid={shellTestIds.sidebarCollapseToggle}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_5%,transparent)] text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-[0.7rem] border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_5%,transparent)] text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
           aria-controls={DESKTOP_SIDEBAR_BODY_ID}
           aria-expanded
           aria-label="Collapse sidebar"
@@ -392,13 +392,16 @@ function SidebarHeader({
 }
 
 function SidebarExpandControl({ onToggle }: { onToggle: () => void }) {
+  // Borderless ghost control so it reads as an affordance, not a second brand
+  // tile stacked under the collapsed-rail logo. Distinct from route icons too
+  // (those carry the active rail/tint); this stays quiet until hovered.
   return (
-    <div className="mb-2 flex justify-center">
+    <div className="mb-1 flex justify-center">
       <button
         type="button"
         onClick={onToggle}
         data-testid={shellTestIds.sidebarCollapseToggle}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--sidebar-fg)_12%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_5%,transparent)] text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--sidebar-muted)] transition-colors hover:bg-[color:var(--sidebar-hover)] hover:text-[var(--sidebar-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sidebar-focus)]"
         aria-controls={DESKTOP_SIDEBAR_BODY_ID}
         aria-expanded={false}
         aria-label="Expand sidebar"
@@ -670,7 +673,7 @@ export function Sidebar(props: {
   const renderBody = (mobile = false) => {
     const bodyCollapsed = mobile ? false : model.collapsed;
     const footerInScrollBody = !mobile && !bodyCollapsed;
-    const bodyClassName = "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-3";
+    const bodyClassName = "flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-2.5 py-3";
     return (
       <>
         <SidebarHeader
@@ -695,7 +698,15 @@ export function Sidebar(props: {
               />
             ))}
           </div>
-          {footerInScrollBody ? <SidebarFooter collapsed={bodyCollapsed} inset={false} /> : null}
+          {footerInScrollBody ? (
+            // mt-auto pushes Sign out to the bottom edge of the scroll body so
+            // the short Core nav doesn't leave a dead lower zone — while keeping
+            // it inside #desktop-sidebar-body (adjacent to nav, not a pinned
+            // spacer outside the scroll region).
+            <div className="mt-auto">
+              <SidebarFooter collapsed={bodyCollapsed} inset={false} />
+            </div>
+          ) : null}
         </div>
         {footerInScrollBody ? null : <SidebarFooter collapsed={bodyCollapsed} />}
       </>
