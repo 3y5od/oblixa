@@ -24,7 +24,7 @@ export function mapAiExtractionError(raw: string): string {
     lower.includes("incorrect api key") ||
     lower.includes("invalid_api_key")
   ) {
-    return "AI extraction is not configured correctly for this workspace. Contact support.";
+    return "AI suggestions are not configured correctly for this workspace. Contact support.";
   }
   if (
     lower.includes("insufficient_quota") ||
@@ -36,7 +36,7 @@ export function mapAiExtractionError(raw: string): string {
   if (lower.includes("model") && (lower.includes("not found") || lower.includes("does not exist"))) {
     return "The configured AI model is unavailable right now. Contact support.";
   }
-  return "AI extraction failed. Try again in a moment.";
+  return "AI suggestions failed. Try again in a moment.";
 }
 
 function looksLikeTechnicalErrorDump(raw: string): boolean {
@@ -53,18 +53,18 @@ function looksLikeTechnicalErrorDump(raw: string): boolean {
 /** Best-effort friendly message for DB or pipeline strings that might leak internals. */
 export function mapExtractionFailureMessage(raw: string): string {
   const mapped = mapAiExtractionError(raw);
-  if (mapped !== "AI extraction failed. Please try again in a moment.") {
+  if (mapped !== "AI suggestions failed. Try again in a moment.") {
     return mapped;
   }
   const lower = raw.toLowerCase();
   if (lower.includes("duplicate key") || lower.includes("unique constraint")) {
-    return "Could not save extracted fields. Refresh the page, confirm whether any values already appeared, and try again.";
+    return "Could not save suggested details. Refresh the page, confirm whether any values already appeared, and try again.";
   }
   if (lower.includes("violates foreign key") || lower.includes("foreign key constraint")) {
-    return "This contract could not be updated from the current extraction run. Refresh and try again.";
+    return "This contract could not be updated from the current suggestion run. Refresh and try again.";
   }
   if (looksLikeTechnicalErrorDump(raw)) {
-    return "Extraction failed. Try again, and contact support if it keeps happening.";
+    return "Suggestions failed. Try again, and contact support if it keeps happening.";
   }
   return raw;
 }

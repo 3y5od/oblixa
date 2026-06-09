@@ -12,6 +12,8 @@ describe("contracts renewals page surface", () => {
 
     expect(raw).toContain('className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl"');
     expect(raw).toContain('className="ui-card min-w-0 max-w-full overflow-hidden"');
+    expect(raw).toContain("Dates in view:");
+    expect(raw).toContain("renewal or notice date is missing, suggested, or calculated and still needs confirmation");
     expect(raw).toContain(
       'className="max-h-[60vh] max-w-full overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable]"'
     );
@@ -27,8 +29,9 @@ describe("contracts renewals page surface", () => {
     expect(bar).toContain("FilterSelect");
     // It still opens the card chrome with the bordered toolbar band.
     expect(bar).toContain("border-t");
-    // "Due within" keeps its explicit caps label (its value doesn't self-identify).
-    expect(bar).toContain('label="Due within"');
+    // The due-window keeps an explicit caps label (the two-token pill shows it
+    // beside the value); shortened to "Due".
+    expect(bar).toContain('label="Due"');
     // Every control is a real custom combobox — never a native <select> (§7.3 / §11.1).
     expect(bar).not.toMatch(/<select[\s>]/);
 

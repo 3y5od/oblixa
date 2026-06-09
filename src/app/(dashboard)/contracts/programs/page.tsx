@@ -184,7 +184,7 @@ export default async function ContractProgramsPage() {
         icon={<Workflow className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Programs"
         title="Contract programs"
-        lead="Reusable execution blueprints that generate tasks, obligations, approvals, and checkpoints."
+        lead="Reusable execution blueprints that generate tasks, requirements, approvals, and checkpoints."
       />
       {showProgramEvolutionCta ? (
         <p className="text-[12.5px] text-[var(--text-secondary)]">

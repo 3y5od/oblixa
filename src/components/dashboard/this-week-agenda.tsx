@@ -15,7 +15,7 @@ interface ThisWeekAgendaProps {
 
 const KIND_LABELS: Record<AgendaItem["kind"], string> = {
   task: "Task",
-  obligation: "Obligation",
+  obligation: "Requirement",
   approval: "Approval",
   deadline: "Deadline",
 };

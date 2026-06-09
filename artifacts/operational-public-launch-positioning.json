@@ -368,7 +368,7 @@
       "path": "src/actions/auth.ts",
       "owner": "@product-marketing",
       "validationCommand": "test:operational-public-launch-positioning",
-      "markerCount": 5,
+      "markerCount": 7,
       "missingCount": 0,
       "ok": true
     }

@@ -35,8 +35,8 @@ describe("Search page — auth + route metadata", () => {
     expect(pageSrc).toMatch(/title:\s*"Search"/);
   });
 
-  it("bounds q to 200 chars server-side", () => {
-    expect(pageSrc).toMatch(/MAX_QUERY_LENGTH\s*=\s*200|slice\(0,\s*200\)/);
+  it("bounds q to 120 chars server-side (release search-query limit)", () => {
+    expect(pageSrc).toMatch(/MAX_QUERY_LENGTH\s*=\s*120|slice\(0,\s*120\)/);
   });
 });
 
@@ -108,7 +108,7 @@ describe("Search page — T12 input semantics & query robustness", () => {
     expect(fieldSrc).toMatch(/spellCheck=\{false\}/);
   });
 
-  it("SearchField has maxLength=200 (T15.6 bounded query)", () => {
+  it("SearchField bounds input via maxLength={MAX_QUERY_LENGTH}", () => {
     expect(fieldSrc).toContain("MAX_QUERY_LENGTH");
     expect(fieldSrc).toMatch(/maxLength=\{MAX_QUERY_LENGTH\}/);
   });
@@ -225,7 +225,9 @@ describe("Search page — T5 a11y", () => {
 
   it("/search keeps combobox semantics without invalid listbox ownership (T5.1)", () => {
     expect(viewSrc).toContain('aria-label="Search results"');
-    expect(fieldSrc).toContain('role="combobox"');
+    // combobox role is now opt-in via the isCombobox prop:
+    // `role={comboboxEnabled ? "combobox" : undefined}`.
+    expect(fieldSrc).toContain('"combobox"');
     expect(viewSrc).not.toContain("ariaActivedescendant={activeRowId}");
   });
 
@@ -319,13 +321,12 @@ describe("Search V2 — T0 defects", () => {
       join(process.cwd(), "src/lib/product-surface/resolver.ts"),
       "utf8"
     );
-    // Each of the 7 settings-related extras + Imports + Contract inventory export has an icon.
+    // Each settings-related extra + Imports + Inventory export has an icon.
     for (const icon of [
       '"profile"',
       '"workspace-identity"',
       '"team"',
       '"billing"',
-      '"notifications"',
       '"security-account"',
       '"imports"',
       '"export"',
@@ -495,16 +496,14 @@ describe("Search V2 — T3 per-destination icons", () => {
 });
 
 describe("Search V2 — T4 copy", () => {
-  it("V2 T4.1 Notifications description ≤ 80 chars", () => {
+  it("V2 T4.1 Notifications shortcut removed (Omit /settings/operations not deep-linked)", () => {
     const resolverSrc = readFileSync(
       join(process.cwd(), "src/lib/product-surface/resolver.ts"),
       "utf8"
     );
-    const match = resolverSrc.match(/name:\s*"Notifications"[\s\S]{0,400}?description:\s*"([^"]+)"/);
-    expect(match).toBeTruthy();
-    if (match) {
-      expect(match[1].length).toBeLessThanOrEqual(80);
-    }
+    // Notification defaults live at the Omit route /settings/operations; the
+    // palette must not deep-link there. Removed until it has a Core-visible home.
+    expect(resolverSrc).not.toContain("/settings/operations");
   });
 
   it("page header is rendered inline: compact medallion + h1, no DashboardPageHeader", () => {
@@ -613,7 +612,7 @@ describe("Search — empty state + responsive", () => {
 });
 
 describe("Search — refinement pass (defects + voice + new affordances)", () => {
-  it("Review fields icon resolves to ClipboardCheck (no Compass fallback)", () => {
+  it("detail confirmation icon resolves to ClipboardCheck (no Compass fallback)", () => {
     expect(navSrc).toContain('"review-fields"');
     expect(navSrc).toContain('icon: "review-fields"');
     const navIconSrc = readFileSync(
@@ -763,7 +762,7 @@ describe("Search — refinement pass (defects + voice + new affordances)", () =>
       join(process.cwd(), "src/lib/product-surface/resolver.ts"),
       "utf8"
     );
-    expect(resolverSrc).toContain('name: "Inventory export"');
+    expect(resolverSrc).toContain('name: "Export inventory"');
     expect(resolverSrc).not.toContain("Contract inventory export");
   });
 

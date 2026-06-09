@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { type UiSelectOption } from "@/components/ui/ui-select";
+import type { DropdownStatusTone } from "@/components/ui/dropdown";
 import { FilterBar, FilterSelect } from "@/components/ui/filter-bar";
 import { buildEvidenceHref } from "@/lib/evidence/href";
 import {
@@ -23,6 +24,19 @@ type EvidenceFilterOptions = {
   statuses: EvidenceOption[];
   contracts: EvidenceOption[];
   obligations: EvidenceOption[];
+};
+
+// Tone dot per evidence status (§2.5), shown INSIDE the open STATUS list only
+// (DropdownOptionRow renders it; the closed pill stays neutral). accepted =
+// success, received = warning (received, awaiting review), overdue/rejected =
+// danger, requested = neutral (sent, awaiting the counterparty). "Any status"
+// (value "") carries no dot.
+const EVIDENCE_STATUS_DOT: Record<string, DropdownStatusTone> = {
+  overdue: "danger",
+  rejected: "danger",
+  accepted: "success",
+  received: "warning",
+  requested: "neutral",
 };
 
 // Apply-live filter bar: each dropdown navigates on change (no Apply button, so
@@ -48,15 +62,20 @@ export function EvidenceFilterBar({
 
   const dueOptions: UiSelectOption[] = [
     { value: "", label: "Any due date" },
-    { value: "overdue", label: EVIDENCE_DUE_FILTER_LABELS.overdue },
-    { value: "due_soon", label: EVIDENCE_DUE_FILTER_LABELS.due_soon },
-    { value: "no_due", label: EVIDENCE_DUE_FILTER_LABELS.no_due },
+    { value: "overdue", label: EVIDENCE_DUE_FILTER_LABELS.overdue, statusDot: "danger" },
+    { value: "due_soon", label: EVIDENCE_DUE_FILTER_LABELS.due_soon, statusDot: "warning" },
+    { value: "no_due", label: EVIDENCE_DUE_FILTER_LABELS.no_due, statusDot: "neutral" },
   ];
   const fileOptions: UiSelectOption[] = [
     { value: "", label: "Any files" },
-    { value: "has_file", label: EVIDENCE_FILE_FILTER_LABELS.has_file },
-    { value: "missing_file", label: EVIDENCE_FILE_FILTER_LABELS.missing_file },
+    { value: "has_file", label: EVIDENCE_FILE_FILTER_LABELS.has_file, icon: "paperclip" },
+    { value: "missing_file", label: EVIDENCE_FILE_FILTER_LABELS.missing_file, icon: "file-x" },
   ];
+  // Decorate the data-driven status options with their tone dot — a presentation
+  // concern, so it lives here and the server model stays a pure {value,label}.
+  const statusOptions: UiSelectOption[] = filterOptions.statuses.map((option) =>
+    option.value ? { ...option, statusDot: EVIDENCE_STATUS_DOT[option.value] } : option
+  );
 
   const dueSoonActive = filters.due === "due_soon";
   const missingActive = filters.file === "missing_file";
@@ -80,7 +99,7 @@ export function EvidenceFilterBar({
     <div className="min-w-0 max-w-full space-y-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
       <FilterBar activeFilterCount={activeFilterCount} clearFiltersHref={clearFiltersHref}>
         <FilterSelect label={EVIDENCE_FILTER_LABELS.owner} value={filters.owner} options={filterOptions.owners} onChange={(v) => apply({ owner: v })} />
-        <FilterSelect label={EVIDENCE_FILTER_LABELS.status} value={filters.status} options={filterOptions.statuses} onChange={(v) => apply({ status: v as EvidenceFilterState["status"] })} />
+        <FilterSelect label={EVIDENCE_FILTER_LABELS.status} value={filters.status} options={statusOptions} onChange={(v) => apply({ status: v as EvidenceFilterState["status"] })} />
         <FilterSelect label={EVIDENCE_FILTER_LABELS.contract} value={filters.contract} options={filterOptions.contracts} onChange={(v) => apply({ contract: v })} />
         <FilterSelect label={EVIDENCE_FILTER_LABELS.obligation} value={filters.obligation} options={filterOptions.obligations} onChange={(v) => apply({ obligation: v })} />
         <FilterSelect label={EVIDENCE_FILTER_LABELS.dueDate} value={filters.due} options={dueOptions} onChange={(v) => apply({ due: v as EvidenceFilterState["due"] })} />
@@ -91,7 +110,7 @@ export function EvidenceFilterBar({
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {showQuick ? (
             <>
-              <span className="ui-caps-2 text-[var(--text-tertiary)]">Quick filters</span>
+              <span className="ui-caps-2 text-[var(--text-tertiary)]">Attention</span>
               {showDueSoon ? (
                 <QuickChip
                   label={EVIDENCE_DUE_FILTER_LABELS.due_soon}
@@ -142,6 +161,12 @@ export function EvidenceFilterBar({
             </>
           ) : null}
         </div>
+      ) : null}
+      {showQuick ? (
+        <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+          <span className="font-medium text-[var(--text-secondary)]">Attention filters:</span>{" "}
+          Due soon means the request is due within 7 days. Missing file means no evidence file is attached.
+        </p>
       ) : null}
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CheckCircle2, CircleSlash, LockKeyhole, RotateCw, XCircle } from "lucide-react";
+import { CheckCircle2, CircleSlash, LockKeyhole, RotateCw, ShieldAlert, XCircle } from "lucide-react";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { resolveAppBaseUrl } from "@/lib/app-url";
 import { sendWorkspaceAccessGrantEmail } from "@/lib/email";
@@ -339,6 +339,94 @@ function eventsForRequest(events: AccessRequestEventRow[], requestId: string): A
   return events.filter((event) => event.request_id === requestId).slice(0, 5);
 }
 
+type FitTone = "success" | "warning" | "danger" | "neutral";
+
+function fitChipClass(tone: FitTone): string {
+  const base = "inline-flex items-center rounded-full border px-2 py-0.5 text-[10.5px] font-medium";
+  if (tone === "success")
+    return `${base} border-[color:color-mix(in_oklab,var(--success)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface))] text-[var(--success-ink)]`;
+  if (tone === "warning")
+    return `${base} border-[color:color-mix(in_oklab,var(--warning)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_24%,var(--surface))] text-[var(--warning-ink)]`;
+  if (tone === "danger")
+    return `${base} border-[color:color-mix(in_oklab,var(--danger)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_24%,var(--surface))] text-[var(--danger-ink)]`;
+  return `${base} border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]`;
+}
+
+function submissionValue(json: AccessRequestRow["last_submission_json"], key: string): string {
+  const v = json?.[key];
+  return typeof v === "string" ? v.trim() : "";
+}
+
+/** Fit context captured in last_submission_json (owner / small-set / sample /
+ *  procurement-before-upload) surfaced as scannable chips for access review.
+ *  A required procurement/security review *before upload* is a release pause
+ *  signal, so it reads as a prominent dependency marker rather than one chip among
+ *  many. Raw JSON stays out of the primary visual path. */
+function FitContext({ request }: { request: AccessRequestRow }) {
+  const json = request.last_submission_json;
+  const owner = submissionValue(json, "accountable_owner");
+  const smallSet = submissionValue(json, "small_first_set");
+  const procurement = submissionValue(json, "procurement_before_upload");
+  const sample = (request.redacted_sample_available ?? "").trim();
+  const yn = (v: string) => (v === "unsure" ? "?" : v);
+  const procurementBlocker = procurement === "yes";
+
+  const chips: Array<{ key: string; label: string; tone: FitTone }> = [];
+  if (owner)
+    chips.push({
+      key: "owner",
+      label: owner === "self" ? "Owner ready" : owner === "named" ? "Owner named" : "Owner TBD",
+      tone: owner === "self" ? "success" : owner === "named" ? "neutral" : "warning",
+    });
+  if (smallSet)
+    chips.push({
+      key: "small",
+      label: `Small set: ${yn(smallSet)}`,
+      tone: smallSet === "yes" ? "success" : smallSet === "no" ? "warning" : "neutral",
+    });
+  if (sample)
+    chips.push({
+      key: "sample",
+      label: `Sample: ${yn(sample)}`,
+      tone: sample === "yes" ? "success" : "neutral",
+    });
+  // "yes" surfaces as the dependency marker below; only maybe/no render as a chip.
+  if (procurement && !procurementBlocker)
+    chips.push({
+      key: "proc",
+      label: procurement === "maybe" ? "Procurement maybe" : "No procurement",
+      tone: procurement === "maybe" ? "warning" : "success",
+    });
+
+  if (chips.length === 0 && !procurementBlocker) return null;
+  return (
+    <div className="mt-2">
+      <p className="ui-caps-2 text-[9px] text-[var(--text-tertiary)]">Fit context</p>
+      {procurementBlocker ? (
+        <span
+          className="mt-1 inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-semibold text-[var(--danger-ink)]"
+          style={{
+            borderColor: "color-mix(in oklab, var(--danger) 40%, var(--border-subtle))",
+            background: "color-mix(in oklab, var(--danger-soft) 36%, var(--surface))",
+          }}
+        >
+          <ShieldAlert className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+          Procurement dependency — security review before upload
+        </span>
+      ) : null}
+      {chips.length > 0 ? (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {chips.map((chip) => (
+            <span key={chip.key} className={fitChipClass(chip.tone)}>
+              {chip.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function GrantStatus({ grant }: { grant: AccessGrantRow | null }) {
   if (!grant) return <span className="ui-muted-tight text-xs">No grant issued</span>;
   return (
@@ -478,13 +566,13 @@ export default async function OperatorAccessRequestsPage({
                 return (
                   <li key={request.id} className="grid grid-cols-[1.4fr_1fr_0.8fr_1.6fr] gap-4 px-4 py-4">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                      <p className="ui-text-wrap text-sm font-semibold text-[var(--text-primary)]">
                         {request.requester_name || request.normalized_email}
                       </p>
-                      <p className="mt-1 truncate text-[12.5px] text-[var(--text-secondary)]">
+                      <p className="ui-entity-text mt-1 text-[12.5px] text-[var(--text-secondary)]">
                         {request.normalized_email}
                       </p>
-                      <p className="mt-1 truncate text-[12px] text-[var(--text-tertiary)]">
+                      <p className="ui-text-wrap mt-1 text-[12px] text-[var(--text-tertiary)]">
                         {request.company_name || "No company"} · {formatDateTime(request.created_at)}
                       </p>
                       <p className="mt-1 text-[11.5px] text-[var(--text-tertiary)]">
@@ -498,9 +586,10 @@ export default async function OperatorAccessRequestsPage({
                     <div className="min-w-0 text-[12.5px] text-[var(--text-secondary)]">
                       <p>{request.approximate_contract_count || "Contract count unknown"}</p>
                       <p className="mt-1">{request.current_tracking_method || "Tracking method unknown"}</p>
-                      <p className="mt-1 truncate" title={request.pain_summary ?? undefined}>
+                      <p className="ui-text-wrap mt-1" title={request.pain_summary ?? undefined}>
                         {request.pain_summary || "No pain summary"}
                       </p>
+                      <FitContext request={request} />
                     </div>
                     <div className="space-y-2">
                       <span className={`${statusClass(request.status)} text-[11px]`}>{request.status}</span>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
 
@@ -74,35 +75,40 @@ export function ControlPolicyAssignPanel({
       <p className="text-xs font-semibold text-[var(--text-primary)]">Add assignment</p>
       <label className="block text-xs text-[var(--text-secondary)]">
         Scope type
-        <select
-          className="ui-input mt-1 w-full text-sm"
+        <UiSelect
           value={assignmentType}
-          onChange={(e) => setAssignmentType(e.target.value)}
-        >
-          <option value="global">Global (organization rollup)</option>
-          <option value="segment">Segment</option>
-          <option value="account">Account (target ref)</option>
-          <option value="counterparty">Counterparty (target ref)</option>
-          <option value="program">Program (target ref)</option>
-          <option value="contract_class">Contract class (target ref)</option>
-        </select>
+          onChange={setAssignmentType}
+          ariaLabel="Scope type"
+          options={[
+            { value: "global", label: "Global (organization rollup)" },
+            { value: "segment", label: "Segment" },
+            { value: "account", label: "Account (target ref)" },
+            { value: "counterparty", label: "Counterparty (target ref)" },
+            { value: "program", label: "Program (target ref)" },
+            { value: "contract_class", label: "Contract class (target ref)" },
+          ]}
+          variant="compact"
+          portal
+          className="mt-1 w-full"
+          buttonClassName="w-full !min-h-11 text-sm"
+        />
       </label>
       {assignmentType === "segment" ? (
         <label className="block text-xs text-[var(--text-secondary)]">
           Segment
-          <select
-            className="ui-input mt-1 w-full text-sm"
+          <UiSelect
             value={segmentId}
-            onChange={(e) => setSegmentId(e.target.value)}
+            onChange={setSegmentId}
             required
-          >
-            <option value="">Select segment…</option>
-            {segments.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.key})
-              </option>
-            ))}
-          </select>
+            ariaLabel="Segment"
+            placeholder="Select segment…"
+            options={segments.map((s) => ({ value: s.id, label: `${s.name} (${s.key})` }))}
+            variant="compact"
+            portal
+            searchThreshold={8}
+            className="mt-1 w-full"
+            buttonClassName="w-full !min-h-11 text-sm"
+          />
         </label>
       ) : null}
       {assignmentType !== "global" && assignmentType !== "segment" ? (

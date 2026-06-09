@@ -15,7 +15,7 @@ test.describe("public contact form", () => {
   test("renders, submits to /api/contact, and shows the success state", async ({ page }) => {
     await page.setExtraHTTPHeaders({ "x-forwarded-for": "203.0.113.201" });
     await page.goto("/request-access", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /track what signed contracts require next/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^request access\.?$/i })).toBeVisible();
 
     await page.getByLabel(/^name$/i).fill("Test Submitter");
     await page.getByLabel(/work email/i).fill("test-submitter@example.com");
@@ -52,8 +52,10 @@ test.describe("public contact form", () => {
         .check();
     };
     await chooseSegment(/current tracker available/i, "Yes");
+    await chooseSegment(/can start with a small first set/i, "Yes");
     await chooseSegment(/can share a redacted sample/i, "Yes");
     await page.getByLabel(/main tracking pain/i).fill("Renewals and owner follow-up live in one shared tracker.");
+    await pick(/accountable workspace owner/i, "I can be the owner");
     await pick(/follow-up preference/i, "Async questions first");
 
     const submit = page.getByRole("button", { name: /request access/i });

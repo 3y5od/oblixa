@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { addHours, format } from "date-fns";
+import { UiSelect } from "@/components/ui/ui-select";
 
 export function SlaSimulatorClient() {
   const [slaHours, setSlaHours] = useState(48);
@@ -49,14 +50,19 @@ export function SlaSimulatorClient() {
         </label>
         <label className="text-xs font-medium text-[var(--text-secondary)] sm:col-span-2">
           Path mode
-          <select
+          <UiSelect
             value={pathMode}
-            onChange={(e) => setPathMode(e.target.value as "sequential" | "parallel")}
-            className="ui-input mt-1 w-full"
-          >
-            <option value="sequential">Sequential (full SLA)</option>
-            <option value="parallel">Parallel (demo compression)</option>
-          </select>
+            onChange={(v) => setPathMode(v as "sequential" | "parallel")}
+            ariaLabel="Path mode"
+            options={[
+              { value: "sequential", label: "Sequential (full SLA)" },
+              { value: "parallel", label: "Parallel (demo compression)" },
+            ]}
+            variant="compact"
+            portal
+            className="mt-1 w-full"
+            buttonClassName="w-full !min-h-11"
+          />
         </label>
       </div>
       {breachAt ? (

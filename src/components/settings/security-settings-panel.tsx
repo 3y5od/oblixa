@@ -30,6 +30,7 @@ import { UiAlert } from "@/components/ui/ui-alert";
 import { UiConfirmDialog } from "@/components/ui/ui-confirm-dialog";
 import { UiToggle } from "@/components/ui/ui-toggle";
 import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { SettingsCardHeader } from "@/components/settings/settings-card";
 import {
   startTotpEnrollment,
   unenrollTotpFactor,
@@ -42,17 +43,6 @@ import { revokeOtherSessions } from "@/actions/sessions";
 import { mutateJson } from "@/lib/http/client-json";
 import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
 
-// SPEC: docs/security-page-v2-pass.md — v2 pass on top of maximal-pass
-// scaffold. Addresses §1.2 (drop in-card MFA badge), §1.8/§1.17/§1.19
-// (empty-state branching), §1.20 (count surfacing), §1.24 (primary CTA
-// in card), §1.26 (32px medallions), §1.27 (placeholder), §1.31
-// (sessions row pattern), §1.34 (status labels), §1.47 (sign-out
-// current), §1.51 (max-factors hint), §1.52 (focus restoration),
-// §1.55 (idempotency key), §3.4 (Sessions+Workspace 2-col), §3.9
-// (offline UI), §5.9 (SR transition), §5.10 (aria-current), §6.1
-// (?mfa=enrolled redirect), §6.2 (optimistic step-up), §6.5 (multi-tab
-// race comment).
-
 export type TotpFactorRow = {
   id: string;
   status: string;
@@ -64,7 +54,6 @@ export type SessionRow = {
   current: boolean;
   userAgent: string | null;
   createdAt: string | null;
-  // V4 §1.2 — surface expiry context for the current session.
   expiresAt: string | null;
 };
 
@@ -87,31 +76,8 @@ function isError(r: MfaActionResult): r is MfaActionError {
   return r != null && typeof r === "object" && "error" in r;
 }
 
-
-// V2 §1.26 — canonical 32px medallion shell. Down from 40px on
-// sub-cards to ease visual density (page-header keeps 40px).
-function CardMedallion({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
-    >
-      {children}
-    </span>
-  );
-}
-
-// V2 §1.19 — danger-tinted medallion when org-MFA required + factors === 0.
-function DangerMedallion({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--danger-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_30%,var(--surface-raised))] text-[var(--danger-ink)] shadow-[var(--shadow-1)]"
-    >
-      {children}
-    </span>
-  );
-}
+const COLUMN_HEADING_CLASS =
+  "flex items-center gap-2 text-[13px] font-semibold tracking-tight text-[var(--text-primary)]";
 
 export function SecuritySettingsPanel({
   orgId,
@@ -142,15 +108,12 @@ export function SecuritySettingsPanel({
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const [removeConfirm, setRemoveConfirm] = useState<{ id: string; idx: number } | null>(null);
   const [stepUpPending, setStepUpPending] = useState(false);
-  // V2 §6.2 optimistic step-up: client-only override of server prop.
   const [optimisticStepUpActive, setOptimisticStepUpActive] = useState(false);
   const [pending, startTransition] = useTransition();
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [copyFallback, setCopyFallback] = useState(false);
-  // V2 §3.9 offline detection.
   const [isOnline, setIsOnline] = useState(true);
-  // V2 §1.55 idempotency key for noscript fallback form.
-  // Stable across renders so refresh-replay submits same key.
+  // Stable idempotency key so a noscript refresh-replay submits the same key.
   const [idempotencyKey] = useState(() =>
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
@@ -160,17 +123,15 @@ export function SecuritySettingsPanel({
   const stepUpFocusTimerRef = useRef<number | null>(null);
   const copiedSecretTimerRef = useRef<number | null>(null);
   const restoreFocusTimerRef = useRef<number | null>(null);
-  // V2 §1.52 — focus restoration helper. AsyncActionButton doesn't
-  // forward refs, so we focus by id at restoration time.
+  // AsyncActionButton doesn't forward refs, so focus restoration looks the
+  // trigger up by id.
   const ADD_AUTH_BTN_ID = "mfa-add-authenticator-btn";
   const stepUpHelpId = useId();
   const totpHintId = useId();
   const totpErrorId = useId();
   const orgMfaToggleId = useId();
-  // a11y: ties the self-lockout hint to the disabled org-MFA toggle via
-  // aria-describedby so AT/SR users hear why the control is unavailable.
+  // Ties the self-lockout hint to the disabled org-MFA toggle for SR users.
   const orgMfaHintId = useId();
-  // V2 §5.9 SR transition announcement.
   const prevFactorCountRef = useRef<number>(initialFactors.length);
 
   const qrSrc = useMemo(() => {
@@ -183,23 +144,18 @@ export function SecuritySettingsPanel({
   const isAdmin = role === "admin";
   const factorCount = factors.length;
   const factorsEmpty = factorCount === 0;
-  // V2 §1.19 — branch the empty-state medallion + body on org policy.
   const showDangerEmptyState = factorsEmpty && orgMfaRequired;
 
   // Self-lockout guard: block enabling workspace-wide MFA while this admin
-  // has no authenticator of their own (they'd be forced to enroll at next
-  // sign-in with no factor ready). Only the enable path is blocked — if the
-  // policy is already on, the toggle stays operable so it can be lifted.
+  // has no authenticator of their own. Only the enable path is blocked.
   const cannotEnableOrgMfa = factorsEmpty && !orgMfa;
 
-  // V2 §6.5 — multi-tab race: tab A initiates step-up, tab B reads
-  // stale state. The server-side hasSensitiveActionProof is the
-  // source of truth on the next mutation. Acceptable trade-off.
+  // Optimistic step-up may be stale across tabs; the server-side
+  // hasSensitiveActionProof is the source of truth on the next mutation.
   const stepUpActive = optimisticStepUpActive || stepUp.active;
 
-  // Step-up badge label + tone vary by via. Each badge carries a
-  // leading glyph so the state is legible without relying on color
-  // alone (§7.7): ShieldCheck when unlocked, Lock when locked.
+  // Step-up badge label + tone vary by via. Each badge carries a leading
+  // glyph so the state is legible without relying on color alone.
   let stepUpLabel: string;
   let stepUpTone: "healthy" | "warning" | "empty";
   let stepUpIcon: React.ReactNode;
@@ -217,7 +173,6 @@ export function SecuritySettingsPanel({
     stepUpIcon = <Lock className="h-3 w-3" strokeWidth={2} aria-hidden />;
   }
 
-  // V2 §9.18 focus the QR section heading when enrollment populates.
   useEffect(() => {
     if (enroll && enrollHeadingRef.current) {
       enrollHeadingRef.current.focus();
@@ -236,7 +191,6 @@ export function SecuritySettingsPanel({
     };
   }, []);
 
-  // V2 §3.9 detect offline state.
   useEffect(() => {
     if (typeof window === "undefined") return;
     setIsOnline(navigator.onLine);
@@ -250,7 +204,7 @@ export function SecuritySettingsPanel({
     };
   }, []);
 
-  // V2 §5.9 — announce factor-count transitions to SR.
+  // Announce factor-count transitions to screen readers.
   useEffect(() => {
     const prev = prevFactorCountRef.current;
     if (prev === 0 && factors.length >= 1) {
@@ -264,7 +218,6 @@ export function SecuritySettingsPanel({
   function handleActionResult(r: MfaActionResult, successMsg: string) {
     if (isError(r)) {
       setError(r.error);
-      // V2 §1.51 — max-factors hint.
       if (/max.*factor/i.test(r.error)) {
         setError(
           `${r.error} ${SETTINGS_SECURITY_STRINGS.enrollMaxFactorsHint}`
@@ -302,7 +255,6 @@ export function SecuritySettingsPanel({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // V2 §1.55 idempotency for JS path as well.
             "x-idempotency-key": idempotencyKey,
           },
           body: JSON.stringify({ password }),
@@ -322,7 +274,6 @@ export function SecuritySettingsPanel({
       }
       setPassword("");
       setNeedsStepUpPrompt(false);
-      // V2 §6.2 optimistic update so badge flips immediately.
       setOptimisticStepUpActive(true);
       setMessage("Password confirmed. Sensitive actions are unlocked for about 10 minutes.");
     } finally {
@@ -361,112 +312,98 @@ export function SecuritySettingsPanel({
             ? "Verifying password…"
             : error ?? message ?? undefined;
 
-  // V2 §1.20 — surface enrolled count via KeyValueChip beside MFA h2.
   const showEnrolledCount = factorCount > 0;
 
   return (
     <div className="flex flex-col gap-4">
       <LiveRegion message={liveMsg} politeness={error ? "assertive" : "polite"} />
 
-      {/* V2 §3.9 offline UiAlert. */}
       {!isOnline ? (
         <UiAlert tone="warning">
           {SETTINGS_SECURITY_STRINGS.offlineCopy}
         </UiAlert>
       ) : null}
 
-      {/* V2 §3.1 + §7.1 — MFA + Step-up paired in 2-col grid. */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        {/* === MFA card === */}
-        {/* V4 §1.7 — conditional warning border when factorsEmpty
-            surfaces an in-card tone signal (the metaStrip is the
-            at-glance scan; this is the card-body presence). */}
-        <section
-          id="mfa-card"
-          aria-busy={pending && (enroll != null || pendingFactorId != null)}
-          className={`ui-card p-0 ${factorsEmpty ? "border-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--border-subtle))]" : ""}`}
-        >
-          <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-            <div className="flex min-w-0 items-start gap-3">
-              {/* V4 §1.9 — MFA medallion uses ShieldCheck (vs STEP-UP
-                  KeyRound) for visual identity differentiation. */}
-              <CardMedallion>
-                <ShieldCheck className="h-4 w-4" strokeWidth={1.85} />
-              </CardMedallion>
-              <div className="min-w-0">
-                <p className="ui-caps-1 text-[var(--accent)]">
-                  <span className="">
-                    {SETTINGS_SECURITY_STRINGS.eyebrows.mfa}
-                  </span>
-                </p>
-                <h2
-                  id="mfa-card-title"
-                  className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]"
-                >
-                  {SETTINGS_SECURITY_STRINGS.sections.mfa}
-                </h2>
-              </div>
-            </div>
-            {/* V2 §1.2 — card-level MFA badge DROPPED to avoid duplicate
-                count with metaStrip. §1.20 surfaces a count chip when
-                factors > 0. V4 user-report §4 — shrink-0 anchors right. */}
-            {showEnrolledCount ? (
-              <KeyValueChip
-                label="ENROLLED"
-                value={factorCount}
-                tone="success"
-              />
-            ) : null}
-          </header>
+      {/* Focal "Account protection" card — Authenticator + Sensitive actions
+          read as one surface in a two-column body, not two competing cards. */}
+      <section
+        id="account-protection-card"
+        className="ui-card-raised p-0"
+        aria-busy={pending && (enroll != null || pendingFactorId != null)}
+      >
+        <SettingsCardHeader
+          icon={<ShieldCheck className="h-4 w-4" strokeWidth={1.85} />}
+          eyebrow={SETTINGS_SECURITY_STRINGS.eyebrows.protection}
+          title={SETTINGS_SECURITY_STRINGS.sections.protection}
+          badge={
+            showEnrolledCount ? (
+              <KeyValueChip label="ENROLLED" value={factorCount} tone="success" />
+            ) : null
+          }
+        />
 
+        <div className="grid divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)] lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+          {/* === Authenticator column === */}
           <div
-            className={`flex-1 px-5 py-5 ${showDangerEmptyState ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_18%,var(--surface-raised))]" : ""}`}
+            id="mfa-card"
+            aria-busy={pending && (enroll != null || pendingFactorId != null)}
+            className="min-w-0 px-5 py-5"
           >
+            <h3 className={COLUMN_HEADING_CLASS}>
+              <Smartphone
+                className="h-4 w-4 text-[var(--accent-strong)]"
+                strokeWidth={1.85}
+                aria-hidden
+              />
+              {SETTINGS_SECURITY_STRINGS.sections.mfaColumn}
+            </h3>
+
             <InlineMutationStatus
               message={error ?? message}
               variant={error ? "error" : "success"}
-              className="mb-3 text-sm"
+              className="mb-3 mt-3 text-sm"
             />
 
             {factorsEmpty ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* V2 §1.17 — distinct icon (Smartphone) from header (KeyRound). */}
-                  {showDangerEmptyState ? (
-                    <DangerMedallion>
-                      <Smartphone className="h-4 w-4" strokeWidth={1.85} />
-                    </DangerMedallion>
-                  ) : (
-                    <CardMedallion>
-                      <Smartphone className="h-4 w-4" strokeWidth={1.85} />
-                    </CardMedallion>
-                  )}
-                  {/* Status label sits at caps-2, not caps-1: it states
-                      the current condition, so the primary "Enroll
-                      authenticator" button below stays the loudest
-                      element in the empty state (§8.1 / §10.7). */}
-                  <p className="ui-caps-2 text-[var(--text-tertiary)]">
-                    {SETTINGS_SECURITY_STRINGS.mfaEmptyLabel}
-                  </p>
-                </div>
-                {/* V2 §1.19 — branch body on org policy. */}
-                {showDangerEmptyState ? (
-                  <p className="text-[13px] text-[var(--danger-ink)]">
-                    {SETTINGS_SECURITY_STRINGS.mfaEmptyBodyRequired}
-                  </p>
-                ) : null}
-                {/* V2 §1.8 — drop the redundant prose body in optional
-                    state; badge + caps label already communicate. */}
+              <div
+                className="mt-3 flex flex-col gap-2 rounded-lg border px-3 py-3"
+                style={{
+                  borderColor: showDangerEmptyState
+                    ? "color-mix(in oklab, var(--danger-ink) 28%, var(--border-subtle))"
+                    : "color-mix(in oklab, var(--warning-soft) 55%, var(--border-subtle))",
+                  background: showDangerEmptyState
+                    ? "color-mix(in oklab, var(--danger-soft) 18%, var(--surface-raised))"
+                    : "color-mix(in oklab, var(--warning-soft) 18%, var(--surface-raised))",
+                }}
+              >
+                <StatusBadge
+                  status={showDangerEmptyState ? "critical" : "warning"}
+                  className="gap-1 self-start"
+                >
+                  <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  {SETTINGS_SECURITY_STRINGS.mfaEmptyLabel}
+                </StatusBadge>
+                <p
+                  className="text-[12.5px] leading-snug"
+                  style={{
+                    color: showDangerEmptyState
+                      ? "var(--danger-ink)"
+                      : "var(--text-secondary)",
+                  }}
+                >
+                  {showDangerEmptyState
+                    ? SETTINGS_SECURITY_STRINGS.mfaEmptyBodyRequired
+                    : SETTINGS_SECURITY_STRINGS.mfaEmptyBody}
+                </p>
               </div>
             ) : (
-              <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]">
+              <ul className="mt-3 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]">
                 {factors.map((f, idx) => (
                   <li
                     key={f.id}
                     aria-busy={pendingFactorId === f.id}
                     className="group flex flex-wrap items-center gap-3 py-3"
                   >
-                    {/* V2 §10.9 reserved tone-dot slot. */}
                     <span
                       aria-hidden
                       className="inline-block h-2 w-2 shrink-0 rounded-full"
@@ -501,7 +438,6 @@ export function SecuritySettingsPanel({
             )}
 
             {!enroll ? (
-              // V2 §1.24 — promote in-card button to primary when empty.
               <AsyncActionButton
                 id={ADD_AUTH_BTN_ID}
                 type="button"
@@ -535,15 +471,15 @@ export function SecuritySettingsPanel({
                 aria-label="Authenticator enrollment"
                 className="mt-4 space-y-4"
               >
-                <h3
+                <h4
                   ref={enrollHeadingRef}
                   tabIndex={-1}
                   className="ui-caps-2 text-[var(--text-tertiary)] outline-none"
                 >
                   ENROLL AUTHENTICATOR
-                </h3>
+                </h4>
                 {qrSrc ? (
-                  <div className="overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-white p-2">
+                  <div className="overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={qrSrc}
@@ -615,8 +551,6 @@ export function SecuritySettingsPanel({
                       ]);
                       setEnroll(null);
                       setCode("");
-                      // V2 §6.1 — redirect with ?mfa=enrolled so the
-                      // page banner state machine renders success.
                       router.push("/settings/security?mfa=enrolled");
                     });
                   }}
@@ -668,7 +602,6 @@ export function SecuritySettingsPanel({
                   onClick={() => {
                     setEnroll(null);
                     setVerifyError(null);
-                    // V2 §1.52 — restore focus to the trigger button.
                     if (restoreFocusTimerRef.current != null) {
                       window.clearTimeout(restoreFocusTimerRef.current);
                     }
@@ -686,17 +619,8 @@ export function SecuritySettingsPanel({
               </div>
             )}
 
-            {/* V4 §6.1 — "What is two-factor sign-in?" disclosure
-                beneath MFA empty state. Resolves §1.3 height
-                asymmetry + adds UX value for non-technical admins.
-                §6 disclosure pattern: native <details> with
-                marker:hidden + rotating ChevronRight. */}
             {factorsEmpty && !enroll ? (
               <details className="group mt-4">
-                {/* Disclosure trigger reads as a secondary accent link
-                    (sentence case + chevron), not a caps heading, so it
-                    sits clearly below the primary "Enroll authenticator"
-                    action rather than competing with it. */}
                 <summary className="inline-flex cursor-pointer items-center gap-1 text-[12.5px] font-medium text-[var(--accent-strong)] marker:hidden hover:underline [&::-webkit-details-marker]:hidden">
                   {SETTINGS_SECURITY_STRINGS.mfaExplainerSummary}
                   <ChevronRight
@@ -711,58 +635,43 @@ export function SecuritySettingsPanel({
               </details>
             ) : null}
           </div>
-        </section>
 
-        {/* === Step-up card === */}
-        <section
-          id="step-up-card"
-          aria-busy={stepUpPending}
-          className="ui-card p-0"
-        >
-          <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-            <div className="flex min-w-0 items-start gap-3">
-              <CardMedallion>
-                <KeyRound className="h-4 w-4" strokeWidth={1.85} />
-              </CardMedallion>
-              <div className="min-w-0">
-                <p className="ui-caps-1 text-[var(--accent)]">
-                  <span className="">
-                    {SETTINGS_SECURITY_STRINGS.eyebrows.stepUp}
-                  </span>
-                </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
-                  {SETTINGS_SECURITY_STRINGS.sections.stepUp}
-                </h2>
-              </div>
+          {/* === Sensitive actions column === */}
+          <div id="step-up-card" aria-busy={stepUpPending} className="min-w-0 px-5 py-5">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className={COLUMN_HEADING_CLASS}>
+                <KeyRound
+                  className="h-4 w-4 text-[var(--accent-strong)]"
+                  strokeWidth={1.85}
+                  aria-hidden
+                />
+                {SETTINGS_SECURITY_STRINGS.sections.stepUpColumn}
+              </h3>
+              <span className="shrink-0">
+                <StatusBadge status={stepUpTone} className="gap-1 whitespace-nowrap">
+                  {stepUpIcon}
+                  {stepUpLabel}
+                </StatusBadge>
+              </span>
             </div>
-            <span className="shrink-0">
-              <StatusBadge status={stepUpTone} className="gap-1 whitespace-nowrap">
-                {stepUpIcon}
-                {stepUpLabel}
-              </StatusBadge>
-            </span>
-          </header>
 
-          <div className="px-5 py-5">
             {stepUp.via === "aal2" && !optimisticStepUpActive ? (
-              <p className="ui-caps-3 mb-3 text-[var(--success-ink)]">
+              <p className="ui-caps-3 mt-3 text-[var(--success-ink)]">
                 {SETTINGS_SECURITY_STRINGS.stepUpAal2Note}
               </p>
             ) : null}
 
             {needsStepUpPrompt ? (
-              <p className="mb-3 text-[12.5px] text-[var(--warning-ink)]">
+              <p className="mt-3 text-[12.5px] text-[var(--warning-ink)]">
                 {SETTINGS_SECURITY_STRINGS.stepUpRequiredPrompt}
               </p>
             ) : null}
 
-            {/* V2 §1.25 + §1.55 noscript form-action fallback with
-                hidden idempotency_key input. */}
             <noscript>
               <form
                 action="/api/settings/step-up"
                 method="POST"
-                className="flex max-w-sm flex-col gap-3"
+                className="mt-3 flex max-w-sm flex-col gap-3"
               >
                 <input
                   type="hidden"
@@ -789,14 +698,12 @@ export function SecuritySettingsPanel({
             <form
               noValidate
               onSubmit={onStepUp}
-              className="flex max-w-sm flex-col gap-3 billing-no-print"
+              className="mt-3 flex max-w-sm flex-col gap-3 billing-no-print"
             >
               <div>
                 <label htmlFor="stepup-pass" className="ui-label">
                   Account password
                 </label>
-                {/* Leading lock glyph gives the field a clear password
-                    affordance instead of reading as an empty box. */}
                 <div className="relative mt-1">
                   <Lock
                     className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-tertiary)]"
@@ -815,10 +722,6 @@ export function SecuritySettingsPanel({
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                {/* Intent ("unlock sensitive changes") is carried by the
-                    "Password confirmation" heading + LOCKED badge, so the
-                    helper is screen-reader-only — no prose sits between the
-                    field and its action button (§10.7 / §11.15). */}
                 <span id={stepUpHelpId} className="sr-only">
                   {SETTINGS_SECURITY_STRINGS.stepUpFormHelp}
                 </span>
@@ -831,279 +734,190 @@ export function SecuritySettingsPanel({
               >
                 {SETTINGS_SECURITY_STRINGS.stepUpFormCta}
               </AsyncActionButton>
-              {/* V3 §1.22 — Forgot password tertiary link. */}
+            </form>
+
+            {/* Account-password maintenance lives with the sensitive-actions
+                column, not the device list. */}
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3">
+              <Link
+                href="/settings/account?action=change-password"
+                className="ui-link text-[12.5px]"
+              >
+                {SETTINGS_SECURITY_STRINGS.passwordChangeCta}
+              </Link>
               <Link
                 href="/auth/forgot-password"
                 className="ui-link text-[12.5px] text-[var(--text-tertiary)] billing-no-print"
               >
                 {SETTINGS_SECURITY_STRINGS.forgotPasswordCta}
               </Link>
-            </form>
-          </div>
-        </section>
-      </div>
-
-      {/* V2 §3.4 — Sessions + Workspace MFA in 2-col grid at lg+. */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        {/* === Sessions card === */}
-        <section className="ui-card p-0">
-          <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-            <div className="flex min-w-0 items-start gap-3">
-              <CardMedallion>
-                <Smartphone className="h-4 w-4" strokeWidth={1.85} />
-              </CardMedallion>
-              <div className="min-w-0">
-                <p className="ui-caps-1 text-[var(--accent)]">
-                  <span className="">
-                    {SETTINGS_SECURITY_STRINGS.eyebrows.sessions}
-                  </span>
-                </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
-                  {SETTINGS_SECURITY_STRINGS.sections.sessions}
-                  {/* V4 user-report §2 — count chip dropped when
-                      sessions.length === 1: the THIS DEVICE row
-                      below already conveys the count, and a single
-                      digit in a rounded-full border reads as a
-                      notification badge, not a count. When future
-                      Supabase versions return multi-device data
-                      (sessions.length > 1), surface as compact caps:
-                      "2 DEVICES" tabular-nums. */}
-                  {sessions.length > 1 ? (
-                    <span className="ml-2 ui-caps-3 font-normal text-[var(--text-tertiary)] tabular-nums">
-                      {sessions.length} DEVICES
-                    </span>
-                  ) : null}
-                </h2>
-              </div>
-            </div>
-          </header>
-          <div className="px-5 py-5">
-            {/* V4 user-report §1.B — body prose dropped: "Sign out
-                other devices." duplicated the button label per spec
-                §10.4 eliminate redundancy. The h2 + session row +
-                primary destructive button are self-describing. */}
-            {sessions.length > 0 ? (
-              <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]">
-                {sessions.map((s) => (
-                  <li
-                    key={s.id}
-                    // V2 §5.10 aria-current on current session.
-                    aria-current={s.current ? "true" : undefined}
-                    className="group flex flex-wrap items-center gap-2 py-2.5"
-                  >
-                    {/* StatusBadge replaces the bare dot + raw caps span:
-                        border + tint + label carry the state without a
-                        color-only signal (§7.7). */}
-                    <StatusBadge status={s.current ? "healthy" : "disabled"}>
-                      {s.current
-                        ? SETTINGS_SECURITY_STRINGS.sessionsCurrentLabel
-                        : "DEVICE"}
-                    </StatusBadge>
-                    {/* Expiry is compact sentence-case tabular time — no
-                        pipe separator, no oversized caps. <time> carries
-                        dateTime + UTC title; sr-only adds the absolute
-                        timestamp. */}
-                    {s.expiresAt ? (
-                      <time
-                        className="text-[11.5px] tabular-nums text-[var(--text-tertiary)]"
-                        {...timeAttrs(s.expiresAt)}
-                      >
-                        Expires {fmtRelative(s.expiresAt)}
-                        <span className="sr-only">
-                          {" "}
-                          ({formatDate(s.expiresAt, "dateTime")})
-                        </span>
-                      </time>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {/* All three affordances share one pill vocabulary so they
-                read as a single action cluster (§10.4). The destructive
-                action is a danger-tinted secondary pill; the two
-                navigations are ghost pills. No mixed link/button weights,
-                no pipe separator. */}
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className="ui-btn-secondary rounded-full border-[color:color-mix(in_oklab,var(--danger-ink)_28%,var(--border-subtle))] text-[var(--danger-ink)] billing-no-print"
-                disabled={pending}
-                onClick={() => setSignOutConfirmOpen(true)}
-              >
-                Sign out other devices
-              </button>
-              {/* Sign-out of the current device precedes Change password:
-                  both are sign-out adjacent, Change password is the
-                  maintenance affordance. */}
-              <Link
-                href="/auth/sign-out"
-                className="ui-btn-ghost rounded-full billing-no-print"
-              >
-                {SETTINGS_SECURITY_STRINGS.signOutSelfCta}
-              </Link>
-              <Link
-                href="/settings/account?action=change-password"
-                className="ui-btn-ghost rounded-full billing-no-print"
-              >
-                {SETTINGS_SECURITY_STRINGS.passwordChangeCta}
-              </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* === Workspace MFA policy === */}
-        {/* V2 §1.11 — workspace section-divider DROPPED. The card's
-            own eyebrow + the right-rail label are sufficient. */}
-        {isAdmin ? (
-          <section
-            id="org-mfa-card"
-            aria-busy={pending && orgMfaConfirmOpen === false}
-            // V2 §2.27 conditional REQUIRED border.
-            className={`ui-card p-0 ${orgMfa ? "border-[color:color-mix(in_oklab,var(--success-ink)_18%,var(--border-subtle))]" : ""}`}
+      {/* Sessions — a compact flat row group, not a tall card. */}
+      <section aria-labelledby="sessions-title">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pb-2">
+          <h2
+            id="sessions-title"
+            className="inline-flex items-baseline gap-2 text-[13px] font-semibold tracking-tight text-[var(--text-primary)]"
           >
-            {/* V4 user-report §4 — header uses items-start + gap-3
-                + no flex-wrap. The title block carries min-w-0 so
-                a long h2 ("MFA enforcement") rendered well rather
-                than forcing the status badge to wrap to a second
-                row. Badge keeps `shrink-0` to anchor right. */}
-            <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-              <div className="flex min-w-0 items-start gap-3">
-                <CardMedallion>
-                  <Building2 className="h-4 w-4" strokeWidth={1.85} />
-                </CardMedallion>
-                <div className="min-w-0">
-                  <p className="ui-caps-1 text-[var(--accent)]">
-                    <span className="">
-                      {SETTINGS_SECURITY_STRINGS.eyebrows.policy}
-                    </span>
-                  </p>
-                  <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
-                    {SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
-                  </h2>
-                </div>
-              </div>
-              {/* V4 §1.8 — tone-coded escalation. When enforcement is
-                  OFF and this admin has no factor, surface a warning-tone
-                  "SETUP REQUIRED" badge instead of the neutral OPTIONAL.
-                  Badge wrapped in shrink-0 + whitespace-nowrap so it
-                  anchors top-right without wrapping the h2.
-                  Each state badge carries a glyph so the policy posture
-                  is legible without color alone (§7.7): ShieldCheck when
-                  required, TriangleAlert when setup is still needed. */}
-              <span className="shrink-0">
-                {orgMfa ? (
-                  <StatusBadge status="healthy" className="gap-1">
-                    <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />
-                    REQUIRED
-                  </StatusBadge>
-                ) : factorsEmpty ? (
-                  // Enforcement is off, so the workspace isn't violating any
-                  // policy — the actionable gap is that this admin has no
-                  // authenticator yet. "SETUP REQUIRED" names that and
-                  // coheres with the disabled enable-toggle + hint.
-                  <StatusBadge status="warning" className="gap-1 whitespace-nowrap">
-                    <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
-                    SETUP REQUIRED
-                  </StatusBadge>
-                ) : (
-                  <StatusBadge status="empty">OPTIONAL</StatusBadge>
-                )}
+            <span className="ui-caps-2 text-[var(--accent-strong)]">
+              {SETTINGS_SECURITY_STRINGS.eyebrows.sessions}
+            </span>
+            <span>{SETTINGS_SECURITY_STRINGS.sections.sessions}</span>
+            {sessions.length > 1 ? (
+              <span className="ui-caps-3 font-normal tabular-nums text-[var(--text-tertiary)]">
+                {sessions.length} DEVICES
               </span>
-            </header>
-            <div className="px-5 py-5">
-              {/* Toggle sits flat in the card body — no nested box
-                  (§10.5). The header state badge + this control read as
-                  one state/action pair. */}
-              <div className="billing-no-print">
-                <UiToggle
-                  name="org-mfa"
-                  label="Require MFA for all members"
-                  description={SETTINGS_SECURITY_STRINGS.orgMfaConsequence}
-                  checked={orgMfa}
-                  disabled={pending || cannotEnableOrgMfa}
-                  ariaLabel="Require MFA for all members"
-                  ariaDescribedBy={cannotEnableOrgMfa ? orgMfaHintId : undefined}
-                  onChange={(checked) => {
-                    if (checked && !orgMfa) {
-                      setPendingOrgMfaValue(true);
-                      setOrgMfaConfirmOpen(true);
-                    } else {
-                      startTransition(async () => {
-                        setError(null);
-                        setMessage(null);
-                        const r = await updateOrganizationMfaRequired({
-                          organizationId: orgId,
-                          required: checked,
-                        });
-                        if (handleActionResult(r, "Workspace MFA policy updated.")) {
-                          setOrgMfa(checked);
-                        }
-                      });
-                    }
-                  }}
-                />
-                {cannotEnableOrgMfa ? (
-                  <p id={orgMfaHintId} className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] leading-snug text-[var(--warning-ink)]">
-                    <TriangleAlert
-                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
-                      strokeWidth={1.85}
-                      aria-hidden
-                    />
-                    {SETTINGS_SECURITY_STRINGS.orgMfaSelfLockoutHint}
-                  </p>
+            ) : null}
+          </h2>
+        </div>
+        {sessions.length > 0 ? (
+          <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]">
+            {sessions.map((s) => (
+              <li
+                key={s.id}
+                aria-current={s.current ? "true" : undefined}
+                className="group flex flex-wrap items-center gap-2 py-2.5"
+              >
+                <StatusBadge status={s.current ? "healthy" : "disabled"}>
+                  {s.current
+                    ? SETTINGS_SECURITY_STRINGS.sessionsCurrentLabel
+                    : "DEVICE"}
+                </StatusBadge>
+                {s.expiresAt ? (
+                  <time
+                    className="text-[11.5px] tabular-nums text-[var(--text-tertiary)]"
+                    {...timeAttrs(s.expiresAt)}
+                  >
+                    Expires {fmtRelative(s.expiresAt)}
+                    <span className="sr-only">
+                      {" "}
+                      ({formatDate(s.expiresAt, "dateTime")})
+                    </span>
+                  </time>
                 ) : null}
-              </div>
-              {/* V4 §6.2 — "What changes for members?" disclosure.
-                  Resolves §1.4 height asymmetry beneath the toggle. */}
-              <details className="group mt-3">
-                {/* Sentence-case accent link + chevron — secondary to the
-                    policy toggle above it. */}
-                <summary className="inline-flex cursor-pointer items-center gap-1 text-[12.5px] font-medium text-[var(--accent-strong)] marker:hidden hover:underline [&::-webkit-details-marker]:hidden">
-                  {SETTINGS_SECURITY_STRINGS.policyExplainerSummary}
-                  <ChevronRight
-                    className="h-3 w-3 transition-transform group-open:rotate-90 motion-reduce:transition-none"
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="ui-btn-secondary rounded-full border-[color:color-mix(in_oklab,var(--danger-ink)_28%,var(--border-subtle))] text-[var(--danger-ink)] billing-no-print"
+            disabled={pending}
+            onClick={() => setSignOutConfirmOpen(true)}
+          >
+            Sign out other devices
+          </button>
+          <Link
+            href="/auth/sign-out"
+            className="ui-btn-ghost rounded-full billing-no-print"
+          >
+            {SETTINGS_SECURITY_STRINGS.signOutSelfCta}
+          </Link>
+        </div>
+      </section>
+
+      {/* Workspace MFA enforcement — secondary card. */}
+      {isAdmin ? (
+        <section
+          id="org-mfa-card"
+          aria-busy={pending && orgMfaConfirmOpen === false}
+          className={`ui-card p-0 ${orgMfa ? "border-[color:color-mix(in_oklab,var(--success-ink)_18%,var(--border-subtle))]" : ""}`}
+        >
+          <SettingsCardHeader
+            icon={<Building2 className="h-4 w-4" strokeWidth={1.85} />}
+            eyebrow={SETTINGS_SECURITY_STRINGS.eyebrows.policy}
+            title={SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
+            badge={
+              orgMfa ? (
+                <StatusBadge status="healthy" className="gap-1">
+                  <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  REQUIRED
+                </StatusBadge>
+              ) : factorsEmpty ? (
+                <StatusBadge status="warning" className="gap-1 whitespace-nowrap">
+                  <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  ENROLL FIRST
+                </StatusBadge>
+              ) : (
+                <StatusBadge status="empty">OPTIONAL</StatusBadge>
+              )
+            }
+          />
+          <div className="px-5 py-5">
+            <div className="billing-no-print">
+              <UiToggle
+                name="org-mfa"
+                label="Require MFA for all members"
+                description={SETTINGS_SECURITY_STRINGS.orgMfaConsequence}
+                checked={orgMfa}
+                disabled={pending || cannotEnableOrgMfa}
+                ariaLabel="Require MFA for all members"
+                ariaDescribedBy={cannotEnableOrgMfa ? orgMfaHintId : undefined}
+                onChange={(checked) => {
+                  if (checked && !orgMfa) {
+                    setPendingOrgMfaValue(true);
+                    setOrgMfaConfirmOpen(true);
+                  } else {
+                    startTransition(async () => {
+                      setError(null);
+                      setMessage(null);
+                      const r = await updateOrganizationMfaRequired({
+                        organizationId: orgId,
+                        required: checked,
+                      });
+                      if (handleActionResult(r, "Workspace MFA policy updated.")) {
+                        setOrgMfa(checked);
+                      }
+                    });
+                  }
+                }}
+              />
+              {cannotEnableOrgMfa ? (
+                <p id={orgMfaHintId} className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] leading-snug text-[var(--warning-ink)]">
+                  <TriangleAlert
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0"
                     strokeWidth={1.85}
                     aria-hidden
                   />
-                </summary>
-                <p className="mt-2 max-w-prose text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                  {SETTINGS_SECURITY_STRINGS.policyExplainerBody}
+                  {SETTINGS_SECURITY_STRINGS.orgMfaSelfLockoutHint}
                 </p>
-              </details>
+              ) : null}
             </div>
-            {/* keep id for ariaLabel association */}
-            <span hidden id={orgMfaToggleId} />
-          </section>
-        ) : orgMfaRequired ? (
-          <section className="ui-card p-0">
-            <header className="flex items-start gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-              <CardMedallion>
-                <Building2 className="h-4 w-4" strokeWidth={1.85} />
-              </CardMedallion>
-              <div>
-                <p className="ui-caps-1 text-[var(--accent)]">
-                  <span className="">
-                    {SETTINGS_SECURITY_STRINGS.eyebrows.policy}
-                  </span>
-                </p>
-                <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight leading-tight text-[var(--text-primary)]">
-                  {SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
-                </h2>
-              </div>
-            </header>
-            <div className="px-5 py-5">
-              <p className="text-[13.5px] text-[var(--text-secondary)]">
-                {SETTINGS_SECURITY_STRINGS.workspaceMfaRequiredReadOnly}
+            <details className="group mt-3">
+              <summary className="inline-flex cursor-pointer items-center gap-1 text-[12.5px] font-medium text-[var(--accent-strong)] marker:hidden hover:underline [&::-webkit-details-marker]:hidden">
+                {SETTINGS_SECURITY_STRINGS.policyExplainerSummary}
+                <ChevronRight
+                  className="h-3 w-3 transition-transform group-open:rotate-90 motion-reduce:transition-none"
+                  strokeWidth={1.85}
+                  aria-hidden
+                />
+              </summary>
+              <p className="mt-2 max-w-prose text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                {SETTINGS_SECURITY_STRINGS.policyExplainerBody}
               </p>
-            </div>
-          </section>
-        ) : (
-          // Render an empty filler card so the 2-col grid keeps rhythm
-          // when non-admin + no policy. Skipping leaves an orphan.
-          <div className="hidden lg:block" aria-hidden />
-        )}
-      </div>
+            </details>
+          </div>
+          <span hidden id={orgMfaToggleId} />
+        </section>
+      ) : orgMfaRequired ? (
+        <section className="ui-card p-0">
+          <SettingsCardHeader
+            icon={<Building2 className="h-4 w-4" strokeWidth={1.85} />}
+            eyebrow={SETTINGS_SECURITY_STRINGS.eyebrows.policy}
+            title={SETTINGS_SECURITY_STRINGS.sections.workspaceMfa}
+          />
+          <div className="px-5 py-5">
+            <p className="text-[13.5px] text-[var(--text-secondary)]">
+              {SETTINGS_SECURITY_STRINGS.workspaceMfaRequiredReadOnly}
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       {/* === Confirmation dialogs === */}
       <UiConfirmDialog

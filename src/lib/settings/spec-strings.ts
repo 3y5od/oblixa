@@ -2,8 +2,9 @@
 export const SETTINGS_PAGE_STRINGS = {
   eyebrow: "Settings",
   title: "Settings",
-  lead: "Manage workspace, team, billing, notifications, security, and data export.",
+  lead: "Manage workspace identity, team access, billing, security, notifications, and exports.",
   directoryTitle: "Directory",
+  directoryLead: "Open settings that need their own page.",
 } as const;
 
 export const SETTINGS_GROUP_STRINGS = {
@@ -44,7 +45,7 @@ export const SETTINGS_DESTINATION_STRINGS = {
   },
   notifications: {
     title: "Notifications",
-    description: "Manage renewal, notice deadline, field review, work assignment, evidence request, and weekly digest reminders.",
+    description: "Renewal, deadline, work, evidence, and digest emails.",
     actionLabel: "Edit notifications",
     currentStateLabel: "Reminder defaults",
   },
@@ -201,13 +202,13 @@ export const SETTINGS_NOTIFICATIONS_STRINGS = {
       // V3 §13.1 — visible label aligned with description verb
       // ("approval"). Storage key `field_review` unchanged.
       key: "field_review",
-      label: "Field approvals",
-      description: "When extracted fields still need approval.",
+      label: "Details to confirm",
+      description: "When suggested contract details still need confirmation.",
     },
     {
       key: "work_assignment",
-      label: "Work assignments",
-      description: "When work is assigned or due dates approach.",
+      label: "Task assignments",
+      description: "When tasks are assigned or due dates approach.",
     },
     {
       key: "evidence_request",
@@ -247,7 +248,15 @@ export const SETTINGS_BILLING_STRINGS = {
   unavailableCopy: "Account status remains visible. Configure billing on the server to enable checkout and customer portal actions.",
   // Polish-pass §2.10 + finishing-pass §2.5 — body ≤ 80 chars.
   emptyStateBody: "Billing is available only after access approval.",
-  trialEndedLabel: "EVALUATION",
+  // Core public offer (release-state: $249/month per workspace, month-to-month,
+  // charged only after access approval and explicit checkout).
+  corePrice: {
+    display: "$249",
+    cadence: "per month",
+    note: "Month-to-month per workspace, after approval and checkout.",
+  } as const,
+  // Provider-derived activation/recovery date label (trials are not offered).
+  trialEndedLabel: "ACTIVATION",
   // Polish-pass §2.9 — sub-eyebrow above plan-includes feature list
   planIncludesEyebrow: "Included in Core",
   // Polish-pass §3.4 — invoices section eyebrow
@@ -271,8 +280,8 @@ export const SETTINGS_BILLING_STRINGS = {
     "Without JavaScript: subscribe, manage subscription, copy IDs, print, and expand FAQ items are disabled. Read-only data remains visible.",
   // Polish-pass §3.10 — auto-renews chip label
   autoRenewsLabel: "Auto-renews",
-  // Polish-pass §5.7 — trial cap badge
-  trialCapBadge: "EVALUATION SCOPE",
+  // Provider-derived activation-scope badge (trials are not offered).
+  trialCapBadge: "ACTIVATION SCOPE",
   // Polish-pass §6.2 — admin utility-row prefix
   adminUtilityLabel: "Billing administration",
   trialMicrocopy: "Reviewed access - billing after approval",
@@ -307,11 +316,11 @@ export const SETTINGS_BILLING_STRINGS = {
   // when subscriptionStatus === "none". Was previously included here
   // and caused the em-dash bug (refinement §1.1).
   placeholders: {
-    noActiveTrial: "No active evaluation",
+    noActiveTrial: "No activation window",
     notConfigured: "Not configured",
     planDependent: "Plan dependent",
     notScheduled: "Not scheduled",
-    trialEndUnavailable: "Evaluation review date unavailable",
+    trialEndUnavailable: "Activation date unavailable",
     unavailableUntilBilling: "Available after billing is configured",
     askAdminCancel: "Ask a workspace admin to manage cancellation.",
   } as const,
@@ -322,7 +331,7 @@ export const SETTINGS_BILLING_STRINGS = {
   includedEyebrow: "Included",
   enterpriseInterestLabel: "Manual boundary",
   enterpriseInterestVerb: "Contact support",
-  publicPricingLink: "Review access and pricing ->",
+  publicPricingLink: "Review access and pricing",
   publicPricingHref: "/pricing",
   testModeBannerShort: "Test billing mode — no real charges.",
   testCardHints: [
@@ -350,7 +359,7 @@ export const SETTINGS_BILLING_STRINGS = {
     "Billing after approval",
   ] as const,
   faq: [
-    "What happens after evaluation?",
+    "What happens after access review?",
     "Can I export before cancelling?",
     "When would paid use start?",
     "Can I add more contracts?",
@@ -358,7 +367,7 @@ export const SETTINGS_BILLING_STRINGS = {
     "Do you offer setup help?",
   ] as const,
   faqAnswers: {
-    "What happens after evaluation?":
+    "What happens after access review?":
       "If Oblixa becomes useful to your workflow, continued use moves to the Core monthly offer after price disclosure. You can also export records and reports.",
     "Can I export before cancelling?":
       "Yes. Export your contract inventory from Settings → Imports and exports before you cancel. Exports stop being available 7 days after cancellation.",
@@ -367,14 +376,14 @@ export const SETTINGS_BILLING_STRINGS = {
     "Can I add more contracts?":
       "Start with a small contract set. Larger migrations should wait until the workflow proves useful.",
     "Can I add more team members?":
-      "Invite teammates from Settings → Team when they need to help review fields, owners, work, or evidence.",
+      "Invite teammates from Settings → Team when they need to help confirm details, owners, tasks, or evidence.",
     "Do you offer setup help?":
       "Core access includes product support during activation, not managed implementation. We don't run migrations, spreadsheet cleanup, or legal review.",
   } as const,
 } as const;
 
 // Billing strings — keep in lockstep with the canonical release-state
-// spec: Billing Page + reviewed-access evaluation billing guidance. Keep this
+// spec: Billing Page + reviewed-access billing guidance. Keep this
 // subdued until public billing is intentionally activated.
 
 // Security strings — structured spec-strings for the security
@@ -404,11 +413,17 @@ export const SETTINGS_SECURITY_STRINGS = {
     teamRoles: "Team roles",
     resources: "Account & workspace context",
     workspaceMfa: "MFA enforcement",
+    // Focal "Account protection" card + its two column sub-headers.
+    protection: "Account protection",
+    mfaColumn: "Authenticator",
+    stepUpColumn: "Sensitive actions",
   },
   // V2 §1.9 sub-card eyebrow tier — each card carries an eyebrow per §2.4.
   eyebrows: {
     resources: "RESOURCES",
     mfa: "MFA",
+    // Focal "Account protection" card eyebrow.
+    protection: "ACCESS",
     sessions: "SESSIONS",
     // De-jargoned from "STEP-UP" (a security-engineering term) to the
     // plain category noun "ACCESS". The card h2 "Password confirmation"

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { updateContractStatus } from "@/actions/contracts";
 import type { ContractStatus } from "@/lib/types";
 
@@ -68,24 +69,32 @@ export function ContractStatusTransition({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {available.map(({ label, target }) => {
           const activateBlocked = target === "active" && Boolean(blockActivateReason);
+          // Activation waiting on required input renders as an explicit chip +
+          // a reason line instead of a dashed, opacity-washed disabled button —
+          // the state reads as "locked, here's why", not "greyed out".
+          if (activateBlocked) {
+            return (
+              <span
+                key={target}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_26%,var(--surface-raised))] px-3 py-1.5 text-[12px] font-semibold text-[var(--warning-ink)]"
+              >
+                <Lock className="h-3 w-3" strokeWidth={2} aria-hidden />
+                {label} needs input
+              </span>
+            );
+          }
           return (
             <button
               type="button"
               key={target}
               onClick={() => handleTransition(target)}
-              disabled={isPending || activateBlocked}
-              title={activateBlocked ? blockActivateReason ?? undefined : undefined}
-              aria-disabled={activateBlocked || undefined}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                activateBlocked
-                  ? "border border-dashed border-[var(--border-strong)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,var(--surface))] text-[var(--text-tertiary)]"
-                  : `disabled:opacity-50 ${
-                      buttonStyles[target] ||
-                      "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
-                    }`
+              disabled={isPending}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                buttonStyles[target] ||
+                "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
               }`}
             >
               {isPending ? "Updating..." : label}

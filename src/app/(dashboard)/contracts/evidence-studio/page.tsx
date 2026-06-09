@@ -3,8 +3,6 @@ import Link from "next/link";
 import {
   AlertTriangle,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   FileCheck2,
   Inbox,
@@ -16,12 +14,11 @@ import { EvidenceFilterBar } from "@/components/evidence/evidence-filter-bar";
 import { EvidenceReleaseActions } from "@/components/evidence/evidence-release-actions";
 import { EvidenceRequestCreatePanel } from "@/components/evidence/evidence-request-create-panel";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { ActionChip } from "@/components/ui/action-chip";
 import { ChipCapsule } from "@/components/ui/chip-capsule";
-import { CountChip } from "@/components/ui/count-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { DataFooter } from "@/components/ui/data-footer";
 import { EmptyState } from "@/components/ui/empty-state";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { MetricSummaryBand } from "@/components/ui/metric-summary-band";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TimeChip } from "@/components/ui/time-chip";
 import { UiTabs } from "@/components/ui/ui-tabs";
@@ -124,6 +121,7 @@ export default async function EvidencePage(props: {
     <div className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl">
       <DashboardPageHeader
         icon={<FileCheck2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        density="compact"
         eyebrow={model.eyebrow}
         title={EVIDENCE_PAGE_TITLE}
         lead={model.lead}
@@ -160,26 +158,16 @@ export default async function EvidencePage(props: {
         className="ui-card min-w-0 max-w-full scroll-mt-8 overflow-x-hidden p-0"
         aria-labelledby="evidence-surface-title"
       >
-        {/* Shell header: title + count + contracts link, with the portfolio
-            summary chips composed directly beneath so they read as part of the
-            surface, not floating page chrome. */}
-        <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <h2 id="evidence-surface-title" className="sr-only">
-                {model.title}
-              </h2>
-              <span className="ui-caps-2 text-[var(--text-tertiary)]">Evidence requests</span>
-              <CountChip value={model.totalVisibleRows} emphasis="strong" />
-            </div>
-            <ActionChip verb="View contracts" href="/contracts" />
-          </div>
-          {model.totalUnfilteredRows > 0 ? (
-            <div className="mt-2.5">
-              <EvidenceSummaryBand model={model} />
-            </div>
-          ) : null}
-        </div>
+        {/* Shared MetricSummaryBand: count + portfolio overview chips on the
+            left, the "View contracts" affordance on the right — one recipe
+            across Work, Renewals, and Evidence. */}
+        <MetricSummaryBand
+          srTitle={model.title}
+          srTitleId="evidence-surface-title"
+          eyebrow="Evidence requests"
+          count={{ kind: "count", value: model.totalVisibleRows, emphasis: "strong" }}
+          action={{ verb: "View contracts", href: "/contracts" }}
+        />
 
         <UiTabs
           ariaLabel="Evidence sections"
@@ -198,6 +186,20 @@ export default async function EvidencePage(props: {
           }))}
           className="px-5"
         />
+        <div className="grid min-w-0 gap-x-4 gap-y-1 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-2.5 text-[11px] leading-snug text-[var(--text-tertiary)] sm:grid-cols-2 xl:grid-cols-4">
+          <p>
+            <span className="font-medium text-[var(--text-secondary)]">Open:</span> requests not completed or accepted.
+          </p>
+          <p>
+            <span className="font-medium text-[var(--text-secondary)]">Overdue:</span> open requests with a past due date.
+          </p>
+          <p>
+            <span className="font-medium text-[var(--text-secondary)]">Received:</span> evidence has been submitted and may need review.
+          </p>
+          <p>
+            <span className="font-medium text-[var(--text-secondary)]">Linked requirements:</span> requests tied to a contract requirement.
+          </p>
+        </div>
 
         {model.totalUnfilteredRows > 0 || model.hasActiveFilters ? (
           <EvidenceFilterBar
@@ -249,25 +251,6 @@ export default async function EvidencePage(props: {
   );
 }
 
-function EvidenceSummaryBand({ model }: { model: EvidencePageModel }) {
-  const count = (key: EvidenceSectionKey) =>
-    model.sections.find((section) => section.key === key)?.count ?? 0;
-  const overdue = count("overdue_requests");
-  const dueSoon = model.summary.dueSoon;
-  const missing = model.summary.missingFile;
-  // A zero on a "needs action" metric is all-clear → muted success, not greyed
-  // out (§10.10). Open / Received are neutral counts.
-  return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2">
-      <KeyValueChip label="Open" value={count("open_requests")} />
-      <KeyValueChip label="Overdue" value={overdue} tone={overdue > 0 ? "danger" : "success"} />
-      <KeyValueChip label="Received" value={count("received_evidence")} />
-      <KeyValueChip label="Due soon" value={dueSoon} tone={dueSoon > 0 ? "warning" : "success"} />
-      <KeyValueChip label="Missing file" value={missing} tone={missing > 0 ? "warning" : "success"} />
-    </div>
-  );
-}
-
 // When the active tab is empty but evidence work lives in other sections, point
 // straight to it with count+verb capsules rather than a dead-end empty message.
 function SectionEmptyState({
@@ -290,7 +273,7 @@ function SectionEmptyState({
         icon={<Inbox className="h-5 w-5 text-[var(--text-tertiary)]" strokeWidth={1.65} aria-hidden />}
         eyebrow="Evidence requests"
         title={`Nothing in ${(active?.label ?? "this view").toLowerCase()}`}
-        copy="Evidence work is waiting in another view — jump to it below."
+        copy="Evidence work needs attention in another view — jump to it below."
         action={
           <>
             {elsewhere.map((section) => (
@@ -356,30 +339,30 @@ function EvidenceTable({
         ))}
       </ul>
       <table
-        className="hidden w-full border-collapse text-[12.5px] md:table"
+        className="hidden w-full table-fixed border-collapse text-[12.5px] md:table"
         aria-label="Evidence requests in this workspace"
       >
         <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_64%,var(--surface-raised))]">
           <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[34%] pl-5 pr-3`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[33%] pl-5 pr-3`}>
               {EVIDENCE_ROW_LABELS.requestTitle}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[17%] lg:table-cell`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[19%] lg:table-cell`}>
               {EVIDENCE_ROW_LABELS.linkedObligation}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[12%] md:table-cell`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[14%] md:table-cell`}>
               {EVIDENCE_ROW_LABELS.requestOwner}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[10%]`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[9%]`}>
               {EVIDENCE_ROW_LABELS.dueDate}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[13%]`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[14%]`}>
               {EVIDENCE_ROW_LABELS.status}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[8%] xl:table-cell`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[7%] 2xl:table-cell`}>
               Updated
             </th>
-            <th scope="col" className="px-3 py-2 pl-3 pr-5">
+            <th scope="col" className="w-[7.5rem] px-3 py-2 pl-3 pr-5">
               <span className="sr-only">Actions</span>
             </th>
           </tr>
@@ -495,7 +478,7 @@ function EvidenceTableRow({
           />
         </div>
       </td>
-      <td className={`${EVIDENCE_BODY_CELL} hidden xl:table-cell`} suppressHydrationWarning>
+      <td className={`${EVIDENCE_BODY_CELL} hidden 2xl:table-cell`} suppressHydrationWarning>
         {row.lastUpdateAt ? (
           <TimeChip date={row.lastUpdateAt} />
         ) : (
@@ -517,72 +500,20 @@ function EvidenceFooterSummary({ model }: { model: EvidencePageModel }) {
     if (!latest || row.lastUpdateAt > latest) return row.lastUpdateAt;
     return latest;
   }, null);
-  const pageHref = (target: number) =>
-    buildEvidenceHref({ section: model.activeSection, filters: model.filters, page: target });
   return (
-    <div className="grid min-w-0 grid-cols-1 items-center gap-x-4 gap-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] px-5 py-3 text-[11.5px] text-[var(--text-tertiary)] sm:grid-cols-[1fr_auto_1fr]">
-      {/* Left — structured count: SHOWN 25 / 35 · OPEN REQUESTS */}
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <KeyValueChip label="Shown" value={`${model.rows.length} / ${totalInSection}`} />
-        <span className="ui-caps-3 text-[var(--text-tertiary)]">{sectionLabel}</span>
-        {model.hasActiveFilters ? (
-          <span className="ui-caps-3 text-[var(--text-secondary)]">· filtered</span>
-        ) : null}
-      </div>
-      {/* Center — pagination */}
-      <div className="flex justify-start sm:justify-center">
-        {totalPages > 1 ? (
-          <nav aria-label="Pagination" className="flex items-center gap-2">
-            <PageLink href={pageHref(page - 1)} disabled={page <= 1} direction="prev" />
-            <span className="ui-caps-3 tabular-nums text-[var(--text-secondary)]">
-              Page {page} / {totalPages}
-            </span>
-            <PageLink href={pageHref(page + 1)} disabled={page >= totalPages} direction="next" />
-          </nav>
-        ) : null}
-      </div>
-      {/* Right — last update */}
-      <div className="flex justify-start sm:justify-end">
-        {latestUpdate ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="ui-caps-3 text-[var(--text-tertiary)]">Last update</span>
-            <TimeChip date={latestUpdate} bordered />
-          </span>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function PageLink({
-  href,
-  disabled,
-  direction,
-}: {
-  href: string;
-  disabled: boolean;
-  direction: "prev" | "next";
-}) {
-  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
-  const label = direction === "prev" ? "Previous page" : "Next page";
-  if (disabled) {
-    return (
-      <span
-        aria-disabled
-        className="inline-flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-full border border-[var(--border-subtle)] text-[color:color-mix(in_oklab,var(--text-tertiary)_55%,transparent)]"
-      >
-        <Icon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-      </span>
-    );
-  }
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      className="ui-btn-ghost inline-flex h-7 w-7 items-center justify-center rounded-full p-0"
-    >
-      <Icon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-    </Link>
+    <DataFooter
+      shown={model.rows.length}
+      total={totalInSection}
+      sectionLabel={sectionLabel}
+      filtered={model.hasActiveFilters}
+      pagination={{
+        page,
+        totalPages,
+        hrefFor: (target) =>
+          buildEvidenceHref({ section: model.activeSection, filters: model.filters, page: target }),
+      }}
+      lastUpdate={latestUpdate}
+    />
   );
 }
 

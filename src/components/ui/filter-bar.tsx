@@ -112,9 +112,9 @@ export function FilterBar({
     <div
       role="group"
       aria-label={ariaLabel}
-      className={`ui-filter-toolbar min-w-0 justify-between ${className ?? ""}`}
+      className={`ui-filter-toolbar min-w-0 justify-between lg:flex-nowrap ${className ?? ""}`}
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-2">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{children}</div>
       {showRight ? (
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {rightExtra}

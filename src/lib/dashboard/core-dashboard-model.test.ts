@@ -45,12 +45,12 @@ describe("Core dashboard model builders", () => {
     });
 
     expect(cards.map((card) => card.label)).toEqual([
-      "Needs review",
-      "Upcoming deadlines",
-      "Blocked work",
-      "Missing owners",
-      "Open exceptions",
-      "Evidence requested",
+      "Contracts needing review",
+      "Dates coming up",
+      "Tasks awaiting response",
+      "Contracts missing an owner",
+      "Contract problems",
+      "Evidence requests",
     ]);
     expect(cards.map((card) => card.count)).toEqual([0, 0, 0, 0, 0, 0]);
     expect(cards.every((card) => card.tone === "success")).toBe(true);
@@ -67,14 +67,14 @@ describe("Core dashboard model builders", () => {
     });
 
     expect(cards.map((card) => [card.label, card.count])).toEqual([
-      ["Needs review", 2],
-      ["Upcoming deadlines", 1],
-      ["Blocked work", 3],
-      ["Missing owners", 4],
-      ["Open exceptions", 5],
-      ["Evidence requested", 6],
+      ["Contracts needing review", 2],
+      ["Dates coming up", 1],
+      ["Tasks awaiting response", 3],
+      ["Contracts missing an owner", 4],
+      ["Contract problems", 5],
+      ["Evidence requests", 6],
     ]);
-    expect(cards.find((card) => card.label === "Blocked work")?.tone).toBe("danger");
+    expect(cards.find((card) => card.label === "Tasks awaiting response")?.tone).toBe("danger");
   });
 
   it("builds upcoming deadlines from approved dates and computes notice deadline from renewal date plus notice window", () => {
@@ -274,7 +274,7 @@ describe("Core dashboard model builders", () => {
         contractTitle: "Acme MSA",
         ownerLabel: "Ada Owner",
         href: "/contracts/exceptions?status=open&contract=contract-1",
-        actionLabel: "Open exception",
+        actionLabel: "Open problem",
       },
     ]);
   });

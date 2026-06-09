@@ -1,20 +1,20 @@
 import Link from "next/link";
-import { ArrowLeft, History, UploadCloud } from "lucide-react";
+import { ArrowLeft, ChevronRight, History, Inbox, Plus, UploadCloud } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { BulkUploadForm } from "@/components/contracts/bulk-upload-form";
 import { ActionChip } from "@/components/ui/action-chip";
+import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { CountChip } from "@/components/ui/count-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { RatioChip } from "@/components/ui/ratio-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TimeChip } from "@/components/ui/time-chip";
 import { ImportJobRetryButton } from "@/components/contracts/import-job-retry-button";
+import { CONTRACT_FILE_MAX_MB_LABEL } from "@/lib/constants/upload-limits";
 import { canEditContracts } from "@/lib/permissions";
-import {
-  getImportJobDetail,
-  getImportJobHeadline,
-  importJobCanRetry,
-} from "@/lib/import-job-visibility";
-import { importJobBadge } from "@/lib/import-job-badge";
+import { getImportJobHeadline, importJobCanRetry } from "@/lib/import-job-visibility";
+import { importJobBadge, type ImportJobBadge } from "@/lib/import-job-badge";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
 
@@ -62,69 +62,102 @@ export default async function BulkImportPage(props: {
       "An active subscription is required. Open Billing to subscribe.";
   }
 
-  const recentCount = recentJobs?.length ?? 0;
-  const activeJobs = (recentJobs ?? []).filter((job) => importJobBadge(job).active);
-  const completedJobs = (recentJobs ?? []).filter((job) => !importJobBadge(job).active);
+  type JobRow = NonNullable<typeof recentJobs>[number];
+  const jobs = (recentJobs ?? []).map((job) => ({ job, badge: importJobBadge(job) }));
+  const recentCount = jobs.length;
+  const activeJobs = jobs.filter((entry) => entry.badge.active);
+  const completedJobs = jobs.filter((entry) => !entry.badge.active);
 
-  const renderJobRow = (job: NonNullable<typeof recentJobs>[number]) => {
-    const badge = importJobBadge(job);
-    const detailParts = getImportJobDetail(job)
-      // getImportJobDetail joins clauses with a middle dot (U+00B7). Split via
-      // char code so no literal middle-dot glyph lands in this source, which the
-      // release-state test asserts stays dot-free.
-      .split(String.fromCharCode(0xb7))
-      .map((part) => part.trim())
-      .filter(Boolean);
+  // Summary counts by outcome — four fixed slots (active / partial / ready /
+  // failed) so the strip's columns stay stable as jobs change. A zero bucket
+  // renders in the neutral tone, never asserting "0 FAILED" in danger red.
+  const countLabel = (label: string) =>
+    completedJobs.filter((entry) => entry.badge.label === label).length;
+  const summary = [
+    { key: "active", label: "Active", value: activeJobs.length, tone: undefined },
+    { key: "partial", label: "Partial", value: countLabel("Partial"), tone: "warning" as const },
+    { key: "ready", label: "Ready", value: countLabel("Ready"), tone: "success" as const },
+    { key: "failed", label: "Failed", value: countLabel("Failed"), tone: "danger" as const },
+  ];
+  const totalImported = jobs.reduce((sum, entry) => sum + (entry.job.inserted_rows ?? 0), 0);
+
+  const renderJobRow = (
+    { job, badge }: { job: JobRow; badge: ImportJobBadge },
+    active = false
+  ) => {
+    const inserted = job.inserted_rows ?? 0;
+    const total = job.total_rows ?? 0;
+    const errors = job.error_rows ?? 0;
+    const canRetry = importJobCanRetry(job);
     return (
-      <li key={job.id} className="py-3 first:pt-0 last:pb-0">
-        {/* Stacked row: a thin meta line (badge + type, date right), then the
-            headline + counts, then a left-aligned action cluster. Keeps the
-            content filling the width instead of stranding the actions far
-            right with a dead middle. */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <StatusBadge status={badge.status}>{badge.label}</StatusBadge>
-            <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-              {job.source === "files" ? "Signed files" : "CSV"}
+      // The whole row is the open-job-details target (§8.6): one link, an "Open"
+      // chip, and — for retryable jobs — a sibling retry button kept outside the
+      // link so the two affordances never nest. Retry reveals on hover/focus on
+      // wide screens and stays visible on touch; the active job is tinted.
+      <li
+        key={job.id}
+        className={`group rounded-lg px-2 py-2 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] ${
+          active
+            ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_20%,transparent)] ring-1 ring-[color:color-mix(in_oklab,var(--accent)_16%,transparent)]"
+            : ""
+        }`}
+      >
+        <Link
+          href={`/contracts/imports/${job.id}`}
+          aria-label="Open job details"
+          className="block min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <StatusBadge status={badge.status}>{badge.label}</StatusBadge>
+              <span
+                aria-hidden
+                className="h-3 w-px shrink-0 bg-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)]"
+              />
+              <span className="ui-caps-3 truncate text-[10px] text-[var(--text-tertiary)]">
+                {job.source === "files" ? "Signed files" : "CSV"}
+              </span>
+            </span>
+            <TimeChip date={job.created_at} format="calendar" bordered className="shrink-0" />
+          </div>
+          <p className="mt-1.5 line-clamp-2 text-[12.5px] font-medium leading-snug text-[var(--text-primary)]">
+            {getImportJobHeadline(job)}
+          </p>
+          <div className="mt-1.5 flex items-center justify-between gap-2">
+            <span className="inline-flex flex-wrap items-center gap-1.5">
+              {total > 0 ? (
+                <RatioChip
+                  numerator={inserted}
+                  denominator={total}
+                  suffix="created"
+                  tone={errors > 0 ? "warning" : inserted > 0 ? "success" : undefined}
+                />
+              ) : null}
+              {errors > 0 ? (
+                <KeyValueChip label="Rows to fix" value={errors} tone="warning" />
+              ) : null}
+            </span>
+            <span
+              aria-hidden
+              className="ui-caps-3 inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] text-[var(--accent-strong)] opacity-40 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+            >
+              Open
+              <ChevronRight className="h-2.5 w-2.5" strokeWidth={2} />
             </span>
           </div>
-          <TimeChip date={job.created_at} format="calendar" bordered className="shrink-0" />
-        </div>
-        <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-[var(--text-primary)]">
-          {getImportJobHeadline(job)}
-        </p>
-        {detailParts.length > 0 ? (
-          <div className="mt-0.5 space-y-0.5">
-            {detailParts.map((part, index) => (
-              <p
-                key={part}
-                className={`text-[11.5px] leading-snug ${
-                  index === 0
-                    ? "tabular-nums text-[var(--text-secondary)]"
-                    : "text-[var(--text-tertiary)]"
-                }`}
-              >
-                {part}
-              </p>
-            ))}
+        </Link>
+        {canRetry ? (
+          <div className="mt-1.5 flex justify-end transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
+            <ImportJobRetryButton jobId={job.id} className="rounded-full px-2.5 py-0.5" />
           </div>
         ) : null}
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Link
-            href={`/contracts/imports/${job.id}`}
-            className="ui-btn-secondary inline-flex items-center px-2.5 py-1 text-[11px]"
-          >
-            Open job details
-          </Link>
-          {importJobCanRetry(job) ? <ImportJobRetryButton jobId={job.id} /> : null}
-        </div>
       </li>
     );
   };
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-3.5">
-      <div className="flex flex-col gap-2.5">
+    <div className="mx-auto w-full max-w-[72rem]">
+      <div className="flex flex-col gap-4">
         <Link
           href="/contracts"
           className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
@@ -137,69 +170,142 @@ export default async function BulkImportPage(props: {
           icon={<UploadCloud className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
           eyebrow="Contract import"
           title="Import contracts"
-          lead="Bring over a tracker spreadsheet or upload a batch of signed PDF and DOCX agreements."
+          lead="Import a tracker CSV or signed agreements, then review the records."
           density="default"
+          metaStrip={
+            <div className="flex flex-wrap items-center gap-1.5">
+              <KeyValueChip label="CSV" value="2 MB" />
+              <KeyValueChip label="Files" value={CONTRACT_FILE_MAX_MB_LABEL} />
+              <KeyValueChip label="Review" value="required" />
+            </div>
+          }
+          actions={
+            <>
+              <Link
+                href="/contracts/new"
+                className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
+              >
+                <Plus className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                Upload single contract
+              </Link>
+              <Link
+                href="/contracts"
+                className="ui-btn-ghost inline-flex items-center rounded-full px-3 py-1.5 text-[12.5px]"
+              >
+                View contracts
+              </Link>
+            </>
+          }
         />
       </div>
 
-      <BulkUploadForm
-        organizationId={ctx.orgId}
-        disabled={!!disabledReason}
-        disabledReason={disabledReason}
-        initialTab={initialTab}
-      />
+      {/* Import cockpit: the form is the one focal surface in the main column;
+          import status is a calmer companion rail (sticky on wide viewports). */}
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <div className="min-w-0 space-y-3.5">
+          <BulkUploadForm
+            organizationId={ctx.orgId}
+            disabled={!!disabledReason}
+            disabledReason={disabledReason}
+            initialTab={initialTab}
+          />
 
-      {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
-        <p className="text-center text-sm">
-          <Link href="/settings/billing" className="ui-link">
-            Go to Billing
-          </Link>
-        </p>
-      )}
+          {!hasPlan && canEdit && isPlanEnforcementEnabled() && (
+            <p className="text-center text-sm">
+              <Link href="/settings/billing" className="ui-link">
+                Go to Billing
+              </Link>
+            </p>
+          )}
+        </div>
 
-      {recentCount > 0 ? (
-        <section id="recent-imports" className="ui-card-quiet rounded-2xl p-5">
-          <header className="flex flex-wrap items-center gap-2.5">
-            <span
-              aria-hidden
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] text-[var(--accent-strong)]"
-            >
-              <History className="h-4 w-4" strokeWidth={1.85} />
-            </span>
-            <p className="ui-caps-2 text-[11px] text-[var(--text-secondary)]">Import status</p>
-            <CountChip value={recentCount} />
-          </header>
-
-          {activeJobs.length > 0 ? (
-            <div className="mt-4">
-              <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">In progress</p>
-              <ul className="mt-2 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
-                {activeJobs.map(renderJobRow)}
-              </ul>
-            </div>
-          ) : null}
-
-          {completedJobs.length > 0 ? (
-            <div className="mt-4">
-              {activeJobs.length > 0 ? (
-                <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Recent imports</p>
-              ) : null}
-              <ul
-                className={`divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] ${
-                  activeJobs.length > 0 ? "mt-2" : ""
-                }`}
+        <aside className="min-w-0 lg:sticky lg:top-[calc(var(--shell-topbar-h)+1rem)] lg:self-start">
+          <section
+            id="recent-imports"
+            className="ui-card-quiet rounded-2xl p-4"
+            aria-label="Import status"
+          >
+            <header className="flex flex-wrap items-center gap-2">
+              <span
+                aria-hidden
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] text-[var(--accent-strong)]"
               >
-                {completedJobs.map(renderJobRow)}
-              </ul>
-            </div>
-          ) : null}
+                <History className="h-4 w-4" strokeWidth={1.85} />
+              </span>
+              <p className="ui-caps-2 text-[11px] text-[var(--text-secondary)]">Import status</p>
+              {recentCount > 0 ? <CountChip value={recentCount} /> : null}
+            </header>
 
-          <div className="mt-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3.5">
-            <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Review imported records</p>
-            <ActionChip verb="Open contracts" href="/contracts" className="mt-2" />
-          </div>
-        </section>
-      ) : null}
+            {recentCount === 0 ? (
+              <div className="mt-4 flex flex-col items-center gap-2 rounded-xl border border-dashed border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-8 text-center">
+                <span
+                  aria-hidden
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+                >
+                  <Inbox className="h-4 w-4" strokeWidth={1.85} />
+                </span>
+                <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">No import jobs yet</p>
+                <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
+                  Imports you run will appear here
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  {summary.map((bucket) => (
+                    <KeyValueChip
+                      key={bucket.key}
+                      label={bucket.label}
+                      value={bucket.value}
+                      tone={bucket.value > 0 ? bucket.tone : undefined}
+                    />
+                  ))}
+                </div>
+
+                {/* Jobs scroll internally so the review-records action below stays
+                    docked at the rail foot even with a long history. */}
+                <div className="mt-2 max-h-[26rem] space-y-3 overflow-y-auto">
+                  {activeJobs.length > 0 ? (
+                    <div>
+                      <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">In progress</p>
+                      <ul className="mt-1.5 space-y-1">
+                        {activeJobs.map((entry) => renderJobRow(entry, true))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {completedJobs.length > 0 ? (
+                    <div>
+                      {activeJobs.length > 0 ? (
+                        <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Recent imports</p>
+                      ) : null}
+                      <ul className={`space-y-1 ${activeJobs.length > 0 ? "mt-1.5" : ""}`}>
+                        {completedJobs.map((entry) => renderJobRow(entry))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3.5">
+                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Review imported records</p>
+                  <div className="mt-2">
+                    {totalImported > 0 ? (
+                      <ChipCapsule
+                        leftValue={totalImported}
+                        leftLabel="Imported"
+                        rightVerb="Open contracts"
+                        href="/contracts"
+                      />
+                    ) : (
+                      <ActionChip verb="Open contracts" href="/contracts" />
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }

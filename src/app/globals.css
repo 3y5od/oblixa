@@ -116,6 +116,14 @@
   --z-sidebar: 40;
   --z-modal: 50;
   --z-toast: 60;
+  --shell-topbar-h: 3.5rem;
+  --shell-sidebar-w: 18.5rem;
+  --shell-sidebar-collapsed-w: 4.75rem;
+  --shell-collapsed-slot: 2.75rem;
+  --shell-content-max: 1440px;
+  --shell-avatar-size: 2rem;
+  --shell-account-menu-w: 18rem;
+  --sidebar-icon-idle: color-mix(in oklab, var(--sidebar-muted) 88%, transparent);
   color-scheme: light;
 }
 
@@ -863,6 +871,24 @@
     background:
       linear-gradient(180deg, color-mix(in oklab, var(--accent-soft) 54%, white) 0%, color-mix(in oklab, var(--accent-soft) 70%, transparent) 100%);
     color: var(--accent-strong);
+  }
+
+  .ui-account-trigger {
+    @apply inline-flex h-10 max-w-[14rem] shrink-0 items-center gap-2 rounded-full border px-1.5 pr-2.5 text-left transition-colors;
+    border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
+    background: color-mix(in oklab, var(--surface-raised) 96%, transparent);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ui-account-trigger:hover {
+    border-color: color-mix(in oklab, var(--accent) 28%, var(--border-subtle));
+    background: color-mix(in oklab, var(--accent-soft) 18%, var(--surface-raised));
+  }
+
+  .ui-nowrap-safe {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ui-link {

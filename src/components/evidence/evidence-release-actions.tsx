@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { Bell, Check, MoreHorizontal, Plus, UploadCloud, X, type LucideIcon } from "lucide-react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Bell, Check, Plus, UploadCloud, X, type LucideIcon } from "lucide-react";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
+import { RowActionMenu, RowActionMenuItem } from "@/components/ui/row-action-menu";
 import { mutateV10 } from "@/lib/api-client";
 import type { EvidenceActionCapability, EvidenceRow } from "@/lib/evidence/types";
 
@@ -39,6 +41,12 @@ export function EvidenceReleaseActions({
     );
   }
 
+  function closePanels() {
+    setUploadOpen(false);
+    setRejectOpen(false);
+    setConfirm(null);
+  }
+
   function runMutation(action: EvidenceActionCapability, payload?: Record<string, unknown>) {
     if (action.kind !== "mutation" || !action.mutation) return;
     setMessage(null);
@@ -52,9 +60,7 @@ export function EvidenceReleaseActions({
         return;
       }
       setMessage(result.response.user_visible_message);
-      setUploadOpen(false);
-      setRejectOpen(false);
-      setConfirm(null);
+      closePanels();
       setNote("");
       setFileTypes("");
       setRejectReason("");
@@ -96,57 +102,60 @@ export function EvidenceReleaseActions({
   }
 
   return (
-    <div className="flex min-w-0 flex-col items-start gap-2">
+    <div className="flex min-w-0 flex-col items-start gap-1.5">
       {/* The contextual primary action and the overflow read as one coherent
-          pill group on a single line — never stacked, so rows stay compact. */}
+          pill group on a single line. Secondary actions live in the shared
+          portaled RowActionMenu (no clip-prone native <details>), and the
+          upload / reject / confirm forms open in a portaled dialog rather than
+          growing the table cell — so rows stay one line tall. */}
       <div className="inline-flex flex-nowrap items-center gap-1.5">
         {primaryAction ? (
-          <ActionControl
+          <PrimaryActionControl
             action={primaryAction}
             rowHref={row.href}
             disabled={isPending}
             onMutate={() => handleAction(primaryAction)}
-            variant="primary"
             // Status-aware verb: the chosen action already reflects the row's
-            // state (Upload while requested/overdue, Accept once received, …),
-            // so the primary button surfaces a short, accurate verb.
+            // state (Upload while requested/overdue, Accept once received, …).
             label={primaryVerb(primaryAction)}
             icon={ICON_BY_KEY[primaryAction.key]}
           />
         ) : null}
 
         {menuActions.length > 0 ? (
-          <details className="group relative min-w-0">
-            {/* Compact icon trigger instead of a vague "More" word — native
-                <summary> keeps Enter/Space keyboard semantics; the accessible
-                name comes from aria-label. */}
-            <summary
-              aria-label="More actions"
-              title="More actions"
-              className="ui-btn-ghost inline-flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full p-0 [&::-webkit-details-marker]:hidden"
-            >
-              <MoreHorizontal className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-            </summary>
-            <div className="absolute right-0 top-full z-20 mt-1.5 grid min-w-[12rem] gap-1 rounded-[0.625rem] border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[var(--surface-raised)] p-1.5 shadow-[var(--shadow-2)]">
-              {menuActions.map((action) => (
-                <ActionControl
+          <RowActionMenu menuLabel="Evidence actions" triggerLabel="More evidence actions">
+            {menuActions.map((action) => {
+              const Icon = ICON_BY_KEY[action.key];
+              const icon = Icon ? (
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+              ) : undefined;
+              return action.kind === "mutation" ? (
+                <RowActionMenuItem
                   key={action.key}
-                  action={action}
-                  rowHref={row.href}
-                  disabled={isPending}
-                  onMutate={() => handleAction(action)}
-                  variant="menu"
-                  icon={ICON_BY_KEY[action.key]}
+                  icon={icon}
                   destructive={action.key === "reject"}
-                />
-              ))}
-            </div>
-          </details>
+                  onSelect={() => handleAction(action)}
+                >
+                  {action.label}
+                </RowActionMenuItem>
+              ) : (
+                <RowActionMenuItem key={action.key} icon={icon} href={action.href ?? row.href}>
+                  {action.label}
+                </RowActionMenuItem>
+              );
+            })}
+          </RowActionMenu>
         ) : null}
       </div>
 
+      {message ? (
+        <span className="text-[11.5px] text-[var(--text-secondary)]" role="status">
+          {message}
+        </span>
+      ) : null}
+
       {uploadOpen ? (
-        <div className="w-full min-w-[15rem] space-y-2 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] p-3">
+        <ActionDialog title="Upload evidence" onClose={closePanels}>
           <label className="ui-label-caps" htmlFor={`evidence-upload-note-${row.id}`}>
             Submission note
           </label>
@@ -186,11 +195,11 @@ export function EvidenceReleaseActions({
           >
             {isPending ? "Uploading…" : "Upload evidence"}
           </button>
-        </div>
+        </ActionDialog>
       ) : null}
 
       {rejectOpen ? (
-        <div className="w-full min-w-[15rem] space-y-2 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] p-3">
+        <ActionDialog title="Reject evidence" onClose={closePanels}>
           <label className="ui-label-caps" htmlFor={`evidence-reject-note-${row.id}`}>
             Rejection reason
           </label>
@@ -212,11 +221,14 @@ export function EvidenceReleaseActions({
           >
             {isPending ? "Rejecting…" : "Reject"}
           </button>
-        </div>
+        </ActionDialog>
       ) : null}
 
       {confirm ? (
-        <div className="w-full min-w-[15rem] space-y-2 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] p-3">
+        <ActionDialog
+          title={confirm === "accept" ? "Accept evidence" : "Send reminder"}
+          onClose={closePanels}
+        >
           <p className="text-[12.5px] text-[var(--text-secondary)]">
             {confirm === "accept"
               ? "Accept this evidence and close the request?"
@@ -239,27 +251,77 @@ export function EvidenceReleaseActions({
             <button
               type="button"
               className="ui-btn-ghost px-3 py-1.5 text-[12.5px]"
-              onClick={() => setConfirm(null)}
+              onClick={closePanels}
             >
               Cancel
             </button>
           </div>
-        </div>
-      ) : null}
-
-      {message ? (
-        <span className="basis-full text-[11.5px] text-[var(--text-secondary)]" role="status">
-          {message}
-        </span>
+        </ActionDialog>
       ) : null}
     </div>
   );
 }
 
-// Short, action-accurate verbs for the contextual primary control. The verb
+/**
+ * Portaled centered dialog for the evidence action forms. Renders to
+ * `document.body` so the upload / reject / confirm forms escape the table cell
+ * (they used to grow the row and break the table rhythm). Backdrop click and
+ * Escape close it; the caller owns the open state.
+ */
+function ActionDialog({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-[color:color-mix(in_oklab,var(--text-primary)_28%,transparent)]"
+      />
+      <div className="relative z-10 w-full max-w-md space-y-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-4 shadow-[var(--shadow-3)]">
+        <div className="flex items-center justify-between gap-3">
+          <p className="ui-caps-2 text-[var(--text-tertiary)]">{title}</p>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="ui-chip-focus inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_70%,transparent)] hover:text-[var(--text-primary)]"
+          >
+            <X className="h-4 w-4" strokeWidth={1.85} aria-hidden />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// Short, action-accurate verbs + a reserved icon slot per action. The verb
 // matches what the action actually does (Accept approves in place, Upload opens
-// the submission panel) — we don't promise a "Close" the API can't perform.
-// Reserved icon slot per action so menu rows align and read at a glance.
+// the submission form) — we don't promise a "Close" the API can't perform.
 const ICON_BY_KEY: Record<string, LucideIcon> = {
   upload_evidence: UploadCloud,
   send_reminder: Bell,
@@ -310,49 +372,30 @@ function splitTokens(value: string) {
     .filter(Boolean);
 }
 
-function ActionControl({
+// The row's contextual primary action — a compact bordered icon+verb chip that
+// stays transparent at rest and only washes in on hover/focus, so a column of
+// repeated actions stays calm on the right edge without ever hiding the control.
+function PrimaryActionControl({
   action,
   rowHref,
   disabled,
   onMutate,
-  variant,
   label,
   icon: Icon,
-  destructive = false,
 }: {
   action: EvidenceActionCapability;
   rowHref: string;
   disabled: boolean;
   onMutate: () => void;
-  variant: "primary" | "menu";
-  /** Optional display override (the primary control shows a short verb). */
   label?: string;
   icon?: LucideIcon;
-  destructive?: boolean;
 }) {
-  // Always a legible affordance: a compact bordered icon+verb chip so the row's
-  // next action is unmistakable at rest. The fill stays transparent at idle and
-  // only washes in on hover/focus — that keeps a column of repeated actions calm
-  // on the right edge without ever hiding the control (the icon + verb + outline
-  // read as a button even before the pointer arrives).
-  const primaryClass =
+  const className =
     "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border-subtle)] bg-transparent px-2.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)] focus-visible:border-[var(--border-strong)] focus-visible:bg-[var(--surface-raised)] focus-visible:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-60";
-  const menuClass = `flex w-full items-center gap-2 rounded-[0.45rem] px-2.5 py-1.5 text-left text-[11.5px] font-medium transition disabled:opacity-60 ${
-    destructive
-      ? "text-[var(--danger-ink)] hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_12%,transparent)]"
-      : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] hover:text-[var(--text-primary)]"
-  }`;
-  const className = variant === "primary" ? primaryClass : menuClass;
   const text = label ?? action.label;
-  // Primary shows its status-aware icon when one is supplied; the menu variant
-  // reserves a fixed icon slot even when empty so its rows stay left-aligned.
   const content = (
     <>
-      {Icon ? (
-        <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
-      ) : variant === "menu" ? (
-        <span className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      ) : null}
+      {Icon ? <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden /> : null}
       <span>{text}</span>
     </>
   );

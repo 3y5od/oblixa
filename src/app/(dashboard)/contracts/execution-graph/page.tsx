@@ -74,12 +74,12 @@ export default async function ExecutionGraphPage(props: {
       <DashboardPageHeader
         icon={<Network className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Execution graph"
-        title="Dependency and blocker view"
-        lead="Cross-work dependency graph across tasks, approvals, obligations, and renewal checkpoints."
+        title="Task dependency view"
+        lead="Cross-task dependency graph across tasks, approvals, obligations, and renewal checkpoints."
       />
 
       <section className="ui-page-shell p-5">
-        <p className="ui-label-caps">Portfolio blocker summary</p>
+        <p className="ui-label-caps">Portfolio dependency summary</p>
         <p className="ui-support-copy mt-2">
           Active dependency edges: <span className="font-semibold text-[var(--text-primary)]">{blockerCount}</span>
         </p>
@@ -152,7 +152,7 @@ export default async function ExecutionGraphPage(props: {
                 </p>
                 <div className="mt-1 flex gap-2 text-[11px]">
                   <span className="rounded-full border border-[var(--border-strong)] px-2 py-0.5 text-[var(--text-secondary)]">
-                    blocked by {blockedByCount.get(`${edge.to_entity_type}:${edge.to_entity_id}`) ?? 0}
+                    depends on {blockedByCount.get(`${edge.to_entity_type}:${edge.to_entity_id}`) ?? 0}
                   </span>
                   <span className="rounded-full border border-[var(--border-strong)] px-2 py-0.5 text-[var(--text-secondary)]">
                     unblocks {unblocksCount.get(`${edge.from_entity_type}:${edge.from_entity_id}`) ?? 0}

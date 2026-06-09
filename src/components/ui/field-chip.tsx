@@ -6,6 +6,8 @@ export interface FieldChipProps {
   tone?: StatTone;
   /** `solid` (default) for present identifiers; `dashed` for "+N more" overflow markers. */
   variant?: "solid" | "dashed";
+  size?: "xs" | "sm" | "md";
+  transform?: "uppercase" | "preserve";
   /** Hover tooltip — defaults to the label. */
   title?: string;
   "aria-label"?: string;
@@ -30,17 +32,29 @@ export function FieldChip({
   label,
   tone,
   variant = "solid",
+  size = "sm",
+  transform = "uppercase",
   title,
   className,
   ...rest
 }: FieldChipProps) {
   const ink = toneInk(tone);
   const ariaLabel = rest["aria-label"];
+  const sizeClass =
+    size === "xs"
+      ? "px-1.5 py-0.5 text-[9.5px]"
+      : size === "md"
+        ? "px-2 py-1 text-[11px]"
+        : "px-1.5 py-0.5 text-[10px]";
+  const transformClass =
+    transform === "preserve"
+      ? "normal-case tracking-normal"
+      : "uppercase tracking-[0.08em]";
   return (
     <span
       title={title ?? label}
       aria-label={ariaLabel}
-      className={`inline-flex max-w-full items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] leading-none ${
+      className={`inline-flex max-w-full items-center rounded-md border font-medium leading-none ${sizeClass} ${transformClass} ${
         variant === "dashed" ? "border-dashed" : ""
       } ${className ?? ""}`.trim()}
       style={{

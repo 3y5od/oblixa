@@ -48,7 +48,7 @@ export function buildContractOperationsStrip(input: {
         : "secondary";
 
   const freshnessValue = input.latestExtractionTouchAt
-    ? `Extraction touched ${format(new Date(input.latestExtractionTouchAt), "MMM d, yyyy")}`
+    ? `Suggestions updated ${format(new Date(input.latestExtractionTouchAt), "MMM d, yyyy")}`
     : input.latestSourceDocumentAt
       ? `Latest source file ${format(new Date(input.latestSourceDocumentAt), "MMM d, yyyy")}`
       : "No source files attached yet";
@@ -106,10 +106,10 @@ export function buildContractImmediateActions(input: {
     input.pendingFieldsCount > 0
       ? {
           href: "#extracted-fields",
-          eyebrow: "Review",
-          title: "Pending extracted fields need confirmation",
-          hint: `${input.pendingFieldsCount} field${input.pendingFieldsCount === 1 ? "" : "s"} are still unresolved before reminders or downstream work should rely on them.`,
-          actionLabel: "Review fields",
+          eyebrow: "Confirm",
+          title: "Suggested details need confirmation",
+          hint: `${input.pendingFieldsCount} detail${input.pendingFieldsCount === 1 ? "" : "s"} are still unresolved before reminders or downstream tasks should rely on them.`,
+          actionLabel: "Confirm details",
           tone: "attention" as const,
         }
       : null,
@@ -117,7 +117,7 @@ export function buildContractImmediateActions(input: {
       ? {
           href: `/contracts/approvals?status=pending&contract=${input.contractId}`,
           eyebrow: "Approvals",
-          title: "Approvals are still blocking downstream action",
+          title: "Approvals still need action",
           hint: `${input.pendingApprovalsCount} approval request${input.pendingApprovalsCount === 1 ? "" : "s"} remain pending on this contract.`,
           actionLabel: "Open approvals",
           tone: "attention" as const,
@@ -126,10 +126,10 @@ export function buildContractImmediateActions(input: {
     input.openExceptionsCount > 0
       ? {
           href: `/contracts/exceptions?status=open&contract=${input.contractId}`,
-          eyebrow: "Exceptions",
-          title: "Open exceptions need owner and resolution",
-          hint: `${input.openExceptionsCount} active exception${input.openExceptionsCount === 1 ? "" : "s"} are still attached to this contract.`,
-          actionLabel: "Open exceptions",
+          eyebrow: "Issues",
+          title: "Open issues need owner and resolution",
+          hint: `${input.openExceptionsCount} active issue${input.openExceptionsCount === 1 ? "" : "s"} are still attached to this contract.`,
+          actionLabel: "Open issues",
           tone: "risk" as const,
         }
       : null,
@@ -147,7 +147,7 @@ export function buildContractImmediateActions(input: {
       ? {
           href: "#ownership-record",
           eyebrow: "Ownership",
-          title: "Assign an owner before work spreads further",
+          title: "Assign an owner before tasks spread further",
           hint: "This contract is active without a visible owner for escalations, renewals, or follow-up.",
           actionLabel: "Assign owner",
           tone: "attention" as const,
@@ -157,9 +157,9 @@ export function buildContractImmediateActions(input: {
       ? {
           href: "#extracted-fields",
           eyebrow: "Dates",
-          title: "Reminders and renewals are still blocked",
-          hint: "Approve at least one key date before reminder scheduling and horizon reporting can trust this record.",
-          actionLabel: "Approve dates",
+          title: "Reminders and renewals need confirmed dates",
+          hint: "Confirm at least one key date before reminder scheduling and horizon reporting can trust this record.",
+          actionLabel: "Confirm dates",
           tone: "attention" as const,
         }
       : null,

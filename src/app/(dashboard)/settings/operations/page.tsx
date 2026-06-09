@@ -1,6 +1,7 @@
-import { createAdminClient, getAuthContext } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { SETTINGS_NOTIFICATIONS_STRINGS } from "@/lib/settings/spec-strings";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 import { loadOperationsSettingsData } from "./load-operations-settings-data";
 import { OperationsSettingsView } from "./operations-settings-view";
 
@@ -25,19 +26,7 @@ export default async function OperationsSettingsPage() {
   // action duplicates this check at write-time (defense in depth);
   // the page-level flag drives the view's disabled cascade + the
   // read-only banner.
-  const admin = await createAdminClient();
-  const { data: { user } = { user: null } } = await ctx.admin.auth.getUser();
-  let canEdit = false;
-  if (user) {
-    const { data: membership } = await admin
-      .from("organization_members")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("organization_id", ctx.orgId)
-      .maybeSingle();
-    const role = typeof membership?.role === "string" ? membership.role : "";
-    canEdit = role === "admin" || role === "owner";
-  }
+  const canEdit = isWorkspaceAdminRole(ctx.role);
 
   return <OperationsSettingsView data={data} canEdit={canEdit} />;
 }

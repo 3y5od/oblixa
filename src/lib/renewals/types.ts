@@ -37,6 +37,9 @@ export type RenewalActionCapability = {
 export type RenewalOption = {
   value: string;
   label: string;
+  /** Stable facet total (rows carrying this value across the full pre-filter
+   *  set) — rendered as a trailing count in the filter dropdown. */
+  count?: number;
 };
 
 export type RenewalWindowSummary = {

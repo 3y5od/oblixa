@@ -125,15 +125,15 @@ export async function recomputeContractSignals(
   if (ownerMissing) {
     requiredNextStep = "Assign a contract owner";
   } else if (missingCriticalDates) {
-    requiredNextStep = "Approve key date fields (end/renewal/notice)";
+    requiredNextStep = "Confirm key date details (end/renewal/notice)";
   } else if (overdueTasks > 0) {
     requiredNextStep = "Resolve overdue contract tasks";
   } else if (overdueObligations > 0) {
-    requiredNextStep = "Resolve overdue obligations";
+    requiredNextStep = "Resolve overdue requirements";
   } else if (pendingApprovals > 0) {
     requiredNextStep = "Resolve pending approvals";
   } else if (renewalBlocked) {
-    requiredNextStep = "Resolve renewal blocker";
+    requiredNextStep = "Review renewal dependency";
   } else if (staleOwnership) {
     requiredNextStep = "Confirm owner is still current";
   } else if (upcomingSoon > 0) {

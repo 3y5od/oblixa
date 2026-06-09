@@ -11,6 +11,17 @@ import {
 import { ArrowRight, Check, CircleHelp, Pencil } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
 import { formatBusinessDateAtNoon } from "@/lib/business-dates";
+import {
+  buildFieldReviewStatusMessage,
+  getCriticalFieldReviewSummary,
+  sortFieldsForReview,
+} from "@/lib/review-feedback";
+import type { ExtractedField } from "@/lib/types";
+import { EmptyState } from "@/components/ui/empty-state";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { fieldReviewProvenanceLabel } from "@/lib/compatibility-field-provenance";
+import { CriticalDateReviewNotice } from "./critical-date-review-notice";
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function formatFieldValue(raw: string | null | undefined): string {
@@ -21,16 +32,6 @@ function formatFieldValue(raw: string | null | undefined): string {
   }
   return raw;
 }
-import {
-  buildFieldReviewStatusMessage,
-  getCriticalFieldReviewSummary,
-  sortFieldsForReview,
-} from "@/lib/review-feedback";
-import type { ExtractedField } from "@/lib/types";
-import { EmptyState } from "@/components/ui/empty-state";
-import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
-import { fieldReviewProvenanceLabel } from "@/lib/compatibility-field-provenance";
-import { CriticalDateReviewNotice } from "./critical-date-review-notice";
 
 const statusBadge: Record<string, string> = {
   pending: "ui-status-badge ui-status-badge-warning",
@@ -39,6 +40,10 @@ const statusBadge: Record<string, string> = {
   edited: "ui-status-badge ui-status-badge-in-review",
 };
 const CRITICAL_DATE_REVIEW_COPY = "Key date coverage still needs review";
+
+// Shared 4-column grid template used by the column header and each row.
+const ROW_GRID =
+  "lg:grid lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.05fr)_minmax(0,0.7fr)_auto] lg:items-start lg:gap-4";
 
 interface FieldReviewProps {
   fields: ExtractedField[];
@@ -51,8 +56,8 @@ interface FieldReviewProps {
 export function FieldReview({
   fields,
   canEdit = true,
-  emptyTitle = "No extracted fields",
-  emptyCopy = "Run Extract fields with AI after upload. Use text-based PDF or DOCX.",
+  emptyTitle = "No contract details to confirm",
+  emptyCopy = "Upload a text-based PDF or DOCX so Oblixa can suggest dates, owners, and other contract details.",
 }: FieldReviewProps) {
   const [reviewState, setReviewState] = useState(() => ({
     sourceFields: fields,
@@ -84,20 +89,16 @@ export function FieldReview({
   return (
     <div className="space-y-4">
       {statusMessage ? (
-        <div
-          className="ui-alert-success"
-          role="status"
-          aria-live="polite"
-        >
+        <div className="ui-alert-success" role="status" aria-live="polite">
           {statusMessage}
         </div>
       ) : null}
       {canEdit && hasPending && (
-        <div className="ui-toolbar">
+        <div className="ui-toolbar text-[11px]">
           <span className="ui-caps-3 text-[var(--text-tertiary)]">Shortcuts</span>
-          <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[var(--text-secondary)]">
             <span className="inline-flex items-center gap-1.5">
-              <kbd className="ui-kbd">A</kbd> approve
+              <kbd className="ui-kbd">A</kbd> confirm
             </span>
             <span className="inline-flex items-center gap-1.5">
               <kbd className="ui-kbd">E</kbd> edit
@@ -122,29 +123,43 @@ export function FieldReview({
           summaryCopy={CRITICAL_DATE_REVIEW_COPY}
         />
       )}
-      <div className="border-t border-[var(--border-subtle)]" role="list" aria-label="Extracted contract fields">
-        <div className="divide-y divide-[var(--border-subtle)]">
-          {orderedFields.map((field) => (
-            <FieldRow
-              key={field.id}
-              field={field}
-              canEdit={canEdit}
-              onUpdated={(nextField, action) => {
-                const next = currentFields.map((candidate) =>
-                  candidate.id === nextField.id ? nextField : candidate
-                );
-                const nextPendingCount = next.filter((candidate) => candidate.status === "pending").length;
-                setReviewState({ sourceFields: fields, rows: next });
-                setStatusMessage(
-                  buildFieldReviewStatusMessage({
-                    pendingCount: nextPendingCount,
-                    action,
-                    fieldLabel: nextField.field_name.replace(/_/g, " "),
-                  })
-                );
-              }}
-            />
-          ))}
+      <div>
+        {/* Single shared column header (lg+) — replaces the per-row "Source
+            excerpt" caps labels so the source column is named once. */}
+        <div className={`hidden px-3 pb-2 sm:px-4 ${ROW_GRID}`} aria-hidden>
+          <span className="ui-caps-3 text-[var(--text-tertiary)]">Contract detail</span>
+          <span className="ui-caps-3 text-[var(--text-tertiary)]">Value</span>
+          <span className="ui-caps-3 text-[var(--text-tertiary)]">Source</span>
+          <span />
+        </div>
+        <div
+          className="border-t border-[var(--border-subtle)]"
+          role="list"
+          aria-label="Contract details to confirm"
+        >
+          <div className="divide-y divide-[var(--border-subtle)]">
+            {orderedFields.map((field) => (
+              <FieldRow
+                key={field.id}
+                field={field}
+                canEdit={canEdit}
+                onUpdated={(nextField, action) => {
+                  const next = currentFields.map((candidate) =>
+                    candidate.id === nextField.id ? nextField : candidate
+                  );
+                  const nextPendingCount = next.filter((candidate) => candidate.status === "pending").length;
+                  setReviewState({ sourceFields: fields, rows: next });
+                  setStatusMessage(
+                    buildFieldReviewStatusMessage({
+                      pendingCount: nextPendingCount,
+                      action,
+                      fieldLabel: nextField.field_name.replace(/_/g, " "),
+                    })
+                  );
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -181,6 +196,7 @@ const FieldRow = memo(function FieldRow({
   const rowRef = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.field_value || "");
+  const [snippetExpanded, setSnippetExpanded] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -222,14 +238,16 @@ const FieldRow = memo(function FieldRow({
     });
   }
 
-  const rowBg =
+  // Pending/edited/rejected rows lead with a left tone rail (not a full-row
+  // wash) so the list scans as one surface with a status margin (§10.2).
+  const rowRail =
     field.status === "pending"
-      ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_16%,transparent)]"
-      : field.status === "approved"
-        ? "bg-transparent"
-        : field.status === "rejected"
-          ? "bg-[color:color-mix(in_oklab,var(--danger-soft)_14%,transparent)]"
-          : "bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)]";
+      ? "border-l-[color:color-mix(in_oklab,var(--warning-ink)_55%,transparent)]"
+      : field.status === "rejected"
+        ? "border-l-[color:color-mix(in_oklab,var(--danger-ink)_55%,transparent)]"
+        : field.status === "edited"
+          ? "border-l-[color:color-mix(in_oklab,var(--accent)_55%,transparent)]"
+          : "border-l-transparent";
 
   const rowKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (!canEdit || field.status !== "pending" || editing) return;
@@ -255,13 +273,15 @@ const FieldRow = memo(function FieldRow({
   };
 
   const fieldLabel = field.field_name.replace(/_/g, " ");
+  const confidencePct =
+    field.confidence == null
+      ? null
+      : Math.round(Math.min(1, Math.max(0, field.confidence)) * 100);
   const provenanceLabel = fieldReviewProvenanceLabel({
     status: field.status,
-    confidence:
-      field.confidence == null
-        ? null
-        : Math.round(Math.min(1, Math.max(0, field.confidence)) * 100),
+    confidence: confidencePct,
   });
+  const longSnippet = (field.source_snippet ?? "").length > 140;
 
   return (
     <article
@@ -269,11 +289,11 @@ const FieldRow = memo(function FieldRow({
       id={`field-${field.id}`}
       role="listitem"
       data-review-focus-row={canEdit && field.status === "pending" && !editing ? "true" : undefined}
-      className={`scroll-mt-28 px-3 py-2.5 outline-none transition-colors focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:px-4 sm:py-3 ${rowBg}`}
+      className={`scroll-mt-28 border-l-2 px-3 py-2.5 outline-none transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:px-4 sm:py-3 ${rowRail}`}
       tabIndex={canEdit && field.status === "pending" && !editing ? 0 : -1}
       onKeyDown={rowKeyDown}
     >
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.05fr)_minmax(0,0.7fr)_auto] lg:items-start">
+      <div className={ROW_GRID}>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold capitalize text-[var(--text-primary)]">{fieldLabel}</p>
@@ -285,25 +305,21 @@ const FieldRow = memo(function FieldRow({
               {field.status === "pending"
                 ? "Pending"
                 : field.status === "approved"
-                  ? "Approved"
+                  ? "Confirmed"
                   : field.status === "rejected"
                     ? "Marked unknown"
                     : "Edited"}
             </span>
           </div>
-          <span
-            className="mt-1 inline-flex items-center overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[10px] leading-none"
-            aria-label={`${field.source === "ai" ? "AI extraction" : "Human entry"}${field.confidence != null ? ` at ${Math.round(Math.min(1, Math.max(0, field.confidence)) * 100)}% signal` : ""}`}
-          >
-            <span className="px-1.5 py-0.5 font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-              {field.source === "ai" ? "AI" : "Human"}
-            </span>
-            {field.confidence != null ? (
-              <span className="border-l border-[var(--border-subtle)] px-1.5 py-0.5 font-medium uppercase tracking-[0.12em] tabular-nums text-[var(--text-tertiary)]">
-                {Math.round(Math.min(1, Math.max(0, field.confidence)) * 100)}%
+          <div className="mt-1.5">
+            {confidencePct != null ? (
+              <KeyValueChip label={field.source === "ai" ? "AI" : "Human"} value={`${confidencePct}%`} />
+            ) : (
+              <span className="ui-caps-3 text-[var(--text-tertiary)]">
+                {field.source === "ai" ? "AI suggestion" : "Human entry"}
               </span>
-            ) : null}
-          </span>
+            )}
+          </div>
           {field.status !== "approved" ? (
             <p className="mt-2 max-w-sm text-[11px] leading-snug text-[var(--text-tertiary)]">
               {provenanceLabel}
@@ -311,7 +327,7 @@ const FieldRow = memo(function FieldRow({
           ) : null}
         </div>
 
-        <div className="min-w-0 text-[var(--text-primary)]">
+        <div className="mt-3 min-w-0 text-[var(--text-primary)] lg:mt-0">
           {editing ? (
             <div className="flex flex-col gap-2">
               <input
@@ -358,7 +374,7 @@ const FieldRow = memo(function FieldRow({
               </span>
               {needsCitation && (
                 <p className="ui-alert-warning mt-2 px-2.5 py-2 text-[11px] leading-snug">
-                  Citation required: edit to add source text, or mark this value unknown.
+                  Source required: edit to add source text, or mark this value unknown.
                 </p>
               )}
               {actionError && (
@@ -368,13 +384,25 @@ const FieldRow = memo(function FieldRow({
           )}
         </div>
 
-        <div className="min-w-0">
-          {field.source_snippet ? (
+        <div className="mt-3 min-w-0 lg:mt-0">
+          {hasSnippet ? (
             <>
-              <p className="ui-caps-3 text-[var(--text-tertiary)]">Source excerpt</p>
-              <p className="mt-1 max-h-24 overflow-y-auto text-[12px] leading-snug text-[var(--text-secondary)]">
+              <p
+                className={`text-[12px] leading-snug text-[var(--text-secondary)] ${
+                  snippetExpanded ? "" : "line-clamp-3"
+                }`}
+              >
                 {field.source_snippet}
               </p>
+              {longSnippet ? (
+                <button
+                  type="button"
+                  onClick={() => setSnippetExpanded((v) => !v)}
+                  className="ui-chip-focus mt-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]"
+                >
+                  {snippetExpanded ? "Show less" : "Show more"}
+                </button>
+              ) : null}
             </>
           ) : (
             <span className="text-[12px] text-[var(--text-tertiary)]">—</span>
@@ -382,7 +410,7 @@ const FieldRow = memo(function FieldRow({
         </div>
 
         {canEdit ? (
-          <div className="flex justify-start lg:justify-end">
+          <div className="mt-3 flex justify-start lg:mt-0 lg:justify-end">
             {field.status === "pending" && !editing ? (
               <div className="inline-flex rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-0.5 shadow-[var(--shadow-1)]">
                 <button
@@ -393,9 +421,9 @@ const FieldRow = memo(function FieldRow({
                   title={
                     needsCitation
                       ? "Add a source citation by editing first"
-                      : "Approve"
+                      : "Confirm"
                   }
-                  aria-label={`Approve ${fieldLabel}`}
+                  aria-label={`Confirm ${fieldLabel}`}
                 >
                   <Check size={17} aria-hidden strokeWidth={1.85} />
                 </button>

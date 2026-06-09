@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fetchJson } from "@/lib/http/client-json";
+import { UiSelect } from "@/components/ui/ui-select";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { captureClientException } from "@/lib/observability/sentry-client";
 
@@ -53,16 +54,21 @@ export function FindingActions({ findingId }: { findingId: string }) {
       />
       <label className="mt-2 block text-xs text-[var(--text-secondary)]">
         Signal quality (optional — used for calibration and reporting)
-        <select
-          className="ui-input mt-1 block w-full max-w-md"
+        <UiSelect
           value={signalFeedback}
-          onChange={(e) => setSignalFeedback(e.target.value)}
-        >
-          <option value="">No label</option>
-          <option value="false_positive">False positive / noise</option>
-          <option value="not_actionable">Not actionable</option>
-          <option value="confirmed_true">Confirmed issue</option>
-        </select>
+          onChange={setSignalFeedback}
+          ariaLabel="Signal feedback"
+          placeholder="No label"
+          options={[
+            { value: "false_positive", label: "False positive / noise" },
+            { value: "not_actionable", label: "Not actionable" },
+            { value: "confirmed_true", label: "Confirmed issue" },
+          ]}
+          variant="compact"
+          portal
+          className="mt-1 block w-full max-w-md"
+          buttonClassName="w-full !min-h-11"
+        />
       </label>
       <div className="mt-2 flex flex-wrap gap-2">
         <button

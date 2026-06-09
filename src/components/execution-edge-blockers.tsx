@@ -26,7 +26,7 @@ export function BlockerChip({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
     <StatusBadge status="blocked" className="ml-2 text-[11px] font-medium">
-      blocked by {count} upstream
+      needs input from {count} upstream
     </StatusBadge>
   );
 }

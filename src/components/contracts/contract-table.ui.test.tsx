@@ -126,16 +126,16 @@ describe("ContractTable", () => {
     // Review chip uses parallel "X/Y verb" format: pending shows
     // `${pending}/${total} pending`, complete shows
     // `${approved}/${total} reviewed`. The aria-label stays stable.
-    expect(screen.getByRole("link", { name: /continue field review/i }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: /continue detail confirmation/i }).getAttribute("href")).toBe(
       "/contracts/contract-1#extracted-fields"
     );
     expect(
-      screen.getByRole("link", { name: /continue field review/i }).textContent ?? ""
+      screen.getByRole("link", { name: /continue detail confirmation/i }).textContent ?? ""
     ).toMatch(/pending/i);
     // Two-line "Next important date" cell: primary line "Renewal Apr 19"
     // (urgency-coloured) + secondary "Due today" caption from nextHorizonDays === 0.
     expect(screen.getByText(/due today/i)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /2 exceptions/i }).getAttribute("href")).toContain("/contracts/exceptions");
+    expect(screen.getByRole("link", { name: /2 issues/i }).getAttribute("href")).toContain("/contracts/exceptions");
     expect(screen.getByText(/1 evidence/i)).toBeTruthy();
   });
 
@@ -164,7 +164,7 @@ describe("ContractTable", () => {
     renderWithProviders(<ContractTable contracts={[]} />);
 
     expect(screen.getByText(/no contracts yet/i)).toBeTruthy();
-    expect(screen.getByText(/upload an agreement to extract dates and build your operational record/i)).toBeTruthy();
+    expect(screen.getByText(/upload an agreement so oblixa can suggest dates and build your operational record/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /upload contract/i }).getAttribute("href")).toBe("/contracts/new");
     const state = screen.getByRole("status", { name: /contracts empty state/i });
     expect(state.getAttribute("data-v10-state")).toBe("empty");

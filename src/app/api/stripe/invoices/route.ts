@@ -50,13 +50,20 @@ export type BillingInvoice = {
 // SPEC: §3.2 — GET returns up to 5 recent invoices for the workspace.
 export async function GET(request: Request) {
   const supabase = await createClient();
-  const admin = await createAdminClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return jsonUnauthorized(ROUTE);
 
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(
+    `stripe-invoices:${user.id}:${ip}`,
+    RATE_LIMITS.stripeCheckoutSession
+  );
+  if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
+
+  const admin = await createAdminClient();
   const membership = await getDeterministicMembership(admin, user.id);
   if (!membership) {
     return jsonProblem(400, {
@@ -75,13 +82,6 @@ export async function GET(request: Request) {
   if (!orgRow || !canManageWorkspaceBilling(membership.role, { isWorkspaceOwner: orgRow.owner_user_id === user.id })) {
     return jsonForbidden(ROUTE);
   }
-
-  const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(
-    `stripe-invoices:${user.id}:${ip}`,
-    RATE_LIMITS.stripeCheckoutSession
-  );
-  if (!rl.ok) return jsonRateLimited(rl.retryAfterMs, ROUTE);
 
   if (isKillBilling()) return killSwitchJsonResponse("billing");
 

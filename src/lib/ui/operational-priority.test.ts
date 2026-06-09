@@ -29,12 +29,12 @@ describe("operational-priority", () => {
     expect(
       summarizeOperationalCounts([
         { id: "due", kind: "work", title: "Due today", count: 0 },
-        { id: "blocked", kind: "blocked", title: "Blocked", count: 0 },
+        { id: "blocked", kind: "blocked", title: "Needs input", count: 0 },
       ]).isAllClear
     ).toBe(true);
 
     const active = summarizeOperationalCounts([
-      { id: "blocked", kind: "blocked", title: "Blocked", count: 2, blocked: true },
+      { id: "blocked", kind: "blocked", title: "Needs input", count: 2, blocked: true },
     ]);
     expect(active.isAllClear).toBe(false);
     expect(active.attentionCount + active.riskCount).toBeGreaterThan(0);

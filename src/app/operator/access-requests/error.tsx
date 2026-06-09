@@ -1,10 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { RouteStatePanel } from "@/components/ui/route-state-panel";
+import { captureClientException } from "@/lib/observability/sentry-client";
 
 export default function OperatorAccessRequestsError({ error }: { error: Error & { digest?: string } }) {
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.error(error);
+    }
+    captureClientException(error, {
+      extra: { route: "app/operator/access-requests", digest: error.digest },
+    });
+  }, [error]);
+
   return (
     <RouteStatePanel
       eyebrow="Internal operator"

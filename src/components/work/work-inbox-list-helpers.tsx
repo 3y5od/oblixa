@@ -52,10 +52,10 @@ export function summarizeBulkOutcome(action: "assign" | "complete", outcomes: Ar
     action === "assign"
       ? success > 0
         ? `Assigned ${success} selected item${success === 1 ? "" : "s"}.`
-        : "No selected work items were reassigned."
+        : "No selected tasks were reassigned."
       : success > 0
         ? `Completed ${success} selected item${success === 1 ? "" : "s"}.`
-        : "No selected work items were completed.",
+        : "No selected tasks were completed.",
   ];
   if (noAction > 0) sentences.push(action === "assign" ? `${noAction} already had that owner.` : `${noAction} were already complete.`);
   if (blocked > 0) sentences.push(`${blocked} need another bulk group or a refreshed queue.`);
@@ -84,12 +84,12 @@ function CompactExtractionRetryButton({ contractId }: { contractId: string }) {
               return;
             }
             setTone("success");
-            setMessage("Extraction retry started.");
+            setMessage("Suggestion retry started.");
             router.refresh();
           });
         }}
       >
-        {isPending ? "Retrying extraction..." : "Retry extraction"}
+        {isPending ? "Retrying suggestions..." : "Retry suggestions"}
       </button>
       {message ? (
         <span
@@ -111,7 +111,7 @@ export function inlineActionsForItem(
 ) {
   const evidenceHref = item.contractId ? `/contracts/${item.contractId}?tab=overview#contract-evidence` : null;
   if (item.type === "contract_task" && ["open", "in_progress", "blocked", "done"].includes(item.status)) {
-    return <><WorkQueueInlineActionsGate kind="task" itemId={item.sourceId} status={item.status as "open" | "in_progress" | "blocked" | "done"} mutationsEnabled={mutationsEnabled} blockerHref={item.status === "blocked" ? item.href : undefined} blockerLabel={item.status === "blocked" ? "Review blocker" : undefined} />{evidenceHref ? <div className="mt-2"><Link href={evidenceHref} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Request evidence</Link></div> : null}</>;
+    return <><WorkQueueInlineActionsGate kind="task" itemId={item.sourceId} status={item.status as "open" | "in_progress" | "blocked" | "done"} mutationsEnabled={mutationsEnabled} blockerHref={item.status === "blocked" ? item.href : undefined} blockerLabel={item.status === "blocked" ? "Review item needing response" : undefined} />{evidenceHref ? <div className="mt-2"><Link href={evidenceHref} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Request evidence</Link></div> : null}</>;
   }
   if (item.type === "approval" && ["pending", "approved", "rejected", "changes_requested"].includes(item.status)) {
     return <><WorkQueueInlineActionsGate kind="approval" itemId={item.sourceId} status={item.status as "pending" | "approved" | "rejected" | "changes_requested"} mutationsEnabled={mutationsEnabled} />{evidenceHref ? <div className="mt-2"><Link href={evidenceHref} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Request evidence</Link></div> : null}</>;
@@ -126,7 +126,7 @@ export function inlineActionsForItem(
     return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: "import_failure", sourceId: item.sourceId })} label="Retry failed rows" successFallbackMessage="Retry started." testId="import-retry" /> : null}<div className="flex flex-wrap gap-2"><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link>{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=files#source-documents`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Review contract files</Link> : null}</div></div>;
   }
   if (item.type === "extraction_failure") {
-    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.contractId ? <CompactExtractionRetryButton contractId={item.contractId} /> : null}<div className="flex flex-wrap gap-2">{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=fields#extracted-fields`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Review extraction</Link> : null}<Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link></div></div>;
+    return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.contractId ? <CompactExtractionRetryButton contractId={item.contractId} /> : null}<div className="flex flex-wrap gap-2">{item.contractId ? <Link href={`/contracts/${item.contractId}?tab=fields#extracted-fields`} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Review suggestions</Link> : null}<Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link></div></div>;
   }
   if (item.type === "export_failure" || item.type === "report_failure") {
     return <div className="mt-2 flex flex-col gap-2">{mutationsEnabled && item.primaryAction === "retry_failed_job" ? <V10JobRetryButton url={getV10JobRetryUrl({ type: item.type, sourceId: item.sourceId })} label={item.type === "report_failure" ? "Retry report" : "Retry export"} successFallbackMessage={item.type === "report_failure" ? "Report retry completed." : "Export retry queued."} testId={item.type === "report_failure" ? "report-retry" : "export-retry"} /> : null}<div className="flex flex-wrap gap-2"><Link href={item.type === "report_failure" ? "/reports" : "/settings/health#exports"} className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">{item.type === "report_failure" ? "Review reports" : "Inspect export diagnostics"}</Link><Link href="/settings/health#jobs" className="ui-btn-secondary inline-flex px-2.5 py-1 text-[11px]">Inspect diagnostics</Link></div></div>;

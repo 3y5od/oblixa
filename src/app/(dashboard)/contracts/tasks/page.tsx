@@ -40,7 +40,7 @@ const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
   { value: "", label: "All" },
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
-  { value: "blocked", label: "Blocked" },
+  { value: "blocked", label: "Needs input" },
   { value: "done", label: "Done" },
 ];
 
@@ -54,6 +54,7 @@ function taskStatusTone(status: string): StatTone {
 
 function taskStatusLabel(status: string): string {
   if (status === "in_progress") return "In progress";
+  if (status === "blocked") return "Needs input";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
@@ -199,11 +200,11 @@ export default async function ContractTasksPage(props: {
           context={dueSoonTasks === 0 ? "Nothing due in 7 days" : "Within 7 days"}
         />
         <StatCell
-          label="Blocked"
+          label="Needs input"
           display={String(blockedTasks)}
           isZero={blockedTasks === 0}
           tone="danger"
-          context={blockedTasks === 0 ? "Nothing waiting on an unblock" : "Need unblock path"}
+          context={blockedTasks === 0 ? "No tasks need input" : "Needs input"}
         />
         <StatCell
           label="Completed"
@@ -410,7 +411,7 @@ export default async function ContractTasksPage(props: {
             <EmptyState
               eyebrow="Queue status"
               title="No tasks match this queue"
-              copy="Adjust the filters above, clear the current queue, or review unified work for other action types."
+              copy="Adjust the filters above, clear the current queue, or review tasks for other action types."
               icon={<Compass className="h-7 w-7 text-[var(--accent-strong)]" strokeWidth={1.65} aria-hidden />}
               className="lg:items-start lg:text-left"
               action={
@@ -420,7 +421,7 @@ export default async function ContractTasksPage(props: {
                     className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
                   >
                     <ArrowRight className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Review unified work
+                    Review tasks
                   </Link>
                   {hasFilters ? (
                     <Link
@@ -530,7 +531,7 @@ export default async function ContractTasksPage(props: {
                         {task.blockedReason && task.status === "blocked" ? (
                           <p className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] text-[var(--danger-ink)]">
                             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
-                            <span>Blocked · {task.blockedReason}</span>
+                            <span>Input needed · {task.blockedReason}</span>
                           </p>
                         ) : null}
                       </td>

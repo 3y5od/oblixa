@@ -139,7 +139,7 @@ requireContains("earlyAccessPage", files.earlyAccessPage, 'redirect("/request-ac
 requireContains(
   "authForm",
   files.authForm,
-  "Signup is limited to approved or invited workspaces"
+  "Signup is limited to approved workspace access links"
 );
 requireContains("authForm", files.authForm, 'type="hidden" name="accessCode"');
 requireContains("authActions", files.authActions, "validateWorkspaceAccessGrant");
@@ -152,7 +152,7 @@ requireAbsent("authActions", files.authActions, "isEarlyAccessSignupAllowed");
 requireContains(
   "securityPage",
   files.securityPage,
-  "Security basics for contract records, with"
+  "Security basics for contract records"
 );
 requireContains("securityPage", files.securityPage, "reviewed access");
 requireContains("securityPage", files.securityPage, "does not provide legal advice");

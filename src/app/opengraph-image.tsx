@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
 
-export const alt = "Oblixa — Track renewals, obligations, and owners from signed contracts";
+export const alt = "Oblixa — Track renewals, requirements, and owners from signed contracts";
 
 export const size = {
   width: 1200,
@@ -128,7 +128,7 @@ export default function OpenGraphImage() {
                   color: "rgba(241, 245, 249, 0.9)",
                 }}
               >
-                Track renewals, obligations, and owners from signed contracts
+                Track renewals, requirements, and owners from signed contracts
               </div>
               <div
                 style={{
@@ -138,7 +138,7 @@ export default function OpenGraphImage() {
                   color: "rgba(191, 219, 254, 0.86)",
                 }}
               >
-                Replace the contract tracking spreadsheet — review terms, track dates and owners, follow up on obligations, request evidence, export reports.
+                Replace the contract tracking spreadsheet — review terms, track dates and owners, follow up on requirements, request evidence, export reports.
               </div>
             </div>
             <div

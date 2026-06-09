@@ -31,7 +31,7 @@ describe("contract inventory uses a real table with release-state columns", () =
     }
 
     // The four row actions from oblixa-release-state.md §Contracts. Now
-    // bundled into a hover-revealed kebab menu instead of inline buttons.
+    // bundled into the shared RowActionMenu kebab instead of inline buttons.
     for (const action of [
       "Open contract",
       "Assign owner",
@@ -40,7 +40,9 @@ describe("contract inventory uses a real table with release-state columns", () =
     ]) {
       expect(src).toContain(action);
     }
-    expect(src).toContain('aria-label="Row actions"');
+    // The kebab is the shared RowActionMenu; its trigger is labeled "Row actions"
+    // via triggerLabel (the literal aria-label now lives in the shared component).
+    expect(src).toContain('triggerLabel="Row actions"');
 
     // The card-per-row architecture and its grid-class anchors are gone.
     expect(src).not.toContain("signalGridClass");

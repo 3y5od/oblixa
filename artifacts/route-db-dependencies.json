@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-04T20:45:47.202Z",
+  "generatedAt": "2026-06-06T18:36:28.471Z",
   "rows": [
     {
       "route": "/accounts/[key]",
@@ -1892,7 +1892,8 @@
       "tables": [
         "organization_invites",
         "organization_members",
-        "workspace_access_grants"
+        "workspace_access_grants",
+        "workspace_access_requests"
       ],
       "rpcs": [],
       "orgScopeRequired": false,
@@ -2369,16 +2370,6 @@
       "sourcePath": "src/app/(dashboard)/settings/health/diagnostics/page.tsx",
       "tables": [
         "organization_workflow_settings"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "/settings/operations",
-      "sourcePath": "src/app/(dashboard)/settings/operations/page.tsx",
-      "tables": [
-        "organization_members"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -3847,6 +3838,17 @@
       "orgScopeEvidence": true
     },
     {
+      "route": "action:forgotPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
       "route": "action:generateRenewalDecisionPacketAction",
       "sourcePath": "src/actions/policy-operations.ts",
       "tables": [
@@ -4172,6 +4174,17 @@
       "orgScopeEvidence": true
     },
     {
+      "route": "action:resetPassword",
+      "sourcePath": "src/actions/auth.ts",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
       "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
       "sourcePath": "src/actions/product-surface-settings.ts",
       "tables": [
@@ -4478,6 +4491,39 @@
         "organization_members",
         "report_subscriptions",
         "saved_views"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:signIn",
+      "sourcePath": "src/actions/auth.ts",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:signOut",
+      "sourcePath": "src/actions/auth.ts",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_requests"
+      ],
+      "rpcs": [],
+      "orgScopeRequired": true,
+      "orgScopeEvidence": true
+    },
+    {
+      "route": "action:signUp",
+      "sourcePath": "src/actions/auth.ts",
+      "tables": [
+        "workspace_access_grants",
+        "workspace_access_requests"
       ],
       "rpcs": [],
       "orgScopeRequired": true,

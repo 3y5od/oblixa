@@ -4,7 +4,7 @@ export default function WorkLoading() {
   return (
     <>
       <div className="sr-only" role="status" aria-live="polite">
-        Loading Work.
+        Loading tasks.
       </div>
       <div className="ui-page-stack" aria-hidden aria-busy="true">
         <div className="ui-page-header flex items-start gap-3.5">

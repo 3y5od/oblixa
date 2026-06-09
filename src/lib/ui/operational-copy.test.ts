@@ -10,18 +10,18 @@ describe("operational-copy", () => {
   it("maps raw action keys to operator-facing labels", () => {
     expect(operationalActionLabel("assign_owner")).toBe("Assign owner");
     expect(operationalActionLabel("retry_failed_job")).toBe("Retry job");
-    expect(operationalActionLabel("resolve_exception")).toBe("Resolve exception");
+    expect(operationalActionLabel("resolve_exception")).toBe("Resolve issue");
   });
 
   it("humanizes unknown raw tokens", () => {
     expect(humanizeOperationalToken("blocked_missing_approved_dates")).toBe(
-      "Blocked Missing Approved Dates"
+      "Needs Input Missing Approved Dates"
     );
   });
 
   it("rewrites implementation-first copy for default surfaces", () => {
     expect(operationalizeCopy("Review read-model diagnostics from the durable work index.")).toBe(
-      "Review data freshness checks from the work queue."
+      "Review data freshness checks from the task queue."
     );
   });
 

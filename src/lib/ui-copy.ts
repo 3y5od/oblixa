@@ -6,7 +6,7 @@
  */
 
 export const CAPS_VERBS = {
-  extracted: "EXTRACTED",
+  extracted: "SUGGESTED",
   approved: "APPROVED",
   rejected: "REJECTED",
   edited: "EDITED",
@@ -23,7 +23,7 @@ export const CAPS_VERBS = {
   triage: "TRIAGE",
   open: "OPEN",
   pending: "PENDING",
-  blocked: "BLOCKED",
+  blocked: "NEEDS INPUT",
   healthy: "HEALTHY",
   idle: "IDLE",
   active: "ACTIVE",

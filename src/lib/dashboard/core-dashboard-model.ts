@@ -54,7 +54,7 @@ export type CoreDashboardTopCard = {
   count: number;
   href: string;
   actionLabel: string;
-  tone: "success" | "warning" | "danger" | "neutral";
+  tone: "success" | "warning" | "danger" | "accent" | "neutral";
 };
 
 export type CoreDashboardReviewRow = {
@@ -112,6 +112,31 @@ export type CoreDashboardDataGapRow = {
   updatedAt: string | null;
 };
 
+/** Aggregated over the FULL gap set (not the visible page) so the section's
+ *  summary strip represents all gap contracts, not just the first few rows. */
+export type CoreDashboardDataGapSummary = {
+  /** Total contracts with at least one gap (matches the section count). */
+  totalContracts: number;
+  /** Contracts missing an operational owner. */
+  missingOwners: number;
+  /** Contracts missing a renewal or notice date. */
+  missingDates: number;
+  /** Contracts missing a counterparty name. */
+  missingCounterparties: number;
+  /** updatedAt of the longest-standing (oldest) gap, or null when none. */
+  oldestUpdatedAt: string | null;
+};
+
+export type CoreDashboardDataGapCategory = {
+  key: "owners" | "dates" | "counterparties";
+  /** Human label for the column header. */
+  label: string;
+  /** Full count of contracts whose dominant gap is this category. */
+  total: number;
+  /** Top contracts (capped) whose dominant gap is this category. */
+  rows: CoreDashboardDataGapRow[];
+};
+
 export type CoreDashboardActivityRow = {
   id: string;
   label: string;
@@ -158,6 +183,8 @@ export type CoreDashboardSection =
       count: number;
       emptyState: string;
       rows: CoreDashboardDataGapRow[];
+      summary: CoreDashboardDataGapSummary;
+      categories: CoreDashboardDataGapCategory[];
     }
   | {
       key: "recent_activity";
@@ -311,11 +338,11 @@ const TOP_CARD_CONFIG: Record<
   DashboardTopCardKey,
   { label: DashboardTopCardLabel; href: string; actionLabel: string }
 > = {
-  needs_review: { label: DASHBOARD_TOP_CARDS[0], href: "/contracts/review", actionLabel: "Review fields" },
+  needs_review: { label: DASHBOARD_TOP_CARDS[0], href: "/contracts/review", actionLabel: "Confirm details" },
   upcoming_deadlines: { label: DASHBOARD_TOP_CARDS[1], href: "/renewals", actionLabel: "Create reminder" },
-  blocked_work: { label: DASHBOARD_TOP_CARDS[2], href: "/work?lens=blocked", actionLabel: "Open work" },
+  blocked_work: { label: DASHBOARD_TOP_CARDS[2], href: "/work?lens=blocked", actionLabel: "Open tasks" },
   missing_owners: { label: DASHBOARD_TOP_CARDS[3], href: "/contracts?owner=missing", actionLabel: "Assign owners" },
-  open_exceptions: { label: DASHBOARD_TOP_CARDS[4], href: "/contracts/exceptions?status=open", actionLabel: "Open" },
+  open_exceptions: { label: DASHBOARD_TOP_CARDS[4], href: "/contracts/exceptions?status=open", actionLabel: "Open problems" },
   evidence_requested: { label: DASHBOARD_TOP_CARDS[5], href: "/evidence", actionLabel: "Open evidence" },
 };
 
@@ -372,6 +399,9 @@ function isPlaceholderExceptionTitle(value: string | null | undefined): boolean 
 function topCardTone(key: DashboardTopCardKey, count: number): CoreDashboardTopCard["tone"] {
   if (count <= 0) return "success";
   if (key === "blocked_work" || key === "open_exceptions") return "danger";
+  // Accent for the two interactive queues the user works straight through;
+  // warning for time-pressure / actionable data gaps (deadlines, missing owners).
+  if (key === "needs_review" || key === "evidence_requested") return "accent";
   return "warning";
 }
 
@@ -542,6 +572,84 @@ function dataGapSeverity(missing: string[]): number {
   return score;
 }
 
+/** Aggregate the FULL gap set into the section summary. Counts the major gap
+ *  families and the oldest (longest-standing) gap so the summary strip is
+ *  truthful for all gap contracts, not just the visible page. */
+export function summarizeDataGaps(
+  rows: CoreDashboardDataGapRow[]
+): CoreDashboardDataGapSummary {
+  let missingOwners = 0;
+  let missingDates = 0;
+  let missingCounterparties = 0;
+  let oldestUpdatedAt: string | null = null;
+  for (const row of rows) {
+    if (row.missing.includes("Owner")) missingOwners += 1;
+    if (row.missing.includes("Renewal date") || row.missing.includes("Notice date")) {
+      missingDates += 1;
+    }
+    if (row.missing.includes("Counterparty")) missingCounterparties += 1;
+    // ISO timestamps sort correctly as strings; keep the earliest (oldest) gap.
+    if (row.updatedAt && (oldestUpdatedAt === null || row.updatedAt < oldestUpdatedAt)) {
+      oldestUpdatedAt = row.updatedAt;
+    }
+  }
+  return {
+    totalContracts: rows.length,
+    missingOwners,
+    missingDates,
+    missingCounterparties,
+    oldestUpdatedAt,
+  };
+}
+
+const DATA_GAP_CATEGORY_LABEL: Record<"owners" | "dates" | "counterparties", string> = {
+  owners: "Owners",
+  dates: "Dates",
+  counterparties: "Counterparties",
+};
+
+/** Dominant gap category for a contract — the highest-severity missing field
+ *  family. Value/status-only gaps (rare, severity 0) return null and are not
+ *  shown in the category board. Keep in lockstep with `dataGapSeverity`. */
+function dominantGapCategory(
+  missing: string[]
+): "owners" | "dates" | "counterparties" | null {
+  if (missing.includes("Owner")) return "owners";
+  if (missing.includes("Renewal date") || missing.includes("Notice date")) return "dates";
+  if (missing.includes("Counterparty")) return "counterparties";
+  return null;
+}
+
+/** Bucket the full gap set into balanced category columns: each column gets its
+ *  OWN top-N rows (preserving the incoming severity order) plus the full category
+ *  count. A single global top-N list can't drive the board — a category with many
+ *  gaps would starve the others — which is why selection happens per category. */
+export function buildDataGapCategories(
+  rows: CoreDashboardDataGapRow[],
+  perCategory = 5
+): CoreDashboardDataGapCategory[] {
+  const buckets: Record<"owners" | "dates" | "counterparties", CoreDashboardDataGapRow[]> = {
+    owners: [],
+    dates: [],
+    counterparties: [],
+  };
+  for (const row of rows) {
+    const category = dominantGapCategory(row.missing);
+    if (category) buckets[category].push(row);
+  }
+  // `total` is the dominant-bucket size (contracts whose PRIMARY gap is this
+  // category), so the column count always matches its rows. A contract missing
+  // owner + counterparty counts under owners; its counterparty gap shows as a
+  // chip on that row rather than inflating an otherwise-empty counterparty
+  // column.
+  return (["owners", "dates", "counterparties"] as const).map((key) => ({
+    key,
+    label: DATA_GAP_CATEGORY_LABEL[key],
+    total: buckets[key].length,
+    rows: buckets[key].slice(0, perCategory),
+  }));
+}
+
 export function buildWorkRows(
   rows: DashboardWorkItemRow[],
   contractTitleById: Map<string, string>,
@@ -566,7 +674,7 @@ export function buildWorkRows(
         primaryAction: row.primary_action,
         fallbackHref: "/work",
       }),
-      actionLabel: row.primary_action ? toSentenceLabel(row.primary_action) : "Open work",
+      actionLabel: row.primary_action ? toSentenceLabel(row.primary_action) : "Open task",
     }));
 }
 
@@ -586,7 +694,7 @@ export function buildExceptionWorkRows(
       const dueState = row.due_date ? getV10DueState(row.due_date, { dateOnly: true }) : "none";
       return {
         id: `exception:${row.id}`,
-        title: row.title?.trim() || "Resolve exception",
+        title: row.title?.trim() || "Resolve problem",
         type: "exception",
         status: row.status,
         dueState,
@@ -596,7 +704,7 @@ export function buildExceptionWorkRows(
         href: row.contract_id
           ? `/contracts/exceptions?status=open&contract=${row.contract_id}`
           : "/contracts/exceptions?status=open",
-        actionLabel: "Open exception",
+        actionLabel: "Open problem",
       };
     })
     .sort((a, b) => {
@@ -636,7 +744,7 @@ function auditActivitySummary(action: string): string {
     case "work_item.completed":
     case "task.completed":
     case "obligation.completed":
-      return "Work completed";
+      return "Task completed";
     case "evidence.received":
     case "evidence.submitted":
       return "Evidence received";
@@ -1017,6 +1125,11 @@ export async function loadCoreDashboardModel(input: {
     }>,
     ownerLabelById
   );
+  const dataGapSummary = summarizeDataGaps(dataGapRows);
+  const dataGapCategories = buildDataGapCategories(dataGapRows);
+  // Rows actually shown across the category columns — drives the section's
+  // "showing N of M" footer and the empty check.
+  const dataGapShownRows = dataGapCategories.flatMap((category) => category.rows);
 
   const workRowsRaw = (workItemsRes.data ?? []) as DashboardWorkItemRow[];
   const activityRowsRaw = (activityRes.data ?? []) as ActivityEventRow[];
@@ -1083,7 +1196,7 @@ export async function loadCoreDashboardModel(input: {
       {
         key: "review_queue",
         title: SECTION_CONFIG.review_queue.title,
-        actionLabel: SECTION_CONFIG.review_queue.actionLabel ?? "Review fields",
+        actionLabel: SECTION_CONFIG.review_queue.actionLabel ?? "Confirm details",
         href: SECTION_CONFIG.review_queue.href,
         count: reviewQueue.total,
         emptyState: SECTION_CONFIG.review_queue.emptyState,
@@ -1116,7 +1229,7 @@ export async function loadCoreDashboardModel(input: {
       {
         key: "work_needing_action",
         title: SECTION_CONFIG.work_needing_action.title,
-        actionLabel: SECTION_CONFIG.work_needing_action.actionLabel ?? "Open work",
+        actionLabel: SECTION_CONFIG.work_needing_action.actionLabel ?? "Open tasks",
         href: SECTION_CONFIG.work_needing_action.href,
         count: combinedWorkRows.length,
         emptyState: SECTION_CONFIG.work_needing_action.emptyState,
@@ -1129,7 +1242,9 @@ export async function loadCoreDashboardModel(input: {
         href: SECTION_CONFIG.data_gaps.href,
         count: dataGapRows.length,
         emptyState: SECTION_CONFIG.data_gaps.emptyState,
-        rows: dataGapRows.slice(0, 8),
+        rows: dataGapShownRows,
+        summary: dataGapSummary,
+        categories: dataGapCategories,
       },
       {
         key: "recent_activity",

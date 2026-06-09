@@ -15,4 +15,11 @@ describe("resendEmailVerification action contract", () => {
     expect(SRC).toContain("if (ctx?.orgId)");
     expect(SRC).toContain("organizationId: ctx.orgId");
   });
+
+  it("sends resent verification emails back through the app callback", () => {
+    expect(SRC).toContain("resolveAppBaseUrl");
+    expect(SRC).toContain("emailRedirectTo");
+    expect(SRC).toContain("/auth/callback?next=");
+    expect(SRC).toContain("/settings/security");
+  });
 });

@@ -42,6 +42,10 @@ export type EvidenceModelLoadInput = EvidenceModelSearchInput & {
 export type EvidenceOption = {
   value: string;
   label: string;
+  /** Total rows carrying this value across all (non-waived) requests — rendered
+   *  as a trailing count in the filter dropdown. Computed pre-filter, so it
+   *  stays stable as other filters are applied. */
+  count?: number;
 };
 
 export type EvidenceActionCapability = {

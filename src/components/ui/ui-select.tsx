@@ -12,11 +12,16 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, Search } from "lucide-react";
+import type { DropdownOptionIcon, DropdownStatusTone } from "@/components/ui/dropdown/types";
 
 export interface UiSelectOption {
   value: string;
   label: string;
   disabled?: boolean;
+  description?: string;
+  count?: number | string;
+  statusDot?: DropdownStatusTone;
+  icon?: DropdownOptionIcon;
 }
 
 export interface UiSelectProps {
@@ -28,6 +33,7 @@ export interface UiSelectProps {
   id?: string;
   /** Id of an external element labelling the control (e.g. a visible `<label>`). */
   ariaLabelledBy?: string;
+  describedById?: string;
   value?: string;
   defaultValue?: string;
   onChange?: (value: string) => void;
@@ -73,6 +79,7 @@ export function UiSelect({
   name,
   id,
   ariaLabelledBy,
+  describedById,
   value: controlledValue,
   defaultValue = "",
   onChange,
@@ -417,6 +424,7 @@ export function UiSelect({
         aria-expanded={open}
         aria-label={ariaLabelledBy ? undefined : ariaLabel}
         aria-labelledby={ariaLabelledBy}
+        aria-describedby={describedById}
         onClick={toggle}
         style={buttonStyle}
         className={`${

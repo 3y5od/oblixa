@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-supabase-fingerprint-artifact.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 89,
-  "latestMigration": "089_sql_neutral_table_view_aliases.sql",
-  "migrationRollupSha256": "cf6e68da5741f8ab40e99c7716cd4f986e099a44a35020807f79d99d937230ba",
+  "migrationCount": 93,
+  "latestMigration": "093_access_review_deny_all_policies.sql",
+  "migrationRollupSha256": "e687a931418c685d7ed0acd820e97c9730e58e16833405489c948e462f305e19",
   "sectionOrder": [
     "tables",
     "columns",
@@ -18,8 +18,8 @@
   ],
   "sections": {
     "tables": {
-      "count": 154,
-      "fingerprint": "fe78b4880feab8122e3ae202ac365d4146ed201697eaab28fa611f1d0b5b2da4",
+      "count": 157,
+      "fingerprint": "cc468d8604adcff48fdaa8df885c5bc03107d504c8fdc7c25a1e2ff5176ec42b",
       "names": [
         "public.account_workspaces",
         "public.adaptive_playbook_runs",
@@ -174,7 +174,10 @@
         "public.v10_runtime_coverage_ledger",
         "public.v10_verification_command_results",
         "public.v10_work_items",
-        "public.webhook_subscriptions"
+        "public.webhook_subscriptions",
+        "public.workspace_access_grants",
+        "public.workspace_access_request_events",
+        "public.workspace_access_requests"
       ],
       "items": [
         {
@@ -946,12 +949,27 @@
           "name": "public.webhook_subscriptions",
           "fingerprint": "e35dd0ce1e0163ce6e71f197a0a40559d6a4b2b1496e786793213d9a909ddc28",
           "sourcePath": "supabase/migrations/014_v2_workflow_expansion.sql"
+        },
+        {
+          "name": "public.workspace_access_grants",
+          "fingerprint": "110e2d0e128641f4a7c2b4d6b304b391acc4fe2d33609daf210f857ea6a442ce",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events",
+          "fingerprint": "7e22eadff95745b8fd9862f107a5af23160684fb6e1b44b06bf4b070688f8b8d",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests",
+          "fingerprint": "81526ca2c0d7d828777b511267e632e2b6600c735714f08a8262b7e5eb1737be",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
         }
       ]
     },
     "columns": {
-      "count": 2049,
-      "fingerprint": "1d7959a2c550bfab61f515816431fe42d2cec727ce2226be6d3e2b0d7fe361f5",
+      "count": 2089,
+      "fingerprint": "a2487a6d9f47490a0ab5bca9db80b79b7a4912f18ee158159600809d39efb4c5",
       "names": [
         "public.account_workspaces.account_key",
         "public.account_workspaces.created_at",
@@ -1925,6 +1943,7 @@
         "public.organizations.id",
         "public.organizations.mfa_required",
         "public.organizations.name",
+        "public.organizations.owner_user_id",
         "public.organizations.stripe_customer_id",
         "public.organizations.stripe_subscription_status",
         "public.organizations.updated_at",
@@ -3001,7 +3020,46 @@
         "public.webhook_subscriptions.reminder.due}'",
         "public.webhook_subscriptions.secret",
         "public.webhook_subscriptions.updated_at",
-        "public.webhook_subscriptions.url"
+        "public.webhook_subscriptions.url",
+        "public.workspace_access_grants.created_at",
+        "public.workspace_access_grants.expires_at",
+        "public.workspace_access_grants.id",
+        "public.workspace_access_grants.issued_by",
+        "public.workspace_access_grants.normalized_email",
+        "public.workspace_access_grants.request_id",
+        "public.workspace_access_grants.revoked_at",
+        "public.workspace_access_grants.status",
+        "public.workspace_access_grants.token_hash",
+        "public.workspace_access_grants.used_at",
+        "public.workspace_access_grants.used_by",
+        "public.workspace_access_request_events.action",
+        "public.workspace_access_request_events.actor_user_id",
+        "public.workspace_access_request_events.created_at",
+        "public.workspace_access_request_events.id",
+        "public.workspace_access_request_events.metadata_json",
+        "public.workspace_access_request_events.request_id",
+        "public.workspace_access_requests.approximate_contract_count",
+        "public.workspace_access_requests.company_name",
+        "public.workspace_access_requests.created_at",
+        "public.workspace_access_requests.current_tracking_method",
+        "public.workspace_access_requests.decided_at",
+        "public.workspace_access_requests.decided_by",
+        "public.workspace_access_requests.duplicate_count",
+        "public.workspace_access_requests.follow_up_preference",
+        "public.workspace_access_requests.has_tracker",
+        "public.workspace_access_requests.id",
+        "public.workspace_access_requests.last_operator_note",
+        "public.workspace_access_requests.last_submission_json",
+        "public.workspace_access_requests.last_submitted_at",
+        "public.workspace_access_requests.message",
+        "public.workspace_access_requests.normalized_email",
+        "public.workspace_access_requests.pain_summary",
+        "public.workspace_access_requests.redacted_sample_available",
+        "public.workspace_access_requests.requester_name",
+        "public.workspace_access_requests.requester_role",
+        "public.workspace_access_requests.source",
+        "public.workspace_access_requests.status",
+        "public.workspace_access_requests.updated_at"
       ],
       "items": [
         {
@@ -7863,6 +7921,11 @@
           "name": "public.organizations.name",
           "fingerprint": "ec4b27d4632bab2f0ec4d1d2d2e6a9179f1905c193cefa8f138d5b01d99dbe5a",
           "sourcePath": "supabase/migrations/001_initial_schema.sql"
+        },
+        {
+          "name": "public.organizations.owner_user_id",
+          "fingerprint": "084e3f4abe2c9ca0f901ca20dd5cc278e8a470f0ed38f08142dec89d0e63302d",
+          "sourcePath": "supabase/migrations/092_workspace_owner_relation.sql"
         },
         {
           "name": "public.organizations.stripe_customer_id",
@@ -13248,6 +13311,201 @@
           "name": "public.webhook_subscriptions.url",
           "fingerprint": "de6ca6b87fd4d73fe65b0d67ee2e576f726710069e4a0d3e6fbc50fbf0b70af7",
           "sourcePath": "supabase/migrations/014_v2_workflow_expansion.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.created_at",
+          "fingerprint": "6d1d2087b8f8deb800c8f93d82192873b1f4390cccdbedd302e63d1871e23a54",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.expires_at",
+          "fingerprint": "70a04f3e354f42c3f0e233206117a7213d050a9330e6f49f708c548e0fbc18ad",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.id",
+          "fingerprint": "e33d6178af4dd081dddae4fc6de5e14bab0daffbcebf059b00c914337aacba15",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.issued_by",
+          "fingerprint": "9dcc9ed7702787236f0701614ffc1554e6c3f1d593324d5a296d09357a79d51d",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.normalized_email",
+          "fingerprint": "41b9ca3e18d20de11741cf0ed24412091b5a68dd8f20d81b843ac91698d4c7d4",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.request_id",
+          "fingerprint": "fb02e6ea2ef489e9a805ab9b343e4f90f074b89b70019922ea5d6dba15fbcb59",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.revoked_at",
+          "fingerprint": "74a7d0df5d5dd970dde2063f6cca29a26ca9a8d067b5122b12a5405aa9f94043",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.status",
+          "fingerprint": "5d6902c09d2891c8fbbb36352f51db77686fc3c2894906652676bf15e6fd801f",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.token_hash",
+          "fingerprint": "4279769c5a02e7dddbec9bd5ca18d32eb93235173b943e07ab38b2f7ad656ab3",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.used_at",
+          "fingerprint": "ed5e3097c1eaeac8ae8bb579797cd8f60689447dc31ea1252b0b4a59e2347439",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.used_by",
+          "fingerprint": "aaaaf6a26c1f5f579e96e8d4108439bb06788c2fd6397fd53e42802ed074b8e5",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.action",
+          "fingerprint": "b439f7b18320ae51d7890821c5ca720f5d70c8d91362008c3cc6bb04f9e0eee4",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.actor_user_id",
+          "fingerprint": "da55551e7226f8ea4ac153895bf2addca002af0881836ed121222638c9cd31d8",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.created_at",
+          "fingerprint": "6c96a332e18209c3546e9da4318d5e82f2767e889a8e59352dbac2a435dc798f",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.id",
+          "fingerprint": "3d2b3ae54e90c0019d7622cfbcdc1a80b41da74cfc497311b8399af33383c86e",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.metadata_json",
+          "fingerprint": "cf867f96a9376dc74340cab341ed8ef30fa7652ae8a84abf490a80c82e72a2df",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.request_id",
+          "fingerprint": "3cccdb78ea10cd8971761880fa3cb58a85e2f2d9e518de0acb88a80bd892503c",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.approximate_contract_count",
+          "fingerprint": "ccfa3a275f751cbda99bdd2b9fe675004a0ef81878b1f33b4e4d065affc46fd0",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.company_name",
+          "fingerprint": "1af7a8a49d0d86a6bf762ede59bf453f01d1c6ee24ae11454628eb9c060c9e00",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.created_at",
+          "fingerprint": "6443efec09b248cdf40bb2b12552fc4d91a585252da708f09dfac9b65fa48915",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.current_tracking_method",
+          "fingerprint": "bf5f848fe95b3fe4e66c33674b7a0b87e50b6ec15ba1a4ec4dd10130c0459588",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.decided_at",
+          "fingerprint": "1d98893177dd3cccf16f5a9f469725a55b62c7f5bf7cffd390905ff05af3f984",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.decided_by",
+          "fingerprint": "1780b8ec244a7dacef26fc91f4cb99b6994d10001e8f01a1371969f0615169cf",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.duplicate_count",
+          "fingerprint": "7f20efa9774f1de2b9c2f3cec2f35d602dc2628c618deb4d975a7c687007dfb4",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.follow_up_preference",
+          "fingerprint": "32654662fba705bbb40c8129a690cbe856f09362c015b494d2225d673bd3fb0e",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.has_tracker",
+          "fingerprint": "a23afa8c4b7396cc8f00622510dc585e3b6df21b400028cb9e3878de272b42e8",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.id",
+          "fingerprint": "cccf0cf66cd0c7a7b1b6ddf2c54b76f168ad34b093f88864c7f1a849d7701461",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.last_operator_note",
+          "fingerprint": "acbb562bc33844398bd199581a840f7a93f6d166d61b03b44e8bd9d564165491",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.last_submission_json",
+          "fingerprint": "bb3643f4b775d2ff3c314f69766c2fd0a1abe667f3e68573bef90781d595c8eb",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.last_submitted_at",
+          "fingerprint": "c9e6615579cbc92ffbcd1f17a3c1ac452e56b316f754b3af88a20c70f9220f63",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.message",
+          "fingerprint": "295f0ec49a41e42da862b563a0412db146a96ba593ab0dd5fe4a54b094a833d8",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.normalized_email",
+          "fingerprint": "894fab7c15187365009b4cd811a518cbefcef8516ffafcdfd5efdeae52e66c7d",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.pain_summary",
+          "fingerprint": "6830e738a1059ff5257e9ae92886be31f52a168d4c4039685ff71214c4b74826",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.redacted_sample_available",
+          "fingerprint": "2ba1f1cd2bc2884b9f9d1f4e1395b59c04a25c2c96104b03cac48b7b1792d1df",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.requester_name",
+          "fingerprint": "b21eff29f2d6abbcb8f1f0b46c95f9a05ae8c99a60ce7f14d88c769f809adc8a",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.requester_role",
+          "fingerprint": "de0bae33770a083840876d41019c765e8bdfd13d83855014d344e5dfe0789368",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.source",
+          "fingerprint": "d10866df380e11ca627cf88f673b2f8b48c820d717af3a5e7ebcfd2c4b9062f9",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.status",
+          "fingerprint": "9cd623b4685938f8dc27295481f3537f791e46f2e83a3e6d4ce1b25fdde0b88d",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.updated_at",
+          "fingerprint": "56861289681eb2c6993b671f25b39c23a4ab31ecb6ddb743ffd32ad7b06dc47d",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
         }
       ]
     },
@@ -14082,8 +14340,8 @@
       ]
     },
     "indexes": {
-      "count": 309,
-      "fingerprint": "c6212be263f8fd815b509a753ee3edaef4f3e51100e7e584d25241a79a723b38",
+      "count": 316,
+      "fingerprint": "01069a9338498434950f71d8c0ad6c62129e62cd09e1e7df522e8072ad2b7b6d",
       "names": [
         "public.account_workspaces.idx_account_workspaces_org",
         "public.adaptive_playbook_runs.idx_adaptive_playbook_runs_org",
@@ -14276,6 +14534,7 @@
         "public.organization_members.idx_org_members_org",
         "public.organization_members.idx_org_members_user",
         "public.organization_workflow_settings.idx_organization_workflow_settings_organization_id",
+        "public.organizations.idx_organizations_owner_user",
         "public.outbound_event_deliveries.idx_outbound_event_deliveries_event_pending_next",
         "public.outbound_event_deliveries.idx_outbound_event_deliveries_next_attempt",
         "public.outbound_event_deliveries.idx_outbound_event_deliveries_organization_id",
@@ -14393,7 +14652,13 @@
         "public.v10_work_items.idx_v10_work_items_org_source_unique",
         "public.v10_work_items.idx_v10_work_items_org_source_upsert",
         "public.v10_work_items.idx_v10_work_items_org_visibility_status",
-        "public.webhook_subscriptions.idx_webhook_subscriptions_org_active"
+        "public.webhook_subscriptions.idx_webhook_subscriptions_org_active",
+        "public.workspace_access_grants.idx_workspace_access_grants_email_status",
+        "public.workspace_access_grants.idx_workspace_access_grants_request_created",
+        "public.workspace_access_request_events.idx_workspace_access_request_events_request_created",
+        "public.workspace_access_requests.idx_workspace_access_requests_email",
+        "public.workspace_access_requests.idx_workspace_access_requests_status_created",
+        "public.workspace_access_requests.ux_workspace_access_requests_normalized_email"
       ],
       "items": [
         {
@@ -15352,6 +15617,11 @@
           "sourcePath": "supabase/migrations/070_org_scoped_route_lookup_indexes.sql"
         },
         {
+          "name": "public.organizations.idx_organizations_owner_user",
+          "fingerprint": "07c34711486472ac75ef3e3b8d3bfddd1b2d2a0c63a09057c7247532ca5c03a0",
+          "sourcePath": "supabase/migrations/092_workspace_owner_relation.sql"
+        },
+        {
           "name": "public.outbound_event_deliveries.idx_outbound_event_deliveries_event_pending_next",
           "fingerprint": "8b750c41096caa1372b19e2acc08f786627e10743db8b458d1f7b7951e7e0645",
           "sourcePath": "supabase/migrations/019_webhook_delivery_dispatch_index.sql"
@@ -15940,12 +16210,42 @@
           "name": "public.webhook_subscriptions.idx_webhook_subscriptions_org_active",
           "fingerprint": "ac4898b24e0f002526eb0cd728967a8a8b68a3e3c811481c2307d830312fcefc",
           "sourcePath": "supabase/migrations/014_v2_workflow_expansion.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.idx_workspace_access_grants_email_status",
+          "fingerprint": "7d1fde9fb12bd2a4c986aeace4cd0e53aef7d7805170f7b082b09ce8b3335643",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.idx_workspace_access_grants_request_created",
+          "fingerprint": "d32fa9c8e69e8dce8a3b61e74e3a24068ea4b342a555df5aa050c35d8780b665",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.idx_workspace_access_request_events_request_created",
+          "fingerprint": "2c47f7024bfd2e6785566db758d806694502d5fd48adf488b4622f1197253123",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.idx_workspace_access_requests_email",
+          "fingerprint": "b9df89fd31b78d6c6faffcbe160362dd5d7e908498484c2d2432d29cb00708c2",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.idx_workspace_access_requests_status_created",
+          "fingerprint": "80ebd413b661a1c872c27cb04b39330ef338dd9fd20ac83264b254d5cb664579",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.ux_workspace_access_requests_normalized_email",
+          "fingerprint": "7891ca890bf2b1cfee8d2dbdbf55a4185c992d9cfb05eb2ef4975d414abc8ada",
+          "sourcePath": "supabase/migrations/091_access_review_requests_and_grants.sql"
         }
       ]
     },
     "policies": {
-      "count": 252,
-      "fingerprint": "772e5329a0c95759be9dbb880d09ed1ff19230e478b4d438733ab75bc92330b1",
+      "count": 255,
+      "fingerprint": "a52ba5f77b76be57ab8fc1f76333ec052dc2e6b26cf607333ddd96c4d8aaab45",
       "names": [
         "public.account_workspaces.Editors can manage remaining v5 entities in their org",
         "public.account_workspaces.Members can view account workspaces in their org",
@@ -16198,7 +16498,10 @@
         "public.v10_work_items.Members can read V10 work items",
         "public.webhook_subscriptions.Admins can manage webhook subscriptions in their org",
         "public.webhook_subscriptions.Admins can view webhook subscriptions in their org",
-        "public.webhook_subscriptions.Members can view webhook subscriptions in their org"
+        "public.webhook_subscriptions.Members can view webhook subscriptions in their org",
+        "public.workspace_access_grants.Deny direct access to workspace access grants",
+        "public.workspace_access_request_events.Deny direct access to workspace access request events",
+        "public.workspace_access_requests.Deny direct access to workspace access requests"
       ],
       "items": [
         {
@@ -17460,17 +17763,33 @@
           "name": "public.webhook_subscriptions.Members can view webhook subscriptions in their org",
           "fingerprint": "2935fffa02860eca0fe47ffd3efb9a07dbe128423bc4f5f6e4bac5df66b792b7",
           "sourcePath": "supabase/migrations/014_v2_workflow_expansion.sql"
+        },
+        {
+          "name": "public.workspace_access_grants.Deny direct access to workspace access grants",
+          "fingerprint": "4029b6acf2448365b3c927c174ad750bb9a48f49b01e8fd1ef95e96e617ac541",
+          "sourcePath": "supabase/migrations/093_access_review_deny_all_policies.sql"
+        },
+        {
+          "name": "public.workspace_access_request_events.Deny direct access to workspace access request events",
+          "fingerprint": "91ab1666111fba9d5b0c94ea31cd87fde3ae63b184bf8d6e0adc8a20c51cf77b",
+          "sourcePath": "supabase/migrations/093_access_review_deny_all_policies.sql"
+        },
+        {
+          "name": "public.workspace_access_requests.Deny direct access to workspace access requests",
+          "fingerprint": "53d01a959832a1f14bbe695519ae0c7603412f6549e8c8eea672cd71616a35c0",
+          "sourcePath": "supabase/migrations/093_access_review_deny_all_policies.sql"
         }
       ]
     },
     "functions": {
-      "count": 35,
-      "fingerprint": "8091645b291dbb86797be114103f7e1490b9d7cbe789c64abdf46c9e95d95d30",
+      "count": 36,
+      "fingerprint": "746430dd0308d25a3fa9f36e882e128061538c259a9a481d35e89e2850e1f982",
       "names": [
         "public.apply_updated_at_trigger(table_name text)",
         "public.assurance_hub_snapshot(p_org_id uuid)",
         "public.claim_mutation_idempotency(p_organization_id uuid, p_actor_user_id uuid, p_mutation_name text, p_target_type text, p_target_id text, p_idempotency_key text, p_client_request_id text, p_request_hash text, p_pending_response_json jsonb, p_claim_expires_at timestamptz default (now() + interval '5 minutes'))",
         "public.claim_v10_mutation_idempotency(p_organization_id uuid, p_actor_user_id uuid, p_mutation_name text, p_target_type text, p_target_id text, p_idempotency_key text, p_client_request_id text, p_request_hash text, p_pending_response_json jsonb, p_claim_expires_at timestamptz default (now() + interval '5 minutes'))",
+        "public.cleanup_code_owned_transient_data(retention_cutoff timestamptz default now())",
         "public.cleanup_code_owned_transient_data(retention_cutoff timestamptz default now())",
         "public.cleanup_expired_mutation_idempotency(retention_cutoff timestamptz default now())",
         "public.cleanup_expired_runtime_artifacts(retention_cutoff timestamptz default now())",
@@ -17528,6 +17847,11 @@
           "name": "public.cleanup_code_owned_transient_data(retention_cutoff timestamptz default now())",
           "fingerprint": "34a71e93f2970ce18fb2de7c325d645998287fbef367a2a5ee99db276edd94c5",
           "sourcePath": "supabase/migrations/080_code_owned_transient_retention_cleanup.sql"
+        },
+        {
+          "name": "public.cleanup_code_owned_transient_data(retention_cutoff timestamptz default now())",
+          "fingerprint": "34a71e93f2970ce18fb2de7c325d645998287fbef367a2a5ee99db276edd94c5",
+          "sourcePath": "supabase/migrations/090_fix_retention_cleanup_calendar_feed_reason.sql"
         },
         {
           "name": "public.cleanup_expired_mutation_idempotency(retention_cutoff timestamptz default now())",

@@ -54,7 +54,7 @@ export async function startExtractionJob(
   if (_recursionDepth > MAX_START_RECURSION) {
     return {
       ok: false as const,
-      error: "Could not start extraction. Refresh the page and try again.",
+      error: "Could not start suggestions. Refresh the page and try again.",
       status: 500,
     };
   }
@@ -66,7 +66,7 @@ export async function startExtractionJob(
     if (priorAttemptCount >= MAX_EXTRACTION_ATTEMPTS) {
       return {
         ok: false as const,
-        error: `Extraction was attempted ${MAX_EXTRACTION_ATTEMPTS} times. Contact support if this keeps failing.`,
+        error: `Suggestions were attempted ${MAX_EXTRACTION_ATTEMPTS} times. Contact support if this keeps failing.`,
         status: 429,
       };
     }
@@ -106,7 +106,7 @@ export async function startExtractionJob(
         if (delErr) {
           return {
             ok: false as const,
-            error: "Could not reset extraction state. Try again or refresh the page.",
+            error: "Could not reset suggestion state. Try again or refresh the page.",
             status: 500,
           };
         }
@@ -120,7 +120,7 @@ export async function startExtractionJob(
       return {
         ok: false as const,
         error:
-          "An extraction is already running for this contract. Wait for it to finish or refresh the page.",
+          "Suggestions are already running for this contract. Wait for them to finish or refresh the page.",
         status: 409,
       };
     }
@@ -165,7 +165,7 @@ export async function startExtractionJob(
     if (fetchErr || !raced) {
       return {
         ok: false as const,
-        error: "Could not start extraction job. Please try again.",
+        error: "Could not start suggestions. Please try again.",
         status: 500,
       };
     }
@@ -188,7 +188,7 @@ export async function finishExtractionJob(
     .from("contract_extraction_jobs")
     .update({
       status: success ? "succeeded" : "failed",
-      last_error: success ? null : (errorMessage ?? "Extraction failed"),
+      last_error: success ? null : (errorMessage ?? "Suggestions failed"),
       completed_at: now,
     })
     .eq("contract_id", contractId)

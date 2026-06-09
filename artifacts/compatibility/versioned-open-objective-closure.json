@@ -102,7 +102,7 @@
       "queueNames": [],
       "queueCounts": {},
       "queueStatusCounts": {},
-      "currentScannerRowCount": 1877,
+      "currentScannerRowCount": 1824,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
@@ -131,14 +131,14 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1574,
+        "contentContractAliases": 1573,
         "exportDownloadContracts": 168
       },
       "queueStatusCounts": {
         "alias_added": 81,
         "awaiting_analytics_dashboard_cutover": 157,
         "awaiting_linked_verification": 159,
-        "awaiting_production_cutover": 1345
+        "awaiting_production_cutover": 1344
       },
       "currentScannerRowCount": 1,
       "uncoveredManualCount": 0,
@@ -173,7 +173,7 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1574,
+        "contentContractAliases": 1573,
         "cronRoutes": 32,
         "environmentKeys": 24,
         "packageScriptAliases": 37,
@@ -184,7 +184,7 @@
         "alias_added": 217,
         "awaiting_analytics_dashboard_cutover": 250,
         "awaiting_linked_verification": 192,
-        "awaiting_production_cutover": 1177
+        "awaiting_production_cutover": 1176
       },
       "currentScannerRowCount": 0,
       "uncoveredManualCount": 0,
@@ -218,7 +218,7 @@
       "queueNames": [],
       "queueCounts": {},
       "queueStatusCounts": {},
-      "currentScannerRowCount": 1460,
+      "currentScannerRowCount": 1432,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
@@ -285,16 +285,16 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1574,
+        "contentContractAliases": 1573,
         "cronRoutes": 32
       },
       "queueStatusCounts": {
         "alias_added": 114,
         "awaiting_analytics_dashboard_cutover": 157,
         "awaiting_linked_verification": 159,
-        "awaiting_production_cutover": 1177
+        "awaiting_production_cutover": 1176
       },
-      "currentScannerRowCount": 105,
+      "currentScannerRowCount": 104,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
@@ -371,7 +371,7 @@
       "queueNames": [],
       "queueCounts": {},
       "queueStatusCounts": {},
-      "currentScannerRowCount": 310,
+      "currentScannerRowCount": 286,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
@@ -402,14 +402,14 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1574,
+        "contentContractAliases": 1573,
         "telemetryEventNames": 93
       },
       "queueStatusCounts": {
         "alias_added": 81,
         "awaiting_analytics_dashboard_cutover": 250,
         "awaiting_linked_verification": 159,
-        "awaiting_production_cutover": 1177
+        "awaiting_production_cutover": 1176
       },
       "currentScannerRowCount": 5,
       "uncoveredManualCount": 0,

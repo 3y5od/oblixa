@@ -22,12 +22,15 @@ describe("Billing page access and billing release state", () => {
       "Reviewed access",
       "Billing after approval",
     ]);
-    expect(SETTINGS_BILLING_STRINGS.faq).toContain("What happens after evaluation?");
+    expect(SETTINGS_BILLING_STRINGS.faq).toContain("What happens after access review?");
   });
 
-  it("does not publish fixed public plan prices or free-trial checkout copy", () => {
+  it("publishes the Core price plainly but avoids unsupported packaging", () => {
+    // Release-state: $249/month per workspace, shown plainly, charged only
+    // after access approval + explicit checkout.
+    expect(SETTINGS_BILLING_STRINGS.corePrice.display).toBe("$249");
+    expect(pageSrc).toContain("corePrice.display");
     for (const phrase of [
-      "$249",
       "$299",
       "billed annually",
       "Choose annual plan",
@@ -44,6 +47,15 @@ describe("Billing page access and billing release state", () => {
       expect(pageSrc).not.toContain(phrase);
       expect(specSrc).not.toContain(phrase);
     }
+  });
+
+  it("uses release-safe access language (no 'evaluation' as a trial synonym)", () => {
+    expect(SETTINGS_BILLING_STRINGS.trialEndedLabel).not.toMatch(/evaluation/i);
+    expect(SETTINGS_BILLING_STRINGS.faq.join(" ")).not.toMatch(/evaluation/i);
+    expect(
+      Object.values(SETTINGS_BILLING_STRINGS.placeholders).join(" ")
+    ).not.toMatch(/evaluation/i);
+    expect(pageSrc).not.toMatch(/\bevaluation\b/i);
   });
 
   it("keeps checkout behind an explicit fail-closed environment gate", () => {

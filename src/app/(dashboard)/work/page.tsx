@@ -1,12 +1,9 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
   BadgeCheck,
   CalendarClock,
-  Check,
-  ChevronLeft,
   ChevronRight,
   FileText,
   ListChecks,
@@ -22,10 +19,9 @@ import type { LucideIcon } from "lucide-react";
 import { createContractTask } from "@/actions/tasks";
 import { WorkReleaseActions } from "@/components/work/work-release-actions";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { DataFooter } from "@/components/ui/data-footer";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TimeChip } from "@/components/ui/time-chip";
-import { ActionChip } from "@/components/ui/action-chip";
-import { CountChip } from "@/components/ui/count-chip";
 import { UiSelect } from "@/components/ui/ui-select";
 import { UiTabs } from "@/components/ui/ui-tabs";
 import { RecoverableState } from "@/components/ui/recoverable-state";
@@ -160,9 +156,10 @@ export default async function WorkPage(props: {
   const clearFiltersHref = buildWorkHref({});
 
   return (
-    <div className="ui-page-stack mx-auto w-full min-w-0 max-w-[1600px] overflow-x-clip">
+    <div className="ui-page-stack mx-auto w-full min-w-0 max-w-[1440px] overflow-x-clip">
       <DashboardPageHeader
         icon={<ListTodo className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        density="compact"
         eyebrow={model.eyebrow}
         title={WORK_PAGE_TITLE}
         lead={WORK_LEAD}
@@ -192,7 +189,7 @@ export default async function WorkPage(props: {
           state="partial"
           title={WORK_PARTIAL_DATA_TITLE}
           reason={WORK_PARTIAL_DATA_REASON}
-          accessibleName="Work partial data state"
+          accessibleName="Task partial data state"
           nextActionLabel="Review workspace health"
           nextAction={
             <Link href="/settings/health" className="ui-link">
@@ -203,48 +200,8 @@ export default async function WorkPage(props: {
       ) : null}
 
       <section className="ui-table-shell min-w-0 max-w-full [contain:inline-size]" aria-labelledby="work-surface-title">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex shrink-0 items-center gap-2.5">
-              <h2 id="work-surface-title" className="sr-only">
-                {model.title}
-              </h2>
-              <p className="ui-caps-2 text-[var(--text-tertiary)]">Active work</p>
-              <CountChip value={model.totalVisibleRows} emphasis="strong" />
-            </div>
-            <span
-              aria-hidden
-              className="hidden h-4 w-px bg-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] sm:block"
-            />
-            {/* Queue-health quick filters live in the queue band (not the page
-                header) so the counts read as part of the queue and double as
-                one-click jumps into the matching subset (§10.13). */}
-            <WorkQuickFilters model={model} />
-          </div>
-          {/* `.ui-chip-focus` gives the header CTA the app-standard accent focus
-              ring (instead of the inconsistent browser default ActionChip would
-              otherwise fall back to), and `active:translate-y-px` adds the
-              pressed feedback every other /work control carries (§8). */}
-          <ActionChip verb="View contracts" href="/contracts" className="ui-chip-focus active:translate-y-px shrink-0" />
-        </div>
-
-        <UiTabs
-          ariaLabel="Work tabs"
-          items={model.tabs.map((tab) => ({
-            href: tab.href,
-            label: tab.label,
-            active: tab.active,
-            count: tab.count,
-            // A zero on a needs-action tab (Overdue / Blocked) is the desired
-            // outcome — render it all-clear green, matching the queue-health
-            // quick filters above, instead of a ghosted grey (§10.10).
-            countTone:
-              (tab.key === "overdue" || tab.key === "blocked") && tab.count === 0
-                ? ("success" as const)
-                : undefined,
-          }))}
-          className="px-5"
-        />
+        <WorkQueueOverview model={model} />
+        <WorkViewTabs model={model} />
 
         <WorkFilters model={model} keepCreateOpen={model.create.open} />
 
@@ -253,7 +210,7 @@ export default async function WorkPage(props: {
             <form action={createWorkItemAction} className="grid gap-3 lg:grid-cols-[1.25fr_1.35fr_0.95fr_0.8fr_0.95fr]">
               <div className="space-y-2">
                 <p className="ui-caps-2 text-[var(--text-tertiary)]">{model.primaryCta}</p>
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-contract">
+                <label className="ui-label-caps" htmlFor="work-create-contract">
                   Linked contract
                 </label>
                 <UiSelect
@@ -271,14 +228,14 @@ export default async function WorkPage(props: {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-title">
+                <label className="ui-label-caps" htmlFor="work-create-title">
                   Title
                 </label>
                 <input id="work-create-title" name="title" required className="ui-input w-full" placeholder="e.g., Confirm renewal notice owner" />
                 {error ? <p className="text-[12.5px] text-[var(--danger-ink)]">{error}</p> : null}
               </div>
               <div className="space-y-2">
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-owner">
+                <label className="ui-label-caps" htmlFor="work-create-owner">
                   Owner
                 </label>
                 <UiSelect
@@ -298,13 +255,13 @@ export default async function WorkPage(props: {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-due">
+                <label className="ui-label-caps" htmlFor="work-create-due">
                   Due date
                 </label>
                 <input id="work-create-due" name="dueDate" type="date" className="ui-input w-full" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-type">
+                <label className="ui-label-caps" htmlFor="work-create-type">
                   Type
                 </label>
                 <UiSelect
@@ -322,7 +279,7 @@ export default async function WorkPage(props: {
                 />
               </div>
               <div className="space-y-2 lg:col-span-4">
-                <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="work-create-details">
+                <label className="ui-label-caps" htmlFor="work-create-details">
                   Details
                 </label>
                 <textarea id="work-create-details" name="details" className="ui-input min-h-16 w-full resize-y" />
@@ -354,16 +311,93 @@ export default async function WorkPage(props: {
   );
 }
 
-// Queue-health quick filters: the four "needs attention" counts, rendered in
-// the queue band as one-click jumps into the matching subset. Each chip toggles
-// — clicking the active one returns to All / clears its filter. A zero count
-// renders as a calm, non-interactive success chip ("all clear", §2.11/§10.10)
-// rather than a link to an empty view.
+function WorkQueueOverview({ model }: { model: WorkModel }) {
+  return (
+    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="work-surface-title" className="ui-caps-2 text-[var(--text-secondary)]">
+              Active tasks
+            </h2>
+            <span className="inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
+              <span className="tabular-nums">{model.totalVisibleRows}</span>
+              <span className="ml-1">tasks</span>
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Condition filters</span>
+            <WorkQuickFilters model={model} />
+          </div>
+          <p className="mt-1.5 max-w-[52rem] text-[12.5px] leading-5 text-[var(--text-secondary)]">
+            Active tasks are open follow-up items linked to signed contracts. Condition filters show matching task
+            counts and narrow the table when selected.
+          </p>
+          <p
+            className="mt-1 max-w-[62rem] text-[12px] leading-5 text-[var(--text-tertiary)]"
+            aria-label="Condition filter definitions"
+          >
+            <span className="font-semibold text-[var(--text-secondary)]">Cannot proceed:</span> answer,
+            approval, file, or owner is missing.{" "}
+            <span className="font-semibold text-[var(--text-secondary)]">Past due:</span> due date has
+            passed.{" "}
+            <span className="font-semibold text-[var(--text-secondary)]">Due within 7 days:</span> due
+            today or this week.{" "}
+            <span className="font-semibold text-[var(--text-secondary)]">Unassigned:</span> no owner is
+            assigned.
+          </p>
+        </div>
+        <Link
+          href="/contracts"
+          className="ui-btn-secondary inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
+        >
+          View contracts
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function WorkViewTabs({ model }: { model: WorkModel }) {
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-5 pt-3">
+        <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Views</span>
+        <span className="text-[12px] text-[var(--text-tertiary)]">
+          Choose the row category shown below. Counts reflect the active filters.
+        </span>
+      </div>
+      <UiTabs
+        ariaLabel="Task table views"
+        items={model.tabs.map((tab) => ({
+          href: tab.href,
+          label: tab.label,
+          active: tab.active,
+          count: tab.count,
+          // A zero on a needs-action tab (Past due / Cannot proceed) is the desired
+          // outcome — render it all-clear green instead of a ghosted grey.
+          countTone:
+            (tab.key === "overdue" || tab.key === "blocked") && tab.count === 0
+              ? ("success" as const)
+              : undefined,
+        }))}
+        className="px-5"
+      />
+    </div>
+  );
+}
+
+// Condition filters: one-click jumps into task subsets with explicit operational
+// conditions. They sit above the views because they answer a different question:
+// "which active tasks have a condition that needs attention?"
 function WorkQuickFilters({ model }: { model: WorkModel }) {
   const { summary, filters, activeTab, sort } = model;
   const items: {
     key: string;
     label: string;
+    chipLabel: string;
+    description: string;
     value: number;
     tone?: "danger" | "warning";
     active: boolean;
@@ -371,7 +405,9 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
   }[] = [
     {
       key: "blocked",
-      label: "Blocked",
+      label: "Cannot proceed",
+      chipLabel: "Cannot proceed",
+      description: "Answer, approval, file, or owner is missing.",
       value: summary.blocked,
       tone: "danger",
       active: activeTab === "blocked",
@@ -379,7 +415,9 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
     },
     {
       key: "overdue",
-      label: "Overdue",
+      label: "Past due",
+      chipLabel: "Past due",
+      description: "Due date has passed.",
       value: summary.overdue,
       tone: "danger",
       active: activeTab === "overdue",
@@ -387,7 +425,9 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
     },
     {
       key: "dueSoon",
-      label: "Due soon",
+      label: "Due within 7 days",
+      chipLabel: "Due within 7 days",
+      description: "Due today or within the next 7 days.",
       value: summary.dueSoon,
       tone: "warning",
       active: filters.dueDate === "due_soon",
@@ -400,6 +440,8 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
     {
       key: "unassigned",
       label: "Unassigned",
+      chipLabel: "Unassigned",
+      description: "No owner is assigned.",
       value: summary.unassigned,
       active: filters.owner === "unassigned",
       href: buildWorkHref({
@@ -409,8 +451,15 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
       }),
     },
   ];
+  if (items.every((item) => item.value === 0)) {
+    return (
+      <span className="text-[12px] font-medium text-[var(--success-ink)]">
+        No condition filters need attention.
+      </span>
+    );
+  }
   return (
-    <div className="flex flex-wrap items-center gap-1.5" aria-label="Queue health quick filters">
+    <div className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="Task condition filters">
       {items.map(({ key, ...chip }) => (
         <WorkQuickFilterChip key={key} {...chip} />
       ))}
@@ -420,34 +469,23 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
 
 function WorkQuickFilterChip({
   label,
+  chipLabel,
+  description,
   value,
   tone,
   active,
   href,
 }: {
   label: string;
+  chipLabel: string;
+  description: string;
   value: number;
   tone?: "danger" | "warning";
   active: boolean;
   href: string;
 }) {
-  // Zero = all clear. Calm success chip with a check, non-interactive (there's
-  // no subset to jump to). Mirrors the zero-state stat treatment (§2.11).
   if (value === 0) {
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none"
-        style={{
-          borderColor: "color-mix(in oklab, var(--success-ink) 26%, var(--border-card))",
-          background: "color-mix(in oklab, var(--success-ink) 10%, var(--surface-raised))",
-          color: "var(--success-ink)",
-        }}
-      >
-        <Check className="h-3 w-3 shrink-0" strokeWidth={2.2} aria-hidden />
-        <span>{label.toUpperCase()}</span>
-        <span className="tabular-nums">0</span>
-      </span>
-    );
+    return null;
   }
   // Tone-tinted, clickable. Active = a stronger fill + inset ring so a turned-on
   // filter reads distinctly from a plain status count (§2.6 status value chip).
@@ -461,8 +499,9 @@ function WorkQuickFilterChip({
     <Link
       href={href}
       aria-current={active ? "true" : undefined}
-      aria-label={`${active ? "Clear" : "Filter by"} ${label.toLowerCase()} — ${value}`}
-      className="ui-chip-focus inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none transition-[background-color,border-color,box-shadow,transform] hover:brightness-[1.04] active:translate-y-px"
+      aria-label={`${active ? "Clear" : "Filter by"} ${label.toLowerCase()} — ${value} matching tasks. ${description}`}
+      title={description}
+      className="ui-chip-focus inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase leading-none tracking-[0.12em] transition-[background-color,border-color,box-shadow,transform] hover:brightness-[1.04] active:translate-y-px"
       style={{
         borderColor: `color-mix(in oklab, ${ink} ${active ? "55%" : "30%"}, var(--border-card))`,
         background: `color-mix(in oklab, ${ink} ${active ? "22%" : "12%"}, var(--surface-raised))`,
@@ -470,7 +509,7 @@ function WorkQuickFilterChip({
         boxShadow: active ? `inset 0 0 0 1px color-mix(in oklab, ${ink} 38%, transparent)` : undefined,
       }}
     >
-      <span>{label.toUpperCase()}</span>
+      <span>{chipLabel}</span>
       <span className="tabular-nums">{value}</span>
     </Link>
   );
@@ -580,6 +619,20 @@ function WorkStatusBadge({ row }: { row: WorkItemRow }) {
   );
 }
 
+// Blocker cause as a structured bordered sub-chip under the status badge, rather
+// than a loose truncating prose line — the cause reads as a contained token that
+// travels with the state (§10.7 structured over small prose).
+function BlockerNote({ reason }: { reason: string }) {
+  return (
+    <span
+      title={reason}
+      className="inline-flex max-w-[11rem] items-center rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] px-1.5 py-0.5 text-[10.5px] text-[var(--text-tertiary)]"
+    >
+      <span className="truncate">{reason}</span>
+    </span>
+  );
+}
+
 function WorkDue({ row }: { row: WorkItemRow }) {
   // Two-line stack on every row (date on top, relative timing beneath) so rows
   // stay a uniform height whether or not a due date / descriptor exists (§10.9).
@@ -637,18 +690,15 @@ function WorkTable({
   isFiltered: boolean;
   clearHref: string;
 }) {
-  const rangeStart = pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1;
-  const rangeEnd = Math.min(pagination.page * pagination.pageSize, pagination.total);
-
   if (rows.length === 0) {
     return (
       <div className="px-5 py-10">
         {isFiltered ? (
           <RecoverableState
             state="empty"
-            title="No work in this view"
-            reason="No items match the current tab and filters. Clear filters or pick another tab to see more work."
-            accessibleName="Filtered work empty view"
+            title="No tasks in this view"
+            reason="No items match the current tab and filters. Clear filters or pick another tab to see more tasks."
+            accessibleName="Filtered task empty view"
             surface="work"
             section="queue"
             nextActionLabel="Clear filters"
@@ -661,9 +711,9 @@ function WorkTable({
         ) : (
           <RecoverableState
             state="empty"
-            title="No work yet"
+            title="No tasks yet"
             reason={WORK_EMPTY_STATE}
-            accessibleName="Empty work view"
+            accessibleName="Empty task view"
             surface="work"
             section="queue"
           />
@@ -677,7 +727,7 @@ function WorkTable({
       {/* Desktop table (md+): its own scroll container so the header can stick
           while the rows scroll, instead of scrolling the whole page. */}
       <div className="hidden max-h-[calc(100dvh-20rem)] min-w-0 max-w-full overflow-x-auto overflow-y-auto [contain:inline-size] md:block">
-        <table className="min-w-full text-sm" aria-label="Work items in this workspace">
+        <table className="min-w-full text-sm" aria-label="Tasks in this workspace">
           {/* Sticky header: each cell carries an opaque fill + a soft bottom
               shadow so rows scroll cleanly underneath it instead of bleeding
               through. z-20 sits above the rows but under the portaled menus. */}
@@ -687,23 +737,20 @@ function WorkTable({
                 so header cells sit exactly over body columns and the Actions slot
                 holds a constant right edge across rows (§10.9). Identical px-5
                 gutter on thead + tbody keeps the single internal grid. */}
-            <th className="px-5 py-3">Work item</th>
-            <th className="hidden w-[14rem] px-5 py-3 lg:table-cell">{WORK_ROW_LABELS.linkedContract}</th>
-            <th className="hidden w-[10rem] px-5 py-3 md:table-cell">{WORK_ROW_LABELS.owner}</th>
-            <th className="w-[9.5rem] px-5 py-3">{WORK_ROW_LABELS.dueDate}</th>
-            <th className="w-[12rem] px-5 py-3">{WORK_ROW_LABELS.status}</th>
-            <th className="hidden w-[5.5rem] px-5 py-3 lg:table-cell">{WORK_ROW_LABELS.lastUpdate}</th>
-            <th className="w-[8.5rem] px-5 py-3 text-right">Actions</th>
+            <th className="px-5 py-3">Task</th>
+            <th className="hidden w-[13rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.linkedContract}</th>
+            <th className="hidden w-[9rem] px-4 py-3 md:table-cell">{WORK_ROW_LABELS.owner}</th>
+            <th className="w-[8.5rem] px-4 py-3">{WORK_ROW_LABELS.dueDate}</th>
+            <th className="w-[13rem] px-4 py-3">{WORK_ROW_LABELS.status}</th>
+            <th className="hidden w-[4.75rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.lastUpdate}</th>
+            <th className="w-[7.5rem] px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
               const titleHref = row.display.identity.title.href ?? row.href;
               const contract = row.display.identity.linkedContract;
-              // The model falls back to the literal "Blocked" when a blocked row
-              // has no specific reason — which just duplicates the badge. Only
-              // show the line when it carries a real reason.
-              const showBlocker = row.blocker !== "—" && row.blocker !== "Blocked";
+              const showBlocker = row.blocker !== "—";
               return (
                 <tr key={row.key} className="ui-table-row group">
                   <td className="px-5 py-2 align-middle">
@@ -743,22 +790,22 @@ function WorkTable({
                       </div>
                     </div>
                   </td>
-                  <td className="hidden w-[14rem] px-5 py-2 align-middle lg:table-cell">
+                  <td className="hidden w-[13rem] px-4 py-2 align-middle lg:table-cell">
                     {contract.href ? (
                       <Link
                         href={contract.href}
                         title={contract.value}
-                        className="block max-w-[13rem] truncate text-[12.5px] text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
+                        className="block max-w-[12rem] truncate text-[12.5px] text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
                       >
                         {contract.value}
                       </Link>
                     ) : (
-                      <span className="block max-w-[13rem] truncate text-[12.5px] text-[var(--text-tertiary)]">
+                      <span className="block max-w-[12rem] truncate text-[12.5px] text-[var(--text-tertiary)]">
                         {contract.value}
                       </span>
                     )}
                   </td>
-                  <td className="hidden w-[10rem] whitespace-nowrap px-5 py-2 align-middle md:table-cell">
+                  <td className="hidden w-[9rem] whitespace-nowrap px-4 py-2 align-middle md:table-cell">
                     <span
                       title={row.ownerLabel}
                       className={
@@ -770,27 +817,20 @@ function WorkTable({
                       {row.ownerLabel}
                     </span>
                   </td>
-                  <td className="w-[9.5rem] px-5 py-2 align-middle">
+                  <td className="w-[8.5rem] px-4 py-2 align-middle">
                     <WorkDue row={row} />
                   </td>
-                  <td className="w-[12rem] px-5 py-2 align-middle">
+                  <td className="w-[13rem] px-4 py-2 align-middle">
                     <div className="flex flex-col gap-1">
                       <WorkStatusBadge row={row} />
                       {/* Blocker reason rides under the badge so the cause travels
                           with the state — but only when it's a real reason, not the
-                          generic "Blocked" that just echoes the badge. */}
-                      {showBlocker ? (
-                        <span
-                          className="block max-w-[11rem] truncate text-[11px] text-[var(--text-tertiary)]"
-                          title={row.blocker}
-                        >
-                          {row.blocker}
-                        </span>
-                      ) : null}
+                          status that just echoes the badge. */}
+                      {showBlocker ? <BlockerNote reason={row.blocker} /> : null}
                     </div>
                   </td>
                   <td
-                    className="hidden w-[5.5rem] whitespace-nowrap px-5 py-2 align-middle tabular-nums lg:table-cell"
+                    className="hidden w-[4.75rem] whitespace-nowrap px-4 py-2 align-middle tabular-nums lg:table-cell"
                     suppressHydrationWarning
                   >
                     {row.lastUpdateAt ? (
@@ -802,7 +842,7 @@ function WorkTable({
                   {/* Fixed Actions width + the action cluster's reserved primary
                       slot + fixed-size menu trigger keep Review/verb and the
                       ellipsis on one stable right edge across all rows (§10.9). */}
-                  <td className="w-[8.5rem] px-5 py-2 text-right align-middle">
+                  <td className="w-[7.5rem] px-4 py-2 text-right align-middle">
                     <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
                   </td>
                 </tr>
@@ -817,7 +857,7 @@ function WorkTable({
         {rows.map((row) => {
           const titleHref = row.display.identity.title.href ?? row.href;
           const contract = row.display.identity.linkedContract;
-          const showBlocker = row.blocker !== "—" && row.blocker !== "Blocked";
+          const showBlocker = row.blocker !== "—";
           return (
             <li key={row.key} className="space-y-1.5 px-4 py-3 sm:px-5">
               <div className="flex items-center gap-2">
@@ -853,11 +893,7 @@ function WorkTable({
                   {row.ownerLabel}
                 </span>
               </div>
-              {showBlocker ? (
-                <p className="truncate text-[11px] text-[var(--text-tertiary)]" title={row.blocker}>
-                  {row.blocker}
-                </p>
-              ) : null}
+              {showBlocker ? <BlockerNote reason={row.blocker} /> : null}
               <div className="flex items-center justify-end">
                 <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
               </div>
@@ -867,75 +903,23 @@ function WorkTable({
       </ul>
 
       {pagination.total > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] px-5 py-3">
-          <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">
-            <span className="tabular-nums text-[var(--text-secondary)]">
-              {rangeStart}–{rangeEnd}
-            </span>{" "}
-            of <span className="tabular-nums text-[var(--text-secondary)]">{pagination.total}</span>
-          </span>
-          {pagination.totalPages > 1 ? (
-            <nav aria-label="Work pages" className="flex items-center gap-1.5">
-              <PageLink
-                href={pagination.page > 1 ? pageHref(pagination.page - 1) : null}
-                label="Previous"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-              </PageLink>
-              <span className="ui-caps-2 px-1 text-[10px] tabular-nums text-[var(--text-tertiary)]">
-                Page {pagination.page} / {pagination.totalPages}
-              </span>
-              <PageLink
-                href={pagination.page < pagination.totalPages ? pageHref(pagination.page + 1) : null}
-                label="Next"
-              >
-                <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-              </PageLink>
-            </nav>
-          ) : null}
-        </div>
+        <DataFooter
+          shown={rows.length}
+          total={pagination.total}
+          pagination={{
+            page: pagination.page,
+            totalPages: pagination.totalPages,
+            hrefFor: pageHref,
+          }}
+        />
       ) : null}
     </>
   );
 }
 
-function PageLink({
-  href,
-  label,
-  children,
-}: {
-  href: string | null;
-  label: string;
-  children: ReactNode;
-}) {
-  const base =
-    "inline-flex h-7 min-w-[1.75rem] items-center justify-center rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] px-1.5 text-[var(--text-secondary)] transition-colors";
-  if (!href) {
-    return (
-      <button
-        type="button"
-        disabled
-        aria-label={`${label} page`}
-        className={`${base} cursor-not-allowed opacity-40`}
-      >
-        {children}
-      </button>
-    );
-  }
-  return (
-    <Link
-      href={href}
-      aria-label={`${label} page`}
-      className={`${base} hover:border-[color:color-mix(in_oklab,var(--border-strong)_82%,transparent)] hover:text-[var(--text-primary)]`}
-    >
-      {children}
-    </Link>
-  );
-}
-
 function dueDescriptor(dueInDays: number | null): string | null {
   if (dueInDays == null) return null;
-  if (dueInDays < 0) return `Overdue ${Math.abs(dueInDays)}d`;
+  if (dueInDays < 0) return `Past due ${Math.abs(dueInDays)}d`;
   if (dueInDays === 0) return "Due today";
   if (dueInDays === 1) return "Due tomorrow";
   return `In ${dueInDays}d`;

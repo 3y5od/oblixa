@@ -108,8 +108,8 @@ export async function requestContractApproval(input: {
   }
   const exceptionReasonValidation = validateOptionalApprovalText(input.exceptionReason, {
     maxLength: MAX_EXCEPTION_REASON_LEN,
-    tooLong: "Exception reason is too long",
-    unsafe: "Exception reason contains unsupported characters",
+    tooLong: "Issue reason is too long",
+    unsafe: "Issue reason contains unsupported characters",
   });
   if (!exceptionReasonValidation.ok) return { error: exceptionReasonValidation.error };
   let approverId = input.approverId?.trim() || null;
@@ -687,8 +687,8 @@ export async function upsertRenewalScenario(input: {
   if (!decisionNotesValidation.ok) return { error: decisionNotesValidation.error };
   const blockerValidation = validateOptionalApprovalText(input.blocker, {
     maxLength: MAX_BLOCKER_LEN,
-    tooLong: "Blocker is too long",
-    unsafe: "Blocker contains unsupported characters",
+    tooLong: "Waiting reason is too long",
+    unsafe: "Waiting reason contains unsupported characters",
   });
   if (!blockerValidation.ok) return { error: blockerValidation.error };
   const workspaceStatus = input.workspaceStatus ?? "in_progress";
@@ -784,7 +784,7 @@ export async function upsertRenewalScenario(input: {
     contract_id: input.contractId,
     organization_id: contract.organization_id,
     author_id: user.id,
-    note: `[Timeline] Renewal scenario set to ${input.scenario}${blocker ? ` (blocker: ${blocker})` : ""}`,
+    note: `[Timeline] Renewal scenario set to ${input.scenario}${blocker ? ` (waiting on: ${blocker})` : ""}`,
     pinned: false,
   });
   await enqueueOutboundEvent({

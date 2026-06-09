@@ -1,25 +1,25 @@
 export const EVIDENCE_EYEBROW = "Evidence";
 export const EVIDENCE_PAGE_TITLE = "Evidence";
-export const EVIDENCE_PAGE_LEAD = "Track proof for contract obligations and follow-up work.";
+export const EVIDENCE_PAGE_LEAD = "Track proof files and confirmations tied to contract requirements and tasks.";
 export const EVIDENCE_PRIMARY_CTA = "Request evidence";
-export const EVIDENCE_EMPTY_STATE = "Request evidence when a contract obligation needs proof of completion.";
+export const EVIDENCE_EMPTY_STATE = "Request evidence when a contract requirement or follow-up task needs proof.";
 export const EVIDENCE_PARTIAL_DATA_TITLE = "Evidence data is partially unavailable";
 export const EVIDENCE_PARTIAL_DATA_REASON =
   "Some evidence data returned partial results. Visible requests remain available while freshness is restored.";
 
 export const EVIDENCE_SECTION_LABELS = {
-  open_requests: "Open requests",
-  overdue_requests: "Overdue requests",
-  received_evidence: "Received evidence",
-  linked_obligations: "Linked obligations",
+  open_requests: "Open",
+  overdue_requests: "Overdue",
+  received_evidence: "Received",
+  linked_obligations: "Linked requirements",
 } as const;
 
 export const EVIDENCE_FILTER_LABELS = {
   owner: "Owner",
   status: "Status",
-  dueDate: "Due date",
+  dueDate: "Due",
   contract: "Contract",
-  obligation: "Obligation",
+  obligation: "Requirement",
   fileState: "Files",
 } as const;
 
@@ -40,13 +40,13 @@ export const EVIDENCE_FILE_FILTER_LABELS = {
 } as const;
 
 export const EVIDENCE_ROW_LABELS = {
-  requestTitle: "Request title",
+  requestTitle: "Request",
   linkedContract: "Linked contract",
-  linkedObligation: "Linked obligation",
-  requestOwner: "Request owner",
-  dueDate: "Due date",
+  linkedObligation: "Requirement",
+  requestOwner: "Owner",
+  dueDate: "Due",
   status: "Status",
-  attachedFiles: "Attached files",
+  attachedFiles: "Files",
 } as const;
 
 export const EVIDENCE_STATUS_LABELS = {

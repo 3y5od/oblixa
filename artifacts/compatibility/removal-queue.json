@@ -1269,7 +1269,7 @@
         "analyticsDashboardFollowUp": "No analytics dashboard change is authorized by this package-script alias entry.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run test:e2e:current-product:matrix",
-        "neutralCommand": "PLAYWRIGHT_DEVICE_MATRIX=1 playwright test e2e/current-product-device-matrix.chromium.spec.ts e2e/current-product-device-matrix.webkit.spec.ts e2e/current-product-device-matrix.firefox.spec.ts",
+        "neutralCommand": "node scripts/run-with-env.mjs PLAYWRIGHT_DEVICE_MATRIX=1 -- playwright test e2e/current-product-device-matrix.chromium.spec.ts e2e/current-product-device-matrix.webkit.spec.ts e2e/current-product-device-matrix.firefox.spec.ts",
         "externalReferenceCount": 0,
         "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
@@ -1349,7 +1349,7 @@
         "analyticsDashboardFollowUp": "No analytics dashboard change is authorized by this package-script alias entry.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run test:e2e:compatibility:visual",
-        "neutralCommand": "PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility",
+        "neutralCommand": "node scripts/run-with-env.mjs PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 -- playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility",
         "externalReferenceCount": 0,
         "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
@@ -1389,7 +1389,7 @@
         "analyticsDashboardFollowUp": "No analytics dashboard change is authorized by this package-script alias entry.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this package-script alias entry.",
         "legacyCommand": "npm run test:e2e:compatibility:visual:update",
-        "neutralCommand": "PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility --update-snapshots",
+        "neutralCommand": "node scripts/run-with-env.mjs PLAYWRIGHT_VISUAL=1 PLAYWRIGHT_VISUAL_AUTH=1 PLAYWRIGHT_REUSE_AUTH_STORAGE=1 -- playwright test e2e/compatibility-visual-optional.spec.ts --grep @compatibility --update-snapshots",
         "externalReferenceCount": 0,
         "externalReferences": [],
         "readinessArtifactPath": "artifacts/compatibility/versioned-package-script-readiness.json",
@@ -34626,6 +34626,29 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "e2e/fixtures/app-fixture.ts",
+        "manualOnly": true,
+        "contractCount": 2
+      },
+      {
+        "surface": "environment_key",
+        "subSurface": "test_runtime_env_key",
+        "legacyName": "PLAYWRIGHT_V10_MATRIX",
+        "neutralAlias": "PLAYWRIGHT_MATRIX",
+        "owner": "platform-runtime",
+        "reason": "Compatibility-sensitive test_runtime_env_key version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this test_runtime_env_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "scripts/check-compatibility-removal-queue.mjs",
         "manualOnly": true,
         "contractCount": 3
@@ -42724,7 +42747,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/read-model-refresh.test.ts",
         "manualOnly": true,
-        "contractCount": 170
+        "contractCount": 185
       },
       {
         "surface": "provider_or_crypto_format",
@@ -42747,7 +42770,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/read-model-refresh.ts",
         "manualOnly": true,
-        "contractCount": 110
+        "contractCount": 124
       },
       {
         "surface": "provider_or_crypto_format",
@@ -47163,29 +47186,6 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/globals.css",
         "manualOnly": true,
-        "contractCount": 2
-      },
-      {
-        "surface": "provider_or_crypto_format",
-        "subSurface": "provider_model_or_eval_version",
-        "legacyName": "v11",
-        "neutralAlias": null,
-        "owner": "platform-security",
-        "reason": "Compatibility-sensitive provider_model_or_eval_version version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this provider_model_or_eval_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/components/layout/sidebar-model.test.ts",
-        "manualOnly": true,
         "contractCount": 1
       },
       {
@@ -47577,7 +47577,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/globals.css",
         "manualOnly": true,
-        "contractCount": 4
+        "contractCount": 5
       },
       {
         "surface": "app_route_contract",
@@ -48014,7 +48014,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/webhooks/dispatch/route.test.ts",
         "manualOnly": true,
-        "contractCount": 4
+        "contractCount": 5
       },
       {
         "surface": "provider_or_crypto_format",
@@ -53925,7 +53925,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/globals.css",
         "manualOnly": true,
-        "contractCount": 3
+        "contractCount": 2
       },
       {
         "surface": "external_contract",
@@ -57513,7 +57513,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/cron/v6/onboarding-calibration-stale/route.test.ts",
         "manualOnly": true,
-        "contractCount": 7
+        "contractCount": 9
       },
       {
         "surface": "api_or_cron_contract",
@@ -62758,29 +62758,6 @@
         "sourcePath": "scripts/check-stale-write-guards.mjs",
         "manualOnly": true,
         "contractCount": 1
-      },
-      {
-        "surface": "app_route_contract",
-        "subSurface": "page_route_or_deep_link_contract",
-        "legacyName": "v7",
-        "neutralAlias": null,
-        "owner": "frontend-platform",
-        "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/(marketing)/product/page.tsx",
-        "manualOnly": true,
-        "contractCount": 14
       },
       {
         "surface": "app_route_contract",

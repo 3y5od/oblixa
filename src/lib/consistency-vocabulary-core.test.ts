@@ -6,19 +6,18 @@ import { NAV_ITEMS } from "./navigation";
 import { PRODUCT_FEATURE_REGISTRY } from "./product-surface/feature-registry";
 import type { ContractStatus } from "@/lib/types";
 
-/** v9 spec §24.1 — stable Core nouns (primary labels or primary child labels). */
-const V9_CORE_VOCAB = [
+/** Stable Core nouns (primary labels or primary child labels). */
+const CORE_VOCAB = [
   "Contracts",
   "Review",
-  "Work",
+  "Tasks",
   "Renewals",
-  "Exceptions",
   "Evidence",
   "Reports",
 ] as const;
 
-describe("V9 §24 consistency (vocabulary, status, filter URL contract)", () => {
-  it("§24.1 primary navigation retains the seven stable nouns", () => {
+describe("Core consistency (vocabulary, status, filter URL contract)", () => {
+  it("primary navigation retains stable Core nouns", () => {
     const primary = NAV_ITEMS.filter((i) => i.section === "primary");
     const coreRegistryLabels = PRODUCT_FEATURE_REGISTRY.filter(
       (feature) => feature.parentDomain === "core"
@@ -27,7 +26,7 @@ describe("V9 §24 consistency (vocabulary, status, filter URL contract)", () => 
       ...primary.flatMap((i) => [i.name, ...(i.navChildren ?? []).map((child) => child.name)]),
       ...coreRegistryLabels,
     ];
-    for (const word of V9_CORE_VOCAB) {
+    for (const word of CORE_VOCAB) {
       expect(
         visibleLabels.some((label) => label === word || label.includes(word)),
         `missing primary navigation label: ${word}`
@@ -35,7 +34,7 @@ describe("V9 §24 consistency (vocabulary, status, filter URL contract)", () => 
     }
   });
 
-  it("§24.3 contract status labels stay aligned with the semantics map (single source)", () => {
+  it("contract status labels stay aligned with the semantics map (single source)", () => {
     const statuses = Object.keys(STATUS_SEMANTICS) as ContractStatus[];
     expect(Object.keys(STATUS_LABELS).sort()).toEqual([...statuses].sort());
     for (const s of statuses) {
@@ -43,7 +42,7 @@ describe("V9 §24 consistency (vocabulary, status, filter URL contract)", () => 
     }
   });
 
-  it("§24.4 contracts list keeps canonical filter keys wired for URL round-trip", () => {
+  it("contracts list keeps canonical filter keys wired for URL round-trip", () => {
     const page = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/page.tsx"), "utf8");
     for (const key of [
       "exceptions",

@@ -61,7 +61,7 @@ describe("getCmdkSearchJumpItems", () => {
   it("routes core queue jumps to the exact actionable destinations", () => {
     const items = getCmdkSearchJumpItems(surface({}), "");
     expect(items.find((i) => i.id === "search-jump:tasks")?.href).toBe("/work?type=contract_task");
-    expect(items.find((i) => i.id === "search-jump:tasks")?.meta).toBe("Work · task filter");
+    expect(items.find((i) => i.id === "search-jump:tasks")?.meta).toBe("Tasks · task filter");
     expect(items.find((i) => i.id === "search-jump:approvals")?.href).toBe("/work?tab=approvals");
     expect(items.find((i) => i.id === "search-jump:obligations")?.href).toBe("/work?tab=obligations");
     expect(items.find((i) => i.id === "search-jump:exceptions")?.href).toBe(

@@ -96,10 +96,11 @@ describe("dashboard loading and error consistency (V9)", () => {
     expect(workLoading).toContain("ui-page-stack");
     expect(workLoading).toContain("md:grid-cols-5");
 
-    // Review loading mirrors the raised two-pane field review workspace shell.
-    expect(reviewLoading).toContain("ui-card-raised");
+    // Review loading mirrors the three-pane field review workspace shell
+    // (queue rail | decision | evidence) on the quieter `ui-card` tier.
+    expect(reviewLoading).toContain("ui-card");
     expect(reviewLoading).toContain("ui-skeleton h-10 w-10 rounded-xl");
-    expect(reviewLoading).toContain("lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]");
+    expect(reviewLoading).toContain("lg:grid-cols-[20rem_minmax(0,1fr)_22rem]");
     expect(reviewLoading).toContain("sm:grid-cols-2");
     expect(reviewLoading).not.toContain("ui-page-header flex flex-col gap-6");
     expect(reviewLoading).not.toContain("ui-card-hero");

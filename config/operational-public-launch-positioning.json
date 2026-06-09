@@ -197,14 +197,14 @@
       "path": "src/app/(marketing)/request-access/page.tsx",
       "owner": "@product-marketing",
       "validationCommand": "check:operational-public-launch-positioning",
-      "markers": ["Request access", "Redacted sample", "Not a formal enterprise procurement package"]
+      "markers": ["Request access", "Redacted sample", "No enterprise procurement package"]
     },
     {
       "id": "signup-form",
       "path": "src/actions/auth.ts",
       "owner": "@product-marketing",
       "validationCommand": "test:operational-public-launch-positioning",
-      "markers": ["rateLimitCheck(`signup:${ip}`", "validateWorkspaceAccessGrant", "markWorkspaceAccessGrantUsed", "access_grant_id", "emailRedirectTo: `${appUrl}/auth/callback`"]
+      "markers": ["rateLimitCheck(`signup:${ip}`", "validateWorkspaceAccessGrant", "admin.auth.admin.createUser", "email_confirm: true", "markWorkspaceAccessGrantUsed", "access_grant_id", "signInWithPassword({"]
     },
     {
       "id": "password-recovery",

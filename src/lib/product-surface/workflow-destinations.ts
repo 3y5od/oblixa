@@ -159,13 +159,13 @@ const MODE_RANK: Record<WorkspaceProductMode, number> = {
 const CORE_COPY = {
   home: ["Dashboard", "What needs attention now.", "Dashboard", "What needs attention now."],
   contracts: ["Contracts", "Find, upload, and manage contracts.", "Contracts", "Find, upload, and manage contracts."],
-  review: ["Review", "Review extracted fields before work depends on them.", "Review", "Open review"],
-  work: ["Work", "Tasks, approvals, obligations, and blockers assigned to you.", "Work", "Open assigned work."],
+  review: ["Confirm details", "Confirm suggested contract details before tasks depend on them.", "Details", "Confirm details"],
+  work: ["Tasks", "Follow-up tasks, approvals, contract requirements, and items needing input assigned to you.", "Tasks", "Open assigned tasks."],
   tasks: ["Tasks", "Team follow-up with ownership, urgency, and status.", "Tasks", "Open tasks."],
-  obligations: ["Obligations", "Operational commitments, due dates, owners, and evidence status.", "Obligations", "Open obligations."],
+  obligations: ["Requirements", "Contract requirements, due dates, owners, and evidence status.", "Requirements", "Open requirements."],
   approvals: ["Approvals", "Pending approvals, due dates, and bottlenecks.", "Approvals", "Open approvals."],
   renewals: ["Renewals", "Upcoming renewals and required follow-up.", "Renewals", "Open renewals."],
-  exceptions: ["Exceptions", "Open contract issues that need owner action.", "Exceptions", "Open issues."],
+  exceptions: ["Issues", "Open contract issues that need owner action.", "Issues", "Open issues."],
   evidence: ["Evidence", "Evidence requests and submitted proof.", "Evidence", "Open evidence."],
   reports: ["Reports", "Standard reports and exports.", "Reports", "Open reports."],
   contract_report_packs: ["Report packs", "Standard contract report packs and export history.", "Report packs", "Open report packs."],
@@ -243,8 +243,8 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["primary", "nav_child", "cmdk", "dashboard_card"]),
     copyByMode: copies(
       coreCopy("review"),
-      copy("Review", "Keep extraction review aligned with programs and decisions.", "Open review"),
-      copy("Review", "Validate fields that affect evidence, findings, and controls.", "Open review")
+      copy("Confirm details", "Keep extracted-detail confirmation aligned with programs and decisions.", "Confirm details"),
+      copy("Confirm details", "Confirm details that affect evidence, findings, and controls.", "Confirm details")
     ),
   },
   {
@@ -256,8 +256,8 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["primary", "cmdk", "dashboard_card"]),
     copyByMode: copies(
       coreCopy("work"),
-      copy("Work", "Coordinate execution across owners, decisions, and campaigns.", "Open work"),
-      copy("Work", "Route execution into findings, controls, and remediation.", "Open work")
+      copy("Tasks", "Coordinate follow-up across owners, decisions, and campaigns.", "Open tasks"),
+      copy("Tasks", "Route follow-up into findings, controls, and remediation.", "Open tasks")
     ),
   },
   {
@@ -278,8 +278,8 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["nav_child", "cmdk", "contextual"]),
     copyByMode: copies(
       coreCopy("obligations"),
-      copy("Obligations", "Commitments, owners, and evidence status across programs.", "Open obligations"),
-      copy("Obligations", "Commitments with evidence coverage, control impact, and findings risk.", "Open obligations")
+      copy("Requirements", "Contract requirements, owners, and evidence status across programs.", "Open requirements"),
+      copy("Requirements", "Contract requirements with evidence coverage, control impact, and findings risk.", "Open requirements")
     ),
   },
   {
@@ -318,8 +318,8 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["primary", "nav_child", "cmdk", "dashboard_card"]),
     copyByMode: copies(
       coreCopy("exceptions"),
-      copy("Exceptions", "Escalate issues into decisions, campaigns, or programs.", "Open exceptions"),
-      copy("Exceptions", "Convert material issues into findings or control review.", "Open exceptions")
+      copy("Issues", "Escalate issues into decisions, campaigns, or programs.", "Open issues"),
+      copy("Issues", "Convert material issues into findings or control review.", "Open issues")
     ),
   },
   {
@@ -378,7 +378,7 @@ export const WORKFLOW_DESTINATIONS = [
     workflowArea: "workflows",
     minWorkspaceMode: "core",
     placementsByMode: placements(["contextual", "cmdk"]),
-    copyByMode: copies(copy("Upload contract", "Upload a contract and review extracted fields.", "Upload contract")),
+    copyByMode: copies(copy("Upload contract", "Upload a contract and confirm extracted details.", "Upload contract")),
   },
   {
     key: "bulk_import",
@@ -498,7 +498,7 @@ export const WORKFLOW_DESTINATIONS = [
     placementsByMode: placements(["hidden"], ["more_card", "cmdk"], ["more_card", "cmdk"]),
     copyByMode: copies(
       copy("Collaboration", "Collaboration tools are available in Advanced workspaces.", "Open collaboration"),
-      copy("Collaboration", "Notes, mentions, and field-level collaboration.", "Open collaboration"),
+      copy("Collaboration", "Notes, mentions, and contract-detail collaboration.", "Open collaboration"),
       copy("Collaboration", "Coordinate remediation and evidence follow-up with collaborators.", "Open collaboration")
     ),
   },
@@ -550,8 +550,8 @@ export const WORKFLOW_DESTINATIONS = [
     utilityModuleKey: "execution_graph",
     placementsByMode: placements(["tools_only"], ["more_card", "cmdk"], ["more_card", "cmdk"]),
     copyByMode: copies(
-      copy("Execution graph", "Dependency view for eligible work.", "Open execution graph"),
-      copy("Execution graph", "Cross-work dependency view and blockers.", "Open execution graph"),
+      copy("Execution graph", "Dependency view for eligible tasks.", "Open execution graph"),
+      copy("Execution graph", "Cross-task dependency view and input-needed states.", "Open execution graph"),
       copy("Execution graph", "Dependency view across remediation and control follow-through.", "Open execution graph")
     ),
   },
@@ -771,7 +771,7 @@ export const WORKFLOW_DESTINATIONS = [
     workflowArea: "workspace",
     minWorkspaceMode: "core",
     placementsByMode: placements(["admin_contextual", "cmdk"]),
-    copyByMode: copies(copy("Notifications", "Reminder defaults for renewal, review, work, evidence, and digest delivery.", "Edit notifications")),
+    copyByMode: copies(copy("Notifications", "Reminder defaults for renewals, detail confirmation, tasks, evidence, and digest delivery.", "Edit notifications")),
   },
   {
     key: "product_settings",

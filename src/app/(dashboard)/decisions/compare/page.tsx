@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Split } from "lucide-react";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/decision-intelligence/decision-types";
@@ -96,37 +97,41 @@ export default async function DecisionsComparePage(props: {
               <label htmlFor="compare-decision-a" className="ui-label-caps">
                 Decision A
               </label>
-              <select
+              <UiSelect
                 id="compare-decision-a"
                 name="decisionA"
-                className="ui-input mt-1 w-full min-w-0"
                 defaultValue={decisionA ?? ""}
-              >
-                <option value="">—</option>
-                {(decisionList ?? []).map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.title} ({d.status})
-                  </option>
-                ))}
-              </select>
+                placeholder="—"
+                options={(decisionList ?? []).map((d) => ({
+                  value: d.id,
+                  label: `${d.title} (${d.status})`,
+                }))}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                className="mt-1 w-full min-w-0"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <div className="min-w-0">
               <label htmlFor="compare-decision-b" className="ui-label-caps">
                 Decision B
               </label>
-              <select
+              <UiSelect
                 id="compare-decision-b"
                 name="decisionB"
-                className="ui-input mt-1 w-full min-w-0"
                 defaultValue={decisionB ?? ""}
-              >
-                <option value="">—</option>
-                {(decisionList ?? []).map((d) => (
-                  <option key={`b-${d.id}`} value={d.id}>
-                    {d.title} ({d.status})
-                  </option>
-                ))}
-              </select>
+                placeholder="—"
+                options={(decisionList ?? []).map((d) => ({
+                  value: d.id,
+                  label: `${d.title} (${d.status})`,
+                }))}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                className="mt-1 w-full min-w-0"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border-subtle)] pt-4">

@@ -56,7 +56,7 @@ export async function TasksByStatusKanban({ orgId }: TasksByStatusKanbanProps) {
       tone: "accent",
     },
     {
-      label: "Blocked",
+      label: "Needs input",
       count: blockedRes.count ?? 0,
       href: "/contracts/tasks?status=blocked",
       tone: "warning",

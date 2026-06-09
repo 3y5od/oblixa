@@ -8,7 +8,9 @@ describe("contracts intake page accessibility", () => {
   it("keeps repeated row intake controls named", () => {
     const raw = readFileSync(PAGE, "utf8");
 
-    expect(raw).toContain('aria-label={`Intake status for ${String(row.title ?? "contract")}`}');
+    // Status control is now a custom combobox (UiSelect) — its accessible name
+    // comes from the `ariaLabel` prop (rendered to aria-label on the trigger).
+    expect(raw).toContain('ariaLabel={`Intake status for ${String(row.title ?? "contract")}`}');
     expect(raw).toContain('aria-label={`Completeness score for ${String(row.title ?? "contract")}`}');
   });
 });

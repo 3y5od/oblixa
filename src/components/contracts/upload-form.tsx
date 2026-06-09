@@ -3,13 +3,39 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Upload, X, FileText, CheckCircle2, Tag, ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ChevronDown,
+  ClipboardList,
+  Database,
+  FileSignature,
+  FileUp,
+  Globe,
+  Hash,
+  SlidersHorizontal,
+  Sparkles,
+  Tag,
+  X,
+} from "lucide-react";
 import { createContract } from "@/actions/contracts";
-import { formatFileSize } from "@/lib/format-file-size";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { UiSelect, type UiSelectOption } from "@/components/ui/ui-select";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { MetaChip } from "@/components/ui/meta-chip";
+import { UploadField } from "@/components/contracts/upload-field";
+import { UploadSection } from "@/components/contracts/upload-section";
+import { SelectedFileList } from "@/components/contracts/selected-file-list";
+import { Dropzone } from "@/components/contracts/dropzone";
+import { UploadTrustNote } from "@/components/contracts/upload-trust-note";
+import { CONTRACT_FILE_MAX_BYTES, CONTRACT_FILE_MAX_MB_LABEL } from "@/lib/constants/upload-limits";
+import {
+  clearUploadMetadataDraft,
+  readUploadMetadataDraft,
+  writeUploadMetadataDraft,
+} from "@/lib/security/client-storage";
 
 const CONTRACT_TYPE_OPTIONS: UiSelectOption[] = [
   { value: "MSA", label: "Master Service Agreement" },
@@ -19,17 +45,23 @@ const CONTRACT_TYPE_OPTIONS: UiSelectOption[] = [
   { value: "Employment", label: "Employment Agreement" },
   { value: "Other", label: "Other" },
 ];
-import {
-  clearUploadMetadataDraft,
-  readUploadMetadataDraft,
-  writeUploadMetadataDraft,
-} from "@/lib/security/client-storage";
+
+export interface UploadFormMember {
+  /** Member user id — submitted as the contract owner. */
+  value: string;
+  /** Display name (falls back to email). */
+  label: string;
+  /** Member email, shown as the option description. */
+  email?: string | null;
+}
 
 interface UploadFormProps {
   organizationId: string;
   /** When true, form cannot be submitted (e.g. subscription required). */
   disabled?: boolean;
   disabledReason?: string;
+  /** Workspace members — populate the owner picker. */
+  members?: UploadFormMember[];
 }
 
 type FileSelectionNotice = {
@@ -46,7 +78,7 @@ function fileSelectionKey(file: File) {
 type MetadataDraft = {
   title: string;
   counterparty: string;
-  ownerLabel: string;
+  ownerId: string;
   contractType: string;
   region: string;
   annualValue: string;
@@ -58,7 +90,7 @@ type MetadataDraft = {
 const emptyMetadata: MetadataDraft = {
   title: "",
   counterparty: "",
-  ownerLabel: "",
+  ownerId: "",
   contractType: "",
   region: "",
   annualValue: "",
@@ -71,10 +103,18 @@ export function UploadForm({
   organizationId,
   disabled,
   disabledReason,
+  members = [],
 }: UploadFormProps) {
   const router = useRouter();
+  const ownerOptions = useMemo<UiSelectOption[]>(
+    () =>
+      members.map((member) => ({
+        value: member.value,
+        label: member.label,
+      })),
+    [members]
+  );
   const [metadata, setMetadata] = useState<MetadataDraft>(emptyMetadata);
-  const [runExtraction, setRunExtraction] = useState(true);
   const [tagInput, setTagInput] = useState("");
   const [titleTouched, setTitleTouched] = useState(false);
   const [hydratedFromStorage, setHydratedFromStorage] = useState(false);
@@ -83,7 +123,6 @@ export function UploadForm({
   const [fileNotice, setFileNotice] = useState<string | null>(null);
   const [selectionNotice, setSelectionNotice] = useState<FileSelectionNotice | null>(null);
   const [uploadOutcome, setUploadOutcome] = useState<string | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,7 +133,7 @@ export function UploadForm({
       files.length > 0 ||
       m.title.trim() !== "" ||
       m.counterparty.trim() !== "" ||
-      m.ownerLabel.trim() !== "" ||
+      m.ownerId.trim() !== "" ||
       m.contractType.trim() !== "" ||
       m.region.trim() !== "" ||
       m.annualValue.trim() !== "" ||
@@ -113,7 +152,7 @@ export function UploadForm({
           ...prev,
           title: typeof parsed.title === "string" ? parsed.title : prev.title,
           counterparty: typeof parsed.counterparty === "string" ? parsed.counterparty : prev.counterparty,
-          ownerLabel: typeof parsed.ownerLabel === "string" ? parsed.ownerLabel : prev.ownerLabel,
+          ownerId: typeof parsed.ownerId === "string" ? parsed.ownerId : prev.ownerId,
           contractType: typeof parsed.contractType === "string" ? parsed.contractType : prev.contractType,
           region: typeof parsed.region === "string" ? parsed.region : prev.region,
           annualValue: typeof parsed.annualValue === "string" ? parsed.annualValue : prev.annualValue,
@@ -167,7 +206,7 @@ export function UploadForm({
         skippedType += 1;
         continue;
       }
-      if (file.size > 20 * 1024 * 1024) {
+      if (file.size > CONTRACT_FILE_MAX_BYTES) {
         skippedSize += 1;
         continue;
       }
@@ -193,7 +232,7 @@ export function UploadForm({
     }
     if (skippedSize > 0) {
       messageParts.push(
-        `${skippedSize} file${skippedSize === 1 ? " exceeds" : "s exceed"} the 20 MB limit.`
+        `${skippedSize} file${skippedSize === 1 ? " exceeds" : "s exceed"} the ${CONTRACT_FILE_MAX_MB_LABEL} limit.`
       );
     }
     if (duplicate > 0) {
@@ -215,6 +254,10 @@ export function UploadForm({
     setFileNotice(messageParts.length > 0 ? messageParts.join(" ") : null);
     setUploadOutcome(null);
     setFiles((prev) => [...prev, ...accepted]);
+    // The shared Dropzone no longer resets the input, so clear it here: this
+    // form tracks files in state, and a cleared input lets the same file be
+    // re-picked after it is removed (especially via the compact "add another").
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function removeFile(index: number) {
@@ -230,14 +273,13 @@ export function UploadForm({
     formData.set("organizationId", organizationId);
     formData.set("title", metadata.title.trim());
     formData.set("counterparty", metadata.counterparty.trim());
-    formData.set("ownerLabel", metadata.ownerLabel.trim());
+    formData.set("ownerId", metadata.ownerId.trim());
     formData.set("contractType", metadata.contractType.trim());
     formData.set("region", metadata.region.trim());
     formData.set("annualValue", metadata.annualValue.trim());
     formData.set("tags", metadata.tags.trim());
     formData.set("sourceSystem", metadata.sourceSystem.trim());
     formData.set("externalReferenceId", metadata.externalReferenceId.trim());
-    formData.set("runExtraction", runExtraction ? "1" : "0");
     for (const file of files) {
       formData.append("files", file);
     }
@@ -268,9 +310,9 @@ export function UploadForm({
         );
       }
       if (result.extractionStatus === "queued") {
-        summaryParts.push("field suggestions queued");
+        summaryParts.push("contract-detail suggestions queued");
       } else if (result.extractionStatus === "not_available") {
-        summaryParts.push("field suggestions unavailable in this environment");
+        summaryParts.push("contract-detail suggestions unavailable in this environment");
       }
       setUploadOutcome(summaryParts.join(" · "));
       if (!pushAppHref(router, result.redirectTo)) {
@@ -284,13 +326,13 @@ export function UploadForm({
   // Lock every metadata control while the workspace can't create the record
   // (viewer / no plan) or a submit is in flight — mirrors the dropzone + CTA.
   const fieldsDisabled = !!disabled || isPending;
-  const submitLabel = files.length > 0 ? "Upload contract" : "Create without a file";
+  const submitLabel = files.length > 0 ? "Upload contract" : "Create record";
   const pendingLabel = files.length > 0 ? "Uploading…" : "Saving…";
   const pendingNotice =
     isPending && files.length > 0
       ? "Uploading the signed contract and confirming which files stored. If any file fails, you will land on the detail page with recovery steps."
       : isPending
-        ? "Saving the contract record. Attach a signed file later to unlock source-backed suggestions."
+        ? "Saving the contract record. Attach a signed file later to unlock source-backed detail suggestions."
         : null;
 
   const parsedTags = metadata.tags
@@ -298,19 +340,16 @@ export function UploadForm({
     .map((t) => t.trim())
     .filter(Boolean);
 
-  const noticeChipStyle = (tone: "success" | "warning" | "danger") => {
-    const ink =
-      tone === "success"
-        ? "var(--success-ink)"
-        : tone === "warning"
-          ? "var(--warning-ink)"
-          : "var(--danger-ink)";
-    return {
-      borderColor: `color-mix(in oklab, ${ink} 26%, var(--border-subtle))`,
-      background: `color-mix(in oklab, ${ink} 12%, var(--surface-raised))`,
-      color: ink,
-    };
-  };
+  const showNotices =
+    (disabled && disabledReason) ||
+    error ||
+    (uploadOutcome && !error) ||
+    (fileNotice && !error) ||
+    (pendingNotice && !error) ||
+    (hydratedFromStorage && hasMeaningfulDraft && !error);
+
+  const sourceFilesAccept =
+    ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
   return (
     <form
@@ -319,15 +358,10 @@ export function UploadForm({
         e.preventDefault();
         handleSubmit();
       }}
-      className="ui-card-raised p-0"
+      className="ui-card-raised overflow-hidden p-0"
     >
-      {(disabled && disabledReason) ||
-      error ||
-      (uploadOutcome && !error) ||
-      (fileNotice && !error) ||
-      (pendingNotice && !error) ||
-      (hydratedFromStorage && hasMeaningfulDraft && !error) ? (
-        <div className="space-y-3 px-5 py-4 sm:px-6">
+      {showNotices ? (
+        <div className="space-y-3 px-5 pb-1 pt-5 sm:px-6">
           {disabled && disabledReason && (
             <div className="ui-alert-warning" role="alert">
               {disabledReason}
@@ -366,10 +400,14 @@ export function UploadForm({
         </div>
       ) : null}
 
-      <section className="space-y-3 px-5 py-5 sm:px-6">
-        <div className="flex items-center justify-between gap-2">
-          <p className="ui-eyebrow">Source documents</p>
-          {files.length > 0 ? (
+      <UploadSection
+        step={1}
+        first
+        icon={FileUp}
+        title="Source documents"
+        lead="Upload the signed agreement, or create the record now and attach a file later."
+        aside={
+          files.length > 0 ? (
             <StatusBadge status="healthy">
               <span
                 aria-hidden
@@ -385,443 +423,369 @@ export function UploadForm({
                 className="mr-1.5 inline-flex h-1.5 w-1.5 rounded-full"
                 style={{ background: "var(--border-strong)" }}
               />
-              No file selected
+              File optional
             </StatusBadge>
-          )}
+          )
+        }
+      >
+        {/* One persistent Dropzone so the file input stays mounted across the
+            empty→staged transition: the staged list appears above it and the
+            dropzone switches to its compact "add another" variant. */}
+        <div className="space-y-3">
+          {files.length > 0 ? (
+            <SelectedFileList files={files} onRemove={removeFile} disabled={fieldsDisabled} />
+          ) : null}
+          <Dropzone
+            inputRef={fileInputRef}
+            inputId="source-files-input"
+            multiple
+            accept={sourceFilesAccept}
+            ariaLabel="Upload signed contract files (PDF or DOCX)"
+            variant={files.length > 0 ? "compact" : "full"}
+            compactLabel="Add another file"
+            size="sm"
+            primaryText={
+              <>
+                Drop signed PDF or DOCX, or{" "}
+                <span className="text-[var(--accent-strong)]">browse</span>
+              </>
+            }
+            formats={["PDF", "DOCX"]}
+            hint={`Max ${CONTRACT_FILE_MAX_MB_LABEL}`}
+            disabled={disabled}
+            onFiles={handleFiles}
+          />
         </div>
 
         {selectionNotice && (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
             {selectionNotice.accepted > 0 ? (
-              <span className="ui-chip" style={noticeChipStyle("success")}>
-                {selectionNotice.accepted} accepted
-              </span>
+              <MetaChip tone="success">{selectionNotice.accepted} accepted</MetaChip>
             ) : null}
             {selectionNotice.duplicate > 0 ? (
-              <span className="ui-chip" style={noticeChipStyle("warning")}>
-                {selectionNotice.duplicate} duplicate
-              </span>
+              <MetaChip tone="warning">{selectionNotice.duplicate} duplicate</MetaChip>
             ) : null}
             {selectionNotice.skippedType > 0 ? (
-              <span className="ui-chip" style={noticeChipStyle("danger")}>
-                {selectionNotice.skippedType} unsupported
-              </span>
+              <MetaChip tone="danger">{selectionNotice.skippedType} unsupported</MetaChip>
             ) : null}
             {selectionNotice.skippedSize > 0 ? (
-              <span className="ui-chip" style={noticeChipStyle("danger")}>
-                {selectionNotice.skippedSize} over size limit
-              </span>
+              <MetaChip tone="danger">{selectionNotice.skippedSize} over size limit</MetaChip>
             ) : null}
           </div>
         )}
 
-        <span id="files-label" className="sr-only">
-          Upload signed contract files (PDF or DOCX)
-        </span>
-        <div
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          aria-labelledby="files-label"
-          aria-disabled={disabled}
-          onKeyDown={(e) => {
-            if (disabled) return;
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          className={`group flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-5 py-6 text-center outline-none transition-[border-color,background-color,box-shadow,transform] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
-            disabled
-              ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_56%,transparent)] opacity-50"
-              : isDragOver
-                ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_48%,transparent)] shadow-[var(--shadow-glow)]"
-                : "cursor-pointer border-[color:color-mix(in_oklab,var(--border-strong)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface)_45%,transparent)] hover:border-[color:color-mix(in_oklab,var(--accent)_45%,var(--border-strong))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,transparent)] hover:shadow-[var(--shadow-1)]"
-          }`}
-          onClick={() => !disabled && fileInputRef.current?.click()}
-          onDragEnter={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!disabled) setIsDragOver(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-              setIsDragOver(false);
-            }
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDragOver(false);
-            if (!disabled) handleFiles(e.dataTransfer.files);
-          }}
-        >
-          <span
-            aria-hidden
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)] transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.04]"
-          >
-            <Upload className="h-5 w-5" strokeWidth={1.85} />
+        {/* Extraction runs after upload whenever the AI provider is configured —
+            a static expectation, not a toggle. Suggestions are never trusted
+            until reviewed. */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px]">
+          <span className="inline-flex items-center gap-2 text-[var(--text-tertiary)]">
+            <Sparkles
+              className="h-3.5 w-3.5 shrink-0 text-[var(--accent-strong)]"
+              strokeWidth={1.85}
+              aria-hidden
+            />
+            Source-backed detail suggestions
           </span>
-          <div className="min-w-0">
-            <p className="text-[14px] font-semibold text-[var(--text-primary)]">
-              Drop a signed contract or browse
-            </p>
-            <p className="mt-1 text-[11.5px] leading-none tabular-nums text-[var(--text-tertiary)]">
-              PDF or DOCX<span className="ui-dot-sep">·</span>max 20 MB
-            </p>
-          </div>
+          <span className="text-[11.5px] font-medium text-[var(--accent-strong)]">
+            Confirmation required
+          </span>
         </div>
-        <input
-          ref={fileInputRef}
-          id="source-files-input"
-          type="file"
-          multiple
-          accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="hidden"
-          onChange={(e) => {
-            handleFiles(e.target.files);
-            e.target.value = "";
-          }}
-        />
+        <div className="mt-3">
+          <UploadTrustNote />
+        </div>
+      </UploadSection>
 
-        {files.length > 0 ? (
-          <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]">
-            {files.map((file, i) => (
-              <li
-                key={`${file.name}-${i}`}
-                className="flex items-center justify-between gap-3 py-2.5"
-              >
-                <div className="flex min-w-0 items-center gap-2.5">
-                  <FileText
-                    className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
-                    strokeWidth={1.85}
-                    aria-hidden
-                  />
-                  <span className="truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-                    {file.name}
-                  </span>
-                  <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-[var(--text-tertiary)]">
-                    {formatFileSize(file.size)}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeFile(i)}
-                  className="ui-icon-button min-h-7 min-w-7 shrink-0 border-transparent bg-transparent p-1.5 shadow-none"
-                  aria-label={`Remove ${file.name} from list`}
-                >
-                  <X className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        {files.length > 0 ? (
-          <label className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] text-[var(--text-secondary)]">
-            <input
-              type="checkbox"
-              className="ui-checkbox"
-              checked={runExtraction}
-              onChange={(e) => setRunExtraction(e.target.checked)}
-            />
-            Suggest fields after upload
-            <span className="ml-2 ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
-              Suggestions require review
-            </span>
-          </label>
-        ) : null}
-      </section>
-
-      <section className="space-y-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-5 sm:px-6">
-        <p className="ui-eyebrow">Contract details</p>
-
-        <div>
-          <label htmlFor="title" className="ui-label flex items-center gap-1.5">
-            Contract title
-            <span className="ui-caps-3 inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--accent-strong)]">
-              Required
-            </span>
-          </label>
-          <input
+      <UploadSection step={2} icon={ClipboardList} title="Known contract details">
+        <div className="space-y-4">
+          <UploadField
             id="title"
-            name="title"
-            type="text"
+            label="Contract title"
             required
-            value={metadata.title}
-            onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
-            onBlur={() => setTitleTouched(true)}
-            placeholder="Add a contract title"
-            disabled={fieldsDisabled}
-            aria-invalid={titleInvalid || undefined}
-            aria-describedby={titleInvalid ? "title-error" : undefined}
-            className={`ui-input-compact mt-1 w-full ${
-              titleInvalid
-                ? "border-[color:color-mix(in_oklab,var(--danger-ink)_55%,var(--border-strong))] focus-visible:border-[color:color-mix(in_oklab,var(--danger-ink)_60%,var(--border-strong))] focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--danger-ink)_45%,transparent),0_0_0_4px_color-mix(in_oklab,var(--danger-ink)_18%,transparent)]"
-                : ""
-            }`}
-          />
-          {titleInvalid ? (
-            <p
-              id="title-error"
-              className="ui-caps-3 mt-1.5 text-[10px] leading-none text-[var(--danger-ink)]"
-              role="alert"
-            >
-              Contract title is required
-            </p>
-          ) : null}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label htmlFor="counterparty" className="ui-label">
-              Counterparty
-            </label>
+            icon={FileSignature}
+            error={titleInvalid ? "Contract title is required" : undefined}
+          >
             <input
-              id="counterparty"
-              name="counterparty"
+              id="title"
+              name="title"
               type="text"
-              value={metadata.counterparty}
-              onChange={(e) => setMetadata((m) => ({ ...m, counterparty: e.target.value }))}
-              placeholder="Counterparty name"
+              required
+              value={metadata.title}
+              onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
+              onBlur={() => setTitleTouched(true)}
+              placeholder="Add a contract title"
               disabled={fieldsDisabled}
-              className="ui-input-compact mt-1 w-full min-w-0"
+              aria-invalid={titleInvalid || undefined}
+              aria-describedby={titleInvalid ? "title-error" : undefined}
+              className={`ui-input-compact w-full pl-9 ${
+                titleInvalid
+                  ? "border-[color:color-mix(in_oklab,var(--danger-ink)_55%,var(--border-strong))] focus-visible:border-[color:color-mix(in_oklab,var(--danger-ink)_60%,var(--border-strong))] focus-visible:shadow-[0_0_0_1px_color-mix(in_oklab,var(--danger-ink)_45%,transparent),0_0_0_4px_color-mix(in_oklab,var(--danger-ink)_18%,transparent)]"
+                  : ""
+              }`}
             />
-          </div>
-          <div className="min-w-0">
-            <label htmlFor="ownerLabel" className="ui-label">
-              Owner
-            </label>
-            <input
-              id="ownerLabel"
-              name="ownerLabel"
-              type="text"
-              value={metadata.ownerLabel}
-              onChange={(e) => setMetadata((m) => ({ ...m, ownerLabel: e.target.value }))}
-              placeholder="Owner name"
-              disabled={fieldsDisabled}
-              className="ui-input-compact mt-1 w-full min-w-0"
-            />
-          </div>
-        </div>
+          </UploadField>
 
-        <div className="min-w-0">
-          <label htmlFor="contractType" className="ui-label">
-            Contract type
-          </label>
-          <UiSelect
-            className="mt-1 block w-full"
-            buttonClassName="w-full"
-            name="contractType"
-            value={metadata.contractType}
-            onChange={(value) => setMetadata((m) => ({ ...m, contractType: value }))}
-            options={CONTRACT_TYPE_OPTIONS}
-            placeholder="Select contract type"
-            ariaLabel="Contract type"
-            disabled={fieldsDisabled}
-          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <UploadField id="counterparty" label="Counterparty" icon={Building2}>
+              <input
+                id="counterparty"
+                name="counterparty"
+                type="text"
+                value={metadata.counterparty}
+                onChange={(e) => setMetadata((m) => ({ ...m, counterparty: e.target.value }))}
+                placeholder="Counterparty name"
+                disabled={fieldsDisabled}
+                className="ui-input-compact w-full min-w-0 pl-9"
+              />
+            </UploadField>
+            <UploadField id="ownerId" label="Owner">
+              <UiSelect
+                id="ownerId"
+                className="block w-full"
+                buttonClassName="w-full"
+                value={metadata.ownerId}
+                onChange={(value) => setMetadata((m) => ({ ...m, ownerId: value }))}
+                options={ownerOptions}
+                placeholder={ownerOptions.length > 0 ? "You (creator)" : "No workspace members"}
+                search
+                searchPlaceholder="Search members"
+                emptyLabel="No members match"
+                portal
+                disabled={fieldsDisabled || ownerOptions.length === 0}
+              />
+            </UploadField>
+          </div>
+
+          <UploadField id="contractType" label="Contract type">
+            <UiSelect
+              id="contractType"
+              className="block w-full"
+              buttonClassName="w-full"
+              name="contractType"
+              value={metadata.contractType}
+              onChange={(value) => setMetadata((m) => ({ ...m, contractType: value }))}
+              options={CONTRACT_TYPE_OPTIONS}
+              placeholder="Select contract type"
+              portal
+              disabled={fieldsDisabled}
+            />
+          </UploadField>
         </div>
-      </section>
+      </UploadSection>
 
       <details className="group border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
-        <summary className="flex cursor-pointer list-none items-center gap-2.5 px-5 py-4 outline-none transition-colors marker:hidden hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-6 [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-3.5 outline-none transition-colors marker:hidden hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:px-6 [&::-webkit-details-marker]:hidden">
+          <span
+            aria-hidden
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))] text-[var(--accent-strong)]"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} />
+          </span>
           <span className="ui-caps-2 text-[11px] leading-none text-[var(--text-primary)]">
             Add more details
           </span>
           <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
             Optional
           </span>
-          <ChevronRight
-            className="ml-auto h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform group-open:rotate-90"
+          <ChevronDown
+            className="ml-auto h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform group-open:rotate-180"
             strokeWidth={2}
             aria-hidden
           />
         </summary>
-        <div className="ui-details-reveal space-y-3 px-5 pb-5 sm:px-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label htmlFor="region" className="ui-label">
-                Region
-              </label>
-              <input
-                id="region"
-                name="region"
-                type="text"
-                value={metadata.region}
-                onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
-                placeholder="Region or geography"
-                disabled={fieldsDisabled}
-                className="ui-input-compact mt-1 w-full min-w-0"
-              />
-            </div>
-            <div className="min-w-0">
-              <label htmlFor="annualValue" className="ui-label">
-                Annual value
-              </label>
-              <div className="relative mt-1">
-                <span
-                  aria-hidden
-                  className="ui-caps-3 pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[10px] leading-none text-[var(--text-tertiary)]"
-                >
-                  USD
-                </span>
-                <input
-                  id="annualValue"
-                  name="annualValue"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  inputMode="decimal"
-                  value={metadata.annualValue}
-                  onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
-                  placeholder="Annual amount"
-                  disabled={fieldsDisabled}
-                  className="ui-input-compact w-full min-w-0 pl-12 font-mono tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                />
+        <div className="ui-details-reveal px-5 pb-5 sm:px-6">
+          <div className="space-y-4">
+            <div>
+              <p className="ui-caps-3 mb-2.5 text-[10px] leading-none text-[var(--text-tertiary)]">
+                Commercial
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <UploadField id="region" label="Region" icon={Globe}>
+                  <input
+                    id="region"
+                    name="region"
+                    type="text"
+                    value={metadata.region}
+                    onChange={(e) => setMetadata((m) => ({ ...m, region: e.target.value }))}
+                    placeholder="Region or geography"
+                    disabled={fieldsDisabled}
+                    className="ui-input-compact w-full min-w-0 pl-9"
+                  />
+                </UploadField>
+                <UploadField id="annualValue" label="Annual value">
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="ui-caps-3 inline-flex items-center rounded-md border border-[var(--border-card)] bg-[var(--surface-muted)] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--text-tertiary)]">
+                      USD
+                    </span>
+                  </span>
+                  <input
+                    id="annualValue"
+                    name="annualValue"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={metadata.annualValue}
+                    onChange={(e) => setMetadata((m) => ({ ...m, annualValue: e.target.value }))}
+                    placeholder="Annual amount"
+                    disabled={fieldsDisabled}
+                    className="ui-input-compact w-full min-w-0 pl-[3.25rem] tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                </UploadField>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label htmlFor="sourceSystem" className="ui-label">
-                Source system
-              </label>
-              <input
-                id="sourceSystem"
-                name="sourceSystem"
-                type="text"
-                value={metadata.sourceSystem}
-                onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
-                placeholder="Where it came from"
-                disabled={fieldsDisabled}
-                className="ui-input-compact mt-1 w-full min-w-0"
-              />
+            <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] pt-4">
+              <p className="ui-caps-3 mb-2.5 text-[10px] leading-none text-[var(--text-tertiary)]">
+                Source
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <UploadField id="sourceSystem" label="Source system" icon={Database}>
+                  <input
+                    id="sourceSystem"
+                    name="sourceSystem"
+                    type="text"
+                    value={metadata.sourceSystem}
+                    onChange={(e) => setMetadata((m) => ({ ...m, sourceSystem: e.target.value }))}
+                    placeholder="Where it came from"
+                    disabled={fieldsDisabled}
+                    className="ui-input-compact w-full min-w-0 pl-9"
+                  />
+                </UploadField>
+                <UploadField id="externalReferenceId" label="External reference" icon={Hash}>
+                  <input
+                    id="externalReferenceId"
+                    name="externalReferenceId"
+                    type="text"
+                    value={metadata.externalReferenceId}
+                    onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
+                    placeholder="External record ID"
+                    disabled={fieldsDisabled}
+                    className="ui-input-compact w-full min-w-0 pl-9 font-mono"
+                  />
+                </UploadField>
+              </div>
             </div>
-            <div className="min-w-0">
-              <label htmlFor="externalReferenceId" className="ui-label">
-                External reference
-              </label>
-              <input
-                id="externalReferenceId"
-                name="externalReferenceId"
-                type="text"
-                value={metadata.externalReferenceId}
-                onChange={(e) => setMetadata((m) => ({ ...m, externalReferenceId: e.target.value }))}
-                placeholder="External record ID"
-                disabled={fieldsDisabled}
-                className="ui-input-compact mt-1 w-full min-w-0 font-mono"
-              />
-            </div>
-          </div>
 
-          <div className="min-w-0">
-            <label htmlFor="tags" className="ui-label">
-              Tags
-            </label>
-            <div
-              aria-disabled={fieldsDisabled}
-              className={`ui-input-compact mt-1 flex w-full min-w-0 flex-wrap items-center gap-1.5 ${
-                fieldsDisabled ? "cursor-not-allowed opacity-[0.55]" : ""
-              }`}
-              onClick={() => {
-                if (!fieldsDisabled) document.getElementById("tags")?.focus();
-              }}
-            >
-              <Tag
-                className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]"
-                strokeWidth={1.85}
-                aria-hidden
-              />
-              {parsedTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] py-0.5 pl-2 pr-1 text-[11px] font-medium leading-none text-[var(--accent-strong)]"
+            <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] pt-4">
+              <UploadField id="tags" label="Tags" hint="Enter to add">
+                <div
+                  aria-disabled={fieldsDisabled}
+                  className={`ui-input-compact flex min-h-9 w-full min-w-0 flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${
+                    fieldsDisabled ? "cursor-not-allowed opacity-[0.55]" : ""
+                  }`}
+                  onClick={() => {
+                    if (!fieldsDisabled) document.getElementById("tags")?.focus();
+                  }}
                 >
-                  {tag}
-                  <button
-                    type="button"
-                    aria-label={`Remove tag ${tag}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const next = parsedTags.filter((t) => t !== tag);
-                      setMetadata((m) => ({ ...m, tags: next.join(", ") }));
+                  <Tag
+                    className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]"
+                    strokeWidth={1.85}
+                    aria-hidden
+                  />
+                  {parsedTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] py-0.5 pl-2 pr-1 text-[11px] font-medium leading-none text-[var(--accent-strong)]"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        aria-label={`Remove tag ${tag}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const next = parsedTags.filter((t) => t !== tag);
+                          setMetadata((m) => ({ ...m, tags: next.join(", ") }));
+                        }}
+                        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_18%,transparent)]"
+                      >
+                        <X className="h-2.5 w-2.5" strokeWidth={2.2} aria-hidden />
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    id="tags"
+                    name="tagsInput"
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "," || e.key === "Enter") {
+                        e.preventDefault();
+                        const next = tagInput.trim();
+                        if (next && !parsedTags.includes(next)) {
+                          setMetadata((m) => ({
+                            ...m,
+                            tags: [...parsedTags, next].join(", "),
+                          }));
+                        }
+                        setTagInput("");
+                      } else if (
+                        e.key === "Backspace" &&
+                        tagInput === "" &&
+                        parsedTags.length > 0
+                      ) {
+                        e.preventDefault();
+                        setMetadata((m) => ({
+                          ...m,
+                          tags: parsedTags.slice(0, -1).join(", "),
+                        }));
+                      }
                     }}
-                    className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_18%,transparent)]"
-                  >
-                    <X className="h-2.5 w-2.5" strokeWidth={2.2} aria-hidden />
-                  </button>
-                </span>
-              ))}
-              <input
-                id="tags"
-                name="tagsInput"
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "," || e.key === "Enter") {
-                    e.preventDefault();
-                    const next = tagInput.trim();
-                    if (next && !parsedTags.includes(next)) {
-                      setMetadata((m) => ({
-                        ...m,
-                        tags: [...parsedTags, next].join(", "),
-                      }));
-                    }
-                    setTagInput("");
-                  } else if (
-                    e.key === "Backspace" &&
-                    tagInput === "" &&
-                    parsedTags.length > 0
-                  ) {
-                    e.preventDefault();
-                    setMetadata((m) => ({
-                      ...m,
-                      tags: parsedTags.slice(0, -1).join(", "),
-                    }));
-                  }
-                }}
-                onBlur={() => {
-                  const next = tagInput.trim();
-                  if (next && !parsedTags.includes(next)) {
-                    setMetadata((m) => ({
-                      ...m,
-                      tags: [...parsedTags, next].join(", "),
-                    }));
-                  }
-                  setTagInput("");
-                }}
-                placeholder={parsedTags.length === 0 ? "Add a tag and press Enter" : ""}
-                disabled={fieldsDisabled}
-                className="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm leading-tight text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] disabled:cursor-not-allowed"
-              />
+                    onBlur={() => {
+                      const next = tagInput.trim();
+                      if (next && !parsedTags.includes(next)) {
+                        setMetadata((m) => ({
+                          ...m,
+                          tags: [...parsedTags, next].join(", "),
+                        }));
+                      }
+                      setTagInput("");
+                    }}
+                    placeholder={parsedTags.length === 0 ? "Add a tag and press Enter" : ""}
+                    disabled={fieldsDisabled}
+                    className="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm leading-tight text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] disabled:cursor-not-allowed"
+                  />
+                </div>
+              </UploadField>
+              <input type="hidden" name="tags" value={metadata.tags} />
             </div>
-            <input type="hidden" name="tags" value={metadata.tags} />
           </div>
         </div>
       </details>
 
-      <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-4 sm:px-6">
+      {/* Action footer — a plain card footer (not sticky), reached by scrolling to
+          the end of the form. Mirrors the /contracts/bulk footer. */}
+      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] px-5 py-3.5 sm:px-6">
+        {!canSubmit ? (
+          <span className="mr-auto inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--text-tertiary)]">
+            <span
+              aria-hidden
+              className="inline-flex h-1.5 w-1.5 rounded-full"
+              style={{ background: "var(--border-strong)" }}
+            />
+            Title required
+          </span>
+        ) : files.length > 0 ? (
+          <span className="mr-auto inline-flex items-center gap-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--text-tertiary)]">
+            Confirm details next
+            <ArrowRight className="h-3 w-3 text-[var(--accent-strong)]" strokeWidth={2} aria-hidden />
+          </span>
+        ) : null}
         <Link
           href="/contracts"
           className="ui-btn-ghost rounded-full px-4 py-2 text-[13px]"
         >
           Cancel
         </Link>
-        {/* §release-state /contracts/new: upload is the primary path. The
-            primary CTA appears once a file is attached; fileless creation is a
-            deliberate, de-emphasized secondary action ("Create without a file"). */}
+        {/* §release-state /contracts/new: upload is the primary path. The button
+            stays secondary until the record is ready (a title is entered) and
+            only becomes the primary CTA once a file is staged; fileless creation
+            is a deliberate, de-emphasized secondary action ("Create record"). */}
         <button
           type="submit"
           disabled={isPending || disabled || !canSubmit}
-          className={`rounded-full px-4 py-2 text-[13px] disabled:opacity-50 ${
-            files.length > 0 ? "ui-btn-primary" : "ui-btn-secondary"
+          className={`inline-flex min-w-[9rem] items-center justify-center rounded-full px-4 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-50 ${
+            files.length > 0 && canSubmit ? "ui-btn-primary" : "ui-btn-secondary"
           }`}
         >
           {isPending ? pendingLabel : submitLabel}

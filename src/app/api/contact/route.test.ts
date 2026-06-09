@@ -129,6 +129,128 @@ describe("POST /api/contact", () => {
     );
   });
 
+  it("accepts a production-like access request with a consumer email and optional fields omitted", async () => {
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            name: "Dave",
+            email: "zxia0huu@gmail.com",
+            company: "Apple",
+            role: "Founder",
+            contracts: "20_50",
+            trackingMethod: "shared_folder",
+            hasTracker: "",
+            redactedSample: "",
+            pain: "Owners",
+            preference: "async",
+            message: "",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(accessRequestInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        normalized_email: "zxia0huu@gmail.com",
+        company_name: "Apple",
+        has_tracker: "unsure",
+        redacted_sample_available: "unsure",
+      })
+    );
+  });
+
+  it("accepts known form display labels from an older hydrated client", async () => {
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            name: "Dave",
+            email: "zxia0huu@gmail.com",
+            company: "Apple",
+            role: "Founder",
+            contracts: "20-50",
+            trackingMethod: "Shared folder",
+            hasTracker: "Select",
+            redactedSample: "Select",
+            pain: "Owners",
+            preference: "Async questions first",
+            message: "",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(accessRequestInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        normalized_email: "zxia0huu@gmail.com",
+        current_tracking_method: "shared_folder",
+        has_tracker: "unsure",
+        redacted_sample_available: "unsure",
+        follow_up_preference: "async",
+      })
+    );
+  });
+
+  it("accepts an access request through notification fallback when persistence is unavailable", async () => {
+    process.env.RESEND_API_KEY = "re_private_contact_key";
+    process.env.EMAIL_FROM = "hello@oblixa.test";
+    process.env.CONTACT_NOTIFY_EMAIL = "sales@oblixa.test";
+    accessRequestSingle.mockResolvedValueOnce({ data: null, error: { code: "PGRST205" } });
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "fallback-contact@example.com",
+            message: "Sensitive fallback request.",
+          })
+        )
+      )
+    );
+
+    expect(res.status).toBe(204);
+    expect(safeFetch).toHaveBeenCalledOnce();
+    expect(accessRequestEventInsert).not.toHaveBeenCalled();
+    const logText = JSON.stringify(error.mock.calls);
+    expect(logText).toContain("[contact] access request persistence failed");
+    expect(logText).not.toContain("fallback-contact@example.com");
+    expect(logText).not.toContain("Sensitive fallback request.");
+    error.mockRestore();
+  });
+
+  it("rejects an access request when both persistence and notification fallback are unavailable", async () => {
+    accessRequestSingle.mockResolvedValueOnce({ data: null, error: { code: "PGRST205" } });
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { POST } = await import("@/app/api/contact/route");
+    const res = await POST(
+      contactRequest(
+        JSON.stringify(
+          validPayload({
+            email: "missing-fallback@example.com",
+            message: "Sensitive failed request.",
+          })
+        )
+      )
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.error).toBe("Unexpected server error");
+    expect(safeFetch).not.toHaveBeenCalled();
+    const logText = JSON.stringify(error.mock.calls);
+    expect(logText).not.toContain("missing-fallback@example.com");
+    expect(logText).not.toContain("Sensitive failed request.");
+    error.mockRestore();
+  });
+
   it("updates an existing access request instead of creating a duplicate row", async () => {
     accessRequestMaybeSingle.mockResolvedValueOnce({
       data: { id: "00000000-0000-0000-0000-0000000000aa", duplicate_count: 2 },

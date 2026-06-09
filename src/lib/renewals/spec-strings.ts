@@ -1,12 +1,12 @@
 export const RENEWALS_EYEBROW = "Renewals";
 export const RENEWALS_PAGE_TITLE = "Renewals";
-export const RENEWALS_PAGE_LEAD = "Track renewal and notice deadlines before they need action.";
+export const RENEWALS_PAGE_LEAD = "Track renewal dates and notice deadlines before they require action.";
 export const RENEWALS_PRIMARY_CTA = "Create renewal task";
 // Section eyebrow above the deadline list. Deliberately NOT "Upcoming
 // decisions" — "decisions" collides with the private Decisions product, which
 // the release-state contract marks Hide-for-release. Core copy stays in the
 // renewal/notice-deadline vocabulary.
-export const RENEWALS_SECTION_EYEBROW = "Upcoming renewals";
+export const RENEWALS_SECTION_EYEBROW = "Renewal and notice dates";
 export const RENEWALS_EMPTY_STATE = "Add renewal and notice dates to track upcoming deadlines.";
 export const RENEWALS_FILTERED_EMPTY_STATE = "No renewals match the current filters.";
 export const RENEWALS_PARTIAL_DATA_TITLE = "Renewals data is partially unavailable";
@@ -26,15 +26,15 @@ export const RENEWAL_FILTER_LABELS = {
   status: "Status",
   // Extends the release-state doc's prescribed filter list (owner/counterparty/
   // status) — added to let users triage by date provenance, which serves the
-  // source-backed/human-reviewed trust thesis.
-  review: "Review",
+  // source-backed/human-confirmed trust thesis.
+  review: "Date status",
 } as const;
 
 export const RENEWAL_ROW_LABELS = {
   contract: "Contract",
   counterparty: "Counterparty",
   renewalDate: "Renewal date",
-  noticeDate: "Notice date",
+  noticeDate: "Notice deadline",
   owner: "Owner",
   status: "Status",
   nextAction: "Next action",
@@ -42,7 +42,7 @@ export const RENEWAL_ROW_LABELS = {
 
 export const RENEWAL_STATUS_LABELS = {
   needs_owner: "Needs owner",
-  needs_review: "Needs review",
+  needs_review: "Needs confirmation",
   notice_window_open: "Notice window open",
   in_progress: "In progress",
   completed: "Completed",
@@ -50,7 +50,7 @@ export const RENEWAL_STATUS_LABELS = {
 } as const;
 
 export const RENEWAL_ACTION_LABELS = {
-  mark_reviewed: "Mark reviewed",
+  mark_reviewed: "Mark confirmed",
   // Row-level action label. The page's primary CTA stays "Create renewal task"
   // (RENEWALS_PRIMARY_CTA); this shorter form keeps the inline next-action chip
   // on one line in the narrow action column.
@@ -62,25 +62,25 @@ export const RENEWAL_ACTION_LABELS = {
   export_renewal_report: "Export renewal report",
 } as const;
 
-// Per-date review/source provenance, surfaced as a chip beside each date so a
-// reader can tell a human-approved date from a suggested or computed one. The
-// release-state contract requires reviewed/source state on the date fields.
-// Trust ladder: reviewed (success) > computed (neutral) > suggested (warning,
-// extracted but unapproved) > missing (warning, no date on file).
+// Per-date confirmation/source provenance, surfaced as a chip beside each date so a
+// reader can tell a human-confirmed date from a suggested or computed one. The
+// release-state contract requires confirmation/source state on the date fields.
+// Trust ladder: confirmed (success) > computed (neutral) > suggested (warning,
+// extracted but unconfirmed) > missing (warning, no date on file).
 export const RENEWAL_DATE_REVIEW_LABELS = {
-  reviewed: "Reviewed",
+  reviewed: "Confirmed",
   suggested: "Suggested",
-  computed: "Computed",
-  // State label (matches the Review filter option). The "add or review one"
+  computed: "Calculated",
+  // State label (matches the Date status filter option). The "add or confirm one"
   // nudge lives in the hover hint, not the chip text.
   missing: "Missing",
 } as const;
 
 // Hover/title explanations so each provenance chip is self-describing — in
-// particular "Computed" must read as derived, not human-trusted like "Reviewed".
+// particular "Calculated" must read as derived, not human-trusted like "Confirmed".
 export const RENEWAL_DATE_REVIEW_HINTS = {
-  reviewed: "A person approved this extracted date.",
-  suggested: "Extracted from the document but not yet reviewed.",
-  computed: "Derived from the renewal date and the notice window — not extracted.",
-  missing: "No date on file yet. Add or review one.",
+  reviewed: "A person confirmed this suggested date.",
+  suggested: "Suggested from the document but not yet confirmed.",
+  computed: "Calculated from the renewal date and notice window.",
+  missing: "No date on file yet. Add or confirm one.",
 } as const;

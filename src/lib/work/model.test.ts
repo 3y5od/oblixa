@@ -48,7 +48,7 @@ describe("Work release-state model", () => {
     expect(model.primaryCta).toBe(WORK_PRIMARY_CTA);
     expect(model.tabs.map((tab) => tab.key)).toEqual([...WORK_TAB_ORDER]);
     expect(model.filterOptions.dueDates.map((option) => option.label)).toContain("Due today");
-    expect(WORK_EMPTY_STATE).toBe("Create work from a contract date, obligation, approval, or exception.");
+    expect(WORK_EMPTY_STATE).toBe("Create a task for a contract date, requirement, approval, problem, or evidence request.");
   });
 
   it("maps legacy lens values to release-state tabs without rendering old lenses", () => {
@@ -60,7 +60,7 @@ describe("Work release-state model", () => {
     expect(normalizeWorkTab({ lens: "failed_jobs" })).toBe("all");
   });
 
-  it("includes only Core work item types from the V10 read model", () => {
+  it("includes only Core task item types from the read model", () => {
     const model = buildWorkPageModel(
       baseInput({
         rows: [
@@ -73,6 +73,30 @@ describe("Work release-state model", () => {
     );
     expect(model.rows.map((item) => item.type)).toEqual(["contract_task"]);
     expect(CORE_WORK_ITEM_TYPES).not.toContain("field_review");
+  });
+
+  it("cleans up internal task titles for display", () => {
+    const model = buildWorkPageModel(
+      baseInput({
+        rows: [
+          row({
+            id: "review",
+            source_id: "review",
+            title: "Approve extracted fields for BluePeak Adjusting",
+          }),
+          row({
+            id: "hold",
+            source_id: "hold",
+            title: "Resolve Ridgeway price hold blocker",
+          }),
+        ],
+      })
+    );
+
+    expect(model.rows.map((item) => item.title)).toEqual([
+      "Review contract details for BluePeak Adjusting",
+      "Resolve Ridgeway price hold",
+    ]);
   });
 
   it("applies tabs and filters to active visible work", () => {

@@ -59,7 +59,7 @@ export async function requireContractDeleteAccess(
 
   const role = await getOrgMemberRole(admin, userId, orgId);
   if (!canDeleteContracts(role)) {
-    return { error: "Only admins and managers can delete contracts." };
+    return { error: "Only workspace owners and admins can delete contracts." };
   }
   if (isPlanEnforcementEnabled() && !(await orgHasActivePlan(admin, orgId))) {
     return {

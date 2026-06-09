@@ -23,8 +23,9 @@ export function LegalFooter() {
             Operational notice
           </span>
           {/* Quiet always-on summary — the binding no-legal-advice text lives in
-              the disclosure so it never competes with dense work content. */}
-          <span className="min-w-0 truncate text-[11px] leading-none text-[var(--text-tertiary)]">
+              the disclosure so it never competes with dense work content. Wraps
+              instead of truncating so the notice is always fully readable. */}
+          <span className="ui-text-wrap text-[11px] leading-snug text-[var(--text-tertiary)]">
             Post-signature contract workflows and operational dates.
           </span>
           <button

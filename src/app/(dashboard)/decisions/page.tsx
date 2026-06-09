@@ -112,14 +112,14 @@ export default async function DecisionsPage({
           />
           <OperationalSummaryCard
             eyebrow="Flow"
-            headline="Review / blocked"
+            headline="Review / needs input"
             tone={blockedCount > 0 ? "risk" : reviewCount > 0 ? "attention" : "healthy"}
             icon={Split}
             primaryValue={reviewCount + blockedCount}
             primaryUnit="needs attention"
             breakdown={[
               { label: "In review", value: String(reviewCount) },
-              { label: "Blocked", value: String(blockedCount) },
+              { label: "Needs input", value: String(blockedCount) },
             ]}
             action={{ href: "/decisions?queue=active", label: "Review decisions" }}
             variant="compact"
@@ -192,4 +192,3 @@ export default async function DecisionsPage({
     </div>
   );
 }
-

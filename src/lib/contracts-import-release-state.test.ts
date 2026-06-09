@@ -51,8 +51,8 @@ describe("contract import release-state surface", () => {
     // renders only the seven columns the importer actually persists
     // (title, counterparty, owner_email, contract_type, region,
     // source_system, external_reference_id) as chips with their
-    // snake_case authoring headers. Steps use the release-state AI
-    // boundary word "suggested" (not "extracted").
+    // snake_case authoring headers. Steps use the AI boundary word
+    // "suggested" (not "extracted").
     for (const copy of [
       "Tracker spreadsheet",
       "Signed contracts",
@@ -65,7 +65,7 @@ describe("contract import release-state surface", () => {
       "source_system",
       "external_reference_id",
       "Signed PDF or DOCX files",
-      "Review suggested fields",
+      "Confirm suggested details",
       "Open job details",
     ]) {
       expect(formRaw).toContain(copy);

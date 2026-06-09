@@ -70,11 +70,11 @@ async function getEditableExceptionContext(exceptionId: string) {
     .select("id, contract_id, organization_id, status, owner_id, due_date, severity")
     .eq("id", exceptionId)
     .maybeSingle();
-  if (!exception) return { error: "Exception not found" as const };
+  if (!exception) return { error: "Issue not found" as const };
 
   const role = await getOrgMemberRole(admin, user.id, exception.organization_id);
   if (!canEditContracts(role as OrgRole)) {
-    return { error: "Viewers cannot update exceptions." as const };
+    return { error: "Viewers cannot update issues." as const };
   }
 
   return { admin, userId: user.id, role, exception } as const;
@@ -176,7 +176,7 @@ export async function assignException(input: {
     return { error: "Owner must be a member of this organization." };
   }
   if (!["open", "in_progress"].includes(ctx.exception.status)) {
-    return { error: "Only active exceptions can be reassigned." };
+    return { error: "Only active issues can be reassigned." };
   }
 
   const { error } = await ctx.admin
@@ -233,12 +233,12 @@ export async function assignException(input: {
   if (ctx.exception.contract_id) revalidatePath(`/contracts/${ctx.exception.contract_id}`);
   return {
     success: true as const,
-    message: "Owner and due date saved. This exception is now in progress.",
+    message: "Owner and due date saved. This issue is now in progress.",
     v10AuditEventId,
     v10: buildExceptionMutationEnvelope({
       outcome: v10AuditEventId ? "success" : "audit_write_failed",
       message: v10AuditEventId
-        ? "Owner and due date saved. This exception is now in progress."
+        ? "Owner and due date saved. This issue is now in progress."
         : "Owner and due date saved, but audit confirmation is missing.",
       exceptionId: ctx.exception.id,
       contractId: ctx.exception.contract_id,
@@ -261,7 +261,7 @@ export async function resolveException(input: {
     return { error: "Resolution note is too long." };
   }
   if (!["open", "in_progress"].includes(ctx.exception.status)) {
-    return { error: "Only active exceptions can be resolved." };
+    return { error: "Only active issues can be resolved." };
   }
   if (
     !(await exceptionResolutionActionAllowed({
@@ -280,10 +280,10 @@ export async function resolveException(input: {
     note: resolutionNote,
   });
   if (v10ResolutionFailures.includes("resolution_note_required_for_high_risk")) {
-    return { error: "Add a resolution note before resolving a high-risk exception." };
+    return { error: "Add a resolution note before resolving a high-risk issue." };
   }
   if (v10ResolutionFailures.length > 0) {
-    return { error: "Select a valid exception resolution action." };
+    return { error: "Select a valid issue resolution action." };
   }
 
   const { error } = await ctx.admin
@@ -370,7 +370,7 @@ export async function reopenException(input: { exceptionId: string }) {
   if ("error" in ctx) return { error: ctx.error };
 
   if (!["resolved", "closed"].includes(ctx.exception.status)) {
-    return { error: "Only resolved exceptions can be reopened." };
+    return { error: "Only resolved issues can be reopened." };
   }
 
   const { error } = await ctx.admin
@@ -426,13 +426,13 @@ export async function reopenException(input: { exceptionId: string }) {
   revalidateExceptionPaths(ctx.exception.contract_id);
   return {
     success: true as const,
-    message: "Exception reopened and returned to the active ledger.",
+    message: "Issue reopened and returned to the active ledger.",
     v10AuditEventId,
     v10: buildExceptionMutationEnvelope({
       outcome: v10AuditEventId ? "success" : "audit_write_failed",
       message: v10AuditEventId
-        ? "Exception reopened and returned to the active ledger."
-        : "Exception reopened, but audit confirmation is missing.",
+        ? "Issue reopened and returned to the active ledger."
+        : "Issue reopened, but audit confirmation is missing.",
       exceptionId: ctx.exception.id,
       contractId: ctx.exception.contract_id,
       auditEventId: v10AuditEventId,

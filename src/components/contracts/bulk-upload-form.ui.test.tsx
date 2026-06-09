@@ -87,6 +87,8 @@ describe("BulkUploadForm", () => {
     // + format hint; the file input keeps its "Signed PDF or DOCX files"
     // accessible name.
     expect(screen.getByLabelText(/signed pdf or docx files/i)).toBeTruthy();
+    expect(screen.getByText(/uploaded files are stored for this workspace/i)).toBeTruthy();
+    expect(screen.getByText(/not used in reminders or reports until someone reviews them/i)).toBeTruthy();
     const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
     if (!input) throw new Error("expected signed file input");
     fireEvent.change(input, {

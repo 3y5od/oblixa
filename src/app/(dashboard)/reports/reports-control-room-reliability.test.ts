@@ -13,17 +13,19 @@ describe("reports release-state compliance", () => {
     expect(raw).toContain("REPORTS_PAGE_TITLE");
     expect(raw).toContain("REPORTS_EMPTY_STATE");
     expect(raw).toContain("REPORT_CONTENT_LABELS");
+    expect(raw).toContain("Catalog counts are matching rows available in each report.");
+    expect(raw).toContain("Rows:</span> previewed rows over matching rows.");
     for (const label of [
       "Upcoming renewals",
       "Notice deadlines",
       "Missing owners",
-      "Missing key fields",
-      "Open obligations",
-      "Overdue work",
-      "Exceptions by owner",
+      "Missing key details",
+      "Open requirements",
+      "Overdue tasks",
+      "Issues by owner",
       "Evidence requests",
       "Contract inventory",
-      "Review completeness",
+      "Confirmation completeness",
     ]) {
       expect(spec).toContain(label);
     }

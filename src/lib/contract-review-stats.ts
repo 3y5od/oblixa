@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
 import { CONTRACT_LIST_ROW_COLUMNS, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
+import { comparePendingFieldRows, getImportantFieldLabel } from "@/lib/field-review/field-ordering";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -207,4 +208,112 @@ export async function fetchReviewQueueContinuity(
     nextContractId: next?.id ?? null,
     nextPendingCount: next ? (pendingCountByContractId[next.id] ?? 0) : 0,
   };
+}
+
+/** Lightweight per-contract signals for EVERY waiting contract — the basis for
+ *  cross-page (workspace-wide) review-queue filtering. Deliberately avoids the
+ *  ~120k-char `search_document` blob and the heavy `extracted_fields(*)` join:
+ *  `hasSourceText` is an id-only presence probe, and the key-field/citation
+ *  signals come from one bounded small-column pending-field fetch. */
+export interface ReviewQueueSignalRow {
+  id: string;
+  title: string;
+  counterparty: string | null;
+  ownerId: string | null;
+  updatedAt: string;
+  /** Accurate pending-field count (whole org, uncapped). */
+  pendingFields: number;
+  /** Total extracted fields (reviewed + pending), for the per-contract mini-bar. */
+  totalFields: number;
+  /** Contract has non-empty searchable document text (a preview can render). */
+  hasSourceText: boolean;
+  /** Any pending field maps to a Core important-field alias. */
+  hasKeyField: boolean;
+  /** The next pending field (canonical order) is an AI value with no citation. */
+  nextNeedsCitation: boolean;
+  /** Id of the next pending field, so the queue row can deep-link to it. */
+  nextFieldId: string | null;
+}
+
+/** Cap on pending-field rows scanned for signals. The Core ceiling is 500
+ *  contracts / soft 2000; even pessimistically the waiting pending-field set
+ *  stays well under this bound (mirrors the dashboard's `.range(0, 4999)`). */
+const REVIEW_SIGNAL_FIELD_SCAN_LIMIT = 5000;
+
+export async function loadReviewQueueSignals(
+  admin: Admin,
+  orgId: string
+): Promise<ReviewQueueSignalRow[]> {
+  const { list, pendingCountByContractId } = await loadRankedReviewQueueContracts(admin, orgId);
+  if (list.length === 0) return [];
+  const ids = list.map((contract) => contract.id);
+
+  const [stats, withSource, pendingFieldResult] = await Promise.all([
+    getReviewStatsForContractIds(admin, ids),
+    admin
+      .from("contracts")
+      .select("id")
+      .eq("organization_id", orgId)
+      .in("id", ids)
+      .not("search_document", "is", null)
+      .neq("search_document", ""),
+    admin
+      .from("extracted_fields")
+      .select("id, contract_id, field_name, source, created_at, field_value, source_snippet")
+      .eq("status", "pending")
+      .in("contract_id", ids)
+      .range(0, REVIEW_SIGNAL_FIELD_SCAN_LIMIT - 1),
+  ]);
+
+  if (withSource.error) {
+    console.error("[contract-review-stats] hasSourceText probe error:", withSource.error.message);
+  }
+  if (pendingFieldResult.error) {
+    console.error("[contract-review-stats] pending-field signal error:", pendingFieldResult.error.message);
+  }
+
+  const sourceSet = new Set((withSource.data ?? []).map((row) => row.id as string));
+
+  interface PendingSignalRow {
+    id: string;
+    field_name: string;
+    source: string | null;
+    created_at: string;
+    field_value: string | null;
+    source_snippet: string | null;
+  }
+  const pendingByContract = new Map<string, PendingSignalRow[]>();
+  for (const row of pendingFieldResult.data ?? []) {
+    const contractId = row.contract_id as string;
+    const bucket = pendingByContract.get(contractId) ?? [];
+    bucket.push({
+      id: row.id as string,
+      field_name: (row.field_name as string | null) ?? "",
+      source: (row.source as string | null) ?? null,
+      created_at: (row.created_at as string | null) ?? "",
+      field_value: (row.field_value as string | null) ?? null,
+      source_snippet: (row.source_snippet as string | null) ?? null,
+    });
+    pendingByContract.set(contractId, bucket);
+  }
+
+  return list.map((contract) => {
+    const pending = pendingByContract.get(contract.id) ?? [];
+    pending.sort(comparePendingFieldRows);
+    const next = pending[0] ?? null;
+    return {
+      id: contract.id,
+      title: contract.title,
+      counterparty: contract.counterparty,
+      ownerId: contract.owner_id ?? null,
+      updatedAt: contract.updated_at,
+      pendingFields: pendingCountByContractId[contract.id] ?? pending.length,
+      totalFields: stats[contract.id]?.total ?? 0,
+      hasSourceText: sourceSet.has(contract.id),
+      hasKeyField: pending.some((field) => getImportantFieldLabel(field.field_name) !== null),
+      nextNeedsCitation:
+        !!next && next.source === "ai" && !!next.field_value?.trim() && !next.source_snippet?.trim(),
+      nextFieldId: next?.id ?? null,
+    };
+  });
 }

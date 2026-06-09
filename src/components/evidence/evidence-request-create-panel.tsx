@@ -78,7 +78,7 @@ export function EvidenceRequestCreatePanel({
         </div>
         <div className="space-y-2">
           <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="evidence-create-title">
-            Request title
+            Request
           </label>
           <input
             id="evidence-create-title"
@@ -91,7 +91,7 @@ export function EvidenceRequestCreatePanel({
         </div>
         <div className="space-y-2">
           <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="evidence-create-obligation">
-            Linked obligation
+            Linked requirement
           </label>
           <UiSelect
             className="block w-full"
@@ -99,13 +99,13 @@ export function EvidenceRequestCreatePanel({
             value={obligationId}
             onChange={setObligationId}
             options={obligationOptions}
-            placeholder="No linked obligation"
-            ariaLabel="Linked obligation"
+            placeholder="No linked requirement"
+            ariaLabel="Linked requirement"
           />
         </div>
         <div className="space-y-2">
           <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="evidence-create-due">
-            Due date
+            Due
           </label>
           <input
             id="evidence-create-due"

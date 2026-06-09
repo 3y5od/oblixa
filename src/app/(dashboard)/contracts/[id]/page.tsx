@@ -1,12 +1,17 @@
 import { getAuthContext } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import type { ReactNode } from "react";
 import { FieldReview } from "@/components/contracts/field-review";
 import { AddFieldForm } from "@/components/contracts/add-field-form";
 import { ExtractButton } from "@/components/contracts/extract-button";
 import { DownloadButton } from "@/components/contracts/download-button";
 import { UploadMoreFiles } from "@/components/contracts/upload-more-files";
+import { ContractPanelHeader } from "@/components/contracts/contract-panel-header";
+import { ContractSignalCell } from "@/components/contracts/contract-signal-cell";
+import { ContractKeyDates } from "@/components/contracts/contract-key-dates";
+import { ContractSourceDocuments } from "@/components/contracts/contract-source-documents";
+import { ContractNeedsAttention } from "@/components/contracts/contract-needs-attention";
+import { ContractLinkedWork } from "@/components/contracts/contract-linked-work";
 import { OwnerAssignmentForm } from "@/components/contracts/owner-assignment-form";
 import { DeleteContractButton } from "@/components/contracts/delete-contract-button";
 import {
@@ -16,13 +21,11 @@ import {
   Bell,
   Calendar,
   CalendarClock,
-  Check,
   ChevronRight,
   Paperclip,
   ClipboardCheck,
   FileCheck2,
   FileText,
-  FolderOpen,
   ListChecks,
   NotebookPen,
   User,
@@ -39,6 +42,7 @@ import { ReviewSaveNextTelemetryLink } from "@/components/contracts/review-save-
 import { ContractTasksPanel } from "@/components/contracts/contract-tasks-panel";
 import { ContractNotesPanel } from "@/components/contracts/contract-notes-panel";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { UiSelect } from "@/components/ui/ui-select";
 import { ContractObligationsPanel } from "@/components/contracts/contract-obligations-panel";
 import { RenewalCheckpointsPanel } from "@/components/contracts/renewal-checkpoints-panel";
 import { ContractEvidenceRequirementsPanel } from "@/components/contracts/contract-evidence-requirements-panel";
@@ -84,16 +88,11 @@ import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-membe
 import { CRITICAL_DATE_FIELDS } from "@/lib/contract-filters";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { CountChip } from "@/components/ui/count-chip";
-import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { ActionChip } from "@/components/ui/action-chip";
-import { ChipPair } from "@/components/ui/chip-pair";
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
 import { RatioChip } from "@/components/ui/ratio-chip";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
 import { TimeChip } from "@/components/ui/time-chip";
 import { ActivityFeed, type ActivityFeedItem } from "@/components/ui/activity-feed";
-import { UiSelect } from "@/components/ui/ui-select";
 import { CAPS_VERBS } from "@/lib/ui-copy";
 import type { StatTone } from "@/components/ui/stat-cell";
 
@@ -137,10 +136,10 @@ function humanizeAuditEventLabel(value: string | null | undefined) {
   if (!value) return "Activity recorded";
   const normalized = value.toLowerCase().replace(/\./g, " ").replace(/\s+/g, " ").trim();
   const explicit: Record<string, string> = {
-    "product v9 extraction_succeeded": "Extraction completed",
+    "product v9 extraction_succeeded": "Contract suggestions ready",
     contract_template_pack_applied: "Template pack applied",
     "contract created": "Contract created",
-    "exception detected · exception · system · casefile": "Exception detected",
+    "exception detected · exception · system · casefile": "Issue detected",
   };
   return explicit[normalized] ?? humanizeContractEnumLabel(normalized, "Activity recorded");
 }
@@ -182,13 +181,6 @@ function criticalDateLabel(fieldName: string) {
 // Coarse reminder urgency bucket. Date.now() lives in this module-scope helper
 // (not the component render) to satisfy react-hooks/purity, mirroring how the
 // relative-time formatters in @/lib/ui-copy read the clock.
-function reminderUrgency(reminderDate: string): { overdue: boolean; soon: boolean } {
-  const due = parseBusinessDateAtNoon(reminderDate);
-  if (!due) return { overdue: false, soon: false };
-  const days = Math.round((due.getTime() - Date.now()) / 86_400_000);
-  return { overdue: days < 0, soon: days >= 0 && days <= 14 };
-}
-
 const CORE_CONTRACT_DATE_FIELDS = [
   "effective_date",
   "start_date",
@@ -198,19 +190,6 @@ const CORE_CONTRACT_DATE_FIELDS = [
 ] as const;
 
 type CoreSignalTone = "attention" | "danger" | "healthy" | "neutral" | "info";
-
-const coreSignalToneClasses: Record<CoreSignalTone, string> = {
-  attention:
-    "border-[color:color-mix(in_oklab,var(--warning)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_24%,var(--surface-raised))] text-[var(--warning-ink)]",
-  danger:
-    "border-[color:color-mix(in_oklab,var(--danger)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_24%,var(--surface-raised))] text-[var(--danger-ink)]",
-  healthy:
-    "border-[color:color-mix(in_oklab,var(--success)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_24%,var(--surface-raised))] text-[var(--success-ink)]",
-  neutral:
-    "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_42%,var(--surface-raised))] text-[var(--text-secondary)]",
-  info:
-    "border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] text-[var(--accent-strong)]",
-};
 
 function coreStatusTone(status: string | null | undefined): CoreSignalTone {
   if (!status) return "neutral";
@@ -230,212 +209,6 @@ const coreSignalToneToSemantic: Record<CoreSignalTone, SemanticStatus> = {
 
 function coreSemanticStatus(status: string | null | undefined): SemanticStatus {
   return coreSignalToneToSemantic[coreStatusTone(status)];
-}
-
-function CoreCountPill({
-  value,
-  label,
-  tone = "neutral",
-}: {
-  value: number | string;
-  label: string;
-  tone?: CoreSignalTone;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[tone]}`}
-    >
-      <span className="font-mono text-[11px] tabular-nums">{value}</span>
-      {label}
-    </span>
-  );
-}
-
-function CorePanelHeader({
-  icon: Icon,
-  eyebrow,
-  title,
-  count,
-  countLabel,
-  countLabelSingular,
-  countNode,
-  action,
-}: {
-  icon: LucideIcon;
-  eyebrow: string;
-  title: string;
-  count?: string | number;
-  countLabel?: string;
-  /** Singular form of countLabel, used when count === 1 (e.g. "file"). */
-  countLabelSingular?: string;
-  /** Custom chip rendered in place of the default count pill (e.g. a RatioChip). */
-  countNode?: ReactNode;
-  action?: ReactNode;
-}) {
-  return (
-    <header className="flex flex-col gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3 sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="ui-icon-tile-compact shrink-0" aria-hidden>
-          <Icon className="h-4 w-4" strokeWidth={1.85} />
-        </span>
-        <div className="min-w-0">
-          <p className="ui-caps-3 text-[var(--text-tertiary)]">{eyebrow}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-            <h2 className="text-[1.05rem] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
-              {title}
-            </h2>
-            {countNode != null ? (
-              countNode
-            ) : count != null ? (
-              <CoreCountPill
-                value={count}
-                label={typeof count === "number" && count === 1 && countLabelSingular ? countLabelSingular : countLabel ?? "shown"}
-                tone="info"
-              />
-            ) : null}
-          </div>
-        </div>
-      </div>
-      {action ? <div className="flex shrink-0 flex-wrap gap-2">{action}</div> : null}
-    </header>
-  );
-}
-
-function CoreSignalCell({
-  label,
-  value,
-  unit,
-  tone,
-  href,
-  actionLabel,
-}: {
-  label: string;
-  value: string | number;
-  unit?: string;
-  tone: CoreSignalTone;
-  href: string;
-  actionLabel?: string;
-}) {
-  const isHealthyZero = tone === "healthy" && value === 0;
-  const numberColor = isHealthyZero
-    ? "color-mix(in oklab, var(--success-ink) 55%, var(--text-tertiary))"
-    : tone === "danger"
-      ? "var(--danger-ink)"
-      : tone === "attention"
-        ? "var(--warning-ink)"
-        : "var(--text-primary)";
-  return (
-    <Link
-      href={href}
-      className="group min-w-0 border-t border-[var(--border-subtle)] px-5 py-4 transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] lg:border-l lg:border-t-0"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span
-            aria-hidden
-            className="inline-flex h-2 w-2 min-w-[0.625rem] shrink-0 items-center justify-center"
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{
-                background: isHealthyZero
-                  ? "color-mix(in oklab, var(--success-ink) 60%, transparent)"
-                  : tone === "danger"
-                    ? "var(--danger-ink)"
-                    : tone === "attention"
-                      ? "var(--warning-ink)"
-                      : tone === "healthy"
-                        ? "var(--success-ink)"
-                        : "var(--border-strong)",
-                boxShadow: isHealthyZero
-                  ? "none"
-                  : `0 0 0 2.5px color-mix(in oklab, ${
-                      tone === "danger"
-                        ? "var(--danger-soft)"
-                        : tone === "attention"
-                          ? "var(--warning-soft)"
-                          : tone === "healthy"
-                            ? "var(--success-soft)"
-                            : "var(--surface-muted)"
-                    } 42%, transparent)`,
-              }}
-            />
-          </span>
-          <p className="ui-caps-2 text-[var(--text-tertiary)]">{label}</p>
-        </div>
-        {isHealthyZero || !actionLabel ? null : (
-          <span className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-            {actionLabel}
-            <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
-          </span>
-        )}
-      </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        {isHealthyZero ? (
-          <span
-            aria-hidden
-            className="inline-flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-md border"
-            style={{
-              borderColor: "color-mix(in oklab, var(--success-ink) 28%, var(--border-card))",
-              background: "color-mix(in oklab, var(--success-ink) 12%, var(--surface))",
-              color: "var(--success-ink)",
-            }}
-          >
-            <Check className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </span>
-        ) : null}
-        <p
-          className="text-[1.75rem] font-semibold leading-none tabular-nums tracking-[-0.02em]"
-          style={{ color: numberColor }}
-        >
-          {value}
-        </p>
-        {unit ? (
-          (() => {
-            const isToned = tone === "danger" || tone === "attention";
-            const toneInk =
-              tone === "danger"
-                ? "var(--danger-ink)"
-                : tone === "attention"
-                  ? "var(--warning-ink)"
-                  : "var(--text-tertiary)";
-            const toneSoft =
-              tone === "danger"
-                ? "var(--danger-soft)"
-                : tone === "attention"
-                  ? "var(--warning-soft)"
-                  : "var(--surface-muted)";
-            // §2.11: healthy/zero cells keep the unit chip — it switches to a
-            // muted-success tint instead of being suppressed, so the cell
-            // anatomy stays identical to its active siblings.
-            const borderColor = isHealthyZero
-              ? "color-mix(in oklab, var(--success-ink) 22%, var(--border-card))"
-              : isToned
-                ? `color-mix(in oklab, ${toneInk} 24%, var(--border-card))`
-                : "var(--border-card)";
-            const background = isHealthyZero
-              ? "color-mix(in oklab, var(--success-soft) 30%, var(--surface-raised))"
-              : isToned
-                ? `color-mix(in oklab, ${toneSoft} 28%, var(--surface-raised))`
-                : "transparent";
-            const color = isHealthyZero
-              ? "color-mix(in oklab, var(--success-ink) 68%, var(--text-tertiary))"
-              : isToned
-                ? toneInk
-                : "var(--text-tertiary)";
-            return (
-              <span
-                className="inline-flex h-4 items-center self-center rounded-md border px-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none"
-                style={{ borderColor, background, color }}
-              >
-                {unit}
-              </span>
-            );
-          })()
-        ) : null}
-      </div>
-    </Link>
-  );
 }
 
 export default async function ContractDetailPage(props: {
@@ -1025,7 +798,7 @@ export default async function ContractDetailPage(props: {
       (e: { id: string; title: string; exception_type: string; status: string; updated_at: string }) => ({
         id: `ex-${e.id}`,
         kind: "exception" as const,
-        headline: `Exception · ${humanizeContractEnumLabel(e.exception_type)}`,
+        headline: `Issue · ${humanizeContractEnumLabel(e.exception_type)}`,
         detail: `${e.title} · ${humanizeContractEnumLabel(e.status)}`,
         occurred_at: e.updated_at,
       })
@@ -1162,17 +935,17 @@ export default async function ContractDetailPage(props: {
             ? `${uploadedCount} source file${uploadedCount === 1 ? "" : "s"} stored successfully.`
             : "No source files were stored on the first attempt.",
           invalidCount > 0
-            ? `${invalidCount} file${invalidCount === 1 ? " was" : "s were"} skipped because they were unsupported or over 20 MB.`
+            ? `${invalidCount} file${invalidCount === 1 ? " was" : "s were"} skipped because they were unsupported or over 25 MB.`
             : null,
           failedCount > 0
             ? `${failedCount} file upload${failedCount === 1 ? "" : "s"} failed after contract creation. Re-attach any missing signed source documents below.`
             : null,
           extractionState === "queued"
-            ? "Extraction has been queued. Review suggested fields before reminders or downstream work rely on them."
+            ? "Suggestions are queued. Confirm suggested details before reminders or downstream tasks rely on them."
             : extractionState === "not_available"
-              ? "Extraction was not started automatically in this environment. You can run it manually from the suggested fields section."
+              ? "Suggested details were not started automatically in this environment. You can run them manually from the suggested details section."
               : extractionState === "skipped_no_files"
-                ? "Add at least one signed source document to unlock extraction and source-backed review."
+                ? "Add at least one signed source document to unlock suggested details and source-backed confirmation."
                 : null,
         ].filter((line): line is string => Boolean(line)),
       }
@@ -1258,12 +1031,12 @@ export default async function ContractDetailPage(props: {
   const coreWorkRows = [
     ...v10WorkItems.map((item) => ({
       id: `v10-${item.source_id}`,
-      title: String(item.title ?? "Work item"),
+      title: String(item.title ?? "Task"),
       detail: [humanizeContractEnumLabel(String(item.type ?? "")), item.due_state ? humanizeContractEnumLabel(String(item.due_state)) : null]
         .filter(Boolean)
         .join(" · "),
       status: String(item.status ?? "open"),
-      action: item.primary_action ? humanizeContractEnumLabel(String(item.primary_action)) : "Open work",
+      action: item.primary_action ? humanizeContractEnumLabel(String(item.primary_action)) : "Open task",
       updatedAt: item.updated_at ? String(item.updated_at) : null,
     })),
     ...tasks.map((task) => ({
@@ -1273,7 +1046,7 @@ export default async function ContractDetailPage(props: {
         .filter(Boolean)
         .join(" · "),
       status: task.status,
-      action: "Open work",
+      action: "Open task",
       updatedAt: task.updated_at ?? null,
     })),
   ];
@@ -1298,8 +1071,8 @@ export default async function ContractDetailPage(props: {
       ? [
           {
             id: "activity-extraction",
-            title: "Extraction updated",
-            detail: fieldsCount > 0 ? `${fieldsCount} field${fieldsCount === 1 ? "" : "s"} available` : "No fields yet",
+            title: "Suggestions updated",
+            detail: fieldsCount > 0 ? `${fieldsCount} detail${fieldsCount === 1 ? "" : "s"} available` : "No details yet",
             occurredAt: latestExtractionTouchAt,
           },
         ]
@@ -1386,13 +1159,13 @@ export default async function ContractDetailPage(props: {
     {
       label: "Critical dates",
       value: v10HealthSnapshot
-        ? `${v10HealthSnapshot.missing_critical_date_count} missing or unapproved`
-        : "Needs read model",
+        ? `${v10HealthSnapshot.missing_critical_date_count} missing or unconfirmed`
+        : "Data refresh needed",
       href: `/contracts/${contract.id}?tab=overview#extracted-fields`,
       sourceObject: "field",
     },
     {
-      label: "Exceptions",
+      label: "Issues",
       value: `${v10ExceptionRecords.filter((item) => item.status !== "resolved").length || openExceptionsCount} open`,
       href: `/contracts/exceptions?status=open&contract=${contract.id}`,
       sourceObject: "exception",
@@ -1410,7 +1183,7 @@ export default async function ContractDetailPage(props: {
       sourceObject: "approval",
     },
     {
-      label: "Field review",
+      label: "Detail confirmation",
       value: `${pendingFieldsCount} pending`,
       href: `/contracts/${contract.id}?tab=overview#extracted-fields`,
       sourceObject: "field",
@@ -1424,27 +1197,27 @@ export default async function ContractDetailPage(props: {
   ] as const;
   const visibleV10HeaderCards = v10HeaderCards.filter((card) => {
     if (!isCoreContractDetail) return true;
-    if (["Latest audit", "Evidence", "Approvals", "Exceptions"].includes(card.label)) {
+    if (["Latest audit", "Evidence", "Approvals", "Issues"].includes(card.label)) {
       return card.label === "Approvals"
         ? pendingApprovalsCount > 0
-        : card.label === "Exceptions"
+        : card.label === "Issues"
           ? openExceptionsCount > 0
           : card.label === "Evidence"
             ? outstandingEvidenceCount > 0 || activeV10EvidenceCount > 0
           : false;
     }
-    return ["Owner", "Next action", "Health", "Critical dates", "Field review"].includes(card.label);
+    return ["Owner", "Next action", "Health", "Critical dates", "Detail confirmation"].includes(card.label);
   });
   const hasBlockingApprovals = pendingApprovalsCount > 0 || v10ApprovalRecords.some((item) => item.status === "pending");
   const hasActiveIssues =
     openExceptionsCount > 0 || v10ExceptionRecords.some((item) => !["resolved", "closed"].includes(String(item.status)));
   const coreTabLinks: Array<[ContractDetailTab, string]> = [
     ["overview", "Overview"],
-    ["fields", "Fields"],
+    ["fields", "Details"],
     ["dates", "Dates"],
-    ["work", "Work"],
+    ["work", "Tasks"],
     ["approvals", "Approvals"],
-    ["obligations", "Obligations"],
+    ["obligations", "Requirements"],
     ["evidence", "Evidence"],
     ["files", "Files"],
     ["notes", "Notes"],
@@ -1458,7 +1231,7 @@ export default async function ContractDetailPage(props: {
     ["programs", "Programs"],
     ["integrations", "Integrations"],
     ["ownership", "Ownership"],
-    ["fields", "Fields"],
+    ["fields", "Details"],
     ["dates", "Dates"],
     ["files", "Files"],
     ["notes", "Notes"],
@@ -1545,13 +1318,13 @@ export default async function ContractDetailPage(props: {
     hasSourceFiles && !hasExtractedFields
       ? {
           key: "extraction",
-          kind: "Extraction",
+          kind: "Suggestions",
           count: 1,
           verb: "Run",
-          action: "Run extraction",
+          action: "Run suggestions",
           tone: "warning",
           href: "#extracted-fields",
-          label: "Extraction has not created review fields yet",
+          label: "Suggested details are not ready yet",
         }
       : null,
     hasExtractedFields && missingCriticalDateLabels.length > 0
@@ -1569,25 +1342,25 @@ export default async function ContractDetailPage(props: {
     pendingFieldsCount > 0
       ? {
           key: "fields",
-          kind: pendingFieldsCount === 1 ? "Field" : "Fields",
+          kind: pendingFieldsCount === 1 ? "Detail" : "Details",
           count: pendingFieldsCount,
-          verb: "Review",
-          action: `Review ${pendingFieldsCount === 1 ? "field" : "fields"}`,
+          verb: "Confirm",
+          action: `Confirm ${pendingFieldsCount === 1 ? "detail" : "details"}`,
           tone: "warning",
           href: "#extracted-fields",
-          label: `${pendingFieldsCount} pending field${pendingFieldsCount === 1 ? " needs" : "s need"} review`,
+          label: `${pendingFieldsCount} pending detail${pendingFieldsCount === 1 ? " needs" : "s need"} confirmation`,
         }
       : null,
     hasActiveIssues
       ? {
           key: "issues",
-          kind: activeIssueCount === 1 ? "Exception" : "Exceptions",
+          kind: activeIssueCount === 1 ? "Issue" : "Issues",
           count: activeIssueCount,
           verb: "Triage",
-          action: `Triage ${activeIssueCount === 1 ? "exception" : "exceptions"}`,
+          action: `Triage ${activeIssueCount === 1 ? "issue" : "issues"}`,
           tone: "danger",
           href: `/contracts/exceptions?status=open&contract=${contract.id}`,
-          label: `${activeIssueCount} active exception${activeIssueCount === 1 ? "" : "s"}`,
+          label: `${activeIssueCount} active issue${activeIssueCount === 1 ? "" : "s"}`,
         }
       : null,
     hasBlockingApprovals
@@ -1615,6 +1388,24 @@ export default async function ContractDetailPage(props: {
         }
       : null,
   ].filter((item): item is CoreAttentionRow => Boolean(item));
+  // Severity-first ordering so the rows a reviewer must act on lead the rail:
+  // active exceptions and blocking approvals first, then review/data work
+  // (fields, dates, evidence), then setup gaps. The build order above is
+  // setup-first for readability, so re-sort by acted-on severity here.
+  const ATTENTION_PRIORITY: Record<string, number> = {
+    issues: 0,
+    approvals: 1,
+    fields: 2,
+    dates: 3,
+    evidence: 4,
+    file: 5,
+    extraction: 6,
+    owner: 7,
+    counterparty: 8,
+  };
+  coreAttentionItems.sort(
+    (a, b) => (ATTENTION_PRIORITY[a.key] ?? 99) - (ATTENTION_PRIORITY[b.key] ?? 99)
+  );
 
   await emitProductTelemetryIfFirstForOrgUser(admin, {
     organizationId: orgId,
@@ -1658,17 +1449,16 @@ export default async function ContractDetailPage(props: {
   });
   const missingCoreDateCount = coreDateRows.filter((row) => row.status !== "approved").length;
   const activeEvidenceCount = outstandingEvidenceCount || activeV10EvidenceCount;
-  // Header `Open work` is real tracked work items (v10 work + tasks);
-  // `Needs attention` is the setup-gap + blocker list the rail renders from
+  // Header `Open tasks` is real tracked follow-up items (v10 work + tasks);
+  // `Needs attention` is the setup-gap + dependency list the rail renders from
   // `coreAttentionItems`.
   const openWorkCount = coreWorkRows.length;
-  const needsAttentionCount = coreAttentionItems.length;
-  // Hold activation until suggested fields are reviewed — a record should not
+  // Hold activation until suggested details are confirmed — a record should not
   // read as trusted/"Active" while AI suggestions are still pending sign-off
   // (release-state AI trust boundary). Null when nothing blocks activation.
   const markActiveBlockedReason =
     contract.status === "pending_review" && pendingFieldsCount > 0
-      ? `Review ${pendingFieldsCount} pending suggested field${pendingFieldsCount === 1 ? "" : "s"} before marking this contract active.`
+      ? `Confirm ${pendingFieldsCount} pending suggested detail${pendingFieldsCount === 1 ? "" : "s"} before marking this contract active.`
       : null;
   // Header review-completeness ratio. Prefer the activation read model's
   // required-field tally; fall back to all extracted fields. Null when there
@@ -1692,22 +1482,38 @@ export default async function ContractDetailPage(props: {
     approvals: pendingApprovalsCount,
     evidence: activeEvidenceCount,
   };
-  const nextImportantDateRow = coreDateRows.find(
-    (row) => row.status === "approved" && row.value && row.value !== "Missing"
-  );
+  // "Next date" must be an actual calendar deadline. notice_window is a
+  // duration ("75 days before renewal"), not a date — exclude it so it can
+  // never leak into the header as a parsed-NaN raw string. Pick the soonest
+  // upcoming confirmed calendar date; show — when none is confirmed.
+  const todayNoon = parseBusinessDateAtNoon(new Date().toISOString().slice(0, 10));
+  const nextReviewedDate = coreDateRows
+    .filter((row) => row.key !== "notice_window" && row.status === "approved")
+    .map((row) => parseBusinessDateAtNoon(row.value))
+    .filter((d): d is Date => d != null && (!todayNoon || d.getTime() >= todayNoon.getTime()))
+    .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
+  // Notice window is a confirmed duration, surfaced separately as a compact
+  // token ("75D") — never as a calendar date.
+  const noticeWindowRow = coreDateRows.find((row) => row.key === "notice_window");
+  const noticeWindowShort =
+    noticeWindowRow && noticeWindowRow.status === "approved" && noticeWindowRow.value !== "Missing"
+      ? noticeWindowRow.value.match(/\d+/)?.[0]
+        ? `${noticeWindowRow.value.match(/\d+/)![0]}D`
+        : noticeWindowRow.value
+      : null;
   const shouldPrioritizeSourceDocuments = false;
-  // Priority chain for the morphing header CTA. Active blockers (exceptions,
-  // blocking approvals) top the list, then pending review — a record with
-  // extracted fields awaiting sign-off should surface "Review fields", which
+  // Priority chain for the morphing header CTA. Active dependencies (issues,
+  // blocking approvals) top the list, then pending confirmation — a record with
+  // suggested details awaiting sign-off should surface "Confirm details", which
   // is why it outranks the lower-severity setup gaps (missing file, owner,
   // date). "Attach source file" only wins once there is nothing left to
   // review.
   const primaryAction = hasActiveIssues
-    ? { href: `/contracts/exceptions?status=open&contract=${contract.id}`, label: "Triage exception" }
+    ? { href: `/contracts/exceptions?status=open&contract=${contract.id}`, label: "Review issue" }
     : hasBlockingApprovals
       ? { href: "#renewal-approvals", label: "Review approval" }
       : pendingFieldsCount > 0
-        ? { href: "#extracted-fields", label: "Review fields" }
+        ? { href: "#extracted-fields", label: "Confirm details" }
         : !hasSourceFiles
           ? { href: `/contracts/${id}?tab=files`, label: "Attach source file" }
           : needsOwner
@@ -1734,7 +1540,7 @@ export default async function ContractDetailPage(props: {
     ? {
         value: missingCoreDateCount,
         tone: missingCoreDateCount > 0 ? ("attention" as const) : ("healthy" as const),
-        actionLabel: missingCoreDateCount > 0 ? "Review" : undefined,
+        actionLabel: missingCoreDateCount > 0 ? "Add" : undefined,
       }
     : {
         value: 0,
@@ -1742,90 +1548,17 @@ export default async function ContractDetailPage(props: {
         actionLabel: "Inspect",
       };
 
+  // Thin wrapper — the section title literal stays here (route-owned copy) while
+  // the file list / empty state / replace disclosure live in the component.
   const renderCoreSourceDocumentsSection = () => (
-    <section
-      id="source-documents"
-      className={`${hasSourceFiles ? "ui-card-quiet" : "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]"} scroll-mt-28 overflow-hidden`}
-    >
-      <CorePanelHeader
-        icon={FolderOpen}
-        eyebrow="Files"
-        title="Source documents"
-        count={filesCount}
-        countLabel="files"
-        countLabelSingular="file"
-        action={<UploadMoreFiles contractId={contract.id} canEdit={canEdit} className="" />}
-      />
-      {contract.contract_files?.length ? (
-        <div className="px-5 py-3 sm:px-6">
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {contract.contract_files.map(
-              (file: {
-                id: string;
-                file_name: string;
-                file_type: string;
-                file_size: number;
-                storage_path: string;
-                created_at: string;
-                superseded_at: string | null;
-              }) => (
-                <li key={file.id} className="flex items-center justify-between gap-4 py-4 first:pt-0">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="ui-icon-tile-compact shrink-0" aria-hidden>
-                      <FileText className="h-4 w-4" strokeWidth={1.85} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
-                        {file.file_name}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <KeyValueChip label="Size" value={formatFileSize(file.file_size)} />
-                        <TimeChip date={file.created_at} format="calendar" bordered />
-                        {file.superseded_at ? (
-                          <StatusBadge status="disabled">Superseded</StatusBadge>
-                        ) : (
-                          <StatusBadge status="healthy">Stored</StatusBadge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 justify-end">
-                    <DownloadButton storagePath={file.storage_path} fileName={file.file_name} />
-                  </div>
-                </li>
-              )
-            )}
-          </ul>
-          {canEdit ? (
-            <form action={supersedeContractFileForm} className="mt-5 grid gap-2 border-t border-[var(--border-subtle)] pt-5">
-              <input type="hidden" name="contractId" value={contract.id} />
-              <p className="ui-caps-2 text-[var(--text-tertiary)]">Supersede and re-extract</p>
-              <UiSelect
-                name="fileId"
-                required
-                portal
-                ariaLabel="File to supersede"
-                placeholder="Select a file to replace"
-                className="w-full"
-                options={contract.contract_files
-                  .filter((f: { superseded_at?: string | null }) => !f.superseded_at)
-                  .map((f: { id: string; file_name: string }) => ({ value: f.id, label: f.file_name }))}
-              />
-              <input
-                aria-label="Reason (optional)"
-                name="reason"
-                maxLength={200}
-                placeholder="Reason (optional)"
-                className="ui-input text-xs"
-              />
-              <button type="submit" className="ui-btn-secondary max-w-max px-3 py-2 text-xs">
-                Mark superseded and re-run extraction
-              </button>
-            </form>
-          ) : null}
-        </div>
-      ) : null}
-    </section>
+    <ContractSourceDocuments
+      title="Source documents"
+      contractId={contract.id}
+      files={contract.contract_files ?? []}
+      filesCount={filesCount}
+      hasSourceFiles={hasSourceFiles}
+      canEdit={canEdit}
+    />
   );
 
   if (isCoreContractDetail) {
@@ -1841,7 +1574,7 @@ export default async function ContractDetailPage(props: {
             </ul>
             <div className="mt-3 flex flex-wrap gap-2 text-[12.5px]">
               <Link href="#extracted-fields" className="ui-link">
-                Open suggested fields
+                Open suggested details
               </Link>
               <Link href="#source-documents" className="ui-link">
                 Check source documents
@@ -1877,7 +1610,7 @@ export default async function ContractDetailPage(props: {
                 </div>
                 {reviewCompleteness ? (
                   <div>
-                    <dt className="ui-caps-3 text-[var(--text-tertiary)]">Reviewed</dt>
+                    <dt className="ui-caps-3 text-[var(--text-tertiary)]">Confirmed</dt>
                     <dd className="mt-0.5">
                       <RatioChip
                         numerator={reviewCompleteness.approved}
@@ -1888,7 +1621,7 @@ export default async function ContractDetailPage(props: {
                   </div>
                 ) : null}
                 <div>
-                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Open work</dt>
+                  <dt className="ui-caps-3 text-[var(--text-tertiary)]">Open tasks</dt>
                   <dd className="mt-0.5">
                     {openWorkCount > 0 ? (
                       <Link href={`/work?contract=${id}`} className="inline-flex">
@@ -1901,21 +1634,27 @@ export default async function ContractDetailPage(props: {
                 </div>
                 <div>
                   <dt className="ui-caps-3 text-[var(--text-tertiary)]">Next date</dt>
-                  <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
-                    {nextImportantDateRow
-                      ? (() => {
-                          const parsed = new Date(nextImportantDateRow.value);
-                          return Number.isNaN(parsed.getTime())
-                            ? nextImportantDateRow.value
-                            : format(parsed, "MMM d, yyyy");
-                        })()
-                      : (
-                        <span className="text-[var(--text-tertiary)]" title="No trusted next date yet">
-                          —
-                        </span>
-                      )}
+                  <dd className="mt-0.5">
+                    {nextReviewedDate ? (
+                      <TimeChip date={nextReviewedDate} format="calendar" />
+                    ) : (
+                      <span
+                        className="font-medium text-[var(--text-tertiary)]"
+                        title="No confirmed upcoming date yet"
+                      >
+                        —
+                      </span>
+                    )}
                   </dd>
                 </div>
+                {noticeWindowShort ? (
+                  <div>
+                    <dt className="ui-caps-3 text-[var(--text-tertiary)]">Notice</dt>
+                    <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
+                      {noticeWindowShort}
+                    </dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt className="ui-caps-3 text-[var(--text-tertiary)]">Status</dt>
                   <dd className="mt-0.5">
@@ -1945,48 +1684,53 @@ export default async function ContractDetailPage(props: {
 
         <section className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]" aria-label="Contract action summary">
           <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
-            <CoreSignalCell
-              label="Suggested fields"
+            <ContractSignalCell
+              label="Suggested details"
+              icon={ClipboardCheck}
               value={coreReviewSignal.value}
-              unit={pendingFieldsCount > 0 ? "pending" : hasExtractedFields ? "reviewed" : hasSourceFiles ? "awaiting extraction" : "awaiting file"}
+              unit={pendingFieldsCount > 0 ? "pending" : hasExtractedFields ? "confirmed" : hasSourceFiles ? "awaiting suggestions" : "awaiting file"}
               tone={coreReviewSignal.tone}
               href={coreReviewSignal.href}
               actionLabel={coreReviewSignal.actionLabel}
             />
-            <CoreSignalCell
+            <ContractSignalCell
               label="Key dates"
+              icon={CalendarClock}
               value={coreDateSignal.value}
-              unit={!hasExtractedFields ? "blocked" : missingCoreDateCount > 0 ? "gaps" : "tracked"}
+              unit={!hasExtractedFields ? "waiting" : missingCoreDateCount > 0 ? "gaps" : "tracked"}
               tone={coreDateSignal.tone}
               href="#contract-dates"
               actionLabel={coreDateSignal.actionLabel}
             />
-            <CoreSignalCell
-              label="Exceptions"
+            <ContractSignalCell
+              label="Issues"
+              icon={AlertTriangle}
               value={openExceptionsCount}
               unit={openExceptionsCount > 0 ? "open" : "clear"}
               tone={openExceptionsCount > 0 ? "danger" : "healthy"}
-              href={openExceptionsCount > 0 ? `/contracts/exceptions?status=open&contract=${contract.id}` : `/contracts/${contract.id}`}
-              actionLabel={openExceptionsCount > 0 ? "Resolve" : undefined}
+              href={openExceptionsCount > 0 ? `/contracts/exceptions?status=open&contract=${contract.id}` : `/contracts/${contract.id}?tab=work`}
+              actionLabel={openExceptionsCount > 0 ? "Triage" : undefined}
             />
-            <CoreSignalCell
+            <ContractSignalCell
               label="Evidence"
+              icon={FileCheck2}
               value={activeEvidenceCount}
-              unit={activeEvidenceCount > 0 ? (activeEvidenceCount === 1 ? "request" : "requests") : "all sent"}
+              unit={activeEvidenceCount > 0 ? (activeEvidenceCount === 1 ? "request" : "requests") : "clear"}
               tone={activeEvidenceCount > 0 ? "attention" : "healthy"}
-              href={activeEvidenceCount > 0 ? "#contract-evidence" : `/contracts/${contract.id}`}
-              actionLabel={activeEvidenceCount > 0 ? "Send" : undefined}
+              href={activeEvidenceCount > 0 ? "#contract-evidence" : `/contracts/${contract.id}?tab=evidence`}
+              actionLabel={activeEvidenceCount > 0 ? "Request" : undefined}
             />
           </div>
         </section>
 
         <nav
           aria-label="Contract detail sections"
-          className="flex gap-x-5 overflow-x-auto border-b border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="sticky top-[var(--shell-topbar-h)] z-20 flex gap-x-5 overflow-x-auto border-b border-[color:color-mix(in_oklab,var(--border-subtle)_86%,transparent)] bg-[color:color-mix(in_oklab,var(--canvas)_88%,transparent)] pt-1 backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {coreTabLinks.map(([value, label]) => {
             const active = activeTab === value;
             const badge = coreTabBadgeCounts[value] ?? 0;
+            const reservesBadge = value in coreTabBadgeCounts;
             return (
               <Link
                 key={value}
@@ -1999,9 +1743,11 @@ export default async function ContractDetailPage(props: {
                 aria-current={active ? "page" : undefined}
               >
                 {label}
-                <span className="inline-flex min-w-[1.125rem] justify-center">
-                  {badge > 0 ? <CountChip value={badge} emphasis={active ? "strong" : "subtle"} /> : null}
-                </span>
+                {reservesBadge ? (
+                  <span className="inline-flex min-w-[1.125rem] justify-center">
+                    {badge > 0 ? <CountChip value={badge} emphasis={active ? "strong" : "subtle"} /> : null}
+                  </span>
+                ) : null}
                 {active ? (
                   <span
                     aria-hidden
@@ -2019,16 +1765,16 @@ export default async function ContractDetailPage(props: {
 
             {(activeTab === "overview" || activeTab === "fields" || activeTab === "dates") && (
               <section id="extracted-fields" className="ui-card scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={ClipboardCheck}
-                  eyebrow="Review"
-                  title="Suggested fields"
+                  eyebrow="Confirm"
+                  title="Suggested details"
                   countNode={
                     fieldsCount > 0 ? (
                       <RatioChip
                         numerator={approvedFieldsCount}
                         denominator={fieldsCount}
-                        suffix="reviewed"
+                         suffix="confirmed"
                         tone={approvedFieldsCount >= fieldsCount ? "success" : undefined}
                       />
                     ) : undefined
@@ -2048,7 +1794,7 @@ export default async function ContractDetailPage(props: {
                           <input type="hidden" name="contractId" value={contract.id} />
                           <button
                             type="submit"
-                            title="Add the standard fields, reminders, and tasks defined for this contract type."
+                            title="Add the standard details, reminders, and tasks defined for this contract type."
                             className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
                           >
                             <BadgeCheck className="h-3 w-3" strokeWidth={1.85} aria-hidden />
@@ -2066,32 +1812,32 @@ export default async function ContractDetailPage(props: {
                     pendingFieldsCount={pendingFieldsCount}
                   />
                   {reviewQueueContinuity ? (
-                    <div className="border-y border-[color:color-mix(in_oklab,var(--border-subtle)_78%,transparent)] py-4">
-                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <p className="ui-caps-2 text-[var(--text-tertiary)]">Review queue</p>
-                          {reviewQueueContinuity.total > 1 ? (
-                            <RatioChip
-                              numerator={reviewQueueContinuity.position}
-                              denominator={reviewQueueContinuity.total}
-                              suffix="queue"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Link href={reviewQueueHref} className="ui-btn-secondary px-3 py-2 text-xs">
-                            Review queue
-                          </Link>
-                          {reviewQueueContinuity.nextContractId ? (
-                            <ReviewSaveNextTelemetryLink
-                              href={`/contracts/${reviewQueueContinuity.nextContractId}?tab=overview&from=review&reviewPage=${reviewPage}#extracted-fields`}
-                              className="ui-btn-primary px-3 py-2 text-xs"
-                            >
-                              Continue next
-                            </ReviewSaveNextTelemetryLink>
-                          ) : null}
-                        </div>
-                      </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_78%,transparent)] py-3">
+                      {/* One count→action unit: the ratio links to the full queue,
+                          Continue advances to the next contract (§10.13). */}
+                      <Link
+                        href={reviewQueueHref}
+                        className="ui-chip-focus inline-flex max-w-max items-center gap-2 rounded-md"
+                      >
+                        {reviewQueueContinuity.total > 1 ? (
+                          <RatioChip
+                            numerator={reviewQueueContinuity.position}
+                            denominator={reviewQueueContinuity.total}
+                            suffix="queue"
+                          />
+                        ) : (
+                          <span className="ui-caps-2 text-[var(--text-secondary)]">Review queue</span>
+                        )}
+                      </Link>
+                      {reviewQueueContinuity.nextContractId ? (
+                        <ReviewSaveNextTelemetryLink
+                          href={`/contracts/${reviewQueueContinuity.nextContractId}?tab=overview&from=review&reviewPage=${reviewPage}#extracted-fields`}
+                          className="ui-btn-primary inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs"
+                        >
+                          Continue
+                          <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                        </ReviewSaveNextTelemetryLink>
+                      ) : null}
                     </div>
                   ) : null}
                   <BatchApproveButton
@@ -2116,7 +1862,7 @@ export default async function ContractDetailPage(props: {
                         <ClipboardCheck className="h-4 w-4" strokeWidth={1.85} />
                       </span>
                       <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
-                        {hasSourceFiles ? "No suggested fields yet" : "Review starts after a source file is attached"}
+                        {hasSourceFiles ? "No suggested details yet" : "Confirmation starts after a source file is attached"}
                       </p>
                       {hasSourceFiles ? (
                         <ExtractButton
@@ -2143,7 +1889,7 @@ export default async function ContractDetailPage(props: {
 
             {(activeTab === "overview" || activeTab === "dates") && (
               <section id="contract-dates" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={CalendarClock}
                   eyebrow="Dates"
                   title="Key dates"
@@ -2153,7 +1899,7 @@ export default async function ContractDetailPage(props: {
                         href={hasSourceFiles ? "#extracted-fields" : `/contracts/${id}?tab=files`}
                         className="ui-btn-secondary px-4 py-2 text-[13px]"
                       >
-                        {hasSourceFiles ? "Run extraction" : "Attach source file"}
+                        {hasSourceFiles ? "Run suggestions" : "Attach source file"}
                       </Link>
                     ) : null
                   }
@@ -2165,162 +1911,24 @@ export default async function ContractDetailPage(props: {
                         <CalendarClock className="h-4 w-4" strokeWidth={1.85} />
                       </span>
                       <p className="min-w-0 text-[14px] font-semibold text-[var(--text-primary)]">
-                        Date tracking is waiting on extraction
+                        Date tracking needs suggested details
                       </p>
                       <Link
                         href={hasSourceFiles ? "#extracted-fields" : "#source-documents"}
                         className="ui-btn-secondary px-4 py-2 text-[13px] sm:justify-self-end"
                       >
-                        {hasSourceFiles ? "Run extraction" : "Attach source file"}
+                        {hasSourceFiles ? "Run suggestions" : "Attach source file"}
                       </Link>
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <div className="px-5 py-2 sm:px-6">
-                      <div className="divide-y divide-[var(--border-subtle)]">
-                        {coreDateRows.map((row) => {
-                          const isMissing = row.status === "missing";
-                          const isPending = row.status === "pending";
-                          return (
-                            <Link
-                              key={row.key}
-                              href={
-                                isMissing
-                                  ? "#extracted-fields"
-                                  : isPending
-                                    ? `/contracts/review?contract=${contract.id}${row.id ? `&field=${row.id}` : ""}`
-                                    : "#contract-dates"
-                              }
-                              className={`group/date flex items-center justify-between gap-3 py-2.5 first:pt-0 ${
-                                isMissing || isPending ? "transition-colors hover:bg-[color:color-mix(in_oklab,var(--warning-soft)_14%,transparent)]" : ""
-                              }`}
-                            >
-                              <div className="flex min-w-0 items-center gap-2.5">
-                                <span className="inline-flex h-1.5 w-1.5 min-w-[0.375rem] shrink-0 items-center justify-center" aria-hidden>
-                                  {isMissing || isPending ? (
-                                    <span
-                                      className="h-1.5 w-1.5 rounded-full"
-                                      style={{
-                                        background: isMissing ? "var(--warning-ink)" : "var(--accent-strong)",
-                                        boxShadow: `0 0 0 2.5px color-mix(in oklab, ${isMissing ? "var(--warning-ink)" : "var(--accent-strong)"} 24%, transparent)`,
-                                      }}
-                                    />
-                                  ) : null}
-                                </span>
-                                <div className="min-w-0">
-                                  <p className="ui-caps-3 text-[11px] text-[var(--text-tertiary)]">{row.label}</p>
-                                  <p className="mt-1 flex flex-wrap items-center gap-2 text-[13.5px] font-semibold tabular-nums text-[var(--text-primary)]">
-                                    {isMissing ? (
-                                      <>
-                                        <span aria-hidden className="font-medium text-[var(--text-tertiary)]">—</span>
-                                        <span className="sr-only">No {row.label.toLowerCase()} recorded</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        {(() => {
-                                          const parsed = parseBusinessDateAtNoon(row.value);
-                                          return parsed ? (
-                                            <TimeChip date={parsed} format="calendar" bordered />
-                                          ) : (
-                                            <span className="text-[13px] font-semibold tabular-nums text-[var(--text-primary)]">
-                                              {row.value}
-                                            </span>
-                                          );
-                                        })()}
-                                        {row.confidence != null ? (
-                                          <KeyValueChip
-                                            label="Source match"
-                                            value={`${Math.round(row.confidence * 100)}%`}
-                                          />
-                                        ) : null}
-                                      </>
-                                    )}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex shrink-0 items-center gap-2">
-                                {isMissing ? (
-                                  <StatusBadge status="warning">Missing</StatusBadge>
-                                ) : (
-                                  <StatusBadge status={coreSemanticStatus(row.status)}>
-                                    {humanizeContractEnumLabel(row.status)}
-                                  </StatusBadge>
-                                )}
-                                {isMissing || isPending ? (
-                                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/date:opacity-100 group-focus-visible/date:opacity-100">
-                                    {isMissing ? "Add date" : "Review"}
-                                    <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
-                                  </span>
-                                ) : null}
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    {(upcomingReminders.length > 0 || checkpoints.length > 0) ? (
-                      <div className="border-t border-[var(--border-subtle)] px-5 py-3 sm:px-6">
-                        {upcomingReminders.length > 0 ? (
-                          <>
-                            <div className="flex items-center gap-1.5">
-                              <Bell className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-                              <p className="ui-caps-3 text-[11px] text-[var(--text-tertiary)]">Scheduled reminders</p>
-                              <CountChip value={upcomingReminders.length} />
-                            </div>
-                            <ul className="mt-2 divide-y divide-[var(--border-subtle)]">
-                              {upcomingReminders.map((reminder: { id: string; reminder_type: string; reminder_date: string }) => {
-                                const { overdue, soon } = reminderUrgency(reminder.reminder_date);
-                                const dotInk = overdue ? "var(--danger-ink)" : soon ? "var(--warning-ink)" : null;
-                                return (
-                                  <li key={reminder.id} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
-                                    <div className="flex min-w-0 items-center gap-2.5">
-                                      <span aria-hidden className="inline-flex h-1.5 w-1.5 min-w-[0.375rem] shrink-0 items-center justify-center">
-                                        {dotInk ? (
-                                          <span
-                                            className="h-1.5 w-1.5 rounded-full"
-                                            style={{ background: dotInk, boxShadow: `0 0 0 2.5px color-mix(in oklab, ${dotInk} 24%, transparent)` }}
-                                          />
-                                        ) : null}
-                                      </span>
-                                      <p className="ui-caps-3 truncate text-[11px] text-[var(--text-secondary)]">
-                                        {humanizeContractEnumLabel(reminder.reminder_type)}
-                                      </p>
-                                    </div>
-                                    <div className="flex shrink-0 items-center gap-2">
-                                      {overdue ? (
-                                        <StatusBadge status="overdue">Overdue</StatusBadge>
-                                      ) : soon ? (
-                                        <StatusBadge status="warning">Due soon</StatusBadge>
-                                      ) : null}
-                                      <TimeChip
-                                        date={reminder.reminder_date}
-                                        format="calendar"
-                                        tone={overdue ? "danger" : soon ? "warning" : undefined}
-                                        bordered
-                                      />
-                                    </div>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </>
-                        ) : null}
-                        {checkpoints.length > 0 ? (
-                          <div className={upcomingReminders.length > 0 ? "mt-4 border-t border-[var(--border-subtle)] pt-4" : ""}>
-                            <div className="flex items-center gap-1.5">
-                              <ListChecks className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-                              <p className="ui-caps-3 text-[11px] text-[var(--text-tertiary)]">Renewal tasks</p>
-                              <CountChip value={checkpoints.length} />
-                            </div>
-                            <div className="mt-2">
-                              <RenewalCheckpointsPanel checkpoints={checkpoints} canEdit={canEdit} compact />
-                            </div>
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </>
+                  <ContractKeyDates
+                    dateRows={coreDateRows}
+                    reminders={upcomingReminders}
+                    checkpoints={checkpoints}
+                    canEdit={canEdit}
+                    contractId={contract.id}
+                  />
                 )}
               </section>
             )}
@@ -2331,26 +1939,32 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "work" ? (
               <section id="contract-work" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={ListChecks}
-                  eyebrow="Work"
-                  title="Work, obligations, and exceptions"
+                  eyebrow="Tasks"
+                  title="Tasks, requirements, and issues"
                   count={coreWorkRows.length + openExceptionsCount + obligations.length}
                   countLabel="items"
                   action={
                     <Link href={`/work?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
-                      Create work
+                      Create task
                     </Link>
                   }
                 />
                 <div className="space-y-5 px-5 py-5 sm:px-6">
-                  <div className="grid gap-3 md:grid-cols-3">
+                  {/* §10.5: one quiet inset with hairline-divided cells, not
+                      three nested bordered boxes. Mirrors the action-summary
+                      strip idiom (border-t on mobile, border-l on sm+). */}
+                  <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,transparent)] sm:grid-cols-3">
                     {[
-                      ["Tasks", coreWorkRows.length, "Open or blocked work items"],
-                      ["Obligations", obligations.length, "Non-date commitments"],
-                      ["Exceptions", openExceptionsCount, "Open contract exceptions"],
+                      ["Tasks", coreWorkRows.length, "Open tasks and tasks needing input"],
+                      ["Requirements", obligations.length, "Contract commitments"],
+                      ["Issues", openExceptionsCount, "Open contract issues"],
                     ].map(([label, count, detail]) => (
-                      <div key={String(label)} className="rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_38%,transparent)] p-4">
+                      <div
+                        key={String(label)}
+                        className="border-t border-[var(--border-subtle)] px-4 py-3 first:border-t-0 sm:border-l sm:border-t-0 sm:first:border-l-0"
+                      >
                         <p className="ui-caps-3 text-[var(--text-tertiary)]">{label}</p>
                         <p className="mt-2 text-lg font-semibold leading-none tabular-nums text-[var(--text-primary)]">
                           {count}
@@ -2361,9 +1975,9 @@ export default async function ContractDetailPage(props: {
                   </div>
                   {coreWorkRows.length === 0 && openExceptionsCount === 0 && obligations.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_34%,transparent)] px-4 py-5">
-                      <p className="font-semibold text-[var(--text-primary)]">No open work is attached to this contract.</p>
+                      <p className="font-semibold text-[var(--text-primary)]">No open tasks are attached to this contract.</p>
                       <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-                        Create work from a deadline, obligation, exception, or evidence request when follow-up is needed.
+                        Create a task from a deadline, requirement, issue, or evidence request when follow-up is needed.
                       </p>
                     </div>
                   ) : (
@@ -2372,12 +1986,12 @@ export default async function ContractDetailPage(props: {
                         <li key={item.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
                             <p className="font-semibold text-[var(--text-primary)]">{item.title}</p>
-                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">{item.detail || "Work item"}</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">{item.detail || "Task"}</p>
                           </div>
                           <div className="flex shrink-0 items-center gap-3">
-                            <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(item.status)]}`}>
+                            <StatusBadge status={coreSemanticStatus(item.status)}>
                               {humanizeContractEnumLabel(item.status)}
-                            </span>
+                            </StatusBadge>
                             <Link href="/work" className="ui-link text-[12.5px]">
                               {item.action}
                             </Link>
@@ -2388,11 +2002,11 @@ export default async function ContractDetailPage(props: {
                         <li key={`issue-${issue.id}`} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <p className="font-semibold text-[var(--text-primary)]">{issue.title}</p>
-                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">Exception</p>
+                            <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">Issue</p>
                           </div>
-                          <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(issue.status)]}`}>
+                          <StatusBadge status={coreSemanticStatus(issue.status)}>
                             {humanizeContractEnumLabel(issue.status)}
-                          </span>
+                          </StatusBadge>
                         </li>
                       ))}
                     </ul>
@@ -2403,7 +2017,7 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "approvals" ? (
               <section id="renewal-approvals" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={BadgeCheck}
                   eyebrow="Approvals"
                   title="Approval decisions"
@@ -2425,9 +2039,9 @@ export default async function ContractDetailPage(props: {
                           <span className="font-medium text-[var(--text-primary)]">
                             {humanizeContractEnumLabel(approval.approval_type)}
                           </span>
-                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(approval.status)]}`}>
+                          <StatusBadge status={coreSemanticStatus(approval.status)}>
                             {humanizeContractEnumLabel(approval.status)}
-                          </span>
+                          </StatusBadge>
                         </li>
                       ))}
                       {approvals.length === 0 ? v10ApprovalRecords.slice(0, 8).map((approval) => (
@@ -2435,9 +2049,9 @@ export default async function ContractDetailPage(props: {
                           <span className="font-medium text-[var(--text-primary)]">
                             {humanizeContractEnumLabel(String(approval.approval_type))}
                           </span>
-                          <span className={`rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(String(approval.status))]}`}>
+                          <StatusBadge status={coreSemanticStatus(String(approval.status))}>
                             {humanizeContractEnumLabel(String(approval.status))}
-                          </span>
+                          </StatusBadge>
                         </li>
                       )) : null}
                     </ul>
@@ -2448,21 +2062,21 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "obligations" ? (
               <section id="contract-obligations" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={ListChecks}
-                  eyebrow="Obligations"
-                  title="Contract obligations"
+                  eyebrow="Requirements"
+                  title="Contract requirements"
                   count={obligations.length}
                   countLabel="items"
                   action={
                     <Link href={`/contracts/obligations?contract=${contract.id}`} className="ui-btn-secondary px-4 py-2 text-[13px]">
-                      Create obligation
+                      Create requirement
                     </Link>
                   }
                 />
                 <div className="px-5 py-5 sm:px-6">
                   {obligations.length === 0 ? (
-                    <p className="text-[13px] text-[var(--text-secondary)]">No obligations are recorded yet.</p>
+                    <p className="text-[13px] text-[var(--text-secondary)]">No contract requirements are recorded yet.</p>
                   ) : (
                     <ul className="divide-y divide-[var(--border-subtle)]">
                       {obligations.slice(0, 10).map((obligation) => (
@@ -2470,14 +2084,32 @@ export default async function ContractDetailPage(props: {
                           <div className="min-w-0">
                             <p className="font-medium text-[var(--text-primary)]">{obligation.title}</p>
                             <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
-                              {[obligation.owner_id ? ownerMembers.find((member) => member.userId === obligation.owner_id)?.label ?? "Assigned" : "Unassigned", obligation.due_date ? `Due ${formatBusinessDateAtNoon(obligation.due_date)}` : obligation.cadence || null]
-                                .filter(Boolean)
-                                .join(" · ") || "No cadence or due date set"}
+                              {(() => {
+                                const ownerLabel = obligation.owner_id
+                                  ? ownerMembers.find((member) => member.userId === obligation.owner_id)?.label ?? "Assigned"
+                                  : "Unassigned";
+                                const timing = obligation.due_date
+                                  ? `Due ${formatBusinessDateAtNoon(obligation.due_date)}`
+                                  : obligation.cadence || null;
+                                const parts = [ownerLabel, timing].filter(Boolean) as string[];
+                                return parts.length > 0
+                                  ? parts.map((part, i) => (
+                                      <span key={part}>
+                                        {i > 0 ? (
+                                          <span className="ui-dot-sep" aria-hidden>
+                                            ·
+                                          </span>
+                                        ) : null}
+                                        {part}
+                                      </span>
+                                    ))
+                                  : "No cadence or due date set";
+                              })()}
                             </p>
                           </div>
-                          <span className={`inline-flex max-w-max rounded-full border px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] ${coreSignalToneClasses[coreStatusTone(obligation.status)]}`}>
+                          <StatusBadge status={coreSemanticStatus(obligation.status)}>
                             {humanizeContractEnumLabel(obligation.status)}
-                          </span>
+                          </StatusBadge>
                         </li>
                       ))}
                     </ul>
@@ -2488,7 +2120,7 @@ export default async function ContractDetailPage(props: {
 
             {(activeTab === "overview" || activeTab === "evidence") && (activeEvidenceCount > 0 || evidenceRequirements.length > 0 || activeTab === "evidence") ? (
               <section id="contract-evidence" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={FileCheck2}
                   eyebrow="Evidence"
                   title="Pending requests"
@@ -2518,7 +2150,7 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "notes" ? (
               <section id="contract-notes" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader icon={NotebookPen} eyebrow="Notes" title="Notes and handoff context" count={notes.length} countLabel="notes" />
+                <ContractPanelHeader icon={NotebookPen} eyebrow="Notes" title="Notes and handoff context" count={notes.length} countLabel="notes" />
                 <div className="px-5 py-5 sm:px-6">
                   <ContractNotesPanel
                     contractId={contract.id}
@@ -2533,7 +2165,7 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "activity" ? (
               <section id="contract-activity" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader icon={FileText} eyebrow="Activity" title="Contract activity" count={coreActivityRows.length} countLabel="events" />
+                <ContractPanelHeader icon={FileText} eyebrow="Activity" title="Contract activity" count={coreActivityRows.length} countLabel="events" />
                 <div className="px-5 py-4 sm:px-6">
                   <ActivityFeed items={coreActivityFeedItems} emptyLabel="No activity recorded yet" />
                 </div>
@@ -2542,18 +2174,11 @@ export default async function ContractDetailPage(props: {
 
             {activeTab === "overview" && coreActivityRows.length > 0 ? (
               <section id="contract-recent-activity" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-                <CorePanelHeader
+                <ContractPanelHeader
                   icon={FileText}
                   eyebrow="Activity"
                   title="Recent activity"
-                  action={
-                    <Link
-                      href={`/contracts/${contract.id}?tab=activity`}
-                      className="ui-btn-secondary px-4 py-2 text-[13px]"
-                    >
-                      View all
-                    </Link>
-                  }
+                  action={<ActionChip verb="View all" href={`/contracts/${contract.id}?tab=activity`} />}
                 />
                 <div className="px-5 py-3 sm:px-6">
                   <ActivityFeed items={coreActivityFeedItems.slice(0, 5)} compact />
@@ -2562,22 +2187,25 @@ export default async function ContractDetailPage(props: {
             ) : null}
           </main>
 
-          <aside className="space-y-6 xl:sticky xl:top-[5.25rem] xl:max-h-[calc(100dvh-6.5rem)] xl:overflow-y-auto xl:overscroll-contain [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5">
+          <aside className="space-y-5 xl:sticky xl:top-[calc(var(--shell-topbar-h)_+_2.75rem)] xl:max-h-[calc(100dvh_-_var(--shell-topbar-h)_-_4rem)] xl:overflow-y-auto xl:overscroll-contain [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5">
             <section id="ownership-record" className="ui-card-quiet scroll-mt-28 overflow-hidden">
-              <CorePanelHeader icon={UserRound} eyebrow="Record" title="Owner and status" />
-              <div className="space-y-3 px-5 py-4">
-                <dl className="space-y-2 text-[12.5px]">
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Contract type</dt>
-                    <dd className="text-[var(--text-primary)]">{contract.contract_type || "Not set"}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-[var(--text-tertiary)]">Updated</dt>
-                    <dd className="text-[var(--text-primary)]">
-                      <TimeChip date={contract.updated_at} format="readable" />
-                    </dd>
-                  </div>
-                </dl>
+              <ContractPanelHeader icon={UserRound} eyebrow="Record" title="Owner and status" />
+              <div className="space-y-4 px-5 py-4">
+                <div>
+                  <p className="ui-caps-3 text-[var(--text-tertiary)]">Record facts</p>
+                  <dl className="mt-2 space-y-2 text-[12.5px]">
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-[var(--text-tertiary)]">Contract type</dt>
+                      <dd className="text-[var(--text-primary)]">{contract.contract_type || "Not set"}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-[var(--text-tertiary)]">Updated</dt>
+                      <dd className="text-[var(--text-primary)]">
+                        <TimeChip date={contract.updated_at} format="readable" />
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
                 {showContractOwnerAssignment ? (
                   <div className="border-t border-[var(--border-subtle)] pt-4">
                     <OwnerAssignmentForm
@@ -2589,12 +2217,15 @@ export default async function ContractDetailPage(props: {
                   </div>
                 ) : null}
                 <div className="border-t border-[var(--border-subtle)] pt-4">
-                  <ContractStatusTransition
-                    contractId={contract.id}
-                    currentStatus={contract.status}
-                    canEdit={canEdit}
-                    blockActivateReason={markActiveBlockedReason}
-                  />
+                  <p className="ui-caps-3 text-[var(--text-tertiary)]">Status</p>
+                  <div className="mt-2">
+                    <ContractStatusTransition
+                      contractId={contract.id}
+                      currentStatus={contract.status}
+                      canEdit={canEdit}
+                      blockActivateReason={markActiveBlockedReason}
+                    />
+                  </div>
                 </div>
                 {canDelete ? (
                   <details className="group/remove border-t border-[var(--border-subtle)] pt-4">
@@ -2604,7 +2235,7 @@ export default async function ContractDetailPage(props: {
                         strokeWidth={2}
                         aria-hidden
                       />
-                      Remove this record
+                      Delete this contract record
                     </summary>
                     <div className="mt-3">
                       <DeleteContractButton
@@ -2618,144 +2249,9 @@ export default async function ContractDetailPage(props: {
               </div>
             </section>
 
-            <section>
-              <div className="flex items-center gap-1.5 px-1">
-                <ListChecks className="h-3.5 w-3.5 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-                <p className="ui-caps-3 text-[var(--text-tertiary)]">Needs attention</p>
-                {needsAttentionCount > 0 ? (
-                  <CountChip value={needsAttentionCount} />
-                ) : null}
-              </div>
-              <div className="mt-2 border-t border-[var(--border-subtle)]">
-                {coreAttentionItems.length === 0 ? (
-                  <div className="flex items-center gap-2 py-3">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-6 w-6 items-center justify-center rounded-md border"
-                      style={{
-                        borderColor: "color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle))",
-                        background: "color-mix(in oklab, var(--success-ink) 12%, var(--surface-raised))",
-                        color: "var(--success-ink)",
-                      }}
-                    >
-                      <Check className="h-3 w-3" strokeWidth={2.2} />
-                    </span>
-                    <p className="text-[12.5px] font-medium text-[color:color-mix(in_oklab,var(--success-ink)_55%,var(--text-secondary))]">
-                      All clear
-                    </p>
-                  </div>
-                ) : (
-                  <ul className="flex flex-col items-start gap-1.5 py-1.5">
-                    {coreAttentionItems.map((item) => (
-                      <li key={item.key} className="flex">
-                        <ChipCapsule
-                          leftValue={item.count}
-                          leftLabel={item.kind}
-                          rightVerb={item.action}
-                          href={item.href}
-                          tone={item.tone}
-                          ariaLabel={item.label}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </section>
+            <ContractNeedsAttention items={coreAttentionItems} />
 
-            {(() => {
-              // Evidence-typed work items live in the Evidence card (§10.4) —
-              // exclude them here so the sidebar Linked Work list doesn't
-              // double-render the same row.
-              const sidebarLinkedWork = v10WorkItems.filter(
-                (item) => !String(item.type ?? "").toLowerCase().includes("evidence")
-              );
-              return (
-              <section className="group/section">
-                <div className="flex items-center justify-between gap-2 px-1">
-                  <div className="flex items-baseline gap-1.5">
-                    <p className="ui-caps-3 text-[var(--text-tertiary)]">Linked work</p>
-                    {sidebarLinkedWork.length > 0 ? <CountChip value={sidebarLinkedWork.length} /> : null}
-                  </div>
-                  {sidebarLinkedWork.length > 0 ? (
-                    <Link
-                      href={`/work?contract=${contract.id}`}
-                      className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/section:opacity-100 focus-visible:opacity-100"
-                    >
-                      Open all
-                      <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
-                    </Link>
-                  ) : null}
-                </div>
-                <div className="mt-1.5 border-t border-[var(--border-subtle)]">
-                  {sidebarLinkedWork.length === 0 ? (
-                    <DashboardEmptyState
-                      icon={ListChecks}
-                      label="No linked work"
-                      hint="Tracked tasks appear here"
-                      action={{ href: `/work?contract=${contract.id}`, label: "Create work" }}
-                      compact
-                    />
-                  ) : (
-                  <ul className="divide-y divide-[var(--border-subtle)]">
-                    {sidebarLinkedWork.slice(0, 5).map((item) => {
-                      const statusRaw = String(item.status).toLowerCase();
-                      // BLOCKED outranks OPEN in the linked-work tone
-                      // hierarchy. Blocked rows render warning (amber) so
-                      // they pull the eye first; bare "open" / "in_progress"
-                      // rows render neutral since they're just in flight.
-                      const chipTone =
-                        statusRaw === "blocked" || statusRaw === "failed" || statusRaw === "rejected"
-                          ? ("warning" as const)
-                          : statusRaw === "completed" || statusRaw === "approved"
-                            ? ("success" as const)
-                            : undefined;
-                      return (
-                        <li key={`${item.type}:${item.source_id}`}>
-                          <Link
-                            href={`/work?contract=${contract.id}`}
-                            className="group/work -mx-1 flex items-start justify-between gap-2 rounded-lg px-1 py-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_10%,transparent)]"
-                          >
-                            <div className="min-w-0">
-                              <p
-                                title={item.title}
-                                className="line-clamp-2 text-[12px] font-medium leading-snug text-[var(--text-primary)] group-hover/work:text-[var(--accent-strong)]"
-                              >
-                                {item.title}
-                              </p>
-                              <span className="mt-1 inline-flex flex-wrap items-center gap-1.5">
-                                <ChipPair
-                                  primary={humanizeContractEnumLabel(String(item.type))}
-                                  secondary={humanizeContractEnumLabel(String(item.status))}
-                                  tone={chipTone}
-                                />
-                                {item.due_at ? (
-                                  <TimeChip
-                                    date={String(item.due_at)}
-                                    format="relative"
-                                    tone={
-                                      String(item.due_state ?? "").toLowerCase().includes("overdue")
-                                        ? "danger"
-                                        : undefined
-                                    }
-                                  />
-                                ) : null}
-                              </span>
-                            </div>
-                            <span className="inline-flex shrink-0 items-center gap-0.5 self-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--accent-strong)] opacity-0 transition-opacity group-hover/work:opacity-100 focus-visible:opacity-100">
-                              Open
-                              <ChevronRight className="h-2.5 w-2.5" strokeWidth={1.85} aria-hidden />
-                            </span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  )}
-                </div>
-              </section>
-              );
-            })()}
+            <ContractLinkedWork items={v10WorkItems} contractId={contract.id} />
           </aside>
         </div>
       </div>
@@ -2774,7 +2270,7 @@ export default async function ContractDetailPage(props: {
           </ul>
           <div className="mt-3 flex flex-wrap gap-3 text-[12.5px]">
             <Link href="#extracted-fields" className="ui-link">
-              Open extracted fields
+              Open contract details
             </Link>
             <Link href={`${contract.id ? `/contracts/${contract.id}?tab=overview#source-documents` : "#source-documents"}`} className="ui-link">
               Check source documents
@@ -2940,7 +2436,7 @@ export default async function ContractDetailPage(props: {
                   <RecoverableState
                     state="partial"
                     title="Contract health read model has not materialized"
-                    reason="Related activation, work, renewal, evidence, approval, exception, and audit signals are shown below so the record remains recoverable while health is rebuilt."
+                    reason="Related activation, task, renewal, evidence, approval, issue, and audit signals are shown below so the record remains recoverable while health is rebuilt."
                     accessibleName="Contract health read model partial state"
                     nextActionLabel="Review workspace health"
                     surface="contract_record"
@@ -2957,7 +2453,7 @@ export default async function ContractDetailPage(props: {
                   {v10HealthSnapshot ? (
                     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                        Health blockers
+                        Health gaps
                       </p>
                       <p className="mt-1 font-medium text-[var(--text-primary)]">
                         {v10HealthSnapshot.missing_required_field_count} required ·{" "}
@@ -2978,20 +2474,20 @@ export default async function ContractDetailPage(props: {
                     </p>
                     {v10Activation ? (
                       <p className="mt-1 text-xs">
-                        {v10Activation.required_fields_approved}/{v10Activation.required_fields_total} required fields approved
+                        {v10Activation.required_fields_approved}/{v10Activation.required_fields_total} required details confirmed
                       </p>
                     ) : null}
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                      Work
-                    </p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+                        Tasks
+                      </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
                       {v10WorkItems.length} open linked item{v10WorkItems.length === 1 ? "" : "s"}
                     </p>
                     <p className="mt-1 text-xs">
                       {v10WorkItems.filter((item) => item.due_state === "overdue").length} overdue ·{" "}
-                      {v10WorkItems.filter((item) => item.status === "blocked").length} blocked
+                      {v10WorkItems.filter((item) => item.status === "blocked").length} need input
                     </p>
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
@@ -3007,10 +2503,10 @@ export default async function ContractDetailPage(props: {
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                      Field provenance
+                      Detail provenance
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
-                      {v10FieldProvenance.length} field record{v10FieldProvenance.length === 1 ? "" : "s"}
+                      {v10FieldProvenance.length} detail record{v10FieldProvenance.length === 1 ? "" : "s"}
                     </p>
                     <p className="mt-1 text-xs">
                       {v10FieldProvenance[0]?.field_key
@@ -3055,10 +2551,10 @@ export default async function ContractDetailPage(props: {
                   </div>
                   <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                      Exceptions
+                      Issues
                     </p>
                     <p className="mt-1 font-medium text-[var(--text-primary)]">
-                      {v10ExceptionRecords.length} exception{v10ExceptionRecords.length === 1 ? "" : "s"}
+                      {v10ExceptionRecords.length} issue{v10ExceptionRecords.length === 1 ? "" : "s"}
                     </p>
                     <p className="mt-1 text-xs">
                       {v10ExceptionRecords.filter((item) => item.severity === "critical" || item.severity === "high").length} high risk ·{" "}
@@ -3146,14 +2642,14 @@ export default async function ContractDetailPage(props: {
                 <p>
                   This contract is visible, but no health snapshot is available yet. The legacy header,
                   reminders, approvals, evidence, and audit state remain available, and workspace health can
-                  show whether refresh, extraction, import, report, or export jobs are blocking the read model.
+                  show whether refresh, suggested-detail, import, report, or export jobs are affecting the read model.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href="/settings/health" className="ui-link">
                     Review workspace health
                   </Link>
                   <Link href={`/work?lens=blocked`} className="ui-link">
-                    Review blocked work
+                    Review tasks needing input
                   </Link>
                   <Link href={`/contracts/${contract.id}?tab=audit`} className="ui-link">
                     Review audit trail
@@ -3168,7 +2664,7 @@ export default async function ContractDetailPage(props: {
               <div className="flex flex-col gap-2">
                 <p className="ui-eyebrow">Immediate actions</p>
                 <p className="text-[12.5px] text-[var(--text-secondary)]">
-                  The highest-signal blockers and next steps on this contract.
+                  The highest-signal dependencies and next steps on this contract.
                 </p>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -3240,16 +2736,16 @@ export default async function ContractDetailPage(props: {
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-5 py-5 md:px-8">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="min-w-0">
-                <h2 className="ui-section-title text-base">Extracted fields</h2>
+                <h2 className="ui-section-title text-base">Suggested details</h2>
                 <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                  Approve source-backed values before reminders, renewals, or downstream workflow rely on this contract.
+                  Confirm source-backed values before reminders, renewals, or downstream tasks rely on this contract.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
                   <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
-                    {fieldsCount} field{fieldsCount === 1 ? "" : "s"}
+                    {fieldsCount} detail{fieldsCount === 1 ? "" : "s"}
                   </span>
                   <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
-                    {pendingFieldsCount} pending review
+                    {pendingFieldsCount} need confirmation
                   </span>
                   <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5">
                     {filesCount} source file{filesCount === 1 ? "" : "s"}
@@ -3258,7 +2754,7 @@ export default async function ContractDetailPage(props: {
               </div>
               <div className="ui-toolbar flex max-w-full flex-col items-stretch gap-1.5 p-2 sm:flex-row sm:flex-nowrap sm:items-center sm:self-start [&_.ui-btn-primary]:px-3 [&_.ui-btn-primary]:text-xs [&_.ui-btn-primary]:sm:px-3">
                 <Link href="/contracts/review" className="ui-btn-secondary w-full whitespace-nowrap px-3 py-2 text-xs sm:w-auto">
-                  Review queue
+                  Confirm details
                 </Link>
                 <ExtractButton
                   contractId={contract.id}
@@ -3295,11 +2791,11 @@ export default async function ContractDetailPage(props: {
                       </p>
                       <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                         {reviewQueueContinuity.currentPendingCount > 0
-                          ? `${reviewQueueContinuity.currentPendingCount} field${reviewQueueContinuity.currentPendingCount === 1 ? "" : "s"} on this contract are still pending.`
-                          : "The contract is still marked pending review even though no extracted fields are pending."}{" "}
+                          ? `${reviewQueueContinuity.currentPendingCount} detail${reviewQueueContinuity.currentPendingCount === 1 ? "" : "s"} on this contract still need confirmation.`
+                          : "The contract is still marked pending review even though no suggested details are pending."}{" "}
                         {reviewQueueContinuity.nextContractId
                           ? `When you finish here, continue straight to the next contract instead of returning to the queue.`
-                          : "This is the last contract currently waiting in the active queue."}
+                          : "This is the last contract in the active review queue."}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:justify-end">
@@ -3427,23 +2923,30 @@ export default async function ContractDetailPage(props: {
                   <form action={supersedeContractFileForm} className="mt-4 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
                     <p className="ui-label-caps">Supersede older file and re-extract</p>
-                    <select name="fileId" className="ui-input text-xs" defaultValue="">
-                      <option value="" disabled>
-                        Select file to supersede
-                      </option>
-                      {contract.contract_files.map((file: { id: string; file_name: string }) => (
-                        <option key={file.id} value={file.id}>
-                          {file.file_name}
-                        </option>
-                      ))}
-                    </select>
+                    <UiSelect
+                      name="fileId"
+                      defaultValue=""
+                      ariaLabel="File to supersede"
+                      placeholder="Select file to supersede"
+                      options={contract.contract_files.map(
+                        (file: { id: string; file_name: string }) => ({
+                          value: file.id,
+                          label: file.file_name,
+                        }),
+                      )}
+                      variant="compact"
+                      portal
+                      searchThreshold={8}
+                      className="w-full"
+                      buttonClassName="w-full !min-h-11 text-xs"
+                    />
                     <input aria-label="Reason (optional)" name="reason"
                       maxLength={200}
                       placeholder="Reason (optional)"
                       className="ui-input text-xs"
                     />
                     <button type="submit" className="ui-btn-secondary px-3 py-2 text-xs">
-                      Mark superseded & re-run extraction
+                      Mark superseded and rerun suggestions
                     </button>
                   </form>
                 ) : null}
@@ -3495,7 +2998,7 @@ export default async function ContractDetailPage(props: {
                   href={`/contracts/exceptions?status=open&contract=${contract.id}`}
                   className="ui-link mt-4 inline-block text-sm"
                 >
-                  Review exception ledger
+                  Review issue ledger
                 </Link>
               </div>
             </div>
@@ -3559,7 +3062,7 @@ export default async function ContractDetailPage(props: {
           {showContractWorkflowOps && (activeTab === "overview" || activeTab === "obligations" || activeTab === "workflow") && (
           <div className="ui-card overflow-hidden">
             <div className="border-b border-[var(--border-subtle)]/90 bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] px-6 py-4 md:px-8">
-              <h2 className="ui-section-title text-base">Obligations</h2>
+              <h2 className="ui-section-title text-base">Requirements</h2>
               <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">Ongoing commitments and evidence.</p>
             </div>
             <div className="px-4 py-6 md:px-8">
@@ -3735,23 +3238,41 @@ export default async function ContractDetailPage(props: {
                     <input type="hidden" name="contractId" value={contract.id} />
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <div className="min-w-0">
-                      <select name="intakeStatus" defaultValue={contract.intake_status ?? "awaiting_review"} className="ui-input w-full min-w-0 text-xs">
-                        <option value="awaiting_review">awaiting review</option>
-                        <option value="in_clarification">in clarification</option>
-                        <option value="active">active</option>
-                        <option value="at_risk">at risk</option>
-                        <option value="renewal_prep">renewal prep</option>
-                        <option value="notice_decision">notice decision</option>
-                        <option value="archived">archived</option>
-                      </select>
+                      <UiSelect
+                        name="intakeStatus"
+                        defaultValue={contract.intake_status ?? "awaiting_review"}
+                        ariaLabel="Intake status"
+                        options={[
+                          { value: "awaiting_review", label: "awaiting review" },
+                          { value: "in_clarification", label: "in clarification" },
+                          { value: "active", label: "active" },
+                          { value: "at_risk", label: "at risk" },
+                          { value: "renewal_prep", label: "renewal prep" },
+                          { value: "notice_decision", label: "notice decision" },
+                          { value: "archived", label: "archived" },
+                        ]}
+                        variant="compact"
+                        portal
+                        className="w-full"
+                        buttonClassName="w-full min-w-0 !min-h-11 text-xs"
+                      />
                       </div>
                       <div className="min-w-0">
-                      <select name="healthStatus" defaultValue={contract.health_status ?? "unknown"} className="ui-input w-full min-w-0 text-xs">
-                        <option value="healthy">healthy</option>
-                        <option value="watch">watch</option>
-                        <option value="at_risk">at risk</option>
-                        <option value="unknown">unknown</option>
-                      </select>
+                      <UiSelect
+                        name="healthStatus"
+                        defaultValue={contract.health_status ?? "unknown"}
+                        ariaLabel="Health status"
+                        options={[
+                          { value: "healthy", label: "healthy" },
+                          { value: "watch", label: "watch" },
+                          { value: "at_risk", label: "at risk" },
+                          { value: "unknown", label: "unknown" },
+                        ]}
+                        variant="compact"
+                        portal
+                        className="w-full"
+                        buttonClassName="w-full min-w-0 !min-h-11 text-xs"
+                      />
                       </div>
                     </div>
                     <input aria-label="Required next step" name="requiredNextStep"
@@ -3928,23 +3449,32 @@ export default async function ContractDetailPage(props: {
             <div className="p-6 space-y-4">
               <p className="text-xs text-[var(--text-tertiary)]">
                 Scenario: {renewalScenario?.scenario?.replace(/_/g, " ") || "not set"}
-                {renewalScenario?.blocker ? ` · blocker: ${renewalScenario.blocker}` : ""}
+                {renewalScenario?.blocker ? ` · input needed: ${renewalScenario.blocker}` : ""}
               </p>
               {canEdit && (
                 <form action={upsertRenewalScenarioForm} className="space-y-2">
                   <input type="hidden" name="contractId" value={contract.id} />
-                  <select name="scenario" defaultValue={renewalScenario?.scenario ?? "awaiting_decision"} className="ui-input text-xs">
-                    <option value="awaiting_decision">awaiting decision</option>
-                    <option value="renew">renew</option>
-                    <option value="renegotiate">renegotiate</option>
-                    <option value="terminate">terminate</option>
-                    <option value="replace">replace</option>
-                    <option value="discontinue">discontinue</option>
-                    <option value="temporary_extension">temporary extension</option>
-                  </select>
-                  <input aria-label="Blocker (optional)" name="blocker"
+                  <UiSelect
+                    name="scenario"
+                    defaultValue={renewalScenario?.scenario ?? "awaiting_decision"}
+                    ariaLabel="Renewal scenario"
+                    options={[
+                      { value: "awaiting_decision", label: "awaiting decision" },
+                      { value: "renew", label: "renew" },
+                      { value: "renegotiate", label: "renegotiate" },
+                      { value: "terminate", label: "terminate" },
+                      { value: "replace", label: "replace" },
+                      { value: "discontinue", label: "discontinue" },
+                      { value: "temporary_extension", label: "temporary extension" },
+                    ]}
+                    variant="compact"
+                    portal
+                    className="w-full"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
+                  <input aria-label="Dependency reason (optional)" name="blocker"
                     defaultValue={renewalScenario?.blocker ?? ""}
-                    placeholder="Blocker (optional)"
+                    placeholder="Dependency reason (optional)"
                     className="ui-input text-xs"
                   />
                   <textarea
@@ -3953,25 +3483,39 @@ export default async function ContractDetailPage(props: {
                     placeholder="Decision notes"
                     className="ui-input min-h-[70px] text-xs"
                   />
-                  <select
+                  <UiSelect
                     name="workspaceStatus"
                     defaultValue={renewalScenario?.workspace_status ?? "in_progress"}
-                    className="ui-input text-xs"
-                  >
-                    <option value="not_started">not started</option>
-                    <option value="in_progress">in progress</option>
-                    <option value="blocked">blocked</option>
-                    <option value="decision_pending">decision pending</option>
-                    <option value="closed">closed</option>
-                  </select>
-                  <select name="ownerId" defaultValue={renewalScenario?.owner_id ?? ""} className="ui-input text-xs">
-                    <option value="">Workspace owner (optional)</option>
-                    {ownerMembers.map((member) => (
-                      <option key={member.userId} value={member.userId}>
-                        {member.label}
-                      </option>
-                    ))}
-                  </select>
+                    ariaLabel="Workspace status"
+                    options={[
+                      { value: "not_started", label: "not started" },
+                      { value: "in_progress", label: "in progress" },
+                      { value: "blocked", label: "needs input" },
+                      { value: "decision_pending", label: "decision pending" },
+                      { value: "closed", label: "closed" },
+                    ]}
+                    variant="compact"
+                    portal
+                    className="w-full"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
+                  <UiSelect
+                    name="ownerId"
+                    defaultValue={renewalScenario?.owner_id ?? ""}
+                    ariaLabel="Workspace owner"
+                    options={[
+                      { value: "", label: "Workspace owner (optional)" },
+                      ...ownerMembers.map((member) => ({
+                        value: member.userId,
+                        label: member.label,
+                      })),
+                    ]}
+                    variant="compact"
+                    portal
+                    searchThreshold={8}
+                    className="w-full"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     <input aria-label="Target decision date" name="targetDecisionDate"
                       type="date"
@@ -4047,7 +3591,7 @@ export default async function ContractDetailPage(props: {
                     <span className="font-semibold text-[var(--text-primary)]">{contract.health_status ?? "unknown"}</span>
                   </li>
                   <li>
-                    Why surfaced: target decision path, blockers, approvals, and risk are coordinated here.
+                    Why surfaced: target decision path, dependencies, approvals, and risk are coordinated here.
                   </li>
                 </ul>
               </div>
@@ -4056,33 +3600,60 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={requestContractApprovalForm} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <select name="approvalType" defaultValue="renewal_decision" className="ui-input text-xs">
-                      <option value="renewal_decision">renewal decision</option>
-                      <option value="notice_action">notice action</option>
-                      <option value="commercial_exception">commercial exception</option>
-                      <option value="ownership_handoff">ownership handoff</option>
-                    </select>
+                    <UiSelect
+                      name="approvalType"
+                      defaultValue="renewal_decision"
+                      ariaLabel="Approval type"
+                      options={[
+                        { value: "renewal_decision", label: "renewal decision" },
+                        { value: "notice_action", label: "notice action" },
+                        { value: "commercial_exception", label: "commercial issue" },
+                        { value: "ownership_handoff", label: "ownership handoff" },
+                      ]}
+                      variant="compact"
+                      portal
+                      className="w-full"
+                      buttonClassName="w-full !min-h-11 text-xs"
+                    />
                     <textarea name="notes" placeholder="Request notes" className="ui-input min-h-[60px] text-xs" />
-                    <select name="approverId" defaultValue="" className="ui-input text-xs">
-                      <option value="">Policy/default approver</option>
-                      {ownerMembers.map((member) => (
-                        <option key={member.userId} value={member.userId}>
-                          {member.label}
-                        </option>
-                      ))}
-                    </select>
-                    <select name="category" defaultValue="standard" className="ui-input text-xs">
-                      <option value="standard">standard</option>
-                      <option value="policy_exception">policy exception</option>
-                      <option value="financial">financial</option>
-                      <option value="operational">operational</option>
-                    </select>
+                    <UiSelect
+                      name="approverId"
+                      defaultValue=""
+                      ariaLabel="Approver"
+                      options={[
+                        { value: "", label: "Policy/default approver" },
+                        ...ownerMembers.map((member) => ({
+                          value: member.userId,
+                          label: member.label,
+                        })),
+                      ]}
+                      variant="compact"
+                      portal
+                      searchThreshold={8}
+                      className="w-full"
+                      buttonClassName="w-full !min-h-11 text-xs"
+                    />
+                    <UiSelect
+                      name="category"
+                      defaultValue="standard"
+                      ariaLabel="Approval category"
+                      options={[
+                        { value: "standard", label: "standard" },
+                        { value: "policy_exception", label: "policy issue" },
+                        { value: "financial", label: "financial" },
+                        { value: "operational", label: "operational" },
+                      ]}
+                      variant="compact"
+                      portal
+                      className="w-full"
+                      buttonClassName="w-full !min-h-11 text-xs"
+                    />
                     <label className="inline-flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                      <input aria-label="Exception flag" type="checkbox" name="exceptionFlag" value="1" className="ui-checkbox" />
-                      Mark as exception
+                      <input aria-label="Issue flag" type="checkbox" name="exceptionFlag" value="1" className="ui-checkbox" />
+                      Mark as issue
                     </label>
-                    <input aria-label="Exception reason (optional)" name="exceptionReason"
-                      placeholder="Exception reason (optional)"
+                    <input aria-label="Issue reason (optional)" name="exceptionReason"
+                      placeholder="Issue reason (optional)"
                       className="ui-input text-xs"
                     />
                     <button type="submit" className="ui-btn-secondary w-full px-3 py-2 text-xs">
@@ -4142,7 +3713,7 @@ export default async function ContractDetailPage(props: {
                 </p>
                 {upcomingReminders.length === 0 ? (
                   <p className="mt-1 text-sm text-[var(--text-tertiary)]">
-                    None pending. Approve a date field to schedule reminders.
+                    None pending. Confirm a date detail to schedule reminders.
                   </p>
                 ) : (
                   <ul className="mt-2 space-y-2">
@@ -4318,14 +3889,22 @@ export default async function ContractDetailPage(props: {
               <form action={upsertContractHandoffChecklistForm} className="mt-4 space-y-2">
                 <input type="hidden" name="contractId" value={contract.id} />
                 <p className="ui-label-caps">Ownership handoff checklist</p>
-                <select name="toOwnerId" required className="ui-input text-xs">
-                  <option value="">Select new owner...</option>
-                  {ownerMembers.map((m) => (
-                    <option key={m.userId} value={m.userId}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
+                <UiSelect
+                  name="toOwnerId"
+                  required
+                  defaultValue=""
+                  ariaLabel="New owner"
+                  placeholder="Select new owner…"
+                  options={ownerMembers.map((m) => ({
+                    value: m.userId,
+                    label: m.label,
+                  }))}
+                  variant="compact"
+                  portal
+                  searchThreshold={8}
+                  className="w-full"
+                  buttonClassName="w-full !min-h-11 text-xs"
+                />
                 <textarea
                   name="checklistNote"
                   required
@@ -4451,12 +4030,12 @@ export default async function ContractDetailPage(props: {
               />
               {showContractFieldCollaboration ? (
               <div id="field-comments" className="mt-6 border-t border-[var(--border-subtle)] pt-5 scroll-mt-28">
-                <p className="ui-label-caps">Field comments & mentions</p>
+                <p className="ui-label-caps">Detail comments & mentions</p>
                 {canEdit && (
                   <form action={createClarificationTaskForm as never} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <input aria-label="Optional field id" name="fieldId"
-                      placeholder="Optional field id"
+                    <input aria-label="Optional detail id" name="fieldId"
+                      placeholder="Optional detail id"
                       className="ui-input text-xs"
                     />
                     <input aria-label="Team queue key" name="teamKey"
@@ -4478,18 +4057,18 @@ export default async function ContractDetailPage(props: {
                 {canEdit && (
                   <form action={addFieldCommentForm} className="mt-2 space-y-2">
                     <input type="hidden" name="contractId" value={contract.id} />
-                    <input aria-label="Optional field id" name="fieldId"
-                      placeholder="Optional field id"
+                    <input aria-label="Optional detail id" name="fieldId"
+                      placeholder="Optional detail id"
                       className="ui-input text-xs"
                     />
                     <textarea
                       name="comment"
                       required
-                      placeholder="Add field-level context. Mention teammates with @email or @full.name."
+                      placeholder="Add detail-level context. Mention teammates with @email or @full.name."
                       className="ui-input min-h-[72px] text-xs"
                     />
                     <button type="submit" className="ui-btn-secondary px-3 py-2 text-xs">
-                      Add field comment
+                      Add detail comment
                     </button>
                   </form>
                 )}

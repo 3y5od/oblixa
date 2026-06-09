@@ -64,7 +64,7 @@ describe("sidebar model", () => {
     expect(primaryNames()).toEqual([
       "Dashboard",
       "Contracts",
-      "Work",
+      "Tasks",
       "Renewals",
       "Evidence",
       "Reports",
@@ -128,17 +128,17 @@ describe("sidebar model", () => {
     expect(topLevelNames(m)).not.toContain("Tools");
     expect(findItem("Assurance", m)?.children.map((child) => child.name)).not.toContain("Playbooks");
     expect(findItem("Watchlists", m)).toBeUndefined();
-    // Contracts is inactive here, so its review count rolls up onto the parent
-    // row as a single count chip rather than an always-on "Review fields" child.
+    // Contracts is inactive here, so its confirmation count rolls up onto the parent
+    // row as a single count chip rather than an always-on child.
     expect(findItem("Contracts", m)?.badge?.displayValue).toBe("4");
   });
 
-  it("marks the release-state Work destination exact-active without legacy child lanes", () => {
+  it("marks the Tasks destination exact-active without legacy child lanes", () => {
     const m = model({ pathname: "/work" });
-    const work = findItem("Work", m);
-    expect(work?.active).toBe(true);
-    expect(work?.exactActive).toBe(true);
-    expect(work?.children).toEqual([]);
+    const tasks = findItem("Tasks", m);
+    expect(tasks?.active).toBe(true);
+    expect(tasks?.exactActive).toBe(true);
+    expect(tasks?.children).toEqual([]);
   });
 
   it("keeps contracts root and settings exact-active semantics", () => {
@@ -185,24 +185,24 @@ describe("sidebar model", () => {
     expect(m.sections[0]?.items.map((item) => item.name)).toEqual([
       "Dashboard",
       "Contracts",
-      "Work",
+      "Tasks",
       "Renewals",
       "Evidence",
       "Reports",
       "Settings",
     ]);
-    expect(findItem("Contracts", m)?.badge).toMatchObject({ displayValue: "99+", label: "101 field review items need action" });
+    expect(findItem("Contracts", m)?.badge).toMatchObject({ displayValue: "99+", label: "101 detail confirmation items need action" });
   });
 
-  it("preserves review badge semantics and keeps old Work queue badges off Core sidebar", () => {
+  it("preserves confirmation badge semantics and keeps old task lane badges off Core sidebar", () => {
     const zero = model({ pathname: "/contracts/review", navBadges: { reviewQueue: 0 } });
-    expect(findItem("Contracts", zero)?.children.find((child) => child.name === "Review fields")?.badge).toBeUndefined();
+    expect(findItem("Contracts", zero)?.children.find((child) => child.name === "Review queue")?.badge).toBeUndefined();
 
     const positive = model({ pathname: "/contracts/approvals", navBadges: { approvals: 4 } });
-    expect(findItem("Work", positive)?.children).toEqual([]);
+    expect(findItem("Tasks", positive)?.children).toEqual([]);
 
     const large = model({ pathname: "/contracts/obligations", navBadges: { obligations: 104 } });
-    expect(findItem("Work", large)?.children).toEqual([]);
+    expect(findItem("Tasks", large)?.children).toEqual([]);
   });
 
   it("treats the Contracts subnav as contextual — children only when the section is active", () => {
@@ -213,23 +213,23 @@ describe("sidebar model", () => {
     expect(contractsAway?.children).toEqual([]);
     expect(contractsAway?.badge?.displayValue).toBe("5");
 
-    // Active section: "All contracts" + "Review fields" surface; the parent
+    // Active section: "All contracts" + confirmation surface; the parent
     // stops carrying the rolled-up count because the child owns it.
     const inSection = model({ pathname: "/contracts", navBadges: { reviewQueue: 5 } });
     const contractsIn = findItem("Contracts", inSection);
-    expect(contractsIn?.children.map((c) => c.name)).toEqual(["All contracts", "Review fields"]);
+    expect(contractsIn?.children.map((c) => c.name)).toEqual(["All contracts", "Review queue"]);
     expect(contractsIn?.badge).toBeUndefined();
     expect(contractsIn?.children.find((c) => c.name === "All contracts")?.exactActive).toBe(true);
-    expect(contractsIn?.children.find((c) => c.name === "Review fields")?.badge?.displayValue).toBe("5");
+    expect(contractsIn?.children.find((c) => c.name === "Review queue")?.badge?.displayValue).toBe("5");
   });
 
-  it("does not aggregate hidden old Work lane badges when collapsed in Core", () => {
+  it("does not aggregate hidden old task-lane badges when collapsed in Core", () => {
     const m = model({ forcedCollapsed: true, pathname: "/work", navBadges: { approvals: 4, obligations: 8 } });
-    expect(findItem("Work", m)?.badge).toBeUndefined();
+    expect(findItem("Tasks", m)?.badge).toBeUndefined();
   });
 
-  it("keeps Work as a single release-state destination", () => {
-    expect(findItem("Work")?.children).toEqual([]);
+  it("keeps Tasks as a single destination", () => {
+    expect(findItem("Tasks")?.children).toEqual([]);
   });
 
   it("keeps Reports focused on output destinations", () => {

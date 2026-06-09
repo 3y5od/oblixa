@@ -2,7 +2,7 @@ export default function ContractTasksLoading() {
   return (
     <>
       <div className="sr-only" role="status" aria-live="polite">
-        Loading contract tasks. Obligations and execution items will appear shortly.
+        Loading contract tasks. Requirements and task items will appear shortly.
       </div>
       <div className="ui-page-stack mx-auto max-w-7xl" aria-hidden aria-busy="true">
         <div className="flex flex-wrap items-start gap-x-4 gap-y-3">

@@ -607,30 +607,30 @@ export default async function SettingsHealthPage() {
     : "No recent export jobs are recorded yet.";
   const latestExtractionHeadline =
     !latestExtractionJob
-      ? "No recent extraction jobs"
+      ? "No recent suggestion jobs"
       : latestExtractionJob.status === "failed"
-        ? "Extraction failed"
+        ? "Suggestions failed"
         : latestExtractionJob.status === "pending"
-          ? "Extraction queued"
+          ? "Suggestions queued"
           : latestExtractionJob.status === "processing"
             ? isExtractionProcessingStale(latestExtractionJob.started_at)
-              ? "Extraction may be stuck"
-              : "Extraction in progress"
-            : "Extraction completed";
+              ? "Suggestions may be stuck"
+              : "Suggestions in progress"
+            : "Suggestions completed";
   const latestExtractionDetail =
     !latestExtractionJob
-      ? "No recent extraction jobs are recorded yet."
+      ? "No recent suggestion jobs are recorded yet."
       : latestExtractionJob.status === "failed"
-        ? latestExtractionJob.last_error || "The latest extraction attempt failed."
+        ? latestExtractionJob.last_error || "The latest suggestion attempt failed."
         : latestExtractionJob.status === "pending"
-          ? "A queued extraction is waiting for worker pickup."
+          ? "Queued suggestions need worker pickup."
           : latestExtractionJob.status === "processing"
             ? isExtractionProcessingStale(latestExtractionJob.started_at)
-              ? "The latest extraction has been processing long enough that it may need a retry."
-              : "The latest extraction run is still processing."
+              ? "The latest suggestions have been processing long enough that they may need a retry."
+              : "The latest suggestion run is still processing."
             : latestExtractionJob.completed_at
-              ? `Latest extraction completed ${new Date(latestExtractionJob.completed_at).toISOString()}.`
-              : "The latest extraction completed successfully.";
+              ? `Latest suggestions completed ${new Date(latestExtractionJob.completed_at).toISOString()}.`
+              : "The latest suggestions completed successfully.";
   const latestReminderHeadline =
     !latestReminderRun
       ? "No recent reminders"
@@ -709,7 +709,7 @@ export default async function SettingsHealthPage() {
       userImpact: intakeWaitingCount > 25 ? `${intakeWaitingCount} intake record${intakeWaitingCount === 1 ? "" : "s"} still need review or clarification.` : undefined,
       detail: `${intakeWaitingCount} contract${intakeWaitingCount === 1 ? "" : "s"} awaiting review or clarification in recent activity.`,
       primaryAction: { href: "/contracts/intake", label: "Review intake" },
-      chips: [{ label: "Waiting", value: String(intakeWaitingCount) }],
+      chips: [{ label: "Needs review", value: String(intakeWaitingCount) }],
     }),
     buildWorkspaceHealthItem({
       id: "imports",
@@ -747,30 +747,30 @@ export default async function SettingsHealthPage() {
       status: blockedTaskCount > 0 ? "blocked" : openTaskCount > 25 ? "delayed" : "healthy",
       visibility: "user",
       modes: ["core"],
-      userImpact: blockedTaskCount > 0 ? `${blockedTaskCount} task${blockedTaskCount === 1 ? " is" : "s are"} blocked.` : undefined,
+      userImpact: blockedTaskCount > 0 ? `${blockedTaskCount} task${blockedTaskCount === 1 ? "" : "s"} need input before moving forward.` : undefined,
       detail: `${openTaskCount} open or in-progress task${openTaskCount === 1 ? "" : "s"} in recent activity.`,
       primaryAction: { href: "/contracts/tasks", label: "Review tasks" },
       chips: [
         { label: "Open", value: String(openTaskCount) },
-        { label: "Blocked", value: String(blockedTaskCount) },
+        { label: "Needs input", value: String(blockedTaskCount) },
       ],
     }),
     buildWorkspaceHealthItem({
       id: "obligations",
       area: "configuration",
-      label: "Obligations",
+      label: "Requirements",
       status: openObligationCount > 50 ? "delayed" : "healthy",
       visibility: "user",
       modes: ["core"],
-      userImpact: openObligationCount > 50 ? `${openObligationCount} obligation${openObligationCount === 1 ? "" : "s"} are open or in progress.` : undefined,
-      detail: `${openObligationCount} open or in-progress obligation${openObligationCount === 1 ? "" : "s"} in recent activity.`,
-      primaryAction: { href: "/contracts/obligations", label: "Review obligations" },
+      userImpact: openObligationCount > 50 ? `${openObligationCount} requirement${openObligationCount === 1 ? "" : "s"} are open or in progress.` : undefined,
+      detail: `${openObligationCount} open or in-progress requirement${openObligationCount === 1 ? "" : "s"} in recent activity.`,
+      primaryAction: { href: "/contracts/obligations", label: "Review requirements" },
       chips: [{ label: "Open", value: String(openObligationCount) }],
     }),
     buildWorkspaceHealthItem({
       id: "extraction",
       area: "extraction",
-      label: "Extraction",
+      label: "Suggestions",
       status: failedExtractionJobs > 0 || staleExtractionJobs > 0 ? "needs_attention" : activeExtractionJobs > 0 ? "delayed" : "healthy",
       visibility: "user",
       modes: ["core"],
@@ -779,7 +779,7 @@ export default async function SettingsHealthPage() {
           ? latestExtractionHeadline
           : undefined,
       detail: latestExtractionDetail,
-      primaryAction: { href: "/contracts/review", label: "Review extraction follow-up" },
+      primaryAction: { href: "/contracts/review", label: "Review suggestion follow-up" },
       chips: [
         { label: "Active", value: String(activeExtractionJobs) },
         { label: "Failed", value: String(failedExtractionJobs) },

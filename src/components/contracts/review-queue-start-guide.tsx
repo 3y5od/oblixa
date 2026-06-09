@@ -26,19 +26,19 @@ export function ReviewQueueStartGuide({
   if (dismissed) return null;
 
   return (
-    <section className="ui-card-hero overflow-hidden" aria-label="Review queue getting started guide">
+    <section className="ui-card-hero overflow-hidden" aria-label="Detail confirmation getting started guide">
       <div className="flex flex-col gap-5 border-b border-[var(--border-subtle)]/90 bg-[radial-gradient(circle_at_top_right,var(--canvas-glow),transparent_24%),linear-gradient(180deg,var(--surface-tint),var(--surface-raised))] px-5 py-6 md:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
-            <p className="ui-eyebrow">Field review help</p>
-            <h2 className="ui-page-title text-[1.75rem]">Review one contract at a time</h2>
+            <p className="ui-eyebrow">Detail confirmation help</p>
+            <h2 className="ui-page-title text-[1.75rem]">Confirm one contract at a time</h2>
             <p className="ui-page-lead max-w-3xl">
-              Choose the highest-priority contract, review its pending fields, then continue to the next contract without returning to the list. Critical date gaps, open exceptions, and evidence blockers stay visible before you commit downstream state.
+              Choose the highest-priority contract, confirm its pending details, then continue to the next contract without returning to the list. Critical date gaps, open issues, and evidence dependencies stay visible before you commit downstream state.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href={nextContractHref} className="ui-btn-primary px-4 py-2">
-              Review fields
+              Confirm details
             </Link>
             <Link href="/contracts" className="ui-btn-secondary px-4 py-2">
               All contracts

@@ -2,14 +2,15 @@ import { getAuthContext } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface";
 import { ContractTable } from "@/components/contracts/contract-table";
-import { ContractPagination } from "@/components/contracts/contract-pagination";
+import { ContractsFilterBar } from "@/components/contracts/contracts-filter-bar";
+import { ContractsSavedViewsControl } from "@/components/contracts/contracts-saved-views-control";
+import { DataFooter } from "@/components/ui/data-footer";
+import { DataSurfaceShell, DataSurfaceCard } from "@/components/ui/data-surface-shell";
 import { PortaledPopover } from "@/components/contracts/portaled-popover";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { attachOwnerProfiles, STATUS_LABELS } from "@/lib/contracts";
 import { fetchContractsPage, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
 import { getReviewStatsForContractIds } from "@/lib/contract-review-stats";
-import { deleteSavedView } from "@/actions/saved-views";
-import { ContractsSavedViewCreateForm } from "@/components/contracts/contracts-saved-view-create-form";
 import {
   getContractIdsForDeadlinePreset,
   getContractIdsMatchingFieldSearch,
@@ -21,21 +22,17 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
-  Bookmark,
   CalendarClock,
   CalendarDays,
   ChevronDown,
   CircleCheck,
   ClipboardCheck,
   Download,
-  Eye,
   Files,
   FileText,
   Hourglass,
   Link2,
   ListChecks,
-  SlidersHorizontal,
-  Trash2,
   Upload,
   UploadCloud,
   X,
@@ -43,7 +40,6 @@ import {
 import { redirect } from "next/navigation";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { ContractsSearchForm } from "@/components/contracts/contracts-search-form";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import {
   combineContractListIntersectIds,
@@ -105,8 +101,6 @@ function parseHealthFilter(v: string | undefined): "" | "watch" {
   return v === "watch" ? "watch" : "";
 }
 
-const FILTER_PILL_IDLE_CLASS = "ui-filter-pill";
-const FILTER_PILL_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
 // Filter pills no longer differentiate data-quality fallback values
 // ("Tenants", "Other", email-only owners) — the earlier italic + brown
 // treatment created visual noise without an actionable distinction at
@@ -132,6 +126,15 @@ const CONTRACT_TYPE_FALLBACK_TOKENS = new Set([
   "n/a",
 ]);
 const OWNER_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMPTY_CONTRACT_SHORTCUT_COUNTS = {
+  openProblems: 0,
+  detailsToReview: 0,
+  missingDates: 0,
+  evidenceDue: 0,
+  openTasks: 0,
+  renewalWithin90Days: 0,
+  active: 0,
+};
 
 export default async function ContractsPage(props: {
   searchParams: Promise<{
@@ -455,27 +458,7 @@ export default async function ContractsPage(props: {
     work: searchParams.work ?? "",
   });
 
-  const pagePendingReview = contracts.filter((c) => c.status === "pending_review").length;
-  const pageActive = contracts.filter((c) => c.status === "active").length;
   const latestExportJob = exportJobsData?.[0] ?? null;
-  // v14 — page-level signal counts feed the quick-filter chips above the table
-  // and the operational signals tiles below it.
-  const signalCounts = Object.values(rowSignals).reduce(
-    (acc, sig) => {
-      if (!sig) return acc;
-      if ((sig.openExceptionCount ?? 0) > 0) acc.openExceptions += 1;
-      if (sig.missingCriticalDates) acc.missingDates += 1;
-      if (
-        sig.nextHorizonDays != null &&
-        sig.nextHorizonDays >= 0 &&
-        sig.nextHorizonDays <= 90
-      ) acc.renewingSoon += 1;
-      if ((sig.outstandingEvidenceCount ?? 0) > 0) acc.evidenceDue += 1;
-      if ((sig.openWorkCount ?? 0) > 0) acc.openWork += 1;
-      return acc;
-    },
-    { openExceptions: 0, missingDates: 0, renewingSoon: 0, evidenceDue: 0, openWork: 0 }
-  );
   const activeFilters = [
     searchParams.search ? `Search: ${searchParams.search}` : null,
     activeStatusLabel ? `Status: ${activeStatusLabel}` : null,
@@ -485,14 +468,97 @@ export default async function ContractsPage(props: {
     searchParams.region ? `Region: ${searchParams.region}` : null,
     searchParams.deadline ? `Date: ${searchParams.deadline}` : null,
     searchParams.sort === "created" ? "Sort: created" : null,
-    searchParams.exceptions ? `Exceptions: ${searchParams.exceptions}` : null,
-    searchParams.review ? `Review: ${searchParams.review}` : null,
+    searchParams.exceptions ? `Problems: ${searchParams.exceptions}` : null,
+    searchParams.review ? `Details: ${searchParams.review}` : null,
     searchParams.data_quality ? `Data: ${searchParams.data_quality}` : null,
     searchParams.evidence ? `Evidence: ${searchParams.evidence}` : null,
-    searchParams.work ? `Work: ${searchParams.work}` : null,
+    searchParams.work ? `Tasks: ${searchParams.work}` : null,
   ].filter((value): value is string => value != null);
 
   const activeFilterCount = activeFilters.length;
+  const shouldShowShortcutStrip = activeFilterCount === 0 && contractTotal > 0;
+  const countContractsForShortcut = async ({
+    status,
+    intersectIds,
+  }: {
+    status?: string;
+    intersectIds?: string[] | null;
+  }) =>
+    (
+      await fetchContractsPage(
+        admin,
+        {
+          orgId,
+          status,
+          intersectIds: intersectIds ?? null,
+          sanitizedSearch: "",
+          fieldSearchIds: [],
+          sort: "activity",
+        },
+        1
+      )
+    ).total;
+  const shortcutCounts = shouldShowShortcutStrip
+    ? await (async () => {
+        const viewer = { role: ctx.role, workspaceMode: productSurface.mode };
+        const [
+          openProblemIds,
+          detailReviewIds,
+          missingDateIds,
+          evidenceDueIds,
+          openTaskIds,
+          renewalWithin90DayIds,
+        ] = await Promise.all([
+          resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+            exceptions: "open",
+            viewer,
+          }),
+          resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+            review: "pending",
+            viewer,
+          }),
+          resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+            data_quality: "missing_critical",
+            viewer,
+          }),
+          resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+            evidence: "outstanding",
+            viewer,
+          }),
+          resolveAuxiliaryContractListIntersectIds(admin, orgId, {
+            work: "open",
+            viewer,
+          }),
+          getContractIdsForDeadlinePreset(admin, orgId, "renewal_90"),
+        ]);
+        const [
+          openProblems,
+          detailsToReview,
+          missingDates,
+          evidenceDue,
+          openTasks,
+          renewalWithin90Days,
+          active,
+        ] = await Promise.all([
+          countContractsForShortcut({ intersectIds: openProblemIds }),
+          countContractsForShortcut({ intersectIds: detailReviewIds }),
+          countContractsForShortcut({ intersectIds: missingDateIds }),
+          countContractsForShortcut({ intersectIds: evidenceDueIds }),
+          countContractsForShortcut({ intersectIds: openTaskIds }),
+          countContractsForShortcut({ intersectIds: renewalWithin90DayIds }),
+          countContractsForShortcut({ status: "active" }),
+        ]);
+        return {
+          openProblems,
+          detailsToReview,
+          missingDates,
+          evidenceDue,
+          openTasks,
+          renewalWithin90Days,
+          active,
+        };
+      })()
+    : EMPTY_CONTRACT_SHORTCUT_COUNTS;
   // Export dropdown surfaces *only* real export actions. The prior list
   // merged in navigation links (Approvals, Renewals, Tasks, Analytics,
   // Maintenance, Review cadence, etc.) under a button labeled "Export" —
@@ -546,40 +612,19 @@ export default async function ContractsPage(props: {
     }
   });
 
-  // Filter params carried through a search/date/sort submit (the search form
-  // owns search/deadline/sort itself; everything else rides along as hidden
-  // inputs so a search doesn't drop the active status/owner/operational filters).
-  const searchFormHidden: Record<string, string> = {};
-  for (const key of [
-    "status",
-    "owner",
-    "counterparty",
-    "contract_type",
-    "region",
-    "exceptions",
-    "review",
-    "data_quality",
-    "evidence",
-    "work",
-  ] as const) {
-    const value = (searchParams as Record<string, string | undefined>)[key];
-    if (value) searchFormHidden[key] = value;
-  }
-
   return (
-    <div className="ui-page-stack w-full min-w-0">
-      <DashboardPageHeader
+    <DataSurfaceShell
+      width="wide"
+      header={
+        <DashboardPageHeader
         icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-        // "Contract tracking" mirrors the parent area name from
-        // oblixa-release-state.md (Dashboard page title) and reads
-        // unambiguously page-specific. "Tracking" alone was too generic.
-        eyebrow="Contract tracking"
+        eyebrow="Contract inventory"
         density="compact"
         title="Contracts"
         lead={
           contractTotal === 0
-            ? "Upload your first signed agreement to start tracking review, dates, owners, work, evidence, and reports."
-            : "Track renewals, obligations, owners, and work for signed agreements."
+            ? "Upload your first signed agreement to start confirming details, dates, owners, tasks, evidence, and reports."
+            : "Track signed contracts, owners, dates, requirements, tasks, and evidence."
         }
         // Workspace-total count — accurate across all pages (the pagination
         // footer only renders on multi-page sets, so on a single page this
@@ -665,6 +710,8 @@ export default async function ContractsPage(props: {
           </>
         }
       />
+      }
+    >
 
       {contractTotal === 0 ? (
         <section
@@ -697,322 +744,55 @@ export default async function ContractsPage(props: {
           NB: the toolbar wrapper is a <div>; the <form> for SEARCH/DATE/SORT renders with className="contents"
           so children flex inline with the popover triggers without nesting <form> elements (the popovers
           contain their own action forms — delete view, create view — which cannot legally nest). */}
-      <section aria-label="Filters" className="min-w-0 space-y-2">
-        <div className="ui-filter-toolbar">
-          <ContractsSearchForm
-            initialSearch={searchParams.search || ""}
-            initialDeadline={deadline}
-            initialSort={searchParams.sort === "created" ? "created" : "activity"}
-            deadlineOptions={DEADLINE_OPTIONS.map((o) => ({
-              value: o.value,
-              label: o.label,
-            }))}
-            hidden={searchFormHidden}
-          />
-
-          {/* Filters popover */}
-          <PortaledPopover
-            ariaLabel="Filter contracts"
-            align="left"
-            widthClassName="w-[22rem]"
-            triggerClassName="ui-toolbar-dropdown"
-            triggerContent={
-              <>
-                <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                Filters
-                {activeFilterCount > 0 ? (
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--accent)_22%,var(--surface-raised))] px-1.5 text-[10.5px] font-bold tabular-nums text-[var(--accent-strong)]">
-                    {activeFilterCount}
-                  </span>
-                ) : null}
-                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              </>
-            }
-          >
-              <div className="ui-popover-section">
-                <p className="ui-popover-section-heading">Status</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {statuses.map((s) => (
-                    <Link
-                      key={`status-${s.value}`}
-                      href={buildContractsListHref({ ...baseParams, status: s.value || undefined })}
-                      // "All" (s.value === "") always renders as idle so
-                      // the popover stops showing an accent-tinted pill in
-                      // every section when no filter is set. Active state
-                      // is reserved for non-default selections.
-                      className={s.value && searchParams.status === s.value ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                    >
-                      {s.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              {counterpartyOptions.length > 0 ? (
-                <div className="ui-popover-section">
-                  <p className="ui-popover-section-heading">Counterparty</p>
-                  <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
-                    <Link
-                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty: undefined })}
-                      className={FILTER_PILL_IDLE_CLASS}
-                    >
-                      All
-                    </Link>
-                    {counterpartyOptions.slice(0, 24).map((counterparty) => {
-                      const isFallback = COUNTERPARTY_FALLBACK_TOKENS.has(counterparty.toLowerCase());
-                      const isActive = searchParams.counterparty === counterparty;
-                      return (
-                        <Link
-                          key={`counterparty-${counterparty}`}
-                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, counterparty })}
-                          title={
-                            isFallback
-                              ? `Counterparty name missing — currently shows "${counterparty}"`
-                              : undefined
-                          }
-                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                        >
-                          {counterparty}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-              {contractTypeOptions.length > 0 ? (
-                <div className="ui-popover-section">
-                  <p className="ui-popover-section-heading">Contract type</p>
-                  <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pr-1">
-                    <Link
-                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: undefined })}
-                      className={FILTER_PILL_IDLE_CLASS}
-                    >
-                      All
-                    </Link>
-                    {contractTypeOptions.slice(0, 24).map((contractType) => {
-                      const isFallback = CONTRACT_TYPE_FALLBACK_TOKENS.has(contractType.toLowerCase());
-                      const isActive = searchParams.contract_type === contractType;
-                      return (
-                        <Link
-                          key={`contract-type-${contractType}`}
-                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, contract_type: contractType })}
-                          title={
-                            isFallback
-                              ? `Contract type unclassified — currently shows "${contractType}"`
-                              : undefined
-                          }
-                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                        >
-                          {contractType}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-              <div className="ui-popover-section">
-                <p className="ui-popover-section-heading">Region</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["", "NA", "EMEA", "APAC", "LATAM"].map((region) => (
-                    <Link
-                      key={`region-${region || "all"}`}
-                      href={buildContractsListHref({ ...baseParams, status: searchParams.status, region: region || undefined })}
-                      className={region && searchParams.region === region ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                    >
-                      {region || "All"}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <div className="ui-popover-section">
-                <p className="ui-popover-section-heading">Operational</p>
-                <div className="flex flex-wrap gap-1.5">
-                  <Link
-                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, exceptions: exceptionsFilter === "open" ? undefined : "open" })}
-                    className={exceptionsFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    Open exceptions
-                  </Link>
-                  <Link
-                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, review: reviewFilter === "pending" ? undefined : "pending" })}
-                    className={reviewFilter === "pending" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    Pending review
-                  </Link>
-                  <Link
-                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, data_quality: dataQualityFilter === "missing_critical" ? undefined : "missing_critical" })}
-                    className={dataQualityFilter === "missing_critical" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    Missing dates
-                  </Link>
-                  <Link
-                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, evidence: evidenceFilter === "outstanding" ? undefined : "outstanding" })}
-                    className={evidenceFilter === "outstanding" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    Evidence due
-                  </Link>
-                  <Link
-                    href={buildContractsListHref({ ...baseParams, status: searchParams.status, work: workFilter === "open" ? undefined : "open" })}
-                    className={workFilter === "open" ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                  >
-                    Open work
-                  </Link>
-                </div>
-              </div>
-              {members.length > 1 ? (
-                <div className="ui-popover-section">
-                  <p className="ui-popover-section-heading">Owner</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Link
-                      href={buildContractsListHref({ ...baseParams, status: searchParams.status })}
-                      className={FILTER_PILL_IDLE_CLASS}
-                    >
-                      All
-                    </Link>
-                    {members.map((m) => {
-                      const isEmailOnly = OWNER_EMAIL_RE.test(m.label);
-                      const isActive = searchParams.owner === m.id;
-                      // Email-only labels (member exists but has no
-                      // `full_name` set) render as a visually-flagged
-                      // "Unassigned" filter pill — same data-quality
-                      // pattern as the row-level owner treatment. The
-                      // raw email surfaces via `title`.
-                      const visibleLabel = isEmailOnly ? "Unassigned" : m.label;
-                      return (
-                        <Link
-                          key={m.id}
-                          href={buildContractsListHref({ ...baseParams, status: searchParams.status, owner: m.id })}
-                          title={isEmailOnly ? m.label : undefined}
-                          className={isActive ? FILTER_PILL_ACTIVE_CLASS : FILTER_PILL_IDLE_CLASS}
-                        >
-                          {visibleLabel}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-              {activeFilterCount > 0 ? (
-                <div className="mt-3 flex items-center justify-between border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-2.5">
-                  <Link href="/contracts" className="ui-link text-[12px]">
-                    Clear all filters
-                  </Link>
-                  <span className="text-[11px] text-[var(--text-tertiary)]">{activeFilterCount} active</span>
-                </div>
-              ) : null}
-          </PortaledPopover>
-
-          {/* Saved views popover — trigger shows the current view's name
-              so users can see at a glance which view is active without
-              opening the popover. Defaults to "All contracts" when no
-              saved view matches the current URL params (instead of the
-              ambiguous "Views" trigger label). */}
-          <PortaledPopover
-            ariaLabel="Saved views"
-            align="left"
-            widthClassName="w-[22rem]"
-            triggerClassName={`ui-toolbar-dropdown${activeSavedView ? " !border-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-subtle))] !text-[var(--accent-strong)]" : ""}`}
-            triggerContent={
-              <>
-                {/* Bookmark (not the Filters sliders) keeps Saved views
-                    visually distinct from the Filters control; an accent
-                    tint marks when a view is currently applied. */}
-                <Bookmark className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                <span className="max-w-[10rem] truncate">{activeSavedView?.name ?? "All contracts"}</span>
-                <ChevronDown className="popover-caret h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              </>
-            }
-          >
-              <ul className="space-y-1">
-                {/* Only show the "All contracts" reset row when a saved
-                    view is currently active — otherwise it duplicates
-                    the trigger label and adds menu noise. */}
-                {activeSavedView ? (
-                  <li>
-                    <Link
-                      href="/contracts"
-                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)]"
-                    >
-                      <span className="inline-flex items-center gap-1.5">
-                        <Eye className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-                        Reset to all contracts
-                      </span>
-                    </Link>
-                  </li>
-                ) : null}
-                {!activeSavedView && savedViews.length === 0 ? (
-                  <li className="flex flex-col items-center gap-1 px-2 py-3">
-                    <Eye
-                      className="h-3.5 w-3.5 text-[var(--text-tertiary)]"
-                      strokeWidth={1.85}
-                      aria-hidden
-                    />
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                      No saved views
-                    </span>
-                  </li>
-                ) : null}
-                {savedViews.map((view) => (
-                  <li key={view.id} className="group flex items-center gap-1">
-                    <Link
-                      href={view.href}
-                      className={`flex flex-1 items-center justify-between rounded-md px-2 py-1.5 text-[12.5px] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] ${activeSavedView?.id === view.id ? "bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] text-[var(--accent-strong)]" : "text-[var(--text-secondary)]"}`}
-                    >
-                      <span className="truncate">{view.name}</span>
-                      <span className="ml-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                        {view.weeklyActive ? <span title="Weekly summary on">W</span> : null}
-                        {view.monthlyActive ? <span title="Monthly summary on">M</span> : null}
-                      </span>
-                    </Link>
-                    <form
-                      action={deleteSavedView.bind(null, view.id) as never}
-                    >
-                      <button
-                        type="submit"
-                        aria-label={`Delete saved view ${view.name}`}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_14%,transparent)] hover:text-[var(--danger-ink)]"
-                      >
-                        <Trash2 className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-                      </button>
-                    </form>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-2.5">
-                <p className="ui-popover-section-heading">Save current view</p>
-                <ContractsSavedViewCreateForm
-                  organizationId={orgId}
-                  canEdit={canEdit}
-                  defaults={{
-                    search: searchParams.search || "",
-                    status: searchParams.status || "",
-                    owner: searchParams.owner || "",
-                    counterparty: searchParams.counterparty || "",
-                    contract_type: searchParams.contract_type || "",
-                    region: searchParams.region || "",
-                    deadline: searchParams.deadline || "",
-                    sort: searchParams.sort || "",
-                    exceptions: searchParams.exceptions || "",
-                    review: searchParams.review || "",
-                    data_quality: searchParams.data_quality || "",
-                    evidence: searchParams.evidence || "",
-                    work: searchParams.work || "",
-                  }}
-                />
-              </div>
-          </PortaledPopover>
-
-          {/* Visible reset — clearing filters shouldn't require opening the
-              Filters popover or hunting for a chip's × button. */}
-          {activeFilterCount > 0 ? (
-            <Link
-              href="/contracts"
-              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-[12px] font-semibold text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--danger-ink)_8%,transparent)] hover:text-[var(--danger-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-              Clear
-            </Link>
-          ) : null}
-        </div>
+      <DataSurfaceCard>
+      <section aria-label="Filters" className="min-w-0 space-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-3">
+        <ContractsFilterBar
+          values={{
+            search: searchParams.search ?? "",
+            status: searchParams.status ?? "",
+            owner: searchParams.owner ?? "",
+            counterparty: searchParams.counterparty ?? "",
+            contract_type: searchParams.contract_type ?? "",
+            region: searchParams.region ?? "",
+            deadline,
+            sort: searchParams.sort === "created" ? "created" : "activity",
+            exceptions: exceptionsFilter,
+            review: reviewFilter,
+            data_quality: dataQualityFilter,
+            evidence: evidenceFilter,
+            work: workFilter,
+            health: healthFilter,
+          }}
+          statusOptions={statuses}
+          ownerOptions={members.map((m) => ({ value: m.id, label: m.label }))}
+          counterpartyOptions={counterpartyOptions.map((c) => ({ value: c, label: c }))}
+          contractTypeOptions={contractTypeOptions.map((c) => ({ value: c, label: c }))}
+          deadlineOptions={DEADLINE_OPTIONS}
+          activeFilterCount={activeFilterCount}
+          savedViewsSlot={
+            <ContractsSavedViewsControl
+              savedViews={savedViews}
+              activeSavedView={activeSavedView}
+              orgId={orgId}
+              canEdit={canEdit}
+              defaults={{
+                search: searchParams.search || "",
+                status: searchParams.status || "",
+                owner: searchParams.owner || "",
+                counterparty: searchParams.counterparty || "",
+                contract_type: searchParams.contract_type || "",
+                region: searchParams.region || "",
+                deadline: searchParams.deadline || "",
+                sort: searchParams.sort || "",
+                exceptions: searchParams.exceptions || "",
+                review: searchParams.review || "",
+                data_quality: searchParams.data_quality || "",
+                evidence: searchParams.evidence || "",
+                work: searchParams.work || "",
+              }}
+            />
+          }
+        />
 
         {/* Active filter chips — renders only when filters are applied. */}
         {activeFilterCount > 0 ? (
@@ -1121,9 +901,9 @@ export default async function ContractsPage(props: {
               <Link
                 href={buildContractsListHref({ ...baseParams, status: searchParams.status, exceptions: undefined })}
                 className="ui-active-filter-chip"
-                aria-label="Remove filter: Open exceptions"
+                aria-label="Remove filter: Open problems"
               >
-                Open exceptions
+                Open problems
                 <span className="ui-active-filter-chip-remove" aria-hidden>
                   <X className="h-3 w-3" strokeWidth={2} />
                 </span>
@@ -1133,9 +913,9 @@ export default async function ContractsPage(props: {
               <Link
                 href={buildContractsListHref({ ...baseParams, status: searchParams.status, review: undefined })}
                 className="ui-active-filter-chip"
-                aria-label="Remove filter: Needs review"
+                aria-label="Remove filter: Details to review"
               >
-                Needs review
+                Details to review
                 <span className="ui-active-filter-chip-remove" aria-hidden>
                   <X className="h-3 w-3" strokeWidth={2} />
                 </span>
@@ -1169,9 +949,9 @@ export default async function ContractsPage(props: {
               <Link
                 href={buildContractsListHref({ ...baseParams, status: searchParams.status, work: undefined })}
                 className="ui-active-filter-chip"
-                aria-label="Remove filter: Open work"
+                aria-label="Remove filter: Open tasks"
               >
-                Open work
+                Open tasks
                 <span className="ui-active-filter-chip-remove" aria-hidden>
                   <X className="h-3 w-3" strokeWidth={2} />
                 </span>
@@ -1189,14 +969,42 @@ export default async function ContractsPage(props: {
       {/* v14/v15 — Quick-filter strip above the table. Renders only when no filters are
           already applied AND the workspace has at least one contract.
           v15: eyebrow demoted to caps-3, renamed "Common filters", separated to its own line. */}
-      {activeFilterCount === 0 && contractTotal > 0 ? (
-        <nav aria-label="Quick filters" className="min-w-0 space-y-1.5">
+      {shouldShowShortcutStrip ? (
+        <nav aria-label="Contract shortcuts" className="min-w-0 space-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-3">
           {/* Dot decoration dropped: the caps-tracked "Common filters" text
               already reads as an eyebrow. The leading dot was decorative
               chrome that competed with the filter chip row below. */}
-          <p className="ui-caps-3 inline-flex items-center text-[10px] text-[var(--text-tertiary)]">
-            Quick filters
-          </p>
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <p className="ui-caps-3 inline-flex items-center text-[10px] text-[var(--text-tertiary)]">
+              Contract shortcuts
+            </p>
+            <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+              Each count is a contract count. Selecting a shortcut filters the table to contracts with that condition.
+            </p>
+          </div>
+          <ul className="grid min-w-0 gap-x-4 gap-y-1 text-[11px] leading-snug text-[var(--text-tertiary)] sm:grid-cols-2 xl:grid-cols-4">
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Open problems:</span> unresolved problems linked to the contract.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Details to review:</span> suggested dates, owners, or terms awaiting confirmation.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Missing dates:</span> required renewal, notice, end, or effective dates are absent.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Evidence due:</span> open evidence request linked to the contract.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Open tasks:</span> active follow-up tasks linked to the contract.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Renewal within 90 days:</span> renewal date inside the next 90 days.
+            </li>
+            <li>
+              <span className="font-medium text-[var(--text-secondary)]">Active:</span> contract status is active.
+            </li>
+          </ul>
           {/* Chip order follows the tone gradient — danger → warning →
               info → success — so the user's eye lands on critical
               attention items first, operational work in the middle, and
@@ -1207,74 +1015,88 @@ export default async function ContractsPage(props: {
               evidence) / accent (work, renewals) / success (active) — so the
               strip reads as one consistent shortcut family. Icons give
               non-color reinforcement (§7.7) so no signal is tone-only. */}
-          {signalCounts.openExceptions > 0 ? (
+          {shortcutCounts.openProblems > 0 ? (
             <Link
               href="/contracts?exceptions=open"
               className="ui-quick-chip ui-quick-chip-tone-danger"
+              aria-label={`${shortcutCounts.openProblems} contracts with open problems`}
+              title={`${shortcutCounts.openProblems} matching contracts`}
             >
               <AlertTriangle className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
-              Open exceptions
-              <span className="ui-quick-chip-count">{signalCounts.openExceptions}</span>
+              Open problems
+              <span className="ui-quick-chip-count">{shortcutCounts.openProblems}</span>
             </Link>
           ) : null}
-          {pagePendingReview > 0 ? (
+          {shortcutCounts.detailsToReview > 0 ? (
             <Link
-              href="/contracts?status=pending_review"
+              href="/contracts?review=pending"
               className="ui-quick-chip ui-quick-chip-tone-warning"
+              aria-label={`${shortcutCounts.detailsToReview} contracts with details to review`}
+              title={`${shortcutCounts.detailsToReview} matching contracts`}
             >
               <Hourglass className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
-              Pending review
-              <span className="ui-quick-chip-count">{pagePendingReview}</span>
+              Details to review
+              <span className="ui-quick-chip-count">{shortcutCounts.detailsToReview}</span>
             </Link>
           ) : null}
-          {signalCounts.missingDates > 0 ? (
+          {shortcutCounts.missingDates > 0 ? (
             <Link
               href="/contracts?data_quality=missing_critical"
               className="ui-quick-chip ui-quick-chip-tone-warning"
+              aria-label={`${shortcutCounts.missingDates} contracts with missing dates`}
+              title={`${shortcutCounts.missingDates} matching contracts`}
             >
               <CalendarDays className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Missing dates
-              <span className="ui-quick-chip-count">{signalCounts.missingDates}</span>
+              <span className="ui-quick-chip-count">{shortcutCounts.missingDates}</span>
             </Link>
           ) : null}
-          {signalCounts.evidenceDue > 0 ? (
+          {shortcutCounts.evidenceDue > 0 ? (
             <Link
               href="/contracts?evidence=outstanding"
               className="ui-quick-chip ui-quick-chip-tone-warning"
+              aria-label={`${shortcutCounts.evidenceDue} contracts with evidence due`}
+              title={`${shortcutCounts.evidenceDue} matching contracts`}
             >
               <ClipboardCheck className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Evidence due
-              <span className="ui-quick-chip-count">{signalCounts.evidenceDue}</span>
+              <span className="ui-quick-chip-count">{shortcutCounts.evidenceDue}</span>
             </Link>
           ) : null}
-          {signalCounts.openWork > 0 ? (
+          {shortcutCounts.openTasks > 0 ? (
             <Link
               href="/contracts?work=open"
               className="ui-quick-chip ui-quick-chip-tone-info"
+              aria-label={`${shortcutCounts.openTasks} contracts with open tasks`}
+              title={`${shortcutCounts.openTasks} matching contracts`}
             >
               <ListChecks className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
-              Open work
-              <span className="ui-quick-chip-count">{signalCounts.openWork}</span>
+              Open tasks
+              <span className="ui-quick-chip-count">{shortcutCounts.openTasks}</span>
             </Link>
           ) : null}
-          {signalCounts.renewingSoon > 0 ? (
+          {shortcutCounts.renewalWithin90Days > 0 ? (
             <Link
               href="/contracts?deadline=renewal_90"
               className="ui-quick-chip ui-quick-chip-tone-info"
+              aria-label={`${shortcutCounts.renewalWithin90Days} contracts renewing within 90 days`}
+              title={`${shortcutCounts.renewalWithin90Days} matching contracts`}
             >
               <CalendarClock className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
-              Renewing in 90d
-              <span className="ui-quick-chip-count">{signalCounts.renewingSoon}</span>
+              Renewal within 90 days
+              <span className="ui-quick-chip-count">{shortcutCounts.renewalWithin90Days}</span>
             </Link>
           ) : null}
-          {pageActive > 0 ? (
+          {shortcutCounts.active > 0 ? (
             <Link
               href="/contracts?status=active"
               className="ui-quick-chip ui-quick-chip-tone-success"
+              aria-label={`${shortcutCounts.active} active contracts`}
+              title={`${shortcutCounts.active} matching contracts`}
             >
               <CircleCheck className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
               Active
-              <span className="ui-quick-chip-count">{pageActive}</span>
+              <span className="ui-quick-chip-count">{shortcutCounts.active}</span>
             </Link>
           ) : null}
           </div>
@@ -1317,18 +1139,32 @@ export default async function ContractsPage(props: {
               members,
             }}
             footer={
-              <ContractPagination
-                total={contractTotal}
-                page={page}
-                pageSize={CONTRACTS_PAGE_SIZE}
-                basePath="/contracts"
-                queryParams={paginationQuery}
-              />
+              contractTotal > 0 ? (
+                // Shared dense-surface footer (now with First/Last) — the same
+                // recipe as Work/Renewals/Evidence, replacing the bespoke
+                // ContractPagination on the list. The component is retained for
+                // /contracts/review, which still imports it.
+                <DataFooter
+                  shown={contracts.length}
+                  total={contractTotal}
+                  countLabel="Shown"
+                  pagination={{
+                    page,
+                    totalPages: listTotalPages,
+                    hrefFor: (p) =>
+                      buildContractsListHref({
+                        ...paginationQuery,
+                        page: p > 1 ? String(p) : undefined,
+                      }),
+                    showFirstLast: listTotalPages > 2,
+                  }}
+                />
+              ) : undefined
             }
           />
         )}
       </section>
-
-    </div>
+      </DataSurfaceCard>
+    </DataSurfaceShell>
   );
 }

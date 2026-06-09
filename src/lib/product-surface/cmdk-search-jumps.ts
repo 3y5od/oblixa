@@ -107,15 +107,15 @@ function descriptionForSearchClass(row: SearchIndexClassDef, queryTrimmed: strin
         ? `Open the contracts list prefiltered for "${queryTrimmed}".`
         : "Open the contracts list and filter from there.";
     case "tasks":
-      return "Open Work filtered to task follow-up.";
+      return "Open Tasks filtered to task follow-up.";
     case "approvals":
-      return "Open Work focused on approvals waiting on action.";
+      return "Open Tasks focused on approvals needing action.";
     case "obligations":
-      return "Open Work focused on recurring obligations.";
+      return "Open Tasks focused on recurring contract requirements.";
     case "renewals":
       return "Open renewals scoped to the 90-day window.";
     case "exceptions":
-      return "Open active exceptions that still need owner action.";
+      return "Open active issues that still need owner action.";
     case "evidence":
       return "Open Evidence for request and proof tracking.";
     case "reports":
@@ -130,15 +130,15 @@ function metaForSearchClass(row: SearchIndexClassDef, href: string, queryTrimmed
     case "contracts":
       return queryTrimmed ? `Contracts search · ${pathOnly(href)}` : `Contracts list · ${pathOnly(href)}`;
     case "tasks":
-      return "Work · task filter";
+      return "Tasks · task filter";
     case "approvals":
-      return "Work · approvals tab";
+      return "Tasks · approvals tab";
     case "obligations":
-      return "Work · obligations tab";
+      return "Tasks · requirements tab";
     case "renewals":
       return "Renewals · 90-day window";
     case "exceptions":
-      return "Exceptions queue · open only";
+      return "Issues queue · open only";
     case "evidence":
       return "Evidence · live request queue";
     default:

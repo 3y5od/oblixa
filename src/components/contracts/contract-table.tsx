@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isValid } from "date-fns";
@@ -12,7 +11,6 @@ import {
   CheckCheck,
   ChevronRight,
   Hourglass,
-  MoreHorizontal,
   Plus,
   UserCog,
   UserPlus,
@@ -27,6 +25,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { UiSelect } from "@/components/ui/ui-select";
 import { TimeChip } from "@/components/ui/time-chip";
+import { RowActionMenu, RowActionMenuItem } from "@/components/ui/row-action-menu";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
 import { bulkAssignContractOwners } from "@/actions/contracts";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
@@ -124,162 +123,52 @@ function RowActionsMenu({
   contractId: string;
   hasOwner: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; right: number } | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const place = () => {
-      const r = triggerRef.current?.getBoundingClientRect();
-      if (!r) return;
-      const estHeight = 168;
-      const openUp = r.bottom + 6 + estHeight > window.innerHeight && r.top - estHeight - 6 > 0;
-      setCoords({
-        top: openUp ? r.top - estHeight - 6 : r.bottom + 6,
-        right: Math.max(8, window.innerWidth - r.right),
-      });
-    };
-    place();
-    const onPointerDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t) || menuRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    const close = () => setOpen(false);
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", close, true);
-    window.addEventListener("resize", close);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", close, true);
-      window.removeEventListener("resize", close);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (open && coords) {
-      menuRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
-    }
-  }, [open, coords]);
-
-  const itemClass =
-    "flex items-center gap-2 px-2.5 py-1.5 text-left text-[12px] text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_7%,transparent)] hover:text-[var(--accent-strong)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent)_10%,transparent)] focus-visible:text-[var(--accent-strong)] focus-visible:outline-none";
+  // Shared dense-row overflow menu (32px trigger, portaled, reserved icon slots,
+  // standard width) — the one row-action family across Contracts/Work/Renewals/
+  // Evidence. Replaces the bespoke inline DropdownMenu so the contracts kebab
+  // can no longer drift from the other surfaces.
   const iconClass = "h-3.5 w-3.5 shrink-0";
   return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-label="Row actions"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className={`inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
-          open
-            ? "border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_34%,transparent)] text-[var(--accent-strong)]"
-            : "border-transparent text-[var(--text-tertiary)] hover:border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,transparent)] hover:text-[var(--accent-strong)]"
-        }`}
-      >
-        <MoreHorizontal className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-      </button>
-      {open && coords
-        ? createPortal(
-            <div
-              ref={menuRef}
-              role="menu"
-              aria-label="Contract row actions"
-              style={{
-                position: "fixed",
-                top: coords.top,
-                right: coords.right,
-                zIndex: 60,
-              }}
-              className="w-44 overflow-hidden rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface-raised)] py-1 shadow-[var(--shadow-2)]"
-            >
-              <ul className="text-[12px]">
-                <li>
-                  <Link
-                    href={`/contracts/${contractId}#ownership-record`}
-                    role="menuitem"
-                    className={itemClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    {hasOwner ? (
-                      <UserCog
-                        className={iconClass}
-                        strokeWidth={1.85}
-                        aria-hidden
-                      />
-                    ) : (
-                      <UserPlus
-                        className={iconClass}
-                        strokeWidth={1.85}
-                        aria-hidden
-                      />
-                    )}
-                    {hasOwner ? "Reassign owner" : "Assign owner"}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={`/contracts/${contractId}#extracted-fields`}
-                    role="menuitem"
-                    className={itemClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    <CheckCheck
-                      className={iconClass}
-                      strokeWidth={1.85}
-                      aria-hidden
-                    />
-                    Review fields
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={`/contracts/${contractId}#dates`}
-                    role="menuitem"
-                    className={itemClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Bell className={iconClass} strokeWidth={1.85} aria-hidden />
-                    Add reminder
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={`/contracts/${contractId}#contract-tasks`}
-                    role="menuitem"
-                    className={itemClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Plus className={iconClass} strokeWidth={1.85} aria-hidden />
-                    Create work
-                  </Link>
-                </li>
-              </ul>
-            </div>,
-            document.body
+    <RowActionMenu menuLabel="Contract row actions" triggerLabel="Row actions">
+      <RowActionMenuItem
+        href={`/contracts/${contractId}#ownership-record`}
+        icon={
+          hasOwner ? (
+            <UserCog className={iconClass} strokeWidth={1.85} aria-hidden />
+          ) : (
+            <UserPlus className={iconClass} strokeWidth={1.85} aria-hidden />
           )
-        : null}
-    </>
+        }
+      >
+        {hasOwner ? "Reassign owner" : "Assign owner"}
+      </RowActionMenuItem>
+      <RowActionMenuItem
+        href={`/contracts/${contractId}#extracted-fields`}
+        icon={<CheckCheck className={iconClass} strokeWidth={1.85} aria-hidden />}
+      >
+        Confirm details
+      </RowActionMenuItem>
+      <RowActionMenuItem
+        href={`/contracts/${contractId}#dates`}
+        icon={<Bell className={iconClass} strokeWidth={1.85} aria-hidden />}
+      >
+        Add reminder
+      </RowActionMenuItem>
+      <RowActionMenuItem
+        href={`/contracts/${contractId}#contract-tasks`}
+        icon={<Plus className={iconClass} strokeWidth={1.85} aria-hidden />}
+      >
+        Create task
+      </RowActionMenuItem>
+    </RowActionMenu>
   );
 }
 
-// Structured row-action affordance. Replaces the loose "Open ›" text + bare
-// chevron (§8.6 / §11.22) with a bordered accent chip that telegraphs intent.
-// Kept visible at rest (not hover-only) because release-state names "Open
-// contract" the primary row action and touch/first-glance discovery matters.
+// Structured row-action affordance (§8.6 / §11.22): a bordered accent chip that
+// telegraphs intent, revealed on row hover or keyboard focus so a full column of
+// always-on "OPEN" pills doesn't add noise. The contract name is already the
+// primary link; this chip just confirms the row is openable. Desktop-only — the
+// mobile cards make the whole title the tap target.
 function OpenContractChip({
   contractId,
   title,
@@ -291,7 +180,7 @@ function OpenContractChip({
     <Link
       href={`/contracts/${contractId}`}
       aria-label={`Open contract: ${title}`}
-      className="group/open inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_46%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      className="group/open inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)] opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_46%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
     >
       Open
       <ChevronRight
@@ -303,7 +192,7 @@ function OpenContractChip({
   );
 }
 
-// Exception flag for the status column. Mirrors the lifecycle StatusBadge's
+// Issue flag for the status column. Mirrors the lifecycle StatusBadge's
 // 22px rounded-full silhouette so the two read as one chip family, and pairs an
 // icon with the count (never a bare colored pill — §7.7) behind a descriptive
 // accessible name. The danger-soft tint matches `.ui-status-badge-critical`
@@ -318,8 +207,8 @@ function ExceptionAlertChip({
   return (
     <Link
       href={`/contracts/exceptions?status=open&contract=${contractId}`}
-      aria-label={`${count} exception${count === 1 ? "" : "s"}`}
-      title={`${count} open exception${count === 1 ? "" : "s"}`}
+      aria-label={`${count} issue${count === 1 ? "" : "s"}`}
+      title={`${count} open issue${count === 1 ? "" : "s"}`}
       className="inline-flex h-[22px] shrink-0 items-center gap-1 rounded-full border px-2 text-[10.5px] font-semibold uppercase leading-none tracking-[0.1em] tabular-nums transition-colors border-[color:color-mix(in_oklab,var(--danger-soft)_52%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger-soft)_50%,transparent)] text-[var(--danger-ink)] hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_78%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
     >
       <AlertTriangle className="h-3 w-3" strokeWidth={2} aria-hidden />
@@ -465,7 +354,7 @@ export function ContractTable({
       <RecoverableState
         state="empty"
         title="No contracts yet"
-        reason="Upload an agreement to extract dates and build your operational record."
+        reason="Upload an agreement so Oblixa can suggest dates and build your operational record."
         accessibleName="Contracts empty state"
         surface="contracts"
         section="contract_table"
@@ -555,6 +444,8 @@ export function ContractTable({
   const headerCellClass =
     "px-3 py-2 text-left text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)] whitespace-nowrap";
   const bodyCellClass = "px-3 py-2.5 align-middle";
+  const selectionCellClass =
+    "box-border w-[3.25rem] min-w-[3.25rem] max-w-[3.25rem] pl-4 pr-2 align-middle";
 
   // Precompute a per-row view model once so the desktop table rows and the
   // md:hidden mobile cards render from a single source (no divergence) and the
@@ -628,15 +519,19 @@ export function ContractTable({
   const reviewChipText = (m: RowModel) =>
     m.stats
       ? m.stats.pending === 0
-        ? `${m.stats.approved}/${m.stats.total} reviewed`
+        ? `${m.stats.approved}/${m.stats.total} confirmed`
         : `${m.stats.pending}/${m.stats.total} pending`
       : "";
 
   return (
-    <div className="space-y-3">
+    // Bare inner frame — the page's <DataSurfaceCard> is now the one card
+    // surface, so this no longer carries its own .ui-table-shell (that would be
+    // card-within-card, §10.5). The selection bar below is a top band, not a
+    // nested card, for the same reason.
+    <div className="min-w-0">
       {bulkActions && selectedList.length > 0 ? (
         <div
-          className="ui-table-shell flex flex-col gap-3 border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          className="flex flex-col gap-3 border-b border-[color:color-mix(in_oklab,var(--accent)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6"
           role="status"
           aria-live="polite"
         >
@@ -755,7 +650,7 @@ export function ContractTable({
           reads as the page's single focal surface. Desktop renders the table;
           a md:hidden card list takes over on narrow screens. The shell's
           bottom edge closes the frame even when pagination is hidden. */}
-      <div data-testid={surfaceTestIds.contractsTable} className="ui-table-shell min-w-0 max-w-full">
+      <div data-testid={surfaceTestIds.contractsTable} className="min-w-0 max-w-full">
         {!isNarrow ? (
           <div className="max-w-full overflow-x-auto [contain:inline-size]">
           <table
@@ -765,13 +660,11 @@ export function ContractTable({
             <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_82%,var(--surface-raised))]">
               <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)]">
                 {bulkActions ? (
-                  // Calmer selection rail: the checkbox is centered in a w-12
-                  // column (was a cramped w-8 px-1.5) that shares its exact width
-                  // with the body cells below, so the select-all and per-row
-                  // boxes sit on one x-axis. No vertical divider — the rail reads
-                  // as part of each row, tied in by the row hover wash.
-                  <th scope="col" className="w-12 px-0 py-2 align-middle">
-                    <div className="flex items-center justify-center">
+                  // Dedicated selection gutter: explicit left padding keeps the
+                  // checkbox off the card border even when table auto-layout or
+                  // browser zoom compresses the first column.
+                  <th scope="col" className={`${selectionCellClass} py-2`}>
+                    <div className="flex items-center justify-start">
                       <input
                         ref={selectAllRef}
                         type="checkbox"
@@ -816,10 +709,10 @@ export function ContractTable({
                 </th>
                 <th
                   scope="col"
-                  aria-label="Open work"
+                  aria-label="Open tasks"
                   className={`${headerCellClass} min-w-[5.5rem]`}
                 >
-                  Work
+                  Tasks
                 </th>
                 <th
                   scope="col"
@@ -843,12 +736,10 @@ export function ContractTable({
                     className={`ui-table-row group${isSelected ? " ui-table-row-selected" : ""}`}
                   >
                     {bulkActions ? (
-                      // Centered in a w-12 column matching the header cell so the
-                      // select-all and per-row checkboxes share one x-axis. px-0
-                      // + an inner flex sidesteps the old px-1.5-vs-px-3 Tailwind
-                      // ordering hazard while giving the control real breathing room.
-                      <td className="w-12 px-0 py-2.5 align-middle">
-                        <div className="flex items-center justify-center">
+                      // Same gutter as the header cell so the select-all and
+                      // per-row checkboxes share one stable x-axis.
+                      <td className={`${selectionCellClass} py-2.5`}>
+                        <div className="flex items-center justify-start">
                           <input
                             type="checkbox"
                             className="ui-checkbox"
@@ -1041,7 +932,7 @@ export function ContractTable({
                         <CellChip
                           href={m.review.href}
                           tone={m.review.status === "success" ? "success" : "warning"}
-                          ariaLabel="Continue field review"
+                          ariaLabel="Continue detail confirmation"
                         >
                           {m.review.status === "success" ? (
                             <CheckCheck
@@ -1066,8 +957,8 @@ export function ContractTable({
                     </td>
                     <td className={`${bodyCellClass} tabular-nums`}>
                       {(m.sig?.openWorkCount ?? 0) > 0 ? (
-                        // Neutral — open work shouldn't carry the same tonal
-                        // weight as an exception or pending review unless urgent.
+                        // Neutral — open tasks should not carry the same tonal
+                        // weight as an issue or pending confirmation unless urgent.
                         <CellChip
                           href={`/work?contract=${contract.id}`}
                           tone="neutral"
@@ -1138,32 +1029,30 @@ export function ContractTable({
                 key={contract.id}
                 className={`px-4 py-3 ${isSelected ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)]" : ""}`}
               >
-                <div className="flex items-start gap-2.5">
+                {/* Center the leading checkbox + trailing kebab against the whole
+                    card — was items-start + mt-0.5, which top-anchored the checkbox
+                    to the title so it floated high in a tall card. Title /
+                    counterparty / chips stack in the middle column. */}
+                <div className="flex items-center gap-2.5">
                   {bulkActions ? (
                     <input
                       type="checkbox"
-                      className="ui-checkbox mt-0.5"
+                      className="ui-checkbox"
                       aria-label={`Select ${contract.title}`}
                       checked={selected.has(contract.id)}
                       onChange={() => toggle(contract.id)}
                     />
                   ) : null}
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <Link
-                        href={`/contracts/${contract.id}`}
-                        aria-label={`Open contract: ${contract.title}`}
-                        title={contract.title}
-                        dir="auto"
-                        className="block min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[var(--text-primary)] [unicode-bidi:isolate]"
-                      >
-                        {contract.title}
-                      </Link>
-                      <RowActionsMenu
-                        contractId={contract.id}
-                        hasOwner={!!m.owner && !m.owner.isEmailFallback}
-                      />
-                    </div>
+                    <Link
+                      href={`/contracts/${contract.id}`}
+                      aria-label={`Open contract: ${contract.title}`}
+                      title={contract.title}
+                      dir="auto"
+                      className="block min-w-0 truncate text-[13.5px] font-semibold text-[var(--text-primary)] [unicode-bidi:isolate]"
+                    >
+                      {contract.title}
+                    </Link>
                     <p className="mt-0.5 truncate text-[11.5px] text-[var(--text-tertiary)]">
                       {m.cp ? m.cp : "Missing counterparty"}
                       {m.type ? ` · ${m.type}` : ""}
@@ -1231,7 +1120,7 @@ export function ContractTable({
                         <CellChip
                           href={m.review.href}
                           tone={m.review.status === "success" ? "success" : "warning"}
-                          ariaLabel="Continue field review"
+                          ariaLabel="Continue detail confirmation"
                         >
                           {m.review.status === "success" ? (
                             <CheckCheck aria-hidden className="h-3 w-3" strokeWidth={2} />
@@ -1259,6 +1148,10 @@ export function ContractTable({
                       ) : null}
                     </div>
                   </div>
+                  <RowActionsMenu
+                    contractId={contract.id}
+                    hasOwner={!!m.owner && !m.owner.isEmailFallback}
+                  />
                 </div>
               </li>
             );

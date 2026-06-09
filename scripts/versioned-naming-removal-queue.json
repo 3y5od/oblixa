@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-versioned-naming-removal-queue.mjs --write",
   "sourceBaseline": "scripts/versioned-naming-baseline.json",
-  "entryCount": 1148,
+  "entryCount": 1160,
   "entries": [
     {
       "oldName": "src/app/api/accounts/[key]/summary/route.ts",
@@ -2873,9 +2873,9 @@
       "validationCommand": "npm run check:compatibility-route-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 8,
+      "tokenCount": 10,
       "tokens": {
-        "v6": 8
+        "v6": 10
       }
     },
     {
@@ -4116,9 +4116,9 @@
       "validationCommand": "npm run check:compatibility-route-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 3,
+      "tokenCount": 7,
       "tokens": {
-        "v2": 3
+        "v2": 7
       }
     },
     {
@@ -4957,10 +4957,10 @@
       "validationCommand": "npm run check:compatibility-route-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 6,
+      "tokenCount": 7,
       "tokens": {
         "v1": 1,
-        "v2": 5
+        "v2": 6
       }
     },
     {
@@ -5026,10 +5026,10 @@
       "validationCommand": "npm run check:compatibility-route-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 13,
+      "tokenCount": 16,
       "tokens": {
         "v10": 2,
-        "v6": 11
+        "v6": 14
       }
     },
     {
@@ -5044,9 +5044,9 @@
       "validationCommand": "npm run check:compatibility-route-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 17,
+      "tokenCount": 18,
       "tokens": {
-        "v6": 17
+        "v6": 18
       }
     },
     {
@@ -5627,9 +5627,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 9,
+      "tokenCount": 11,
       "tokens": {
-        "v6": 9
+        "v6": 11
       }
     },
     {
@@ -6491,40 +6491,6 @@
       }
     },
     {
-      "oldName": "src/lib/contract-table-a11y-responsive.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v9": 1
-      }
-    },
-    {
-      "oldName": "src/lib/contracts-import-release-state.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
-      "tokens": {
-        "v23": 2
-      }
-    },
-    {
       "oldName": "src/lib/contracts-lifecycle-surface.test.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -6573,23 +6539,6 @@
       "tokenCount": 2,
       "tokens": {
         "v9": 2
-      }
-    },
-    {
-      "oldName": "src/lib/contracts-upload-release-state.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
-      "tokens": {
-        "v23": 2
       }
     },
     {
@@ -6825,9 +6774,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 7,
+      "tokenCount": 9,
       "tokens": {
-        "v10": 7
+        "v10": 9
       }
     },
     {
@@ -6842,9 +6791,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 8,
+      "tokenCount": 9,
       "tokens": {
-        "v10": 8
+        "v10": 9
       }
     },
     {
@@ -8692,23 +8641,6 @@
       }
     },
     {
-      "oldName": "src/lib/marketing/home-metadata.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v1": 1
-      }
-    },
-    {
       "oldName": "src/lib/marketing/og-twitter-surface.test.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -8724,23 +8656,6 @@
       "tokens": {
         "v1": 1,
         "v7": 1
-      }
-    },
-    {
-      "oldName": "src/lib/marketing/pricing-contract.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 3,
-      "tokens": {
-        "v10": 3
       }
     },
     {
@@ -8792,31 +8707,6 @@
       "tokenCount": 1,
       "tokens": {
         "v7": 1
-      }
-    },
-    {
-      "oldName": "src/lib/marketing/voice-sweep.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 83,
-      "tokens": {
-        "v10": 13,
-        "v2": 8,
-        "v3": 1,
-        "v4": 5,
-        "v5": 3,
-        "v6": 4,
-        "v7": 17,
-        "v8": 6,
-        "v9": 26
       }
     },
     {
@@ -9001,8 +8891,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 47,
+      "tokenCount": 48,
       "tokens": {
+        "v2": 1,
         "v5": 32,
         "v6": 15
       }
@@ -9225,9 +9116,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 71,
+      "tokenCount": 90,
       "tokens": {
-        "v10": 71
+        "v10": 90
       }
     },
     {
@@ -9668,6 +9559,42 @@
         "v6": 4,
         "v8": 5,
         "v9": 4
+      }
+    },
+    {
+      "oldName": "src/lib/operational-feature-flags.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 66,
+      "tokens": {
+        "v3": 24,
+        "v5": 19,
+        "v6": 23
+      }
+    },
+    {
+      "oldName": "src/lib/operational-notifications-messaging.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 2,
+      "tokens": {
+        "v4": 2
       }
     },
     {
@@ -10916,8 +10843,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 7,
+      "tokenCount": 8,
       "tokens": {
+        "v2": 1,
         "v5": 4,
         "v6": 3
       }
@@ -11299,9 +11227,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 107,
+      "tokenCount": 126,
       "tokens": {
-        "v10": 51,
+        "v10": 70,
         "v9": 56
       }
     },
@@ -11559,9 +11487,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 189,
+      "tokenCount": 204,
       "tokens": {
-        "v10": 189
+        "v10": 204
       }
     },
     {
@@ -11576,9 +11504,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 208,
+      "tokenCount": 222,
       "tokens": {
-        "v10": 208
+        "v10": 222
       }
     },
     {
@@ -11772,6 +11700,23 @@
       }
     },
     {
+      "oldName": "src/lib/release-state-analytics.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 34,
+      "tokens": {
+        "v10": 34
+      }
+    },
+    {
       "oldName": "src/lib/reliability-states-27-2.test.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -11820,23 +11765,6 @@
       "tokenCount": 17,
       "tokens": {
         "v10": 17
-      }
-    },
-    {
-      "oldName": "src/lib/renewals-surface.test.ts",
-      "neutralName": null,
-      "surface": "app_libraries",
-      "surfaceClass": "app_libraries",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v23": 1
       }
     },
     {
@@ -12275,7 +12203,24 @@
       }
     },
     {
-      "oldName": "src/lib/security/audit-write.ts",
+      "oldName": "src/lib/security/audit-event-policy.test.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "src/lib/security/audit-event-policy.ts",
       "neutralName": null,
       "surface": "app_libraries",
       "surfaceClass": "app_libraries",
@@ -12289,6 +12234,40 @@
       "tokenCount": 3,
       "tokens": {
         "v10": 3
+      }
+    },
+    {
+      "oldName": "src/lib/security/audit-write.test.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "src/lib/security/audit-write.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 9,
+      "tokens": {
+        "v10": 9
       }
     },
     {
@@ -12309,6 +12288,74 @@
       }
     },
     {
+      "oldName": "src/lib/security/data-lifecycle.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 8,
+      "tokens": {
+        "v10": 8
+      }
+    },
+    {
+      "oldName": "src/lib/security/dsar-fixtures.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 3,
+      "tokens": {
+        "v10": 3
+      }
+    },
+    {
+      "oldName": "src/lib/security/privacy-inventory.test.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "src/lib/security/privacy-inventory.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 2,
+      "tokens": {
+        "v10": 2
+      }
+    },
+    {
       "oldName": "src/lib/security/read-json-body-limited.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -12323,6 +12370,23 @@
       "tokenCount": 1,
       "tokens": {
         "v5": 1
+      }
+    },
+    {
+      "oldName": "src/lib/security/safe-fetch.test.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v1": 1
       }
     },
     {
@@ -12430,6 +12494,23 @@
       }
     },
     {
+      "oldName": "src/lib/security/webhook-callback-fixtures.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 9,
+      "tokens": {
+        "v1": 9
+      }
+    },
+    {
       "oldName": "src/lib/semantics.test.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -12510,11 +12591,11 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 60,
+      "tokenCount": 59,
       "tokens": {
-        "v2": 25,
+        "v2": 21,
         "v3": 31,
-        "v4": 4
+        "v4": 7
       }
     },
     {
@@ -12827,6 +12908,40 @@
       }
     },
     {
+      "oldName": "src/lib/supabase/org-scoped-admin.test.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 4,
+      "tokens": {
+        "v6": 4
+      }
+    },
+    {
+      "oldName": "src/lib/supabase/org-scoped-admin.ts",
+      "neutralName": null,
+      "surface": "app_libraries",
+      "surfaceClass": "app_libraries",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 2,
+      "tokens": {
+        "v6": 2
+      }
+    },
+    {
       "oldName": "src/lib/supabase/server.ts",
       "neutralName": null,
       "surface": "app_libraries",
@@ -12941,9 +13056,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 47,
+      "tokenCount": 46,
       "tokens": {
-        "v10": 47
+        "v10": 46
       }
     },
     {
@@ -13614,23 +13729,6 @@
       }
     },
     {
-      "oldName": "src/app/(dashboard)/contracts/new/page.tsx",
-      "neutralName": null,
-      "surface": "app_routes",
-      "surfaceClass": "app_routes",
-      "compatibilityClass": "compatibility_sensitive",
-      "owner": "frontend-platform",
-      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-      "status": "manual_cutover_required",
-      "validationCommand": "npm run check:versioned-naming",
-      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
-      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 2,
-      "tokens": {
-        "v23": 2
-      }
-    },
-    {
       "oldName": "src/app/(dashboard)/contracts/page.tsx",
       "neutralName": null,
       "surface": "app_routes",
@@ -13946,6 +14044,23 @@
       }
     },
     {
+      "oldName": "src/app/(dashboard)/reports/page.tsx",
+      "neutralName": null,
+      "surface": "app_routes",
+      "surfaceClass": "app_routes",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:versioned-naming",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
       "oldName": "src/app/(dashboard)/reports/reports-advanced-content.tsx",
       "neutralName": null,
       "surface": "app_routes",
@@ -13964,7 +14079,7 @@
       }
     },
     {
-      "oldName": "src/app/(dashboard)/settings/billing/page.surface.test.ts",
+      "oldName": "src/app/(dashboard)/search/page.surface.test.ts",
       "neutralName": null,
       "surface": "app_routes",
       "surfaceClass": "app_routes",
@@ -13975,10 +14090,10 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 2,
+      "tokenCount": 35,
       "tokens": {
-        "v7": 1,
-        "v9": 1
+        "v2": 34,
+        "v6": 1
       }
     },
     {
@@ -14051,6 +14166,40 @@
       }
     },
     {
+      "oldName": "src/app/(dashboard)/settings/operations/notifications-readonly.tsx",
+      "neutralName": null,
+      "surface": "app_routes",
+      "surfaceClass": "app_routes",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:versioned-naming",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v4": 1
+      }
+    },
+    {
+      "oldName": "src/app/(dashboard)/settings/operations/notifications-summary.tsx",
+      "neutralName": null,
+      "surface": "app_routes",
+      "surfaceClass": "app_routes",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:versioned-naming",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v4": 1
+      }
+    },
+    {
       "oldName": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
       "neutralName": null,
       "surface": "app_routes",
@@ -14062,11 +14211,12 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 15,
+      "tokenCount": 25,
       "tokens": {
         "v1": 1,
         "v2": 1,
-        "v3": 13
+        "v3": 17,
+        "v4": 6
       }
     },
     {
@@ -14081,11 +14231,12 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 103,
+      "tokenCount": 113,
       "tokens": {
-        "v1": 12,
+        "v1": 11,
         "v2": 2,
-        "v3": 89
+        "v3": 82,
+        "v4": 18
       }
     },
     {
@@ -14253,11 +14404,11 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 111,
+      "tokenCount": 100,
       "tokens": {
-        "v2": 50,
-        "v3": 24,
-        "v4": 36,
+        "v2": 48,
+        "v3": 23,
+        "v4": 28,
         "v9": 1
       }
     },
@@ -14273,11 +14424,11 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 52,
+      "tokenCount": 16,
       "tokens": {
-        "v2": 32,
-        "v3": 14,
-        "v4": 6
+        "v2": 14,
+        "v3": 1,
+        "v4": 1
       }
     },
     {
@@ -14315,23 +14466,6 @@
       }
     },
     {
-      "oldName": "src/app/(marketing)/product/page.tsx",
-      "neutralName": null,
-      "surface": "app_routes",
-      "surfaceClass": "app_routes",
-      "compatibilityClass": "compatibility_sensitive",
-      "owner": "frontend-platform",
-      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-      "status": "manual_cutover_required",
-      "validationCommand": "npm run check:versioned-naming",
-      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
-      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 16,
-      "tokens": {
-        "v7": 16
-      }
-    },
-    {
       "oldName": "src/app/globals.css",
       "neutralName": null,
       "surface": "app_routes",
@@ -14343,15 +14477,16 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 23,
+      "tokenCount": 26,
       "tokens": {
         "v11": 2,
-        "v13": 5,
-        "v14": 4,
-        "v15": 4,
+        "v13": 4,
+        "v14": 7,
+        "v15": 5,
+        "v16": 1,
         "v21": 1,
         "v3": 1,
-        "v5": 3,
+        "v5": 2,
         "v6": 2,
         "v7": 1
       }
@@ -14442,23 +14577,6 @@
       }
     },
     {
-      "oldName": "src/components/auth/auth-form.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v3": 1
-      }
-    },
-    {
       "oldName": "src/components/campaigns/campaign-control-panel.tsx",
       "neutralName": null,
       "surface": "components",
@@ -14493,23 +14611,6 @@
       }
     },
     {
-      "oldName": "src/components/contracts/bulk-upload-form.ui.test.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
-      "tokens": {
-        "v23": 2
-      }
-    },
-    {
       "oldName": "src/components/contracts/contract-evidence-requirements-panel.tsx",
       "neutralName": null,
       "surface": "components",
@@ -14541,23 +14642,6 @@
       "tokenCount": 6,
       "tokens": {
         "v9": 6
-      }
-    },
-    {
-      "oldName": "src/components/contracts/contract-table.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 3,
-      "tokens": {
-        "v22": 3
       }
     },
     {
@@ -14681,40 +14765,6 @@
       }
     },
     {
-      "oldName": "src/components/contracts/recent-uploads.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v23": 1
-      }
-    },
-    {
-      "oldName": "src/components/contracts/upload-form.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 6,
-      "tokens": {
-        "v23": 6
-      }
-    },
-    {
       "oldName": "src/components/contracts/upload-form.ui.test.tsx",
       "neutralName": null,
       "surface": "components",
@@ -14746,28 +14796,6 @@
       "tokenCount": 1,
       "tokens": {
         "v5": 1
-      }
-    },
-    {
-      "oldName": "src/components/dashboard/core-dashboard.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 13,
-      "tokens": {
-        "v15": 3,
-        "v17": 2,
-        "v18": 4,
-        "v19": 1,
-        "v20": 2,
-        "v21": 1
       }
     },
     {
@@ -14906,28 +14934,11 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 12,
+      "tokenCount": 9,
       "tokens": {
-        "v10": 5,
-        "v9": 7
-      }
-    },
-    {
-      "oldName": "src/components/landing/landing-json-ld.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 3,
-      "tokens": {
-        "v3": 1,
-        "v4": 2
+        "v10": 3,
+        "v14": 1,
+        "v9": 5
       }
     },
     {
@@ -14942,48 +14953,19 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 17,
+      "tokenCount": 39,
       "tokens": {
-        "v10": 3,
+        "v10": 1,
         "v11": 5,
         "v12": 3,
+        "v13": 9,
+        "v14": 5,
+        "v15": 6,
+        "v16": 2,
+        "v17": 3,
         "v2": 1,
         "v3": 1,
-        "v9": 4
-      }
-    },
-    {
-      "oldName": "src/components/landing/landing-page.ui.test.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
-      "tokens": {
-        "v9": 2
-      }
-    },
-    {
-      "oldName": "src/components/landing/marketing-site-chrome.tsx",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v9": 1
+        "v9": 3
       }
     },
     {
@@ -14998,10 +14980,9 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 3,
+      "tokenCount": 2,
       "tokens": {
-        "v6": 2,
-        "v7": 1
+        "v6": 2
       }
     },
     {
@@ -15033,29 +15014,10 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 5,
+      "tokenCount": 3,
       "tokens": {
-        "v6": 3,
+        "v6": 1,
         "v7": 2
-      }
-    },
-    {
-      "oldName": "src/components/landing/product-sections-data.ts",
-      "neutralName": null,
-      "surface": "components",
-      "surfaceClass": "components",
-      "compatibilityClass": "source_owned",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming-safe-renames",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 10,
-      "tokens": {
-        "v5": 1,
-        "v6": 5,
-        "v7": 4
       }
     },
     {
@@ -15070,8 +15032,10 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
+      "tokenCount": 6,
       "tokens": {
+        "v1": 1,
+        "v2": 3,
         "v5": 2
       }
     },
@@ -15174,9 +15138,8 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 12,
+      "tokenCount": 11,
       "tokens": {
-        "v11": 1,
         "v5": 4,
         "v6": 7
       }
@@ -15284,6 +15247,23 @@
       }
     },
     {
+      "oldName": "src/components/search/search-field.tsx",
+      "neutralName": null,
+      "surface": "components",
+      "surfaceClass": "components",
+      "compatibilityClass": "source_owned",
+      "owner": "frontend-platform",
+      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 3,
+      "tokens": {
+        "v2": 3
+      }
+    },
+    {
       "oldName": "src/components/settings/billing-stripe-surface.test.ts",
       "neutralName": null,
       "surface": "components",
@@ -15312,11 +15292,11 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 51,
+      "tokenCount": 44,
       "tokens": {
-        "v2": 35,
+        "v2": 33,
         "v3": 1,
-        "v4": 15
+        "v4": 10
       }
     },
     {
@@ -16356,9 +16336,9 @@
       "validationCommand": "npm run check:sql-object-reference-inventory",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 33,
+      "tokenCount": 35,
       "tokens": {
-        "v10": 33
+        "v10": 35
       }
     },
     {
@@ -16410,35 +16390,6 @@
       "tokenCount": 260,
       "tokens": {
         "v10": 260
-      }
-    },
-    {
-      "oldName": "docs/version-name-removal-code-only-checklist.md",
-      "neutralName": null,
-      "surface": "documentation",
-      "surfaceClass": "documentation",
-      "compatibilityClass": "documentation_or_planning",
-      "owner": "docs-platform",
-      "reason": "Documentation and planning artifacts can describe reviewed version debt without creating runtime dependencies.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 144,
-      "tokens": {
-        "v0": 3,
-        "v1": 15,
-        "v10": 38,
-        "v13": 1,
-        "v14": 2,
-        "v2": 13,
-        "v3": 8,
-        "v4": 10,
-        "v5": 17,
-        "v6": 17,
-        "v7": 2,
-        "v8": 5,
-        "v9": 13
       }
     },
     {
@@ -16598,6 +16549,23 @@
       }
     },
     {
+      "oldName": "e2e/fixtures/app-fixture.ts",
+      "neutralName": null,
+      "surface": "e2e_tests",
+      "surfaceClass": "e2e_tests",
+      "compatibilityClass": "source_owned",
+      "owner": "qa-platform",
+      "reason": "End-to-end test names and tags are source-owned unless consumed by CI filters or external evidence.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 2,
+      "tokens": {
+        "v10": 2
+      }
+    },
+    {
       "oldName": "e2e/qa-maximal-matrix.spec.ts",
       "neutralName": null,
       "surface": "e2e_tests",
@@ -16722,6 +16690,162 @@
       }
     },
     {
+      "oldName": "config/operational-ci-enforcement.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "config/operational-cron-jobs.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 2,
+      "tokens": {
+        "v6": 2
+      }
+    },
+    {
+      "oldName": "config/operational-frontend-resilience.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 3,
+      "tokens": {
+        "v10": 3
+      }
+    },
+    {
+      "oldName": "config/operational-notifications-messaging.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v4": 1
+      }
+    },
+    {
+      "oldName": "config/operational-observability-redaction.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "config/operational-privacy-auditability.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 1,
+      "tokens": {
+        "v10": 1
+      }
+    },
+    {
+      "oldName": "config/operational-schema-compatibility.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 2,
+      "tokens": {
+        "v10": 1,
+        "v9": 1
+      }
+    },
+    {
+      "oldName": "config/operational-search-reporting-analytics-exports.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 8,
+      "tokens": {
+        "v10": 3,
+        "v4": 5
+      }
+    },
+    {
+      "oldName": "config/operational-secrets-configuration.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 2,
+      "tokens": {
+        "v10": 1,
+        "v9": 1
+      }
+    },
+    {
       "oldName": "config/pairwise-feature-flags.json",
       "neutralName": null,
       "surface": "external_contracts",
@@ -16750,9 +16874,29 @@
       "validationCommand": "npm run check:generated-artifact-hygiene",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 31,
+      "tokenCount": 84,
       "tokens": {
-        "v10": 14,
+        "v10": 33,
+        "v7": 6,
+        "v8": 42,
+        "v9": 3
+      }
+    },
+    {
+      "oldName": "config/qa-tier-coverage-allowlist.json",
+      "neutralName": null,
+      "surface": "external_contracts",
+      "surfaceClass": "external_contracts",
+      "compatibilityClass": "compatibility_sensitive",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "status": "manual_cutover_required",
+      "validationCommand": "npm run check:generated-artifact-hygiene",
+      "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
+      "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
+      "tokenCount": 28,
+      "tokens": {
+        "v10": 11,
         "v7": 2,
         "v8": 14,
         "v9": 1
@@ -16828,12 +16972,12 @@
       "validationCommand": "npm run check:generated-artifact-hygiene",
       "earliestRemovalCondition": "Neutral alias exists, production/manual cutover evidence is captured, and the compatibility queue status is ready_for_removal.",
       "manualFollowUp": "Create or verify a neutral alias, capture external cutover evidence, then update queue status before removing the legacy name.",
-      "tokenCount": 39,
+      "tokenCount": 135,
       "tokens": {
-        "v10": 3,
-        "v4": 8,
-        "v5": 8,
-        "v6": 20
+        "v10": 12,
+        "v4": 32,
+        "v5": 32,
+        "v6": 59
       }
     },
     {
@@ -16970,57 +17114,12 @@
       "validationCommand": "npm run check:versioned-naming",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 40,
+      "tokenCount": 39,
       "tokens": {
-        "v10": 17,
+        "v10": 16,
         "v7": 2,
         "v8": 16,
         "v9": 5
-      }
-    },
-    {
-      "oldName": "SECURITY-SPEC-AS-BUILT.md",
-      "neutralName": null,
-      "surface": "other",
-      "surfaceClass": "other",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Unclassified versioned naming debt needs owner review before removal.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 87,
-      "tokens": {
-        "v0": 1,
-        "v1": 1,
-        "v10": 67,
-        "v4": 4,
-        "v5": 6,
-        "v6": 7,
-        "v8": 1
-      }
-    },
-    {
-      "oldName": "SPEC-AS-BUILT.md",
-      "neutralName": null,
-      "surface": "other",
-      "surfaceClass": "other",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Unclassified versioned naming debt needs owner review before removal.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:versioned-naming",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 96,
-      "tokens": {
-        "v10": 69,
-        "v3": 2,
-        "v4": 6,
-        "v5": 8,
-        "v6": 10,
-        "v9": 1
       }
     },
     {
@@ -17127,6 +17226,23 @@
       "tokenCount": 82,
       "tokens": {
         "v10": 82
+      }
+    },
+    {
+      "oldName": "src/actions/bulk-compatible-work-validation.test.ts",
+      "neutralName": null,
+      "surface": "server_actions",
+      "surfaceClass": "server_actions",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-api",
+      "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 26,
+      "tokens": {
+        "v10": 26
       }
     },
     {
@@ -17317,10 +17433,27 @@
       "validationCommand": "npm run check:versioned-naming-safe-renames",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 10,
+      "tokenCount": 11,
       "tokens": {
-        "v6": 3,
+        "v6": 4,
         "v9": 7
+      }
+    },
+    {
+      "oldName": "src/actions/policy-operations.test.ts",
+      "neutralName": null,
+      "surface": "server_actions",
+      "surfaceClass": "server_actions",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-api",
+      "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:versioned-naming-safe-renames",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 4,
+      "tokens": {
+        "v4": 4
       }
     },
     {
@@ -17609,6 +17742,23 @@
       }
     },
     {
+      "oldName": "scripts/audit-release-state-code-only.mjs",
+      "neutralName": null,
+      "surface": "tooling",
+      "surfaceClass": "tooling",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:hardening-ci-wiring",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 9,
+      "tokens": {
+        "v10": 9
+      }
+    },
+    {
       "oldName": "scripts/check-ai-boundary-contract.mjs",
       "neutralName": null,
       "surface": "tooling",
@@ -17775,9 +17925,9 @@
       "validationCommand": "npm run check:hardening-ci-wiring",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 6,
+      "tokenCount": 5,
       "tokens": {
-        "v10": 5,
+        "v10": 4,
         "v9": 1
       }
     },
@@ -17995,23 +18145,6 @@
       }
     },
     {
-      "oldName": "scripts/check-feature-flag-lifecycle.mjs",
-      "neutralName": null,
-      "surface": "tooling",
-      "surfaceClass": "tooling",
-      "compatibilityClass": "source_owned",
-      "owner": "platform-hardening",
-      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
-      "status": "queued_for_source_cleanup",
-      "validationCommand": "npm run check:hardening-ci-wiring",
-      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
-      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 1,
-      "tokens": {
-        "v7": 1
-      }
-    },
-    {
       "oldName": "scripts/check-feature-flag-security-bypass.test.mjs",
       "neutralName": null,
       "surface": "tooling",
@@ -18205,6 +18338,40 @@
       }
     },
     {
+      "oldName": "scripts/check-operational-authz-session.mjs",
+      "neutralName": null,
+      "surface": "tooling",
+      "surfaceClass": "tooling",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:hardening-ci-wiring",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v6": 1
+      }
+    },
+    {
+      "oldName": "scripts/check-operational-feature-flags-rollout.mjs",
+      "neutralName": null,
+      "surface": "tooling",
+      "surfaceClass": "tooling",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:hardening-ci-wiring",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v7": 1
+      }
+    },
+    {
       "oldName": "scripts/check-persistence-redaction.mjs",
       "neutralName": null,
       "surface": "tooling",
@@ -18250,9 +18417,9 @@
       "validationCommand": "npm run check:hardening-ci-wiring",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
+      "tokenCount": 1,
       "tokens": {
-        "v9": 2
+        "v9": 1
       }
     },
     {
@@ -18803,9 +18970,9 @@
       "validationCommand": "npm run check:hardening-ci-wiring",
       "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
       "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
-      "tokenCount": 2,
+      "tokenCount": 1,
       "tokens": {
-        "v10": 2
+        "v10": 1
       }
     },
     {
@@ -19823,6 +19990,23 @@
     },
     {
       "oldName": "scripts/report-user-facing-interactions.mjs",
+      "neutralName": null,
+      "surface": "tooling",
+      "surfaceClass": "tooling",
+      "compatibilityClass": "source_owned",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "status": "queued_for_source_cleanup",
+      "validationCommand": "npm run check:hardening-ci-wiring",
+      "earliestRemovalCondition": "All source references use the neutral name, focused tests pass, and check:versioned-naming records a reduction after baseline refresh.",
+      "manualFollowUp": "Apply a reviewed local rename or symbol alias and refresh the versioned naming baseline only after tests pass.",
+      "tokenCount": 1,
+      "tokens": {
+        "v4": 1
+      }
+    },
+    {
+      "oldName": "scripts/route-handler-complexity-baseline.json",
       "neutralName": null,
       "surface": "tooling",
       "surfaceClass": "tooling",

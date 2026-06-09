@@ -9,12 +9,13 @@ import {
   useState,
   useTransition,
 } from "react";
-import Link from "next/link";
-import { ArrowLeft, ArrowRight, Bell, Loader2, Lock, Mail } from "lucide-react";
-import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { ArrowRight, Loader2, Lock, Mail } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { UiToggle } from "@/components/ui/ui-toggle";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { LiveRegion } from "@/components/ui/live-region";
+import { SettingsSubpageShell } from "@/components/settings/settings-subpage-shell";
+import { SettingsCardHeader } from "@/components/settings/settings-card";
 import { upsertNotificationSettingsForm } from "@/actions/notifications";
 import {
   SETTINGS_NOTIFICATIONS_STRINGS,
@@ -23,24 +24,6 @@ import {
 import type { OperationsSettingsPayload } from "./load-operations-settings-data";
 import { NotificationsSummary } from "./notifications-summary";
 import { NotificationsReadOnly } from "./notifications-readonly";
-
-// V4 polish (carries V1/V2/V3). Supersedes V3 where they conflict:
-//   • Form is paired with a live summary rail (two-column at lg+) so the
-//     page reads as one grid instead of a lone narrow column.
-//   • Main card promoted to `.ui-card-raised`; Save/Discard live in a
-//     card-footer action bar with an explicit unsaved-changes indicator.
-//   • Non-admin state reads as a titled read-only notice + a read-only
-//     footer; the editable Save/Discard cluster is hidden, not just
-//     disabled, so locked controls never look editable.
-//   • Quiet hours become a labeled time-range control (visible Start/End
-//     + UTC chip + derived any-time / overnight chip), reversing the V3
-//     "0 → 0" ambiguity.
-//   • Reminder rows gain hover affordance + are deduped through
-//     `CategoryRow`. Per-row icon medallions stay dropped (V3 §3.2).
-//   • The dead "Open account" personal-overrides strip is removed: it
-//     pointed at a non-existent route and there is no personal-preference
-//     surface behind it. The rail's context line carries the "applies to
-//     everyone" framing instead.
 
 type PolicyChannel = {
   enabled?: unknown;
@@ -76,20 +59,12 @@ function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
   return true;
 }
 
-function CardMedallion({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
-    >
-      {children}
-    </span>
-  );
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
-// V4 — one consistent setting row for every reminder category. The whole
-// row is the click target (label wraps the checkbox); a hover tint makes
-// the affordance obvious. No per-row icon medallion (V3 §3.2).
+// One compact setting row per reminder category: title + one-line description
+// on the left, checkbox on the right. The whole row is the click target.
 function CategoryRow({
   category,
   checked,
@@ -103,25 +78,25 @@ function CategoryRow({
   return (
     <label
       htmlFor={checkboxId}
-      className="-mx-2 flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)]"
+      className="-mx-2 flex min-h-[44px] cursor-pointer items-start justify-between gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)]"
     >
+      <span className="min-w-0">
+        <span className="block text-[13px] font-semibold text-[var(--text-primary)]">
+          {category.label}
+        </span>
+        <span className="mt-0.5 block text-[12px] leading-snug text-[var(--text-secondary)]">
+          {category.description}
+        </span>
+      </span>
       <input
         id={checkboxId}
         type="checkbox"
-        className="ui-checkbox mt-0.5"
+        className="ui-checkbox mt-0.5 shrink-0"
         name="notificationCategories"
         value={category.key}
         checked={checked}
         onChange={onToggle}
       />
-      <span className="min-w-0">
-        <span className="block text-[13.5px] font-semibold text-[var(--text-primary)]">
-          {category.label}
-        </span>
-        <span className="mt-0.5 block text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-          {category.description}
-        </span>
-      </span>
     </label>
   );
 }
@@ -139,10 +114,6 @@ export function OperationsSettingsView({
     () => blockedTypes(policy.email),
     [policy.email]
   );
-  // V4 — baselines are state, not frozen consts, so a successful save can
-  // commit the saved values as the new baseline and clear isDirty (Save
-  // disables, the unsaved indicator hides). handleDiscard still reverts to
-  // these baselines, so after a save Discard reverts to the last-saved set.
   const [initialEmailEnabled, setInitialEmailEnabled] = useState(
     policy.email?.enabled !== false
   );
@@ -186,7 +157,6 @@ export function OperationsSettingsView({
   const quietCaptionId = useId();
   const reminderDefaultsTitleId = "notifications-content-title";
 
-  // V3 T18.1 — derived state via useMemo.
   const isDirty = useMemo(
     () =>
       emailEnabled !== initialEmailEnabled ||
@@ -205,12 +175,38 @@ export function OperationsSettingsView({
     ]
   );
 
-  // V3 T16.8 — when start === end (default 0/0), reminders send any
-  // time. T16.6 — when start > end, overnight quiet range; server
-  // dispatcher uses modular comparison. No UI special-case required.
-  const quietHoursNoOp = quietStart === quietEnd;
+  // start === end → reminders send any time; start > end → overnight quiet
+  // window (the server dispatcher compares modularly).
+  const anyTime = quietStart === quietEnd;
+  const overnight = quietStart > quietEnd;
 
-  // V3 T18.1 — category counts excluding weekly_digest.
+  // Remember the last real window so toggling Any time ↔ Quiet window restores
+  // the user's chosen hours instead of resetting them.
+  const lastWindowRef = useRef<{ start: number; end: number }>(
+    initialQuietStart !== initialQuietEnd
+      ? { start: initialQuietStart, end: initialQuietEnd }
+      : { start: 22, end: 7 }
+  );
+  useEffect(() => {
+    if (quietStart !== quietEnd) {
+      lastWindowRef.current = { start: quietStart, end: quietEnd };
+    }
+  }, [quietStart, quietEnd]);
+
+  const selectAnyTime = useCallback(() => {
+    // Collapse to a no-op window (start === end → reminders send any time).
+    setQuietEnd(quietStart);
+  }, [quietStart]);
+
+  const selectWindow = useCallback(() => {
+    if (quietStart !== quietEnd) return;
+    const { start } = lastWindowRef.current;
+    let end = lastWindowRef.current.end;
+    if (start === end) end = (start + 8) % 24;
+    setQuietStart(start);
+    setQuietEnd(end);
+  }, [quietStart, quietEnd]);
+
   const reminderCategoryKeys = useMemo(
     () =>
       SETTINGS_NOTIFICATIONS_STRINGS.categories
@@ -223,10 +219,8 @@ export function OperationsSettingsView({
     [reminderCategoryKeys, selectedCategories]
   );
   const totalReminderCount = reminderCategoryKeys.length;
-  // V3 T0.3 — chip only renders when partial.
   const showCountChip = enabledReminderCount < totalReminderCount;
 
-  // V3 T22.5 — count transition announcement (skips initial mount).
   const prevCountRef = useRef(enabledReminderCount);
   useEffect(() => {
     if (prevCountRef.current === enabledReminderCount) return;
@@ -239,23 +233,17 @@ export function OperationsSettingsView({
     return () => clearTimeout(t);
   }, [enabledReminderCount, totalReminderCount]);
 
-  // V3 T22.x — clear transient announcements after 4s.
   useEffect(() => {
     if (!announcement) return;
     const t = setTimeout(() => setAnnouncement(undefined), 4000);
     return () => clearTimeout(t);
   }, [announcement]);
 
-  // V3 T4.3 — ⌘S / Ctrl+S keyboard shortcut.
+  // ⌘S / Ctrl+S keyboard shortcut.
   useEffect(() => {
     if (!canEdit) return;
     const handler = (e: KeyboardEvent) => {
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        e.key === "s" &&
-        isDirty &&
-        !pending
-      ) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s" && isDirty && !pending) {
         e.preventDefault();
         formRef.current?.requestSubmit();
       }
@@ -264,7 +252,7 @@ export function OperationsSettingsView({
     return () => window.removeEventListener("keydown", handler);
   }, [isDirty, pending, canEdit]);
 
-  // V3 T4.8 — beforeunload guard when isDirty.
+  // Guard against navigating away with unsaved changes.
   useEffect(() => {
     if (!isDirty) return;
     const handler = (e: BeforeUnloadEvent) => {
@@ -275,14 +263,12 @@ export function OperationsSettingsView({
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  // V3 T4.4 — auto-clear saved-state confirmation after 3s.
   useEffect(() => {
     if (!message || error) return;
     const t = setTimeout(() => setMessage(null), 3000);
     return () => clearTimeout(t);
   }, [message, error]);
 
-  // V3 T18.3 — useCallback for stable handler identity.
   const toggleCategory = useCallback((key: NotificationCategoryKey) => {
     setSelectedCategories((prev) => {
       const next = new Set(prev);
@@ -292,7 +278,6 @@ export function OperationsSettingsView({
     });
   }, []);
 
-  // V3 T22.3 — channel toggle announcement.
   const handleEmailToggle = useCallback((checked: boolean) => {
     setEmailEnabled(checked);
     setAnnouncement(
@@ -302,7 +287,6 @@ export function OperationsSettingsView({
     );
   }, []);
 
-  // V3 T4.2 — handleDiscard resets to initial values.
   const handleDiscard = useCallback(() => {
     setEmailEnabled(initialEmailEnabled);
     setQuietStart(initialQuietStart);
@@ -328,16 +312,11 @@ export function OperationsSettingsView({
         const r = await upsertNotificationSettingsForm(formData);
         if ("error" in r) {
           setError(r.error);
-          setAnnouncement(
-            SETTINGS_NOTIFICATIONS_STRINGS.saveErrorAnnouncement
-          );
+          setAnnouncement(SETTINGS_NOTIFICATIONS_STRINGS.saveErrorAnnouncement);
           return;
         }
         setMessage(SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement);
-        setAnnouncement(
-          SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement
-        );
-        // Commit the saved values as the new baseline → isDirty clears.
+        setAnnouncement(SETTINGS_NOTIFICATIONS_STRINGS.saveSuccessAnnouncement);
         setInitialEmailEnabled(emailEnabled);
         setInitialQuietStart(quietStart);
         setInitialQuietEnd(quietEnd);
@@ -347,51 +326,35 @@ export function OperationsSettingsView({
   }
 
   const categories = SETTINGS_NOTIFICATIONS_STRINGS.categories;
-  const reminderCategories = categories.filter(
-    (c) => c.key !== "weekly_digest"
-  );
+  const reminderCategories = categories.filter((c) => c.key !== "weekly_digest");
   const digestCategory = categories.find((c) => c.key === "weekly_digest");
   const digestEnabled = selectedCategories.has(
     "weekly_digest" as NotificationCategoryKey
   );
 
   const liveMsg =
-    announcement ??
-    (pending ? "Saving preferences…" : error ?? undefined);
+    announcement ?? (pending ? "Saving preferences…" : error ?? undefined);
 
   const formDisabled = !canEdit;
+  const segBase =
+    "rounded-full px-3 py-1 text-[12px] font-medium transition-colors";
+  const segActive =
+    "bg-[color:color-mix(in_oklab,var(--accent-soft)_42%,var(--surface-raised))] text-[var(--accent-strong)]";
+  const segIdle = "text-[var(--text-secondary)] hover:text-[var(--text-primary)]";
 
   return (
-    <div className="ui-page-stack mx-auto max-w-5xl gap-4">
-      <Link
-        href={`#${reminderDefaultsTitleId}`}
-        className="ui-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-[var(--surface-raised)] focus:px-3 focus:py-2 focus:text-[var(--text-primary)]"
-      >
-        Skip to notification settings
-      </Link>
+    <SettingsSubpageShell
+      icon={<Mail className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+      eyebrow={SETTINGS_NOTIFICATIONS_STRINGS.eyebrow}
+      title={SETTINGS_NOTIFICATIONS_STRINGS.title}
+      lead={SETTINGS_NOTIFICATIONS_STRINGS.lead}
+      skipLink={{
+        href: `#${reminderDefaultsTitleId}`,
+        label: "Skip to notification settings",
+      }}
+    >
+      <LiveRegion message={liveMsg} politeness={error ? "assertive" : "polite"} />
 
-      <Link
-        href="/settings"
-        className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px] billing-no-print"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-        {SETTINGS_NOTIFICATIONS_STRINGS.backLabel}
-      </Link>
-
-      <DashboardPageHeader
-        icon={<Bell className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-        eyebrow={SETTINGS_NOTIFICATIONS_STRINGS.eyebrow}
-        title={SETTINGS_NOTIFICATIONS_STRINGS.title}
-        lead={SETTINGS_NOTIFICATIONS_STRINGS.lead}
-      />
-
-      <LiveRegion
-        message={liveMsg}
-        politeness={error ? "assertive" : "polite"}
-      />
-
-      {/* V4 §3 — read-only (non-admin) state reads as a titled notice with
-          an icon + tokenized surface, not a thin one-line banner. */}
       {!canEdit ? (
         <div
           role="note"
@@ -414,237 +377,261 @@ export function OperationsSettingsView({
         </div>
       ) : null}
 
-      {/* V4 §5 + §IA — left column: editable form for admins, a read-only
-          status view for everyone else (no editable-looking controls). Right
-          column: the live summary rail, shown in both modes. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
         {canEdit ? (
-        <section
-          id="notifications"
-          className="ui-card-raised scroll-mt-6 overflow-hidden p-0"
-        >
-          <header className="flex items-start justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5 sm:px-6">
-            <div className="flex min-w-0 items-center gap-3">
-              <CardMedallion>
-                <Mail className="h-4 w-4" strokeWidth={1.85} />
-              </CardMedallion>
-              <h2
-                id={reminderDefaultsTitleId}
-                className="min-w-0 text-[15.5px] font-semibold leading-tight tracking-tight text-[var(--text-primary)] sm:text-[1.125rem]"
-              >
-                {SETTINGS_NOTIFICATIONS_STRINGS.sections.emailReminders}
-              </h2>
-            </div>
-            <span
-              role="img"
-              aria-label={
-                emailEnabled ? "Email channel: on" : "Email channel: off"
-              }
-              className="shrink-0"
-            >
-              <StatusBadge status={emailEnabled ? "healthy" : "disabled"}>
-                <span aria-hidden>
-                  {emailEnabled
-                    ? SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOn
-                    : SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOff}
-                </span>
-              </StatusBadge>
-            </span>
-          </header>
-
-          <form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            noValidate
-            className="billing-no-print"
+          <section
+            id="notifications"
+            className="ui-card-raised scroll-mt-6 overflow-hidden p-0"
           >
-            <input
-              type="hidden"
-              name="idempotency_key"
-              value={idempotencyKey}
-            />
-
-            <div className="space-y-5 px-5 py-5 sm:px-6">
-              {/* Master switch — everything below depends on it. */}
-              <label
-                htmlFor={emailRemindersId}
-                className="-mx-2 flex min-h-[44px] cursor-pointer items-center gap-3 rounded-lg px-2 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,transparent)]"
-              >
-                <input
-                  id={emailRemindersId}
-                  type="checkbox"
-                  className="ui-checkbox"
-                  name="emailEnabled"
-                  value="1"
-                  checked={emailEnabled}
-                  disabled={formDisabled}
-                  onChange={(ev) => handleEmailToggle(ev.target.checked)}
-                />
-                <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
-                  {SETTINGS_NOTIFICATIONS_STRINGS.emailRemindersToggleLabel}
-                </span>
-              </label>
-
-              {!emailEnabled ? (
-                <p
-                  role="note"
-                  className="rounded-md border border-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,var(--surface-raised))] px-3 py-2 text-[12.5px] leading-relaxed text-[var(--warning-ink)]"
-                >
-                  {SETTINGS_NOTIFICATIONS_STRINGS.channelOffBanner}
-                </p>
-              ) : null}
-
-              <fieldset
-                disabled={!emailEnabled || formDisabled}
-                className="min-w-0 space-y-6 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-5"
-              >
-                <legend className="sr-only">Reminder settings</legend>
-
-                {/* Quiet hours — labeled time-range control. */}
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p
-                      id={`${quietStartId}-legend`}
-                      className="text-[13px] font-medium text-[var(--text-secondary)]"
-                    >
-                      {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursLegend}
-                    </p>
-                    <span className="ui-caps-3 inline-flex items-center rounded-full border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--text-tertiary)]">
-                      {SETTINGS_NOTIFICATIONS_STRINGS.utcLabel}
-                    </span>
-                    {quietHoursNoOp ? (
-                      <span className="ui-caps-3 ml-auto text-[10px] leading-none text-[var(--text-tertiary)]">
-                        {SETTINGS_NOTIFICATIONS_STRINGS.summary.anyTime}
-                      </span>
-                    ) : quietStart > quietEnd ? (
-                      <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)]">
-                        {SETTINGS_NOTIFICATIONS_STRINGS.summary.overnight}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <div
-                    className="mt-2.5 flex items-start gap-3"
-                    role="group"
-                    aria-labelledby={`${quietStartId}-legend`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
-                        {SETTINGS_NOTIFICATIONS_STRINGS.quietStartLabel}
-                      </span>
-                      <input
-                        id={quietStartId}
-                        type="number"
-                        name="emailQuietStartUtc"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        min={0}
-                        max={23}
-                        step={1}
-                        pattern="\d{1,2}"
-                        placeholder="0–23"
-                        aria-label="Quiet hours start (0-23 UTC)"
-                        aria-describedby={quietCaptionId}
-                        value={quietStart}
-                        onChange={(ev) =>
-                          setQuietStart(hourValue(ev.target.value, 0))
-                        }
-                        onBlur={(ev) =>
-                          setQuietStart(hourValue(ev.target.value, 0))
-                        }
-                        className="ui-input w-20 tabular-nums sm:w-24 text-center text-[15px]"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1" aria-hidden>
-                      <span className="ui-caps-3 select-none text-[10px] leading-none text-transparent">
-                        –
-                      </span>
-                      <span className="flex min-h-11 items-center text-[var(--text-tertiary)]">
-                        <ArrowRight className="h-4 w-4" strokeWidth={2} />
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
-                        {SETTINGS_NOTIFICATIONS_STRINGS.quietEndLabel}
-                      </span>
-                      <input
-                        id={quietEndId}
-                        type="number"
-                        name="emailQuietEndUtc"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        min={0}
-                        max={23}
-                        step={1}
-                        pattern="\d{1,2}"
-                        placeholder="0–23"
-                        aria-label="Quiet hours end (0-23 UTC)"
-                        aria-describedby={quietCaptionId}
-                        value={quietEnd}
-                        onChange={(ev) => setQuietEnd(hourValue(ev.target.value, 0))}
-                        onBlur={(ev) => setQuietEnd(hourValue(ev.target.value, 0))}
-                        className="ui-input w-20 tabular-nums sm:w-24 text-center text-[15px]"
-                      />
-                    </div>
-                  </div>
-
-                  {quietHoursNoOp ? (
-                    <span id={quietCaptionId} className="sr-only">
-                      {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursNoneCaption}
-                    </span>
-                  ) : (
-                    <span id={quietCaptionId} className="sr-only">
-                      {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursLegend}
-                    </span>
-                  )}
-                </div>
-
-                {/* Reminder categories. */}
-                <div
-                  role="group"
+            <SettingsCardHeader
+              icon={<Mail className="h-4 w-4" strokeWidth={1.85} />}
+              title={SETTINGS_NOTIFICATIONS_STRINGS.sections.emailReminders}
+              titleId={reminderDefaultsTitleId}
+              badge={
+                <span
+                  role="img"
                   aria-label={
-                    SETTINGS_NOTIFICATIONS_STRINGS.categoriesLegendSrOnly
+                    emailEnabled ? "Email channel: on" : "Email channel: off"
                   }
                 >
-                  {showCountChip ? (
-                    <p
-                      className="ui-caps-3 text-[var(--text-tertiary)]"
-                      aria-label={`${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`}
-                    >
-                      <span aria-hidden className="tabular-nums">
-                        {enabledReminderCount}/{totalReminderCount} enabled
-                      </span>
-                    </p>
-                  ) : null}
+                  <StatusBadge status={emailEnabled ? "healthy" : "disabled"}>
+                    <span aria-hidden>
+                      {emailEnabled
+                        ? SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOn
+                        : SETTINGS_NOTIFICATIONS_STRINGS.badges.emailOff}
+                    </span>
+                  </StatusBadge>
+                </span>
+              }
+            />
 
-                  <ul
-                    className={`${
-                      showCountChip ? "mt-3" : ""
-                    } divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_62%,transparent)]`}
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              noValidate
+              className="billing-no-print"
+            >
+              <input type="hidden" name="idempotency_key" value={idempotencyKey} />
+
+              <div className="space-y-5 px-5 py-5 sm:px-6">
+                {/* Master switch — everything below depends on it. */}
+                <UiToggle
+                  name="emailEnabled"
+                  label={SETTINGS_NOTIFICATIONS_STRINGS.emailRemindersToggleLabel}
+                  checked={emailEnabled}
+                  disabled={formDisabled}
+                  ariaDescribedBy={emailRemindersId}
+                  onChange={handleEmailToggle}
+                />
+
+                {!emailEnabled ? (
+                  <p
+                    id={emailRemindersId}
+                    role="note"
+                    className="rounded-md border border-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_22%,var(--surface-raised))] px-3 py-2 text-[12.5px] leading-relaxed text-[var(--warning-ink)]"
                   >
-                    {reminderCategories.map((category) => (
-                      <li key={category.key} className="py-1.5">
-                        <CategoryRow
-                          category={category}
-                          checked={selectedCategories.has(
-                            category.key as NotificationCategoryKey
-                          )}
-                          onToggle={() =>
-                            toggleCategory(
-                              category.key as NotificationCategoryKey
-                            )
-                          }
-                        />
-                      </li>
-                    ))}
+                    {SETTINGS_NOTIFICATIONS_STRINGS.channelOffBanner}
+                  </p>
+                ) : null}
 
-                    {digestCategory ? (
-                      <li
-                        key={digestCategory.key}
-                        className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_88%,transparent)] py-1.5 pt-2.5"
+                <fieldset
+                  disabled={!emailEnabled || formDisabled}
+                  className="min-w-0 space-y-6 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-5"
+                >
+                  <legend className="sr-only">Reminder settings</legend>
+
+                  {/* Quiet hours — segmented Any time / Quiet window control. */}
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p
+                        id={`${quietStartId}-legend`}
+                        className="text-[13px] font-medium text-[var(--text-secondary)]"
                       >
+                        {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursLegend}
+                      </p>
+                      <span className="ui-caps-3 inline-flex items-center rounded-full border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--text-tertiary)]">
+                        {SETTINGS_NOTIFICATIONS_STRINGS.utcLabel}
+                      </span>
+                      {overnight ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] leading-none text-[var(--accent-strong)]">
+                          {SETTINGS_NOTIFICATIONS_STRINGS.summary.overnight}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div
+                      role="group"
+                      aria-label="Quiet hours mode"
+                      className="mt-2.5 inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-0.5"
+                    >
+                      <button
+                        type="button"
+                        onClick={selectAnyTime}
+                        aria-pressed={anyTime}
+                        className={`${segBase} ${anyTime ? segActive : segIdle}`}
+                      >
+                        {SETTINGS_NOTIFICATIONS_STRINGS.summary.anyTime}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={selectWindow}
+                        aria-pressed={!anyTime}
+                        className={`${segBase} ${!anyTime ? segActive : segIdle}`}
+                      >
+                        Quiet window
+                      </button>
+                    </div>
+
+                    {anyTime ? (
+                      <>
+                        <p
+                          id={quietCaptionId}
+                          className="mt-2 text-[12px] leading-snug text-[var(--text-tertiary)]"
+                        >
+                          {SETTINGS_NOTIFICATIONS_STRINGS.quietHoursNoneCaption}
+                        </p>
+                        {/* Keep the values in the form even when no window is set. */}
+                        <input type="hidden" name="emailQuietStartUtc" value={quietStart} />
+                        <input type="hidden" name="emailQuietEndUtc" value={quietEnd} />
+                      </>
+                    ) : (
+                      <div
+                        className="mt-2.5 flex items-end gap-3"
+                        role="group"
+                        aria-labelledby={`${quietStartId}-legend`}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <label
+                            htmlFor={quietStartId}
+                            className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]"
+                          >
+                            {SETTINGS_NOTIFICATIONS_STRINGS.quietStartLabel}
+                          </label>
+                          <div className="inline-flex items-center gap-1">
+                            <input
+                              id={quietStartId}
+                              type="number"
+                              name="emailQuietStartUtc"
+                              inputMode="numeric"
+                              autoComplete="off"
+                              min={0}
+                              max={23}
+                              step={1}
+                              pattern="\d{1,2}"
+                              aria-label="Quiet hours start (0-23 UTC)"
+                              aria-describedby={quietCaptionId}
+                              value={quietStart}
+                              onChange={(ev) =>
+                                setQuietStart(hourValue(ev.target.value, 0))
+                              }
+                              onBlur={(ev) =>
+                                setQuietStart(hourValue(ev.target.value, 0))
+                              }
+                              className="ui-input w-16 text-center text-[15px] tabular-nums"
+                            />
+                            <span className="text-[12px] tabular-nums text-[var(--text-tertiary)]">
+                              :00
+                            </span>
+                          </div>
+                        </div>
+
+                        <span
+                          aria-hidden
+                          className="flex min-h-11 items-center text-[var(--text-tertiary)]"
+                        >
+                          <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                        </span>
+
+                        <div className="flex flex-col gap-1">
+                          <label
+                            htmlFor={quietEndId}
+                            className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]"
+                          >
+                            {SETTINGS_NOTIFICATIONS_STRINGS.quietEndLabel}
+                          </label>
+                          <div className="inline-flex items-center gap-1">
+                            <input
+                              id={quietEndId}
+                              type="number"
+                              name="emailQuietEndUtc"
+                              inputMode="numeric"
+                              autoComplete="off"
+                              min={0}
+                              max={23}
+                              step={1}
+                              pattern="\d{1,2}"
+                              aria-label="Quiet hours end (0-23 UTC)"
+                              aria-describedby={quietCaptionId}
+                              value={quietEnd}
+                              onChange={(ev) =>
+                                setQuietEnd(hourValue(ev.target.value, 0))
+                              }
+                              onBlur={(ev) =>
+                                setQuietEnd(hourValue(ev.target.value, 0))
+                              }
+                              className="ui-input w-16 text-center text-[15px] tabular-nums"
+                            />
+                            <span className="text-[12px] tabular-nums text-[var(--text-tertiary)]">
+                              :00
+                            </span>
+                          </div>
+                        </div>
+
+                        <span id={quietCaptionId} className="sr-only">
+                          Quiet window in UTC, {pad2(quietStart)}:00 to{" "}
+                          {pad2(quietEnd)}:00.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reminder events — two-column compact grid. */}
+                  <div
+                    role="group"
+                    aria-label={
+                      SETTINGS_NOTIFICATIONS_STRINGS.categoriesLegendSrOnly
+                    }
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="ui-caps-2 text-[var(--text-tertiary)]">
+                        Reminder events
+                      </p>
+                      {showCountChip ? (
+                        <p
+                          className="ui-caps-3 text-[var(--text-tertiary)]"
+                          aria-label={`${enabledReminderCount} of ${totalReminderCount} reminder categories enabled`}
+                        >
+                          <span aria-hidden className="tabular-nums">
+                            {enabledReminderCount}/{totalReminderCount} enabled
+                          </span>
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <ul className="mt-1 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+                      {reminderCategories.map((category) => (
+                        <li key={category.key}>
+                          <CategoryRow
+                            category={category}
+                            checked={selectedCategories.has(
+                              category.key as NotificationCategoryKey
+                            )}
+                            onToggle={() =>
+                              toggleCategory(
+                                category.key as NotificationCategoryKey
+                              )
+                            }
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Digest — separate from event reminders. */}
+                  {digestCategory ? (
+                    <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-4">
+                      <p className="ui-caps-2 text-[var(--text-tertiary)]">Digest</p>
+                      <div className="mt-1">
                         <CategoryRow
                           category={digestCategory}
                           checked={digestEnabled}
@@ -654,17 +641,13 @@ export function OperationsSettingsView({
                             )
                           }
                         />
-                      </li>
-                    ) : null}
-                  </ul>
-                </div>
-              </fieldset>
-            </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </fieldset>
+              </div>
 
-            {/* V4 §2 — card-footer action bar with explicit dirty state.
-                Only admins render this section, so Save is always live here;
-                non-admins get the read-only view (with its own locked footer). */}
-            <footer className="flex flex-col gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <footer className="flex flex-col gap-3 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <div className="flex min-h-[1.25rem] min-w-0 items-center gap-2">
                   <InlineMutationStatus
                     message={error ?? message}
@@ -700,7 +683,7 @@ export function OperationsSettingsView({
                   <button
                     type="submit"
                     title={canEdit ? "Save (⌘S)" : undefined}
-                    className="ui-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm billing-no-print disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ui-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm billing-no-print disabled:cursor-not-allowed"
                     aria-disabled={pending || !isDirty || formDisabled}
                     disabled={!isDirty || formDisabled}
                   >
@@ -718,9 +701,9 @@ export function OperationsSettingsView({
                     )}
                   </button>
                 </div>
-            </footer>
-          </form>
-        </section>
+              </footer>
+            </form>
+          </section>
         ) : (
           <NotificationsReadOnly
             emailEnabled={emailEnabled}
@@ -737,6 +720,6 @@ export function OperationsSettingsView({
           digestEnabled={digestEnabled}
         />
       </div>
-    </div>
+    </SettingsSubpageShell>
   );
 }

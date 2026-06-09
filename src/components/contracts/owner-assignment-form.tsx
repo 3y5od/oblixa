@@ -73,7 +73,7 @@ export function OwnerAssignmentForm({
           options={ownerOptions}
           placeholder="Select owner…"
           disabled={disabled}
-          ariaLabel="Reassign owner"
+          ariaLabelledBy={ownerLabelId}
         />
       </div>
       <div>
@@ -92,7 +92,7 @@ export function OwnerAssignmentForm({
           options={secondaryOptions}
           placeholder="None"
           disabled={disabled}
-          ariaLabel="Secondary stakeholder"
+          ariaLabelledBy={secondaryLabelId}
         />
       </div>
       {isPending && (

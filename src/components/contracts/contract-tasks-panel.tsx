@@ -21,6 +21,7 @@ import {
   updateContractTaskStatus,
 } from "@/actions/tasks";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { UiSelect } from "@/components/ui/ui-select";
 import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import type { ContractTask, ContractTaskPriority, ContractTaskStatus } from "@/lib/types";
 import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
@@ -45,7 +46,7 @@ type ContractTaskListItem = Pick<
 const STATUS_OPTIONS: { value: ContractTaskStatus; label: string }[] = [
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
-  { value: "blocked", label: "Blocked" },
+  { value: "blocked", label: "Needs input" },
   { value: "done", label: "Done" },
 ];
 
@@ -62,10 +63,15 @@ function priorityBadge(priority: ContractTaskPriority): string {
 }
 
 function statusBadge(status: ContractTaskStatus): string {
-  if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "done") return "border-[color:color-mix(in_oklab,var(--success)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success)_10%,var(--surface))] text-[var(--success-ink)]";
   if (status === "blocked") return "border-[color:color-mix(in_oklab,var(--danger)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--danger)_10%,var(--surface))] text-[var(--danger)]";
-  if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
+  if (status === "in_progress") return "border-[color:color-mix(in_oklab,var(--accent)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent)_10%,var(--surface))] text-[var(--accent-strong)]";
   return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-secondary)]";
+}
+
+function taskStatusLabel(status: ContractTaskStatus): string {
+  if (status === "blocked") return "needs input";
+  return status.replace("_", " ");
 }
 
 export function ContractTasksPanel({
@@ -383,31 +389,40 @@ export function ContractTasksPanel({
               name="details"
               rows={2}
               maxLength={4000}
-              placeholder="Add context, expected outcome, and blockers."
+              placeholder="Add context, expected outcome, and dependencies."
               className="ui-input w-full resize-y"
             />
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label className="ui-label-caps">Priority</label>
-              <select name="priority" defaultValue="medium" className="ui-input w-full">
-                {PRIORITY_OPTIONS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
+              <UiSelect
+                name="priority"
+                defaultValue="medium"
+                ariaLabel="Priority"
+                options={PRIORITY_OPTIONS}
+                variant="compact"
+                portal
+                className="w-full"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <div>
               <label className="ui-label-caps">Assignee</label>
-              <select name="assigneeId" defaultValue="" className="ui-input w-full">
-                <option value="">Unassigned</option>
-                {members.map((m) => (
-                  <option key={m.userId} value={m.userId}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
+              <UiSelect
+                name="assigneeId"
+                defaultValue=""
+                ariaLabel="Assignee"
+                options={[
+                  { value: "", label: "Unassigned" },
+                  ...members.map((m) => ({ value: m.userId, label: m.label })),
+                ]}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                className="w-full"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <div>
               <label className="ui-label-caps">Due date</label>
@@ -439,15 +454,15 @@ export function ContractTasksPanel({
             </div>
           </div>
           <div>
-            <label className="ui-label-caps">Blocked reason (optional)</label>
-            <input aria-label="Waiting on dependency / external response" name="blockedReason"
+            <label className="ui-label-caps">Dependency reason (optional)</label>
+            <input aria-label="Input needed from dependency or external response" name="blockedReason"
               maxLength={400}
-              placeholder="Waiting on dependency / external response"
+              placeholder="Input needed from dependency or external response"
               className="ui-input w-full"
             />
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-xs text-[var(--text-tertiary)]">Tasks attach execution work to this contract.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Tasks attach follow-up actions to this contract.</p>
             <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
               {isPending ? "Saving..." : "Add task"}
             </button>
@@ -480,7 +495,7 @@ export function ContractTasksPanel({
                       {task.priority}
                     </span>
                     <span className={`rounded-full border px-2 py-0.5 font-medium ${statusBadge(task.status)}`}>
-                      {task.status.replace("_", " ")}
+                      {taskStatusLabel(task.status)}
                     </span>
                     {task.assignee_id && (
                       <span className="text-[var(--text-tertiary)]">
@@ -493,7 +508,7 @@ export function ContractTasksPanel({
                       </span>
                     )}
                     {task.completed_at && (
-                      <span className="text-emerald-700">
+                      <span className="text-[var(--success-ink)]">
                         Completed {format(new Date(task.completed_at), "MMM d, yyyy")}
                       </span>
                     )}
@@ -504,7 +519,7 @@ export function ContractTasksPanel({
                       </span>
                     )}
                     {task.blocked_reason && task.status === "blocked" && (
-                      <span className="font-medium text-[var(--danger)]">Blocked: {task.blocked_reason}</span>
+                      <span className="font-medium text-[var(--danger)]">Input needed: {task.blocked_reason}</span>
                     )}
                     {task.recurrence_interval_days && task.recurrence_interval_days > 0 && (
                       <span className="text-[var(--text-tertiary)]">
@@ -532,7 +547,7 @@ export function ContractTasksPanel({
                             key={`b-${task.id}-${label}`}
                             className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] text-[var(--warning-ink)]"
                           >
-                            Blocked by {label}
+                            Input needed: {label}
                           </span>
                         ))}
                         {unblocks.map((label) => (
@@ -689,16 +704,24 @@ export function ContractTasksPanel({
                       placeholder="Add comment"
                       className="ui-input h-7 flex-1 text-[11px]"
                     />
-                    <select name="parentCommentId" defaultValue="" className="ui-input h-7 w-40 text-[11px]">
-                      <option value="">Top-level</option>
-                      {(commentsByTaskId.get(task.id) ?? [])
-                        .filter((comment) => !comment.parent_comment_id)
-                        .map((comment) => (
-                          <option key={comment.id} value={comment.id}>
-                            Reply to {comment.body.slice(0, 20)}
-                          </option>
-                        ))}
-                    </select>
+                    <UiSelect
+                      name="parentCommentId"
+                      defaultValue=""
+                      ariaLabel="Reply to comment"
+                      options={[
+                        { value: "", label: "Top-level" },
+                        ...(commentsByTaskId.get(task.id) ?? [])
+                          .filter((comment) => !comment.parent_comment_id)
+                          .map((comment) => ({
+                            value: comment.id,
+                            label: `Reply to ${comment.body.slice(0, 20)}`,
+                          })),
+                      ]}
+                      variant="compact"
+                      portal
+                      className="w-40"
+                      buttonClassName="w-full !min-h-11 text-[11px]"
+                    />
                     <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
                       Add
                     </button>
@@ -715,7 +738,7 @@ export function ContractTasksPanel({
                         <li key={artifact.id} className="flex items-center justify-between gap-2 text-xs">
                           <ExternalLink
                             href={artifact.url}
-                            className="truncate text-blue-700 hover:underline"
+                            className="truncate text-[var(--accent-strong)] hover:underline"
                           >
                             {artifact.label}
                           </ExternalLink>
@@ -746,37 +769,39 @@ export function ContractTasksPanel({
                 <div className="flex items-center gap-2">
                   {canEdit && (
                     <form action={onAddDependency.bind(null, task.id)} className="flex items-center gap-1">
-                      <select
+                      <UiSelect
                         name="dependsOnTaskId"
                         defaultValue=""
-                        className="ui-input min-w-[8rem] py-1.5 text-xs"
-                      >
-                        <option value="">Add dependency...</option>
-                        {tasks
+                        ariaLabel="Add dependency"
+                        placeholder="Add dependency…"
+                        options={tasks
                           .filter((candidate) => candidate.id !== task.id)
-                          .map((candidate) => (
-                            <option key={candidate.id} value={candidate.id}>
-                              {candidate.title}
-                            </option>
-                          ))}
-                      </select>
+                          .map((candidate) => ({
+                            value: candidate.id,
+                            label: candidate.title,
+                          }))}
+                        variant="compact"
+                        portal
+                        searchThreshold={8}
+                        className="min-w-[8rem]"
+                        buttonClassName="w-full !min-h-11 text-xs"
+                      />
                       <button type="submit" className="ui-btn-secondary px-2 py-1.5 text-xs">
                         Link
                       </button>
                     </form>
                   )}
-                  <select
+                  <UiSelect
                     value={task.status}
                     disabled={isPending}
-                    onChange={(e) => onStatusChange(task.id, e.target.value as ContractTaskStatus)}
-                    className="ui-input min-w-[8.5rem] py-1.5 text-xs"
-                  >
-                    {STATUS_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => onStatusChange(task.id, v as ContractTaskStatus)}
+                    ariaLabel="Task status"
+                    options={STATUS_OPTIONS}
+                    variant="compact"
+                    portal
+                    className="min-w-[8.5rem]"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
                   {canEdit && (
                     <button
                       type="button"

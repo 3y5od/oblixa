@@ -87,14 +87,11 @@ type BaseDestination = Omit<SettingsDestination, "state" | "surfaceKind"> & {
 
 const GROUP_META: Array<Omit<SettingsDestinationGroup, "destinations">> = [
   { key: "account", title: SETTINGS_GROUP_STRINGS.account, description: "" },
-  // The Workspace group only links to Billing here because workspace name and
-  // team are edited inline below — name the reason so the single-row group does
-  // not read as incomplete.
-  {
-    key: "workspace",
-    title: SETTINGS_GROUP_STRINGS.workspace,
-    description: "Workspace name and team are managed in the editors below.",
-  },
+  // Workspace name + team are edited inline in their own cards below, so this
+  // group only links to Billing. The inline "Workspace and account" section
+  // header below makes that split clear, so no per-group explainer prose is
+  // needed here (it previously read as loose text under the row).
+  { key: "workspace", title: SETTINGS_GROUP_STRINGS.workspace, description: "" },
   { key: "operations", title: SETTINGS_GROUP_STRINGS.operations, description: "" },
 ];
 
@@ -238,7 +235,7 @@ function attentionItems(input: {
       key: "invites",
       label: "Pending invites",
       value: String(input.pendingInviteCount),
-      impact: "Team access is waiting on invite acceptance.",
+      impact: "Team access needs invite acceptance.",
       href: "#team-access",
       actionLabel: "View invites",
       tone: "attention",

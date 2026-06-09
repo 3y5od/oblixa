@@ -20,7 +20,7 @@ import { Search, X } from "lucide-react";
  *  input chrome (icon, kbd hint), input semantics (IME, paste sanitation,
  *  mobile keyboard hints), and bounded value handling. T6.4. */
 
-const MAX_QUERY_LENGTH = 200;
+const MAX_QUERY_LENGTH = 120;
 
 /** Strip control / bidi-override / zero-width / BOM characters that can mask
  *  visible text (homograph phishing, audit-log spoofing). Mirrors the safe-
@@ -62,6 +62,11 @@ export interface SearchFieldProps {
   /** When true, the field is rendered inside an open overlay. Affects the
    *  kbd hint and aria-expanded semantics. */
   isOpen?: boolean;
+  /** Opt-in ARIA combobox semantics (role=combobox + aria-expanded/controls/
+   *  autocomplete). The overlay and /search page own combobox behavior; the
+   *  chrome header search does not. Defaults to true for overlay/page variants,
+   *  false for chrome. */
+  isCombobox?: boolean;
   /** ARIA combobox wiring. T5.1. */
   ariaControls?: string;
   ariaActivedescendant?: string;
@@ -95,6 +100,7 @@ export const SearchField = forwardRef<SearchFieldHandle, SearchFieldProps>(funct
     placeholder = "Type to filter destinations…",
     kbdHint,
     isOpen,
+    isCombobox,
     ariaControls,
     ariaActivedescendant,
     ariaLabel = "Search workspace",
@@ -235,9 +241,13 @@ export const SearchField = forwardRef<SearchFieldHandle, SearchFieldProps>(funct
       ? "ui-input min-h-13 pl-12 pr-16 text-[16px]"
       : variant === "overlay"
         ? "ui-input min-h-11 pl-11 pr-12 text-[14px]"
-        : "ui-input min-h-11 pl-11 pr-12 text-sm";
+        : "ui-input min-h-10 pl-11 pr-12 text-sm";
   const iconSizeClass = variant === "page" ? "h-5 w-5" : "h-4 w-4";
   const iconLeftClass = variant === "page" ? "left-4" : "left-4";
+  // Combobox semantics are opt-in via the `isCombobox` prop, defaulting to the
+  // overlay/page variants. The chrome search navigates to /search and owns no
+  // inline listbox, so it stays a plain search input.
+  const comboboxEnabled = isCombobox ?? (variant !== "chrome");
 
   // When the field has a value (and an `onClear` handler), surface an Esc
   // hint so users discover the clear shortcut. The overlay variant
@@ -275,16 +285,16 @@ export const SearchField = forwardRef<SearchFieldHandle, SearchFieldProps>(funct
       <input
         ref={inputRef}
         type="search"
-        role="combobox"
+        role={comboboxEnabled ? "combobox" : undefined}
         name={name}
         value={isControlled ? value : undefined}
         defaultValue={isControlled ? undefined : defaultValue}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        aria-expanded={isOpen ? "true" : "false"}
-        aria-autocomplete="list"
-        aria-controls={ariaControls}
-        aria-activedescendant={ariaActivedescendant}
+        aria-expanded={comboboxEnabled ? (isOpen ? "true" : "false") : undefined}
+        aria-autocomplete={comboboxEnabled ? "list" : undefined}
+        aria-controls={comboboxEnabled ? ariaControls : undefined}
+        aria-activedescendant={comboboxEnabled ? ariaActivedescendant : undefined}
         aria-keyshortcuts={ariaKeyShortcuts}
         // Mobile keyboard hints + autocorrect reset.
         inputMode="search"
@@ -300,7 +310,7 @@ export const SearchField = forwardRef<SearchFieldHandle, SearchFieldProps>(funct
         onCompositionEnd={handleCompositionEnd}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
-        className={`${sizeClass} w-full tabular-nums`}
+        className={`${sizeClass} w-full`}
       />
       <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1.5">
         {/* Clear-X button — appears only when the input has a value and a

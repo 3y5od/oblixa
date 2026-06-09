@@ -3,12 +3,12 @@
   "generatedBy": "scripts/check-versioned-local-content-rewrites.mjs --write",
   "policy": "Local content rewrites are limited to manifest-listed documentation copy, test titles, and script comments. Runtime identifiers, public contracts, SQL, telemetry, env keys, provider config, OpenAPI, generated artifacts, and manual rows are refused.",
   "pendingRewriteCount": 0,
-  "refusalCount": 2946,
+  "refusalCount": 2892,
   "byRewriteType": {},
   "byRefusalReason": {
-    "manual_only_surface": 1281,
-    "missing_suggested_neutral_name": 1411,
-    "no_manifest_safe_context": 254
+    "manual_only_surface": 1254,
+    "missing_suggested_neutral_name": 1387,
+    "no_manifest_safe_context": 251
   },
   "rewrites": [],
   "refusals": [
@@ -439,420 +439,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "dom_or_test_selector",
-      "subSurfaceClass": "dom_data_attribute",
-      "oldValue": "data-v10",
-      "neutralValue": "data",
-      "manualOnly": false,
-      "reason": "no_manifest_safe_context",
-      "refusedLineHashes": [
-        "5431ea345d4f9abc"
-      ]
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "feature_flag_key",
-      "oldValue": "ENABLE_V3_",
-      "neutralValue": "ENABLE",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "feature_flag_key",
-      "oldValue": "ENABLE_V5_",
-      "neutralValue": "ENABLE",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "feature_flag_key",
-      "oldValue": "ENABLE_V6_",
-      "neutralValue": "ENABLE",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "public_env_key",
-      "oldValue": "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
-      "neutralValue": "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "public_env_key",
-      "oldValue": "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
-      "neutralValue": "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "test_runtime_env_key",
-      "oldValue": "PLAYWRIGHT_V10_MATRIX",
-      "neutralValue": "PLAYWRIGHT_MATRIX",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "cryptographic_envelope_version",
-      "oldValue": "v0",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_signature_version",
-      "oldValue": "v0",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "artifact_schema_version",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "cryptographic_envelope_version",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_oauth_protocol_version",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_signature_version",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_oauth_protocol_version",
-      "oldValue": "V1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "standards_compliance_reference",
-      "oldValue": "V1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "standards_compliance_reference",
-      "oldValue": "V13",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_oauth_protocol_version",
-      "oldValue": "V14",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "standards_compliance_reference",
-      "oldValue": "V14",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "cryptographic_envelope_version",
-      "oldValue": "v2",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_signature_version",
-      "oldValue": "v2",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v2",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "standards_compliance_reference",
-      "oldValue": "V2",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v3",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V3",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v4",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "standards_compliance_reference",
-      "oldValue": "V4",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "oldValue": "v5",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v5",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V5",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "oldValue": "V5_DECISION_PACKET_B",
-      "neutralValue": "DECISION_PACKET_B",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "operational_env_key",
-      "oldValue": "V5_DECISION_PACKET_BUCKET",
-      "neutralValue": "DECISION_PACKET_BUCKET",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v6_assurance_context_json",
-      "neutralValue": "assurance_context_json",
-      "manualOnly": false,
-      "reason": "no_manifest_safe_context",
-      "refusedLineHashes": [
-        "acfe2a186378fa0d"
-      ]
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v6_feature_disabled",
-      "neutralValue": "feature_disabled",
-      "manualOnly": false,
-      "reason": "no_manifest_safe_context",
-      "refusedLineHashes": [
-        "46f139c6b23689ed"
-      ]
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v7",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v8",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V8",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "v9",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "documentation_contract",
-      "subSurfaceClass": "local_copy_or_historical_document",
-      "oldValue": "V9",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "oldValue": "V9_DUE_SOON_DAYS",
-      "neutralValue": "DUE_SOON_DAYS",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "e2e/assurance.spec.ts",
       "surfaceClass": "e2e_contract",
       "subSurfaceClass": "e2e_test_tag_or_fixture",
@@ -962,6 +548,15 @@
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "e2e/fixtures/app-fixture.ts",
+      "surfaceClass": "environment_key",
+      "subSurfaceClass": "test_runtime_env_key",
+      "oldValue": "PLAYWRIGHT_V10_MATRIX",
+      "neutralValue": "PLAYWRIGHT_MATRIX",
+      "manualOnly": true,
+      "reason": "manual_only_surface"
     },
     {
       "path": "e2e/qa-maximal-matrix.spec.ts",
@@ -5166,6 +4761,24 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
+      "path": "src/actions/bulk-compatible-work-validation.test.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/actions/bulk-compatible-work-validation.test.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
       "path": "src/actions/bulk-compatible-work.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
@@ -5571,6 +5184,15 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
       "oldValue": "V6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/actions/policy-operations.test.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v4",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -6942,15 +6564,6 @@
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "oldValue": "v5",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/(marketing)/product/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v7",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
@@ -11246,24 +10859,6 @@
     {
       "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-content.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v14",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-content.ts",
-      "surfaceClass": "source_content",
       "subSurfaceClass": "notification_or_export_contract",
       "oldValue": "v14",
       "neutralValue": null,
@@ -11372,6 +10967,24 @@
     {
       "path": "src/components/landing/landing-page.tsx",
       "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v17",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/components/landing/landing-page.tsx",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v17",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/components/landing/landing-page.tsx",
+      "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
       "oldValue": "v2",
       "neutralValue": null,
@@ -11406,42 +11019,6 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/marketing-site-chrome.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/marketing-site-chrome.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v14",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/marketing-site-chrome.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v9",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/marketing-site-chrome.ui.test.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
       "path": "src/components/landing/product-anchor-nav.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
@@ -11455,60 +11032,6 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "v5",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-mocks.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-mocks.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-mocks.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v7",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-sections-data.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v5",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-sections-data.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-sections-data.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v7",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -11655,15 +11178,6 @@
       "path": "src/components/layout/sidebar-model.test.ts",
       "surfaceClass": "provider_or_crypto_format",
       "subSurfaceClass": "provider_model_or_eval_version",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/components/layout/sidebar-model.test.ts",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
       "oldValue": "v5",
       "neutralValue": null,
       "manualOnly": true,
@@ -11804,15 +11318,6 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "V4",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/ui/action-chip.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "oldValue": "v11",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"

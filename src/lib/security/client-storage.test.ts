@@ -60,7 +60,7 @@ describe("client-storage", () => {
     writeUploadMetadataDraft("org-1", {
       title: "NDA",
       counterparty: "Acme",
-      ownerLabel: "Casey Ops",
+      ownerId: "member-1",
       contractType: "MSA",
       region: "NA",
       annualValue: "\u202ecad",

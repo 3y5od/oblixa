@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { ConfirmActionButton } from "@/components/ui/confirm-action-button";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
@@ -129,18 +130,18 @@ export function DecisionWorkspacePanel({
           <p className="text-xs font-semibold text-[var(--text-secondary)]">Workspace details</p>
           <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Decision type
-            <select
-              className="ui-input-compact mt-1 w-full text-xs"
+            <UiSelect
               value={decisionType}
-              onChange={(e) => setDecisionType(e.target.value as DecisionType)}
+              onChange={(v) => setDecisionType(v as DecisionType)}
               disabled={closed || busy !== null}
-            >
-              {DECISION_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {DECISION_TYPE_LABELS[t]}
-                </option>
-              ))}
-            </select>
+              ariaLabel="Decision type"
+              options={DECISION_TYPES.map((t) => ({ value: t, label: DECISION_TYPE_LABELS[t] }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+              className="mt-1 w-full"
+              buttonClassName="w-full text-xs"
+            />
           </label>
           <label className="mt-2 block text-[11px] font-medium text-[var(--text-tertiary)]">
             Owner user id
@@ -348,21 +349,19 @@ export function DecisionWorkspacePanel({
           <div className="flex flex-wrap items-center gap-2">
             <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
               <span className="whitespace-nowrap">Packet type</span>
-              <select
-                className="rounded-lg border border-[var(--border-subtle)] bg-surface px-2 py-1.5 text-[var(--text-primary)]"
+              <UiSelect
                 value={exportPacketType}
                 disabled={closed || busy !== null}
-                onChange={(e) => {
-                  const v = e.target.value;
+                onChange={(v) => {
                   if (isValidPacketType(v)) setExportPacketType(v);
                 }}
-              >
-                {PACKET_TYPES.map((pt) => (
-                  <option key={pt} value={pt}>
-                    {PACKET_TYPE_LABELS[pt]}
-                  </option>
-                ))}
-              </select>
+                ariaLabel="Packet type"
+                options={PACKET_TYPES.map((pt) => ({ value: pt, label: PACKET_TYPE_LABELS[pt] }))}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                buttonClassName="text-xs"
+              />
             </label>
             <AsyncActionButton
               type="button"

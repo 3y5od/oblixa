@@ -35,30 +35,35 @@ const ACTION_LABELS: Record<OperationalActionKey, string> = {
   reject_approval: "Reject request",
   reject_evidence: "Reject evidence",
   request_evidence: "Request evidence",
-  resolve_exception: "Resolve exception",
+  resolve_exception: "Resolve issue",
   retry_failed_job: "Retry job",
   retry_report: "Retry report",
   review_dates: "Review dates",
 };
 
 const TERM_REPLACEMENTS: Array<[RegExp, string]> = [
-  [/\bdurable work index\b/gi, "work queue"],
-  [/\bworkspace index\b/gi, "work queue"],
+  [/\bdurable work index\b/gi, "task queue"],
+  [/\bworkspace index\b/gi, "task queue"],
   [/\bread[- ]model diagnostics\b/gi, "data freshness checks"],
   [/\bread[- ]model health\b/gi, "data freshness"],
   [/\bread[- ]model\b/gi, "data freshness"],
   [/\bsource object\b/gi, "source record"],
   [/\brenewal posture\b/gi, "renewal risk"],
   [/\bcompatible action group\b/gi, "bulk-compatible group"],
+  [/\bopen exceptions\b/gi, "open issues"],
+  [/\bexceptions\b/gi, "issues"],
+  [/\bblocked by\b/gi, "needs input from"],
+  [/\bblocked\b/gi, "needs input"],
 ];
 
 export function humanizeOperationalToken(value: string | null | undefined, fallback = "Not recorded") {
   const raw = String(value ?? "").trim();
   if (!raw) return fallback;
-  return raw
+  const humanized = raw
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return operationalizeCopy(humanized).replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function operationalActionLabel(

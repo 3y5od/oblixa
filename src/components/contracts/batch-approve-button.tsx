@@ -9,7 +9,7 @@ import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-err
 interface BatchApproveButtonProps {
   contractId: string;
   pendingCount: number;
-  /** Count of pending fields that can actually be approved (AI values need a
+  /** Count of pending details that can actually be confirmed (AI values need a
    *  source citation). When 0, the button is disabled with an explanation. */
   readyCount?: number;
   canEdit?: boolean;
@@ -39,7 +39,7 @@ export function BatchApproveButton({
       }
       if (res && "success" in res && res.success) {
         setMessage({
-          text: `Approved ${res.approved} of ${res.pending_total} pending fields. Others need a source citation or manual edit.`,
+          text: `Confirmed ${res.approved} of ${res.pending_total} pending details. Others need a source citation or manual edit.`,
           tone: "success",
         });
         router.refresh();
@@ -55,13 +55,13 @@ export function BatchApproveButton({
         disabled={isPending || nothingReady}
         title={
           nothingReady
-            ? "No fields are ready to approve yet — add a source citation or edit a value first."
+            ? "No details are ready to confirm yet — add a source citation or edit a value first."
             : undefined
         }
         className="ui-btn-secondary inline-flex w-full items-center gap-1.5 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         <ListChecks size={16} className="text-[var(--success-ink)]" />
-        {isPending ? "Approving…" : "Approve all ready fields"}
+        {isPending ? "Confirming..." : "Confirm all ready details"}
       </button>
       {message ? (
         <p
@@ -75,7 +75,7 @@ export function BatchApproveButton({
         </p>
       ) : nothingReady ? (
         <p className="max-w-xl text-[11.5px] leading-snug text-[var(--text-tertiary)] sm:text-right">
-          No fields are ready yet — add a source citation or edit a value first.
+          No details are ready yet — add a source citation or edit a value first.
         </p>
       ) : null}
     </div>

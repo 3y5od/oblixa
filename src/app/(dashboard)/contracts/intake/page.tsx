@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRightLeft, CheckCircle2, Inbox, ListOrdered } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { upsertContractIntakeRequestForm } from "@/actions/contracts";
@@ -186,16 +187,21 @@ export default async function IntakeQueuePage() {
                           name="source"
                           value={String((row.intake_source as string | null) || "manual")}
                         />
-                        <select
+                        <UiSelect
                           name="status"
-                          className="ui-input h-7 text-[11px]"
-                          aria-label={`Intake status for ${String(row.title ?? "contract")}`}
-                        >
-                          <option value="triage">triage</option>
-                          <option value="review">review</option>
-                          <option value="ready">ready</option>
-                          <option value="rejected">rejected</option>
-                        </select>
+                          defaultValue="triage"
+                          ariaLabel={`Intake status for ${String(row.title ?? "contract")}`}
+                          options={[
+                            { value: "triage", label: "triage" },
+                            { value: "review", label: "review" },
+                            { value: "ready", label: "ready" },
+                            { value: "rejected", label: "rejected" },
+                          ]}
+                          variant="compact"
+                          portal
+                          className="w-full"
+                          buttonClassName="w-full !min-h-11 text-[11px]"
+                        />
                         <input
                           aria-label={`Completeness score for ${String(row.title ?? "contract")}`}
                           name="completenessScore"

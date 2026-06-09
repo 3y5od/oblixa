@@ -22,16 +22,16 @@ export function MyObligations({ obligations, embedded = false }: { obligations: 
     if (embedded) {
       return (
         <p className="ui-support-copy rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3 py-3">
-          No open obligations assigned to you.
+          No open contract requirements assigned to you.
         </p>
       );
     }
     return (
       <section>
         <EmptyState
-          eyebrow="Obligations"
-          title="No open obligations"
-          copy="Contract obligations assigned to you appear here for day-to-day follow-through."
+          eyebrow="Requirements"
+          title="No open contract requirements"
+          copy="Contract requirements assigned to you appear here for day-to-day follow-through."
           className="min-h-[200px] md:min-h-[220px]"
         />
       </section>
@@ -43,9 +43,9 @@ export function MyObligations({ obligations, embedded = false }: { obligations: 
       <div className={embedded ? "border-b border-[var(--border-subtle)] px-3 py-2" : "ui-surface-tint px-4 py-3.5 md:px-6 md:py-4"}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="ui-section-title">My obligations</h2>
+            <h2 className="ui-section-title">My requirements</h2>
             <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12.5px]">
-              Active commitments and due dates
+              Active contract requirements and due dates
             </p>
           </div>
           <Link href="/contracts/obligations" className="ui-link text-[12.5px] md:text-[12.5px]">

@@ -30,6 +30,9 @@ const FIELD_MAX = {
   hasTracker: 32,
   redactedSample: 32,
   preference: 32,
+  accountableOwner: 32,
+  procurementBeforeUpload: 32,
+  smallFirstSet: 32,
   pain: 600,
   message: 4000,
 } as const;
@@ -45,9 +48,56 @@ const ALLOWED_TRACKING_METHODS = [
 ] as const;
 const ALLOWED_YES_NO_UNSURE = ["yes", "no", "unsure"] as const;
 const ALLOWED_PREFERENCES = ["async", "call", "either"] as const;
+const ALLOWED_OWNER = ["self", "named", "unsure"] as const;
+const ALLOWED_PROCUREMENT = ["no", "maybe", "yes"] as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const recentSubmissionDigests = new Map<string, number>();
+
+const SELECT_VALUE_ALIASES: Record<string, Record<string, string>> = {
+  interested: {
+    "request access": "request_access",
+    "workspace access": "request_access",
+    "early access": "early_access",
+    "general question": "general",
+  },
+  trackingMethod: {
+    "shared folder": "shared_folder",
+    "email or calendar reminders": "email_calendar",
+    "email/calendar": "email_calendar",
+    "someone's memory": "memory",
+    "someone’s memory": "memory",
+    "a mix of tools": "mixed",
+  },
+  yesNoUnsure: {
+    select: "",
+    yes: "yes",
+    no: "no",
+    unsure: "unsure",
+    "not sure": "unsure",
+  },
+  preference: {
+    async: "async",
+    call: "call",
+    either: "either",
+    "async questions first": "async",
+    "short call if there is a fit": "call",
+    "either is fine": "either",
+  },
+  owner: {
+    self: "self",
+    named: "named",
+    unsure: "unsure",
+    "i can be the owner": "self",
+    "i can name the owner": "named",
+    "not sure yet": "unsure",
+  },
+  procurement: {
+    no: "no",
+    maybe: "maybe",
+    yes: "yes",
+  },
+};
 
 type ContactBody = {
   name?: unknown;
@@ -60,6 +110,9 @@ type ContactBody = {
   hasTracker?: unknown;
   redactedSample?: unknown;
   preference?: unknown;
+  accountableOwner?: unknown;
+  procurementBeforeUpload?: unknown;
+  smallFirstSet?: unknown;
   pain?: unknown;
   message?: unknown;
   /** Honeypot — when filled by a bot, we silently 204 without sending. */
@@ -69,6 +122,12 @@ type ContactBody = {
 function trimOrEmpty(v: unknown, max: number): string {
   if (typeof v !== "string") return "";
   return v.trim().slice(0, max);
+}
+
+function normalizeKnownSelectValue(value: string, aliases: Record<string, string>): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return aliases[trimmed.toLowerCase().replace(/\s+/g, " ")] ?? trimmed;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -87,6 +146,9 @@ function hasDuplicateContactSubmission(payload: {
   hasTracker: string;
   redactedSample: string;
   preference: string;
+  accountableOwner: string;
+  procurementBeforeUpload: string;
+  smallFirstSet: string;
   pain: string;
   message: string;
 }): boolean {
@@ -107,6 +169,9 @@ function hasDuplicateContactSubmission(payload: {
         hasTracker: payload.hasTracker,
         redactedSample: payload.redactedSample,
         preference: payload.preference,
+        accountableOwner: payload.accountableOwner,
+        procurementBeforeUpload: payload.procurementBeforeUpload,
+        smallFirstSet: payload.smallFirstSet,
         pain: payload.pain,
         message: payload.message,
       })
@@ -133,6 +198,11 @@ function formatContactDeliveryError(err: unknown): { name: string } {
   return { name: typeof err };
 }
 
+type ContactNotificationResult =
+  | { configured: false; delivered: false }
+  | { configured: true; delivered: true }
+  | { configured: true; delivered: false };
+
 async function sendNotificationEmail(payload: {
   name: string;
   email: string;
@@ -144,18 +214,21 @@ async function sendNotificationEmail(payload: {
   hasTracker: string;
   redactedSample: string;
   preference: string;
+  accountableOwner: string;
+  procurementBeforeUpload: string;
+  smallFirstSet: string;
   pain: string;
   message: string;
-}): Promise<void> {
+}): Promise<ContactNotificationResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.EMAIL_FROM?.trim();
   const to = process.env.CONTACT_NOTIFY_EMAIL?.trim();
   if (!apiKey || !from || !to || !RESEND_EMAILS_URL) {
     // Email not configured: keep only low-cardinality operational metadata.
-    console.info("[contact] form submitted (email provider not configured)", {
+    console.info("[contact] notification email provider not configured", {
       interested: payload.interested,
     });
-    return;
+    return { configured: false, delivered: false };
   }
   const interestedLabel =
     {
@@ -173,8 +246,11 @@ async function sendNotificationEmail(payload: {
     ["Request type", interestedLabel],
     ["How tracked today", payload.trackingMethod],
     ["Existing spreadsheet/tracker", payload.hasTracker],
+    ["Small first set", payload.smallFirstSet],
     ["Redacted sample shareable", payload.redactedSample],
+    ["Accountable owner", payload.accountableOwner],
     ["Follow-up preference", payload.preference],
+    ["Procurement/security before upload", payload.procurementBeforeUpload],
     ["Main pain", payload.pain],
     ["Message", payload.message],
   ];
@@ -215,9 +291,10 @@ async function sendNotificationEmail(payload: {
     if (!res.ok) {
       throw new Error(`Email provider send failed (${res.status})`);
     }
+    return { configured: true, delivered: true };
   } catch (err) {
-    // Swallow — we already accepted the submission. Log and move on.
     console.error("[contact] notification email failed", formatContactDeliveryError(err));
+    return { configured: true, delivered: false };
   }
 }
 
@@ -247,11 +324,42 @@ export async function POST(request: Request) {
   const company = trimOrEmpty(body.company, FIELD_MAX.company);
   const role = trimOrEmpty(body.role, FIELD_MAX.role);
   const contracts = trimOrEmpty(body.contracts, FIELD_MAX.contracts);
-  const interested = trimOrEmpty(body.interested, FIELD_MAX.interested);
-  const trackingMethod = trimOrEmpty(body.trackingMethod, FIELD_MAX.trackingMethod);
-  const hasTracker = trimOrEmpty(body.hasTracker, FIELD_MAX.hasTracker);
-  const redactedSample = trimOrEmpty(body.redactedSample, FIELD_MAX.redactedSample);
-  const preference = trimOrEmpty(body.preference, FIELD_MAX.preference);
+  const interested = normalizeKnownSelectValue(
+    trimOrEmpty(body.interested, FIELD_MAX.interested),
+    SELECT_VALUE_ALIASES.interested
+  );
+  const trackingMethod = normalizeKnownSelectValue(
+    trimOrEmpty(body.trackingMethod, FIELD_MAX.trackingMethod),
+    SELECT_VALUE_ALIASES.trackingMethod
+  );
+  const hasTracker = normalizeKnownSelectValue(
+    trimOrEmpty(body.hasTracker, FIELD_MAX.hasTracker),
+    SELECT_VALUE_ALIASES.yesNoUnsure
+  );
+  const redactedSample = normalizeKnownSelectValue(
+    trimOrEmpty(body.redactedSample, FIELD_MAX.redactedSample),
+    SELECT_VALUE_ALIASES.yesNoUnsure
+  );
+  const preference = normalizeKnownSelectValue(
+    trimOrEmpty(body.preference, FIELD_MAX.preference),
+    SELECT_VALUE_ALIASES.preference
+  );
+  const accountableOwner = normalizeKnownSelectValue(
+    trimOrEmpty(body.accountableOwner, FIELD_MAX.accountableOwner),
+    SELECT_VALUE_ALIASES.owner
+  );
+  const procurementBeforeUpload = trimOrEmpty(
+    body.procurementBeforeUpload,
+    FIELD_MAX.procurementBeforeUpload
+  );
+  const procurementBeforeUploadNormalized = normalizeKnownSelectValue(
+    procurementBeforeUpload,
+    SELECT_VALUE_ALIASES.procurement
+  );
+  const smallFirstSet = normalizeKnownSelectValue(
+    trimOrEmpty(body.smallFirstSet, FIELD_MAX.smallFirstSet),
+    SELECT_VALUE_ALIASES.yesNoUnsure
+  );
   const pain = trimOrEmpty(body.pain, FIELD_MAX.pain);
   const message = trimOrEmpty(body.message, FIELD_MAX.message);
 
@@ -289,6 +397,19 @@ export async function POST(request: Request) {
   if (!(ALLOWED_PREFERENCES as readonly string[]).includes(preference)) {
     return jsonBadRequest(ROUTE, { reason: "invalid_preference" });
   }
+  // New fit fields are optional fit context; reject only a present-but-invalid value.
+  if (accountableOwner && !(ALLOWED_OWNER as readonly string[]).includes(accountableOwner)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_accountable_owner" });
+  }
+  if (
+    procurementBeforeUploadNormalized &&
+    !(ALLOWED_PROCUREMENT as readonly string[]).includes(procurementBeforeUploadNormalized)
+  ) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_procurement" });
+  }
+  if (smallFirstSet && !(ALLOWED_YES_NO_UNSURE as readonly string[]).includes(smallFirstSet)) {
+    return jsonBadRequest(ROUTE, { reason: "invalid_small_first_set" });
+  }
 
   const isAccessIntent = interested === "request_access" || interested === "early_access";
   const isShortWindowDuplicate = hasDuplicateContactSubmission({
@@ -302,6 +423,9 @@ export async function POST(request: Request) {
     hasTracker: hasTrackerForReview,
     redactedSample: redactedSampleForReview,
     preference,
+    accountableOwner,
+    procurementBeforeUpload: procurementBeforeUploadNormalized,
+    smallFirstSet,
     pain,
     message,
   });
@@ -310,6 +434,7 @@ export async function POST(request: Request) {
     return new NextResponse(null, { status: 204, headers: PRIVATE_NO_STORE_HEADERS });
   }
 
+  let accessRequestPersisted = !isAccessIntent;
   if (isAccessIntent) {
     try {
       const admin = await createAdminClient();
@@ -323,22 +448,26 @@ export async function POST(request: Request) {
         hasTracker: hasTrackerForReview,
         redactedSampleAvailable: redactedSampleForReview,
         followUpPreference: preference,
+        accountableOwner,
+        procurementBeforeUpload: procurementBeforeUploadNormalized,
+        smallFirstSet,
         painSummary: pain,
         message,
         source: "request_access",
       });
       if (!inserted.ok) {
         console.error("[contact] access request persistence failed", { reason: inserted.error });
-        return jsonUnhandled(ROUTE);
+      } else {
+        accessRequestPersisted = true;
       }
     } catch {
       console.error("[contact] access request persistence failed", { reason: "unavailable" });
-      return jsonUnhandled(ROUTE);
     }
   }
 
+  let notification: ContactNotificationResult;
   try {
-    await sendNotificationEmail({
+    notification = await sendNotificationEmail({
       name,
       email,
       company,
@@ -349,11 +478,18 @@ export async function POST(request: Request) {
       hasTracker: hasTrackerForReview,
       redactedSample: redactedSampleForReview,
       preference,
+      accountableOwner,
+      procurementBeforeUpload: procurementBeforeUploadNormalized,
+      smallFirstSet,
       pain,
       message,
     });
   } catch (err) {
     console.error("[contact] handler failure", err);
+    return jsonUnhandled(ROUTE);
+  }
+
+  if (isAccessIntent && !accessRequestPersisted && !notification.delivered) {
     return jsonUnhandled(ROUTE);
   }
 

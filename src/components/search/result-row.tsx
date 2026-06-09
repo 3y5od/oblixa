@@ -11,7 +11,8 @@ import {
   resultMetaLabel,
   type PaletteItem,
 } from "@/components/layout/command-palette-helpers";
-import { SEARCH_GROUP_LABELS } from "@/lib/navigation";
+import { SEARCH_GROUP_LABELS, type WorkspaceRole } from "@/lib/navigation";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 
 /** Result row used by the `/search` page and the cmd-K overlay.
  *  - Leading icon at a stable left edge for scan rhythm.
@@ -37,12 +38,37 @@ export interface ResultRowProps {
    *  header already labels the group — repeating it on every row is pure
    *  redundancy. */
   hideMeta?: boolean;
+  /** Render this exact string as the meta line (mono, quiet) instead of the
+   *  computed "Group · /path". The cmd-K overlay passes the destination path
+   *  here so rows under a "Pages"/"Queues"/… header show just the path, not the
+   *  redundant group token. Wins over `hidePath`/`hideMeta`. */
+  metaOverride?: string;
   /** When true, render a small `Recent` dot/pill next to the row name. Used
    *  for single-recent folding: instead of a separate Recent band with one
    *  row, mark the row inside its native group. */
   isRecent?: boolean;
   refMap?: MutableRefObject<Map<string, HTMLElement>>;
   onSelect?: (href: string) => void;
+  /** Workspace role — only used to role-shape the Billing action verb. */
+  role?: WorkspaceRole;
+  /** Fires on hover/focus so the surface can promote this row to active (e.g.
+   *  to drive a detail rail that tracks the pointer, not just the keyboard). */
+  onActivate?: () => void;
+}
+
+/** Action verb for the hover/focus action chip. Registry-owned (`item.actionVerb`)
+ *  rather than derived from the href, so the copy lives with the destination.
+ *  Billing is role-shaped at render time: VIEW for non-admins (read-only access),
+ *  MANAGE for admins. Falls back to OPEN. */
+export function resolveRowActionVerb(
+  item: Pick<PaletteItem, "href" | "actionVerb">,
+  role?: WorkspaceRole
+): string {
+  const path = (item.href.split("?")[0] ?? item.href).split("#")[0] ?? item.href;
+  if (path === "/settings/billing") {
+    return role && isWorkspaceAdminRole(role) ? "MANAGE" : "VIEW";
+  }
+  return item.actionVerb ?? "OPEN";
 }
 
 export function highlightMatches(text: string, query: string | undefined): ReactNode {
@@ -79,9 +105,12 @@ export function ResultRow({
   rowId,
   hidePath = false,
   hideMeta = false,
+  metaOverride,
   isRecent = false,
   refMap,
   onSelect,
+  role,
+  onActivate,
 }: ResultRowProps) {
   const router = useRouter();
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -90,13 +119,17 @@ export function ResultRow({
   // `createElement` so the rule sees an explicit dynamic-component render.
   const iconComponent = resolveNavIcon(item);
   const baseMeta = resultMetaLabel(item);
-  // hidePath → keep just the group label; hideMeta → drop the line entirely.
-  const meta = hidePath
-    ? item.searchGroup
-      ? SEARCH_GROUP_LABELS[item.searchGroup]
-      : baseMeta.split(" · ")[0] ?? baseMeta
-    : baseMeta;
-  const showMeta = !hideMeta;
+  // metaOverride wins (overlay path-second meta); else hidePath → keep just the
+  // group label; hideMeta → drop the line entirely.
+  const meta =
+    metaOverride ??
+    (hidePath
+      ? item.searchGroup
+        ? SEARCH_GROUP_LABELS[item.searchGroup]
+        : baseMeta.split(" · ")[0] ?? baseMeta
+      : baseMeta);
+  const showMeta = metaOverride != null ? true : !hideMeta;
+  const actionVerb = resolveRowActionVerb(item, role);
   const synonymHit = query ? matchOriginToken(item, query) : null;
 
   const handleClick = useCallback(() => {
@@ -111,6 +144,13 @@ export function ResultRow({
       // ignore
     }
   }, [item.href, router]);
+
+  // Hover/focus warms the route AND promotes the row to active so a detail rail
+  // can track the pointer, not just keyboard navigation.
+  const handleActivate = useCallback(() => {
+    handlePrefetch();
+    onActivate?.();
+  }, [handlePrefetch, onActivate]);
 
   // Register the anchor in the parent's ref map for scroll-into-view.
   useEffect(() => {
@@ -132,7 +172,7 @@ export function ResultRow({
     ? "border-l-[2.5px] border-[var(--accent)] pl-[13.5px]"
     : "border-l-[2.5px] border-transparent";
   const activeBg = isActive
-    ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))]"
+    ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_14%,var(--surface-raised))]"
     : "";
 
   return (
@@ -142,8 +182,8 @@ export function ResultRow({
       prefetch={false}
       id={rowId}
       onClick={handleClick}
-      onMouseEnter={handlePrefetch}
-      onFocus={handlePrefetch}
+      onMouseEnter={handleActivate}
+      onFocus={handleActivate}
       data-active={isActive ? "true" : undefined}
       className={`group flex min-h-[44px] cursor-pointer items-center gap-3 px-4 py-2 transition-colors visited:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)] [-webkit-tap-highlight-color:transparent] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,var(--surface-raised))] ${activeStripe} ${activeBg}`}
     >
@@ -180,39 +220,59 @@ export function ResultRow({
           </span>
         ) : null}
         {showMeta ? (
-          <span className="mt-0.5 block truncate text-[11px] text-[var(--text-tertiary)]">
+          <span
+            className={`mt-0.5 block truncate text-[11px] text-[var(--text-tertiary)] ${
+              metaOverride != null ? "font-mono tabular-nums" : ""
+            }`}
+          >
             {meta}
           </span>
         ) : null}
       </span>
-      <span className="flex shrink-0 items-center gap-1.5">
+      {/* Fixed-width trailing slot so the title column width is identical
+          across idle / hover / active — no reflow when navigating rows. */}
+      <span className="flex min-w-[5.5rem] shrink-0 items-center justify-end gap-1.5">
         {isActive ? (
-          // When the row is keyboard-active, the kbd picks up an accent-tint
-          // so it visually belongs to the row's selection state (the default
-          // `ui-kbd` gray reads as muted against the accent-soft row bg).
-          <kbd
-            className="ui-kbd hidden min-w-[1.6rem] sm:inline-flex"
-            aria-label="Press Enter to open"
+          // Keyboard-active row: the destination verb plus an accent-tinted Enter
+          // kbd, so the focal row says what Enter will do (not a lone arrow).
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] text-[var(--accent-strong)]"
+            >
+              {actionVerb}
+            </span>
+            <kbd
+              className="ui-kbd hidden min-w-[1.6rem] sm:inline-flex"
+              aria-label="Press Enter to open"
+              style={{
+                background: "color-mix(in oklab, var(--accent-soft) 65%, var(--surface))",
+                color: "var(--accent-strong)",
+                borderColor: "color-mix(in oklab, var(--accent) 35%, transparent)",
+              }}
+            >
+              <CornerDownLeft aria-hidden className="h-3 w-3" strokeWidth={2} />
+            </kbd>
+          </span>
+        ) : (
+          // Inactive row: a hover/focus-revealed structured action chip that
+          // telegraphs intent (OPEN / REVIEW / EXPORT / MANAGE / VIEW →) rather
+          // than a bare chevron. Decorative — the Link itself is the action,
+          // so the chip stays aria-hidden. opacity-0 still occupies layout, so
+          // the slot width is stable whether or not the chip is revealed.
+          <span
+            aria-hidden
+            className="inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-[0.12em] opacity-0 transition-[opacity,transform] group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:group-hover:translate-x-0.5"
             style={{
-              background: "color-mix(in oklab, var(--accent-soft) 65%, var(--surface))",
+              borderColor: "var(--border-card)",
+              background: "var(--surface-raised)",
               color: "var(--accent-strong)",
-              borderColor: "color-mix(in oklab, var(--accent) 35%, transparent)",
             }}
           >
-            <CornerDownLeft aria-hidden className="h-3 w-3" strokeWidth={2} />
-          </kbd>
-        ) : null}
-        {/* Arrow appears only on hover or active row. Keeps inactive rows
-            visually quiet on dense lists. */}
-        <ArrowRight
-          className={`h-4 w-4 motion-safe:transition-[opacity,transform] motion-safe:group-hover:translate-x-0.5 ${
-            isActive
-              ? "text-[var(--accent-strong)] opacity-100"
-              : "text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-          }`}
-          strokeWidth={1.85}
-          aria-hidden
-        />
+            {actionVerb}
+            <ArrowRight className="h-2.5 w-2.5" strokeWidth={2} aria-hidden />
+          </span>
+        )}
       </span>
     </Link>
   );

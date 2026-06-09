@@ -49,7 +49,7 @@ export function ExtractButton({
           if ("async" in res && res.async) {
             setResult({
               message:
-                "Extraction started. This page will refresh while the run completes.",
+                "Suggestions started. This page will refresh while the run completes.",
               type: "success",
             });
             router.refresh();
@@ -62,13 +62,13 @@ export function ExtractButton({
           if (ins > 0) {
             message =
               ins === total
-                ? `Added ${ins} field${ins === 1 ? "" : "s"} from the document.`
-                : `Added ${ins} new field${ins === 1 ? "" : "s"} (${total} parsed).`;
+                ? `Added ${ins} detail${ins === 1 ? "" : "s"} from the document.`
+                : `Added ${ins} new detail${ins === 1 ? "" : "s"} (${total} parsed).`;
           } else {
             message =
               total > 0
-                ? "All fields were already present; nothing new to add. Delete a field to re-extract it."
-                : "Extraction finished.";
+                ? "All details were already present; nothing new to add. Delete a detail to suggest it again."
+                : "Suggestions finished.";
           }
           if (typeof chars === "number" && chars > 0) {
             message += ` Analyzed ${chars.toLocaleString()} characters of text.`;
@@ -91,30 +91,30 @@ export function ExtractButton({
         aria-busy={isPending || requestLock}
         title={
           extractionInFlight
-            ? "An extraction is already queued or running. Wait or refresh the page."
-            : undefined
+            ? "Suggestions are already queued or running. Wait or refresh the page."
+            : "AI-assisted — confirm the suggested details before relying on them."
         }
         className="ui-btn-primary w-full whitespace-nowrap px-4 py-2 text-sm disabled:pointer-events-none disabled:opacity-45 sm:w-auto sm:px-5"
       >
         {isPending ? (
           <>
-            <Loader2 size={14} className="animate-spin" />
-            Extracting...
+            <Loader2 size={14} className="animate-spin motion-reduce:animate-none" />
+            Finding suggestions...
           </>
         ) : extractionQueued ? (
           <>
             <Sparkles size={14} />
-            Extraction queued
+            Suggestions queued
           </>
         ) : extractionProcessing ? (
           <>
             <Sparkles size={14} />
-            Extraction running
+            Suggestions running
           </>
         ) : (
           <>
             <Sparkles size={14} />
-            Extract fields with AI
+            Suggest contract details
           </>
         )}
       </button>

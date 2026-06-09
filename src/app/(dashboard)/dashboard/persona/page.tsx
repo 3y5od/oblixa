@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { WorkspaceRole } from "@/lib/navigation";
@@ -21,21 +22,21 @@ import type { OperationalTone } from "@/lib/ui/operational-surface";
 const PERSONA_CONFIG = {
   ops: {
     label: "Ops lead",
-    purpose: "Work blocked or high-priority tasks before routine follow-up.",
-    queueTitle: "Ops work queue",
-    queueDescription: "Blocked work, due work, and high-priority tasks are listed first.",
-    emptyMessage: "No blocked or high-priority Ops work is visible for your current workspace and role.",
+    purpose: "Handle tasks that need input or high-priority tasks before routine follow-up.",
+    queueTitle: "Ops task queue",
+    queueDescription: "Tasks needing input, due tasks, and high-priority tasks are listed first.",
+    emptyMessage: "No Ops tasks needing input or high-priority Ops tasks are visible for your current workspace and role.",
   },
   finance: {
     label: "Finance",
-    purpose: "Clear renewal blockers and financial exposure that needs a decision.",
-    queueTitle: "Renewal blocker queue",
-    queueDescription: "Blocked renewals and blocker-bearing decisions are listed first.",
-    emptyMessage: "No blocked renewal decisions are visible for your current workspace and role.",
+    purpose: "Clear renewal dependencies and financial exposure that needs a decision.",
+    queueTitle: "Renewal dependency queue",
+    queueDescription: "Renewals needing input and dependency-bearing decisions are listed first.",
+    emptyMessage: "No renewal decisions needing input are visible for your current workspace and role.",
   },
   legal: {
     label: "Legal reviewer",
-    purpose: "Review pending approvals before downstream work stalls.",
+    purpose: "Review pending approvals before downstream tasks stall.",
     queueTitle: "Legal approval queue",
     queueDescription: "Pending sign-offs are ordered by urgency and due date.",
     emptyMessage: "No pending legal approvals are visible for your current workspace and role.",
@@ -43,23 +44,23 @@ const PERSONA_CONFIG = {
   account_owner: {
     label: "Account owner",
     purpose: "Follow up on assigned tasks and obligations that need your attention.",
-    queueTitle: "Assigned work queue",
-    queueDescription: "Your blocked, overdue, due, and high-priority work is listed first.",
+    queueTitle: "Assigned task queue",
+    queueDescription: "Your tasks needing input, overdue tasks, due tasks, and high-priority tasks are listed first.",
     emptyMessage: "No assigned tasks or obligations are visible for your current workspace and role.",
   },
   reviewer: {
     label: "Contract coordinator",
-    purpose: "Coordinate open contract work that needs triage or follow-up.",
+    purpose: "Coordinate open contract tasks that need triage or follow-up.",
     queueTitle: "Coordination queue",
-    queueDescription: "Blocked and high-priority coordination work is listed first.",
-    emptyMessage: "No coordination work is visible for your current workspace and role.",
+    queueDescription: "Coordination tasks needing input and high-priority coordination tasks are listed first.",
+    emptyMessage: "No coordination tasks are visible for your current workspace and role.",
   },
   manager: {
     label: "Founder / manager",
-    purpose: "Review blockers, approvals, and ownership gaps that need escalation.",
+    purpose: "Review dependencies, approvals, and ownership gaps that need escalation.",
     queueTitle: "Manager escalation queue",
-    queueDescription: "Renewal blockers and pending approvals are combined by urgency.",
-    emptyMessage: "No approvals, blockers, or ownership gaps are visible for your current workspace and role.",
+    queueDescription: "Renewal dependencies and pending approvals are combined by urgency.",
+    emptyMessage: "No approvals, dependencies, or ownership gaps are visible for your current workspace and role.",
   },
 } as const;
 
@@ -118,7 +119,7 @@ const PERSONA_PRESETS: Array<{
 const ALL_CLEAR_ACTION_LABELS: Record<(typeof PERSONA_PRESETS)[number]["id"], string> = {
   "ops-daily": "Browse Ops Daily",
   "legal-approvals": "Review legal approvals",
-  "finance-renewals": "Inspect renewal blockers",
+  "finance-renewals": "Inspect renewal dependencies",
   "manager-overview": "Review escalations",
 };
 
@@ -292,8 +293,8 @@ export default async function PersonaDashboardPage(props: {
           ownerLabel: row.assignee_id === user.id ? "Assigned to you" : undefined,
           dueLabel: dueLabel(row.due_date),
           dueDate: row.due_date ? String(row.due_date).slice(0, 10) : undefined,
-          reason: urgency === "blocked" ? "Blocked task" : urgency === "overdue" ? "Overdue task" : urgency === "due_today" ? "Due today" : "High-priority task",
-          actionLabel: urgency === "blocked" ? "Resolve blocker" : urgency === "normal" ? "Review task" : "Triage task",
+          reason: urgency === "blocked" ? "Task needs input" : urgency === "overdue" ? "Overdue task" : urgency === "due_today" ? "Due today" : "High-priority task",
+          actionLabel: urgency === "blocked" ? "Review dependency" : urgency === "normal" ? "Review task" : "Triage task",
           urgency,
         },
       ];
@@ -313,8 +314,8 @@ export default async function PersonaDashboardPage(props: {
           contractTitle: contract.title,
           dueLabel: dueLabel(row.target_decision_date),
           dueDate: row.target_decision_date ? String(row.target_decision_date).slice(0, 10) : undefined,
-          reason: row.blocker ? `Blocker: ${row.blocker}` : `${readableStatus(row.workspace_status)} renewal`,
-          actionLabel: urgency === "blocked" ? "Clear blocker" : "Review renewal",
+          reason: row.blocker ? `Input needed: ${row.blocker}` : `${readableStatus(row.workspace_status)} renewal`,
+          actionLabel: urgency === "blocked" ? "Review dependency" : "Review renewal",
           urgency,
         },
       ];
@@ -334,8 +335,8 @@ export default async function PersonaDashboardPage(props: {
           ownerLabel: "Owned by you",
           dueLabel: dueLabel(row.due_date),
           dueDate: row.due_date ? String(row.due_date).slice(0, 10) : undefined,
-          reason: urgency === "overdue" ? "Overdue obligation" : urgency === "due_today" ? "Obligation due today" : "Open obligation",
-          actionLabel: "Review obligation",
+          reason: urgency === "overdue" ? "Overdue requirement" : urgency === "due_today" ? "Requirement due today" : "Open requirement",
+          actionLabel: "Review requirement",
           urgency,
         },
       ];
@@ -373,7 +374,7 @@ export default async function PersonaDashboardPage(props: {
   };
 
   const actionableChips = [
-    { label: "Blocked", value: blockedCount, tone: "risk" as OperationalTone },
+    { label: "Needs input", value: blockedCount, tone: "risk" as OperationalTone },
     { label: "Overdue", value: overdueCount, tone: "risk" as OperationalTone },
     { label: "Due today", value: dueTodayCount, tone: "attention" as OperationalTone },
     { label: "High priority", value: highCount, tone: "attention" as OperationalTone },
@@ -381,7 +382,7 @@ export default async function PersonaDashboardPage(props: {
       ? [{ label: "Pending approvals", value: pendingApprovals, tone: "attention" as OperationalTone }]
       : []),
     ...(persona === "finance" || persona === "manager"
-      ? [{ label: "Renewal blockers", value: renewalBlockersCount, tone: "risk" as OperationalTone }]
+      ? [{ label: "Renewal dependencies", value: renewalBlockersCount, tone: "risk" as OperationalTone }]
       : []),
     ...(persona === "account_owner" || persona === "ops"
       ? [
@@ -444,13 +445,17 @@ export default async function PersonaDashboardPage(props: {
               <label htmlFor="persona" className="ui-label-caps">
                 Persona
               </label>
-              <select id="persona" name="persona" defaultValue={persona} className="ui-input min-w-[14rem] max-w-full">
-                {PERSONAS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
+              <UiSelect
+                id="persona"
+                name="persona"
+                defaultValue={persona}
+                options={PERSONAS.map((p) => ({ value: p.id, label: p.label }))}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                className="min-w-[14rem] max-w-full"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <button type="submit" className="ui-btn-secondary px-4 py-2.5 text-[12.5px]">
               Apply persona
@@ -487,7 +492,7 @@ export default async function PersonaDashboardPage(props: {
         <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_52%,transparent)] px-4 py-3 sm:px-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <p className="ui-eyebrow">Work queue</p>
+              <p className="ui-eyebrow">Task queue</p>
               <h2 className="ui-section-title mt-1 text-xl">{config.queueTitle}</h2>
               <p className="ui-muted-tight mt-1 text-[12.5px]">{config.queueDescription}</p>
             </div>

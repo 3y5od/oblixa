@@ -123,7 +123,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Here’s how it fits together."
+    "expectedHeading": "See how Oblixa fits together."
   },
   {
     "route": "/pricing",
@@ -141,7 +141,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "Track what signed contracts require next."
+    "expectedHeading": "Request access."
   },
   {
     "route": "/contact",
@@ -168,7 +168,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "auth",
     "shellFamily": "auth",
     "mode": "auth",
-    "expectedHeading": "Sign in to your account"
+    "expectedHeading": "Sign in to your workspace."
   },
   {
     "route": "/signup",

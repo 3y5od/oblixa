@@ -3,8 +3,32 @@
 import { useRouter } from "next/navigation";
 import { CountChip } from "@/components/ui/count-chip";
 import { FilterBar, FilterSelect } from "@/components/ui/filter-bar";
+import { type UiSelectOption } from "@/components/ui/ui-select";
+import type { DropdownStatusTone } from "@/components/ui/dropdown";
 
 type FilterOption = { value: string; label: string };
+
+// In-panel status dots (§2.5) for the renewals STATUS list — tone follows the
+// model's urgency order (notice_window_open most urgent, completed least).
+// Rendered only inside the open list (DropdownOptionRow); the closed pill stays
+// neutral and "Any status" (value "") carries no dot.
+const RENEWAL_STATUS_DOT: Record<string, DropdownStatusTone> = {
+  notice_window_open: "danger",
+  needs_owner: "warning",
+  needs_review: "warning",
+  in_progress: "neutral",
+  no_renewal_action_needed: "neutral",
+  completed: "success",
+};
+
+// Review-state provenance dots: a human-approved value reads as trusted, an
+// unapproved suggestion wants attention, derived/absent values stay quiet.
+const RENEWAL_REVIEW_DOT: Record<string, DropdownStatusTone> = {
+  reviewed: "success",
+  suggested: "warning",
+  computed: "neutral",
+  missing: "neutral",
+};
 
 export interface RenewalFilterBarProps {
   activeWindow: string;
@@ -50,6 +74,15 @@ export function RenewalFilterBar({
     filters.review,
   ].filter(Boolean).length;
   const hasFilters = activeFilterCount > 0;
+
+  // Decorate the data-driven options with their tone dot (a presentation concern,
+  // so the server model stays a pure {value,label}).
+  const statusFilterOptions: UiSelectOption[] = statusOptions.map((option) =>
+    option.value ? { ...option, statusDot: RENEWAL_STATUS_DOT[option.value] } : option
+  );
+  const reviewFilterOptions: UiSelectOption[] = reviewOptions.map((option) =>
+    option.value ? { ...option, statusDot: RENEWAL_REVIEW_DOT[option.value] } : option
+  );
 
   function navigate(
     next: Partial<{ window: string; owner: string; counterparty: string; status: string; review: string }>
@@ -106,11 +139,12 @@ export function RenewalFilterBar({
         ) : null
       }
     >
-      {/* The horizon keeps an explicit "Due within" label since its values
-          ("90 days") don't self-identify as a filter dimension; its default (90)
-          isn't the first option, so the active tint is driven explicitly. */}
+      {/* Short "Due" label — the two-token pill always shows the caps label
+          beside the value ("DUE │ 90 days"), so the dimension self-identifies
+          without the longer "Due within". Its default (90) isn't the first
+          option, so the active tint is driven explicitly. */}
       <FilterSelect
-        label="Due within"
+        label="Due"
         value={activeWindow}
         options={windowOptions}
         onChange={(value) => navigate({ window: value })}
@@ -131,13 +165,13 @@ export function RenewalFilterBar({
       <FilterSelect
         label={labels.status}
         value={filters.status}
-        options={statusOptions}
+        options={statusFilterOptions}
         onChange={(value) => navigate({ status: value })}
       />
       <FilterSelect
         label={labels.review}
         value={filters.review}
-        options={reviewOptions}
+        options={reviewFilterOptions}
         onChange={(value) => navigate({ review: value })}
       />
     </FilterBar>

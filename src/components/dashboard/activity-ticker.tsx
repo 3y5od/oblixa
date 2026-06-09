@@ -24,8 +24,8 @@ const ICONS: Record<string, typeof Activity> = {
 
 const VERBS: Record<string, string> = {
   "contract.uploaded": "UPLOADED",
-  "extraction.completed": "EXTRACTED",
-  "field.approved": "APPROVED",
+  "extraction.completed": "SUGGESTED",
+  "field.approved": "CONFIRMED",
 };
 
 export function ActivityTicker({ events }: ActivityTickerProps) {

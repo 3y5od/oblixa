@@ -432,9 +432,8 @@ export async function DashboardLower(props: {
   };
   const ticker = (tickerAuditRaw ?? []) as unknown as AuditRow[];
   const contractTitleById = new Map(recentContracts.map((c) => [c.id, c.title]));
-  // v11 release-state pass: dedupe by contract TITLE (case-insensitive),
-  // not by contract_id. Per the critique, the previous pass still showed
-  // two "EXTRACTED · ACME CORP MSA 2025" rows differing only by date,
+  // Dedupe by contract TITLE (case-insensitive), not by contract_id. Two
+  // suggestion events with the same title read like duplicate rows,
   // which read as a duplicate-data bug. Two events with the same title
   // are visually identical regardless of underlying contract_id. Keep
   // only the LATEST event per title.
@@ -455,7 +454,7 @@ export async function DashboardLower(props: {
   const activityItems: ActivityFeedItem[] = ticker.flatMap((row): ActivityFeedItem[] => {
     const title = row.contract_id ? contractTitleById.get(row.contract_id) : undefined;
     // v12 release-state pass: suppress events whose contract title can't be
-    // resolved. An orphan "EXTRACTED" row with no contract name reads as a
+    // resolved. An orphan suggestion row with no contract name reads as a
     // duplicate-data bug (per the critique). Better to render fewer rows
     // with full context than rows that omit the subject.
     if (!title) return [];
@@ -490,7 +489,7 @@ export async function DashboardLower(props: {
           id: row.id,
           icon: FileText,
           tone: "neutral",
-          verb: "Extracted",
+          verb: "Suggested",
           target,
           timestamp: row.created_at,
           href,
@@ -572,7 +571,7 @@ export async function DashboardLower(props: {
           {
             id: "review-queue",
             ariaId: "review-queue-h",
-            title: "Review queue",
+            title: "Details to confirm",
             icon: CheckSquare,
             count: reviewQueueContracts.length,
             hasRows: reviewQueueHasRows,
@@ -587,9 +586,9 @@ export async function DashboardLower(props: {
               />
             ),
             renderEmpty: () => (
-              <ActionChip verb="Review fields" href="/contracts/review" />
+              <ActionChip verb="Confirm details" href="/contracts/review" />
             ),
-            quietLabel: "Review queue",
+            quietLabel: "Detail confirmation queue",
             srEmptyDescription: DASHBOARD_EMPTY_STATES.reviewQueue,
           },
           {
@@ -689,7 +688,7 @@ export async function DashboardLower(props: {
           {
             id: "work-needing-action",
             ariaId: "work-needing-action-h",
-            title: "Work needing action",
+            title: "Tasks needing action",
             icon: ListChecks,
             count: myTasks.length + myObligations.length,
             hasRows: hasWorkItems,
@@ -707,7 +706,7 @@ export async function DashboardLower(props: {
                   })),
                   ...myObligations.map((o) => ({
                     id: `obligation-${o.id}`,
-                    kind: "Obligation" as const,
+                    kind: "Requirement" as const,
                     title: o.title,
                     detail: o.contracts.title,
                     href: `/contracts/${o.contracts.id}#obligation-${o.id}`,
@@ -750,9 +749,9 @@ export async function DashboardLower(props: {
               </ul>
             ),
             renderEmpty: () => (
-              <ActionChip verb="Open work" href="/work" />
+              <ActionChip verb="Open tasks" href="/work" />
             ),
-            quietLabel: "Work needing action",
+            quietLabel: "Tasks needing action",
             srEmptyDescription: DASHBOARD_EMPTY_STATES.workNeedingAction,
           },
           {
@@ -854,14 +853,14 @@ export async function DashboardLower(props: {
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--text-secondary)]">
-                        {s.quietLabel === "Review queue"
-                          ? "All fields reviewed"
+                        {s.quietLabel === "Detail confirmation queue"
+                          ? "All details confirmed"
                           : s.quietLabel === "Upcoming deadlines"
                             ? "No deadlines in the next 90 days"
-                            : s.quietLabel === "Work needing action"
-                              ? "No work assigned to you"
+                            : s.quietLabel === "Tasks needing action"
+                              ? "No tasks assigned to you"
                               : s.quietLabel === "Missing data"
-                                ? "All critical fields complete"
+                                ? "All critical details complete"
                                 : "No recent activity yet"}
                       </span>
                       <span className="hidden text-[11.5px] text-[var(--text-tertiary)] sm:inline">

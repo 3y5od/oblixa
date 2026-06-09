@@ -12,9 +12,9 @@ interface TrendsSectionProps {
 
 const SERIES_ACTIONS = [
   { action: "contract.uploaded", label: "Uploads", tone: "neutral" as StatTone },
-  { action: "field.approved", label: "Fields reviewed", tone: "success" as StatTone },
+  { action: "field.approved", label: "Details confirmed", tone: "success" as StatTone },
   { action: "approval.completed", label: "Approvals signed", tone: "success" as StatTone },
-  { action: "exception.opened", label: "Exceptions opened", tone: "warning" as StatTone },
+  { action: "exception.opened", label: "Issues opened", tone: "warning" as StatTone },
 ];
 
 export async function TrendsSection({ orgId }: TrendsSectionProps) {

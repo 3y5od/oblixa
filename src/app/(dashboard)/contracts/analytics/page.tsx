@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { normalizeAnalyticsScope } from "@/lib/analytics-scope";
@@ -223,30 +224,48 @@ export default async function ContractAnalyticsPage(props: {
           <p className="ui-support-copy">Narrow the analytics slice by owner, region, or contract type before comparing workflow pressure and delivery behavior.</p>
         </div>
         <form action="/contracts/analytics" method="get" className="grid gap-2 sm:grid-cols-3">
-          <select name="owner" defaultValue={ownerFilter} className="ui-input" aria-label="Filter analytics by owner">
-            <option value="all">Owner: all</option>
-            {ownerOptions.map((owner) => (
-              <option key={owner} value={owner}>
-                {owner}
-              </option>
-            ))}
-          </select>
-          <select name="region" defaultValue={regionFilter} className="ui-input" aria-label="Filter analytics by region">
-            <option value="all">Region: all</option>
-            {regionOptions.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
-          </select>
-          <select name="type" defaultValue={typeFilter} className="ui-input" aria-label="Filter analytics by contract type">
-            <option value="all">Type: all</option>
-            {typeOptions.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+          <UiSelect
+            name="owner"
+            defaultValue={ownerFilter}
+            ariaLabel="Filter analytics by owner"
+            options={[
+              { value: "all", label: "Owner: all" },
+              ...ownerOptions.map((owner) => ({ value: owner, label: owner })),
+            ]}
+            variant="compact"
+            portal
+            searchThreshold={8}
+            className="w-full"
+            buttonClassName="w-full !min-h-11"
+          />
+          <UiSelect
+            name="region"
+            defaultValue={regionFilter}
+            ariaLabel="Filter analytics by region"
+            options={[
+              { value: "all", label: "Region: all" },
+              ...regionOptions.map((region) => ({ value: region, label: region })),
+            ]}
+            variant="compact"
+            portal
+            searchThreshold={8}
+            className="w-full"
+            buttonClassName="w-full !min-h-11"
+          />
+          <UiSelect
+            name="type"
+            defaultValue={typeFilter}
+            ariaLabel="Filter analytics by contract type"
+            options={[
+              { value: "all", label: "Type: all" },
+              ...typeOptions.map((type) => ({ value: type, label: type })),
+            ]}
+            variant="compact"
+            portal
+            searchThreshold={8}
+            className="w-full"
+            buttonClassName="w-full !min-h-11"
+          />
           <button type="submit" className="ui-btn-secondary px-4 py-2 text-xs sm:col-span-3">
             Apply trend scope
           </button>
@@ -260,13 +279,13 @@ export default async function ContractAnalyticsPage(props: {
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <OperationalSummaryCard
-            eyebrow="Obligations"
+            eyebrow="Requirements"
             headline="Overdue"
             tone={overdueObligations > 0 ? "risk" : "healthy"}
             icon={ListChecks}
             primaryValue={overdueObligations}
             primaryUnit="open or in progress"
-            action={{ href: "/contracts/obligations", label: "Review obligations" }}
+            action={{ href: "/contracts/obligations", label: "Review requirements" }}
             variant="compact"
           />
           <OperationalSummaryCard
@@ -286,7 +305,7 @@ export default async function ContractAnalyticsPage(props: {
             icon={Timer}
             primaryValue={`${avgApprovalDays.toFixed(1)}d`}
             primaryUnit="resolved samples"
-            action={{ href: "/contracts/approvals", label: "Review queue" }}
+            action={{ href: "/contracts/approvals", label: "Review approvals" }}
             variant="compact"
           />
         </div>

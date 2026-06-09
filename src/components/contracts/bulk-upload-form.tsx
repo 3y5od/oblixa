@@ -6,7 +6,6 @@ import {
   useTransition,
   type FormEvent,
   type KeyboardEvent,
-  type RefObject,
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,10 +15,18 @@ import {
   FileSpreadsheet,
   FileText,
   Loader2,
-  UploadCloud,
   X,
 } from "lucide-react";
 import { bulkCreateContractsFromFiles } from "@/actions/contracts";
+import { ChipPair } from "@/components/ui/chip-pair";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { MetaChip } from "@/components/ui/meta-chip";
+import { RatioChip } from "@/components/ui/ratio-chip";
+import { CreationPipeline } from "@/components/contracts/creation-pipeline";
+import { Dropzone } from "@/components/contracts/dropzone";
+import { SelectedFileList } from "@/components/contracts/selected-file-list";
+import { UploadTrustNote } from "@/components/contracts/upload-trust-note";
+import { CONTRACT_FILE_MAX_BYTES, CONTRACT_FILE_MAX_MB_LABEL } from "@/lib/constants/upload-limits";
 import { formatFileSize } from "@/lib/format-file-size";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 
@@ -119,19 +126,19 @@ const CSV_STEPS = [
   "Import records",
   "Review imported records",
   "Assign owners and dates",
-  "Track renewals and work",
+  "Track renewals and tasks",
 ] as const;
 
 const FILE_STEPS = [
   "Validate files",
   "Create records",
-  "Review suggested fields",
+  "Confirm suggested details",
   "Assign owners and dates",
-  "Track renewals and work",
+  "Track renewals and tasks",
 ] as const;
 
 const MAX_CSV_BYTES = 2_000_000;
-const MAX_FILE_BYTES = 20 * 1024 * 1024;
+const MAX_FILE_BYTES = CONTRACT_FILE_MAX_BYTES;
 const MAX_FILES = 12;
 
 function isFile(value: FormDataEntryValue | null): value is File {
@@ -246,169 +253,55 @@ function ColumnChip({
 }
 
 function SpreadsheetColumns() {
+  const groupColumns = (key: string) =>
+    CSV_COLUMNS.filter((column) => column.group === key);
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">Spreadsheet columns</p>
-        <button
-          type="button"
-          onClick={downloadTemplate}
-          className="ui-btn-secondary inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold"
-        >
-          <Download className="h-3 w-3" strokeWidth={2} aria-hidden />
-          Download CSV template
-        </button>
-      </div>
-      <div className="mt-3 space-y-2.5">
-        {COLUMN_GROUPS.map((group) => (
-          <div
-            key={group.key}
-            className="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-3"
-          >
-            <span className="ui-caps-2 pt-1.5 text-[10px] text-[var(--text-tertiary)]">{group.label}</span>
-            <div className="flex flex-wrap gap-1.5">
-              {CSV_COLUMNS.filter((column) => column.group === group.key).map((column) => (
-                <ColumnChip
-                  key={column.header}
-                  label={column.label}
-                  header={column.header}
-                  required={column.required}
-                />
-              ))}
-            </div>
+      <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">Spreadsheet columns</p>
+      {/* Required gets its own column so the two server-required headers read as
+          the priority; Optional + Source share the second column as the "nice
+          to have" group (§10.18). Compressed into one bordered strip so the
+          chips read as a single reference block rather than loose scatter. */}
+      <div className="mt-2 grid gap-x-6 gap-y-3 rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,var(--surface-raised))] p-3 lg:grid-cols-2">
+        <div>
+          <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Required</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {groupColumns("required").map((column) => (
+              <ColumnChip
+                key={column.header}
+                label={column.label}
+                header={column.header}
+                required={column.required}
+              />
+            ))}
           </div>
-        ))}
+        </div>
+        <div className="space-y-3">
+          {COLUMN_GROUPS.filter((group) => group.key !== "required").map((group) => (
+            <div key={group.key}>
+              <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">{group.label}</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {groupColumns(group.key).map((column) => (
+                  <ColumnChip
+                    key={column.header}
+                    label={column.label}
+                    header={column.header}
+                    required={column.required}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      <p className="mt-2.5 text-[11.5px] text-[var(--text-tertiary)]">
-        Only these columns import today; other columns in your file are ignored.
-      </p>
+      {/* Honesty strip (§10.13): unknown columns are dropped and imported values
+          are unreviewed until the user reviews them — stated as structured
+          chips rather than a prose footnote. */}
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <ChipPair primary="Unknown columns" secondary="ignored" />
+        <ChipPair primary="Imported values" secondary="unreviewed" />
+      </div>
     </div>
-  );
-}
-
-function ImportSteps({ steps }: { steps: readonly string[] }) {
-  return (
-    <div>
-      <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">What happens next</p>
-      <ol className="mt-2.5 grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-2">
-        {steps.map((label, index) => (
-          <li key={label} className="flex items-center gap-2.5">
-            <span
-              aria-hidden
-              className="inline-flex h-5 w-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] font-mono text-[10px] font-semibold tabular-nums text-[var(--text-secondary)]"
-            >
-              {index + 1}
-            </span>
-            <span className="min-w-0 text-[12.5px] leading-snug text-[var(--text-secondary)]">
-              {label}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function Dropzone({
-  inputRef,
-  inputId,
-  name,
-  accept,
-  multiple,
-  ariaLabel,
-  hint,
-  disabled,
-  onFiles,
-}: {
-  inputRef: RefObject<HTMLInputElement | null>;
-  inputId: string;
-  name: string;
-  accept: string;
-  multiple?: boolean;
-  ariaLabel: string;
-  hint: string;
-  disabled?: boolean;
-  onFiles: (files: FileList | null) => void;
-}) {
-  const [isOver, setIsOver] = useState(false);
-  return (
-    <label
-      onDragOver={(event) => {
-        event.preventDefault();
-        if (!disabled) setIsOver(true);
-      }}
-      onDragLeave={() => setIsOver(false)}
-      onDrop={(event) => {
-        event.preventDefault();
-        setIsOver(false);
-        if (disabled) return;
-        const dropped = event.dataTransfer.files;
-        if (inputRef.current) inputRef.current.files = dropped;
-        onFiles(dropped);
-      }}
-      className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-5 py-6 text-center transition-colors focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${
-        disabled
-          ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,transparent)] opacity-60"
-          : isOver
-            ? "border-[color:color-mix(in_oklab,var(--accent)_60%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))]"
-            : "border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_38%,var(--surface-raised))] hover:border-[color:color-mix(in_oklab,var(--accent)_38%,var(--border-strong))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))]"
-      }`}
-    >
-      <input
-        ref={inputRef}
-        id={inputId}
-        name={name}
-        type="file"
-        accept={accept}
-        multiple={multiple}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        onChange={(event) => onFiles(event.currentTarget.files)}
-        className="sr-only"
-      />
-      <span
-        aria-hidden
-        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] text-[var(--accent-strong)]"
-      >
-        <UploadCloud className="h-4 w-4" strokeWidth={1.85} />
-      </span>
-      <p className="text-[12.5px] font-medium text-[var(--text-secondary)]">
-        <span className="text-[var(--accent-strong)]">Click to browse</span> or drag and drop
-      </p>
-      <p className="ui-caps-3 text-[10px] tabular-nums text-[var(--text-tertiary)]">{hint}</p>
-    </label>
-  );
-}
-
-function FileRow({
-  icon: Icon,
-  name,
-  size,
-  onRemove,
-}: {
-  icon: typeof FileText;
-  name: string;
-  size: number;
-  onRemove: () => void;
-}) {
-  return (
-    <li className="flex items-center gap-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1.5">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-      <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-        {name}
-      </span>
-      <span className="shrink-0 font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-        {formatFileSize(size)}
-      </span>
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Remove ${name}`}
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
-      >
-        <X className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-      </button>
-    </li>
   );
 }
 
@@ -504,7 +397,7 @@ export function BulkUploadForm({
       if (!isPdfOrDocx(file)) {
         rejected.push(`${file.name} is not a PDF or DOCX`);
       } else if (file.size > MAX_FILE_BYTES) {
-        rejected.push(`${file.name} is over 20 MB`);
+        rejected.push(`${file.name} is over ${CONTRACT_FILE_MAX_MB_LABEL}`);
       } else {
         accepted.push(file);
       }
@@ -624,25 +517,28 @@ export function BulkUploadForm({
   const filesReady = sourceFiles.length > 0 && sourceFiles.length <= MAX_FILES;
   const ready = activePath === "csv" ? csvReady : filesReady;
   const canSubmit = !disabled && !isPending && ready;
+  const showPrimary = canSubmit || isPending;
 
   const sourceFileBytes = sourceFiles.reduce((sum, file) => sum + file.size, 0);
-  const submitLabel = activePath === "csv" ? "Import contracts" : "Import signed contracts";
-  const footerHint =
-    activePath === "csv"
+  const submitLabel = activePath === "csv" ? "Import contracts" : "Import signed files";
+  // Structured readiness (§10.7): a tone dot + caps state, not a prose hint.
+  const readinessTone = ready ? "var(--success-ink)" : "var(--border-strong)";
+  const readinessLabel = ready
+    ? "Ready to import"
+    : activePath === "csv"
       ? csvFile
-        ? csvReady
-          ? "Ready to import."
-          : "Fix the file to continue."
-        : "Choose a tracker file to continue."
-      : filesReady
-        ? "Ready to import."
-        : "Choose signed files to continue.";
+        ? "Fix CSV headers"
+        : "Choose CSV file"
+      : "Choose signed files";
 
   return (
     <form className="ui-card-raised overflow-hidden p-0" onSubmit={handleSubmit}>
-      <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
+      {/* Segmented source switch — fills the header width with a clear active /
+          inactive contrast; the selected tab carries an accent ring so it reads
+          as firmly attached to the panel below it. */}
+      <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3">
         <div
-          className="inline-flex items-center gap-1 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,transparent)] p-1"
+          className="grid grid-cols-2 gap-1 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,transparent)] p-1"
           role="tablist"
           aria-label="Import source"
           onKeyDown={onTabKeyDown}
@@ -663,10 +559,10 @@ export function BulkUploadForm({
                 aria-controls={`import-panel-${item.key}`}
                 tabIndex={selected ? 0 : -1}
                 onClick={() => selectTab(item.key)}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                   selected
-                    ? "bg-[var(--surface-raised)] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    ? "bg-[var(--surface-raised)] font-semibold text-[var(--accent-strong)] shadow-[var(--shadow-1)] ring-1 ring-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-subtle))]"
+                    : "font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
@@ -709,10 +605,10 @@ export function BulkUploadForm({
                     <a className="ui-link" href="#recent-imports">
                       Review import status
                     </a>
-                    {result.type === "success" ? (
+          {result.type === "success" ? (
                       activePath === "files" ? (
                         <Link className="ui-link" href="/contracts/review">
-                          Review suggested fields
+                          Confirm suggested details
                         </Link>
                       ) : (
                         <Link className="ui-link" href="/contracts">
@@ -739,7 +635,22 @@ export function BulkUploadForm({
           className="space-y-5 px-5 py-4"
         >
           <div>
-            <p className="ui-label">CSV file</p>
+            {/* CSV file header row — the template download sits inline with the
+                field label so the example is reachable before browsing. */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <p className="ui-label">CSV file</p>
+                <KeyValueChip label="Max" value="2 MB" />
+              </div>
+              <button
+                type="button"
+                onClick={downloadTemplate}
+                className="ui-btn-secondary inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold"
+              >
+                <Download className="h-3 w-3" strokeWidth={2} aria-hidden />
+                Download CSV template
+              </button>
+            </div>
             <div className="mt-2">
               <Dropzone
                 inputRef={csvInputRef}
@@ -747,14 +658,21 @@ export function BulkUploadForm({
                 name="csvFile"
                 accept=".csv,text/csv"
                 ariaLabel="CSV file"
-                hint="One .csv file, up to 2 MB"
+                primaryText={
+                  <>
+                    <span className="text-[var(--accent-strong)]">Choose CSV tracker</span> or drag and drop
+                  </>
+                }
+                formats={["CSV"]}
+                hint="up to 2 MB"
+                note="title + counterparty required"
                 disabled={disabled || isPending}
                 onFiles={handleCsvFiles}
               />
             </div>
 
             {csvFile ? (
-              <div className="mt-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2">
+              <div className="mt-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2.5">
                 <div className="flex items-center gap-2.5">
                   <FileSpreadsheet
                     className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
@@ -771,36 +689,30 @@ export function BulkUploadForm({
                     type="button"
                     onClick={clearCsv}
                     aria-label={`Remove ${csvFile.name}`}
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
                   >
-                    <X className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+                    <X className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
                   </button>
                 </div>
-                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                {/* Post-select stat strip — a quick read of rows + header health
+                    as structured chips. */}
+                <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-2">
                   {csvCheck == null ? (
                     <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Checking file…</span>
                   ) : (
                     <>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span
-                          aria-hidden
-                          className="inline-flex h-1.5 w-1.5 rounded-full"
-                          style={{
-                            background: csvIssue ? "var(--warning-ink)" : "var(--success-ink)",
-                            boxShadow: `0 0 0 3px color-mix(in oklab, ${
-                              csvIssue ? "var(--warning-soft)" : "var(--success-soft)"
-                            } 40%, transparent)`,
-                          }}
-                        />
-                        <span className="font-mono text-[11px] tabular-nums text-[var(--text-secondary)]">
-                          {csvCheck.rows}
-                        </span>
-                        <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-                          {csvCheck.rows === 1 ? "row" : "rows"}
-                        </span>
-                      </span>
-                      {!csvIssue ? (
-                        <span className="ui-caps-3 text-[10px] text-[var(--success-ink)]">Required columns found</span>
+                      <KeyValueChip
+                        label="Rows"
+                        value={csvCheck.rows}
+                        tone={csvIssue ? "warning" : "success"}
+                      />
+                      <KeyValueChip
+                        label="Required"
+                        value={csvCheck.missingHeaders.length === 0 ? "found" : "missing"}
+                        tone={csvCheck.missingHeaders.length === 0 ? "success" : "warning"}
+                      />
+                      {csvCheck.ignoredHeaders.length > 0 ? (
+                        <KeyValueChip label="Unknown" value={csvCheck.ignoredHeaders.length} />
                       ) : null}
                     </>
                   )}
@@ -814,10 +726,16 @@ export function BulkUploadForm({
               </p>
             ) : null}
             {csvCheck && csvCheck.missingHeaders.length > 0 ? (
-              <p className="ui-alert-warning mt-2 text-[12px]" role="status">
-                Add the required column{csvCheck.missingHeaders.length === 1 ? "" : "s"}:{" "}
-                {csvCheck.missingHeaders.join(", ")}.
-              </p>
+              <div className="mt-2 ui-alert-warning text-[12px]" role="status">
+                <p className="ui-caps-2 text-[10px]">Needs correction</p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  {csvCheck.missingHeaders.map((header) => (
+                    <MetaChip key={header} tone="warning">
+                      Missing {header}
+                    </MetaChip>
+                  ))}
+                </div>
+              </div>
             ) : null}
             {csvCheck?.tooLarge ? (
               <p className="ui-alert-warning mt-2 text-[12px]" role="status">
@@ -845,7 +763,11 @@ export function BulkUploadForm({
           </div>
 
           <SpreadsheetColumns />
-          <ImportSteps steps={CSV_STEPS} />
+          <CreationPipeline
+            heading="What happens next"
+            steps={CSV_STEPS.map((label) => ({ label }))}
+            layout="compact"
+          />
         </div>
       ) : (
         <div
@@ -855,7 +777,10 @@ export function BulkUploadForm({
           className="space-y-5 px-5 py-4"
         >
           <div>
-            <p className="ui-label">Signed PDF or DOCX files</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="ui-label">Signed PDF or DOCX files</p>
+              <KeyValueChip label="Max" value={`${CONTRACT_FILE_MAX_MB_LABEL} each`} />
+            </div>
             <div className="mt-2">
               <Dropzone
                 inputRef={signedFilesInputRef}
@@ -864,61 +789,91 @@ export function BulkUploadForm({
                 accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 multiple
                 ariaLabel="Signed PDF or DOCX files"
-                hint="PDF or DOCX, up to 12 files, 20 MB each"
+                primaryText={
+                  <>
+                    <span className="text-[var(--accent-strong)]">Choose signed files</span> or drag and drop
+                  </>
+                }
+                formats={["PDF", "DOCX"]}
+                hint={`up to 12 files, ${CONTRACT_FILE_MAX_MB_LABEL} each`}
+                note="one file per contract"
                 disabled={disabled || isPending}
                 onFiles={handleSignedFiles}
               />
             </div>
 
+            {/* What each file becomes — the trust model as structured chips
+                (§10.7), so the lower half of the tab carries signal even before
+                files are chosen. */}
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <ChipPair primary="One file" secondary="one contract" />
+              <ChipPair primary="Details" secondary="suggested" />
+              <ChipPair primary="Confirmation" secondary="required" />
+            </div>
+            <div className="mt-3">
+              <UploadTrustNote />
+            </div>
+
             {sourceFiles.length > 0 ? (
-              <>
-                <ul className="mt-2.5 space-y-1.5">
-                  {sourceFiles.map((file, index) => (
-                    <FileRow
-                      key={`${file.name}:${file.size}`}
-                      icon={FileText}
-                      name={file.name}
-                      size={file.size}
-                      onRemove={() => removeSignedFile(index)}
-                    />
-                  ))}
-                </ul>
-                <p className="mt-2 flex items-center gap-1.5 text-[11.5px] text-[var(--text-tertiary)]">
-                  <span className="font-mono tabular-nums">{sourceFiles.length}</span>
-                  <span>of</span>
-                  <span className="font-mono tabular-nums">{MAX_FILES}</span>
-                  <span>files,</span>
-                  <span className="font-mono tabular-nums">{formatFileSize(sourceFileBytes)}</span>
-                </p>
-              </>
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <RatioChip numerator={sourceFiles.length} denominator={MAX_FILES} suffix="files" />
+                  <KeyValueChip label="Total" value={formatFileSize(sourceFileBytes)} />
+                </div>
+                <SelectedFileList
+                  files={sourceFiles}
+                  onRemove={removeSignedFile}
+                  disabled={disabled || isPending}
+                />
+              </div>
             ) : null}
 
             {fileRejections.length > 0 ? (
               <div className="ui-alert-warning mt-2 text-[12px]" role="status">
-                {fileRejections.map((rejection) => (
-                  <p key={rejection}>{rejection}</p>
-                ))}
+                <p className="ui-caps-2 text-[10px]">Needs correction</p>
+                <div className="mt-1 space-y-0.5">
+                  {fileRejections.map((rejection) => (
+                    <p key={rejection}>{rejection}</p>
+                  ))}
+                </div>
               </div>
             ) : null}
-
-            <p className="mt-2.5 text-[12px] leading-snug text-[var(--text-secondary)]">
-              Each file becomes one contract with fields suggested for review.
-            </p>
           </div>
 
-          <ImportSteps steps={FILE_STEPS} />
+          <CreationPipeline
+            heading="What happens next"
+            steps={FILE_STEPS.map((label) => ({ label }))}
+            layout="compact"
+          />
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] px-5 py-3">
-        <p className="text-[12px] text-[var(--text-tertiary)]">{footerHint}</p>
+      {/* Bottom action bar: structured readiness on the left, submit cluster on
+          the right. Both the readiness label and the button keep a stable width
+          so they don't jump between states / when the spinner replaces the label. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] px-5 py-3">
+        <span className="inline-flex items-center gap-2">
+          <span
+            aria-hidden
+            className="inline-flex h-1.5 w-1.5 rounded-full"
+            style={{
+              background: readinessTone,
+              boxShadow: `0 0 0 3px color-mix(in oklab, ${
+                ready ? "var(--success-soft)" : "var(--surface-muted)"
+              } 45%, transparent)`,
+            }}
+          />
+          <span className="ui-caps-2 inline-block min-w-[9.5rem] text-[10px] text-[var(--text-secondary)]">
+            {readinessLabel}
+          </span>
+        </span>
         <button
           type="submit"
           disabled={!canSubmit}
           className={
-            canSubmit || isPending
-              ? "ui-btn-primary inline-flex min-h-9 items-center gap-2 rounded-full px-4 text-[12.5px] font-semibold"
-              : "inline-flex min-h-9 cursor-not-allowed items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,var(--surface-raised))] px-4 text-[12.5px] font-semibold text-[var(--text-tertiary)]"
+            showPrimary
+              ? "ui-btn-primary inline-flex min-h-9 min-w-[10rem] items-center justify-center gap-2 rounded-full px-4 text-[12.5px] font-semibold"
+              : "ui-btn-secondary inline-flex min-h-9 min-w-[10rem] cursor-not-allowed items-center justify-center gap-2 rounded-full px-4 text-[12.5px] font-semibold opacity-70"
           }
         >
           {isPending ? (

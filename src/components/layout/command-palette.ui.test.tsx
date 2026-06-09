@@ -1,5 +1,5 @@
 import "@/test-utils/mock-navigation";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const telemetry = vi.hoisted(() => ({
@@ -170,7 +170,10 @@ describe("CommandPalette", () => {
     });
 
     await waitFor(() => {
-      const settingsLinks = screen
+      // Scope to the results list: the desktop detail rail also links to the
+      // active row's destination, so a global query would double-count.
+      const results = screen.getByTestId("command-palette-results");
+      const settingsLinks = within(results)
         .getAllByRole("link")
         .filter((link) => link.getAttribute("href") === "/settings");
       expect(settingsLinks).toHaveLength(1);
@@ -193,7 +196,13 @@ describe("CommandPalette", () => {
     expect(await screen.findByRole("dialog", { name: /command palette/i })).toBeTruthy();
     expect(screen.getByPlaceholderText(/search pages, queues, reports, tools/i)).toBeTruthy();
     expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThan(0);
-    expect(screen.getByText(/^Pages · \/contracts$/i)).toBeTruthy();
+    // Rows group under the public taxonomy header ("Pages") and show just the
+    // destination path as a quiet meta line — not the old "Pages · /contracts".
+    // Scope to the results list — the desktop detail rail mirrors the active
+    // row's group + path, so a global getByText would match twice.
+    const results = screen.getByTestId("command-palette-results");
+    expect(within(results).getByText("Pages")).toBeTruthy();
+    expect(within(results).getByText("/contracts")).toBeTruthy();
   });
 
   it("navigates the active result when Enter is pressed", async () => {
@@ -296,8 +305,10 @@ describe("CommandPalette", () => {
       openCommandPalette("");
     });
 
-    expect(await screen.findByText("Recent destinations")).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThanOrEqual(2);
+    // A single recent destination folds into its group row with a "Recent"
+    // marker instead of a one-row Recent band.
+    expect(await screen.findByText("Recent")).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: /contracts/i }).length).toBeGreaterThanOrEqual(1);
   });
 
   it("prunes hidden recent destinations when the current surface no longer allows them", async () => {
@@ -314,7 +325,7 @@ describe("CommandPalette", () => {
       openCommandPalette("");
     });
 
-    expect(await screen.findByText("Recent destinations")).toBeTruthy();
+    expect(await screen.findByText("Recent")).toBeTruthy();
     expect(screen.queryByRole("link", { name: /assurance/i })).toBeNull();
 
     await waitFor(() => {
@@ -409,7 +420,7 @@ describe("CommandPalette", () => {
       openCommandPalette("");
     });
 
-    expect(await screen.findByText("Recent destinations")).toBeTruthy();
+    expect(await screen.findByText("Recent")).toBeTruthy();
     expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "/more")).toBe(false);
   });
 

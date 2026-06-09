@@ -69,9 +69,9 @@ export function ExtractionJobAlert({
         role="status"
         aria-live="polite"
       >
-        <p className="font-medium">Extraction queued</p>
+        <p className="font-medium">Suggestions queued</p>
         <p className="mt-1">
-          The request has been accepted and is waiting for a worker pickup. This page refreshes while the run
+          The request has been accepted and queued for worker pickup. This page refreshes while the run
           starts, or use the button below if you want to check again now.
         </p>
         <button
@@ -103,13 +103,13 @@ export function ExtractionJobAlert({
         role="status"
         aria-live="polite"
       >
-        <p className="font-medium">{stale ? "Extraction may be stuck" : "Extraction in progress"}</p>
+        <p className="font-medium">{stale ? "Suggestions may be stuck" : "Suggestions in progress"}</p>
         <p className="mt-1">
           {stale ? (
             <>
               No completion after{" "}
               {Math.round(EXTRACTION_PROCESSING_STALE_MS / 60000)}+ minutes. You can use
-              &ldquo;Extract fields with AI&rdquo; again to retry, or refresh if the run already
+              &ldquo;Suggest contract details&rdquo; again to retry, or refresh if the run already
               finished.
             </>
           ) : (
@@ -142,38 +142,73 @@ export function ExtractionJobAlert({
     const needsReview = pendingFieldsCount > 0;
     const noFieldsExtracted = fieldsCount === 0;
 
+    // No confirmable details is a real problem — keep the warning alert plus
+    // recovery guidance so it still reads as actionable.
+    if (noFieldsExtracted) {
+      return (
+        <div className="ui-alert-warning" role="status" aria-live="polite">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p className="font-medium">Suggestions completed with no details to confirm</p>
+            {completedLabel ? (
+              <span className="text-[11px] text-[var(--text-tertiary)]">Completed {completedLabel}</span>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              className="ui-btn-ghost ml-auto inline-flex items-center gap-1 px-2.5 py-1 text-[11.5px]"
+            >
+              <RefreshCw size={13} aria-hidden />
+              Refresh
+            </button>
+          </div>
+          <p className="mt-1.5 text-[12.5px] leading-snug">
+            No details were suggested from the current source set. Re-attach clearer or more complete signed
+            files, then run suggestions again.
+          </p>
+        </div>
+      );
+    }
+
+    // §10.1 calmer cousin: a successful run is the expected outcome, so it reads
+    // as a quiet status row (neutral inset + tone dot) rather than a full green
+    // wash. Color is reserved for the still-waiting signal.
     return (
       <div
-        className={
-          noFieldsExtracted
-            ? "ui-alert-warning"
-            : needsReview
-              ? "ui-alert-success"
-              : "ui-alert-success"
-        }
+        className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] px-3 py-2"
         role="status"
         aria-live="polite"
       >
-        <p className="font-medium">
-          {noFieldsExtracted ? "Extraction completed with no reviewable fields" : "Extraction completed"}
-        </p>
-        <p className="mt-1">
-          {noFieldsExtracted
-            ? "No fields were extracted from the current source set. Re-attach clearer or more complete signed files, then run extraction again."
-            : needsReview
-              ? `${pendingFieldsCount} of ${fieldsCount} extracted field${fieldsCount === 1 ? " is" : "s are"} still waiting for review before reminders and downstream workflow rely on them.`
-              : `${fieldsCount} extracted field${fieldsCount === 1 ? " is" : "s are"} available and no items are currently waiting for review.`}
-          {completedLabel ? ` Completed ${completedLabel}.` : ""}
-        </p>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="inline-flex h-2 w-2 items-center justify-center">
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                background: needsReview ? "var(--warning-ink)" : "var(--success-ink)",
+                boxShadow: `0 0 0 2.5px color-mix(in oklab, ${
+                  needsReview ? "var(--warning-soft)" : "var(--success-soft)"
+                } 42%, transparent)`,
+              }}
+            />
+          </span>
+          <span className="text-[12.5px] font-medium text-[var(--text-primary)]">Suggestions completed</span>
+        </span>
+        {needsReview ? (
+          <span className="inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--warning)_24%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_24%,var(--surface-raised))] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--warning-ink)]">
+            {pendingFieldsCount} of {fieldsCount} need review
+          </span>
+        ) : null}
+        {completedLabel ? (
+          <span className="text-[11px] text-[var(--text-tertiary)]">Completed {completedLabel}</span>
+        ) : null}
         <button
           type="button"
           onClick={() => router.refresh()}
-          className="ui-btn-secondary mt-3 px-3 py-1.5 text-xs"
+          title="Refresh suggestion status"
+          aria-label="Refresh suggestion status"
+          className="ml-auto inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         >
-          <RefreshCw size={14} aria-hidden />
-          Refresh status
+          <RefreshCw size={13} aria-hidden />
         </button>
-        {jobFreshness ? <p className="mt-2 text-[11px] opacity-80">{jobFreshness}</p> : null}
       </div>
     );
   }
@@ -184,11 +219,11 @@ export function ExtractionJobAlert({
         className="ui-alert-error"
         role="alert"
       >
-        <p className="font-medium">Last extraction failed</p>
+        <p className="font-medium">Last suggestion run failed</p>
         <p className="mt-1">{job.last_error || "Unknown error"}</p>
         <p className="mt-2 text-xs">
           Attempt {job.attempt_count} of {MAX_EXTRACTION_ATTEMPTS}. Fix any issues above, then use
-          &ldquo;Extract fields with AI&rdquo; to retry.
+          &ldquo;Suggest contract details&rdquo; to retry.
           {completedLabel ? ` Last failure ${completedLabel}.` : ""}
         </p>
         <button

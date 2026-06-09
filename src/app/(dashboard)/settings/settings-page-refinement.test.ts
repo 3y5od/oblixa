@@ -41,7 +41,7 @@ describe("settings page release-state compliance", () => {
     const raw = readFileSync(SETTINGS_STRINGS, "utf8");
     for (const phrase of [
       "Settings",
-      "Manage workspace, team, billing, notifications, security, and data export.",
+      "Manage workspace identity, team access, billing, security, notifications, and exports.",
       "Profile",
       "Workspace",
       "Team",
@@ -128,7 +128,7 @@ describe("settings page release-state compliance", () => {
     const anchorLink = readFileSync(SETTINGS_ANCHOR_LINK, "utf8");
     expect(sections).toContain('destination.href.startsWith("#")');
     expect(sections).toContain("SettingsAnchorLink");
-    expect(sections).toContain("scroll-mt-6");
+    expect(sections).toContain("scroll-mt-24");
     expect(anchorLink).toContain("MAIN_CONTENT_ID");
     expect(anchorLink).toContain("main.scrollTo");
     expect(anchorLink).toContain("replaceState");

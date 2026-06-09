@@ -48,9 +48,10 @@ export function UploadMoreFiles({ contractId, canEdit = true, className = "mt-3"
   return (
     <div className={`${className} space-y-2`.trim()}>
       <button
+        type="button"
         onClick={() => inputRef.current?.click()}
         disabled={isPending}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] hover:text-[var(--text-secondary)] disabled:opacity-50"
+        className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] disabled:opacity-50"
       >
         {isPending ? (
           <>

@@ -117,12 +117,12 @@ const V10_CONTRACT_NEXT_ACTION_DESTINATIONS: Record<
   },
   missing_required_activation_field: {
     sourceObjectType: "field",
-    ctaLabel: "Review required fields",
+    ctaLabel: "Confirm required details",
     recoveryState: "actionable",
   },
   pending_required_field_review: {
     sourceObjectType: "field",
-    ctaLabel: "Continue field review",
+    ctaLabel: "Continue detail confirmation",
     recoveryState: "actionable",
   },
   overdue_approval: {

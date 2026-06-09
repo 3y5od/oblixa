@@ -112,13 +112,13 @@ export default async function ReviewCadencePage() {
             variant="compact"
           />
           <OperationalSummaryCard
-            eyebrow="Exceptions"
+            eyebrow="Issues"
             headline="Critical gaps"
             tone={monthly.exceptions > 0 ? "attention" : "healthy"}
             icon={AlertTriangle}
             primaryValue={monthly.exceptions}
             primaryUnit="contracts"
-            action={{ href: "/contracts/exceptions", label: "Triage exceptions" }}
+            action={{ href: "/contracts/exceptions", label: "Review issues" }}
             variant="compact"
           />
           <OperationalSummaryCard

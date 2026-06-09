@@ -47,7 +47,7 @@ describe("WorkQueueInlineActions", () => {
 
     expect(mocks.updateContractTaskStatus).toHaveBeenCalledWith("task-1", "done");
     expect(
-      await screen.findByText(/task marked complete\. 2 blocked dependent tasks reopened\. next recurring task created\./i)
+      await screen.findByText(/task marked complete\. 2 dependent tasks reopened\. next recurring task created\./i)
     ).toBeTruthy();
     expect(mockRouter.refresh).not.toHaveBeenCalled();
 
@@ -86,7 +86,7 @@ describe("WorkQueueInlineActions", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("renders a direct blocker recovery link next to row actions when provided", () => {
+  it("renders a direct input-needed recovery link next to row actions when provided", () => {
     renderWithProviders(
       <WorkQueueInlineActions
         kind="task"
@@ -96,12 +96,12 @@ describe("WorkQueueInlineActions", () => {
       />
     );
 
-    expect(screen.getByRole("link", { name: /resolve blocker/i }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: /review item needing input/i }).getAttribute("href")).toBe(
       "/contracts/contract-1"
     );
   });
 
-  it("uses obligation-specific success copy when completing an obligation", async () => {
+  it("uses contract-requirement success copy when completing a requirement", async () => {
     mocks.updateContractObligation.mockResolvedValueOnce({ success: true });
 
     renderWithProviders(
@@ -114,7 +114,7 @@ describe("WorkQueueInlineActions", () => {
       obligationId: "obl-1",
       status: "done",
     });
-    expect(await screen.findByText(/obligation marked complete\./i)).toBeTruthy();
+    expect(await screen.findByText(/contract requirement marked complete\./i)).toBeTruthy();
   });
 
   it("disables inline action buttons while a mutation is in-flight (§12.5)", async () => {

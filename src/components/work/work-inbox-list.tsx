@@ -6,7 +6,9 @@ import { bulkAssignCompatibleV10WorkItems, bulkCompleteCompatibleV10WorkItems } 
 import { QueueItemCard } from "@/components/ui/queue-item-card";
 import { DiagnosticDisclosure } from "@/components/ui/operational-summary-card";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
+import { UiSelect } from "@/components/ui/ui-select";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { WORK_STATUS_LABELS, WORK_TYPE_LABELS } from "@/lib/work/spec-strings";
 import type { V10ExceptionResolutionActionOption } from "@/lib/approval-exception";
 import {
   inlineActionsForItem,
@@ -17,6 +19,19 @@ import {
 } from "./work-inbox-list-helpers";
 
 export type { V10WorkInboxListItem } from "./work-inbox-list-helpers";
+
+function displayTaskObjectType(type: string): string {
+  const normalized = String(type).replace(/_/g, " ");
+  if (type in WORK_TYPE_LABELS) return WORK_TYPE_LABELS[type as keyof typeof WORK_TYPE_LABELS];
+  if (type === "extraction_failure") return "Suggestion issue";
+  return normalized;
+}
+
+function displayTaskStatusLabel(label: string): string {
+  const normalized = label.trim().toLowerCase();
+  if (normalized in WORK_STATUS_LABELS) return WORK_STATUS_LABELS[normalized as keyof typeof WORK_STATUS_LABELS];
+  return label;
+}
 
 export function V10WorkInboxList({
   items,
@@ -77,7 +92,7 @@ export function V10WorkInboxList({
 
       if (!result.ok || result.error) {
         setMessageTone("error");
-        setMessage(describeRecoverableMutationError(result.error ?? "Bulk work action failed."));
+        setMessage(describeRecoverableMutationError(result.error ?? "Bulk task action failed."));
         return;
       }
 
@@ -95,10 +110,10 @@ export function V10WorkInboxList({
         <section className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="ui-eyebrow">Bulk work actions</p>
-              <h3 className="mt-1 text-sm font-semibold text-[var(--text-primary)]">Assign or complete compatible work</h3>
+              <p className="ui-eyebrow">Bulk task actions</p>
+              <h3 className="mt-1 text-sm font-semibold text-[var(--text-primary)]">Assign or complete compatible tasks</h3>
               <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                Select rows that share the same bulk group and work type to reassign ownership or mark them done.
+                Select rows that share the same bulk group and task type to reassign ownership or mark them done.
               </p>
             </div>
             {!mutationsEnabled ? (
@@ -106,27 +121,26 @@ export function V10WorkInboxList({
             ) : null}
           </div>
           <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
-            <select
-              aria-label="Assign selected work to owner"
-              className="ui-input text-sm md:max-w-xs"
+            <UiSelect
+              ariaLabel="Assign selected tasks to owner"
+              className="w-full md:max-w-xs"
+              buttonClassName="w-full !min-h-11 text-sm"
               value={ownerUserId}
-              onChange={(event) => setOwnerUserId(event.target.value)}
+              onChange={setOwnerUserId}
               disabled={!mutationsEnabled || isPending || selectedItems.length === 0}
-            >
-              <option value="">Assign selected work…</option>
-              {ownerOptions.map((owner) => (
-                <option key={owner.id} value={owner.id}>
-                  {owner.label}
-                </option>
-              ))}
-            </select>
+              placeholder="Assign selected tasks…"
+              options={ownerOptions.map((owner) => ({ value: owner.id, label: owner.label }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+            />
             <button
               type="button"
               className="ui-btn-secondary px-3 py-2 text-xs disabled:opacity-60"
               disabled={!mutationsEnabled || isPending || !ownerUserId || selectedItems.length === 0 || !activeGroup}
               onClick={() => void runBulkAction("assign")}
             >
-              Assign selected work
+              Assign selected tasks
             </button>
             <button
               type="button"
@@ -134,7 +148,7 @@ export function V10WorkInboxList({
               disabled={!mutationsEnabled || isPending || selectedItems.length === 0 || !activeGroup}
               onClick={() => void runBulkAction("complete")}
             >
-              Complete selected work
+              Complete selected tasks
             </button>
             <button
               type="button"
@@ -147,7 +161,7 @@ export function V10WorkInboxList({
           </div>
           <p className="mt-2 text-xs text-[var(--text-secondary)]" aria-live="polite">
             {selectedItems.length > 0
-              ? `${selectedItems.length} ${String(activeType ?? "work item").replace(/_/g, " ")}${selectedItems.length === 1 ? "" : "s"} selected in ${String(activeGroup).replace(/_/g, " ")}.`
+              ? `${selectedItems.length} ${displayTaskObjectType(String(activeType ?? "task")).toLowerCase()}${selectedItems.length === 1 ? "" : "s"} selected in ${String(activeGroup).replace(/_/g, " ")}.`
               : `${selectableItems.length} row${selectableItems.length === 1 ? " is" : "s are"} eligible for bulk actions in this lens.`}
           </p>
           {message ? (
@@ -173,19 +187,19 @@ export function V10WorkInboxList({
                   <input
                     type="checkbox"
                     className="ui-checkbox"
-                    aria-label={`Select ${item.title} for bulk actions`}
+                    aria-label={`Select ${item.title} for bulk task actions`}
                     checked={selectedIds.includes(item.v10WorkItemId)}
                     disabled={!mutationsEnabled || isPending || selectionLocked}
                     onChange={() => toggleSelected(item)}
                   />
-                  Select for bulk work actions
+                  Select for bulk task actions
                 </label>
               ) : null}
               <QueueItemCard
-                objectType={String(item.type).replace(/_/g, " ")}
+                objectType={displayTaskObjectType(item.type)}
                 title={item.title}
                 href={item.href}
-                statusLabel={item.statusLabel}
+                statusLabel={displayTaskStatusLabel(item.statusLabel)}
                 statusTone={item.statusTone}
                 owner={item.ownerLabel}
                 due={item.due}
@@ -195,7 +209,7 @@ export function V10WorkInboxList({
                 continuityOmit={["work"]}
                 actions={inlineActionsForItem(item, mutationsEnabled, ownerOptions, resolutionActionOptions)}
               />
-              <DiagnosticDisclosure title="Work item diagnostics">
+              <DiagnosticDisclosure title="Task diagnostics">
                 Priority: {item.priorityLabel ?? "normal"}
                 {" · "}Last state change: {item.lastStateChangeAt ? new Date(item.lastStateChangeAt).toLocaleString() : "not recorded"}
                 {" · "}Secondary actions: {item.secondaryActionsLabel ?? "no additional action available"}

@@ -27,7 +27,7 @@ describe("reports page model", () => {
     expect(model.primaryCta).toBe(REPORTS_PRIMARY_CTA);
     expect(model.reports.map((report) => report.label)).toEqual(REPORT_ORDER.map((key) => REPORT_LABELS[key]));
     expect(model.previewRows).toEqual([]);
-    expect(REPORTS_EMPTY_STATE).toBe("Reports become more useful as you review fields, assign owners, and track work.");
+    expect(REPORTS_EMPTY_STATE).toBe("Reports become more useful as you confirm contract details, assign owners, and track tasks.");
   });
 
   it("selects report previews and derives notice deadlines from renewal date plus notice window", () => {

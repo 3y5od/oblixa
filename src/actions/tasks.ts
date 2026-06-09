@@ -265,7 +265,7 @@ export async function createContractTask(input: {
   if (teamKey && teamKey.length > MAX_TEAM_KEY_LEN) return { error: "Team key is too long" };
   if (blockedByTaskId && !isUuid(blockedByTaskId)) return { error: "Invalid blocked-by task" };
   if (blockedReason && blockedReason.length > MAX_BLOCKED_REASON_LEN) {
-    return { error: "Blocked reason is too long" };
+    return { error: "Waiting reason is too long" };
   }
   if (recurrenceAnchorDate && !isIsoDateOnly(recurrenceAnchorDate)) {
     return { error: "Invalid recurrence anchor date" };
@@ -598,7 +598,7 @@ export async function assignWorkItemOwner(input: {
   if (!task) {
     return buildWorkMutationError({
       outcome: "not_found",
-      message: "Work item not found.",
+      message: "Task not found.",
       diagnosticId: "v10_work_owner_task_not_found",
       changedObjectId: taskId,
     });
@@ -618,7 +618,7 @@ export async function assignWorkItemOwner(input: {
   if (!canEditContracts(role) && !selfAssignAllowed) {
     return buildWorkMutationError({
       outcome: "forbidden",
-      message: "You cannot assign this work item.",
+      message: "You cannot assign this task.",
       diagnosticId: "v10_work_owner_role_forbidden",
       changedObjectId: taskId,
     });
@@ -643,10 +643,10 @@ export async function assignWorkItemOwner(input: {
   const expectedCompatibleActionGroup = input.expectedCompatibleActionGroup?.trim() || null;
   if (expectedCompatibleActionGroup && compatibleActionGroup !== expectedCompatibleActionGroup) {
     return {
-      error: "This work item is no longer compatible with the selected bulk action.",
+      error: "This task is no longer compatible with the selected bulk action.",
       v10: buildV10MutationResponse({
         outcome: "validation_failed",
-        message: "This work item is no longer compatible with the selected action.",
+        message: "This task is no longer compatible with the selected action.",
         changedObjectType: "work_item",
         changedObjectId: taskId,
         currentVersion: task.updated_at,
@@ -656,7 +656,7 @@ export async function assignWorkItemOwner(input: {
           {
             field: taskId,
             code: "incompatible_action_group",
-            user_visible_message: "Refresh the Work queue and select compatible items again.",
+            user_visible_message: "Refresh the task queue and select compatible items again.",
             self_fixable: true,
           },
         ],
@@ -731,7 +731,7 @@ export async function assignWorkItemOwner(input: {
           .eq("organization_id", task.organization_id);
         return buildV10MutationResponse({
           outcome: "audit_write_failed",
-          message: "Work item owner was not changed because audit evidence could not be recorded.",
+          message: "Task owner was not changed because audit evidence could not be recorded.",
           changedObjectType: "work_item",
           changedObjectId: taskId,
           currentVersion: task.updated_at,
@@ -756,7 +756,7 @@ export async function assignWorkItemOwner(input: {
       });
       return buildV10MutationResponse({
         outcome: "success",
-        message: "Work item owner updated.",
+        message: "Task owner updated.",
         changedObjectType: "work_item",
         changedObjectId: taskId,
         currentVersion: task.updated_at,
@@ -1011,7 +1011,7 @@ export async function completeWorkItem(input: {
   if (!task) {
     return buildWorkMutationError({
       outcome: "not_found",
-      message: "Work item not found.",
+      message: "Task not found.",
       diagnosticId: "v10_work_complete_task_not_found",
       changedObjectId: taskId,
     });
@@ -1030,7 +1030,7 @@ export async function completeWorkItem(input: {
   if (!assignedOwnerAllowed && !canEditContracts(role)) {
     return buildWorkMutationError({
       outcome: "forbidden",
-      message: "Only the assigned owner or workspace editors can complete this work item.",
+      message: "Only the assigned owner or workspace editors can complete this task.",
       diagnosticId: "v10_work_complete_role_forbidden",
       changedObjectId: taskId,
     });
@@ -1044,7 +1044,7 @@ export async function completeWorkItem(input: {
       taskId,
       v10: buildV10MutationResponse({
         outcome: "no_action",
-        message: "This work item is already complete.",
+        message: "This task is already complete.",
         changedObjectType: "work_item",
         changedObjectId: taskId,
         currentVersion: task.updated_at,
@@ -1054,10 +1054,10 @@ export async function completeWorkItem(input: {
   }
   if (!VALID_TASK_TRANSITIONS[currentStatus]?.includes("done")) {
     return {
-      error: "This work item cannot be completed from its current state.",
+      error: "This task cannot be completed from its current state.",
       v10: buildV10MutationResponse({
         outcome: "validation_failed",
-        message: "This work item cannot be completed from its current state.",
+        message: "This task cannot be completed from its current state.",
         changedObjectType: "work_item",
         changedObjectId: taskId,
         currentVersion: task.updated_at,
@@ -1067,7 +1067,7 @@ export async function completeWorkItem(input: {
           {
             field: "status",
             code: "transition_not_allowed",
-            user_visible_message: "Resolve blockers or reopen the item before completing it.",
+            user_visible_message: "Resolve dependencies or reopen the task before completing it.",
             self_fixable: true,
           },
         ],
@@ -1140,7 +1140,7 @@ export async function completeWorkItem(input: {
           .eq("organization_id", task.organization_id);
         return buildV10MutationResponse({
           outcome: "audit_write_failed",
-          message: "Work item was not completed because audit evidence could not be recorded.",
+          message: "Task was not completed because audit evidence could not be recorded.",
           changedObjectType: "work_item",
           changedObjectId: taskId,
           currentVersion: task.updated_at,
@@ -1176,7 +1176,7 @@ export async function completeWorkItem(input: {
       });
       return buildV10MutationResponse({
         outcome: "success",
-        message: "Work item completed.",
+        message: "Task completed.",
         changedObjectType: "work_item",
         changedObjectId: taskId,
         currentVersion: task.updated_at,
@@ -1242,7 +1242,7 @@ export async function updateContractTaskStatus(
     .update({
       status,
       completed_at: completedAt,
-      blocked_reason: status === "blocked" ? "Blocked by workflow dependency" : null,
+      blocked_reason: status === "blocked" ? "Waiting on workflow dependency" : null,
       last_auto_transition_at: new Date().toISOString(),
     })
     .eq("id", taskId);

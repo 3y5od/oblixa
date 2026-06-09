@@ -3,8 +3,8 @@
   "generatedBy": "scripts/check-migration-organization.mjs --write",
   "sourceManifest": "artifacts/supabase/migration-manifest.json",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 92,
-  "latestVersion": "092",
+  "migrationCount": 93,
+  "latestVersion": "093",
   "groups": [
     {
       "label": "Auth And Identity",
@@ -131,9 +131,10 @@
         "088_sql_neutral_function_aliases.sql",
         "089_sql_neutral_table_view_aliases.sql",
         "091_access_review_requests_and_grants.sql",
-        "092_workspace_owner_relation.sql"
+        "092_workspace_owner_relation.sql",
+        "093_access_review_deny_all_policies.sql"
       ],
-      "count": 47
+      "count": 48
     },
     {
       "label": "Storage",
@@ -944,6 +945,19 @@
     },
     {
       "file": "091_access_review_requests_and_grants.sql",
+      "affectedTables": [
+        "public.workspace_access_grants",
+        "public.workspace_access_request_events",
+        "public.workspace_access_requests"
+      ],
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_grants' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_request_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_requests' order by policyname;"
+      ]
+    },
+    {
+      "file": "093_access_review_deny_all_policies.sql",
       "affectedTables": [
         "public.workspace_access_grants",
         "public.workspace_access_request_events",
@@ -3149,6 +3163,32 @@
       "descriptiveSlug": true,
       "verificationQueries": [
         "select version, name, executed_at from supabase_migrations.schema_migrations order by version desc limit 10;"
+      ]
+    },
+    {
+      "version": "093",
+      "file": "093_access_review_deny_all_policies.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": true,
+      "affectedTables": [
+        "public.workspace_access_grants",
+        "public.workspace_access_request_events",
+        "public.workspace_access_requests"
+      ],
+      "lineCount": 21,
+      "byteCount": 795,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": [
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_grants' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_request_events' order by policyname;",
+        "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'workspace_access_requests' order by policyname;"
       ]
     }
   ]

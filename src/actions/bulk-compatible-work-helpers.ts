@@ -133,7 +133,7 @@ export async function bulkAssignGenericV10WorkItems(input: {
           outcome: "validation_failed",
           message: "One or more V10 work items are no longer compatible with this bulk assign action.",
           nextDestinationHref: "/work",
-          validationFailures: [{ field: invalid.id, code: "incompatible_action_group", user_visible_message: "Refresh the Work queue and try again.", self_fixable: true }],
+          validationFailures: [{ field: invalid.id, code: "incompatible_action_group", user_visible_message: "Refresh the task queue and try again.", self_fixable: true }],
         });
       }
 

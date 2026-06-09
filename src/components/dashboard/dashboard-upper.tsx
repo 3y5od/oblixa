@@ -219,20 +219,19 @@ export async function DashboardUpper(props: {
   const focusCards = [
     {
       id: "assigned-work",
-      title: "Assigned work",
+      title: "Assigned tasks",
       href: "/work?lens=assigned",
-      why: "Tasks, approvals, and obligations already routed to you.",
+      why: "Tasks, approvals, and contract requirements already routed to you.",
       count: operationalSignals.assignedWork,
       icon: ClipboardList,
       tone: operationalSignals.assignedWork > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Open work",
+      actionLabel: "Open tasks",
       priority: 4,
     },
     {
-      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
-      // "Upcoming deadlines" per spec §Dashboard Page Top cards.
+      // Dashboard top-card label: explicit horizon so the count has scope.
       id: "due-soon",
-      title: "Upcoming deadlines",
+      title: "Upcoming contract dates",
       href: "/work?lens=due_soon",
       why: `Items in the next ${DUE_SOON_DAYS} days that need attention before they slip.`,
       count: operationalSignals.dueSoonAssignedWork,
@@ -246,7 +245,7 @@ export async function DashboardUpper(props: {
       id: "approvals",
       title: "Pending approvals",
       href: "/contracts/approvals?status=pending",
-      why: "Sign-off bottlenecks that block reminders, work, or renewal decisions.",
+      why: "Sign-off bottlenecks that hold reminders, tasks, or renewal decisions.",
       count: operationalSignals.pendingApprovals,
       icon: BadgeCheck,
       tone: operationalSignals.pendingApprovals > 0 ? ("attention" as const) : ("healthy" as const),
@@ -266,9 +265,9 @@ export async function DashboardUpper(props: {
     },
     {
       id: "exceptions",
-      title: "Open exceptions",
+      title: "Open problems",
       href: "/contracts/exceptions?status=open",
-      why: "Risk and blocker records that still need an owner or resolution path.",
+      why: "Risk and issue records that still need an owner or resolution path.",
       count: operationalSignals.openExceptions,
       icon: AlertTriangle,
       tone: operationalSignals.openExceptions > 0 ? ("risk" as const) : ("healthy" as const),
@@ -276,10 +275,9 @@ export async function DashboardUpper(props: {
       priority: 2,
     },
     {
-      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
-      // "Evidence requested" per spec §Dashboard Page Top cards.
+      // Dashboard top-card label: count is open evidence requests.
       id: "evidence",
-      title: "Evidence requested",
+      title: "Open evidence requests",
       href: "/contracts?evidence=outstanding",
       why: "Outstanding evidence still holding back obligated work.",
       count: operationalSignals.outstandingEvidence,
@@ -290,16 +288,15 @@ export async function DashboardUpper(props: {
       priority: 6,
     },
     {
-      // v11 dashboard spec compliance Tier 2.3: title renamed to spec-mandated
-      // "Needs review" per spec §Dashboard Page Top cards.
+      // Dashboard top-card label: count is contracts still awaiting review.
       id: "review",
-      title: "Needs review",
+      title: "Contracts to review",
       href: "/contracts/review",
-      why: "Field review still pending before the workspace can trust extracted values.",
+      why: "Contract-detail confirmation still pending before the workspace can trust suggested values.",
       count: metrics.pendingReview,
       icon: ClipboardCheck,
       tone: metrics.pendingReview > 0 ? ("attention" as const) : ("healthy" as const),
-      actionLabel: "Review fields",
+      actionLabel: "Confirm details",
       priority: 3,
     },
     {
@@ -314,14 +311,13 @@ export async function DashboardUpper(props: {
       priority: 7,
     },
     {
-      // v11 dashboard spec compliance Tier 2.3: "Missing owners" spec card
-      // added per spec §Dashboard Page Top cards. Count derived from
+      // Dashboard top-card label: count is contracts without an owner. Derived from
       // (totalContracts - ownerAssignedContracts) since the data layer
       // surfaces ownerAssignedContracts as a positive counter.
       id: "missing-owners",
-      title: "Missing owners",
+      title: "Unassigned contracts",
       href: "/contracts",
-      why: "Contracts without an assigned owner cannot route work or reminders.",
+      why: "Contracts without an assigned owner cannot route tasks or reminders.",
       count: Math.max(
         0,
         metrics.totalContracts - operationalSignals.ownerAssignedContracts
@@ -336,7 +332,7 @@ export async function DashboardUpper(props: {
       priority: 5,
     },
     {
-      // v11 dashboard spec compliance Tier 2.3 + Tier 20.4: "Blocked work"
+      // Dashboard top card: tasks needing input.
       // spec card with a stub count=0 fallback. The data layer currently
       // does NOT surface a dedicated `blockedWork` counter; a real backend
       // query against work_items WHERE status = 'blocked' is the proper fix
@@ -344,13 +340,13 @@ export async function DashboardUpper(props: {
       // a card"), the card renders with count 0 + healthy tone until the
       // backend query lands.
       id: "blocked-work",
-      title: "Blocked work",
+      title: "Tasks needing input",
       href: "/work",
-      why: "Work items currently blocked on dependencies, approvals, or evidence.",
+      why: "Tasks that need a dependency, approval, or evidence response before they can move forward.",
       count: 0,
       icon: Slash,
       tone: "healthy" as const,
-      actionLabel: "Open work",
+      actionLabel: "Open tasks",
       priority: 4,
     },
   ].filter((card) => isHrefEligible(card.href));
@@ -454,8 +450,7 @@ export async function DashboardUpper(props: {
         })()}
         // v11 dashboard spec compliance: status-pill lead removed.
         // Per Tier 1.6 + 1.7, header carries only title + primary/secondary
-        // CTAs; spec top cards (Tier 2: Needs review / Open exceptions /
-        // Blocked work / etc.) surface these counts as discrete cards.
+        // CTAs; top cards surface these counts as discrete cards.
         lead={null}
         actions={
           <>
@@ -467,8 +462,8 @@ export async function DashboardUpper(props: {
                 Persona studio
               </Link>
             ) : null}
-            {/* v11 release-state pass: state-aware primary CTA. When there
-                are contracts pending review, "Review fields" is the
+            {/* State-aware primary CTA. When there
+                are contracts pending confirmation, "Confirm details" is the
                 dominant action (per release-state §Contract Detail's
                 state-aware header pattern). "Upload contract" demotes to
                 secondary, "Import contracts" to ghost. When the queue is empty,
@@ -479,7 +474,7 @@ export async function DashboardUpper(props: {
                   href="/contracts/review"
                   className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-semibold"
                 >
-                  Review fields
+                  Confirm details
                 </Link>
                 <Link
                   href="/contracts/new"

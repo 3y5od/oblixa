@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { addManualField } from "@/actions/contracts";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { FIELD_NAMES } from "@/lib/types";
+import { FormSelect } from "@/components/ui/form-select";
 
 interface AddFieldFormProps {
   contractId: string;
@@ -39,7 +40,7 @@ export function AddFieldForm({
         className="inline-flex max-w-max items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
       >
         <Plus size={12} strokeWidth={2.2} />
-        Add field
+        Add detail
       </button>
     );
   }
@@ -68,29 +69,32 @@ export function AddFieldForm({
         </div>
       )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="min-w-0">
-          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Field</label>
-          <select
-            value={fieldName}
-            onChange={(e) => setFieldName(e.target.value)}
-            className="ui-input w-full min-w-0 py-1.5"
+        <FormSelect
+          className="min-w-0"
+          label="Detail"
+          value={fieldName}
+          onChange={setFieldName}
+          placeholder="Select a detail..."
+          searchThreshold={8}
+          options={availableFields.map((f) => ({
+            value: f,
+            label: f.replace(/_/g, " "),
+          }))}
+        />
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <label
+            htmlFor="add-field-value"
+            className="text-[12.5px] font-medium leading-none text-[var(--text-secondary)]"
           >
-            <option value="">Select field...</option>
-            {availableFields.map((f) => (
-              <option key={f} value={f}>
-                {f.replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-0">
-          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Value</label>
+            Value
+          </label>
           <input
+            id="add-field-value"
             type="text"
             value={fieldValue}
             onChange={(e) => setFieldValue(e.target.value)}
             placeholder="Enter value..."
-            className="ui-input w-full min-w-0 py-1.5"
+            className="ui-input-compact w-full min-w-0"
           />
         </div>
       </div>
@@ -111,7 +115,7 @@ export function AddFieldForm({
           disabled={isPending || !fieldName || !fieldValue.trim()}
           className="ui-btn-primary py-1.5 disabled:opacity-50"
         >
-          {isPending ? "Adding..." : "Add field"}
+          {isPending ? "Adding..." : "Add detail"}
         </button>
       </div>
     </div>

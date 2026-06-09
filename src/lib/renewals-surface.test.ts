@@ -31,33 +31,33 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("loadRenewalsPageModel");
     expect(page).toContain("model.exportHref");
     expect(RENEWALS_PAGE_TITLE).toBe("Renewals");
-    expect(RENEWALS_PAGE_LEAD).toBe("Track renewal and notice deadlines before they need action.");
+    expect(RENEWALS_PAGE_LEAD).toBe("Track renewal dates and notice deadlines before they require action.");
     expect(RENEWALS_PRIMARY_CTA).toBe("Create renewal task");
     expect(page).toContain("model.primaryCta");
   });
 
   it("keeps the exact filters, columns, statuses, actions, and empty state in spec strings", () => {
     expect(Object.values(RENEWAL_WINDOW_LABELS)).toEqual(["30 days", "60 days", "90 days", "180 days"]);
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Review"]);
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Date status"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
       "Renewal date",
-      "Notice date",
+      "Notice deadline",
       "Owner",
       "Status",
       "Next action",
     ]);
     expect(Object.values(RENEWAL_STATUS_LABELS)).toEqual([
       "Needs owner",
-      "Needs review",
+      "Needs confirmation",
       "Notice window open",
       "In progress",
       "Completed",
       "No action needed",
     ]);
     expect(Object.values(RENEWAL_ACTION_LABELS)).toEqual([
-      "Mark reviewed",
+      "Mark confirmed",
       "Create task",
       "Complete task",
       "Reopen",
@@ -70,11 +70,11 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("RenewalRowsHeader");
     expect(page).toContain("RenewalRowFactGrid");
     expect(page).toContain("RenewalRowStateGrid");
-    expect(page).toContain("xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)]");
+    expect(page).toContain("xl:grid-cols-[minmax(15rem,1.2fr)_minmax(6rem,0.55fr)_minmax(6.25rem,0.55fr)_minmax(6.25rem,0.55fr)_minmax(7rem,0.6fr)_minmax(12.25rem,0.9fr)_minmax(8.25rem,0.65fr)]");
     // The status column is widened (and the action column tightened) so the
     // longest actionable label ("Notice window open") fits on one line at the
     // canonical pill scale — no font shrink required.
-    expect(page).toContain("xl:grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)]");
+    expect(page).toContain("xl:contents");
     expect(page).toContain("RenewalStatusBadge");
     expect(page).toContain("whitespace-nowrap");
     expect(page).toContain("xl:sr-only");
@@ -118,7 +118,7 @@ describe("Renewals release-state surface", () => {
   });
 
   it("keeps the section identity in renewal vocabulary, not the private decisions product", () => {
-    expect(RENEWALS_SECTION_EYEBROW).toBe("Upcoming renewals");
+    expect(RENEWALS_SECTION_EYEBROW).toBe("Renewal and notice dates");
     expect(page).toContain("RENEWALS_SECTION_EYEBROW");
     // /decisions is Hide-for-release for Core users; the section eyebrow must
     // not reintroduce "Upcoming decisions" framing.
@@ -138,9 +138,9 @@ describe("Renewals release-state surface", () => {
 
   it("surfaces per-date review/source state and a filtered-empty escape", () => {
     expect(Object.values(RENEWAL_DATE_REVIEW_LABELS)).toEqual([
-      "Reviewed",
+      "Confirmed",
       "Suggested",
-      "Computed",
+      "Calculated",
       "Missing",
     ]);
     expect(RENEWALS_FILTERED_EMPTY_STATE).toBe("No renewals match the current filters.");

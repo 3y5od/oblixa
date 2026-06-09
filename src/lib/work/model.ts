@@ -57,7 +57,7 @@ const TERMINAL_STATUSES = new Set(["done", "canceled", "cancelled", "completed",
 
 const DUE_FILTER_OPTIONS: WorkOption[] = [
   { value: "", label: "Any due date" },
-  { value: "overdue", label: "Overdue" },
+  { value: "overdue", label: "Past due" },
   { value: "due_today", label: "Due today" },
   { value: "due_soon", label: "Due soon" },
   { value: "no_due", label: "No due date" },
@@ -231,6 +231,19 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
     unassigned: filteredWithoutTab.filter((row) => !row.ownerUserId).length,
   };
 
+  // Stable facet totals over the full pre-filter set (mirrors Evidence): a count
+  // is "how many work items carry this value", so it stays put as you filter.
+  const statusCounts = new Map<string, number>();
+  const dueCounts = new Map<string, number>();
+  for (const row of shapedRows) {
+    statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1);
+    dueCounts.set(row.dueState, (dueCounts.get(row.dueState) ?? 0) + 1);
+  }
+  const withCount = (options: WorkOption[], counts: Map<string, number>): WorkOption[] =>
+    options.map((option) =>
+      option.value ? { ...option, count: counts.get(option.value) ?? 0 } : option
+    );
+
   return {
     title: WORK_PAGE_TITLE,
     eyebrow: WORK_EYEBROW,
@@ -247,9 +260,9 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
     filterOptions: {
       owners: [{ value: "", label: "Any owner" }, { value: "unassigned", label: "Unassigned" }, ...ownerOptions],
       contracts: [{ value: "", label: "Any contract" }, ...contractOptions],
-      statuses: STATUS_FILTER_OPTIONS,
+      statuses: withCount(STATUS_FILTER_OPTIONS, statusCounts),
       types: TYPE_FILTER_OPTIONS,
-      dueDates: DUE_FILTER_OPTIONS,
+      dueDates: withCount(DUE_FILTER_OPTIONS, dueCounts),
     },
     create: {
       open: input.create === "1" || input.create === "true",
@@ -334,6 +347,16 @@ function normalizeToken(value: string | null | undefined) {
   return (value ?? "").trim();
 }
 
+function presentWorkTitle(value: string): string {
+  return value
+    .replace(/^(Approve|Review)\s+extracted\s+fields\s+for\b/i, "Review contract details for")
+    .replace(/\bblocked\s+evidence\b/gi, "evidence request")
+    .replace(/\bhold\s+blocker\b/gi, "hold")
+    .replace(/\bblocker\b/gi, "hold")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function isWorkTabKey(value: string): value is WorkTabKey {
   return (WORK_TAB_ORDER as readonly string[]).includes(value);
 }
@@ -392,11 +415,11 @@ function shapeWorkRow(
   // Derive freshness from due_at vs the render clock rather than trusting
   // the read model's `due_state` column — that value is computed at
   // projection time and goes stale, so a date 9 days past can still report
-  // "due_soon"/"none" and never surface in the Overdue tab.
+  // "due_soon"/"none" and never surface in the Past due tab.
   const { dueState, dueInDays } = deriveDueMeta(dueAt, input.now);
-  const blocker = normalizeToken(row.blocked_reason) || (status === "blocked" ? "Blocked" : "—");
+  const blocker = normalizeToken(row.blocked_reason) || "—";
   const lastUpdateAt = row.last_state_change_at ?? row.updated_at ?? null;
-  const title = normalizeToken(row.title) || WORK_TYPE_LABELS[type];
+  const title = presentWorkTitle(normalizeToken(row.title) || WORK_TYPE_LABELS[type]);
   const contractTitle = contract?.title || (contractId ? "Untitled contract" : "—");
   const dueLabel = formatDateLabel(dueAt);
   const lastUpdateLabel = formatRelativeLabel(lastUpdateAt);
@@ -466,9 +489,9 @@ function completeMutationFor(
 }
 
 /** Pick the one elevated row action. Verb varies by type/status so the queue
- *  reads "Approve renewal", "Resolve exception", "Attach evidence" rather than
- *  a uniform "Complete". Blocked work can't be completed, so its next step is to
- *  review/clear the blocker. Links reuse `href` (already routed by
+ *  reads "Approve renewal", "Resolve issue", "Attach evidence" rather than
+ *  a uniform "Complete". Tasks that need input cannot be completed, so the next
+ *  step is to review the dependency. Links reuse `href` (already routed by
  *  getV10WorkItemHref); only tasks/obligations carry a real complete mutation. */
 function derivePrimaryAction(input: {
   type: WorkTypeKey;

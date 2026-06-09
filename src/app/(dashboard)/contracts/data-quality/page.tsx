@@ -63,7 +63,7 @@ export default async function ContractDataQualityPage() {
         icon={<Gauge className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Quality"
         title="Data quality and lineage"
-        lead="Track completeness gaps and inspect field-level source confidence to target cleanup work."
+        lead="Track completeness gaps and inspect contract-detail source confidence to target cleanup tasks."
       />
 
       <section className="space-y-3">
@@ -94,7 +94,7 @@ export default async function ContractDataQualityPage() {
           />
           <OperationalSummaryCard
             eyebrow="Lineage"
-            headline="Weak field signals"
+            headline="Weak detail signals"
             tone={weakLineage.length > 0 ? "attention" : "healthy"}
             icon={Database}
             primaryValue={weakLineage.length}
@@ -137,8 +137,8 @@ export default async function ContractDataQualityPage() {
 
       <section id="weak-lineage" className="ui-card scroll-mt-8 overflow-hidden">
         <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-          <p className="ui-eyebrow">Fields</p>
-          <h2 className="ui-section-title mt-1 text-base">Weak lineage / low-confidence fields</h2>
+          <p className="ui-eyebrow">Details</p>
+          <h2 className="ui-section-title mt-1 text-base">Weak lineage / low-confidence details</h2>
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {weakLineage.length === 0 ? (

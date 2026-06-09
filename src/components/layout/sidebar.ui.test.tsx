@@ -65,14 +65,14 @@ describe("Sidebar", () => {
     expect(primary.textContent).not.toContain("Campaigns");
   });
 
-  it("marks Work active as a single release-state destination", () => {
+  it("marks Tasks active as a single release-state destination", () => {
     setMockPathname("/work");
     renderSidebar();
 
     const primary = screen.getByTestId("primary-nav");
-    const work = within(primary).getByRole("link", { name: /^work$/i });
-    expect(work.getAttribute("aria-current")).toBe("page");
-    expect(within(primary).queryByRole("link", { name: /^tasks$/i })).toBeNull();
+    const tasks = within(primary).getByRole("link", { name: /^tasks$/i });
+    expect(tasks.getAttribute("aria-current")).toBe("page");
+    expect(within(primary).queryByRole("link", { name: /^work$/i })).toBeNull();
     expect(within(primary).queryByRole("link", { name: /^approvals$/i })).toBeNull();
     expect(within(primary).queryByRole("link", { name: /^obligations$/i })).toBeNull();
     expect(within(primary).queryByRole("link", { name: /^exceptions$/i })).toBeNull();
@@ -110,7 +110,7 @@ describe("Sidebar", () => {
     renderSidebar({ navBadges: { reviewQueue: 7 } });
 
     expect(screen.getByText("7")).toBeTruthy();
-    expect(screen.getByTitle("7 field review items need action").getAttribute("aria-label")).toBe("7 field review items need action");
+    expect(screen.getByTitle("7 detail confirmation items need action").getAttribute("aria-label")).toBe("7 detail confirmation items need action");
   });
 
   it("keeps badge counts titled but hidden from collapsed link accessible names", async () => {
@@ -119,7 +119,7 @@ describe("Sidebar", () => {
     renderSidebar({ navBadges: { reviewQueue: 101 } });
 
     await waitFor(() => expect(screen.getByRole("link", { name: /^contracts$/i })).toBeTruthy());
-    expect(screen.getByTitle("101 field review items need action").getAttribute("aria-hidden")).toBe("true");
+    expect(screen.getByTitle("101 detail confirmation items need action").getAttribute("aria-hidden")).toBe("true");
     // The visible count badge is decorative (aria-hidden); the collapsed link's
     // accessible name stays terse via aria-label even though the badge now shows
     // the number for sighted users.
@@ -146,22 +146,26 @@ describe("Sidebar", () => {
     expect(screen.queryByText("Contract operations OS")).toBeNull();
   });
 
-  it("keeps expanded sign out adjacent to navigation instead of pinned below a spacer", () => {
+  it("does not expose Sign out in the desktop sidebar (account menu owns it)", () => {
     setMockPathname("/dashboard");
     renderSidebar();
 
+    // De-duplicated chrome: the topbar account menu is the single desktop
+    // sign-out; the sidebar (expanded or collapsed) no longer renders one.
     const desktopBody = document.getElementById("desktop-sidebar-body");
     expect(desktopBody).toBeTruthy();
-    expect(desktopBody?.contains(screen.getByRole("button", { name: /^sign out$/i }))).toBe(true);
+    expect(screen.queryByRole("button", { name: /^sign out$/i })).toBeNull();
   });
 
-  it("gives collapsed sign-out an accessible name and shows tooltip labels on focus", async () => {
+  it("shows collapsed nav tooltip labels on focus and hides them on Escape", async () => {
     window.localStorage.setItem("oblixa.sidebar.collapsed", "1");
     setMockPathname("/dashboard");
     renderSidebar();
 
     const settings = await screen.findByRole("link", { name: /^settings$/i });
-    expect(screen.getByRole("button", { name: /^sign out$/i })).toBeTruthy();
+    // Desktop sign-out is gone from the rail (account menu owns it); the
+    // collapsed rail still surfaces tooltip labels on keyboard focus.
+    expect(screen.queryByRole("button", { name: /^sign out$/i })).toBeNull();
     fireEvent.focus(settings);
     expect(await screen.findByText(/^Settings$/)).toBeTruthy();
     fireEvent.keyDown(window, { key: "Escape" });
@@ -276,7 +280,7 @@ describe("Sidebar", () => {
     setMockPathname("/contracts/review");
     renderSidebar({ role: "admin", navSurface: advancedWatchlistsHiddenSurface, navBadges: {} });
 
-    expect(await screen.findByTitle("2 field review items need action")).toBeTruthy();
+    expect(await screen.findByTitle("2 detail confirmation items need action")).toBeTruthy();
     expect(screen.queryByTitle("9 watchlist items")).toBeNull();
     expect(screen.queryByRole("link", { name: /^watchlists$/i })).toBeNull();
   });
@@ -286,8 +290,8 @@ describe("Sidebar", () => {
     setMockPathname("/contracts/review");
     renderSidebar({ navBadges: { reviewQueue: 3 } });
 
-    expect(await screen.findByTitle("3 field review items need action")).toBeTruthy();
-    await waitFor(() => expect(screen.getByTitle("3 field review items need action")).toBeTruthy());
+    expect(await screen.findByTitle("3 detail confirmation items need action")).toBeTruthy();
+    await waitFor(() => expect(screen.getByTitle("3 detail confirmation items need action")).toBeTruthy());
   });
 
   it("honors query and hash active states in rendered links", () => {

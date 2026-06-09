@@ -55,24 +55,24 @@ describe("Evidence release-state surface", () => {
 
   it("keeps release-state Evidence strings in the local spec module", () => {
     expect(EVIDENCE_PAGE_TITLE).toBe("Evidence");
-    expect(EVIDENCE_PAGE_LEAD).toBe("Track proof for contract obligations and follow-up work.");
+    expect(EVIDENCE_PAGE_LEAD).toBe("Track proof files and confirmations tied to contract requirements and tasks.");
     expect(EVIDENCE_EMPTY_STATE).toBe(
-      "Request evidence when a contract obligation needs proof of completion."
+      "Request evidence when a contract requirement or follow-up task needs proof."
     );
     expect(Object.values(EVIDENCE_SECTION_LABELS)).toEqual([
-      "Open requests",
-      "Overdue requests",
-      "Received evidence",
-      "Linked obligations",
+      "Open",
+      "Overdue",
+      "Received",
+      "Linked requirements",
     ]);
     expect(Object.values(EVIDENCE_ROW_LABELS)).toEqual([
-      "Request title",
+      "Request",
       "Linked contract",
-      "Linked obligation",
-      "Request owner",
-      "Due date",
+      "Requirement",
+      "Owner",
+      "Due",
       "Status",
-      "Attached files",
+      "Files",
     ]);
     expect(Object.values(EVIDENCE_STATUS_LABELS)).toEqual([
       "Requested",

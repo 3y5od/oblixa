@@ -11,11 +11,11 @@ import {
   type NavSurfaceInput,
 } from "@/lib/product-surface/nav-visibility";
 
-/** Search index rows under the work umbrella use queue names, not the umbrella label "Work". */
+/** Search index rows under the task umbrella use queue names, not the umbrella label "Tasks". */
 const WORK_SEARCH_INDEX_LABELS: Partial<Record<(typeof SEARCH_INDEX_CLASSES)[number]["key"], string>> =
   {
     tasks: "Tasks",
-    obligations: "Obligations",
+    obligations: "Requirements",
     approvals: "Approvals",
   };
 
@@ -40,7 +40,7 @@ const CORE_ADMIN_PRIMARY_NAV_NAMES_SORTED = [
   "Renewals",
   "Reports",
   "Settings",
-  "Work",
+  "Tasks",
 ].sort();
 
 describe("V7 vocabulary consistency (§22.1 search index vs registry labels)", () => {
@@ -91,9 +91,9 @@ describe("V7 vocabulary consistency (§22.1 search index vs registry labels)", (
     expect(visiblePrimary).not.toContain("Report packs");
   });
 
-  it("keeps Work tabs out of public Core navChildren", () => {
-    const work = NAV_ITEMS.find((i) => i.name === "Work");
-    expect(work?.navChildren ?? []).toEqual([]);
+  it("keeps task tabs out of public Core navChildren", () => {
+    const tasks = NAV_ITEMS.find((i) => i.name === "Tasks");
+    expect(tasks?.navChildren ?? []).toEqual([]);
     expect(featureFamilyForPath("/work")).toBe("work");
   });
 });

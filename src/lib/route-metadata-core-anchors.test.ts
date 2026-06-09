@@ -1,11 +1,8 @@
-/**
- * V9 §24 + Appendix AO — Core routes expose distinct document title segments and primary h1 text.
- */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("Core route metadata + heading anchors (V9 §24)", () => {
+describe("Core route metadata + heading anchors", () => {
   const routes: {
     pagePath: string;
     title: string;
@@ -25,15 +22,15 @@ describe("Core route metadata + heading anchors (V9 §24)", () => {
       titleViaConst: true,
     },
     { pagePath: "src/app/(dashboard)/contracts/page.tsx", title: "Contracts", h1: "Contracts" },
-    { pagePath: "src/app/(dashboard)/work/page.tsx", title: "Work", h1: "Work", titleViaConst: true },
+    { pagePath: "src/app/(dashboard)/work/page.tsx", title: "Tasks", h1: "Tasks", titleViaConst: true },
     {
       pagePath: "src/app/(dashboard)/contracts/review/page.tsx",
-      title: "Review fields",
-      h1: "Review fields",
+      title: "Contract Review Queue",
+      h1: "Contract Review Queue",
       titleViaConst: true,
     },
     { pagePath: "src/app/(dashboard)/contracts/renewals/page.tsx", title: "Renewals", h1: "Renewals", titleViaConst: true },
-    { pagePath: "src/app/(dashboard)/contracts/exceptions/page.tsx", title: "Exceptions", h1: "Exception ledger" },
+    { pagePath: "src/app/(dashboard)/contracts/exceptions/page.tsx", title: "Issues", h1: "Contract issues" },
     {
       pagePath: "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
       title: "Evidence",

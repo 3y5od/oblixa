@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getOrgSettingsJson } from "@/lib/assurance/org-settings";
@@ -223,16 +224,20 @@ export default async function WorkspaceProductSettingsPage() {
             <label htmlFor="workspace_mode" className="ui-label-caps">
               Workspace mode
             </label>
-            <select
+            <UiSelect
               id="workspace_mode"
               name="workspace_mode"
               defaultValue={mode}
-              className="ui-input mt-2 w-full max-w-md"
-            >
-              <option value="core">Core — execution workspace only</option>
-              <option value="advanced">Advanced — programs, decisions, campaigns, relationships</option>
-              <option value="assurance">Assurance — full adaptive and assurance surfaces</option>
-            </select>
+              options={[
+                { value: "core", label: "Core — execution workspace only" },
+                { value: "advanced", label: "Advanced — programs, decisions, campaigns, relationships" },
+                { value: "assurance", label: "Assurance — full adaptive and assurance surfaces" },
+              ]}
+              variant="compact"
+              portal
+              className="mt-2 w-full max-w-md"
+              buttonClassName="w-full !min-h-11"
+            />
             <p className="ui-muted-tight mt-2 text-[12.5px]">
               New workspaces default to Core. Assurance mode is required for mutating autopilot
               execution.
@@ -410,15 +415,19 @@ export default async function WorkspaceProductSettingsPage() {
             <label htmlFor="search_scope" className="ui-label-caps">
               Search scope
             </label>
-            <select
+            <UiSelect
               id="search_scope"
               name="search_scope"
               defaultValue={v6.search_scope === "core_only" ? "core_only" : "match_mode"}
-              className="ui-input mt-2 w-full max-w-md"
-            >
-              <option value="match_mode">Match workspace mode visibility</option>
-              <option value="core_only">Core-only discoverability</option>
-            </select>
+              options={[
+                { value: "match_mode", label: "Match workspace mode visibility" },
+                { value: "core_only", label: "Core-only discoverability" },
+              ]}
+              variant="compact"
+              portal
+              className="mt-2 w-full max-w-md"
+              buttonClassName="w-full !min-h-11"
+            />
             <p className="ui-muted-tight mt-2 text-[12.5px]">
               Applies to global discoverability surfaces such as command palette recents and future
               global search indexing.

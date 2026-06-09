@@ -389,8 +389,13 @@ function collectPublicAuthRedirectIssues(root) {
     issues.push({ issue: "missing_auth_actions", rel: authActionRel });
   } else {
     const source = read(root, authActionRel);
-    if (!source.includes('emailRedirectTo: `${appUrl}/auth/callback`')) {
-      issues.push({ issue: "signup_email_redirect_not_callback", rel: authActionRel });
+    if (
+      !source.includes("admin.auth.admin.createUser") ||
+      !source.includes("email_confirm: true") ||
+      !source.includes("markWorkspaceAccessGrantUsed") ||
+      !source.includes("ensureUserOrg(")
+    ) {
+      issues.push({ issue: "signup_missing_confirmed_access_grant_workspace_creation", rel: authActionRel });
     }
     if (!source.includes('redirectTo: `${appUrl}/reset-password`')) {
       issues.push({ issue: "password_reset_redirect_not_public_reset_page", rel: authActionRel });

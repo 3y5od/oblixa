@@ -14,11 +14,15 @@ describe("contracts evidence studio surface", () => {
     expect(page).toContain('className="ui-card min-w-0 max-w-full scroll-mt-8 overflow-x-hidden p-0"');
     expect(page).toContain('className="min-w-0 max-w-full border-t');
     expect(page).toContain('className="min-w-0 divide-y');
+    expect(page).toContain("requests not completed or accepted");
+    expect(page).toContain("requests tied to a contract requirement");
     expect(filterBar).toContain('className="min-w-0 max-w-full space-y-3');
     // The filter row is now the shared FilterBar/FilterSelect (de-formed from the
     // old 6-col label grid), so it shares one recipe with Work, Renewals, Reports.
     expect(filterBar).toContain("FilterBar");
     expect(filterBar).toContain("FilterSelect");
     expect(filterBar).toContain('className="group inline-flex max-w-full');
+    expect(filterBar).toContain("Due soon means the request is due within 7 days");
+    expect(filterBar).toContain("Missing file means no evidence file is attached");
   });
 });

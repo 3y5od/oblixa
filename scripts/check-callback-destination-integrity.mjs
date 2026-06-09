@@ -21,7 +21,7 @@ const REQUIRED_FILE_MARKERS = {
     'return getSafeRedirectPath(resolved)',
   ],
   "src/app/auth/refinement-auth-callback.test.ts": [
-    'it("provisions an org for non-invite callbacks and redirects to the resolved destination"',
+    'it("provisions a first workspace only when the callback user owns the consumed access grant"',
     'expect(res.headers.get("location")).toBe("http://localhost:3000/dashboard")',
   ],
 };

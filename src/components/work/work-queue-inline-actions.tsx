@@ -120,7 +120,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     message: combineMessages([
                       "Task marked complete.",
                       (result.reopenedDependencyCount ?? 0) > 0
-                        ? `${pluralize(result.reopenedDependencyCount ?? 0, "blocked dependent task")} reopened.`
+                        ? `${pluralize(result.reopenedDependencyCount ?? 0, "dependent task")} reopened.`
                         : null,
                       result.generatedRecurringTask ? "Next recurring task created." : null,
                     ]),
@@ -161,7 +161,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     message: combineMessages([
                       "Approval recorded.",
                       (result.reopenedTaskCount ?? 0) > 0
-                        ? `${pluralize(result.reopenedTaskCount ?? 0, "blocked approval-linked task")} reopened.`
+                        ? `${pluralize(result.reopenedTaskCount ?? 0, "approval-linked task")} reopened.`
                         : null,
                     ]),
                   };
@@ -183,7 +183,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     message: combineMessages([
                       "Approval rejected.",
                       (result.reopenedTaskCount ?? 0) > 0
-                        ? `${pluralize(result.reopenedTaskCount ?? 0, "blocked approval-linked task")} reopened for follow-up.`
+                        ? `${pluralize(result.reopenedTaskCount ?? 0, "approval-linked task")} reopened for follow-up.`
                         : null,
                     ]),
                   };
@@ -205,7 +205,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     message: combineMessages([
                       "Changes requested.",
                       (result.reopenedTaskCount ?? 0) > 0
-                        ? `${pluralize(result.reopenedTaskCount ?? 0, "blocked approval-linked task")} reopened for follow-up.`
+                        ? `${pluralize(result.reopenedTaskCount ?? 0, "approval-linked task")} reopened for follow-up.`
                         : null,
                     ]),
                   };
@@ -225,7 +225,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     status: "in_progress",
                   });
                   if ("error" in result && result.error) return { error: describeActionError(result.error) };
-                  return { success: true as const, message: "Obligation moved into progress." };
+                  return { success: true as const, message: "Contract requirement moved into progress." };
                 },
               },
             ]
@@ -244,8 +244,8 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
                     return {
                       success: true as const,
                       message: combineMessages([
-                        "Obligation marked complete.",
-                        result.generatedRecurringObligation ? "Next recurring obligation created." : null,
+                        "Contract requirement marked complete.",
+                        result.generatedRecurringObligation ? "Next recurring requirement created." : null,
                       ]),
                     };
                   },
@@ -309,7 +309,7 @@ export function WorkQueueInlineActions(props: WorkQueueInlineActionsProps) {
             href={props.blockerHref}
             className="ui-btn-secondary px-2.5 py-1 text-[11px]"
           >
-            {props.blockerLabel ?? "Resolve blocker"}
+            {props.blockerLabel ?? "Review item needing response"}
           </Link>
         ) : null}
       </div>

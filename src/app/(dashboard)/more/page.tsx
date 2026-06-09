@@ -11,7 +11,6 @@ import {
   CreditCard,
   FileCheck2,
   Files,
-  Filter,
   Gavel,
   GitBranch,
   Grid2x2,
@@ -32,6 +31,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import {
   NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
@@ -222,30 +222,23 @@ export default async function MoreToolsPage(props: {
             />
           </div>
           <div className="relative shrink-0 sm:w-52">
-            <span
-              className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
-              aria-hidden
-            >
-              <Filter className="h-3.5 w-3.5" />
-            </span>
-            <select
-              aria-label="Filter by section" name="section"
+            <UiSelect
+              name="section"
               defaultValue={selectedSection}
-              className="ui-input cursor-pointer appearance-none pl-9 pr-8 text-[12.5px]"
-            >
-              <option value="">All sections</option>
-              <option value="monitor">Monitor</option>
-              <option value="workflows">Workflows</option>
-              <option value="assurance">Assurance</option>
-              <option value="insights">Insights</option>
-              <option value="workspace">Workspace</option>
-            </select>
-            <span
-              className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-[var(--text-tertiary)]"
-              aria-hidden
-            >
-              <ChevronRight className="h-3.5 w-3.5 rotate-90" />
-            </span>
+              ariaLabel="Filter by section"
+              placeholder="All sections"
+              options={[
+                { value: "monitor", label: "Monitor" },
+                { value: "workflows", label: "Workflows" },
+                { value: "assurance", label: "Assurance" },
+                { value: "insights", label: "Insights" },
+                { value: "workspace", label: "Workspace" },
+              ]}
+              variant="compact"
+              portal
+              className="w-full"
+              buttonClassName="w-full !min-h-11 text-[12.5px]"
+            />
           </div>
           <button
             type="submit"

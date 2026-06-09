@@ -8,6 +8,7 @@ function read(rel: string): string {
 
 const pageRaw = read("src/app/(dashboard)/contracts/new/page.tsx");
 const formRaw = read("src/components/contracts/upload-form.tsx");
+const railRaw = read("src/components/contracts/contract-upload-rail.tsx");
 
 describe("contract upload release-state surface", () => {
   it("keeps the upload page focused on signed-contract Core intake", () => {
@@ -15,13 +16,17 @@ describe("contract upload release-state surface", () => {
     expect(pageRaw).toContain('title="Upload contract"');
     // Spreadsheet migration is offered as a quiet supporting action framed as
     // importing an existing tracker — not a raw "Import CSV" mechanic or a
-    // migration center (release-state §/contracts/new + §/contracts/bulk).
-    expect(pageRaw).toContain("Import contracts");
-    expect(pageRaw).toContain("Import existing tracker");
-    expect(pageRaw).not.toContain("Advanced");
-    expect(pageRaw).not.toContain("Assurance");
-    expect(pageRaw).not.toContain("redlines");
-    expect(pageRaw).not.toContain("e-signature");
+    // migration center (release-state §/contracts/new + §/contracts/bulk). It now
+    // lives in the context rail beside the editor.
+    expect(railRaw).toContain("Import contracts");
+    expect(railRaw).toContain("Import existing tracker");
+    // No Advanced/Assurance/pre-signature framing leaks into any intake surface.
+    for (const raw of [pageRaw, formRaw, railRaw]) {
+      expect(raw).not.toContain("Advanced");
+      expect(raw).not.toContain("Assurance");
+      expect(raw).not.toContain("redlines");
+      expect(raw).not.toContain("e-signature");
+    }
   });
 
   it("keeps metadata, source documents, and review path visible in the form", () => {
@@ -30,7 +35,7 @@ describe("contract upload release-state surface", () => {
     // the optional "Add more details" disclosure but every spec-mandated
     // field label still renders in the DOM.
     for (const label of [
-      "Contract details",
+      "Known contract details",
       "Contract title",
       "Counterparty",
       "Contract type",

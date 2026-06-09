@@ -17,6 +17,9 @@ const NON_TENANT_TABLE_CLASSIFICATIONS = new Map([
   ["extracted_fields", "legacy_contract_child"],
   ["reminders", "legacy_contract_child"],
   ["stripe_webhook_events", "provider_event_dedupe"],
+  ["workspace_access_requests", "pre_workspace_access_request_intake"],
+  ["workspace_access_grants", "pre_workspace_access_grant"],
+  ["workspace_access_request_events", "pre_workspace_access_request_event"],
 ]);
 const LEGACY_PLAINTEXT_SECRET_FILES = new Set([
   "014_v2_workflow_expansion.sql",

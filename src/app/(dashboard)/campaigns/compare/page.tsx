@@ -4,6 +4,7 @@ import { WorkspaceRequiredState } from "@/components/layout/workspace-required-s
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { assertV5PageFeature } from "@/lib/decision-intelligence/feature-guards";
 
 export default async function CampaignComparePage(props: {
@@ -82,36 +83,57 @@ export default async function CampaignComparePage(props: {
         <form className="mt-4 grid gap-4 md:grid-cols-3" method="get" action="/campaigns/compare">
           <label className="text-xs font-medium text-[var(--text-secondary)]">
             Campaign A
-            <select name="campaignA" className="ui-input-compact mt-1 w-full" defaultValue={campaignA ?? ""}>
-              <option value="">—</option>
-              {(campaignList ?? []).map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.status})
-                </option>
-              ))}
-            </select>
+            <UiSelect
+              name="campaignA"
+              defaultValue={campaignA ?? ""}
+              ariaLabel="Campaign A"
+              placeholder="—"
+              options={(campaignList ?? []).map((c) => ({
+                value: c.id,
+                label: `${c.name} (${c.status})`,
+              }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+              className="mt-1 w-full"
+              buttonClassName="w-full"
+            />
           </label>
           <label className="text-xs font-medium text-[var(--text-secondary)]">
             Campaign B
-            <select name="campaignB" className="ui-input-compact mt-1 w-full" defaultValue={campaignB ?? ""}>
-              <option value="">—</option>
-              {(campaignList ?? []).map((c) => (
-                <option key={`b-${c.id}`} value={c.id}>
-                  {c.name} ({c.status})
-                </option>
-              ))}
-            </select>
+            <UiSelect
+              name="campaignB"
+              defaultValue={campaignB ?? ""}
+              ariaLabel="Campaign B"
+              placeholder="—"
+              options={(campaignList ?? []).map((c) => ({
+                value: c.id,
+                label: `${c.name} (${c.status})`,
+              }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+              className="mt-1 w-full"
+              buttonClassName="w-full"
+            />
           </label>
           <label className="text-xs font-medium text-[var(--text-secondary)]">
             Simulation
-            <select name="simulationId" className="ui-input-compact mt-1 w-full" defaultValue={simulationId ?? ""}>
-              <option value="">—</option>
-              {(simulationList ?? []).map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} · {s.simulation_type}
-                </option>
-              ))}
-            </select>
+            <UiSelect
+              name="simulationId"
+              defaultValue={simulationId ?? ""}
+              ariaLabel="Simulation"
+              placeholder="—"
+              options={(simulationList ?? []).map((s) => ({
+                value: s.id,
+                label: `${s.name} · ${s.simulation_type}`,
+              }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+              className="mt-1 w-full"
+              buttonClassName="w-full"
+            />
           </label>
           <div className="md:col-span-3">
             <button type="submit" className="ui-btn-secondary px-4 py-2 text-sm">

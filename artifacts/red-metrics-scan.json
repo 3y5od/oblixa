@@ -1,7 +1,9 @@
 {
   "ok": true,
   "unknownSample": [
-    "report_pack_id"
+    "report_pack_id",
+    "length",
+    "map"
   ],
   "allowlistSize": 36,
   "wildcard": false,

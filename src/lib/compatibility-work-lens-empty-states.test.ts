@@ -7,15 +7,15 @@ describe("Work release-state empty state", () => {
   it("anchors the exact empty copy and release-state tabs", () => {
     const raw = readFileSync(join(process.cwd(), "src/app/(dashboard)/work/page.tsx"), "utf8");
     expect(raw).toContain("WORK_EMPTY_STATE");
-    expect(WORK_EMPTY_STATE).toBe("Create work from a contract date, obligation, approval, or exception.");
+    expect(WORK_EMPTY_STATE).toBe("Create a task for a contract date, requirement, approval, problem, or evidence request.");
     expect(Object.values(WORK_TAB_LABELS)).toEqual([
-      "All",
-      "My work",
-      "Overdue",
-      "Blocked",
+      "All active",
+      "Assigned to me",
+      "Past due",
+      "Cannot proceed",
       "Approvals",
-      "Obligations",
-      "Exceptions",
+      "Contract requirements",
+      "Problems to resolve",
     ]);
   });
 });

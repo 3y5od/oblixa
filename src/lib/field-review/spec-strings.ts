@@ -1,19 +1,19 @@
-export const FIELD_REVIEW_TITLE = "Review fields";
-export const FIELD_REVIEW_EYEBROW = "Field review";
-export const FIELD_REVIEW_EMPTY_STATE = "No fields need review.";
+export const FIELD_REVIEW_TITLE = "Contract Review Queue";
+export const FIELD_REVIEW_EYEBROW = "Contract review";
+export const FIELD_REVIEW_EMPTY_STATE = "No details need confirmation.";
 
 export const FIELD_REVIEW_REQUIRED_CONTENT = [
-  "Field",
+  "Detail to review",
   "Suggested value",
-  "Source snippet",
+  "Where this is used",
+  "Where Oblixa found it",
   "Source preview",
-  "Confidence",
-  "Current approved value",
-  "Review progress",
+  "Current confirmed value",
+  "Contract context",
 ] as const;
 
 export const FIELD_REVIEW_ACTIONS = [
-  "Approve",
+  "Confirm",
   "Edit",
   "Mark unknown",
   "Skip",
@@ -30,5 +30,5 @@ export const FIELD_REVIEW_IMPORTANT_FIELD_ALIASES = [
   { label: "Governing law", keys: ["governing_law"] },
   { label: "Auto-renewal", keys: ["auto_renewal"] },
   { label: "Owner", keys: ["owner", "owner_id"] },
-  { label: "Obligations", keys: ["obligations", "obligation"] },
+  { label: "Contract requirements", keys: ["obligations", "obligation"] },
 ] as const;

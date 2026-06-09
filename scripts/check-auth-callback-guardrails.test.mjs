@@ -28,8 +28,12 @@ function writeFixture(root, callbackOverride) {
       if (inv.consumed_at || inv.revoked_at || new Date(inv.expires_at).getTime() < Date.now()) {}
       if (emailLower !== inv.email.toLowerCase()) {}
       await admin.from("organization_members").upsert({});
-      await admin.from("organization_invites").update({ consumed_at: new Date().toISOString() });
-      await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user));
+      const consumeTimeIso = new Date().toISOString();
+      await admin.from("organization_invites").update({ consumed_at: consumeTimeIso }).gt("expires_at", consumeTimeIso);
+      await recoverWorkspaceAccessGrantForAuthenticatedUser(admin, {});
+      if (hasEmailConfirmationSignal(user)) {}
+      return NextResponse.redirect(\`\${origin}/login?error=access_grant_required\`);
+      await resolveAccessGrantWorkspaceName(admin, workspaceGrant, user);
       await getUserPrimaryOrganizationId(admin, user.id);
       await resolvePostAuthRedirectPath(admin, orgIdForLanding, next);
       await resolveBlockingCalibrationPathForAdminOrg({
@@ -54,9 +58,11 @@ function writeFixture(root, callbackOverride) {
     root,
     "src/app/auth/refinement-auth-callback.test.ts",
     `
-    provisions an org for non-invite callbacks and redirects to the resolved destination;
+    provisions a first workspace only when the callback user owns the consumed access grant;
+    recovers a first workspace when a confirmed callback user has an issued email-bound access grant;
     rejects invite callbacks when the signed-in email does not match the invite target;
     rejects invite callbacks when the invite is expired;
+    rolls back exact invite membership when invite consumption fails;
     uses the trusted canonical origin when the callback request host is untrusted in production;
     expect(ensureUserOrg).not.toHaveBeenCalled();
     `

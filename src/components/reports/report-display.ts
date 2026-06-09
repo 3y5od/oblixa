@@ -30,7 +30,7 @@ export const STATUS_ICON: Record<SemanticStatus, LucideIcon> = {
  * Per-report risk tone. Color is rationed to the few reports where a non-zero
  * count is a genuine "act now" signal, so amber/red stay meaningful instead of
  * blanketing the rail (§10.2 "status earns color"). Deadlines that lock in if
- * missed read warning; past-due work and open exceptions read danger. Data
+ * missed read warning; past-due tasks and open issues read danger. Data
  * gaps and reference reports stay neutral — their grouping carries the meaning,
  * not a tint.
  */
@@ -60,7 +60,7 @@ export function reportToneFor(key: ReportKey): StatTone {
 export const REPORT_RAIL_GROUPS: ReadonlyArray<{ label: string; keys: ReportKey[] }> = [
   { label: "Deadlines", keys: ["upcoming_renewals", "notice_deadlines"] },
   {
-    label: "Work & exceptions",
+    label: "Tasks & issues",
     keys: ["overdue_work", "exceptions_by_owner", "open_obligations", "evidence_requests"],
   },
   { label: "Data gaps", keys: ["missing_owners", "missing_key_fields"] },
@@ -87,16 +87,16 @@ export const DATE_COLUMNS = new Set<string>([
 
 /** Columns rendered as a tabular mono count. */
 export const NUMERIC_COLUMNS = new Set<string>([
-  "Open exceptions",
+  "Open issues",
   "High severity",
   "Contracts",
-  "Approved fields",
-  "Pending fields",
+  "Confirmed details",
+  "Pending details",
   "Attached files",
 ]);
 
 /** Columns rendered as a structured status badge with non-color reinforcement (§7.7). */
-export const STATUS_COLUMNS = new Set<string>(["Status", "Review state"]);
+export const STATUS_COLUMNS = new Set<string>(["Status", "Confirmation state"]);
 
 /** Columns whose value is a recommended next step — a report value, not a link (§ issue 20). */
 export const NEXT_ACTION_COLUMNS = new Set<string>(["Next action"]);
@@ -126,6 +126,7 @@ export function statusToSemantic(value: string): SemanticStatus {
       return "healthy";
     case "pending_review":
     case "needs_review":
+    case "needs_confirmation":
     case "in_review":
     case "review":
       return "in_review";

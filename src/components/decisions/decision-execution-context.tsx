@@ -15,7 +15,7 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
       <p className="ui-eyebrow">Context</p>
       <h2 className="ui-section-title mt-1 text-base">Linked execution context</h2>
       <p className="ui-muted-tight mt-1">
-        Active work across linked contracts (up to {linkedContractIdsUsed.length} shown
+        Active tasks across linked contracts (up to {linkedContractIdsUsed.length} shown
         {truncated ? "; list truncated to cap" : ""}).
       </p>
 
@@ -30,11 +30,11 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openObligations}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Active obligations</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Active requirements</p>
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.openExceptions}</p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">Active exceptions</p>
+          <p className="text-[11px] text-[var(--text-tertiary)]">Active issues</p>
         </div>
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-3 py-2 text-center">
           <p className="text-lg font-semibold text-[var(--text-primary)]">{counts.requiredEvidence}</p>
@@ -68,22 +68,22 @@ export function DecisionExecutionContextCard({ decisionId, context }: Props) {
           }))}
         />
         <ContextList
-          title="Obligations"
-          empty="No open obligations."
+          title="Requirements"
+          empty="No open requirements."
           rows={context.obligations.map((o) => ({
             id: o.id,
             contractId: o.contract_id,
-            line1: (o.title ?? "").trim() || "Obligation",
+            line1: (o.title ?? "").trim() || "Requirement",
             line2: `${o.status}${o.due_date ? ` · due ${o.due_date}` : ""}`,
           }))}
         />
         <ContextList
-          title="Exceptions"
-          empty="No open exceptions."
+          title="Issues"
+          empty="No open issues."
           rows={context.exceptions.map((x) => ({
             id: x.id,
             contractId: x.contract_id ?? "",
-            line1: (x.title ?? "").trim() || "Exception",
+            line1: (x.title ?? "").trim() || "Issue",
             line2: x.status,
           }))}
         />

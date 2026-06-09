@@ -31,7 +31,7 @@ function rationaleForField(fieldName: string): string {
     return "Renewal window needs scenario, owner, and commercial alignment.";
   if (fieldName === "end_date")
     return "Term ending requires continuity or offboarding decisions.";
-  return "Approved effective date is entering the execution horizon.";
+  return "Confirmed effective date is entering the execution horizon.";
 }
 
 export function UpcomingActions({ actions, embedded = false }: UpcomingActionsProps & { embedded?: boolean }) {
@@ -39,7 +39,7 @@ export function UpcomingActions({ actions, embedded = false }: UpcomingActionsPr
     if (embedded) {
       return (
         <p className="ui-support-copy rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3 py-3">
-          No approved dates enter the two-week horizon.
+          No confirmed dates enter the two-week horizon.
         </p>
       );
     }
@@ -48,7 +48,7 @@ export function UpcomingActions({ actions, embedded = false }: UpcomingActionsPr
         <EmptyState
           eyebrow="Calendar"
           title="No upcoming deadlines"
-          copy="When notice, renewal, or end dates are approved, they appear here with a clear countdown."
+          copy="When notice, renewal, or end dates are confirmed, they appear here with a clear countdown."
           className="min-h-[220px] md:min-h-[240px]"
         />
       </section>
@@ -60,7 +60,7 @@ export function UpcomingActions({ actions, embedded = false }: UpcomingActionsPr
       <div className={embedded ? "border-b border-[var(--border-subtle)] px-3 py-2" : "ui-surface-tint px-4 py-3.5 md:px-6 md:py-4"}>
         <h2 className="ui-section-title">Upcoming actions</h2>
         <p className="mt-1 text-[11px] text-[var(--text-secondary)] md:text-[12.5px]">
-          Approved operational dates in the next 90 days
+          Confirmed operational dates in the next 90 days
         </p>
       </div>
       <ul className="divide-y divide-[var(--border-subtle)]">

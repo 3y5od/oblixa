@@ -54,7 +54,7 @@ describe("ExceptionMutationPanels", () => {
   it("shows success feedback before refreshing the page", async () => {
     mocks.reopenException.mockResolvedValueOnce({
       success: true,
-      message: "Exception reopened and returned to the active ledger.",
+      message: "Issue reopened and returned to the active ledger.",
     });
 
     renderWithProviders(
@@ -69,9 +69,9 @@ describe("ExceptionMutationPanels", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /reopen exception/i }));
+    fireEvent.click(screen.getByRole("button", { name: /reopen issue/i }));
 
-    expect(await screen.findByText(/exception reopened and returned to the active ledger\./i)).toBeTruthy();
+    expect(await screen.findByText(/issue reopened and returned to the active ledger\./i)).toBeTruthy();
     expect(mockRouter.refresh).not.toHaveBeenCalled();
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalled(), { timeout: 1500 });
   });

@@ -9,7 +9,7 @@ describe("Work release-state surface", () => {
     expect(page).toContain("title={WORK_PAGE_TITLE}");
     expect(page).toContain("eyebrow={model.eyebrow}");
     expect(page).toContain("model.primaryCta");
-    expect(page).toContain("UiTabs");
+    expect(page).toContain("Task table views");
     expect(page).toContain("WorkReleaseActions");
     expect(page).toContain("loadWorkPageModel");
     expect(page).toContain("Clear filters");
@@ -18,17 +18,17 @@ describe("Work release-state surface", () => {
 
   it("keeps exact release-state tabs, filters, row actions, and empty copy in spec strings", () => {
     expect(Object.values(WORK_TAB_LABELS)).toEqual([
-      "All",
-      "My work",
-      "Overdue",
-      "Blocked",
+      "All active",
+      "Assigned to me",
+      "Past due",
+      "Cannot proceed",
       "Approvals",
-      "Obligations",
-      "Exceptions",
+      "Contract requirements",
+      "Problems to resolve",
     ]);
     expect(Object.values(WORK_FILTER_LABELS)).toEqual([
       "Owner",
-      "Due date",
+      "Due",
       "Contract",
       "Status",
       "Type",
@@ -40,7 +40,7 @@ describe("Work release-state surface", () => {
       "Comment",
       "Link evidence",
     ]);
-    expect(WORK_EMPTY_STATE).toBe("Create work from a contract date, obligation, approval, or exception.");
+    expect(WORK_EMPTY_STATE).toBe("Create a task for a contract date, requirement, approval, problem, or evidence request.");
   });
 
   it("does not reintroduce old Work hub decoration or source diagnostics", () => {

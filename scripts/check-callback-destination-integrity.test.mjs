@@ -18,7 +18,7 @@ test("analyzeCallbackDestinationIntegrity validates safe post-auth callback land
   write(root, "scripts/pipelines/pipeline-security-comprehensive.mjs", '"check:callback-destination-integrity"\n');
   write(root, "src/app/auth/callback/route.ts", 'const next = getSafeRedirectPath(searchParams.get("next"))\nconst destination = await resolvePostAuthRedirectPath(admin, orgIdForLanding, next)\nconst finalDestination = resolveDestinationWithBlockingCalibration(destination, calibrationPath)\nreturn NextResponse.redirect(`${origin}${finalDestination}`)\nreturn NextResponse.redirect(`${origin}/login?error=auth_callback_error`)\n');
   write(root, "src/lib/auth/post-auth-redirect.ts", 'const homePaths = new Set(["/dashboard", getSafeRedirectPath(null)])\nreturn getSafeRedirectPath(resolved)\n');
-  write(root, "src/app/auth/refinement-auth-callback.test.ts", 'it("provisions an org for non-invite callbacks and redirects to the resolved destination", async () => {})\nexpect(res.headers.get("location")).toBe("http://localhost:3000/dashboard")\n');
+  write(root, "src/app/auth/refinement-auth-callback.test.ts", 'it("provisions a first workspace only when the callback user owns the consumed access grant", async () => {})\nexpect(res.headers.get("location")).toBe("http://localhost:3000/dashboard")\n');
 
   const report = analyzeCallbackDestinationIntegrity(root);
   assert.equal(report.ok, true);

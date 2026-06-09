@@ -49,7 +49,7 @@ export function getRenewalNextAction(input: {
   if (input.openExceptions > 0) {
     return {
       href: `/contracts/exceptions?status=open&contract=${input.contractId}`,
-      label: "Resolve exceptions",
+      label: "Resolve issues",
     };
   }
   if (input.outstandingEvidence > 0) {
@@ -61,7 +61,7 @@ export function getRenewalNextAction(input: {
   if (input.blocker) {
     return {
       href: `/contracts/${input.contractId}?tab=overview#renewal-approvals`,
-      label: "Review blocker",
+      label: "Review item needing input",
     };
   }
   return {

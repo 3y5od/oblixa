@@ -83,14 +83,14 @@ export function buildFieldReviewStatusMessage(params: {
   const { pendingCount, action, fieldLabel } = params;
   const prefix = fieldLabel
     ? `${fieldLabel.charAt(0).toUpperCase()}${fieldLabel.slice(1)} `
-    : "Field ";
+    : "Contract detail ";
   const remaining =
     pendingCount > 0
-      ? `${pendingCount} field${pendingCount === 1 ? "" : "s"} remaining.`
-      : "Review complete.";
+      ? `${pendingCount} detail${pendingCount === 1 ? "" : "s"} remaining.`
+      : "Confirmation complete.";
   const verb =
     action === "approved"
-      ? "approved"
+      ? "confirmed"
       : action === "rejected"
         ? "marked unknown"
         : action === "edited"

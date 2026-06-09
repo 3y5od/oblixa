@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ExtractedField } from "@/lib/types";
 import {
   buildFieldReviewWorkspaceModel,
+  deriveFieldImpactCopy,
   getImportantFieldLabel,
   sortPendingFieldsForReview,
   type FieldReviewContract,
@@ -222,6 +223,46 @@ describe("field-review workspace model", () => {
     expect(getImportantFieldLabel("auto_renewal")).toBe("Auto-renewal");
   });
 
+  it("derives plain-language impact copy for detail confirmation", () => {
+    expect(deriveFieldImpactCopy("auto_renewal")).toBe(
+      "Shows whether the contract renews automatically, so renewal tasks and reports can flag contracts that continue unless cancelled."
+    );
+    expect(deriveFieldImpactCopy("notice_deadline")).toBe(
+      "Records the last day to send notice, so Oblixa can warn before that deadline passes."
+    );
+    expect(deriveFieldImpactCopy("notice_window")).toBe(
+      "Records the amount of advance notice required, so Oblixa can calculate the last day to send notice."
+    );
+    expect(deriveFieldImpactCopy("renewal_date")).toBe("Sets the date used for renewal reminders, renewal lists, and reports.");
+    expect(deriveFieldImpactCopy("owner_id")).toBe(
+      "Assigns the responsible person for reminders, tasks, evidence requests, and reports."
+    );
+    expect(deriveFieldImpactCopy("counterparty")).toBe(
+      "Identifies the other organization or person on the contract for search, grouping, and reports."
+    );
+    expect(deriveFieldImpactCopy("payment_terms")).toBe(
+      "Records payment timing and billing terms for contract tracking, tasks, and reports."
+    );
+    expect(deriveFieldImpactCopy("contract_value")).toBe(
+      "Records contract value for inventory, prioritization, and reports."
+    );
+    expect(deriveFieldImpactCopy("effective_date")).toBe(
+      "Sets when the contract starts, so status, reminders, and reports use the correct date."
+    );
+    expect(deriveFieldImpactCopy("termination_date")).toBe(
+      "Sets when the contract ends or terminates, so status, renewal timing, and reports use the correct date."
+    );
+    expect(deriveFieldImpactCopy("obligations")).toBe(
+      "Records a contract requirement that may need a task, evidence request, or owner."
+    );
+    expect(deriveFieldImpactCopy("governing_law")).toBe(
+      "Records the law or jurisdiction that applies, so legal and contract questions can be routed correctly."
+    );
+    expect(deriveFieldImpactCopy("custom_detail")).toBe(
+      "After confirmation, this detail can appear in contract views, tasks, reminders, and reports."
+    );
+  });
+
   it("preserves loader warnings in a usable model", () => {
     const model = buildFieldReviewWorkspaceModel({
       contracts: [contract({ extracted_fields: [field({ id: "field-1" })] })],
@@ -230,5 +271,120 @@ describe("field-review workspace model", () => {
 
     expect(model.warnings).toEqual(["Contract review data is partially unavailable."]);
     expect(model.activeField?.id).toBe("field-1");
+    expect(model.activeField?.impactCopy).toBe(
+      "Identifies the other organization or person on the contract for search, grouping, and reports."
+    );
+  });
+
+  it("classifies active-field source quality by snippet location and source type", () => {
+    const located = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          search_document: "Section 4. The renewal date is 2026-08-18 unless terminated.",
+          extracted_fields: [
+            field({ id: "f1", field_name: "renewal_date", field_value: "2026-08-18", source_snippet: "renewal date is 2026-08-18" }),
+          ],
+        }),
+      ],
+    });
+    expect(located.activeField?.sourceQuality).toBe("located");
+
+    const notLocated = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          search_document: "Boilerplate that never mentions the clause.",
+          extracted_fields: [field({ id: "f1", source_snippet: "an entirely different clause" })],
+        }),
+      ],
+    });
+    expect(notLocated.activeField?.sourceQuality).toBe("snippet-missing");
+
+    const noPreview = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({ search_document: null, extracted_fields: [field({ id: "f1", source_snippet: "x" })] }),
+      ],
+    });
+    expect(noPreview.activeField?.sourceQuality).toBe("preview-unavailable");
+
+    const manual = buildFieldReviewWorkspaceModel({
+      contracts: [contract({ extracted_fields: [field({ id: "f1", source: "human" })] })],
+    });
+    expect(manual.activeField?.sourceQuality).toBe("manual");
+  });
+
+  it("computes per-contract review segments for the active contract", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          extracted_fields: [
+            field({ id: "a", status: "approved", field_name: "counterparty" }),
+            field({ id: "e", status: "edited", field_name: "renewal_date" }),
+            field({ id: "r", status: "rejected", field_name: "notice_window" }),
+            field({ id: "p", status: "pending", field_name: "payment_terms" }),
+          ],
+        }),
+      ],
+      selectedFieldId: "p",
+    });
+
+    expect(model.progress.activeContractSegments).toEqual({
+      reviewed: 2,
+      pending: 1,
+      unknown: 1,
+      skipped: 0,
+      blockedNoSource: 0,
+      total: 4,
+    });
+  });
+
+  it("counts pending fields as blocked when the contract has no source text", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          search_document: null,
+          extracted_fields: [
+            field({ id: "p1", status: "pending", field_name: "renewal_date" }),
+            field({ id: "p2", status: "pending", field_name: "notice_window" }),
+          ],
+        }),
+      ],
+    });
+
+    expect(model.progress.activeContractSegments.blockedNoSource).toBe(2);
+  });
+
+  it("builds the in-contract field mini-queue marking the current field in review order", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({
+          extracted_fields: [
+            field({ id: "f-note", field_name: "custom_note", created_at: "2026-03-01T00:00:00.000Z" }),
+            field({ id: "f-counter", field_name: "counterparty", created_at: "2026-04-01T00:00:00.000Z" }),
+            field({ id: "f-renew", field_name: "renewal_date", created_at: "2026-05-01T00:00:00.000Z" }),
+          ],
+        }),
+      ],
+      selectedFieldId: "f-renew",
+    });
+
+    expect(model.activeFieldQueue).toHaveLength(3);
+    expect(model.activeFieldQueue.find((f) => f.isCurrent)?.id).toBe("f-renew");
+    // Important alias rank wins over created order: counterparty → renewal → note.
+    expect(model.activeFieldQueue.map((f) => f.id)).toEqual(["f-counter", "f-renew", "f-note"]);
+  });
+
+  it("exposes full-set filter counts and the filtered count", () => {
+    const model = buildFieldReviewWorkspaceModel({
+      contracts: [
+        contract({ id: "c1", owner_id: "u1", extracted_fields: [field({ id: "f1", contract_id: "c1" })] }),
+        contract({ id: "c2", title: "Beta", owner_id: "u2", extracted_fields: [field({ id: "f2", contract_id: "c2" })] }),
+      ],
+      viewerId: "u1",
+      filter: "mine",
+    });
+
+    expect(model.filterCounts.all).toBe(2);
+    expect(model.filterCounts.mine).toBe(1);
+    expect(model.filteredCount).toBe(1);
   });
 });

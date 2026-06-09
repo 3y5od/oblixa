@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AlertTriangle, BarChart3, Download, X } from "lucide-react";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { CountChip } from "@/components/ui/count-chip";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { RatioChip } from "@/components/ui/ratio-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TimeChip } from "@/components/ui/time-chip";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
@@ -73,9 +75,10 @@ export default async function ReportsPage(props: {
   }${isPartial ? " · data may be partial" : ""}`;
 
   return (
-    <div className="ui-page-stack mx-auto max-w-6xl">
+    <div className="ui-page-stack mx-auto max-w-7xl">
       <DashboardPageHeader
         icon={<BarChart3 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        density="compact"
         eyebrow={model.eyebrow}
         title={REPORTS_PAGE_TITLE}
         lead={model.lead}
@@ -110,17 +113,20 @@ export default async function ReportsPage(props: {
         }
       />
 
-      {isPartial ? (
-        <ReportsPartialNotice scopeLabel={model.activeDefinition.label} />
-      ) : null}
-
-      <section className="ui-card-raised p-0" aria-labelledby="reports-surface-title">
+      {/* One flat focal surface (§10.5/§10.6): a standard `.ui-card` master-detail
+          region, not a raised card wrapping a nested table-shell. The rail, report
+          header, filters, preview, and run history are separated by hairlines
+          inside this single surface. */}
+      <section className="ui-card p-0" aria-labelledby="reports-surface-title">
         {/* Card-level bar: the catalog label plus a count chip so the surface
             announces its scope ("10 reports"). The earlier "All contracts" link
             was dropped — it duplicated primary nav and added no report context. */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] px-5 py-3">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[var(--border-subtle)] px-5 py-3">
           <p className="ui-caps-2 text-[11px] text-[var(--text-tertiary)]">Report catalog</p>
           <CountChip value={model.reports.length} emphasis="subtle" />
+          <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+            Catalog counts are matching rows available in each report.
+          </p>
         </div>
 
         {/* Master-detail: a grouped report rail beside the active report's
@@ -143,18 +149,37 @@ export default async function ReportsPage(props: {
                 <p className="mt-1 max-w-2xl text-[13.5px] leading-snug text-[var(--text-secondary)]">
                   {model.activeDefinition.description}
                 </p>
+                <p className="mt-1.5 max-w-2xl text-[11px] leading-snug text-[var(--text-tertiary)]">
+                  <span className="font-medium text-[var(--text-secondary)]">Window:</span> selected reporting period.{" "}
+                  <span className="font-medium text-[var(--text-secondary)]">Rows:</span> previewed rows over matching rows.{" "}
+                  <span className="font-medium text-[var(--text-secondary)]">Last export:</span> most recent export for this report.
+                </p>
               </div>
-              {/* Export freshness sits with the report identity rather than in
-                  the preview header (issue: surface freshness here). */}
-              <div className="shrink-0">
+              {/* Freshness + source chips ride with the report identity: window
+                  scope, the preview-sample size, and last-export recency. Moving
+                  them here keeps the preview region itself purely the data. */}
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {exportScopeWindow ? <KeyValueChip label="Window" value={windowLabel} /> : null}
+                {hasExportableRows ? (
+                  model.totalPreviewRows > model.previewRows.length ? (
+                    <span
+                      title={`Showing ${model.previewRows.length} of ${model.totalPreviewRows} matching rows — export for the full set`}
+                    >
+                      <RatioChip
+                        numerator={model.previewRows.length}
+                        denominator={model.totalPreviewRows}
+                        suffix="rows"
+                      />
+                    </span>
+                  ) : (
+                    <KeyValueChip label="Rows" value={model.totalPreviewRows} />
+                  )
+                ) : null}
                 {model.lastGeneratedAt ? (
                   // Bordered time-metadata chip (caps label + TimeChip value, which
                   // keeps the full absolute date in its title/aria).
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1">
                     <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Last export</span>
-                    {/* Compact relative format (`1H` / `4D` / `NOW`) matches the
-                        dashboard time-chip vocabulary; the full absolute date stays
-                        in the chip's title + aria-label. */}
                     <TimeChip
                       date={model.lastGeneratedAt}
                       format="relative"
@@ -166,6 +191,13 @@ export default async function ReportsPage(props: {
                 )}
               </div>
             </div>
+
+            {/* Partial-data warning attached directly under the active report's
+                header as a compact flush strip — no longer a large page-level
+                banner above the whole surface. */}
+            {isPartial ? (
+              <ReportsPartialNotice scopeLabel={model.activeDefinition.label} />
+            ) : null}
 
             <ReportsFilters model={model} />
 
@@ -195,9 +227,9 @@ function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
       aria-label="Reports partial data state"
       data-state="partial"
       data-v10-state="partial"
-      className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border px-3 py-2.5"
+      className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-5 py-2.5"
       style={{
-        borderColor: "color-mix(in oklab, var(--warning-soft) 50%, var(--border-subtle))",
+        borderBottomColor: "color-mix(in oklab, var(--warning-soft) 50%, var(--border-subtle))",
         background: "color-mix(in oklab, var(--warning-soft) 16%, var(--surface-raised))",
       }}
     >

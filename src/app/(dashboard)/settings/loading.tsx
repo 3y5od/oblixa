@@ -6,7 +6,7 @@ export default function SettingsLoading() {
       <div className="sr-only" role="status" aria-live="polite">
         Loading settings
       </div>
-      <div className="ui-page-stack mx-auto max-w-4xl" aria-hidden aria-busy="true">
+      <div className="ui-page-stack mx-auto w-full max-w-6xl" aria-hidden aria-busy="true">
         <div className="space-y-3">
           <div className="ui-skeleton h-4 w-24 rounded" />
           <div className="ui-skeleton h-9 w-48 rounded" />

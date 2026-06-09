@@ -149,7 +149,7 @@ export function sidebarPrefetch(href: string): boolean | undefined {
 
 function badgeLabel(badgeKey: NonNullable<NavItem["badgeKey"]>, value: number): string {
   if (badgeKey === "reviewQueue") {
-    return `${value} field review ${value === 1 ? "item" : "items"} ${value === 1 ? "needs" : "need"} action`;
+    return `${value} detail confirmation ${value === 1 ? "item" : "items"} ${value === 1 ? "needs" : "need"} action`;
   }
   if (badgeKey === "approvals") {
     return `${value} pending ${value === 1 ? "approval" : "approvals"} ${value === 1 ? "needs" : "need"} action`;

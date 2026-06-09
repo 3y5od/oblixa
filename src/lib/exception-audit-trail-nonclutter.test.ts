@@ -8,8 +8,10 @@ describe("exception ledger resolved visibility (V9 §14.5)", () => {
       join(process.cwd(), "src/app/(dashboard)/contracts/exceptions/page.tsx"),
       "utf8"
     );
-    expect(src).toContain('option value="resolved"');
-    expect(src).toContain('option value="closed"');
+    // resolved/closed remain queryable via the visible status filter
+    // (UiRadioGroup over STATUS_FILTERS) — no longer via a hidden native <select>.
+    expect(src).toContain('value: "resolved"');
+    expect(src).toContain('value: "closed"');
     expect(src).toContain("/contracts/exceptions?status=open");
   });
 });

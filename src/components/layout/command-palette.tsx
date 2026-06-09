@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
+import { createElement, useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { STATUS_LABELS } from "@/lib/contracts";
 import { pushAppHref } from "@/lib/navigation/client-navigation";
 import {
-  WORKFLOW_AREA_LABELS,
-  getWorkflowAreaForNavItem,
+  SEARCH_GROUP_LABELS,
+  SEARCH_GROUP_ORDER,
+  resolveSearchGroupForNavItem,
   type WorkspaceRole,
 } from "@/lib/navigation";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
-import {
-  isNavItemVisibleForSurface,
-} from "@/lib/product-surface/nav-visibility";
+import { isNavItemVisibleForSurface } from "@/lib/product-surface/nav-visibility";
 import {
   cmdkFilterRecentHrefsForSurface,
   cmdkResultSortKey,
@@ -39,20 +38,58 @@ import {
   emitCmdkZeroResultsTelemetry,
 } from "@/actions/product-telemetry";
 import { RecoverableState } from "@/components/ui/recoverable-state";
+import { ResultRow, resolveRowActionVerb } from "@/components/search/result-row";
+import { SearchField, type SearchFieldHandle } from "@/components/search/search-field";
+import { resolveNavIcon } from "@/components/search/nav-icon";
 import {
   allCommandItems,
   cmdkJumpMatchesPaletteQuery,
   fallbackNavSurface,
+  groupItemsBySearchGroup,
   paletteHrefKey,
-  resultMetaLabel,
+  scoreAndSortItems,
   type CommandPaletteRecovery,
   type ContractPaletteResult,
   type PaletteItem,
 } from "./command-palette-helpers";
-import { CommandPaletteRecentDestinations } from "./command-palette-recent-destinations";
+
+/** Top-of-each-group shortcuts shown in the truly-empty (no recents) state.
+ *  Mirrors the dedicated `/search` page so both surfaces feel identical. */
+const QUICK_PICK_HREFS: readonly string[] = ["/dashboard", "/work", "/reports", "/settings#profile"];
 
 function persistRecentCommands(next: string[]) {
   writeCommandPaletteRecentCommands(next);
+}
+
+/** Contract / report results lead in the "Results" group with rich resultMeta,
+ *  so they keep it. Nav + scoped jumps show a quiet mono path so a taxonomy band
+ *  never mixes verbose metadata with bare paths. */
+function overlayMetaOverride(item: PaletteItem): string | undefined {
+  if (item.resultOrder != null) return undefined;
+  return item.href.split("?")[0] ?? item.href;
+}
+
+function FooterHint({ keys, label }: { keys: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
+      <kbd className="ui-kbd">{keys}</kbd>
+      {label}
+    </span>
+  );
+}
+
+function GroupHead({ label, count }: { label: string; count: number }) {
+  return (
+    <div className="ui-command-group-head">
+      <span className="ui-caps-2 text-[var(--text-tertiary)]">{label}</span>
+      {count >= 1 ? (
+        <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
+          <span className="sr-only">{count} result{count === 1 ? "" : "s"}</span>
+          <span aria-hidden>{count}</span>
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 export function CommandPalette(props: {
@@ -73,25 +110,24 @@ export function CommandPalette(props: {
     () => props.navSurface ?? fallbackNavSurface(role, v5Flags),
     [props.navSurface, role, v5Flags]
   );
-  const showToolsLink = props.showToolsLink ?? true;
+  // The bare `/more` index is Omit for ordinary Core users (release-state
+  // §Route Behavior Map). The palette exposes *specific* supported tools
+  // (Settings, Billing, Imports/exports, …) via CMDK extras — never the
+  // catch-all index. So `more_tools` is always hidden here regardless of the
+  // shared `showToolsLink` chrome boolean; the prop no longer forces it visible.
   const surface = useMemo((): NavSurfaceInput => {
     const hidden = baseSurface.utilityModulesHidden;
-    const hasMoreHidden = hidden.includes("more_tools");
-    if (showToolsLink && hasMoreHidden) {
-      return { ...baseSurface, utilityModulesHidden: hidden.filter((key) => key !== "more_tools") };
-    }
-    if (!showToolsLink && !hasMoreHidden) {
-      return { ...baseSurface, utilityModulesHidden: [...hidden, "more_tools"] };
-    }
-    return baseSurface;
-  }, [showToolsLink, baseSurface]);
+    if (hidden.includes("more_tools")) return baseSurface;
+    return { ...baseSurface, utilityModulesHidden: [...hidden, "more_tools"] };
+  }, [baseSurface]);
   const [open, setOpen] = useState(true);
   const openButtonRef = useRef<HTMLButtonElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const fieldRef = useRef<SearchFieldHandle>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const prevOpen = useRef(false);
   const [query, setQuery] = useState(() => props.initialQuery ?? "");
   const deferredFilterQ = useDeferredValue(query.trim().toLowerCase());
+  const hasQuery = deferredFilterQ.length > 0;
   const [remoteContractResults, setRemoteContractResults] = useState<ContractPaletteResult[]>(
     () => props.contractResults ?? []
   );
@@ -99,11 +135,16 @@ export function CommandPalette(props: {
   const [remoteSearchPartial, setRemoteSearchPartial] = useState<string | null>(null);
   const [remoteSearchRecovery, setRemoteSearchRecovery] = useState<CommandPaletteRecovery | null>(null);
   const [remoteSearchRetryNonce, setRemoteSearchRetryNonce] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(0);
+  // -1 = nothing active yet (browse open → neutral rail, no row highlighted).
+  // A query, hover/focus, or arrow key promotes a row.
+  const [activeIndex, setActiveIndex] = useState(() => (props.initialQuery?.trim() ? 0 : -1));
+  const [railVisible, setRailVisible] = useState(true);
   const [footerVisible, setFooterVisible] = useState(false);
   const [recentHrefs, setRecentHrefs] = useState<string[]>(() => {
     return readCommandPaletteRecentCommands();
   });
+  const [remoteSearchLoading, setRemoteSearchLoading] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
 
   const lastCmdkTelemetryAt = useRef(0);
   const lastZeroQueryKey = useRef<string | null>(null);
@@ -132,23 +173,26 @@ export function CommandPalette(props: {
   function rememberReturnFocusTarget() {
     if (typeof document === "undefined") return;
     const active = document.activeElement;
-    if (!(active instanceof HTMLElement)) {
-      returnFocusRef.current = null;
-      return;
-    }
-    if (searchInputRef.current?.contains(active) || openButtonRef.current?.contains(active)) {
-      returnFocusRef.current = active;
-      return;
-    }
-    if (active === document.body) {
+    if (!(active instanceof HTMLElement) || active === document.body) {
       returnFocusRef.current = null;
       return;
     }
     returnFocusRef.current = active;
   }
 
+  const handleQueryChange = useCallback((next: string) => {
+    setQuery(next);
+    if (next.trim().length < 2) {
+      setRemoteSearchFailed(false);
+      setRemoteSearchPartial(null);
+      setRemoteSearchRecovery(null);
+    }
+    setActiveIndex(next.trim() ? 0 : -1);
+    setRailVisible(true);
+  }, []);
+
   useEffect(() => {
-    queueMicrotask(() => searchInputRef.current?.focus());
+    queueMicrotask(() => fieldRef.current?.focus());
   }, []);
 
   useEffect(() => {
@@ -178,9 +222,10 @@ export function CommandPalette(props: {
       rememberReturnFocusTarget();
       setQuery(q);
       if (q.trim().length < 2) clearRemoteSearchFeedback();
-      setActiveIndex(0);
+      setActiveIndex(q.trim() ? 0 : -1);
+      setRailVisible(true);
       setOpen(true);
-      queueMicrotask(() => searchInputRef.current?.focus());
+      queueMicrotask(() => fieldRef.current?.focus());
     }
     window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
     return () => window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, onPaletteOpen);
@@ -193,6 +238,7 @@ export function CommandPalette(props: {
     }
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
+      setRemoteSearchLoading(true);
       void fetchJson(`/api/command-palette/contracts?q=${encodeURIComponent(q)}`, {
         headers: { Accept: "application/json" },
         signal: controller.signal,
@@ -205,6 +251,7 @@ export function CommandPalette(props: {
         })
         .then((payload) => {
           if (!controller.signal.aborted) {
+            setRemoteSearchLoading(false);
             setRemoteContractResults(payload?.contracts ?? []);
             setRemoteSearchFailed(payload === null);
             setRemoteSearchPartial(payload?.partial?.reason ?? null);
@@ -214,6 +261,7 @@ export function CommandPalette(props: {
         })
         .catch((error) => {
           if (!controller.signal.aborted && error instanceof Error && error.name !== "AbortError") {
+            setRemoteSearchLoading(false);
             setRemoteContractResults([]);
             setRemoteSearchFailed(true);
             setRemoteSearchPartial(null);
@@ -239,15 +287,6 @@ export function CommandPalette(props: {
         event.preventDefault();
         setOpen(false);
       }
-      if (!open) return;
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        setActiveIndex((idx) => idx + 1);
-      }
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        setActiveIndex((idx) => Math.max(0, idx - 1));
-      }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -270,7 +309,11 @@ export function CommandPalette(props: {
   const searchJumpNavItems = useMemo((): PaletteItem[] => {
     return getCmdkSearchJumpItems(surface, query).map((j) => ({
       name: j.name,
-      href: j.href,
+      // The exceptions jump's registry href is the Merge route
+      // /contracts/exceptions (which redirects to Work). Point the palette
+      // straight at the canonical Work surface so the row advertises /work
+      // rather than a Merge path.
+      href: j.href.startsWith("/contracts/exceptions") ? "/work?tab=exceptions" : j.href,
       description: j.description,
       section: "workspace",
       resultMeta: j.meta,
@@ -323,44 +366,13 @@ export function CommandPalette(props: {
     return ranked.slice(0, 8);
   }, [deferredFilterQ, remoteContractResults]);
 
-  const items = useMemo(() => {
-    const base = allCommandItems();
-    const filtered = base.filter((item) => isPaletteItemVisible(item));
-    const sorted = [...filtered].sort((a, b) => {
-      const d = cmdkResultSortKey(a.href) - cmdkResultSortKey(b.href);
-      if (d !== 0) return d;
-      return a.name.localeCompare(b.name);
-    });
-    const q = deferredFilterQ;
-    const navPart = !q
-      ? sorted
-      : sorted.filter((item) =>
-          `${item.name} ${item.description} ${item.href}`.toLowerCase().includes(q)
-        );
-    const remoteHrefSeen = new Set(contractItems.map((item) => paletteHrefKey(item.href)));
-    const dedupedNavPart =
-      q.length > 0
-        ? navPart.filter((item) => {
-            const key = paletteHrefKey(item.href);
-            return !remoteHrefSeen.has(key) && !remoteHrefSeen.has(item.href);
-          })
-        : navPart;
-    const hrefSeen = new Set(
-      [...contractItems, ...dedupedNavPart].map((i) => paletteHrefKey(i.href))
-    );
-    const jumps = !q
-      ? searchJumpNavItems
-      : searchJumpNavItems.filter((item) => cmdkJumpMatchesPaletteQuery(item, q));
-    const extra = jumps.filter((item) => {
-      const path = paletteHrefKey(item.href);
-      return !hrefSeen.has(path) && !hrefSeen.has(item.href);
-    });
-    return q ? [...contractItems, ...extra, ...dedupedNavPart] : [...dedupedNavPart, ...extra];
-  }, [contractItems, deferredFilterQ, isPaletteItemVisible, searchJumpNavItems]);
-
   const visibleRecentHrefs = useMemo(
     () => cmdkFilterRecentHrefsForSurface(recentHrefs, surface).filter((href) => isCmdkHrefAllowed(href, surface)),
     [surface, recentHrefs]
+  );
+  const recentHrefSet = useMemo(
+    () => new Set(visibleRecentHrefs.map((href) => paletteHrefKey(href))),
+    [visibleRecentHrefs]
   );
   const recentItems = useMemo(
     () =>
@@ -369,6 +381,17 @@ export function CommandPalette(props: {
         .filter((match): match is PaletteItem => match !== null && isNavItemVisibleForSurface(match, surface) && isCmdkHrefAllowed(match.href, surface)),
     [surface, visibleRecentHrefs]
   );
+
+  const quickPickItems = useMemo<PaletteItem[]>(() => {
+    const byHref = new Map(
+      allCommandItems()
+        .filter((item) => isPaletteItemVisible(item))
+        .map((item) => [paletteHrefKey(item.href), item] as const)
+    );
+    return QUICK_PICK_HREFS.map((href) => byHref.get(href)).filter(
+      (item): item is PaletteItem => Boolean(item)
+    );
+  }, [isPaletteItemVisible]);
 
   useEffect(() => {
     if (
@@ -380,33 +403,91 @@ export function CommandPalette(props: {
     persistRecentCommands(visibleRecentHrefs);
   }, [recentHrefs, visibleRecentHrefs]);
 
-  const grouped = useMemo(() => {
-    const groups = {
-      monitor: items.filter((item) => getWorkflowAreaForNavItem(item) === "monitor"),
-      workflows: items.filter((item) => getWorkflowAreaForNavItem(item) === "workflows"),
-      assurance: items.filter((item) => getWorkflowAreaForNavItem(item) === "assurance"),
-      insights: items.filter((item) => getWorkflowAreaForNavItem(item) === "insights"),
-      workspace: items.filter((item) => getWorkflowAreaForNavItem(item) === "workspace"),
-    };
-    return groups;
-  }, [items]);
+  // Nav destinations (score-sorted when querying, declared order otherwise) +
+  // registry jumps, deduped against the remote contract results and each other.
+  const navAndJumpItems = useMemo(() => {
+    const navBase = allCommandItems().filter((item) => isPaletteItemVisible(item));
+    const q = deferredFilterQ;
+    const navOrdered = q
+      ? scoreAndSortItems(navBase, q, recentHrefSet)
+      : [...navBase].sort((a, b) => {
+          const d = cmdkResultSortKey(a.href) - cmdkResultSortKey(b.href);
+          if (d !== 0) return d;
+          return a.name.localeCompare(b.name);
+        });
 
-  const flatItems = useMemo(
-    () => [
-      ...grouped.monitor,
-      ...grouped.workflows,
-      ...grouped.assurance,
-      ...grouped.insights,
-      ...grouped.workspace,
-    ],
-    [grouped]
-  );
-  const flatIndexByHref = useMemo(() => {
-    return new Map(flatItems.map((item, idx) => [item.href, idx]));
-  }, [flatItems]);
+    const remoteHrefSeen = new Set(contractItems.map((item) => paletteHrefKey(item.href)));
+    const dedupedNav =
+      q.length > 0
+        ? navOrdered.filter((item) => {
+            const key = paletteHrefKey(item.href);
+            return !remoteHrefSeen.has(key) && !remoteHrefSeen.has(item.href);
+          })
+        : navOrdered;
+
+    const hrefSeen = new Set([...contractItems, ...dedupedNav].map((i) => paletteHrefKey(i.href)));
+    const baseSeen = new Set(
+      [...contractItems, ...dedupedNav].map(
+        (i) => (i.href.split("?")[0] ?? i.href).split("#")[0] ?? i.href
+      )
+    );
+    const jumps = !q
+      ? searchJumpNavItems
+      : searchJumpNavItems.filter((item) => cmdkJumpMatchesPaletteQuery(item, q));
+    const extraJumps = jumps.filter((item) => {
+      const key = paletteHrefKey(item.href);
+      if (hrefSeen.has(key) || hrefSeen.has(item.href)) return false;
+      // Drop a jump that only adds a fragment to an existing nav/contract base
+      // (e.g. /evidence#live-request-queue duplicating the Evidence nav row).
+      // Query-bearing scoped jumps (contract search, Work tabs) are kept.
+      const base = (item.href.split("?")[0] ?? item.href).split("#")[0] ?? item.href;
+      if (!item.href.includes("?") && baseSeen.has(base)) return false;
+      return true;
+    });
+
+    return [...dedupedNav, ...extraJumps];
+  }, [contractItems, deferredFilterQ, isPaletteItemVisible, recentHrefSet, searchJumpNavItems]);
+
+  // Direct workspace matches (contracts / indexed report runs) lead in their own
+  // "Results" section, ahead of the Pages/Queues/Reports/Tools destination
+  // groups — a direct record match outranks a generic search jump. Nav + jump
+  // rows then group under the public taxonomy in SEARCH_GROUP_ORDER.
+  const orderedGroups = useMemo(() => {
+    const out: Array<{ key: string; label: string; items: PaletteItem[] }> = [];
+    if (contractItems.length > 0) {
+      out.push({ key: "results", label: "Results", items: contractItems });
+    }
+    const navGrouped = groupItemsBySearchGroup(navAndJumpItems);
+    for (const group of SEARCH_GROUP_ORDER) {
+      const groupItems = navGrouped.get(group) ?? [];
+      if (groupItems.length > 0) {
+        out.push({ key: group, label: SEARCH_GROUP_LABELS[group], items: groupItems });
+      }
+    }
+    return out;
+  }, [contractItems, navAndJumpItems]);
+
+  const flatItems = useMemo(() => orderedGroups.flatMap((g) => g.items), [orderedGroups]);
+  const flatIndexByHref = useMemo(() => new Map(flatItems.map((item, idx) => [item.href, idx])), [flatItems]);
 
   const clampedActiveIndex =
-    flatItems.length === 0 ? 0 : Math.min(activeIndex, flatItems.length - 1);
+    activeIndex < 0 || flatItems.length === 0 ? -1 : Math.min(activeIndex, flatItems.length - 1);
+
+  // Empty-state bands (mirror the /search page): a Recent band for ≥2 recents,
+  // a single-recent fold into the index for exactly one, else a Quick pick band.
+  const foldedRecentHref =
+    !hasQuery && recentItems.length === 1 ? paletteHrefKey(recentItems[0]!.href) : null;
+  const recentsForBand = !hasQuery && recentItems.length >= 2 ? recentItems : null;
+  const showQuickPick = !hasQuery && recentItems.length === 0;
+
+  // Active result for the desktop detail rail.
+  const activeItem = flatItems[clampedActiveIndex] ?? null;
+  const activeVerb = activeItem ? resolveRowActionVerb(activeItem, role) : "OPEN";
+  const activeGroupLabel = activeItem
+    ? activeItem.resultOrder != null
+      ? "Results"
+      : SEARCH_GROUP_LABELS[resolveSearchGroupForNavItem(activeItem)]
+    : "";
 
   useEffect(() => {
     if (!open) {
@@ -424,11 +505,95 @@ export function CommandPalette(props: {
     return () => window.clearTimeout(t);
   }, [open, deferredFilterQ, flatItems.length]);
 
+  const handleSelectRow = useCallback(
+    (item: PaletteItem) => {
+      void emitCmdkResultSelectedTelemetry({ href: item.href, queryLen: deferredFilterQ.length });
+      rememberCommand(item);
+      setOpen(false);
+    },
+    [deferredFilterQ.length, rememberCommand]
+  );
+
+  // Detail rail goes neutral when the active row is scrolled out of view by
+  // pointer scroll, so it never shows a stale row the user can't see.
+  const handleResultsScroll = useCallback(() => {
+    const ul = document.getElementById("command-palette-results");
+    const active = ul?.querySelector('[data-active="true"]');
+    if (!ul || !(active instanceof HTMLElement)) {
+      setRailVisible(false);
+      return;
+    }
+    const ur = ul.getBoundingClientRect();
+    const ar = active.getBoundingClientRect();
+    setRailVisible(ar.bottom > ur.top + 4 && ar.top < ur.bottom - 4);
+  }, []);
+
+  // Body scroll lock while the palette is open.
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // Arrow / Home / End navigation with wrap-around (clamped to the result count).
+  useEffect(() => {
+    if (!open) return;
+    const len = flatItems.length;
+    if (len === 0) return;
+    function onNav(event: KeyboardEvent) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setRailVisible(true);
+        setActiveIndex((idx) => (idx < 0 ? 0 : (idx + 1) % len));
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setRailVisible(true);
+        setActiveIndex((idx) => (idx < 0 ? len - 1 : (idx - 1 + len) % len));
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        setRailVisible(true);
+        setActiveIndex(0);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        setRailVisible(true);
+        setActiveIndex(len - 1);
+      }
+    }
+    window.addEventListener("keydown", onNav);
+    return () => window.removeEventListener("keydown", onNav);
+  }, [open, flatItems.length]);
+
+  // Keep the active row in view as the user navigates. `block: nearest` honors
+  // the scroller's scroll-padding-top so the sticky group header never covers it.
+  useEffect(() => {
+    if (!open) return;
+    const node = document.querySelector('#command-palette-results [data-active="true"]');
+    if (node instanceof HTMLElement && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ block: "nearest" });
+    }
+  }, [open, clampedActiveIndex]);
+
+  // Debounced live-region result count while querying.
+  useEffect(() => {
+    if (!open || !hasQuery) return;
+    const n = flatItems.length;
+    const t = window.setTimeout(() => {
+      setAnnouncement(`${n} result${n === 1 ? "" : "s"}`);
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [open, hasQuery, deferredFilterQ, flatItems.length]);
+
   useEffect(() => {
     if (!open) return;
     function onEnter(event: KeyboardEvent) {
       if (event.key !== "Enter") return;
-      const item = flatItems[clampedActiveIndex];
+      // Let native Enter act on real links/buttons (Open full search, quick-pick
+      // chips, close) instead of also opening the active row.
+      if (event.target instanceof HTMLElement && event.target.closest("a, button")) return;
+      const item = flatItems[clampedActiveIndex >= 0 ? clampedActiveIndex : 0];
       if (!item) return;
       void emitCmdkResultSelectedTelemetry({
         href: item.href,
@@ -443,6 +608,11 @@ export function CommandPalette(props: {
     return () => window.removeEventListener("keydown", onEnter);
   }, [clampedActiveIndex, deferredFilterQ.length, flatItems, open, rememberCommand, router]);
 
+  const fullSearchHref =
+    query.trim().length > 0
+      ? `/search?q=${encodeURIComponent(query.trim().slice(0, 120))}`
+      : "/search";
+
   return (
     <>
       <button
@@ -453,7 +623,7 @@ export function CommandPalette(props: {
           setOpen(true);
         }}
         data-testid={shellTestIds.commandPaletteTrigger}
-        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)] px-3.5 py-2.5 text-[12.5px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
+        className={`fixed bottom-5 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-tint)] px-3.5 py-2.5 text-[12.5px] font-semibold text-[var(--text-primary)] shadow-[var(--shadow-2)] backdrop-blur-md transition-[opacity,transform] hover:-translate-y-0.5 lg:hidden ${
           footerVisible ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
         aria-label="Open command palette"
@@ -469,7 +639,7 @@ export function CommandPalette(props: {
           aria-modal="true"
           aria-label="Command palette"
           data-testid={shellTestIds.commandPaletteRoot}
-          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-3 pb-6 pt-6 sm:px-4 sm:pt-[10vh]"
+          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:px-4 sm:pt-[11vh]"
         >
           <button
             type="button"
@@ -477,44 +647,43 @@ export function CommandPalette(props: {
             onClick={() => setOpen(false)}
             aria-label="Close command palette overlay"
           />
-          <div className="ui-command-modal relative my-auto w-full max-w-3xl">
-            <div className="ui-command-search">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_78%,transparent)] text-[var(--accent-strong)]">
-                <Search size={18} aria-hidden />
-              </div>
-              <input
-                ref={searchInputRef}
-                data-testid={shellTestIds.commandPaletteInput}
-                autoFocus
+          <div
+            className="ui-command-modal relative flex w-full max-w-3xl flex-col lg:max-w-[56rem]"
+            style={{ maxHeight: "min(33rem, calc(100dvh - 9rem))" }}
+          >
+            <div className="ui-command-search shrink-0">
+              <SearchField
+                ref={fieldRef}
+                variant="overlay"
+                isOpen
+                isCombobox={false}
                 value={query}
-                onChange={(event) => {
-                  const nextQuery = event.target.value;
-                  setQuery(nextQuery);
-                  if (nextQuery.trim().length < 2) clearRemoteSearchFeedback();
+                onChange={handleQueryChange}
+                onClear={() => {
+                  setQuery("");
+                  clearRemoteSearchFeedback();
                   setActiveIndex(0);
                 }}
-                className="min-h-0 min-w-0 w-full bg-transparent py-0 pl-0 pr-1.5 text-[14px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
                 placeholder="Search pages, queues, reports, tools"
+                ariaLabel="Search pages, queues, reports, tools"
+                ariaControls="command-palette-results"
+                ariaKeyShortcuts="ArrowUp ArrowDown Enter Escape"
+                testId={shellTestIds.commandPaletteInput}
+                trailing={
+                  hasQuery ? (
+                    <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
+                      <span className="sr-only">{flatItems.length} result{flatItems.length === 1 ? "" : "s"}</span>
+                      <span aria-hidden>{flatItems.length}</span>
+                    </span>
+                  ) : null
+                }
               />
-              {/* T0.9 — when the overlay is open, the keybind that's relevant
-                  is Esc (close), not ⌘K (toggle). Swap the badge so the
-                  visible kbd hint matches the active surface. */}
-              <div className="hidden items-center gap-1 justify-self-end text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)] sm:flex">
-                <span className="ui-kbd">Esc</span>
-              </div>
             </div>
-            {!query && (
-              <CommandPaletteRecentDestinations
-                items={recentItems}
-                onSelect={(item) => {
-                  void emitCmdkResultSelectedTelemetry({ href: item.href, queryLen: deferredFilterQ.length });
-                  rememberCommand(item);
-                  setOpen(false);
-                }}
-              />
-            )}
+            <div role="status" aria-live="polite" className="sr-only">
+              {hasQuery ? announcement : ""}
+            </div>
             {remoteSearchPartial ? (
-              <div className="border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">
+              <div className="shrink-0 border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">
                 <RecoverableState
                   state="partial"
                   title="Command search is partially available"
@@ -534,136 +703,236 @@ export function CommandPalette(props: {
                 />
               </div>
             ) : null}
-            <ul data-testid={shellTestIds.commandPaletteResults} className="max-h-[58vh] overflow-y-auto py-2">
-              {flatItems.length === 0 ? (
-                <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">
-                  <RecoverableState
-                    state={remoteSearchFailed ? "failed" : "empty"}
-                    title={remoteSearchFailed ? "Command search could not load." : (remoteSearchRecovery?.message ?? "No matches found.")}
-                    reason={
-                      remoteSearchFailed
-                        ? "Retry command search or open workspace health for recovery diagnostics."
-                        : "No eligible command destination matched this query. Search contracts or use a recovery destination."
-                    }
-                    accessibleName={remoteSearchFailed ? "Command palette failed search state" : "Command palette empty search state"}
-                    surface="command_palette"
-                    section="zero_results"
-                    sourceObject="setting_destination"
-                    diagnosticId={remoteSearchRecovery?.diagnosticId}
-                    nextActionLabel={remoteSearchFailed ? "Retry command search" : "Search contracts for this query"}
-                    className="border-0 bg-transparent p-0"
-                    nextAction={
-                      <>
-                        {remoteSearchFailed ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRemoteSearchFailed(false);
-                              setRemoteSearchRetryNonce((value) => value + 1);
-                            }}
-                            className="ui-button-secondary min-h-9 rounded-full px-3 text-xs"
+            {/* Body: results list (left) + a desktop-only detail rail (right).
+                Only the results list scrolls; header + footer stay pinned;
+                overflow is signaled by the scrollbar + bottom padding. */}
+            <div className="flex min-h-0 flex-auto">
+              <div className="flex min-h-0 flex-auto flex-col">
+              <ul
+                id="command-palette-results"
+                data-testid={shellTestIds.commandPaletteResults}
+                onScroll={handleResultsScroll}
+                className="ui-command-scroll min-h-0 flex-auto overflow-y-auto pb-4 pt-1"
+              >
+                {remoteSearchLoading && deferredFilterQ.length >= 2 ? (
+                  <li className="flex items-center gap-2.5 px-4 py-2 text-[12.5px] text-[var(--text-tertiary)]">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--border-strong)] border-t-[var(--accent)] motion-reduce:animate-none"
+                    />
+                    Searching contracts…
+                  </li>
+                ) : null}
+                {flatItems.length === 0 && !remoteSearchLoading ? (
+                  <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">
+                    <RecoverableState
+                      state={remoteSearchFailed ? "failed" : "empty"}
+                      title={remoteSearchFailed ? "Command search could not load." : (remoteSearchRecovery?.message ?? "No matches found.")}
+                      reason={
+                        remoteSearchFailed
+                          ? "Retry command search or open workspace health for recovery diagnostics."
+                          : "No eligible command destination matched this query. Search contracts or use a recovery destination."
+                      }
+                      accessibleName={remoteSearchFailed ? "Command palette failed search state" : "Command palette empty search state"}
+                      surface="command_palette"
+                      section="zero_results"
+                      sourceObject="setting_destination"
+                      diagnosticId={remoteSearchRecovery?.diagnosticId}
+                      nextActionLabel={remoteSearchFailed ? "Retry command search" : "Search contracts for this query"}
+                      className="border-0 bg-transparent p-0"
+                      nextAction={
+                        <>
+                          {remoteSearchFailed ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setRemoteSearchFailed(false);
+                                setRemoteSearchRetryNonce((value) => value + 1);
+                              }}
+                              className="ui-btn-secondary min-h-9 rounded-full px-3 text-xs"
+                            >
+                              Retry search
+                            </button>
+                          ) : null}
+                          {remoteSearchFailed || remoteSearchRecovery ? (
+                            <Link href="/settings/health" onClick={() => setOpen(false)} className="ui-link inline-flex">
+                              Review workspace health
+                            </Link>
+                          ) : null}
+                          {remoteSearchRecovery
+                            ? remoteSearchRecovery.actions.map((action) => (
+                                <Link
+                                  key={`${action.href}:${action.reason ?? "recovery"}`}
+                                  href={action.href}
+                                  onClick={() => setOpen(false)}
+                                  className="ui-btn-secondary min-h-9 rounded-full px-3 text-xs"
+                                >
+                                  {action.label}
+                                </Link>
+                              ))
+                            : null}
+                          <Link
+                            href={`/contracts?search=${encodeURIComponent(query.trim())}`}
+                            onClick={() => setOpen(false)}
+                            className="ui-link inline-flex"
                           >
-                            Retry search
-                          </button>
-                        ) : null}
-                        <Link href="/settings/health" onClick={() => setOpen(false)} className="ui-link inline-flex">
-                          Review workspace health
-                        </Link>
-                        {remoteSearchRecovery
-                          ? remoteSearchRecovery.actions.map((action) => (
-                              <Link
-                                key={`${action.href}:${action.reason ?? "recovery"}`}
-                                href={action.href}
-                                onClick={() => setOpen(false)}
-                                className="ui-button-secondary min-h-9 rounded-full px-3 text-xs"
-                              >
-                                {action.label}
-                              </Link>
-                            ))
-                          : null}
-                        <Link
-                          href={`/contracts?search=${encodeURIComponent(query.trim())}`}
-                          onClick={() => setOpen(false)}
-                          className="ui-link inline-flex"
-                        >
-                          Search contracts for this query
-                        </Link>
-                      </>
-                    }
-                    noActionExplanation={
-                      remoteSearchRecovery ? undefined : "Recovery action: route to eligible contract search instead of leaving a blank panel."
-                    }
-                  />
-                </li>
-              ) : (
-                ([
-                  [WORKFLOW_AREA_LABELS.monitor, grouped.monitor],
-                  [WORKFLOW_AREA_LABELS.workflows, grouped.workflows],
-                  [WORKFLOW_AREA_LABELS.assurance, grouped.assurance],
-                  [WORKFLOW_AREA_LABELS.insights, grouped.insights],
-                  [WORKFLOW_AREA_LABELS.workspace, grouped.workspace],
-                ] as const).map(([label, groupItems]) => {
-                  if (groupItems.length === 0) return null;
-                  return (
-                    <li key={label}>
-                      <p className="ui-command-group-label">
-                        {label}
-                      </p>
-                      <ul>
-                        {groupItems.map((item) => {
-                          const idx = flatIndexByHref.get(item.href) ?? -1;
-                          const active = idx === clampedActiveIndex;
-                          return (
-                            <li key={item.href}>
-                              <Link
-                                href={item.href}
-                                onClick={() => {
-                                  void emitCmdkResultSelectedTelemetry({
-                                    href: item.href,
-                                    queryLen: deferredFilterQ.length,
-                                  });
-                                  rememberCommand(item);
-                                  setOpen(false);
-                                }}
-                                className={`ui-command-item group ${
-                                  active ? "ui-command-item-active" : "ui-command-item-idle"
-                                }`}
-                              >
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <p className="break-words text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
-                                    <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.description}</p>
-                                    <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
-                                      {resultMetaLabel(item)}
-                                    </p>
-                                  </div>
-                                  <span className={`shrink-0 text-[var(--text-tertiary)] transition-transform ${active ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>
-                                    <ArrowRight size={15} aria-hidden />
-                                  </span>
-                                </div>
-                              </Link>
+                            Search contracts for this query
+                          </Link>
+                        </>
+                      }
+                      noActionExplanation={
+                        remoteSearchRecovery ? undefined : "Recovery action: route to eligible contract search instead of leaving a blank panel."
+                      }
+                    />
+                  </li>
+                ) : flatItems.length === 0 ? null : (
+                  <>
+                    {recentsForBand ? (
+                      <li>
+                        <GroupHead label="Recent" count={recentsForBand.length} />
+                        <ul>
+                          {recentsForBand.map((item) => (
+                            <li key={`recent-${item.href}`}>
+                              <ResultRow
+                                item={item}
+                                role={role}
+                                metaOverride={overlayMetaOverride(item)}
+                                onSelect={() => handleSelectRow(item)}
+                              />
                             </li>
-                          );
-                        })}
-                      </ul>
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-            {/* T0.10 — overlay footer copy trimmed to the only hints relevant
-                to the search overlay. The "tables with checkboxes" clause
-                was leaked from another surface and is now removed. */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-4 py-3 text-[11px] text-[var(--text-tertiary)] sm:px-5">
-              <p>Arrow keys to move · Enter to open · Esc to close.</p>
+                          ))}
+                        </ul>
+                      </li>
+                    ) : null}
+
+                    {showQuickPick && quickPickItems.length > 0 ? (
+                      <li>
+                        <GroupHead label="Quick pick" count={0} />
+                        {/* Compact shortcut chips, not full rows — these
+                            destinations also appear in the taxonomy groups
+                            below, so a quieter chip band avoids row-for-row
+                            duplication. */}
+                        <div className="flex flex-wrap gap-1.5 px-4 pb-2.5 pt-1">
+                          {quickPickItems.map((item) => (
+                            <Link
+                              key={`quick-${item.href}`}
+                              href={item.href}
+                              onClick={() => handleSelectRow(item)}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+                            >
+                              <span aria-hidden className="text-[var(--accent-strong)]">
+                                {createElement(resolveNavIcon(item), { className: "h-3.5 w-3.5", strokeWidth: 1.85 })}
+                              </span>
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </li>
+                    ) : null}
+
+                    {orderedGroups.map((section) => (
+                      <li key={section.key}>
+                        <GroupHead label={section.label} count={section.items.length} />
+                        <ul>
+                          {section.items.map((item) => {
+                            const idx = flatIndexByHref.get(item.href) ?? -1;
+                            const active = idx === clampedActiveIndex;
+                            const isRecent =
+                              !active &&
+                              foldedRecentHref !== null &&
+                              paletteHrefKey(item.href) === foldedRecentHref;
+                            return (
+                              <li key={item.href}>
+                                <ResultRow
+                                  item={item}
+                                  role={role}
+                                  query={hasQuery ? query : undefined}
+                                  isActive={active}
+                                  isRecent={isRecent}
+                                  metaOverride={overlayMetaOverride(item)}
+                                  onSelect={() => handleSelectRow(item)}
+                                  onActivate={() => {
+                                    if (idx >= 0) setActiveIndex(idx);
+                                    setRailVisible(true);
+                                  }}
+                                />
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
+              </div>
+              <aside className="hidden w-[16rem] shrink-0 flex-col overflow-y-auto border-l border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] p-4 lg:flex">
+                {activeItem && railVisible ? (
+                  <>
+                    <span
+                      aria-hidden
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]"
+                    >
+                      {createElement(resolveNavIcon(activeItem), { className: "h-[1.125rem] w-[1.125rem]", strokeWidth: 1.85 })}
+                    </span>
+                    <p className="mt-3 text-[15px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
+                      {activeItem.name}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                        {activeGroupLabel}
+                      </span>
+                      <span className="inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                        {activeVerb}
+                      </span>
+                    </div>
+                    {activeItem.description ? (
+                      <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+                        {activeItem.description}
+                      </p>
+                    ) : null}
+                    <p className="mt-3 break-all font-mono text-[11px] text-[var(--text-tertiary)]">
+                      {activeItem.href}
+                    </p>
+                    <Link
+                      href={activeItem.href}
+                      onClick={() => handleSelectRow(activeItem)}
+                      className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_35%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_48%,var(--surface-raised))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+                    >
+                      {activeVerb}
+                      <ArrowRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                    </Link>
+                  </>
+                ) : (
+                  <div className="m-auto text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                      Keyboard
+                    </p>
+                    <div className="mt-2.5 flex flex-col gap-2 text-[11px] text-[var(--text-tertiary)]">
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        <kbd className="ui-kbd">↑↓</kbd> Move
+                      </span>
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        <kbd className="ui-kbd">Enter</kbd> Open
+                      </span>
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        <kbd className="ui-kbd">Esc</kbd> Close
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </aside>
+            </div>
+            <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[var(--border-subtle)] bg-[var(--surface-tint)] px-3 py-2.5 sm:px-4">
+              <div className="hidden items-center gap-3 sm:flex">
+                <FooterHint keys="↑↓" label="Move" />
+                <FooterHint keys="Enter" label="Open" />
+                <FooterHint keys="Esc" label="Close" />
+              </div>
               <Link
-                href={
-                  query.trim().length > 0
-                    ? `/search?q=${encodeURIComponent(query.trim().slice(0, 200))}`
-                    : "/search"
-                }
+                href={fullSearchHref}
                 onClick={() => setOpen(false)}
-                className="ui-link inline-flex shrink-0 items-center gap-1 text-[11.5px] font-semibold"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1 text-[11.5px] font-semibold text-[var(--text-secondary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:text-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
               >
                 Open full search
                 <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />

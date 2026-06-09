@@ -7,3 +7,9 @@
 # rate limit, and IP allowlist (no session org context on this internal diagnostics surface).
 # meta: reviewedOn=2026-05-11 owner=@security expiry=2027-12-31 reason=internal_diagnostics_route_has_secret_rate_limit_and_ip_allowlist_gates compensatingTest=scripts/check-api-route-admin-org-scope.mjs
 internal/debugging-sweep/route.ts
+
+# contact: public pre-account access-review intake writes only workspace_access_requests/events;
+# no tenant organization exists yet. Abuse/PII boundaries are covered by rate limiting,
+# bounded JSON parsing, enum validation, honeypot handling, and contact-route tests.
+# meta: reviewedOn=2026-06-04 owner=@product-marketing expiry=2027-12-31 reason=public_pre_account_access_request_has_no_tenant_org_scope compensatingTest=src/app/api/contact/route.test.ts
+contact/route.ts

@@ -33,7 +33,7 @@ import { UiToggle } from "@/components/ui/ui-toggle";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
 
-export const metadata = { title: "Obligations" };
+export const metadata = { title: "Requirements" };
 
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
 const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
@@ -177,8 +177,8 @@ export default async function ContractObligationsPage(props: {
       <DashboardPageHeader
         icon={<ListChecks className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Portfolio commitments"
-        title="Obligations queue"
-        lead="Operational commitments and due-state execution."
+        title="Requirements queue"
+        lead="Contract requirements, owners, due dates, and follow-up state."
         actions={
           <Link
             href="/contracts"
@@ -190,9 +190,9 @@ export default async function ContractObligationsPage(props: {
         }
       />
 
-      <section className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Obligations summary">
+      <section className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Requirements summary">
         <StatCell
-          label="Open obligations"
+          label="Open requirements"
           display={String(openObligations)}
           isZero={openObligations === 0}
           tone="warning"
@@ -221,7 +221,7 @@ export default async function ContractObligationsPage(props: {
         />
       </section>
 
-      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" aria-label="Obligations filters and saved queues">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" aria-label="Requirements filters and saved queues">
         <div className="ui-card min-w-0 overflow-hidden p-0">
           <SectionHeader
             eyebrow="Filters"
@@ -246,7 +246,7 @@ export default async function ContractObligationsPage(props: {
                 <UiRadioGroup
                   name="status"
                   defaultValue={status}
-                  ariaLabel="Obligation status"
+                  ariaLabel="Requirement status"
                   options={STATUS_FILTERS}
                 />
               </div>
@@ -301,10 +301,10 @@ export default async function ContractObligationsPage(props: {
                 Queue name
               </label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                <input aria-label="My open obligations" id="obligation-view-name"
+                <input aria-label="My open requirements" id="obligation-view-name"
                   name="name"
                   required
-                  placeholder="My open obligations"
+                  placeholder="My open requirements"
                   className="ui-input min-w-0 flex-1"
                 />
                 <button
@@ -317,7 +317,7 @@ export default async function ContractObligationsPage(props: {
               </div>
             </form>
             {savedViews.length > 0 ? (
-              <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] border-y border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]" aria-label="Saved obligation queues">
+              <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] border-y border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]" aria-label="Saved requirement queues">
                 {savedViews.map((view) => (
                   <li key={view.id} className="space-y-2 py-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -336,7 +336,7 @@ export default async function ContractObligationsPage(props: {
                         <button
                           type="submit"
                           className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
-                          aria-label={`${view.pinned ? "Unpin" : "Pin"} saved obligation queue ${view.name}`}
+                          aria-label={`${view.pinned ? "Unpin" : "Pin"} saved requirement queue ${view.name}`}
                         >
                           <Pin className="h-3 w-3" aria-hidden />
                           {view.pinned ? "Unpin" : "Pin"}
@@ -355,7 +355,7 @@ export default async function ContractObligationsPage(props: {
                         <button
                           type="submit"
                           className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-[var(--danger-ink)]"
-                          aria-label={`Delete saved obligation queue ${view.name}`}
+                          aria-label={`Delete saved requirement queue ${view.name}`}
                         >
                           Delete
                         </button>
@@ -391,8 +391,8 @@ export default async function ContractObligationsPage(props: {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-8">
             <EmptyState
               eyebrow="Queue status"
-              title="No obligations match this queue"
-              copy="Adjust the filters above, clear the current queue, or review unified work for other action types."
+              title="No requirements match this queue"
+              copy="Adjust the filters above, clear the current queue, or review tasks for other action types."
               icon={<Compass className="h-7 w-7 text-[var(--accent-strong)]" strokeWidth={1.65} aria-hidden />}
               className="lg:items-start lg:text-left"
               action={
@@ -402,7 +402,7 @@ export default async function ContractObligationsPage(props: {
                     className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
                   >
                     <ArrowRight className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Review unified work
+                    Review tasks
                   </Link>
                   <Link
                     href="/contracts/obligations"
@@ -415,7 +415,7 @@ export default async function ContractObligationsPage(props: {
             />
 
             <SamplePreviewCard
-              eyebrow="Sample obligation"
+              eyebrow="Sample requirement"
               title="Renew certificate of insurance"
               meta={["Insurance renewal", "Annual cadence"]}
               status={<StatusPill tone="warning">Open</StatusPill>}
@@ -437,7 +437,7 @@ export default async function ContractObligationsPage(props: {
                 Rows
               </p>
               <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">
-                Obligation ledger
+                Requirements ledger
               </h2>
               <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                 Due state, escalation timing, and the next clarification step — visible without losing contract context.
@@ -449,11 +449,11 @@ export default async function ContractObligationsPage(props: {
             </span>
           </header>
           <div className="max-w-full overflow-x-auto [contain:inline-size]">
-            <table aria-label="Obligations in this queue" className="min-w-full divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] text-sm">
+            <table aria-label="Requirements in this queue" className="min-w-full divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] text-sm">
               <thead>
                 <tr className="text-left">
                   <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Obligation
+                    Requirement
                   </th>
                   <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                     Contract

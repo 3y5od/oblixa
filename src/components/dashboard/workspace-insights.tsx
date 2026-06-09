@@ -9,7 +9,7 @@ interface WorkspaceInsightsProps {
   orgId: string;
 }
 
-const APPROVED_FIELD_SECONDS = 90;
+const CONFIRMED_DETAIL_SECONDS = 90;
 
 function formatHoursSaved(seconds: number): { value: string; unit: string } {
   const hours = seconds / 3600;
@@ -54,7 +54,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
   const approvedFieldsTotal = approvedFieldsTotalRes.count ?? 0;
   const approvalsThisWeek = approvalsCompletedRecentRes.count ?? 0;
 
-  const hoursSaved = formatHoursSaved(approvedFieldsTotal * APPROVED_FIELD_SECONDS);
+  const hoursSaved = formatHoursSaved(approvedFieldsTotal * CONFIRMED_DETAIL_SECONDS);
 
   // Reviewer leaderboard — aggregate by user_id, prefer detail.actor_name for label.
   const reviewerCounts = new Map<string, { count: number; name?: string; email?: string }>();
@@ -141,7 +141,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
           <div className="mt-3 flex items-baseline gap-1.5">
             <p
               className="text-[2rem] font-semibold leading-none tabular-nums tracking-[-0.02em] text-[var(--accent-strong)]"
-              title={`Based on ${approvedFieldsTotal.toLocaleString()} approved fields × ${APPROVED_FIELD_SECONDS}s manual review time`}
+              title={`Based on ${approvedFieldsTotal.toLocaleString()} confirmed details × ${CONFIRMED_DETAIL_SECONDS}s manual confirmation time`}
             >
               {hoursSaved.value}
             </p>
@@ -151,7 +151,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-card)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none">
-              <span className="text-[var(--text-tertiary)]">FIELDS</span>
+              <span className="text-[var(--text-tertiary)]">DETAILS</span>
               <span className="tabular-nums text-[var(--text-primary)]">
                 {approvedFieldsTotal.toLocaleString()}
               </span>
@@ -159,7 +159,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-card)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none">
               <span className="text-[var(--text-tertiary)]">PER</span>
               <span className="tabular-nums text-[var(--text-primary)]">
-                {APPROVED_FIELD_SECONDS}s
+                {CONFIRMED_DETAIL_SECONDS}s
               </span>
             </span>
           </div>
@@ -190,7 +190,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
               {approvalsThisWeek}
             </p>
             <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-              SIGNED
+              COMPLETED
             </span>
           </div>
           <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-[var(--border-card)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--text-tertiary)]">
@@ -203,7 +203,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
           <header className="flex items-center justify-between gap-2">
             <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
               <Trophy className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              Top reviewers
+              Top confirmers
             </p>
             <span className="inline-flex items-center rounded-full border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none text-[var(--text-tertiary)]">
               7D
@@ -211,7 +211,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
           </header>
           {topReviewers.length === 0 ? (
             <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border-card)] bg-[var(--surface)] px-2 py-0.5 text-[10.5px] uppercase leading-none">
-              <span className="font-bold tracking-[0.14em] text-[var(--text-secondary)]">NO APPROVALS</span>
+              <span className="font-bold tracking-[0.14em] text-[var(--text-secondary)]">NO CONFIRMATIONS</span>
               <span className="font-medium tracking-[0.12em] text-[var(--text-tertiary)]">7D</span>
             </span>
           ) : (
@@ -232,7 +232,7 @@ export async function WorkspaceInsights({ orgId }: WorkspaceInsightsProps) {
                       </div>
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] leading-none tabular-nums text-[var(--text-secondary)]">
-                      <span className="text-[var(--success-ink)]">APPROVED</span>
+                      <span className="text-[var(--success-ink)]">CONFIRMED</span>
                       <span>{r.count}</span>
                     </span>
                   </li>

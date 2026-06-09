@@ -33,7 +33,7 @@ export type V10SharedAction =
 
 export const V10_SHARED_ACTION_VOCABULARY: Record<V10SharedAction, { label: string; auditVerb: string }> = {
   assign_owner: { label: "Assign owner", auditVerb: "owner.assigned" },
-  complete_work_item: { label: "Complete work item", auditVerb: "work_item.completed" },
+  complete_work_item: { label: "Complete task", auditVerb: "work_item.completed" },
   request_evidence: { label: "Request evidence", auditVerb: "evidence.requested" },
   review_evidence: { label: "Review evidence", auditVerb: "evidence.reviewed" },
   approve: { label: "Approve", auditVerb: "approval.approved" },

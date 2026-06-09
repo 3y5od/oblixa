@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-06-04T20:45:47.199Z",
+  "generatedAt": "2026-06-06T18:36:28.468Z",
   "counts": {
     "route_state": 52,
     "layout": 23,
@@ -949,8 +949,7 @@
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
       "providers": [
-        "openai",
-        "storage"
+        "openai"
       ],
       "dbDependencies": {
         "tables": [],
@@ -17117,7 +17116,8 @@
         "tables": [
           "organization_invites",
           "organization_members",
-          "workspace_access_grants"
+          "workspace_access_grants",
+          "workspace_access_requests"
         ],
         "rpcs": []
       },
@@ -22601,7 +22601,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "sentry"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23630,7 +23632,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "sentry"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23816,7 +23820,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "stripe"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -23877,7 +23883,8 @@
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
       "providers": [
-        "openai"
+        "openai",
+        "storage"
       ],
       "dbDependencies": {
         "tables": [],
@@ -25497,9 +25504,7 @@
         "supabase"
       ],
       "dbDependencies": {
-        "tables": [
-          "organization_members"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -26165,7 +26170,9 @@
       "rateLimitPolicy": "standard_or_not_applicable",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
-      "providers": [],
+      "providers": [
+        "openai"
+      ],
       "dbDependencies": {
         "tables": [],
         "rpcs": []
@@ -32806,10 +32813,8 @@
       "dynamicSegments": [],
       "authModel": "session",
       "rolePolicy": [
-        "viewer",
-        "editor",
-        "manager",
-        "admin"
+        "admin",
+        "manager"
       ],
       "workspaceModes": [
         "public_or_external"
@@ -33697,7 +33702,10 @@
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_requests"
+        ],
         "rpcs": []
       },
       "routeStates": {
@@ -36490,7 +36498,10 @@
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_requests"
+        ],
         "rpcs": []
       },
       "routeStates": {
@@ -38193,7 +38204,10 @@
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_requests"
+        ],
         "rpcs": []
       },
       "routeStates": {
@@ -38250,7 +38264,10 @@
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_requests"
+        ],
         "rpcs": []
       },
       "routeStates": {
@@ -38307,7 +38324,10 @@
         "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [],
+        "tables": [
+          "workspace_access_grants",
+          "workspace_access_requests"
+        ],
         "rpcs": []
       },
       "routeStates": {

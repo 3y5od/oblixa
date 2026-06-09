@@ -139,7 +139,7 @@ export async function POST(request: Request) {
   }
   if (!canEditContracts(role)) {
     return jsonProblem(403, {
-      error: "Viewers cannot run extraction",
+      error: "Viewers cannot suggest contract details",
       code: "insufficient_role",
       diagnostic_id: "extract_viewer_forbidden",
       route: ROUTE,
@@ -194,7 +194,7 @@ export async function POST(request: Request) {
         {
           accepted: true,
           async: true,
-          message: "Extraction already in progress",
+          message: "Suggestions already in progress",
         },
         { status: 202 }
       );
@@ -229,7 +229,7 @@ export async function POST(request: Request) {
         contractId,
         orgId,
         false,
-        "Extraction failed unexpectedly. Please try again."
+        "Suggestions failed unexpectedly. Please try again."
       );
     } catch (finishErr) {
       console.error("[api/extract] failed to finalize job after error:", finishErr);
@@ -307,8 +307,8 @@ export async function POST(request: Request) {
           const admin = await createAdminClient();
           const friendly =
             res.status >= 500
-              ? "The extraction service is temporarily unavailable. Please try again."
-              : "Could not start extraction. Please try again.";
+              ? "The suggestion service is temporarily unavailable. Please try again."
+              : "Could not start suggestions. Please try again.";
           await finishExtractionJob(admin, contractId, orgId, false, friendly);
         }
       } catch (err) {
@@ -354,7 +354,7 @@ export async function POST(request: Request) {
             contractId,
             orgId,
             false,
-            "Extraction failed unexpectedly. Please try again."
+            "Suggestions failed unexpectedly. Please try again."
           );
         } catch (finishErr) {
           console.error("[api/extract] failed to finalize job after error:", finishErr);
@@ -370,7 +370,7 @@ export async function POST(request: Request) {
     {
       accepted: true,
       async: true,
-      message: "Extraction started",
+      message: "Suggestions started",
     },
     { status: 202 }
   );

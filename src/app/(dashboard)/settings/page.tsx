@@ -109,29 +109,48 @@ export default async function SettingsPage() {
   });
 
   return (
-    <div className="ui-page-stack mx-auto w-full max-w-5xl gap-4">
+    <div className="ui-page-stack-dense mx-auto w-full max-w-6xl">
       <DashboardPageHeader
         icon={<Settings className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow={SETTINGS_PAGE_STRINGS.eyebrow}
         title={SETTINGS_PAGE_STRINGS.title}
         lead={SETTINGS_PAGE_STRINGS.lead}
+        metaStrip={
+          membership ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <dt className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Role</dt>
+                <dd className="font-medium text-[var(--text-primary)]">{viewModel.roleLabel}</dd>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <dt className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Members</dt>
+                <dd className="font-medium tabular-nums text-[var(--text-primary)]">{members.length}</dd>
+              </div>
+              {pendingInvites.length > 0 ? (
+                <div className="flex items-center gap-1.5">
+                  <dt className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Pending</dt>
+                  <dd className="font-semibold tabular-nums text-[var(--warning-ink)]">{pendingInvites.length}</dd>
+                </div>
+              ) : null}
+            </>
+          ) : undefined
+        }
       />
 
       <SettingsAttentionSummary summary={viewModel.statusSummary} />
       <SettingsDirectory groups={viewModel.groups} />
 
       {membership ? (
-        // IA transition — the Directory above jumps to dedicated settings
-        // areas; the cards below edit workspace / account / team inline. The
-        // top hairline + caps eyebrow (not a heading, to keep the h1→h2
-        // hierarchy clean) marks the shift so the two no longer read as one
-        // competing surface.
-        <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
-          <div className="flex flex-col gap-1">
-            <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Workspace &amp; account</p>
-            <p className="text-[12.5px] leading-snug text-[var(--text-secondary)]">
-              Edit these directly — changes apply to your workspace right away.
-            </p>
+        // IA transition — the Directory above jumps to dedicated settings areas;
+        // the cards below edit workspace / account / team inline. A hairline +
+        // caps eyebrow (a structural divider, not a heading, to keep the h1→h2
+        // hierarchy clean) + an "Edit inline" state chip mark the shift.
+        <div className="flex flex-col gap-5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-4">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Workspace and account</p>
+            <span className="ui-caps-3 inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] text-[var(--text-tertiary)]">
+              Edit inline
+            </span>
           </div>
           {/* §10.17 + §10.18 — pair the two compact identity editors side by
               side so neither sits half-empty at full width, then let the dense
@@ -159,13 +178,8 @@ export default async function SettingsPage() {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
-          <div className="flex flex-col gap-1">
-            <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Your account</p>
-            <p className="text-[12.5px] leading-snug text-[var(--text-secondary)]">
-              Update how your name appears across workspace activity.
-            </p>
-          </div>
+        <div className="flex flex-col gap-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-4">
+          <p className="ui-caps-1 text-[11px] text-[var(--text-tertiary)]">Your account</p>
           <ProfileSettingsSection
             fullName={profile?.full_name ?? null}
             email={user.email || ""}

@@ -243,17 +243,17 @@ export function v10CommandActionLabel(row: { record_type: unknown; description_s
   const description = String(row.description_safe ?? "").toLowerCase();
   const openActionByType: Record<string, string> = {
     contract: "Inspect contract",
-    work_item: "Continue work",
-    field: "Review field",
-    obligation: "Review obligation",
+    work_item: "Continue task",
+    field: "Confirm detail",
+    obligation: "Review requirement",
     approval: "Review approval",
     renewal_checkpoint: "Review renewal",
     reminder: "Review renewal",
-    exception: "Triage exception",
+    exception: "Review issue",
     evidence_request: "Review evidence",
     saved_view: "Load saved view",
     file_upload: "Inspect contract",
-    extraction_job: "Review extraction",
+    extraction_job: "Review suggestions",
     report_family: "Review reports",
     account: "Review workspace",
     counterparty: "Review workspace",
@@ -339,15 +339,15 @@ export function buildV10CommandSearchRecovery(input: {
 }): V10CommandSearchRecovery | null {
   if (input.query.trim().length < 2) {
     return {
-      message: "Type at least two characters to search contracts, work, reports, settings, and recoverable jobs.",
+      message: "Type at least two characters to search contracts, tasks, reports, settings, and recoverable jobs.",
       diagnosticId: "v10_command_search_short_query",
-      actions: [{ label: "Review work queue", href: "/work", reason: "short_query" }],
+      actions: [{ label: "Review task queue", href: "/work", reason: "short_query" }],
     };
   }
   if (input.resultCount > 0 && !input.partialIndex && (input.hiddenFilteredCount ?? 0) === 0) return null;
   const reason = input.partialIndex ? "partial_index" : "zero_result";
   const actions: V10CommandSearchRecoveryAction[] = [
-    { label: "Review work queue", href: "/work", reason },
+    { label: "Review task queue", href: "/work", reason },
     { label: "Browse contracts", href: "/contracts", reason },
     { label: "Review reports", href: "/reports", reason },
     { label: "Check system health", href: "/settings/health", reason },

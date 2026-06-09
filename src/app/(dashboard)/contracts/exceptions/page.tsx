@@ -32,7 +32,7 @@ import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-membe
 type StatusFilter = "" | "open" | "in_progress" | "resolved" | "closed";
 type SeverityFilter = "" | "low" | "medium" | "high" | "critical";
 
-export const metadata = { title: "Exceptions" };
+export const metadata = { title: "Issues" };
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "", label: "All" },
@@ -68,7 +68,7 @@ const EXCEPTION_TYPE_DISPLAY: Record<string, string> = {
   missing_critical_field: "Required information missing",
   missing_critical_dates: "Required dates missing",
   approval_sla_breach: "Approval SLA breach",
-  obligation_overdue: "Obligation is overdue",
+  obligation_overdue: "Contract requirement is overdue",
   escalation: "Manager escalation",
   policy_control: "Control breach",
   policy_escalation: "Control escalation",
@@ -129,8 +129,8 @@ export default async function ExceptionsPage(props: {
   if (!ctx) {
     return (
       <WorkspaceRequiredState
-        title="Workspace required for exceptions"
-        message="Exception ownership, SLA tracking, and recovery actions only render inside a workspace. Refresh this page, then ask a workspace admin to restore access if the ledger still stays unavailable."
+        title="Workspace required for issues"
+        message="Issue ownership, target dates, and recovery actions only render inside a workspace. Refresh this page, then ask a workspace admin to restore access if the issue list still stays unavailable."
       />
     );
   }
@@ -241,9 +241,9 @@ export default async function ExceptionsPage(props: {
     <div className="ui-page-stack mx-auto max-w-6xl">
       <DashboardPageHeader
         icon={<ShieldAlert className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-        eyebrow="Exceptions"
-        title="Exception ledger"
-        lead="Live system of record for assignment, SLA tracking, and recovery history."
+        eyebrow="Issues"
+        title="Contract issues"
+        lead="Track missing information, overdue contract requirements, escalations, and other contract problems until they are owned and resolved."
         actions={
           showDecisionsCta ? (
             <Link
@@ -259,15 +259,15 @@ export default async function ExceptionsPage(props: {
         }
       />
 
-      <section aria-label="Exception summary" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label="Issue summary" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCell
-          label="Open exceptions"
+          label="Open issues"
           display={String(actionableExceptions.length)}
           isZero={actionableExceptions.length === 0}
           tone="warning"
           context={
             actionableExceptions.length === 0
-              ? "Ledger is clear"
+              ? "Issue list is clear"
               : `${actionableExceptions.length === 1 ? "1 entry needs" : `${actionableExceptions.length} entries need`} action`
           }
         />
@@ -310,10 +310,6 @@ export default async function ExceptionsPage(props: {
           }
         />
         <form action="/contracts/exceptions" method="get" className="px-5 py-4">
-          <select aria-hidden className="sr-only" tabIndex={-1} defaultValue="">
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
           <div className="space-y-2.5">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <p className="min-w-[4.5rem] shrink-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
@@ -322,7 +318,7 @@ export default async function ExceptionsPage(props: {
               <UiRadioGroup
                 name="status"
                 defaultValue={status}
-                ariaLabel="Exception status"
+                ariaLabel="Issue status"
                 options={STATUS_FILTERS}
               />
             </div>
@@ -333,7 +329,7 @@ export default async function ExceptionsPage(props: {
               <UiRadioGroup
                 name="severity"
                 defaultValue={severity}
-                ariaLabel="Exception severity"
+                ariaLabel="Issue severity"
                 options={SEVERITY_FILTERS}
               />
             </div>
@@ -354,13 +350,13 @@ export default async function ExceptionsPage(props: {
         <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-              Ledger entries
+              Issues in scope
             </p>
             <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">
-              Exceptions in scope
+              Contract issues in scope
             </h2>
             <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-              State, owners, and recovery actions visible in one place — not buried in freeform notes.
+              State, owners, and recovery actions visible in one place.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -393,12 +389,12 @@ export default async function ExceptionsPage(props: {
         {orderedExceptions.length === 0 ? (
           <div className="p-5">
             <EmptyState
-              eyebrow="Ledger status"
-              title="No exceptions match this ledger"
+              eyebrow="Issue status"
+              title="No issues match this view"
               copy={
                 hasFilters
-                  ? "Adjust the filters above or clear the current view to keep active contract exceptions visible."
-                  : "No contract exceptions are in scope right now."
+                  ? "Adjust the filters above or clear the current view to keep active contract issues visible."
+                  : "No contract issues are in scope right now."
               }
               action={
                 <>
@@ -406,7 +402,7 @@ export default async function ExceptionsPage(props: {
                     Clear filters
                   </Link>
                   <Link href="/work" className="ui-btn-secondary px-4 py-2 text-[12.5px]">
-                    Review unified work
+                    Review tasks
                   </Link>
                 </>
               }

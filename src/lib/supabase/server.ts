@@ -210,14 +210,12 @@ export async function ensureUserOrg(
 ) {
   const admin = adminClient ?? (await createAdminClient());
 
-  const { data: existing } = await admin
-    .from("organization_members")
-    .select("id")
-    .eq("user_id", userId)
-    .limit(1)
-    .single();
-
-  if (existing) return;
+  const resolution = await resolveExplicitOrSingleMembership(admin, userId);
+  if (resolution.ok) return;
+  if (resolution.reason !== "organization_membership_missing") {
+    console.error("Failed to resolve org membership before creation:", resolution.reason);
+    return;
+  }
 
   const { data: org, error: orgError } = await admin
     .from("organizations")

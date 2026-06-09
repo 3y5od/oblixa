@@ -147,7 +147,9 @@ describe("resolver", () => {
   it("cmd-K keeps routed Settings destinations reachable without sidebar children", () => {
     const adminSurface: NavSurfaceInput = { ...coreSurface, role: "admin" };
     expect(isCmdkHrefAllowed("/settings/billing", coreSurface)).toBe(true);
-    expect(isCmdkHrefAllowed("/settings/operations#notifications", adminSurface)).toBe(true);
+    // /settings/operations is Omit for Core (Global not found even for admins);
+    // the Notifications shortcut was removed, so this deep link is not reachable.
+    expect(isCmdkHrefAllowed("/settings/operations#notifications", adminSurface)).toBe(false);
     expect(isCmdkHrefAllowed("/settings/security", adminSurface)).toBe(true);
     expect(isCmdkHrefAllowed("/settings#profile", adminSurface)).toBe(true);
     expect(isCmdkHrefAllowed("/settings#workspace-identity", adminSurface)).toBe(true);

@@ -28,6 +28,7 @@ import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { UiAlert } from "@/components/ui/ui-alert";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ChipPair } from "@/components/ui/chip-pair";
+import { KeyValueChip } from "@/components/ui/key-value-chip";
 import { getStripeClient, resolveSubscriptionStatus } from "@/lib/stripe";
 import {
   SubscribeButton,
@@ -206,7 +207,7 @@ function BillingDl({ rows }: { rows: ReadonlyArray<FactRow> }) {
 
 // §1.7 — vary FAQ medallion per topic (replaces uniform ShieldCheck)
 const FAQ_ICONS: Record<string, LucideIcon> = {
-  "What happens after evaluation?": Clock,
+  "What happens after access review?": Clock,
   "Can I export before cancelling?": Download,
   "When would paid use start?": CircleDollarSign,
   "Can I add more contracts?": FileText,
@@ -298,7 +299,7 @@ export default async function BillingPage(props: {
   if (membershipResult.error && !membership) {
     console.error("[settings/billing] membership query:", membershipResult.error);
     return (
-      <div className="ui-page-stack mx-auto max-w-4xl gap-4">
+      <div className="ui-page-stack mx-auto max-w-5xl gap-4">
         <UiAlert tone="warning">
           We couldn&apos;t load your workspace membership. Refresh to try
           again, or contact{" "}
@@ -313,7 +314,7 @@ export default async function BillingPage(props: {
 
   if (!membership) {
     return (
-      <div className="ui-page-stack mx-auto max-w-4xl gap-4">
+      <div className="ui-page-stack mx-auto max-w-5xl gap-4">
         <UiAlert tone="warning">
           Access revoked. Contact your workspace admin or visit{" "}
           <Link href="/settings/team" className="ui-link">
@@ -762,7 +763,7 @@ export default async function BillingPage(props: {
     // §1.5 drop Renewal date when metaStrip has it (currentPeriodEnd
     // non-null); keep for placeholder states.
     {
-      label: isTrialing ? "Evaluation ends" : "Renewal date",
+      label: isTrialing ? "Activation ends" : "Renewal date",
       value:
         currentPeriodEnd ??
         (isTrialing
@@ -812,10 +813,11 @@ export default async function BillingPage(props: {
         <>
           {SETTINGS_BILLING_STRINGS.planContent.emailReminders}
           <Link
-            href="/settings/notifications"
-            className="ui-link ml-2 text-[12px]"
+            href="/settings/operations#notifications"
+            className="ui-link ml-2 inline-flex items-center gap-0.5 text-[12px]"
           >
-            Manage cadence →
+            Manage cadence
+            <ChevronRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
           </Link>
         </>
       ),
@@ -1162,8 +1164,12 @@ export default async function BillingPage(props: {
           "{date}",
           currentPeriodEnd
         )}{" "}
-        <Link href="/settings/imports-exports" className="ui-link">
-          Export your contract inventory →
+        <Link
+          href="/settings/imports-exports"
+          className="ui-link inline-flex items-center gap-0.5"
+        >
+          Export your contract inventory
+          <ChevronRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
         </Link>
       </UiAlert>
     ) : null;
@@ -1212,8 +1218,12 @@ export default async function BillingPage(props: {
   const scaBanner = nextActionUrl ? (
     <UiAlert tone="warning">
       Action required — your last payment needs additional authentication.{" "}
-      <Link href={nextActionUrl} className="ui-link">
-        Complete authentication →
+      <Link
+        href={nextActionUrl}
+        className="ui-link inline-flex items-center gap-0.5"
+      >
+        Complete authentication
+        <ChevronRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
       </Link>
     </UiAlert>
   ) : null;
@@ -1235,8 +1245,12 @@ export default async function BillingPage(props: {
           {String(defaultPaymentMethod.expMonth).padStart(2, "0")}/
           {defaultPaymentMethod.expYear}. Update your card before the next
           renewal{currentPeriodEnd ? ` on ${currentPeriodEnd}` : ""}.{" "}
-          <Link href="/api/stripe/portal" className="ui-link">
-            Update payment method →
+          <Link
+            href="/api/stripe/portal"
+            className="ui-link inline-flex items-center gap-0.5"
+          >
+            Update payment method
+            <ChevronRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
           </Link>
         </UiAlert>
       );
@@ -1313,7 +1327,7 @@ export default async function BillingPage(props: {
   const trialExpiredBanner =
     subscriptionStatus === "none" && stripeTrialEndedAt ? (
       <UiAlert tone="warning">
-        Evaluation ended on{" "}
+        Activation ended on{" "}
         {formatBillingDate(new Date(stripeTrialEndedAt))}.
         Contact support to review continued access.
       </UiAlert>
@@ -1344,7 +1358,7 @@ export default async function BillingPage(props: {
    */
 
   return (
-    <div className="ui-page-stack mx-auto max-w-4xl gap-4">
+    <div className="ui-page-stack mx-auto max-w-5xl gap-4">
       {/* §11.1 skip-to-content link for keyboard users */}
       <a
         href="#billing-plan-title"
@@ -1382,39 +1396,37 @@ export default async function BillingPage(props: {
               ? SETTINGS_BILLING_STRINGS.leadFreeState
               : SETTINGS_BILLING_STRINGS.leadActiveState
           }
-          /* Couple the workspace identity to the title (inline, wraps under it
-             on narrow screens) instead of a right-floated block that left a
-             wide gap. */
-          titleSuffix={
-            subscriptionStatus === "none" ? (
-              <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-0.5">
-                <span className="ui-caps-3 shrink-0 text-[var(--text-tertiary)]">
-                  Workspace
-                </span>
-                <span className="min-w-0 truncate text-[12px] font-medium text-[var(--text-primary)]">
-                  {org.name}
-                </span>
-              </span>
-            ) : undefined
-          }
           metaStrip={
             // Finishing-pass §1.10 — on free state, surface workspace
             // identity + trial-ended date (when available) so the
             // right column isn't empty. The header otherwise reads
             // as missing data on the most common screen state.
             subscriptionStatus === "none" ? (
-              stripeTrialEndedAt ? (
+              <>
                 <div>
                   <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                    {SETTINGS_BILLING_STRINGS.trialEndedLabel}
+                    {SETTINGS_BILLING_STRINGS.workspaceIdLabel}
                   </dt>
-                  <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
-                    {formatBillingDate(
-                      Math.floor(new Date(stripeTrialEndedAt).getTime() / 1000)
-                    )}
+                  <dd
+                    className="mt-0.5 min-w-0 max-w-[14rem] truncate font-medium text-[var(--text-primary)]"
+                    title={org.name}
+                  >
+                    {org.name}
                   </dd>
                 </div>
-              ) : undefined
+                {stripeTrialEndedAt ? (
+                  <div>
+                    <dt className="ui-caps-2 text-[var(--text-tertiary)]">
+                      {SETTINGS_BILLING_STRINGS.trialEndedLabel}
+                    </dt>
+                    <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
+                      {formatBillingDate(
+                        Math.floor(new Date(stripeTrialEndedAt).getTime() / 1000)
+                      )}
+                    </dd>
+                  </div>
+                ) : null}
+              </>
             ) : (
               <>
                 {/* §2.4 Plan · Status · Renews */}
@@ -1446,7 +1458,7 @@ export default async function BillingPage(props: {
                 {currentPeriodEnd ? (
                   <div>
                     <dt className="ui-caps-2 text-[var(--text-tertiary)]">
-                      {isTrialing ? "Evaluation ends" : "Renews"}
+                      {isTrialing ? "Activation ends" : "Renews"}
                     </dt>
                     <dd className="mt-0.5 font-medium tabular-nums text-[var(--text-primary)]">
                       {currentPeriodEnd}
@@ -1462,9 +1474,9 @@ export default async function BillingPage(props: {
                         )}
                       </dd>
                     ) : null}
-                    {/* §9.6 — time-zone disclosure */}
+                    {/* Time-zone disclosure. */}
                     <dd className="ui-caps-3 mt-0.5 text-[var(--text-tertiary)]">
-                      UTC · auto-renews at 00:00
+                      Auto-renews 00:00 UTC
                     </dd>
                   </div>
                 ) : null}
@@ -1482,13 +1494,11 @@ export default async function BillingPage(props: {
                     </dd>
                   </div>
                 ) : null}
-                {/* §12.5 Stripe Tax indicator (subscribed states only) */}
+                {/* Stripe Tax indicator (subscribed states only). */}
                 {stripeTaxEnabled ? (
                   <div>
                     <dd>
-                      <span className="ui-caps-3 text-[var(--text-tertiary)]">
-                        TAX · AUTO-CALCULATED
-                      </span>
+                      <KeyValueChip label="TAX" value="Auto-calculated" />
                     </dd>
                   </div>
                 ) : null}
@@ -1535,7 +1545,7 @@ export default async function BillingPage(props: {
         ) : null}
         {/* Suppress this standalone notice in the empty-state card path — the
             card already communicates the gated state (no Subscribe, Contact
-            support, "Founding monthly plan after evaluation"). Keep it for the
+            support, "Core monthly plan after approval"). Keep it for the
             non-card states that have nothing else explaining the gate. */}
         {stripeConfigured &&
         !billingCheckoutEnabled &&
@@ -1684,11 +1694,11 @@ export default async function BillingPage(props: {
                   edge-to-edge sprawl at lg+. */}
               <ul className="mt-2 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
                 {[
-                  "Contract upload and import for a small evaluation set",
+                  "Contract upload and import for a bounded first set",
                   "Source-backed suggestions reviewed by your team",
                   "CSV export",
                   "Audit history",
-                  "Product support during evaluation",
+                  "Product support during activation",
                 ].map((feature) => (
                   <li key={feature} className="inline-flex items-center gap-2">
                     <IncludedCheck />
@@ -1728,9 +1738,17 @@ export default async function BillingPage(props: {
               {/* Reviewed-access billing posture, without fixed public pricing.
                   One quiet metadata row tied under a hairline — no standalone
                   vertical divider, no large-caps prose. */}
-              <div className="mt-4 flex flex-col items-start gap-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3">
-                <span className="text-[12px] font-medium text-[var(--text-secondary)]">
-                  Core monthly plan after approval
+              <div className="mt-4 flex flex-col items-start gap-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-[1.5rem] font-semibold leading-none tabular-nums text-[var(--text-primary)]">
+                    {SETTINGS_BILLING_STRINGS.corePrice.display}
+                  </span>
+                  <span className="text-[12.5px] text-[var(--text-tertiary)]">
+                    {SETTINGS_BILLING_STRINGS.corePrice.cadence}
+                  </span>
+                </div>
+                <span className="text-[12px] text-[var(--text-secondary)]">
+                  {SETTINGS_BILLING_STRINGS.corePrice.note}
                 </span>
                 <TrialMicrocopyChipPair />
               </div>
@@ -1842,9 +1860,6 @@ export default async function BillingPage(props: {
                 key={question}
                 /* §8.2 name="billing-faq" → native exclusive-open behavior */
                 name="billing-faq"
-                /* §4.4 default-open the first question for first-paint
-                    content density */
-                open={idx === 0 ? true : undefined}
                 className="ui-billing-faq group"
               >
                 <summary
@@ -1895,9 +1910,7 @@ export default async function BillingPage(props: {
             href={SETTINGS_BILLING_STRINGS.publicPricingHref}
             className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
           >
-            {/* Drop the baked-in "→" so this matches the ChevronRight vocabulary
-                used by the other action links (admin / eval-card). */}
-            {SETTINGS_BILLING_STRINGS.publicPricingLink.replace(/\s*→\s*$/, "")}
+            {SETTINGS_BILLING_STRINGS.publicPricingLink}
             <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
           </Link>
         </footer>

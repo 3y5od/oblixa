@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { ExternalLink } from "@/components/ui/external-link";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
@@ -45,14 +46,23 @@ export function ReviewBoardCreateForm() {
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <select className="ui-input-compact w-full" value={boardType} onChange={(e) => setBoardType(e.target.value)}>
-        <option value="weekly_portfolio_health">Weekly portfolio health</option>
-        <option value="monthly_control_effectiveness">Monthly control effectiveness</option>
-        <option value="renewal_readiness">Renewal readiness</option>
-        <option value="evidence_compliance">Evidence compliance</option>
-        <option value="campaign_effectiveness">Campaign effectiveness</option>
-        <option value="counterparty_risk">Counterparty risk</option>
-      </select>
+      <UiSelect
+        value={boardType}
+        onChange={setBoardType}
+        ariaLabel="Board type"
+        options={[
+          { value: "weekly_portfolio_health", label: "Weekly portfolio health" },
+          { value: "monthly_control_effectiveness", label: "Monthly control effectiveness" },
+          { value: "renewal_readiness", label: "Renewal readiness" },
+          { value: "evidence_compliance", label: "Evidence compliance" },
+          { value: "campaign_effectiveness", label: "Campaign effectiveness" },
+          { value: "counterparty_risk", label: "Counterparty risk" },
+        ]}
+        variant="compact"
+        portal
+        className="w-full"
+        buttonClassName="w-full"
+      />
       <AsyncActionButton type="submit" className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-inverse)] disabled:opacity-50" pending={pending} pendingLabel="Saving…">
         Create
       </AsyncActionButton>
@@ -308,12 +318,20 @@ export function ReviewBoardPatchPanel({
         </label>
         <label className="flex items-center gap-1 text-[11px]">
           Cadence
-          <select className="ui-input-compact" value={cadence} onChange={(e) => setCadence(e.target.value)}>
-            <option value="weekly">weekly</option>
-            <option value="biweekly">biweekly</option>
-            <option value="monthly">monthly</option>
-            <option value="quarterly">quarterly</option>
-          </select>
+          <UiSelect
+            value={cadence}
+            onChange={setCadence}
+            ariaLabel="Cadence"
+            options={[
+              { value: "weekly", label: "weekly" },
+              { value: "biweekly", label: "biweekly" },
+              { value: "monthly", label: "monthly" },
+              { value: "quarterly", label: "quarterly" },
+            ]}
+            variant="compact"
+            portal
+            buttonClassName="text-xs"
+          />
         </label>
       </div>
       <AsyncActionButton type="submit" className="rounded bg-[var(--text-primary)] px-2 py-1 text-[11px] text-[var(--text-inverse)] disabled:opacity-50" pending={pending} pendingLabel="Saving…">

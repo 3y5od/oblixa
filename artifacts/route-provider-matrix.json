@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-04T20:45:47.201Z",
+  "generatedAt": "2026-06-06T18:36:28.471Z",
   "rows": [
     {
       "route": "/",
@@ -108,8 +108,7 @@
       "route": "/acceptable-use",
       "sourcePath": "src/app/(marketing)/acceptable-use/page.tsx",
       "providers": [
-        "openai",
-        "storage"
+        "openai"
       ],
       "fallbackRequired": true
     },
@@ -2633,8 +2632,10 @@
     {
       "route": "/evidence",
       "sourcePath": "src/app/(dashboard)/evidence/error.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/evidence",
@@ -2745,8 +2746,10 @@
     {
       "route": "/operator/access-requests",
       "sourcePath": "src/app/operator/access-requests/error.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "sentry"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/operator/access-requests",
@@ -2768,14 +2771,17 @@
     {
       "route": "/pricing",
       "sourcePath": "src/app/(marketing)/pricing/page.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "stripe"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/privacy",
       "sourcePath": "src/app/(marketing)/privacy/page.tsx",
       "providers": [
-        "openai"
+        "openai",
+        "storage"
       ],
       "fallbackRequired": true
     },
@@ -3036,8 +3042,10 @@
     {
       "route": "/terms",
       "sourcePath": "src/app/(marketing)/terms/page.tsx",
-      "providers": [],
-      "fallbackRequired": false
+      "providers": [
+        "openai"
+      ],
+      "fallbackRequired": true
     },
     {
       "route": "/work",

@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import {
   delegateContractApprovalForm,
   updateContractApprovalStatusForm,
@@ -140,11 +141,11 @@ export default async function ApprovalsPage(props: {
           context={delegatedApprovals === 0 ? "Nothing routed elsewhere" : "Routed to alternates"}
         />
         <StatCell
-          label="Blocked scenarios"
+          label="Scenarios needing input"
           display={String(blockedScenarios)}
           isZero={blockedScenarios === 0}
           tone="danger"
-          context={blockedScenarios === 0 ? "No unblock plans needed" : "Need an unblock plan"}
+          context={blockedScenarios === 0 ? "No dependency plans needed" : "Need a dependency plan"}
         />
       </section>
 
@@ -216,7 +217,7 @@ export default async function ApprovalsPage(props: {
                     className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
                   >
                     <ArrowRight className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Review unified work
+                    Review tasks
                   </Link>
                   {hasFilters ? (
                     <Link
@@ -263,7 +264,7 @@ export default async function ApprovalsPage(props: {
                 Approval queue
               </h2>
               <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                Execution queue for signoff, delegation, and exception-aware decision pressure.
+                Execution queue for signoff, delegation, and issue-aware decision pressure.
               </p>
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
@@ -297,7 +298,7 @@ export default async function ApprovalsPage(props: {
                           </h3>
                           <StatusPill tone={stTone}>{formatOperatorLabel(row.status)}</StatusPill>
                           {row.exception_flag ? (
-                            <StatusPill tone="warning">Exception</StatusPill>
+                            <StatusPill tone="warning">Issue</StatusPill>
                           ) : null}
                         </div>
                         {contract ? (
@@ -320,7 +321,7 @@ export default async function ApprovalsPage(props: {
                         {row.exception_flag ? (
                           <p className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] text-[var(--warning-ink)]">
                             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
-                            <span>{row.exception_reason || "Exception reason not provided"}</span>
+                            <span>{row.exception_reason || "Issue reason not provided"}</span>
                           </p>
                         ) : null}
                       </div>
@@ -419,19 +420,21 @@ export default async function ApprovalsPage(props: {
                             Delegate to
                           </label>
                           <div className="flex flex-1 flex-wrap items-stretch gap-2 sm:max-w-[20rem]">
-                            <select
+                            <UiSelect
                               id={`approval-delegate-${row.id}`}
                               name="delegateToUserId"
                               defaultValue=""
-                              className="ui-input min-w-0 flex-1 text-[12.5px]"
-                            >
-                              <option value="">Select member…</option>
-                              {memberOptions.map((member) => (
-                                <option key={member.id} value={member.id}>
-                                  {member.label}
-                                </option>
-                              ))}
-                            </select>
+                              placeholder="Select member…"
+                              options={memberOptions.map((member) => ({
+                                value: member.id,
+                                label: member.label,
+                              }))}
+                              variant="compact"
+                              portal
+                              searchThreshold={8}
+                              className="min-w-0 flex-1"
+                              buttonClassName="w-full !min-h-11 text-[12.5px]"
+                            />
                             <button
                               type="submit"
                               className="ui-btn-secondary inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
@@ -461,7 +464,7 @@ export default async function ApprovalsPage(props: {
               Renewal scenarios
             </h2>
             <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-              Approval timing aligned with scenario blockers, escalation dates, and target decisions.
+              Approval timing aligned with scenario dependencies, escalation dates, and target decisions.
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
@@ -483,7 +486,7 @@ export default async function ApprovalsPage(props: {
                   No renewal scenarios yet
                 </p>
                 <p className="mt-0.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                  Scenarios appear once contracts have decision timing, blockers, or renewal paths to compare against approvals.
+                  Scenarios appear once contracts have decision timing, dependencies, or renewal paths to compare against approvals.
                 </p>
               </div>
             </div>
@@ -516,7 +519,7 @@ export default async function ApprovalsPage(props: {
                           <h3 className="text-sm font-semibold tracking-tight text-[var(--text-primary)]">
                             {row.scenario.replace(/_/g, " ")}
                           </h3>
-                          {row.blocker ? <StatusPill tone="warning">Blocked</StatusPill> : null}
+                          {row.blocker ? <StatusPill tone="warning">Needs input</StatusPill> : null}
                         </div>
                         {contract ? (
                           <Link
@@ -533,7 +536,7 @@ export default async function ApprovalsPage(props: {
                         {row.blocker ? (
                           <p className="mt-2 inline-flex items-start gap-1.5 text-[12.5px] text-[var(--warning-ink)]">
                             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
-                            <span>Blocker · {row.blocker}</span>
+                            <span>Input needed · {row.blocker}</span>
                           </p>
                         ) : null}
                       </div>

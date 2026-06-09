@@ -62,7 +62,7 @@ export function workspaceHealthModeLabel(mode: WorkspaceHealthMode): string {
 export function statusLabel(status: WorkspaceHealthStatus): string {
   switch (status) {
     case "blocked":
-      return "Blocked";
+      return "Needs input";
     case "needs_attention":
       return "Needs attention";
     case "delayed":

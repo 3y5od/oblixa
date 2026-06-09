@@ -1,8 +1,8 @@
 export const REPORTS_EYEBROW = "Reports";
 export const REPORTS_PAGE_TITLE = "Reports";
-export const REPORTS_PAGE_LEAD = "Export operational reports for renewals, work, evidence, exceptions, and contract inventory.";
+export const REPORTS_PAGE_LEAD = "Export operational reports for renewals, tasks, evidence, issues, and contract inventory.";
 export const REPORTS_PRIMARY_CTA = "Export report";
-export const REPORTS_EMPTY_STATE = "Reports become more useful as you review fields, assign owners, and track work.";
+export const REPORTS_EMPTY_STATE = "Reports become more useful as you confirm contract details, assign owners, and track tasks.";
 
 export const REPORTS_PARTIAL_DATA_TITLE = "Report data is partially unavailable";
 export const REPORTS_PARTIAL_DATA_REASON =
@@ -12,21 +12,20 @@ export const REPORT_LABELS = {
   upcoming_renewals: "Upcoming renewals",
   notice_deadlines: "Notice deadlines",
   missing_owners: "Missing owners",
-  missing_key_fields: "Missing key fields",
-  open_obligations: "Open obligations",
-  overdue_work: "Overdue work",
-  exceptions_by_owner: "Exceptions by owner",
+  missing_key_fields: "Missing key details",
+  open_obligations: "Open requirements",
+  overdue_work: "Overdue tasks",
+  exceptions_by_owner: "Issues by owner",
   evidence_requests: "Evidence requests",
   contract_inventory: "Contract inventory",
-  review_completeness: "Review completeness",
+  review_completeness: "Confirmation completeness",
 } as const;
 
 export const REPORT_FILTER_LABELS = {
-  // "Renewal window" over a bare "Window": the dimension is a forward-looking
-  // horizon over the renewal cycle (it scopes the two windowed reports —
-  // upcoming renewals and notice deadlines), and "Window" alone never said
-  // window of what.
-  window: "Renewal window",
+  // "Window": the two-token pill always shows the caps label beside the value
+  // ("WINDOW │ 90 days"), and the windowed reports (upcoming renewals, notice
+  // deadlines) already supply the renewal context, so the shorter label is clear.
+  window: "Window",
   owner: "Owner",
   counterparty: "Counterparty",
   status: "Status",

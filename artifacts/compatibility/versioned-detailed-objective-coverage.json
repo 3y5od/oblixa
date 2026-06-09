@@ -395,8 +395,8 @@
     "coverageProvenObjectiveCount": 13,
     "retainedLegacyObjectiveCount": 1,
     "noCurrentHitsObjectiveCount": 0,
-    "contractCount": 2428,
-    "manualOnlyContractCount": 836,
+    "contractCount": 2350,
+    "manualOnlyContractCount": 802,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
     "missingValidationCommandCount": 0
@@ -414,15 +414,15 @@
         "feature_flag_key",
         "source_schema_or_action_contract"
       ],
-      "contractCount": 212,
-      "hitCount": 620,
-      "manualOnlyContractCount": 85,
-      "queueCoveredManualCount": 83,
-      "allowlistCoveredManualCount": 85,
-      "documentationOnlyManualCount": 3,
+      "contractCount": 211,
+      "hitCount": 646,
+      "manualOnlyContractCount": 82,
+      "queueCoveredManualCount": 82,
+      "allowlistCoveredManualCount": 82,
+      "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 212,
+      "validationCommandCoveredCount": 211,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 82,
@@ -431,8 +431,8 @@
       },
       "allowlistEntryCount": 0,
       "ownerCoverage": {
-        "platform-hardening": 127,
-        "platform-runtime": 85
+        "platform-hardening": 129,
+        "platform-runtime": 82
       }
     },
     {
@@ -449,15 +449,15 @@
         "provider_signature_version",
         "webhook_or_provider_callback"
       ],
-      "contractCount": 60,
-      "hitCount": 135,
-      "manualOnlyContractCount": 60,
-      "queueCoveredManualCount": 60,
-      "allowlistCoveredManualCount": 51,
-      "documentationOnlyManualCount": 6,
+      "contractCount": 54,
+      "hitCount": 122,
+      "manualOnlyContractCount": 54,
+      "queueCoveredManualCount": 54,
+      "allowlistCoveredManualCount": 46,
+      "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 60,
+      "validationCommandCoveredCount": 54,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 46,
@@ -467,7 +467,7 @@
       "allowlistEntryCount": 3,
       "ownerCoverage": {
         "platform-api": 1,
-        "platform-security": 59
+        "platform-security": 53
       }
     },
     {
@@ -485,25 +485,25 @@
         "operational_env_key",
         "public_env_key"
       ],
-      "contractCount": 137,
-      "hitCount": 352,
-      "manualOnlyContractCount": 134,
-      "queueCoveredManualCount": 133,
-      "allowlistCoveredManualCount": 134,
-      "documentationOnlyManualCount": 5,
+      "contractCount": 132,
+      "hitCount": 341,
+      "manualOnlyContractCount": 129,
+      "queueCoveredManualCount": 129,
+      "allowlistCoveredManualCount": 129,
+      "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 137,
+      "validationCommandCoveredCount": 132,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 172,
+      "queueEntryCount": 173,
       "queueStatusCounts": {
         "alias_added": 24,
-        "awaiting_production_cutover": 148
+        "awaiting_production_cutover": 149
       },
       "allowlistEntryCount": 2,
       "ownerCoverage": {
-        "platform-runtime": 134,
+        "platform-runtime": 129,
         "release-engineering": 3
       }
     },
@@ -520,15 +520,15 @@
         "dom_or_test_selector",
         "test_selector"
       ],
-      "contractCount": 62,
-      "hitCount": 104,
+      "contractCount": 61,
+      "hitCount": 102,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 62,
+      "validationCommandCoveredCount": 61,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 65,
@@ -538,7 +538,7 @@
       },
       "allowlistEntryCount": 0,
       "ownerCoverage": {
-        "qa-platform": 62
+        "qa-platform": 61
       }
     },
     {
@@ -553,22 +553,21 @@
         "local_copy_or_historical_document",
         "localization_or_copy_key"
       ],
-      "contractCount": 31,
-      "hitCount": 161,
+      "contractCount": 13,
+      "hitCount": 64,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 31,
+      "validationCommandCoveredCount": 13,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 0,
       "queueStatusCounts": {},
       "allowlistEntryCount": 1,
       "ownerCoverage": {
-        "docs-platform": 18,
         "platform-hardening": 13
       }
     },
@@ -618,24 +617,24 @@
         "public_metadata_or_asset",
         "pwa_or_well_known_contract"
       ],
-      "contractCount": 102,
-      "hitCount": 613,
-      "manualOnlyContractCount": 102,
-      "queueCoveredManualCount": 102,
-      "allowlistCoveredManualCount": 93,
+      "contractCount": 101,
+      "hitCount": 598,
+      "manualOnlyContractCount": 101,
+      "queueCoveredManualCount": 101,
+      "allowlistCoveredManualCount": 92,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 102,
+      "validationCommandCoveredCount": 101,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 102,
+      "queueEntryCount": 101,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 102
+        "awaiting_production_cutover": 101
       },
       "allowlistEntryCount": 2,
       "ownerCoverage": {
-        "frontend-platform": 102
+        "frontend-platform": 101
       }
     },
     {
@@ -766,24 +765,24 @@
         "provider_signature_version",
         "standards_compliance_reference"
       ],
-      "contractCount": 248,
-      "hitCount": 1331,
-      "manualOnlyContractCount": 248,
-      "queueCoveredManualCount": 248,
-      "allowlistCoveredManualCount": 235,
-      "documentationOnlyManualCount": 17,
+      "contractCount": 230,
+      "hitCount": 1330,
+      "manualOnlyContractCount": 230,
+      "queueCoveredManualCount": 230,
+      "allowlistCoveredManualCount": 219,
+      "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 248,
+      "validationCommandCoveredCount": 230,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
-      "queueEntryCount": 344,
+      "queueEntryCount": 343,
       "queueStatusCounts": {
-        "awaiting_production_cutover": 344
+        "awaiting_production_cutover": 343
       },
       "allowlistEntryCount": 12,
       "ownerCoverage": {
-        "platform-security": 248
+        "platform-security": 230
       }
     },
     {
@@ -802,15 +801,15 @@
         "local_source_literal",
         "tooling_or_local_fixture"
       ],
-      "contractCount": 815,
-      "hitCount": 4673,
+      "contractCount": 788,
+      "hitCount": 4558,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 815,
+      "validationCommandCoveredCount": 788,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 271,
@@ -821,8 +820,7 @@
       },
       "allowlistEntryCount": 1,
       "ownerCoverage": {
-        "docs-platform": 18,
-        "platform-hardening": 788,
+        "platform-hardening": 779,
         "qa-platform": 9
       }
     },
@@ -867,15 +865,15 @@
         "artifact_schema_version",
         "supply_chain_evidence_id"
       ],
-      "contractCount": 26,
+      "contractCount": 25,
       "hitCount": 52,
-      "manualOnlyContractCount": 13,
-      "queueCoveredManualCount": 13,
-      "allowlistCoveredManualCount": 13,
-      "documentationOnlyManualCount": 1,
+      "manualOnlyContractCount": 12,
+      "queueCoveredManualCount": 12,
+      "allowlistCoveredManualCount": 12,
+      "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 26,
+      "validationCommandCoveredCount": 25,
       "missingValidationCommandCount": 0,
       "remainingSafeActionCount": 0,
       "queueEntryCount": 22,
@@ -885,7 +883,7 @@
       "allowlistEntryCount": 2,
       "ownerCoverage": {
         "platform-hardening": 13,
-        "platform-security": 13
+        "platform-security": 12
       }
     }
   ],

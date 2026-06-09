@@ -63,12 +63,12 @@ describe("dashboard spec compliance - Core route structure", () => {
 describe("dashboard spec compliance - fixed top cards", () => {
   it("defines exactly six release-state top cards in fixed order", () => {
     expect([...DASHBOARD_TOP_CARDS]).toEqual([
-      "Needs review",
-      "Upcoming deadlines",
-      "Blocked work",
-      "Missing owners",
-      "Open exceptions",
-      "Evidence requested",
+      "Contracts needing review",
+      "Dates coming up",
+      "Tasks awaiting response",
+      "Contracts missing an owner",
+      "Contract problems",
+      "Evidence requests",
     ]);
 
     const cards = deriveCoreDashboardTopCards({
@@ -101,7 +101,7 @@ describe("dashboard spec compliance - fixed top cards", () => {
     }
   });
 
-  it("counts Blocked work from visible v10_work_items instead of a zero stub", () => {
+  it("counts waiting tasks from visible work items instead of a zero stub", () => {
     expect(modelRaw).toContain('from("v10_work_items")');
     expect(modelRaw).toContain("applyV10ReadModelVisibility");
     expect(modelRaw).toContain('.eq("status", "blocked")');
@@ -112,23 +112,25 @@ describe("dashboard spec compliance - fixed top cards", () => {
 describe("dashboard spec compliance - fixed main sections", () => {
   it("defines exactly five release-state main sections in fixed order", () => {
     expect(DASHBOARD_MAIN_SECTIONS.map((section) => section.name)).toEqual([
-      "Review Queue",
-      "Upcoming Deadlines",
-      "Work Needing Action",
-      "Data Gaps",
+      "Details to Confirm",
+      "Dates Coming Up",
+      "Tasks Needing Action",
+      "Missing Details",
       "Recent Activity",
     ]);
     expect(DASHBOARD_MAIN_SECTIONS.map((section) => section.action)).toEqual([
-      "Review fields",
+      "Confirm details",
       "Create reminder",
-      "Open work",
-      "Fix missing data",
+      "Open tasks",
+      "Fix missing details",
       null,
     ]);
   });
 
   it("renders only model sections from the Core model", () => {
-    expect(componentRaw).toContain("orderedSections.map");
+    expect(componentRaw).toContain("prioritySections.map");
+    expect(componentRaw).toContain("monitoringSections.map");
+    expect(componentRaw).toContain("cleanupSections.map");
     expect(componentRaw).toContain('getSection(model, "review_queue")');
     expect(componentRaw).toContain('getSection(model, "recent_activity")');
     expect(modelRaw).toContain("sections: [");
@@ -198,7 +200,7 @@ describe("dashboard spec compliance - navigation and shell", () => {
     expect([...CORE_SIDEBAR_NAV]).toEqual([
       "Dashboard",
       "Contracts",
-      "Work",
+      "Tasks",
       "Renewals",
       "Evidence",
       "Reports",

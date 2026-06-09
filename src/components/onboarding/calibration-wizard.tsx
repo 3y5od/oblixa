@@ -31,6 +31,7 @@ import {
   clampCalibrationWizardStep,
 } from "@/lib/onboarding/calibration-wizard-step";
 import { replaceAppHref } from "@/lib/navigation/client-navigation";
+import { FormSelect } from "@/components/ui/form-select";
 
 const REQUIRED_FIELDS = CALIBRATION_REQUIRED_FIELD_ORDER;
 const LAST_STEP_INDEX = CALIBRATION_LAST_STEP_INDEX;
@@ -234,63 +235,48 @@ export function CalibrationWizard(props: {
 
         {step === 7 && (
           <div className="mt-6 space-y-5">
-            <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">Industry emphasis (optional)</p>
-              <select
-                className="ui-input mt-2 w-full"
-                value={opt.industry_emphasis ?? "unspecified"}
-                onChange={(e) =>
-                  setOpt((o) => ({
-                    ...o,
-                    industry_emphasis: e.target.value as CalibrationAnswersOptional["industry_emphasis"],
-                  }))
-                }
-              >
-                {options.industry_emphasis.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">Import volume (optional)</p>
-              <select
-                className="ui-input mt-2 w-full"
-                value={opt.import_volume ?? "unknown"}
-                onChange={(e) =>
-                  setOpt((o) => ({
-                    ...o,
-                    import_volume: e.target.value as CalibrationAnswersOptional["import_volume"],
-                  }))
-                }
-              >
-                {options.import_volume.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">Your role (optional)</p>
-              <select
-                className="ui-input mt-2 w-full"
-                value={opt.org_role ?? "unspecified"}
-                onChange={(e) =>
-                  setOpt((o) => ({
-                    ...o,
-                    org_role: e.target.value as CalibrationAnswersOptional["org_role"],
-                  }))
-                }
-              >
-                {options.org_role.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <FormSelect
+              label="Industry emphasis (optional)"
+              value={opt.industry_emphasis ?? "unspecified"}
+              onChange={(v) =>
+                setOpt((o) => ({
+                  ...o,
+                  industry_emphasis: v as CalibrationAnswersOptional["industry_emphasis"],
+                }))
+              }
+              options={options.industry_emphasis.map((o) => ({
+                value: o.id,
+                label: o.label,
+              }))}
+            />
+            <FormSelect
+              label="Import volume (optional)"
+              value={opt.import_volume ?? "unknown"}
+              onChange={(v) =>
+                setOpt((o) => ({
+                  ...o,
+                  import_volume: v as CalibrationAnswersOptional["import_volume"],
+                }))
+              }
+              options={options.import_volume.map((o) => ({
+                value: o.id,
+                label: o.label,
+              }))}
+            />
+            <FormSelect
+              label="Your role (optional)"
+              value={opt.org_role ?? "unspecified"}
+              onChange={(v) =>
+                setOpt((o) => ({
+                  ...o,
+                  org_role: v as CalibrationAnswersOptional["org_role"],
+                }))
+              }
+              options={options.org_role.map((o) => ({
+                value: o.id,
+                label: o.label,
+              }))}
+            />
           </div>
         )}
 
@@ -311,8 +297,8 @@ export function CalibrationWizard(props: {
                     {reviewSectionHeadings.summary}
                   </h3>
                   <p className="mt-2 text-[var(--text-secondary)]">
-                    Your workspace is ready to track contracts. Start with a signed agreement, then review fields,
-                    assign an owner, track dates, and turn obligations into work.
+                    Your workspace is ready to track contracts. Start with a signed agreement, then confirm details,
+                    assign an owner, track dates, and turn contract requirements into tasks.
                   </p>
                 </div>
 
@@ -338,7 +324,7 @@ export function CalibrationWizard(props: {
                     {reviewSectionHeadings.reports}
                   </h3>
                   <p className="mt-2 text-[var(--text-secondary)]">
-                    Reports become useful as you review fields, assign owners, add dates, and track work.
+                    Reports become useful as you confirm details, assign owners, add dates, and track tasks.
                   </p>
                 </div>
               </div>

@@ -10,11 +10,22 @@ describe("contracts page surface", () => {
     const page = readFileSync(PAGE, "utf8");
     const table = readFileSync(TABLE, "utf8");
 
-    expect(page).toContain('className="ui-page-stack w-full min-w-0"');
-    expect(page).toContain('className="min-w-0 space-y-2"');
-    expect(page).toContain('className="min-w-0"');
-    expect(table).toContain('className="ui-table-shell min-w-0 max-w-full"');
+    // Canonical wide width + one integrated surface, via the shared shell.
+    expect(page).toContain("<DataSurfaceShell");
+    expect(page).toContain('width="wide"');
+    expect(page).toContain("<DataSurfaceCard");
+    // The table renders bare inside that card (it no longer carries its own
+    // .ui-table-shell — that would be card-within-card), keeping the min-w-0 /
+    // max-w-full and contained horizontal-scroll guards that prevent
+    // narrow-viewport overflow.
+    expect(table).toContain('className="min-w-0 max-w-full"');
     expect(table).toContain('className="max-w-full overflow-x-auto [contain:inline-size]"');
     expect(table).toContain("const [isNarrow, setIsNarrow] = useState(true)");
+    expect(table).toContain("const selectionCellClass");
+    expect(table).toContain("pl-4 pr-2");
+    expect(page).toContain("Contract shortcuts");
+    expect(page).toContain("Each count is a contract count. Selecting a shortcut filters the table to contracts with that condition.");
+    expect(page).toContain("required renewal, notice, end, or effective dates are absent");
+    expect(page).toContain('href="/contracts?review=pending"');
   });
 });

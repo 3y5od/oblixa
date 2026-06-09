@@ -29,12 +29,15 @@ export function DownloadButton({ storagePath, fileName }: DownloadButtonProps) {
 
   return (
     <button
+      type="button"
       onClick={handleDownload}
       disabled={loading}
-      className="rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] hover:text-[var(--text-secondary)] disabled:opacity-50"
+      aria-label={`Download ${fileName}`}
+      aria-busy={loading}
+      className="rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--canvas))] hover:text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
       title={`Download ${fileName}`}
     >
-      {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+      {loading ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" /> : <Download size={16} />}
     </button>
   );
 }

@@ -56,8 +56,8 @@ describe("OnboardingBanner", () => {
     );
 
     expectProgress("4/7");
-    expect(screen.getByRole("link", { name: /review extracted fields/i })).toBeTruthy();
-    expect(screen.getAllByText(/run extraction, then confirm fields with source-backed review/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /review details/i })).toBeTruthy();
+    expect(screen.getAllByText(/upload a contract, then confirm suggested details with source-backed review/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/1 contract created/i)).toBeTruthy();
     const workLens = screen.getByText("renewals queue").closest("a");
     expect(workLens?.getAttribute("href")).toBe("/renewals");
@@ -131,12 +131,12 @@ describe("OnboardingBanner", () => {
 
     expect(screen.getByText(/complete the remaining activation steps/i)).toBeTruthy();
     expect(
-      screen.getByText(/finish the remaining activation steps so reminders, renewals, and work queues can trust this workspace/i)
+      screen.getByText(/finish the remaining activation steps so reminders, renewals, and task queues can trust this workspace/i)
     ).toBeTruthy();
-    expect(screen.getByRole("link", { name: /approve key operational dates/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /confirm key operational dates/i })).toBeTruthy();
   });
 
-  it("keeps the review step incomplete while extracted fields still need approval", () => {
+  it("keeps the confirmation step incomplete while suggested details still need approval", () => {
     renderWithProviders(
       <OnboardingBanner
         stats={{
@@ -155,8 +155,8 @@ describe("OnboardingBanner", () => {
     );
 
     expectProgress("4/7");
-    expect(screen.getByRole("link", { name: /review extracted fields/i })).toBeTruthy();
-    expect(screen.getAllByText(/still need review attention before this step is complete/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /review details/i })).toBeTruthy();
+    expect(screen.getAllByText(/still need detail confirmation before this step is complete/i).length).toBeGreaterThan(0);
   });
 
   it("maps dismiss failures to recoverable onboarding copy", async () => {

@@ -14,10 +14,10 @@ export const metadata = {
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ access_code?: string; grant?: string; token?: string; invite?: string }>;
+  searchParams: Promise<{ access_code?: string; grant?: string; token?: string }>;
 }) {
   const q = await searchParams;
-  const accessCode = q.grant ?? q.access_code ?? q.token ?? q.invite ?? "";
+  const accessCode = q.grant ?? q.access_code ?? q.token ?? "";
   let signupGrantState: AccessGrantInspectionState = "missing";
   if (accessCode) {
     const admin = await createAdminClient();

@@ -10,11 +10,13 @@ export function V10JobRetryButton({
   label,
   successFallbackMessage = "Retry started.",
   testId,
+  className,
 }: {
   url: string;
   label: string;
   successFallbackMessage?: string;
   testId?: string;
+  className?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -27,7 +29,7 @@ export function V10JobRetryButton({
         type="button"
         data-testid={testId}
         disabled={isPending}
-        className="ui-btn-secondary px-2.5 py-1 text-[11px] disabled:opacity-60"
+        className={`ui-btn-secondary text-[11px] disabled:opacity-60 ${className ?? "px-2.5 py-1"}`}
         onClick={() => {
           setMessage(null);
           startTransition(async () => {
@@ -55,13 +57,20 @@ export function V10JobRetryButton({
   );
 }
 
-export function ImportJobRetryButton({ jobId }: { jobId: string }) {
+export function ImportJobRetryButton({
+  jobId,
+  className,
+}: {
+  jobId: string;
+  className?: string;
+}) {
   return (
     <V10JobRetryButton
       url={`/api/import/contracts/${jobId}`}
       label="Retry failed rows"
       successFallbackMessage="Retry started."
       testId="import-retry"
+      className={className}
     />
   );
 }

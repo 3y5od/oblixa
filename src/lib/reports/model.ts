@@ -68,26 +68,26 @@ export const REPORT_DEFINITIONS: Record<ReportKey, ReportDefinition> = {
   missing_key_fields: {
     key: "missing_key_fields",
     label: REPORT_LABELS.missing_key_fields,
-    description: "Contracts missing reviewed dates, values, status, counterparty, or owner data.",
-    columns: ["Contract", "Counterparty", "Missing fields", "Owner", "Status", "Next action"],
+    description: "Contracts missing confirmed dates, values, status, counterparty, or owner data.",
+    columns: ["Contract", "Counterparty", "Missing details", "Owner", "Status", "Next action"],
   },
   open_obligations: {
     key: "open_obligations",
     label: REPORT_LABELS.open_obligations,
-    description: "Contract obligations that remain open or in progress.",
-    columns: ["Obligation", "Contract", "Owner", "Due date", "Status", "Last update"],
+    description: "Contract requirements that remain open or in progress.",
+    columns: ["Requirement", "Contract", "Owner", "Due date", "Status", "Last update"],
   },
   overdue_work: {
     key: "overdue_work",
     label: REPORT_LABELS.overdue_work,
-    description: "Visible Core work items past their due date.",
-    columns: ["Work item", "Contract", "Owner", "Due date", "Status", "Type"],
+    description: "Visible Core tasks past their due date.",
+    columns: ["Task", "Contract", "Owner", "Due date", "Status", "Type"],
   },
   exceptions_by_owner: {
     key: "exceptions_by_owner",
     label: REPORT_LABELS.exceptions_by_owner,
-    description: "Open exceptions grouped by assigned owner.",
-    columns: ["Owner", "Open exceptions", "High severity", "Next due date", "Contracts"],
+    description: "Open issues grouped by assigned owner.",
+    columns: ["Owner", "Open issues", "High severity", "Next due date", "Contracts"],
   },
   evidence_requests: {
     key: "evidence_requests",
@@ -104,8 +104,8 @@ export const REPORT_DEFINITIONS: Record<ReportKey, ReportDefinition> = {
   review_completeness: {
     key: "review_completeness",
     label: REPORT_LABELS.review_completeness,
-    description: "Field review progress and pending review counts by contract.",
-    columns: ["Contract", "Counterparty", "Approved fields", "Pending fields", "Review state", "Last update"],
+    description: "Contract-detail confirmation progress and pending confirmation counts by contract.",
+    columns: ["Contract", "Counterparty", "Confirmed details", "Pending details", "Confirmation state", "Last update"],
   },
 };
 
@@ -126,13 +126,13 @@ const CONTRACT_STATUS_OPTIONS: ReportOption[] = [
 const WORK_STATUS_OPTIONS: ReportOption[] = [
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
-  { value: "blocked", label: "Blocked" },
+  { value: "blocked", label: "Needs input" },
   { value: "overdue", label: "Overdue" },
 ];
 const OBLIGATION_STATUS_OPTIONS: ReportOption[] = [
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
-  { value: "blocked", label: "Blocked" },
+  { value: "blocked", label: "Needs input" },
 ];
 const EVIDENCE_STATUS_OPTIONS: ReportOption[] = [
   { value: "requested", label: "Requested" },
@@ -666,8 +666,8 @@ function buildMissingKeyFieldRows(context: ReportBuildContext) {
       const missing = getMissingKeyFields(contract, fields);
       if (missing.length === 0) return null;
       return contractRow(contract, context, {
-        "Missing fields": missing.join(", "),
-        "Next action": "Review missing fields",
+        "Missing details": missing.join(", "),
+        "Next action": "Confirm missing details",
       });
     })
     .filter(isPresent)
@@ -683,7 +683,7 @@ function buildOpenObligationRows(context: ReportBuildContext) {
         id: obligation.id,
         href: obligation.contract_id ? `/contracts/${obligation.contract_id}#obligations` : null,
         cells: {
-          Obligation: obligation.title || "Untitled obligation",
+          Requirement: obligation.title || "Untitled requirement",
           Contract: contract?.title ?? "Unknown contract",
           Owner: ownerLabel(context, obligation.owner_id),
           "Due date": formatDateLabel(parseDate(obligation.next_due_date ?? obligation.due_date)),
@@ -711,7 +711,7 @@ function buildOverdueWorkRows(context: ReportBuildContext) {
         id: item.id ?? `${item.contract_id}-${item.title}`,
         href: item.contract_id ? `/contracts/${item.contract_id}#work` : "/work",
         cells: {
-          "Work item": item.title || "Untitled work item",
+          Task: item.title || "Untitled task",
           Contract: contract?.title ?? "Unknown contract",
           Owner: ownerLabel(context, item.owner_user_id ?? item.owner_id),
           "Due date": formatDateLabel(parseDate(item.due_at ?? item.due_date)),
@@ -742,7 +742,7 @@ function buildExceptionsByOwnerRows(context: ReportBuildContext) {
         href: "/contracts/exceptions",
         cells: {
           Owner: ownerLabel(context, ownerId),
-          "Open exceptions": String(exceptions.length),
+          "Open issues": String(exceptions.length),
           "High severity": String(exceptions.filter((exception) => normalizeToken(exception.severity) === "high").length),
           "Next due date": formatDateLabel(nextDue),
           Contracts: String(contracts.size),
@@ -753,7 +753,7 @@ function buildExceptionsByOwnerRows(context: ReportBuildContext) {
       };
     })
     .filter((row) => matchesRowFilters(row, context.filters))
-    .sort((a, b) => Number(b.cells["Open exceptions"]) - Number(a.cells["Open exceptions"]));
+    .sort((a, b) => Number(b.cells["Open issues"]) - Number(a.cells["Open issues"]));
 }
 
 function buildEvidenceRequestRows(context: ReportBuildContext) {
@@ -799,9 +799,9 @@ function buildReviewCompletenessRows(context: ReportBuildContext) {
       const approved = fields.filter((field) => normalizeToken(field.status) === "approved").length;
       const pending = fields.filter((field) => normalizeToken(field.status) !== "approved").length;
       return contractRow(contract, context, {
-        "Approved fields": String(approved),
-        "Pending fields": String(pending),
-        "Review state": pending > 0 ? "Needs review" : "Complete",
+        "Confirmed details": String(approved),
+        "Pending details": String(pending),
+        "Confirmation state": pending > 0 ? "Needs confirmation" : "Complete",
         "Last update": formatDateTimeLabel(contract.updated_at ?? contract.created_at),
       });
     })
@@ -876,7 +876,7 @@ function evidenceStatusLabel(requirement: ReportEvidenceRequirementRow, today: D
 function matchesRowFilters(row: ReportPreviewRow, filters: ReportFilterState) {
   const owner = row.cells.__owner ?? "";
   const counterparty = normalizeToken(row.cells.__counterparty);
-  const status = normalizeToken(row.cells.__status || row.cells.Status || row.cells["Review state"]);
+  const status = normalizeToken(row.cells.__status || row.cells.Status || row.cells["Confirmation state"]);
   if (filters.owner === "unassigned" && owner) return false;
   if (filters.owner && filters.owner !== "unassigned" && owner !== filters.owner) return false;
   if (filters.counterparty && counterparty !== normalizeToken(filters.counterparty)) return false;
@@ -1057,6 +1057,7 @@ function compareRowsByColumn(column: string) {
 function labelize(raw: string | null | undefined) {
   const token = normalizeToken(raw);
   if (!token) return "Unknown";
+  if (token === "blocked") return "Needs input";
   return token.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 

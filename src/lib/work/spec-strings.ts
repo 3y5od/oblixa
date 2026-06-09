@@ -1,26 +1,26 @@
-export const WORK_EYEBROW = "Contract work";
-export const WORK_PAGE_TITLE = "Work";
+export const WORK_EYEBROW = "Contract follow-up";
+export const WORK_PAGE_TITLE = "Tasks";
 export const WORK_LEAD =
-  "Track contract follow-up, approvals, obligations, exceptions, and evidence requests in one queue.";
-export const WORK_PRIMARY_CTA = "Create work item";
-export const WORK_EMPTY_STATE = "Create work from a contract date, obligation, approval, or exception.";
-export const WORK_PARTIAL_DATA_TITLE = "Work data is partially unavailable";
+  "Tasks are follow-up actions from signed contracts: approvals, evidence requests, contract requirements, and problems to resolve.";
+export const WORK_PRIMARY_CTA = "Create task";
+export const WORK_EMPTY_STATE = "Create a task for a contract date, requirement, approval, problem, or evidence request.";
+export const WORK_PARTIAL_DATA_TITLE = "Task data is partially unavailable";
 export const WORK_PARTIAL_DATA_REASON =
-  "Some work data returned partial results. Visible rows remain available while freshness is restored.";
+  "Some task data returned partial results. Visible rows remain available while freshness is restored.";
 
 export const WORK_TAB_LABELS = {
-  all: "All",
-  my_work: "My work",
-  overdue: "Overdue",
-  blocked: "Blocked",
+  all: "All active",
+  my_work: "Assigned to me",
+  overdue: "Past due",
+  blocked: "Cannot proceed",
   approvals: "Approvals",
-  obligations: "Obligations",
-  exceptions: "Exceptions",
+  obligations: "Contract requirements",
+  exceptions: "Problems to resolve",
 } as const;
 
 export const WORK_FILTER_LABELS = {
   owner: "Owner",
-  dueDate: "Due date",
+  dueDate: "Due",
   contract: "Contract",
   status: "Status",
   type: "Type",
@@ -39,7 +39,7 @@ export const WORK_ROW_LABELS = {
   dueDate: "Due",
   status: "Status",
   type: "Type",
-  blocker: "Blocker",
+  blocker: "Cannot proceed",
   lastUpdate: "Updated",
 } as const;
 
@@ -66,19 +66,19 @@ export const WORK_PRIMARY_ACTION_LABELS = {
 
 export const WORK_TYPE_LABELS = {
   contract_task: "Task",
-  obligation: "Obligation",
+  obligation: "Contract requirement",
   approval: "Approval",
-  exception: "Exception",
+  exception: "Problem",
   evidence_request: "Evidence request",
-  renewal_checkpoint: "Renewal checkpoint",
-  unassigned_work: "Unassigned work",
+  renewal_checkpoint: "Renewal task",
+  unassigned_work: "Unassigned task",
 } as const;
 
 export const WORK_STATUS_LABELS = {
   open: "Open",
   in_progress: "In progress",
-  blocked: "Blocked",
-  waiting: "Waiting",
+  blocked: "Cannot proceed",
+  waiting: "Cannot proceed",
   done: "Done",
   canceled: "Canceled",
 } as const;

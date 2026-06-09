@@ -88,7 +88,7 @@ export function ContractNotesPanel({
             required
             rows={3}
             maxLength={5000}
-            placeholder="Capture context, decisions, blockers, or handoff details..."
+            placeholder="Capture context, decisions, dependencies, or handoff details..."
             className="ui-input w-full resize-y"
           />
         </div>

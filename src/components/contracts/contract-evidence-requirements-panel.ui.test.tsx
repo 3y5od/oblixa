@@ -37,12 +37,12 @@ describe("ContractEvidenceRequirementsPanel", () => {
     expect((card as HTMLElement).getAttribute("data-evidence-req-status")).toBe("required");
     const region = within(card as HTMLElement);
     expect(region.getByText(/legal pack · requested · due 2026-06-15 · review by 2026-06-20/i)).toBeTruthy();
-    expect(region.getByText(/^Why it matters:/)).toBeTruthy();
+    expect(region.getByText(/^What this affects:/)).toBeTruthy();
     expect(region.getByText(/obligation obligati/u)).toBeTruthy();
     expect(region.getByText(/^Who should act next:/)).toBeTruthy();
     expect(region.getByText("Evidence provider or contract owner")).toBeTruthy();
     expect(
-      region.getByText(/this requirement is still blocking completion of the linked work item/i)
+      region.getByText(/this requirement must be resolved before the linked work item can be completed/i)
     ).toBeTruthy();
   });
 
@@ -141,10 +141,10 @@ describe("ContractEvidenceRequirementsPanel", () => {
     );
 
     expect(
-      screen.getByText(/this requirement is still blocking completion of the linked work item/i)
+      screen.getByText(/this requirement must be resolved before the linked work item can be completed/i)
     ).toBeTruthy();
     expect(
-      screen.getByText(/submission is waiting for review before the linked work item can clear/i)
+      screen.getByText(/submission needs review before the linked work item can clear/i)
     ).toBeTruthy();
     expect(
       screen.getByText(/rejected evidence still needs a corrected resubmission/i)
@@ -189,13 +189,13 @@ describe("ContractEvidenceRequirementsPanel", () => {
 
     const requiredCard = screen.getByText("Security questionnaire").closest("li") as HTMLElement;
     expect(
-      within(requiredCard).getByText(/this requirement is still blocking completion of the linked work item/i)
+      within(requiredCard).getByText(/this requirement must be resolved before the linked work item can be completed/i)
         .className
     ).toContain("ui-alert-warning");
 
     const insuranceCard = screen.getByText("Insurance certificate").closest("li") as HTMLElement;
     expect(
-      within(insuranceCard).getByText(/submission is waiting for review before the linked work item can clear/i)
+      within(insuranceCard).getByText(/submission needs review before the linked work item can clear/i)
         .className
     ).toContain("ui-alert-warning");
     const socCard = screen.getByText("SOC 2 report").closest("li") as HTMLElement;

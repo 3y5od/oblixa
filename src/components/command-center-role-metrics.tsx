@@ -98,12 +98,12 @@ export async function CommandCenterRoleMetrics(props: {
   }> = [
     {
       key: "exceptions",
-      label: "Exceptions",
+      label: "Issues",
       value: ex,
       unit: "OPEN WIP",
       tone: ex > 10 ? "risk" : ex > 0 ? "attention" : "healthy",
       href: "/contracts/exceptions",
-      ariaLabel: "View open exceptions",
+      ariaLabel: "View open issues",
     },
     {
       key: "approvals",
@@ -130,16 +130,16 @@ export async function CommandCenterRoleMetrics(props: {
       unit: "ACTIVE",
       tone: ta > 0 ? "neutral" : "healthy",
       href: "/work",
-      ariaLabel: "View work queue",
+      ariaLabel: "View task queue",
     },
     {
       key: "obligations",
-      label: "Obligations",
+      label: "Requirements",
       value: ob,
       unit: "OPEN",
       tone: ob > 0 ? "neutral" : "healthy",
       href: "/contracts/obligations",
-      ariaLabel: "View active obligations",
+      ariaLabel: "View active requirements",
     },
   ];
 

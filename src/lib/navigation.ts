@@ -28,6 +28,12 @@ export const SEARCH_GROUP_LABELS: Record<SearchGroup, string> = {
  *  queues, then reporting, then settings/admin tools. */
 export const SEARCH_GROUP_ORDER: SearchGroup[] = ["pages", "queues", "reports", "tools"];
 
+/** Destination action verb shown in the command/search row action chip. Owned by
+ *  the registry per item rather than derived from the href. Billing is resolved
+ *  role-aware at render time (VIEW for non-admins, MANAGE for admins). Unset →
+ *  OPEN. */
+export type RowActionVerb = "OPEN" | "REVIEW" | "VIEW" | "EXPORT" | "IMPORT" | "MANAGE";
+
 export type NavItem = {
   name: string;
   href: string;
@@ -85,6 +91,8 @@ export type NavItem = {
      *  parent's icon (e.g., "Review fields" would show the Contracts icon),
      *  which collapses visual distinction in search results. */
     icon?: NonNullable<NavItem["icon"]>;
+    /** Registry-owned action verb for the child row. Falls back to OPEN. */
+    actionVerb?: RowActionVerb;
   }[];
   /** Public-taxonomy search bucket. Defaults derived in
    *  `resolveSearchGroupForNavItem()` so every NavItem maps to exactly one. */
@@ -96,6 +104,8 @@ export type NavItem = {
   /** Synonyms used by the search matcher in addition to name + description.
    *  Lower-case, no punctuation; matched as substring tokens. */
   searchSynonyms?: readonly string[];
+  /** Registry-owned action verb for the row action chip. Falls back to OPEN. */
+  actionVerb?: RowActionVerb;
 };
 
 export type WorkflowArea =
@@ -159,28 +169,29 @@ export const NAV_ITEMS: NavItem[] = [
         description: "Every contract in the workspace with filters and search.",
       },
       {
-        name: "Review fields",
+        name: "Review queue",
         href: "/contracts/review",
-        description: "Pending field approvals on extracted contract data.",
+        description: "Review suggested contract dates, owners, and terms before they drive reminders and reports.",
         badgeKey: "reviewQueue",
         searchGroup: "queues",
-        searchSynonyms: ["review", "approve", "approval", "fields", "extraction"],
+        searchSynonyms: ["review", "confirm", "approve", "approval", "details", "fields", "extraction"],
         icon: "review-fields",
+        actionVerb: "REVIEW",
       },
     ],
   },
   /**
-   * Release-state Work is one top-level surface. Its tabs live inside /work,
+   * Release-state Tasks is one top-level surface. Its tabs live inside /work,
    * not as public Core sidebar lanes.
    */
   {
-    name: "Work",
+    name: "Tasks",
     href: "/work",
-    description: "Tasks, approvals, obligations, and exceptions.",
+    description: "Follow-up tasks, approvals, contract requirements, issues, and evidence requests.",
     section: "primary",
     icon: "tasks",
     searchGroup: "queues",
-    searchSynonyms: ["tasks", "approvals", "obligations", "queue"],
+    searchSynonyms: ["work", "tasks", "approvals", "obligations", "issues", "exceptions", "queue"],
     navChildren: [],
   },
   {
@@ -288,6 +299,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "reports",
     searchGroup: "reports",
     searchSynonyms: ["report", "export", "csv", "inventory"],
+    actionVerb: "VIEW",
   },
   {
     name: "Tools",
@@ -328,13 +340,13 @@ export const NAV_ITEMS: NavItem[] = [
   {
     name: "Execution graph",
     href: "/contracts/execution-graph",
-    description: "Cross-work dependency view and blockers.",
+    description: "Cross-task dependency view and input-needed states.",
     section: "operations",
   },
   {
     name: "Collaboration",
     href: "/contracts/collaboration",
-    description: "Notes, mentions, and field-level collaboration.",
+    description: "Notes, mentions, and contract-detail collaboration.",
     section: "operations",
   },
   {
@@ -382,6 +394,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "settings",
     searchGroup: "tools",
     searchSynonyms: ["settings", "preferences", "config", "configuration"],
+    actionVerb: "MANAGE",
   },
 ];
 

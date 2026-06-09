@@ -41,10 +41,11 @@ describe("onboarding QA static guards", () => {
     expect(callSites).toBe(4);
   });
 
-  it("auth signUp returns redirectTo /dashboard without resolveBlockingCalibrationPath (first-hit gating via proxy / next nav)", () => {
+  it("auth signUp resolves the post-auth destination through the shared workspace gate", () => {
     const raw = readFileSync(join(process.cwd(), "src/actions/auth.ts"), "utf8");
     const signUpChunk = raw.slice(raw.indexOf("export async function signUp"), raw.indexOf("export async function signIn"));
-    expect(signUpChunk).toContain('redirectTo: "/dashboard"');
+    expect(signUpChunk).toContain("resolvePostAuthRedirectForUser");
+    expect(signUpChunk).toContain('postAuthPath ?? "/dashboard"');
     expect(signUpChunk).not.toContain("resolveBlockingCalibrationPathForAdminOrg");
     expect(raw).toContain("resolveBlockingCalibrationPathForAdminOrg");
   });

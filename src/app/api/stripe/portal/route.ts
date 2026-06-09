@@ -43,7 +43,6 @@ function stripeDependencyBlocked(diagnosticId: string, error: string) {
 
 export async function POST(request: Request) {
   const supabase = await createClient();
-  const admin = await createAdminClient();
 
   const {
     data: { user },
@@ -52,6 +51,13 @@ export async function POST(request: Request) {
     return jsonUnauthorized(ROUTE);
   }
 
+  const ip = getClientIpFromRequest(request);
+  const rl = await rateLimitCheck(`stripe-portal:${user.id}:${ip}`, RATE_LIMITS.stripePortalSession);
+  if (!rl.ok) {
+    return jsonRateLimited(rl.retryAfterMs, ROUTE);
+  }
+
+  const admin = await createAdminClient();
   const membership = await getDeterministicMembership(admin, user.id);
 
   if (!membership) {
@@ -90,12 +96,6 @@ export async function POST(request: Request) {
 
   if (!canManageWorkspaceBilling(membership.role, { isWorkspaceOwner: orgRow.owner_user_id === user.id })) {
     return jsonForbidden(ROUTE);
-  }
-
-  const ip = getClientIpFromRequest(request);
-  const rl = await rateLimitCheck(`stripe-portal:${user.id}:${ip}`, RATE_LIMITS.stripePortalSession);
-  if (!rl.ok) {
-    return jsonRateLimited(rl.retryAfterMs, ROUTE);
   }
 
   if (isKillBilling()) {

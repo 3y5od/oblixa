@@ -20,22 +20,22 @@ export const DASHBOARD_SECONDARY_CTA = "Import contracts";
 
 /** Spec §Dashboard Page > Top cards. Exactly 6 cards in this order. */
 export const DASHBOARD_TOP_CARDS = [
-  "Needs review",
-  "Upcoming deadlines",
-  "Blocked work",
-  "Missing owners",
-  "Open exceptions",
-  "Evidence requested",
+  "Contracts needing review",
+  "Dates coming up",
+  "Tasks awaiting response",
+  "Contracts missing an owner",
+  "Contract problems",
+  "Evidence requests",
 ] as const;
 export type DashboardTopCardLabel = (typeof DASHBOARD_TOP_CARDS)[number];
 
 /** Spec §Dashboard Page > Main sections. Exactly 5 sections with these
  *  exact names + primary action labels. */
 export const DASHBOARD_MAIN_SECTIONS = [
-  { name: "Review Queue", action: "Review fields" },
-  { name: "Upcoming Deadlines", action: "Create reminder" },
-  { name: "Work Needing Action", action: "Open work" },
-  { name: "Data Gaps", action: "Fix missing data" },
+  { name: "Details to Confirm", action: "Confirm details" },
+  { name: "Dates Coming Up", action: "Create reminder" },
+  { name: "Tasks Needing Action", action: "Open tasks" },
+  { name: "Missing Details", action: "Fix missing details" },
   { name: "Recent Activity", action: null },
 ] as const;
 
@@ -43,11 +43,11 @@ export const DASHBOARD_MAIN_SECTIONS = [
  *  maps to a spec-verbatim string. Data Gaps has no spec mandate; the
  *  "all gaps filled" message is informational-only (no CTA). */
 export const DASHBOARD_EMPTY_STATES = {
-  reviewQueue: "Review extracted fields to make contract data trustworthy.",
+  reviewQueue: "Review suggested contract details before reminders and reports rely on them.",
   upcomingDeadlines: "Add renewal and notice dates to track upcoming decisions.",
-  workNeedingAction: "Create work from a deadline, obligation, approval, or exception.",
+  workNeedingAction: "Create tasks from a deadline, requirement, approval, or issue.",
   dataGaps: "All contracts have owners, dates, and counterparties.",
-  recentActivity: "Upload your first signed agreement to start tracking dates, owners, and work.",
+  recentActivity: "Upload your first signed agreement to start tracking dates, owners, and tasks.",
 } as const;
 
 /** Spec §In-App Pages > Recommended public Core navigation. Exactly 7
@@ -55,7 +55,7 @@ export const DASHBOARD_EMPTY_STATES = {
 export const CORE_SIDEBAR_NAV = [
   "Dashboard",
   "Contracts",
-  "Work",
+  "Tasks",
   "Renewals",
   "Evidence",
   "Reports",

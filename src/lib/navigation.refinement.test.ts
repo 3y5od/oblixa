@@ -72,9 +72,9 @@ describe("refinement §7 navigation", () => {
     expect(NAV_ITEMS.find((i) => i.href === "/renewals")).toBeTruthy();
   });
 
-  it("§9.1 Work is a single top-level destination with tabs inside the route", () => {
-    const work = NAV_ITEMS.find((i) => i.name === "Work");
-    expect(work?.navChildren ?? []).toEqual([]);
+  it("§9.1 Tasks is a single top-level destination with tabs inside the route", () => {
+    const tasks = NAV_ITEMS.find((i) => i.name === "Tasks");
+    expect(tasks?.navChildren ?? []).toEqual([]);
     expect(NAV_ITEMS.find((i) => i.href === "/renewals")).toBeTruthy();
     expect(NAV_ITEMS.find((i) => i.href === "/evidence")).toBeTruthy();
   });
@@ -97,7 +97,7 @@ describe("refinement §7 navigation", () => {
     expect(isContractsRoot("/contracts")).toBe(true);
   });
 
-  it("classifies Work as a workflow area, not a monitor surface", () => {
+  it("classifies Tasks as a workflow area, not a monitor surface", () => {
     const work = NAV_ITEMS.find((i) => i.href === "/work");
     const dashboard = NAV_ITEMS.find((i) => i.href === "/dashboard");
     const settings = NAV_ITEMS.find((i) => i.href === "/settings");

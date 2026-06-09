@@ -35,13 +35,25 @@ describe("Header", () => {
     expect(screen.queryByText("Tools")).toBeNull();
   });
 
+  it("never presents an email local-part as a fake account name", () => {
+    setMockPathname("/dashboard");
+    renderWithProviders(
+      <Header navSurface={coreSurface} email="altemailforroux@example.com" />
+    );
+
+    // No real profile name → neutral "Account" label, never the local-part.
+    expect(screen.getByRole("button", { name: "Account menu" })).toBeTruthy();
+    expect(screen.queryByText("altemailforroux")).toBeNull();
+    expect(screen.queryByRole("button", { name: /account menu for/i })).toBeNull();
+  });
+
   it("builds a parent/leaf breadcrumb for nested Core surfaces", () => {
     setMockPathname("/contracts/review");
     renderWithProviders(<Header navSurface={coreSurface} showUtilitiesLink />);
 
     const contractsCrumb = screen.getByRole("link", { name: "Contracts" });
     expect(contractsCrumb.getAttribute("href")).toBe("/contracts");
-    expect(screen.getByText("Review fields")).toBeTruthy();
+    expect(screen.getByText("Review queue")).toBeTruthy();
   });
 
   it("submits header search to the global /search route", async () => {

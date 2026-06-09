@@ -43,7 +43,7 @@ describe("settings health visible impact and report posture (V9)", () => {
     expect(raw).toContain("Latest failed report");
     expect(raw).toContain("Review import history");
     expect(raw).toContain("Review contract exports");
-    expect(raw).toContain("Review extraction follow-up");
+    expect(raw).toContain("Review suggestion follow-up");
     expect(raw).toContain("Direct recovery actions");
     expect(raw).toContain("ImportJobRetryButton");
     expect(raw).toContain("Retry report");

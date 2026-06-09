@@ -1,6 +1,5 @@
 /** @vitest-environment jsdom */
-import { cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CalibrationWizard } from "@/components/onboarding/calibration-wizard";
 
@@ -53,7 +52,6 @@ describe("CalibrationWizard — debounced save", () => {
   });
 
   it("does not call saveQuestionnaireProgress on every immediate optional change (debounced)", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const full = {
       primary_use_case: "track_contracts_dates" as const,
       team_model: "solo" as const,
@@ -68,12 +66,17 @@ describe("CalibrationWizard — debounced save", () => {
 
     actionMocks.saveQuestionnaireProgress.mockClear();
 
-    const selects = screen.getAllByRole("combobox");
-    const industry = selects[0];
-    expect(industry).toBeTruthy();
-    await user.selectOptions(industry, "saas");
-    await user.selectOptions(industry, "regulated");
-    await user.selectOptions(industry, "other");
+    // Industry is now a custom combobox (FormSelect): open the trigger (named via
+    // its label) and click option rows, instead of native selectOptions.
+    // fireEvent is synchronous, so it does not advance the fake debounce timer.
+    const openIndustry = () =>
+      fireEvent.click(screen.getByRole("button", { name: /industry emphasis/i }));
+    openIndustry();
+    fireEvent.click(screen.getByRole("option", { name: /software \/ saas/i }));
+    openIndustry();
+    fireEvent.click(screen.getByRole("option", { name: /regulated industry/i }));
+    openIndustry();
+    fireEvent.click(screen.getByRole("option", { name: /^other$/i }));
 
     expect(actionMocks.saveQuestionnaireProgress).not.toHaveBeenCalled();
 

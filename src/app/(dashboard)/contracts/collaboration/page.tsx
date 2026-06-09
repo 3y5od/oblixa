@@ -68,13 +68,13 @@ export default async function CollaborationPage() {
         icon={<MessageSquareText className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         eyebrow="Cross-team coordination"
         title="Collaboration workspace"
-        lead="Field-level comments, mentions, and in-app notifications for handoffs and clarifications."
+        lead="Detail-level comments, mentions, and in-app notifications for handoffs and clarifications."
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <OperationalSummaryCard
           eyebrow="Threading"
-          headline="Field comments (sample)"
+          headline="Detail comments (sample)"
           tone={commentCount > 0 ? "neutral" : "healthy"}
           icon={MessageSquareText}
           primaryValue={commentCount}
@@ -98,8 +98,8 @@ export default async function CollaborationPage() {
         <section className="ui-page-shell overflow-hidden">
           <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
             <p className="ui-eyebrow">Comments</p>
-            <h2 className="ui-section-title mt-1 text-base">Recent field comments</h2>
-            <p className="ui-support-copy mt-1">Use recent comments as the handoff layer for field clarifications before reopening the full contract record.</p>
+            <h2 className="ui-section-title mt-1 text-base">Recent detail comments</h2>
+            <p className="ui-support-copy mt-1">Use recent comments as the handoff layer for contract-detail clarifications before reopening the full contract record.</p>
           </div>
           {comments?.length ? (
             <ul className="divide-y divide-[var(--border-subtle)]">

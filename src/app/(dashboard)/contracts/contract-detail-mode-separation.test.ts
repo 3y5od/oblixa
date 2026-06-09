@@ -39,17 +39,17 @@ describe("contract detail mode separation", () => {
     for (const label of [
       "Contract record",
       "Contract action summary",
-      "Review fields",
+      "Suggested details",
       "Key dates",
-      "Work, obligations, and exceptions",
+      "Tasks, requirements, and issues",
       "Approval decisions",
-      "Contract obligations",
+      "Contract requirements",
       "Pending requests",
       "Contract activity",
       "Recent activity",
-      "Date tracking is waiting on extraction",
+      "Date tracking needs suggested details",
       "Owner and status",
-      "Open work",
+      "Open tasks",
     ]) {
       expect(corePath).toContain(label);
     }
@@ -112,7 +112,7 @@ describe("contract detail mode separation", () => {
     expect(raw).toContain("/contracts/approvals?contract=");
     expect(raw).toContain("Open approval queue");
     expect(raw).toContain("/work?contract=");
-    expect(raw).toContain("Create work");
+    expect(raw).toContain("Create task");
   });
 
   it("keeps Core tabs fixed to the release-state detail surface", () => {
@@ -120,11 +120,11 @@ describe("contract detail mode separation", () => {
     const tabConfig = between(raw, "const coreTabLinks", "const advancedTabLinks");
     for (const label of [
       "Overview",
-      "Fields",
+      "Details",
       "Dates",
-      "Work",
+      "Tasks",
       "Approvals",
-      "Obligations",
+      "Requirements",
       "Evidence",
       "Files",
       "Notes",
@@ -150,7 +150,7 @@ describe("contract detail mode separation", () => {
       "Renewal scenario & approvals",
       "Workspace notes",
       "Ownership handoff checklist",
-      "Field comments & mentions",
+      "Detail comments & mentions",
       "Create clarification task",
     ]) {
       expect(raw).toContain(label);

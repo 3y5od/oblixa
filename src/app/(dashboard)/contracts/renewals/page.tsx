@@ -16,6 +16,7 @@ import {
   Eye,
   Filter,
   Plus,
+  RotateCcw,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -23,13 +24,12 @@ import { createContractTask } from "@/actions/tasks";
 import { updateRenewalCheckpointStatus } from "@/actions/renewal-playbook";
 import { RenewalFilterBar } from "@/components/renewals/renewal-filter-bar";
 import { RenewalRowActionsMenu } from "@/components/renewals/renewal-row-actions-menu";
-import { ActionChip } from "@/components/ui/action-chip";
-import { ChipPair } from "@/components/ui/chip-pair";
 import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
 import { CountChip } from "@/components/ui/count-chip";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
+import { MetricSummaryBand } from "@/components/ui/metric-summary-band";
 import { StatusBadge } from "@/components/ui/status-badge";
+import type { StatTone } from "@/components/ui/stat-cell";
 import { UiSelect } from "@/components/ui/ui-select";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
@@ -159,6 +159,7 @@ export default async function RenewalsPage(props: {
     <div className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl">
       <DashboardPageHeader
         icon={<CalendarClock className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        density="compact"
         eyebrow={model.eyebrow}
         title={model.title}
         lead={model.lead}
@@ -214,31 +215,34 @@ export default async function RenewalsPage(props: {
           (not a hero). overflow-hidden clips the stacked row borders to the
           rounded corner. */}
       <section className="ui-card min-w-0 max-w-full overflow-hidden" aria-labelledby="renewals-surface-title">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
-            <h2 id="renewals-surface-title" className="sr-only">
-              {model.title}
-            </h2>
-            {/* Section identity + a compact metadata strip of the actionable
-                signals (deadlines in view, plus owner/review/notice gaps). The
-                eyebrow stays in renewal vocabulary, not "decisions". */}
-            <p className="ui-caps-2 pr-0.5 text-[11px] text-[var(--text-tertiary)]">{RENEWALS_SECTION_EYEBROW}</p>
-            <ChipPair
-              primary={String(model.summary.visible)}
-              secondary={model.summary.visible === 1 ? "deadline" : "deadlines"}
-              className="tabular-nums"
-            />
-            {model.summary.needsReview > 0 ? (
-              <KeyValueChip label="Unreviewed" value={model.summary.needsReview} tone="warning" />
-            ) : null}
-            {model.summary.needsOwner > 0 ? (
-              <KeyValueChip label="Missing owner" value={model.summary.needsOwner} tone="warning" />
-            ) : null}
-            {model.summary.noticeWindowOpen > 0 ? (
-              <KeyValueChip label="Notice open" value={model.summary.noticeWindowOpen} tone="warning" />
-            ) : null}
-          </div>
-          <ActionChip verb="View contracts" href="/contracts" />
+        {/* Shared MetricSummaryBand: the deadline count + actionable-gap chips on
+            the left, "View contracts" on the right. The eyebrow stays in renewal
+            vocabulary (RENEWALS_SECTION_EYEBROW), not "decisions". */}
+        <MetricSummaryBand
+          srTitle={model.title}
+          srTitleId="renewals-surface-title"
+          eyebrow={RENEWALS_SECTION_EYEBROW}
+          count={{
+            kind: "pair",
+            primary: String(model.summary.visible),
+            secondary: model.summary.visible === 1 ? "date" : "dates",
+          }}
+          metrics={renewalSummaryMetrics(model)}
+          action={{ verb: "View contracts", href: "/contracts" }}
+        />
+        <div className="flex min-w-0 flex-wrap gap-x-4 gap-y-1 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-2.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
+          <span>
+            <span className="font-medium text-[var(--text-secondary)]">Dates in view:</span> renewal and notice deadlines inside the selected window.
+          </span>
+          <span>
+            <span className="font-medium text-[var(--text-secondary)]">Needs confirmation:</span> renewal or notice date is missing, suggested, or calculated and still needs confirmation.
+          </span>
+          <span>
+            <span className="font-medium text-[var(--text-secondary)]">Missing owner:</span> no person is assigned to the contract.
+          </span>
+          <span>
+            <span className="font-medium text-[var(--text-secondary)]">Notice open:</span> notice period is currently open.
+          </span>
         </div>
 
         <RenewalFilterBar
@@ -279,6 +283,22 @@ export default async function RenewalsPage(props: {
       </section>
     </div>
   );
+}
+
+// Actionable-gap chips for the summary band — only the non-zero gaps render, each
+// a warning tone (a zero gap is simply absent rather than a muted "all clear",
+// keeping the band tight at the common case of no gaps).
+function renewalSummaryMetrics(
+  model: Awaited<ReturnType<typeof loadRenewalsPageModel>>
+): { label: string; value: number; tone?: StatTone }[] {
+  const metrics: { label: string; value: number; tone?: StatTone }[] = [];
+  if (model.summary.needsReview > 0)
+    metrics.push({ label: "Needs confirmation", value: model.summary.needsReview, tone: "warning" });
+  if (model.summary.needsOwner > 0)
+    metrics.push({ label: "Missing owner", value: model.summary.needsOwner, tone: "warning" });
+  if (model.summary.noticeWindowOpen > 0)
+    metrics.push({ label: "Notice open", value: model.summary.noticeWindowOpen, tone: "warning" });
+  return metrics;
 }
 
 function CreateRenewalTaskPanel({
@@ -401,18 +421,19 @@ function RenewalRows({
           rows pass cleanly behind them, so the last row is never clipped into the
           footer. Header, footer, and rows share one scrollbar so columns stay
           aligned; scrollbar-gutter keeps the right edge stable. The kebab menu and
-          filter popovers are portaled, so they escape this overflow clip. overflow-x
-          is hidden (not auto like the fixed-min-width queue tables) because this grid
-          is responsive and stacks to one column below xl. This intentionally diverges
-          from /contracts' 25-per-page pagination: the cumulative day-windows don't
-          page cleanly and the counts stay small (≤~40). */}
-      <div className="max-h-[60vh] max-w-full overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable]">
+          filter popovers are portaled, so they escape this overflow clip. At xl+
+          the row uses fixed minimum columns and horizontal overflow rather than
+          squeezing long owner/status/action values into each other. This
+          intentionally diverges from /contracts' 25-per-page pagination: the
+          cumulative day-windows don't page cleanly and the counts stay small
+          (≤~40). */}
+      <div className="max-h-[60vh] max-w-full overflow-x-auto overflow-y-auto [scrollbar-gutter:stable]">
         <RenewalRowsHeader />
         {rows.map((row) => (
           <article
             key={row.id}
             aria-labelledby={`renewal-row-${row.id}`}
-            className="grid gap-4 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_48%,transparent)] px-5 py-4 transition-colors last:border-b-0 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_55%,transparent)] xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)] xl:items-center"
+            className="grid gap-4 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_48%,transparent)] px-5 py-4 transition-colors last:border-b-0 hover:bg-[color:color-mix(in_oklab,var(--surface-contrast)_55%,transparent)] xl:min-w-[68rem] xl:grid-cols-[minmax(13rem,1.15fr)_minmax(7rem,0.65fr)_minmax(6.75rem,0.6fr)_minmax(6.75rem,0.6fr)_minmax(9rem,0.85fr)_minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)] xl:items-start xl:gap-3"
           >
             <RenewalFact label={RENEWAL_ROW_LABELS.contract} titleId={`renewal-row-${row.id}`}>
               {/* §15 — the contract title is the row's heading: primary text that
@@ -436,7 +457,7 @@ function RenewalRows({
                 contractId={row.id}
                 omit={["contract", "renewals"]}
                 label="Related"
-                maxVisible={2}
+                maxVisible={1}
                 className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1 text-[11px] text-[var(--text-tertiary)]"
               />
             </RenewalFact>
@@ -461,7 +482,7 @@ function RenewalRows({
           <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
           <CountChip value={rows.length} emphasis="subtle" />
           <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">
-            {rows.length === 1 ? "deadline" : "deadlines"} in view
+            {rows.length === 1 ? "date" : "dates"} in view
           </p>
         </div>
       </div>
@@ -550,18 +571,14 @@ function RenewalRowsHeader() {
     // (counterparty/dates/owner) starts at the same X in both header band
     // and data rows. Without the gap here, the header column labels were
     // offset 16px left of the row values below them — visible misalignment.
-    <div className="sticky top-0 z-10 hidden border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_92%,var(--surface-raised))] px-5 py-3 xl:grid xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)] xl:gap-4">
+    <div className="sticky top-0 z-10 hidden border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_92%,var(--surface-raised))] px-5 py-3 xl:grid xl:min-w-[68rem] xl:grid-cols-[minmax(13rem,1.15fr)_minmax(7rem,0.65fr)_minmax(6.75rem,0.6fr)_minmax(6.75rem,0.6fr)_minmax(9rem,0.85fr)_minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)] xl:gap-3">
       <RenewalColumnLabel>{RENEWAL_ROW_LABELS.contract}</RenewalColumnLabel>
-      <div className="grid min-w-0 grid-cols-[minmax(8rem,0.85fr)_minmax(7.25rem,0.8fr)_minmax(7.25rem,0.8fr)_minmax(9rem,1fr)] gap-3">
-        <RenewalColumnLabel>{RENEWAL_ROW_LABELS.counterparty}</RenewalColumnLabel>
-        <RenewalColumnLabel>{RENEWAL_ROW_LABELS.renewalDate}</RenewalColumnLabel>
-        <RenewalColumnLabel>{RENEWAL_ROW_LABELS.noticeDate}</RenewalColumnLabel>
-        <RenewalColumnLabel>{RENEWAL_ROW_LABELS.owner}</RenewalColumnLabel>
-      </div>
-      <div className="grid min-w-0 grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)] gap-3">
-        <RenewalColumnLabel>{RENEWAL_ROW_LABELS.status}</RenewalColumnLabel>
-        <RenewalColumnLabel align="right">{RENEWAL_ROW_LABELS.nextAction}</RenewalColumnLabel>
-      </div>
+      <RenewalColumnLabel>{RENEWAL_ROW_LABELS.counterparty}</RenewalColumnLabel>
+      <RenewalColumnLabel>{RENEWAL_ROW_LABELS.renewalDate}</RenewalColumnLabel>
+      <RenewalColumnLabel>{RENEWAL_ROW_LABELS.noticeDate}</RenewalColumnLabel>
+      <RenewalColumnLabel>{RENEWAL_ROW_LABELS.owner}</RenewalColumnLabel>
+      <RenewalColumnLabel>{RENEWAL_ROW_LABELS.status}</RenewalColumnLabel>
+      <RenewalColumnLabel align="right">{RENEWAL_ROW_LABELS.nextAction}</RenewalColumnLabel>
     </div>
   );
 }
@@ -586,7 +603,7 @@ function RenewalColumnLabel({
 
 function RenewalRowFactGrid({ row }: { row: RenewalRow }) {
   return (
-    <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[minmax(8rem,0.85fr)_minmax(7.25rem,0.8fr)_minmax(7.25rem,0.8fr)_minmax(9rem,1fr)] xl:items-start">
+    <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:contents">
       <RenewalFact label={RENEWAL_ROW_LABELS.counterparty} value={row.counterparty} />
       <RenewalDateCell
         label={RENEWAL_ROW_LABELS.renewalDate}
@@ -618,7 +635,7 @@ function RenewalOwnerCell({ row }: { row: RenewalRow }) {
   if (row.ownerUserId) {
     const initial = row.ownerLabel.trim().charAt(0).toUpperCase() || "?";
     return (
-      <span className="inline-flex min-w-0 items-center gap-1.5">
+      <span className="flex w-full min-w-0 max-w-full items-center gap-1.5 overflow-hidden">
         {/* Neutral initial medallion — an owner is identity, not status or action,
             so it stays in the neutral scale (§10.2) and never spends accent. */}
         <span
@@ -627,7 +644,9 @@ function RenewalOwnerCell({ row }: { row: RenewalRow }) {
         >
           {initial}
         </span>
-        <span className="truncate text-[13px] leading-snug text-[var(--text-primary)]">{row.ownerLabel}</span>
+        <span className="block min-w-0 flex-1 truncate text-[13px] leading-snug text-[var(--text-primary)]" title={row.ownerLabel}>
+          {row.ownerLabel}
+        </span>
       </span>
     );
   }
@@ -666,7 +685,7 @@ const RENEWAL_REVIEW_ICON: Record<RenewalDateReviewState, LucideIcon> = {
 // ladder via tone: "reviewed" (human-approved) reads success; "computed" (a
 // derived notice date) reads neutral so it never looks as trusted as reviewed;
 // "suggested" (extracted, unapproved) and "missing" read warning. The `title`
-// makes each state self-explanatory on hover — especially "Computed".
+// makes each state self-explanatory on hover — especially "Calculated".
 function RenewalReviewChip({ state }: { state: RenewalDateReviewState }) {
   const Icon = RENEWAL_REVIEW_ICON[state];
   // Trust ladder by tone: only "reviewed" (human-approved) earns success green.
@@ -771,7 +790,7 @@ function RenewalRowStateGrid({
   returnTo: string;
 }) {
   return (
-    <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(11.5rem,1fr)_minmax(7.5rem,0.7fr)] xl:items-center xl:gap-3">
+    <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:contents">
       <RenewalFact label={RENEWAL_ROW_LABELS.status}>
         <RenewalStatusBadge row={row} />
       </RenewalFact>
@@ -901,6 +920,14 @@ function RenewalFact({
   );
 }
 
+const RENEWAL_ACTION_ICON: Record<string, LucideIcon> = {
+  mark_reviewed: Eye,
+  create_renewal_task: Plus,
+  complete: CheckCircle2,
+  reopen: RotateCcw,
+  export_renewal_report: Download,
+};
+
 function RenewalActionCluster({
   actions,
   canMutate,
@@ -914,9 +941,19 @@ function RenewalActionCluster({
 }) {
   // §7.3/§11.12 — the menu portals out of the card's `overflow-hidden` clip via
   // RenewalRowActionsMenu; here we just render the items (mutation forms + links)
-  // as menuitems. The server actions keep working through the portal.
+  // as menuitems. The server actions keep working through the portal. Each item
+  // carries a reserved icon slot so labels share one left edge — matching the
+  // shared RowActionMenu alignment used on Work and Evidence (§10.9).
   const itemClass =
-    "ui-chip-focus block w-full rounded-[0.45rem] px-2.5 py-1.5 text-left text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] hover:text-[var(--text-primary)]";
+    "ui-chip-focus flex w-full items-center gap-2 rounded-[0.45rem] px-2.5 py-1.5 text-left text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)] hover:text-[var(--text-primary)]";
+  const iconSlot = (action: RenewalActionCapability) => {
+    const Icon = RENEWAL_ACTION_ICON[action.key];
+    return (
+      <span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+        {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden /> : null}
+      </span>
+    );
+  };
   return (
     <RenewalRowActionsMenu contractTitle={contractTitle}>
       {actions.map((action) => {
@@ -927,6 +964,7 @@ function RenewalActionCluster({
               <input type="hidden" name="status" value={action.mutation === "reopen_checkpoint" ? "pending" : "completed"} />
               <input type="hidden" name="returnTo" value={returnTo} />
               <button type="submit" role="menuitem" tabIndex={-1} className={itemClass}>
+                {iconSlot(action)}
                 {action.label}
               </button>
             </form>
@@ -934,6 +972,7 @@ function RenewalActionCluster({
         }
         return (
           <Link key={action.key} href={action.href ?? "/renewals"} role="menuitem" tabIndex={-1} className={itemClass}>
+            {iconSlot(action)}
             {action.label}
           </Link>
         );

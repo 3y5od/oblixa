@@ -30,10 +30,12 @@ describe("UploadForm", () => {
     expect(screen.getByLabelText(/annual value/i)).toBeTruthy();
     expect(screen.getByLabelText(/source system/i)).toBeTruthy();
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
-    expect(screen.getByText(/contract details/i)).toBeTruthy();
+    expect(screen.getByText(/^known contract details$/i)).toBeTruthy();
     expect(screen.getByText(/source documents/i)).toBeTruthy();
-    expect(screen.getByText(/no file selected/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^create without a file$/i })).toBeTruthy();
+    expect(screen.getByText(/file optional/i)).toBeTruthy();
+    expect(screen.getByText(/uploaded files are stored for this workspace/i)).toBeTruthy();
+    expect(screen.getByText(/not used in reminders or reports until someone reviews them/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^create record$/i })).toBeTruthy();
   });
 
   it("summarizes accepted, unsupported, oversized, and duplicate files", async () => {
@@ -50,7 +52,7 @@ describe("UploadForm", () => {
       type: "application/pdf",
       lastModified: 1,
     });
-    const oversized = new File([new Uint8Array(21 * 1024 * 1024)], "large.pdf", {
+    const oversized = new File([new Uint8Array(26 * 1024 * 1024)], "large.pdf", {
       type: "application/pdf",
       lastModified: 2,
     });
@@ -64,7 +66,7 @@ describe("UploadForm", () => {
 
     expect(await screen.findByText(/1 duplicate file was ignored/i)).toBeTruthy();
     expect(screen.getByText(/1 unsupported file was skipped/i)).toBeTruthy();
-    expect(screen.getByText(/1 file exceeds the 20 mb limit/i)).toBeTruthy();
+    expect(screen.getByText(/1 file exceeds the 25 mb limit/i)).toBeTruthy();
     expect(screen.getByText("agreement.pdf")).toBeTruthy();
     expect(screen.getAllByText(/1 duplicate/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/1 unsupported/i).length).toBeGreaterThan(0);
@@ -80,7 +82,7 @@ describe("UploadForm", () => {
 
     const title = screen.getByLabelText(/contract title/i);
     await user.type(title, "Hold my title");
-    await user.click(screen.getByRole("button", { name: /^create without a file$/i }));
+    await user.click(screen.getByRole("button", { name: /^create record$/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalled());
     expect((screen.getByRole("alert").textContent ?? "").toLowerCase()).toMatch(/session/);

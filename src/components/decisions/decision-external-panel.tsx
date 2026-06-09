@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { ExternalLink } from "@/components/ui/external-link";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { mutateJson } from "@/lib/http/client-json";
@@ -80,18 +81,18 @@ export function DecisionExternalPanel({ decisionId, appOrigin, initialLinks }: P
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className="flex-1 text-xs font-medium text-[var(--text-secondary)]">
           Action type
-          <select
-            className="ui-input-compact mt-1 w-full"
+          <UiSelect
             value={actionType}
-            onChange={(e) => setActionType(e.target.value as ExternalActionType)}
+            onChange={(v) => setActionType(v as ExternalActionType)}
             disabled={busy}
-          >
-            {EXTERNAL_ACTION_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
+            ariaLabel="Action type"
+            options={EXTERNAL_ACTION_TYPES.map((t) => ({ value: t, label: t.replace(/_/g, " ") }))}
+            variant="compact"
+            portal
+            searchThreshold={8}
+            className="mt-1 w-full"
+            buttonClassName="w-full"
+          />
         </label>
         <label className="w-full text-xs font-medium text-[var(--text-secondary)] sm:w-32">
           Expires (h)

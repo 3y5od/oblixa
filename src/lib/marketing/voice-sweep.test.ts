@@ -71,7 +71,6 @@ describe("public marketing release-state voice sweep", () => {
     expect(content).toContain("Request access");
     expect(page).toContain('href="/request-access"');
     expect(page).toContain("<ProblemSection />");
-    expect(page).toContain("<OutcomesSection />");
     expect(page).toContain("<BestFitSection />");
     expect(page).toContain("<PricingCtaSection />");
   });
@@ -82,7 +81,7 @@ describe("public marketing release-state voice sweep", () => {
     const api = read("src/app/api/contact/route.ts");
 
     expect(route).toContain("Reviewed workspace access");
-    expect(route).toContain("Redacted sample contracts");
+    expect(route).toContain("Redacted sample");
     expect(form).toContain("trackingMethod");
     expect(form).toContain("redactedSample");
     expect(form).toContain("preference");
@@ -98,7 +97,7 @@ describe("public marketing release-state voice sweep", () => {
 
     expect(security).toContain("reviewed access");
     expect(security).toContain("does not provide legal advice");
-    expect(security).toContain("procurement readiness");
+    expect(security).toContain("formal enterprise security review");
     expect(contact).toContain("Contact Oblixa");
     expect(contact).toContain("Request workspace access");
     expect(contact).toContain("Security and vulnerability reports");

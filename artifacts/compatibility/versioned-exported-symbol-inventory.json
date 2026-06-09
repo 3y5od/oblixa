@@ -749,7 +749,7 @@
     },
     {
       "path": "src/components/work/work-inbox-list.tsx",
-      "line": 19,
+      "line": 20,
       "exportKind": "named_export",
       "declarationKind": null,
       "typeOnly": true,
@@ -769,7 +769,7 @@
     },
     {
       "path": "src/components/work/work-inbox-list.tsx",
-      "line": 21,
+      "line": 22,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -10009,7 +10009,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 459,
+      "line": 460,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -10029,7 +10029,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 467,
+      "line": 468,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -14909,7 +14909,7 @@
     },
     {
       "path": "src/lib/read-model-refresh.ts",
-      "line": 1180,
+      "line": 1213,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19689,7 +19689,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 306,
+      "line": 308,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -19709,7 +19709,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2496,
+      "line": 2550,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -19729,7 +19729,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2599,
+      "line": 2653,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
@@ -19749,7 +19749,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2638,
+      "line": 2692,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19769,7 +19769,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2642,
+      "line": 2696,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19789,7 +19789,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2646,
+      "line": 2700,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19809,7 +19809,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2689,
+      "line": 2743,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19829,7 +19829,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2700,
+      "line": 2754,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19849,7 +19849,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2707,
+      "line": 2761,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19869,7 +19869,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2728,
+      "line": 2782,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19889,7 +19889,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2758,
+      "line": 2812,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19909,7 +19909,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2825,
+      "line": 2879,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19929,7 +19929,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2883,
+      "line": 2937,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19949,7 +19949,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2914,
+      "line": 2968,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19969,7 +19969,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2929,
+      "line": 2983,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -19989,7 +19989,7 @@
     },
     {
       "path": "src/lib/route-api-catalog.ts",
-      "line": 2955,
+      "line": 3009,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,

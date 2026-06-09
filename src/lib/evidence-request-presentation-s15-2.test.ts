@@ -18,7 +18,7 @@ describe("V9 §15.2 evidence request presentation (ContractEvidenceRequirementsP
   });
 
   it("explains why it is needed", () => {
-    expect(panel).toContain("Why it matters:");
+    expect(panel).toContain("What this affects:");
   });
 
   it("states what the request is linked to (work item)", () => {
@@ -40,7 +40,7 @@ describe("V9 §15.2 evidence request presentation (ContractEvidenceRequirementsP
     expect(panel).toContain("required");
     expect(panel).toContain("submitted");
     expect(panel).toContain("rejected");
-    expect(panel).toContain("Submission is waiting for review");
+    expect(panel).toContain("Submission needs review");
     expect(panel).toContain("Rejected evidence still needs");
   });
 });

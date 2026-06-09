@@ -104,7 +104,7 @@ function writeValidFixture(root) {
   write(
     root,
     "src/actions/auth.ts",
-    'emailRedirectTo: `${appUrl}/auth/callback`\nredirectTo: `${appUrl}/reset-password`\nconst postAuthPath = await resolvePostAuthRedirectForUser(user)\nNo workspace is linked to this account\nawait supabase.auth.signOut()\n'
+    'admin.auth.admin.createUser\nemail_confirm: true\nmarkWorkspaceAccessGrantUsed\nensureUserOrg(\nredirectTo: `${appUrl}/reset-password`\nconst postAuthPath = await resolvePostAuthRedirectForUser(user)\nNo workspace is linked to this account\nawait supabase.auth.signOut()\n'
   );
   write(root, "src/components/auth/auth-form.tsx", "state?.redirectTo\nassignNavigableHref(path)\n");
   write(

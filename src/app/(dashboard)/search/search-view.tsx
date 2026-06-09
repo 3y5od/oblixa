@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  createElement,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -11,9 +12,11 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, ArrowRight, Check, Copy, FilterX, Lock, SearchX, X } from "lucide-react";
 import {
   SEARCH_GROUP_LABELS,
   SEARCH_GROUP_ORDER,
+  resolveSearchGroupForNavItem,
   type SearchGroup,
   type WorkspaceRole,
 } from "@/lib/navigation";
@@ -38,7 +41,8 @@ import {
   writeCommandPaletteRecentCommands,
 } from "@/lib/security/client-storage";
 import { LiveRegion } from "@/components/ui/live-region";
-import { ResultRow } from "@/components/search/result-row";
+import { ResultRow, resolveRowActionVerb } from "@/components/search/result-row";
+import { resolveNavIcon } from "@/components/search/nav-icon";
 import { SearchField, type SearchFieldHandle } from "@/components/search/search-field";
 import {
   emitCmdkPaletteOpenedTelemetry,
@@ -52,7 +56,7 @@ const QUICK_PICK_HREFS: readonly string[] = ["/dashboard", "/work", "/reports", 
 function buildSearchUrl(q: string, filter: SearchGroup | null): string {
   const params = new URLSearchParams();
   const trimmed = q.trim();
-  if (trimmed) params.set("q", trimmed.slice(0, 200));
+  if (trimmed) params.set("q", trimmed.slice(0, 120));
   if (filter) params.set("group", filter);
   const qs = params.toString();
   return qs ? `/search?${qs}` : "/search";
@@ -69,7 +73,7 @@ export function SearchView({
   initialQuery: string;
   initialFilterGroup: SearchGroup | null;
 }) {
-  void role; // already encoded in navSurface
+  // role shapes the Billing action verb (VIEW vs MANAGE) in rows and the rail.
   const router = useRouter();
   const fieldRef = useRef<SearchFieldHandle | null>(null);
 
@@ -137,6 +141,15 @@ export function SearchView({
     () => groupItemsBySearchGroup(filteredMatched),
     [filteredMatched]
   );
+
+  // Per-group counts come from the *unfiltered* match set so every chip can
+  // show how many results it holds even while another chip is active.
+  const countsByGroup = useMemo(() => {
+    const byGroup = groupItemsBySearchGroup(matched);
+    const out = new Map<SearchGroup, number>();
+    for (const group of SEARCH_GROUP_ORDER) out.set(group, byGroup.get(group)?.length ?? 0);
+    return out;
+  }, [matched]);
 
   const totalResults = filteredMatched.length;
 
@@ -326,12 +339,17 @@ export function SearchView({
   const foldedRecentHref =
     showRecents && recentItems.length === 1 ? paletteHrefKey(recentItems[0]!.href) : null;
   const recentsForBand = showRecents && recentItems.length >= 2 ? recentItems : null;
+  // Active row drives the desktop detail rail.
+  const activeItem = filteredMatched[activeIndex] ?? null;
 
   return (
-    <div className="space-y-4">
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:gap-6">
+      <div className="space-y-4">
       <SearchField
         ref={fieldRef}
         variant="page"
+        isCombobox
+        ariaControls={listId}
         value={query}
         onChange={setQuery}
         onSubmit={handleSubmit}
@@ -348,7 +366,12 @@ export function SearchView({
         testId="search-page-input"
       />
 
-      <FilterChips active={filterGroup} onChange={(group) => setFilterGroup(group)} />
+      <FilterChips
+        active={filterGroup}
+        counts={countsByGroup}
+        showCounts={hasQuery}
+        onChange={(group) => setFilterGroup(group)}
+      />
 
       <LiveRegion message={announcement} politeness="polite" />
 
@@ -370,6 +393,7 @@ export function SearchView({
           query={deferredQuery}
           isStale={isStale}
           onSelect={handleSelect}
+          onActivate={setActiveIndex}
           visibleGroups={visibleGroupsForFilter}
           rowRefs={rowRefs}
           activeRowId={activeRowId}
@@ -377,8 +401,11 @@ export function SearchView({
           recents={recentsForBand}
           quickPick={showQuickPick ? quickPickItems : null}
           foldedRecentHref={foldedRecentHref}
+          role={role}
         />
       )}
+      </div>
+      <SearchDetailRail item={activeItem} role={role} onSelect={handleSelect} />
     </div>
   );
 }
@@ -396,9 +423,13 @@ const CHIP_SHORTCUTS: Record<SearchGroup, string> = {
 
 function FilterChips({
   active,
+  counts,
+  showCounts,
   onChange,
 }: {
   active: SearchGroup | null;
+  counts: Map<SearchGroup, number>;
+  showCounts: boolean;
   onChange: (group: SearchGroup | null) => void;
 }) {
   // Numeric quick-keys jump to each chip; pressing the active chip's key
@@ -453,6 +484,20 @@ function FilterChips({
             }`}
           >
             {SEARCH_GROUP_LABELS[group]}
+            {showCounts ? (
+              <span
+                className={`ml-1.5 tabular-nums text-[11px] font-medium ${
+                  isActive
+                    ? "text-[color:color-mix(in_oklab,var(--accent-strong)_75%,transparent)]"
+                    : "text-[var(--text-tertiary)]"
+                }`}
+              >
+                <span className="sr-only">
+                  {counts.get(group) ?? 0} result{(counts.get(group) ?? 0) === 1 ? "" : "s"}
+                </span>
+                <span aria-hidden>{counts.get(group) ?? 0}</span>
+              </span>
+            ) : null}
           </button>
         );
       })}
@@ -490,6 +535,7 @@ function ResultsCard({
   query,
   isStale,
   onSelect,
+  onActivate,
   visibleGroups,
   rowRefs,
   activeRowId,
@@ -497,12 +543,16 @@ function ResultsCard({
   recents,
   quickPick,
   foldedRecentHref,
+  role,
 }: {
   listId: string;
   grouped: Map<SearchGroup, PaletteItem[]>;
   query: string;
   isStale: boolean;
   onSelect: (href: string) => void;
+  /** Promote a flat-index row to active on hover/focus so the detail rail
+   *  tracks the pointer, not just keyboard navigation. */
+  onActivate: (index: number) => void;
   visibleGroups: readonly SearchGroup[];
   rowRefs: React.MutableRefObject<Map<string, HTMLElement>>;
   activeRowId: string;
@@ -513,6 +563,7 @@ function ResultsCard({
    *  `Recent` dot/pill marker — and the separate Recent band is skipped to
    *  avoid one-row-band chrome. */
   foldedRecentHref: string | null;
+  role: WorkspaceRole;
 }) {
   const groupsWithItems = visibleGroups.filter(
     (group) => (grouped.get(group)?.length ?? 0) > 0
@@ -578,6 +629,7 @@ function ResultsCard({
               key={group}
               items={items}
               onSelect={onSelect}
+              onActivate={onActivate}
               rowRefs={rowRefs}
               activeRowId={activeRowId}
               flatIndexByHref={flatIndexByHref}
@@ -585,6 +637,7 @@ function ResultsCard({
               count={items.length}
               showCount={showCount}
               foldedRecentHref={foldedRecentHref}
+              role={role}
             />
           );
         }
@@ -614,6 +667,7 @@ function ResultsCard({
                       item={item}
                       query={query}
                       onSelect={onSelect}
+                      onActivate={flatIdx >= 0 ? () => onActivate(flatIdx) : undefined}
                       rowId={id}
                       hidePath
                       hideMeta
@@ -688,6 +742,7 @@ function BandList({
 function ToolsBand({
   items,
   onSelect,
+  onActivate,
   rowRefs,
   activeRowId,
   flatIndexByHref,
@@ -695,9 +750,11 @@ function ToolsBand({
   count,
   showCount,
   foldedRecentHref,
+  role,
 }: {
   items: PaletteItem[];
   onSelect: (href: string) => void;
+  onActivate: (index: number) => void;
   rowRefs: React.MutableRefObject<Map<string, HTMLElement>>;
   activeRowId: string;
   flatIndexByHref: Map<string, number>;
@@ -705,6 +762,7 @@ function ToolsBand({
   count: number;
   showCount: boolean;
   foldedRecentHref: string | null;
+  role: WorkspaceRole;
 }) {
   // Preserve subgroup *ordering* (Account → Workspace → Operations) but no
   // longer surface the subgroup labels. The Tools inventory is small enough
@@ -741,8 +799,10 @@ function ToolsBand({
             <li key={item.href}>
               <ResultRow
                 item={item}
+                role={role}
                 query={query}
                 onSelect={onSelect}
+                onActivate={flatIdx >= 0 ? () => onActivate(flatIdx) : undefined}
                 rowId={id}
                 hidePath
                 hideMeta
@@ -774,29 +834,39 @@ function ZeroResults({
   activeRowId: string;
 }) {
   const trimmed = query.trim();
-  const contractsSearchHref = `/contracts?search=${encodeURIComponent(trimmed.slice(0, 200))}`;
+  const contractsSearchHref = `/contracts?search=${encodeURIComponent(trimmed.slice(0, 120))}`;
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-6">
-        <p className="text-[13.5px] font-semibold text-[var(--text-primary)]">
-          No matches for &ldquo;{trimmed}&rdquo;
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--text-secondary)]">
-          {suggestion ? (
-            <span className="inline-flex items-center gap-1">
-              Did you mean:
-              <Link
-                href={suggestion.href}
-                onClick={() => onSuggestionSelect(suggestion.href)}
-                className="ui-link font-semibold"
-              >
-                {suggestion.name}
-              </Link>
-            </span>
-          ) : null}
-          <Link href={contractsSearchHref} className="ui-link font-semibold">
-            Search contracts for &ldquo;{trimmed}&rdquo; →
-          </Link>
+      <div className="flex items-start gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-6 shadow-[var(--shadow-1)]">
+        <span
+          aria-hidden
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]"
+        >
+          <SearchX className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="ui-caps-2 text-[var(--text-tertiary)]">No matches</p>
+          <p className="mt-1 truncate text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+            Nothing matched &ldquo;{trimmed}&rdquo;
+          </p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] text-[var(--text-secondary)]">
+            {suggestion ? (
+              <span className="inline-flex items-center gap-1">
+                Did you mean:
+                <Link
+                  href={suggestion.href}
+                  onClick={() => onSuggestionSelect(suggestion.href)}
+                  className="ui-link font-semibold"
+                >
+                  {suggestion.name}
+                </Link>
+              </span>
+            ) : null}
+            <Link href={contractsSearchHref} className="ui-link inline-flex items-center gap-1 font-semibold">
+              Search contracts for &ldquo;{trimmed}&rdquo;
+              <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
+            </Link>
+          </div>
         </div>
       </div>
       {recents.length > 0 ? (
@@ -824,16 +894,138 @@ function ZeroInFilter({
   onClearFilter: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-6">
-      <p className="text-[13.5px] font-semibold text-[var(--text-primary)]">
-        No matches in {SEARCH_GROUP_LABELS[group]}
-      </p>
+    <div className="flex items-start gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-6 shadow-[var(--shadow-1)]">
+      <span
+        aria-hidden
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]"
+      >
+        <FilterX className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="ui-caps-2 text-[var(--text-tertiary)]">Filtered</p>
+        <p className="mt-1 text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+          No matches in {SEARCH_GROUP_LABELS[group]}
+        </p>
+        <button
+          type="button"
+          onClick={onClearFilter}
+          className="ui-btn-secondary mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
+        >
+          <X className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Clear filter
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Desktop-only detail rail mirroring the active result. Sticky so it stays in
+ *  view as the page scrolls; hidden below lg where the page is single-column. */
+function SearchDetailRail({
+  item,
+  role,
+  onSelect,
+}: {
+  item: PaletteItem | null;
+  role: WorkspaceRole;
+  onSelect: (href: string) => void;
+}) {
+  const verb = item ? resolveRowActionVerb(item, role) : "OPEN";
+  const group = item
+    ? SEARCH_GROUP_LABELS[item.searchGroup ?? resolveSearchGroupForNavItem(item)]
+    : "";
+  return (
+    <aside className="hidden self-start rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-4 shadow-[var(--shadow-1)] lg:sticky lg:top-[calc(var(--shell-topbar-h)+1rem)] lg:flex lg:flex-col">
+      {item ? (
+        <>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+            Selected destination
+          </p>
+          <span
+            aria-hidden
+            className="mt-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]"
+          >
+            {createElement(resolveNavIcon(item), { className: "h-[1.125rem] w-[1.125rem]", strokeWidth: 1.85 })}
+          </span>
+          <p className="mt-3 text-[15px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
+            {item.name}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+              {group}
+            </span>
+            <span className="inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+              {verb}
+            </span>
+          </div>
+          {item.description ? (
+            <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">{item.description}</p>
+          ) : null}
+          <CopyPathRow href={item.href} />
+          <Link
+            href={item.href}
+            onClick={() => onSelect(item.href)}
+            className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_35%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_48%,var(--surface-raised))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
+          >
+            {verb}
+            <ArrowRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+          </Link>
+        </>
+      ) : (
+        <div className="text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Keyboard</p>
+          <div className="mt-2.5 flex flex-col gap-2 text-[11px] text-[var(--text-tertiary)]">
+            <span className="inline-flex items-center justify-center gap-1.5"><kbd className="ui-kbd">↑↓</kbd> Move</span>
+            <span className="inline-flex items-center justify-center gap-1.5"><kbd className="ui-kbd">Enter</kbd> Open</span>
+            <span className="inline-flex items-center justify-center gap-1.5"><kbd className="ui-kbd">/</kbd> Focus</span>
+          </div>
+        </div>
+      )}
+    </aside>
+  );
+}
+
+/** Mono path + copy-to-clipboard affordance for the detail rail. Copy gives a
+ *  brief check-mark confirmation, then reverts. Clipboard write is best-effort
+ *  (guarded for browsers/contexts where `navigator.clipboard` is unavailable). */
+function CopyPathRow({ href }: { href: string }) {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear any pending revert timer on unmount (no state set in the effect body,
+  // only in the click handler / timer callback — satisfies set-state-in-effect).
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleCopy = useCallback(() => {
+    try {
+      const result = navigator.clipboard?.writeText(href);
+      if (result) void result.catch(() => undefined);
+    } catch {
+      // ignore — clipboard may be blocked by permissions/context
+    }
+    setCopied(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 1600);
+  }, [href]);
+
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-[var(--text-tertiary)]">{href}</code>
       <button
         type="button"
-        onClick={onClearFilter}
-        className="ui-btn-secondary mt-3 inline-flex rounded-full px-3 py-1.5 text-[12px] font-semibold"
+        onClick={handleCopy}
+        aria-label={copied ? "Path copied" : "Copy path"}
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--text-secondary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
       >
-        Clear filter
+        {copied ? (
+          <Check className="h-3 w-3 text-[var(--accent-strong)]" strokeWidth={2.4} aria-hidden />
+        ) : (
+          <Copy className="h-3 w-3" strokeWidth={2} aria-hidden />
+        )}
       </button>
     </div>
   );
@@ -841,19 +1033,29 @@ function ZeroInFilter({
 
 function FullyRestrictedState() {
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-8 text-center">
-      <p className="text-[14px] font-semibold text-[var(--text-primary)]">
-        No destinations available
-      </p>
-      <p className="mt-1 text-[12.5px] text-[var(--text-secondary)]">
-        This workspace mode doesn&apos;t expose any searchable pages. Contact a workspace admin to expand access.
-      </p>
-      <Link
-        href="/dashboard"
-        className="ui-btn-secondary mt-4 inline-flex rounded-full px-4 py-2 text-[12.5px]"
+    <div className="flex items-start gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-6 shadow-[var(--shadow-1)]">
+      <span
+        aria-hidden
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--border-strong)_45%,var(--border-subtle))] bg-[var(--surface-muted)] text-[var(--text-tertiary)]"
       >
-        Back to dashboard
-      </Link>
+        <Lock className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="ui-caps-2 text-[var(--text-tertiary)]">Restricted</p>
+        <p className="mt-1 text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+          No destinations available
+        </p>
+        <p className="mt-1 text-[12.5px] leading-snug text-[var(--text-secondary)]">
+          This workspace doesn&apos;t expose searchable pages for your role. Contact a workspace admin to expand access.
+        </p>
+        <Link
+          href="/dashboard"
+          className="ui-btn-secondary mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
+        >
+          <ArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to dashboard
+        </Link>
+      </div>
     </div>
   );
 }

@@ -115,7 +115,7 @@ export function DeleteContractButton({
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
               <span className="font-medium text-[var(--text-primary)]">&ldquo;{label}&rdquo;</span>{" "}
-              will be removed along with uploaded files, extracted fields, and reminders.
+              will be removed along with uploaded files, suggested details, and reminders.
               This cannot be undone.
             </p>
             {error && (

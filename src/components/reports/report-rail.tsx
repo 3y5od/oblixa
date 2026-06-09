@@ -48,7 +48,7 @@ export function ReportRail({
                   }
                   className={`ui-chip-focus relative flex min-h-9 items-center justify-between gap-2 rounded-lg py-2 pl-3.5 pr-2.5 text-[13px] leading-tight transition-colors ${
                     item.active
-                      ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_52%,var(--surface-raised))] font-semibold text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
+                      ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] font-semibold text-[var(--accent-strong)]"
                       : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,transparent)] hover:text-[var(--text-primary)]"
                   }`}
                 >

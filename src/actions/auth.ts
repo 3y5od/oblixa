@@ -11,6 +11,8 @@ import {
 import { recordSecurityAuditEvent } from "@/lib/security/audit-write";
 import { resolveBlockingCalibrationPathForAdminOrg } from "@/lib/onboarding/calibration-gate";
 import { resolveAppBaseUrl } from "@/lib/app-url";
+import { recoverPendingOrganizationInviteForAuthenticatedUser } from "@/lib/auth/invite-recovery";
+import { hasEmailConfirmationSignal } from "@/lib/auth/email-confirmation";
 import { mapAuthError } from "@/lib/errors/user-facing";
 import {
   getClientIpFromHeaders,
@@ -21,11 +23,18 @@ import { isKillSignup } from "@/lib/security/kill-switches";
 import {
   containsControlOrBidi,
   isReasonableEmail,
+  isUuid,
   validateBoundedString,
 } from "@/lib/security/validation";
 import {
   markWorkspaceAccessGrantUsed,
+  recoverApprovedWorkspaceAccessRequestForAuthenticatedUser,
+  recoverWorkspaceAccessGrantForAuthenticatedUser,
+  resolveApprovedAccessRequestWorkspaceName,
+  validateConsumedWorkspaceAccessGrantForUser,
   validateWorkspaceAccessGrant,
+  type ApprovedAccessRequestRecoveryRow,
+  type AccessGrantRow,
 } from "@/lib/access-review";
 
 type AuthActionResult = { error: string } | { success: string } | { redirectTo: string };
@@ -112,13 +121,35 @@ async function recoverAuthAction(scope: string, run: () => Promise<AuthActionRes
 
 async function resolvePostAuthRedirectForUser(user: {
   id: string;
+  email?: string;
+  email_confirmed_at?: string | null;
+  confirmed_at?: string | null;
   user_metadata?: {
     full_name?: unknown;
     company_name?: unknown;
+    access_grant_id?: unknown;
   } | null;
 }): Promise<string | null> {
   const admin = await createAdminClient();
-  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  let membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership && (await ensureFirstWorkspaceFromConsumedAccessGrant(admin, user))) {
+    membership = await getOrEnsureDeterministicMembership(admin, user);
+  }
+  if (!membership) {
+    const normalizedEmail = user.email?.trim().toLowerCase() ?? "";
+    if (hasEmailConfirmationSignal(user) && isReasonableEmail(normalizedEmail)) {
+      const recoveredInvite = await recoverPendingOrganizationInviteForAuthenticatedUser(admin, {
+        email: normalizedEmail,
+        userId: user.id,
+      });
+      if (recoveredInvite.ok) {
+        membership = {
+          organization_id: recoveredInvite.organizationId,
+          role: recoveredInvite.role,
+        };
+      }
+    }
+  }
   if (!membership) return null;
   const calibrationPath = await resolveBlockingCalibrationPathForAdminOrg({
     admin,
@@ -126,6 +157,347 @@ async function resolvePostAuthRedirectForUser(user: {
     orgId: membership.organization_id,
   });
   return calibrationPath ?? "/dashboard";
+}
+
+async function ensureFirstWorkspaceFromConsumedAccessGrant(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  user: {
+    id: string;
+    email?: string;
+    email_confirmed_at?: string | null;
+    confirmed_at?: string | null;
+    user_metadata?: {
+      full_name?: unknown;
+      company_name?: unknown;
+      access_grant_id?: unknown;
+    } | null;
+  }
+): Promise<boolean> {
+  const accessGrantId =
+    typeof user.user_metadata?.access_grant_id === "string"
+      ? user.user_metadata.access_grant_id
+      : "";
+
+  const normalizedEmail = user.email?.trim().toLowerCase() ?? "";
+  if (!isReasonableEmail(normalizedEmail)) return false;
+
+  if (isUuid(accessGrantId)) {
+    const grant = await resolveConsumedAccessGrantByIdForUser(admin, {
+      grantId: accessGrantId,
+      email: normalizedEmail,
+      userId: user.id,
+    });
+    if (grant) {
+      return ensureWorkspaceForRecoveredAccessGrant(admin, { user, grant });
+    }
+  }
+
+  if (!hasEmailConfirmationSignal(user)) return false;
+
+  const recovered = await recoverWorkspaceAccessGrantForAuthenticatedUser(admin, {
+    email: normalizedEmail,
+    userId: user.id,
+  });
+  if (!recovered.ok) {
+    const request = await recoverApprovedWorkspaceAccessRequestForAuthenticatedUser(admin, {
+      email: normalizedEmail,
+    });
+    if (!request.ok) return false;
+    return ensureWorkspaceForApprovedAccessRequest(admin, {
+      user,
+      request: request.request,
+    });
+  }
+
+  await admin.auth.admin.updateUserById?.(user.id, {
+    user_metadata: {
+      ...(user.user_metadata ?? {}),
+      access_grant_id: recovered.grant.id,
+    },
+  });
+  return ensureWorkspaceForRecoveredAccessGrant(admin, { user, grant: recovered.grant });
+}
+
+async function ensureWorkspaceForApprovedAccessRequest(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    user: {
+      id: string;
+      user_metadata?: {
+        full_name?: unknown;
+        company_name?: unknown;
+      } | null;
+    };
+    request: ApprovedAccessRequestRecoveryRow;
+  }
+): Promise<boolean> {
+  const metadataName = resolveDefaultOrganizationNameForUser(input.user);
+  const orgName =
+    metadataName !== "My Organization"
+      ? metadataName
+      : resolveApprovedAccessRequestWorkspaceName(input.request, metadataName);
+  await ensureUserOrg(input.user.id, orgName, admin);
+  const membership = await getOrEnsureDeterministicMembership(admin, input.user);
+  return Boolean(membership);
+}
+
+async function resolveConsumedAccessGrantByIdForUser(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: { grantId: string; email: string; userId: string }
+): Promise<AccessGrantRow | null> {
+  const { data: grant, error } = await admin
+    .from("workspace_access_grants")
+    .select("id, request_id, normalized_email, status, expires_at, issued_by, used_by, used_at, revoked_at, created_at")
+    .eq("id", input.grantId)
+    .maybeSingle();
+  if (error || !grant) return null;
+
+  const row = grant as AccessGrantRow;
+  if (
+    row.status !== "used" ||
+    row.used_by !== input.userId ||
+    row.normalized_email !== input.email
+  ) {
+    return null;
+  }
+
+  return row;
+}
+
+async function resolveRecoveredAccessGrantWorkspaceName(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    grant: AccessGrantRow;
+    user: {
+      user_metadata?: {
+        full_name?: unknown;
+        company_name?: unknown;
+      } | null;
+    };
+  }
+): Promise<string> {
+  const metadataName = resolveDefaultOrganizationNameForUser(input.user);
+  if (metadataName !== "My Organization") return metadataName;
+  if (!input.grant.request_id) return metadataName;
+
+  const { data, error } = await admin
+    .from("workspace_access_requests")
+    .select("company_name, requester_name")
+    .eq("id", input.grant.request_id)
+    .maybeSingle();
+  if (error || !data) return metadataName;
+
+  const companyName =
+    typeof (data as { company_name?: unknown }).company_name === "string"
+      ? (data as { company_name: string }).company_name.trim()
+      : "";
+  if (companyName) return companyName;
+
+  const requesterName =
+    typeof (data as { requester_name?: unknown }).requester_name === "string"
+      ? (data as { requester_name: string }).requester_name.trim()
+      : "";
+  return requesterName ? `${requesterName}'s Organization` : metadataName;
+}
+
+async function ensureWorkspaceForRecoveredAccessGrant(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    user: {
+      id: string;
+      user_metadata?: {
+        full_name?: unknown;
+        company_name?: unknown;
+        access_grant_id?: unknown;
+      } | null;
+    };
+    grant: AccessGrantRow;
+  }
+): Promise<boolean> {
+  const orgName = await resolveRecoveredAccessGrantWorkspaceName(admin, {
+    grant: input.grant,
+    user: input.user,
+  });
+  await ensureUserOrg(input.user.id, orgName, admin);
+  const membership = await getOrEnsureDeterministicMembership(admin, input.user);
+  return Boolean(membership);
+}
+
+function isAuthUserAlreadyRegisteredError(error: unknown): boolean {
+  const message =
+    typeof error === "object" && error && "message" in error && typeof error.message === "string"
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "";
+  const lower = message.toLowerCase();
+  return lower.includes("user already registered") || lower.includes("already registered");
+}
+
+async function consumeGrantAndEnsureWorkspaceForUser(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    user: {
+      id: string;
+      email?: string;
+      user_metadata?: {
+        full_name?: unknown;
+        company_name?: unknown;
+        access_grant_id?: unknown;
+      } | null;
+    };
+    grantId: string;
+    fullName: string;
+    companyName: string;
+    rollbackGrantOnWorkspaceFailure?: boolean;
+  }
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const user = {
+    ...input.user,
+    user_metadata: {
+      ...(input.user.user_metadata ?? {}),
+      full_name: input.fullName,
+      company_name: input.companyName,
+      access_grant_id: input.grantId,
+    },
+  };
+
+  await admin.auth.admin.updateUserById?.(user.id, {
+    user_metadata: user.user_metadata,
+  });
+
+  const consumed = await markWorkspaceAccessGrantUsed(admin, {
+    grantId: input.grantId,
+    userId: user.id,
+  });
+  if (!consumed.ok) {
+    console.error("[auth] access grant consume failed", { reason: consumed.error });
+    return { ok: false, error: "grant_consume_failed" };
+  }
+
+  await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user), admin);
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership) {
+    console.error("[auth] workspace membership missing after signup provisioning", {
+      userId: user.id,
+      grantId: input.grantId,
+    });
+    if (input.rollbackGrantOnWorkspaceFailure) {
+      await rollbackWorkspaceAccessGrantUseForUser(admin, {
+        grantId: input.grantId,
+        userId: user.id,
+      });
+    }
+    return { ok: false, error: "workspace_missing" };
+  }
+
+  return { ok: true };
+}
+
+async function rollbackWorkspaceAccessGrantUseForUser(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: { grantId: string; userId: string }
+): Promise<void> {
+  try {
+    const { error } = await admin
+      .from("workspace_access_grants")
+      .update({ status: "issued", used_by: null, used_at: null })
+      .eq("id", input.grantId)
+      .eq("status", "used")
+      .eq("used_by", input.userId);
+    if (error) {
+      console.error("[auth] access grant rollback failed", { reason: "update_failed" });
+    }
+  } catch {
+    console.error("[auth] access grant rollback failed", { reason: "unavailable" });
+  }
+}
+
+async function ensureWorkspaceForConsumedGrantUser(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  input: {
+    user: {
+      id: string;
+      email?: string;
+      user_metadata?: {
+        full_name?: unknown;
+        company_name?: unknown;
+        access_grant_id?: unknown;
+      } | null;
+    };
+    grantId: string;
+    fullName: string;
+    companyName: string;
+  }
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const user = {
+    ...input.user,
+    user_metadata: {
+      ...(input.user.user_metadata ?? {}),
+      full_name: input.fullName,
+      company_name: input.companyName,
+      access_grant_id: input.grantId,
+    },
+  };
+
+  await admin.auth.admin.updateUserById?.(user.id, {
+    user_metadata: user.user_metadata,
+  });
+
+  await ensureUserOrg(user.id, resolveDefaultOrganizationNameForUser(user), admin);
+  const membership = await getOrEnsureDeterministicMembership(admin, user);
+  if (!membership) {
+    console.error("[auth] workspace membership missing after consumed-grant recovery", {
+      userId: user.id,
+      grantId: input.grantId,
+    });
+    return { ok: false, error: "workspace_missing" };
+  }
+
+  return { ok: true };
+}
+
+async function recoverExistingAccountFromConsumedGrant(input: {
+  admin: Awaited<ReturnType<typeof createAdminClient>>;
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  accessCode: string;
+  email: string;
+  password: string;
+  fullName: string;
+  companyName: string;
+}): Promise<AuthActionResult | null> {
+  const { data, error } = await input.supabase.auth.signInWithPassword({
+    email: input.email,
+    password: input.password,
+  });
+  if (error || !data.user) return null;
+
+  const consumed = await validateConsumedWorkspaceAccessGrantForUser(input.admin, {
+    token: input.accessCode,
+    email: input.email,
+    userId: data.user.id,
+  });
+  if (!consumed.ok) {
+    await input.supabase.auth.signOut();
+    return null;
+  }
+
+  const membership = await getOrEnsureDeterministicMembership(input.admin, data.user);
+  if (!membership) {
+    const provisioned = await ensureWorkspaceForConsumedGrantUser(input.admin, {
+      user: data.user,
+      grantId: consumed.grant.id,
+      fullName: input.fullName,
+      companyName: input.companyName,
+    });
+    if (!provisioned.ok) {
+      await input.supabase.auth.signOut();
+      return { error: "Account setup failed. Please try again." };
+    }
+  }
+
+  const postAuthPath = await resolvePostAuthRedirectForUser(data.user);
+  return { redirectTo: postAuthPath ?? "/dashboard" };
 }
 
 export async function signUp(formData: FormData): Promise<AuthActionResult> {
@@ -166,6 +538,18 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     email: email.value,
   });
   if (!grant.ok) {
+    if (grant.error === "grant_used") {
+      const recovered = await recoverExistingAccountFromConsumedGrant({
+        admin,
+        supabase,
+        accessCode: accessCode.value,
+        email: email.value,
+        password: password.value,
+        fullName: fullName.value,
+        companyName: companyName.value,
+      });
+      if (recovered) return recovered;
+    }
     const grantError =
       grant.error === "grant_email_mismatch"
         ? "This access link is for a different email address."
@@ -179,48 +563,78 @@ async function signUpUnsafe(formData: FormData): Promise<AuthActionResult> {
     return { error: grantError };
   }
 
-  const appUrl = await resolveAppBaseUrl();
-
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await admin.auth.admin.createUser({
     email: email.value,
     password: password.value,
-    options: {
-      data: {
-        full_name: fullName.value,
-        company_name: companyName.value,
-        access_grant_id: grant.grant.id,
-      },
-      emailRedirectTo: `${appUrl}/auth/callback`,
+    email_confirm: true,
+    user_metadata: {
+      full_name: fullName.value,
+      company_name: companyName.value,
+      access_grant_id: grant.grant.id,
     },
   });
 
   if (error) {
+    if (isAuthUserAlreadyRegisteredError(error)) {
+      const { data: existingSignInData, error: existingSignInError } = await supabase.auth.signInWithPassword({
+        email: email.value,
+        password: password.value,
+      });
+      if (existingSignInError || !existingSignInData.user) {
+        return { error: "An account with this email already exists. Sign in with that account to continue." };
+      }
+
+      const existingMembership = await getOrEnsureDeterministicMembership(admin, existingSignInData.user);
+      if (!existingMembership) {
+        const provisioned = await consumeGrantAndEnsureWorkspaceForUser(admin, {
+          user: existingSignInData.user,
+          grantId: grant.grant.id,
+          fullName: fullName.value,
+          companyName: companyName.value,
+        });
+        if (!provisioned.ok) {
+          await supabase.auth.signOut();
+          return { error: "Account setup failed. Please try again." };
+        }
+      }
+
+      const postAuthPath = await resolvePostAuthRedirectForUser(existingSignInData.user);
+      return { redirectTo: postAuthPath ?? "/dashboard" };
+    }
     return { error: mapAuthError(error) };
   }
 
-  if (data.user) {
-    const consumed = await markWorkspaceAccessGrantUsed(admin, {
-      grantId: grant.grant.id,
-      userId: data.user.id,
-    });
-    if (!consumed.ok) {
-      console.error("[auth] access grant consume failed", { reason: consumed.error });
-      return { error: "Account setup failed. Please try again." };
-    }
-    if (!data.session) {
-      return { success: "Check your email to confirm your account." };
-    }
-    try {
-      await ensureUserOrg(data.user.id, resolveDefaultOrganizationNameForUser(data.user), admin);
-    } catch (e) {
-      console.error("[auth] ensureUserOrg failed", e);
-      return { error: "Account setup failed. Please try again." };
-    }
+  if (!data.user) {
+    return { error: "Account setup failed. Please try again." };
   }
 
-  // Client navigation (not `redirect()`): `useActionState` forms expect a serializable
-  // action result; `redirect()` in the same action breaks the Flight/action response in Next 15+.
-  return { redirectTo: "/dashboard" };
+  const createdUser = data.user;
+  const provisioned = await consumeGrantAndEnsureWorkspaceForUser(admin, {
+    user: createdUser,
+    grantId: grant.grant.id,
+    fullName: fullName.value,
+    companyName: companyName.value,
+    rollbackGrantOnWorkspaceFailure: true,
+  });
+  if (!provisioned.ok) {
+    await admin.auth.admin.deleteUser(createdUser.id).catch((deleteError) => {
+      console.error("[auth] rollback user delete failed", deleteError);
+    });
+    return { error: "Account setup failed. Please try again." };
+  }
+
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value,
+  });
+  if (signInError) {
+    console.error("[auth] post-signup sign-in failed", signInError.message);
+    return { success: "Account created. Sign in to continue." };
+  }
+
+  const postAuthUser = signInData.user ?? createdUser;
+  const postAuthPath = await resolvePostAuthRedirectForUser(postAuthUser);
+  return { redirectTo: postAuthPath ?? "/dashboard" };
 }
 
 export async function signIn(formData: FormData): Promise<AuthActionResult> {

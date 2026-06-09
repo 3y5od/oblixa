@@ -45,10 +45,10 @@ describe("Evidence page model", () => {
     expect(model.primaryCta).toBe("Request evidence");
     expect(model.rows).toEqual([]);
     expect(model.sections.map((section) => section.label)).toEqual([
-      "Open requests",
-      "Overdue requests",
-      "Received evidence",
-      "Linked obligations",
+      "Open",
+      "Overdue",
+      "Received",
+      "Linked requirements",
     ]);
   });
 
@@ -70,8 +70,8 @@ describe("Evidence page model", () => {
         ],
       })
     );
-    // Open requests is empty, so the page lands on the overdue queue instead of
-    // a blank Open tab while live work exists.
+    // Open is empty, so the page lands on the overdue queue instead of a blank
+    // Open tab while live work exists.
     expect(model.activeSection).toBe("overdue_requests");
     expect(model.sections.find((section) => section.key === "open_requests")?.count).toBe(0);
     expect(model.sections.find((section) => section.key === "overdue_requests")?.count).toBe(1);
@@ -403,7 +403,7 @@ describe("Evidence page model", () => {
         reviewer_id: "user_1",
       },
     ];
-    // Both land in Open requests (requested + rejected); status=rejected narrows it.
+    // Both land in Open (requested + rejected); status=rejected narrows it.
     const model = buildEvidencePageModel(
       baseInput({ section: "open_requests", requirements, status: "rejected" })
     );

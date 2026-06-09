@@ -145,7 +145,7 @@ export async function buildPortfolioSignalSummary(
   let drivers: Record<string, unknown> = {
     key: "exceptions_by_account",
     accounts: [] as { account_key: string; open_exceptions: number }[],
-    reason: "Open exceptions grouped by contract account_key (top five).",
+    reason: "Open issues grouped by contract account_key (top five).",
   };
   if (cids.length > 0) {
     const { data: contracts, error: cErr } = await admin
@@ -170,19 +170,19 @@ export async function buildPortfolioSignalSummary(
     drivers = {
       key: "exceptions_by_account",
       accounts,
-      reason: "Open exceptions grouped by contract account_key (top five).",
+      reason: "Open issues grouped by contract account_key (top five).",
     };
   }
 
   const signalSummary: PortfolioSignalRow[] = [
     {
       key: "overdue_operational_risk",
-      label: "Open exceptions",
+      label: "Open issues",
       value: openExceptions ?? 0,
       severity: (openExceptions ?? 0) > 25 ? "high" : "medium",
       linked_object: "exceptions",
       reason:
-        "Count of exception records in open status; elevated counts suggest operational backlog and renewal/amendment risk.",
+        "Count of issue records in open status; elevated counts suggest operational backlog and renewal/amendment risk.",
       reason_json: [
         { signal: "open_exceptions", value: openExceptions ?? 0 },
         { signal: "driver", value: "exceptions_by_account" },
@@ -287,13 +287,13 @@ export async function buildPortfolioSignalSummary(
     },
     {
       key: "stale_exception_backlog",
-      label: "Open exceptions older than 90 days",
+      label: "Open issues older than 90 days",
       value: staleOpenExceptions ?? 0,
       severity:
         (staleOpenExceptions ?? 0) > 15 ? "high" : (staleOpenExceptions ?? 0) > 5 ? "medium" : "low",
       linked_object: "exceptions",
       reason:
-        "Exceptions still in open status with created_at older than 90 days; indicates aging operational debt.",
+        "Issues still in open status with created_at older than 90 days; indicates aging operational debt.",
       reason_json: [
         { signal: "stale_open_exceptions_90d", value: staleOpenExceptions ?? 0 },
         { signal: "threshold_created_before", value: ninetyDaysAgo },

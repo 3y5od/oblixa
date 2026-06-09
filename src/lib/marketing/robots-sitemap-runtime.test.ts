@@ -43,7 +43,8 @@ describe("sitemap() runtime", () => {
     const base = getAppBaseUrlFromEnv();
     const home = entries.find((e) => e.url === base);
     expect(home?.priority).toBe(1);
-    const signup = entries.find((e) => e.url === `${base}/signup`);
-    expect(signup?.priority).toBe(0.9);
+    const requestAccess = entries.find((e) => e.url === `${base}/request-access`);
+    expect(requestAccess?.priority).toBe(0.9);
+    expect(entries.find((e) => e.url === `${base}/signup`)).toBeUndefined();
   });
 });

@@ -12,23 +12,23 @@ export function ContractHeroMetrics(props: {
   return (
     <div className="mt-6 grid gap-3 border-t border-[var(--border-subtle)] pt-6 sm:mt-8 sm:grid-cols-2 sm:pt-8 lg:grid-cols-4">
       <OperationalSummaryCard
-        eyebrow="Review"
-        headline="Pending fields"
+        eyebrow="Confirm"
+        headline="Pending details"
         tone={props.pendingFieldsCount > 0 ? "attention" : "healthy"}
         icon={ClipboardPen}
         primaryValue={props.pendingFieldsCount}
-        primaryUnit="awaiting approval"
-        action={{ href: `${base}#extracted-fields`, label: "Review fields" }}
+        primaryUnit="awaiting confirmation"
+        action={{ href: `${base}#extracted-fields`, label: "Confirm details" }}
         variant="compact"
       />
       <OperationalSummaryCard
         eyebrow="Coverage"
-        headline="Fields tracked"
+        headline="Details tracked"
         tone="neutral"
         icon={ListTree}
         primaryValue={props.fieldsCount}
-        primaryUnit="extracted rows"
-        action={{ href: `${base}#extracted-fields`, label: "Review fields" }}
+        primaryUnit="extracted details"
+        action={{ href: `${base}#extracted-fields`, label: "Confirm details" }}
         variant="compact"
       />
       <OperationalSummaryCard

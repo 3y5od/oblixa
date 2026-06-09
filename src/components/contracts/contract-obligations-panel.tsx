@@ -11,6 +11,7 @@ import {
   updateContractObligation,
 } from "@/actions/obligations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { UiSelect } from "@/components/ui/ui-select";
 import { formatBusinessDateAtNoon } from "@/lib/business-dates";
 import type { ContractObligation, ContractObligationStatus } from "@/lib/types";
 import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
@@ -36,10 +37,27 @@ const STATUS_OPTIONS: { value: ContractObligationStatus; label: string }[] = [
   { value: "waived", label: "Waived" },
 ];
 
+const RECURRENCE_OPTIONS = [
+  { value: "none", label: "None" },
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "yearly", label: "Yearly" },
+  { value: "custom_days", label: "Custom (days)" },
+];
+
+const ESCALATION_OPTIONS = [
+  { value: "none", label: "esc:none" },
+  { value: "pending", label: "esc:pending" },
+  { value: "sent", label: "esc:sent" },
+  { value: "acked", label: "esc:acked" },
+];
+
 function statusTone(status: ContractObligationStatus): string {
-  if (status === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "done") return "border-[color:color-mix(in_oklab,var(--success)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success)_10%,var(--surface))] text-[var(--success-ink)]";
   if (status === "waived") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
-  if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
+  if (status === "in_progress") return "border-[color:color-mix(in_oklab,var(--accent)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent)_10%,var(--surface))] text-[var(--accent-strong)]";
   return "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]";
 }
 
@@ -199,7 +217,7 @@ export function ContractObligationsPanel({
         <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="ui-label-caps">Obligation</label>
+              <label className="ui-label-caps">Requirement</label>
               <input aria-label="Deliver quarterly compliance report" name="title"
                 required
                 maxLength={240}
@@ -225,15 +243,16 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Recurrence</label>
-              <select name="recurrenceType" defaultValue="none" className="ui-input w-full">
-                <option value="none">None</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-                <option value="custom_days">Custom (days)</option>
-              </select>
+              <UiSelect
+                name="recurrenceType"
+                defaultValue="none"
+                ariaLabel="Recurrence"
+                options={RECURRENCE_OPTIONS}
+                variant="compact"
+                portal
+                className="w-full"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <div>
               <label className="ui-label-caps">Recurrence interval days</label>
@@ -247,14 +266,20 @@ export function ContractObligationsPanel({
             </div>
             <div>
               <label className="ui-label-caps">Owner</label>
-              <select name="ownerId" defaultValue="" className="ui-input w-full">
-                <option value="">Unassigned</option>
-                {members.map((m) => (
-                  <option key={m.userId} value={m.userId}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
+              <UiSelect
+                name="ownerId"
+                defaultValue=""
+                ariaLabel="Owner"
+                options={[
+                  { value: "", label: "Unassigned" },
+                  ...members.map((m) => ({ value: m.userId, label: m.label })),
+                ]}
+                variant="compact"
+                portal
+                searchThreshold={8}
+                className="w-full"
+                buttonClassName="w-full !min-h-11"
+              />
             </div>
             <div>
               <label className="ui-label-caps">Due date</label>
@@ -284,9 +309,9 @@ export function ContractObligationsPanel({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-xs text-[var(--text-tertiary)]">Obligations track non-date commitments tied to this contract.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Requirements track non-date commitments tied to this contract.</p>
             <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
-              {isPending ? "Saving..." : "Add obligation"}
+              {isPending ? "Saving..." : "Add requirement"}
             </button>
           </div>
         </form>
@@ -306,7 +331,7 @@ export function ContractObligationsPanel({
       )}
 
       {obligations.length === 0 ? (
-        <p className="text-sm text-[var(--text-tertiary)]">No obligations recorded yet.</p>
+        <p className="text-sm text-[var(--text-tertiary)]">No requirements recorded yet.</p>
       ) : (
         <ul className="space-y-3">
           {obligations.map((ob) => (
@@ -344,7 +369,7 @@ export function ContractObligationsPanel({
                       </span>
                     )}
                     {ob.completed_at && (
-                      <span className="text-emerald-700">
+                      <span className="text-[var(--success-ink)]">
                         Completed {format(new Date(ob.completed_at), "MMM d, yyyy")}
                       </span>
                     )}
@@ -387,7 +412,7 @@ export function ContractObligationsPanel({
                             key={`b-${ob.id}-${label}`}
                             className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] text-[var(--warning-ink)]"
                           >
-                            Blocked by {label}
+                            Input needed: {label}
                           </span>
                         ))}
                         {unblocks.map((label) => (
@@ -418,33 +443,34 @@ export function ContractObligationsPanel({
                 <div className="flex shrink-0 items-center gap-2">
                   {canEdit && (
                     <>
-                      <select
+                      <UiSelect
                         value={ob.status}
-                        onChange={(e) =>
-                          onStatusChange(ob.id, e.target.value as ContractObligationStatus)
+                        onChange={(v) =>
+                          onStatusChange(ob.id, v as ContractObligationStatus)
                         }
                         disabled={isPending}
-                        className="ui-input min-w-[8.5rem] py-1.5 text-xs"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s.value} value={s.value}>
-                            {s.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
+                        ariaLabel="Requirement status"
+                        options={STATUS_OPTIONS}
+                        variant="compact"
+                        portal
+                        className="min-w-[8.5rem]"
+                        buttonClassName="w-full !min-h-11 text-xs"
+                      />
+                      <UiSelect
                         value={ob.owner_id ?? ""}
-                        onChange={(e) => onOwnerChange(ob.id, e.target.value)}
+                        onChange={(v) => onOwnerChange(ob.id, v)}
                         disabled={isPending}
-                        className="ui-input min-w-[9rem] py-1.5 text-xs"
-                      >
-                        <option value="">Unassigned</option>
-                        {members.map((m) => (
-                          <option key={m.userId} value={m.userId}>
-                            {m.label}
-                          </option>
-                        ))}
-                      </select>
+                        ariaLabel="Requirement owner"
+                        options={[
+                          { value: "", label: "Unassigned" },
+                          ...members.map((m) => ({ value: m.userId, label: m.label })),
+                        ]}
+                        variant="compact"
+                        portal
+                        searchThreshold={8}
+                        className="min-w-[9rem]"
+                        buttonClassName="w-full !min-h-11 text-xs"
+                      />
                       <button
                         type="button"
                         onClick={() => onDelete(ob.id)}
@@ -459,19 +485,16 @@ export function ContractObligationsPanel({
               </div>
               {canEdit && (
                 <form action={onOperationalUpdate.bind(null, ob.id)} className="mt-3 grid gap-2 sm:grid-cols-5">
-                  <select
+                  <UiSelect
                     name="recurrenceType"
                     defaultValue={ob.recurrence_type ?? "none"}
-                    className="ui-input py-1.5 text-xs"
-                  >
-                    <option value="none">none</option>
-                    <option value="daily">daily</option>
-                    <option value="weekly">weekly</option>
-                    <option value="monthly">monthly</option>
-                    <option value="quarterly">quarterly</option>
-                    <option value="yearly">yearly</option>
-                    <option value="custom_days">custom_days</option>
-                  </select>
+                    ariaLabel="Recurrence"
+                    options={RECURRENCE_OPTIONS}
+                    variant="compact"
+                    portal
+                    className="w-full"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
                   <input aria-label="interval" name="recurrenceIntervalDays"
                     type="number"
                     min={1}
@@ -480,16 +503,16 @@ export function ContractObligationsPanel({
                     placeholder="interval"
                     className="ui-input py-1.5 text-xs"
                   />
-                  <select
+                  <UiSelect
                     name="escalationStatus"
                     defaultValue={ob.escalation_status ?? "none"}
-                    className="ui-input py-1.5 text-xs"
-                  >
-                    <option value="none">esc:none</option>
-                    <option value="pending">esc:pending</option>
-                    <option value="sent">esc:sent</option>
-                    <option value="acked">esc:acked</option>
-                  </select>
+                    ariaLabel="Escalation status"
+                    options={ESCALATION_OPTIONS}
+                    variant="compact"
+                    portal
+                    className="w-full"
+                    buttonClassName="w-full !min-h-11 text-xs"
+                  />
                   <input aria-label="Escalation due at" name="escalationDueAt"
                     type="datetime-local"
                     defaultValue={

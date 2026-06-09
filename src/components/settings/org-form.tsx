@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Building2 } from "lucide-react";
 import { updateOrganization } from "@/actions/settings";
+import { SaveFooter } from "./editor-save-footer";
 
 interface OrgFormProps {
   organizationId: string;
@@ -10,6 +12,17 @@ interface OrgFormProps {
 }
 
 const READ_ONLY_TAG = "ui-caps-3 text-[10px] text-[var(--text-tertiary)]";
+
+function FieldIcon() {
+  return (
+    <span
+      className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-tertiary)]"
+      aria-hidden
+    >
+      <Building2 className="h-3.5 w-3.5" strokeWidth={1.85} />
+    </span>
+  );
+}
 
 export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   const [draftName, setDraftName] = useState(name);
@@ -22,16 +35,19 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   );
 
   if (!isAdmin) {
-    // §7.2 read-only field — structured label/value, not a sentence between
-    // label and input (§11.15). The READ-ONLY tag + muted field carry intent.
+    // §7.2 read-only field — structured label/value with the same leading icon
+    // as the editable control, not a sentence between label and input (§11.15).
     return (
       <div className="min-w-0">
         <label className="ui-label flex items-baseline gap-2">
           Workspace name
           <span className={READ_ONLY_TAG}>Read-only</span>
         </label>
-        <div className="ui-input flex min-h-11 w-full min-w-0 cursor-default items-center border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] text-[var(--text-tertiary)]">
-          <span className="truncate">{name}</span>
+        <div className="relative">
+          <FieldIcon />
+          <div className="ui-input flex min-h-11 w-full min-w-0 cursor-default items-center border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] pl-9 text-[var(--text-tertiary)]">
+            <span className="truncate">{name}</span>
+          </div>
         </div>
         <p className="mt-1.5 ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
           Only admins can rename this workspace.
@@ -44,55 +60,40 @@ export function OrgForm({ organizationId, name, isAdmin }: OrgFormProps) {
   const trimmed = draftName.trim();
   const isDirty = trimmed !== name.trim();
   const isEmpty = trimmed.length === 0;
-  const canSave = isDirty && !isEmpty && !pending;
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      {state?.error ? (
-        <div id={errId} role="alert" className="ui-alert-error text-sm">
-          {state.error}
-        </div>
-      ) : null}
-      {state?.success ? (
-        <div className="ui-alert-success text-sm">Organization updated.</div>
-      ) : null}
       <div className="min-w-0">
         <label htmlFor="orgName" className="ui-label">
           Workspace name
         </label>
-        <input
-          id="orgName"
-          name="name"
-          type="text"
-          defaultValue={name}
-          required
-          maxLength={80}
-          className="ui-input w-full min-w-0"
-          aria-invalid={state?.error ? true : undefined}
-          aria-describedby={state?.error ? errId : undefined}
-          onChange={(event) => setDraftName(event.currentTarget.value)}
-        />
+        <div className="relative">
+          <FieldIcon />
+          <input
+            id="orgName"
+            name="name"
+            type="text"
+            value={draftName}
+            required
+            maxLength={80}
+            className="ui-input w-full min-w-0 pl-9"
+            aria-invalid={state?.error ? true : undefined}
+            aria-describedby={state?.error ? errId : undefined}
+            onChange={(event) => setDraftName(event.currentTarget.value)}
+          />
+        </div>
       </div>
-      <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-4">
-        {isDirty ? (
-          <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-            {isEmpty ? "Name required" : "Unsaved changes"}
-          </span>
-        ) : null}
-        <button
-          type="submit"
-          disabled={!canSave}
-          aria-disabled={!canSave}
-          className={
-            isDirty
-              ? "ui-btn-primary disabled:pointer-events-none disabled:opacity-60"
-              : "ui-btn-secondary disabled:pointer-events-none disabled:opacity-55"
-          }
-          aria-busy={pending}
-        >
-          {pending ? "Saving…" : "Save name"}
-        </button>
-      </div>
+      <SaveFooter
+        isDirty={isDirty}
+        isEmpty={isEmpty}
+        pending={pending}
+        error={state?.error}
+        success={state?.success}
+        errId={errId}
+        onDiscard={() => setDraftName(name)}
+        saveLabel="Save name"
+        emptyLabel="Name required"
+      />
     </form>
   );
 }

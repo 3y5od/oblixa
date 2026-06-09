@@ -384,7 +384,7 @@ function shapeEvidenceRow(
   const isObligation = normalizeToken(row.work_item_type) === "obligation";
   const linkedObligationId = isObligation ? row.work_item_id ?? null : null;
   const linkedObligation = linkedObligationId ? input.obligationById.get(linkedObligationId) : null;
-  const linkedObligationTitle = linkedObligation?.title || (linkedObligationId ? "Linked obligation" : "None");
+  const linkedObligationTitle = linkedObligation?.title || (linkedObligationId ? "Linked requirement" : "None");
   const linkedObligationHref =
     contractId && linkedObligationId ? `/contracts/${contractId}?tab=overview#contract-obligations` : null;
   const readStatus = input.readStatusByRequirement.get(requirementId);
@@ -584,7 +584,7 @@ function buildEvidenceFilterOptions(rows: EvidenceRow[]): EvidencePageModel["fil
   const owners = new Map<string, string>();
   const contracts = new Map<string, string>();
   const obligations = new Map<string, string>();
-  const statusesPresent = new Set<EvidenceStatusKey>();
+  const statusCounts = new Map<EvidenceStatusKey, number>();
   for (const row of rows) {
     const ownerValue = row.requestOwnerUserId ?? UNASSIGNED_OWNER_VALUE;
     if (!owners.has(ownerValue)) owners.set(ownerValue, row.requestOwnerLabel);
@@ -592,7 +592,7 @@ function buildEvidenceFilterOptions(rows: EvidenceRow[]): EvidencePageModel["fil
     if (row.linkedObligationId && !obligations.has(row.linkedObligationId)) {
       obligations.set(row.linkedObligationId, row.linkedObligationTitle);
     }
-    statusesPresent.add(row.status);
+    statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1);
   }
   const STATUS_OPTION_ORDER: EvidenceStatusKey[] = [
     "requested",
@@ -605,9 +605,10 @@ function buildEvidenceFilterOptions(rows: EvidenceRow[]): EvidencePageModel["fil
     owners: [{ value: "", label: "Any owner" }, ...mapToSortedOptions(owners)],
     statuses: [
       { value: "", label: "Any status" },
-      ...STATUS_OPTION_ORDER.filter((status) => statusesPresent.has(status)).map((status) => ({
+      ...STATUS_OPTION_ORDER.filter((status) => statusCounts.has(status)).map((status) => ({
         value: status,
         label: EVIDENCE_STATUS_LABELS[status],
+        count: statusCounts.get(status),
       })),
     ],
     contracts: [{ value: "", label: "Any contract" }, ...mapToSortedOptions(contracts)],

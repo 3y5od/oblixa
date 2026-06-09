@@ -64,9 +64,9 @@ const STATUS_OPTIONS: { value: RenewalCheckpointStatus; label: string }[] = [
 ];
 
 function statusTone(status: RenewalCheckpointStatus): string {
-  if (status === "completed") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "completed") return "border-[color:color-mix(in_oklab,var(--success)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success)_10%,var(--surface))] text-[var(--success-ink)]";
   if (status === "skipped") return "border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]";
-  if (status === "in_progress") return "border-blue-200 bg-blue-50 text-blue-700";
+  if (status === "in_progress") return "border-[color:color-mix(in_oklab,var(--accent)_38%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent)_10%,var(--surface))] text-[var(--accent-strong)]";
   return "border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] text-[var(--warning-ink)]";
 }
 
@@ -291,7 +291,7 @@ export function RenewalCheckpointsPanel({
                   <span> before renewal</span>
                 </p>
                 {cp.completed_at && (
-                  <p className="mt-1 text-xs text-emerald-700">
+                  <p className="mt-1 text-xs text-[var(--success-ink)]">
                     Updated {format(new Date(cp.completed_at), "MMM d, yyyy")}
                   </p>
                 )}
@@ -324,9 +324,9 @@ export function RenewalCheckpointsPanel({
                 )}
                 {canEdit && (
                   <UiSelect
-                    variant="pill"
-                    className="min-w-[9rem]"
-                    buttonClassName="text-[12px]"
+                    variant={compact ? "compact" : "pill"}
+                    className={compact ? "min-w-[7.5rem]" : "min-w-[9rem]"}
+                    buttonClassName={compact ? "text-[11.5px]" : "text-[12px]"}
                     value={cp.status}
                     disabled={isPending}
                     onChange={(v) => onStatusChange(cp.id, v as RenewalCheckpointStatus)}
@@ -340,17 +340,17 @@ export function RenewalCheckpointsPanel({
               <form action={updateRenewalCheckpointRenewalStateFormAction} className="mt-3 flex flex-wrap items-center gap-2">
                 <input type="hidden" name="checkpointId" value={cp.id} />
                 <label className="text-[11px] text-[var(--text-secondary)]">Renewal state</label>
-                <select
+                <UiSelect
                   name="renewalState"
                   defaultValue={cp.renewal_state ?? "not_started"}
-                  className="ui-input max-w-xs py-1.5 text-xs"
-                >
-                  {RENEWAL_STATE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  ariaLabel="Renewal state"
+                  options={RENEWAL_STATE_OPTIONS}
+                  variant="compact"
+                  portal
+                  searchThreshold={8}
+                  className="min-w-[10rem] max-w-xs"
+                  buttonClassName="w-full !min-h-11 text-xs"
+                />
                 <button type="submit" className="ui-btn-secondary px-2 py-1 text-[11px]">
                   Update state
                 </button>

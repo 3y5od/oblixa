@@ -2,10 +2,32 @@
 
 import { useRouter } from "next/navigation";
 import { FilterBar, FilterSelect } from "@/components/ui/filter-bar";
+import { type UiSelectOption } from "@/components/ui/ui-select";
+import type { DropdownStatusTone } from "@/components/ui/dropdown";
 import { buildWorkHref } from "@/lib/work/model";
 import { WORK_FILTER_LABELS } from "@/lib/work/spec-strings";
 import type { WorkFilterState, WorkOption, WorkPageModel, WorkSortKey } from "@/lib/work/types";
 import { WorkSortSelect } from "./work-sort-select";
+
+// In-panel status dots (§2.5): waiting tasks read as a problem, waiting wants
+// attention, done is resolved; open/in-progress/canceled stay quiet. Due dots
+// mirror Evidence (overdue danger, due-today/soon warning). Shown only inside
+// the open list (DropdownOptionRow); the closed pill and the value-"" default
+// option carry none.
+const WORK_STATUS_DOT: Record<string, DropdownStatusTone> = {
+  blocked: "danger",
+  waiting: "warning",
+  done: "success",
+  open: "neutral",
+  in_progress: "neutral",
+  canceled: "neutral",
+};
+const WORK_DUE_DOT: Record<string, DropdownStatusTone> = {
+  overdue: "danger",
+  due_today: "warning",
+  due_soon: "warning",
+  no_due: "neutral",
+};
 
 type WorkFilterFormProps = {
   /** The currently-applied filters (from the URL). */
@@ -53,6 +75,15 @@ export function WorkFilterForm({
       })
     );
 
+  // Decorate the data-driven options with their tone dot (a presentation concern,
+  // so the server model stays a pure {value,label}).
+  const statusOptions: UiSelectOption[] = filterOptions.statuses.map((option) =>
+    option.value ? { ...option, statusDot: WORK_STATUS_DOT[option.value] } : option
+  );
+  const dueOptions: UiSelectOption[] = filterOptions.dueDates.map((option) =>
+    option.value ? { ...option, statusDot: WORK_DUE_DOT[option.value] } : option
+  );
+
   return (
     <FilterBar
       activeFilterCount={activeFilterCount}
@@ -70,7 +101,7 @@ export function WorkFilterForm({
       <FilterSelect
         label={WORK_FILTER_LABELS.dueDate}
         value={filters.dueDate}
-        options={filterOptions.dueDates}
+        options={dueOptions}
         onChange={(value) => navigate("dueDate", value)}
       />
       <FilterSelect
@@ -82,7 +113,7 @@ export function WorkFilterForm({
       <FilterSelect
         label={WORK_FILTER_LABELS.status}
         value={filters.status}
-        options={filterOptions.statuses}
+        options={statusOptions}
         onChange={(value) => navigate("status", value)}
       />
       <FilterSelect

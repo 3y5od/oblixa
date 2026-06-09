@@ -26,7 +26,7 @@ const KILL_SWITCH_ORDER_CONTRACTS = [
     after: "if (isKillBilling())",
     before: [
       'if (!user) {',
-      'if (membership.role !== "admin") {',
+      "if (!canManageWorkspaceBilling(membership.role,",
       "rateLimitCheck(`stripe-checkout:",
     ],
   },
@@ -35,7 +35,7 @@ const KILL_SWITCH_ORDER_CONTRACTS = [
     after: "if (isKillBilling())",
     before: [
       'if (!user) {',
-      'if (membership.role !== "admin") {',
+      "if (!canManageWorkspaceBilling(membership.role,",
       "rateLimitCheck(`stripe-portal:",
     ],
   },
@@ -57,7 +57,7 @@ const KILL_SWITCH_ORDER_CONTRACTS = [
   {
     file: "src/actions/settings.ts",
     after: "if (isKillInvites())",
-    before: ['if (!user) return { error: "Not authenticated" };', 'if (membership.role !== "admin") {'],
+    before: ['if (!user) return { error: "Not authenticated" };', "if (!canManageTeamOrWorkspace("],
   },
   {
     file: "src/lib/cron/route-runner.ts",

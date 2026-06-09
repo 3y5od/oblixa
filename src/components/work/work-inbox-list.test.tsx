@@ -93,9 +93,12 @@ describe("V10WorkInboxList", () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText(/select review msa for bulk actions/i));
-    fireEvent.change(screen.getByLabelText(/assign selected work to owner/i), { target: { value: "owner-2" } });
-    fireEvent.click(screen.getByRole("button", { name: /assign selected work/i }));
+    fireEvent.click(screen.getByLabelText(/select review msa for bulk task actions/i));
+    // Owner picker is now a custom combobox: open its trigger (named via aria-label)
+    // then click the option, instead of firing change on a native <select>.
+    fireEvent.click(screen.getByRole("button", { name: /assign selected tasks to owner/i }));
+    fireEvent.click(screen.getByRole("option", { name: /legal ops/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^assign selected tasks$/i }));
 
     await waitFor(() =>
       expect(mocks.bulkAssignCompatibleV10WorkItems).toHaveBeenCalledWith(
@@ -106,7 +109,7 @@ describe("V10WorkInboxList", () => {
         })
       )
     );
-    expect(screen.queryByLabelText(/select renewal approval for bulk actions/i)).toBeNull();
+    expect(screen.queryByLabelText(/select renewal approval for bulk task actions/i)).toBeNull();
     expect(await screen.findByText(/assigned 1 selected item/i)).toBeTruthy();
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
@@ -116,17 +119,17 @@ describe("V10WorkInboxList", () => {
       <V10WorkInboxList
         items={[
           baseItem({ sourceId: "task-1", compatibleActionGroup: "triage_open" }),
-          baseItem({ key: "task-2", v10WorkItemId: "v10-2", sourceId: "task-2", title: "Resolve blocker", compatibleActionGroup: "blocked_followup" }),
+          baseItem({ key: "task-2", v10WorkItemId: "v10-2", sourceId: "task-2", title: "Review dependency", compatibleActionGroup: "blocked_followup" }),
         ]}
         ownerOptions={[]}
         mutationsEnabled
       />
     );
 
-    fireEvent.click(screen.getByLabelText(/select review msa for bulk actions/i));
+    fireEvent.click(screen.getByLabelText(/select review msa for bulk task actions/i));
 
-    expect((screen.getByLabelText(/select resolve blocker for bulk actions/i) as HTMLInputElement).disabled).toBe(true);
-    expect(screen.getByText(/1 contract task selected in triage open/i)).toBeTruthy();
+    expect((screen.getByLabelText(/select review dependency for bulk task actions/i) as HTMLInputElement).disabled).toBe(true);
+    expect(screen.getByText(/1 task selected in triage open/i)).toBeTruthy();
   });
 
   it("runs bulk completion and summarizes partial outcomes", async () => {
@@ -150,9 +153,9 @@ describe("V10WorkInboxList", () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText(/select review msa for bulk actions/i));
-    fireEvent.click(screen.getByLabelText(/select validate owner for bulk actions/i));
-    fireEvent.click(screen.getByRole("button", { name: /complete selected work/i }));
+    fireEvent.click(screen.getByLabelText(/select review msa for bulk task actions/i));
+    fireEvent.click(screen.getByLabelText(/select validate owner for bulk task actions/i));
+    fireEvent.click(screen.getByRole("button", { name: /complete selected tasks/i }));
 
     await waitFor(() =>
       expect(mocks.bulkCompleteCompatibleV10WorkItems).toHaveBeenCalledWith(
@@ -312,10 +315,10 @@ describe("V10WorkInboxList", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /retry extraction/i }));
+    fireEvent.click(screen.getByRole("button", { name: /retry suggestions/i }));
 
     await waitFor(() => expect(mocks.runExtraction).toHaveBeenCalledWith("contract-1"));
-    expect(await screen.findByText(/extraction retry started/i)).toBeTruthy();
+    expect(await screen.findByText(/suggestion retry started/i)).toBeTruthy();
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
 });

@@ -79,8 +79,8 @@ async function gotoAuthenticatedPath(page: Page, path: string) {
 }
 
 const dataGapsAction =
-  DASHBOARD_MAIN_SECTIONS.find((section) => section.name === "Data Gaps")?.action ??
-  "Fix missing data";
+  DASHBOARD_MAIN_SECTIONS.find((section) => section.name === "Missing Details")?.action ??
+  "Fix missing details";
 
 test.describe("authenticated smoke", () => {
   test.skip(
@@ -539,7 +539,10 @@ test.describe("refinement route visibility (product-surface policy §10, Core fi
   test("§10.1 dynamic contract detail opens from contracts list when rows exist", async ({ page }) => {
     await loginAsTestUser(page);
     await page.goto("/contracts", { waitUntil: "domcontentloaded" });
-    const links = page.locator('a[href^="/contracts/"]');
+    await expect(page.getByTestId("contracts-table")).toBeVisible({ timeout: 20_000 });
+    const contractsTable = page.getByRole("table", { name: "Contracts in this workspace" });
+    await expect(contractsTable).toBeVisible({ timeout: 20_000 });
+    const links = contractsTable.locator('tbody a[href^="/contracts/"]:visible');
     const n = await links.count();
     let detailHref: string | null = null;
     for (let i = 0; i < n; i++) {
@@ -552,7 +555,12 @@ test.describe("refinement route visibility (product-surface policy §10, Core fi
       }
       if (/^\/contracts\/[0-9a-f-]{36}(\/|$|\?)/i.test(h)) {
         detailHref = h.split("?")[0] ?? h;
-        await links.nth(i).click();
+        await Promise.all([
+          page.waitForURL(new RegExp(`^.*${detailHref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`), {
+            waitUntil: "commit",
+          }),
+          links.nth(i).click(),
+        ]);
         break;
       }
     }

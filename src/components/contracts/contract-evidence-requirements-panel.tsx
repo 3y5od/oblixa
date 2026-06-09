@@ -94,7 +94,7 @@ export function ContractEvidenceRequirementsPanel({
               {r.review_due_at ? ` · review by ${r.review_due_at.slice(0, 10)}` : ""}
             </p>
             <p>
-              Why it matters: this evidence still affects the linked{" "}
+              What this affects: this evidence still affects the linked{" "}
               <span className="font-medium text-[var(--text-secondary)]">
                 {workItemLabel} {r.work_item_id.slice(0, 8)}…
               </span>
@@ -127,11 +127,11 @@ export function ContractEvidenceRequirementsPanel({
               </>
             ) : r.status === "submitted" ? (
               <p className="ui-alert-warning text-xs">
-                Submission is waiting for review before the linked work item can clear.
+                Submission needs review before the linked work item can clear.
               </p>
             ) : r.status === "required" ? (
               <p className="ui-alert-warning text-xs">
-                This requirement is still blocking completion of the linked work item.
+                This requirement must be resolved before the linked work item can be completed.
               </p>
             ) : null}
           </div>

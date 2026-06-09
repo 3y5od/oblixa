@@ -5,6 +5,8 @@ import { UiSelect } from "@/components/ui/ui-select";
 import { buildWorkHref } from "@/lib/work/model";
 import type { WorkFilterState, WorkOption, WorkPageModel, WorkSortKey } from "@/lib/work/types";
 
+const FILTER_PILL_HEIGHT = "h-[42px]";
+
 /**
  * Sort applies live (no Apply): selecting a key navigates immediately with the
  * new sort, preserving the active tab + filters and resetting to the first page
@@ -29,7 +31,7 @@ export function WorkSortSelect({
       value={sort}
       options={options}
       ariaLabel="Sort work"
-      buttonClassName="h-10"
+      buttonClassName={FILTER_PILL_HEIGHT}
       menuWidth="fit"
       portal
       onChange={(value) =>

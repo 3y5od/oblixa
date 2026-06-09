@@ -11,6 +11,16 @@
 export const SPEC_ANNUAL_AMOUNT_MINOR = 298_800; // $2,988
 export const SPEC_MONTHLY_AMOUNT_MINOR = 24_900; // $249
 
+/**
+ * Canonical public Core price label, e.g. "$249/month", derived from the
+ * spec-mandated monthly amount. Product surfaces should format price copy from
+ * this helper instead of hardcoding the amount, so the single source of truth
+ * stays in this module.
+ */
+export function formatSpecMonthlyPriceLabel(): string {
+  return `$${(SPEC_MONTHLY_AMOUNT_MINOR / 100).toLocaleString("en-US")}/month`;
+}
+
 export type DriftCheck = {
   ok: boolean;
   expected: number;

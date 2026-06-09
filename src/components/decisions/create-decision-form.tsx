@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { LiveRegion } from "@/components/ui/live-region";
 import { mutateJson } from "@/lib/http/client-json";
@@ -75,18 +76,18 @@ export function CreateDecisionForm() {
       </label>
       <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Decision type
-        <select
-          className="ui-input-compact mt-1 w-full text-sm"
+        <UiSelect
           value={decisionType}
-          onChange={(e) => setDecisionType(e.target.value as DecisionType)}
+          onChange={(v) => setDecisionType(v as DecisionType)}
           disabled={busy}
-        >
-          {DECISION_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {DECISION_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
+          ariaLabel="Decision type"
+          options={DECISION_TYPES.map((t) => ({ value: t, label: DECISION_TYPE_LABELS[t] }))}
+          variant="compact"
+          portal
+          searchThreshold={8}
+          className="mt-1 w-full"
+          buttonClassName="w-full text-sm"
+        />
       </label>
       <label className="block text-[11px] font-medium text-[var(--text-tertiary)]">
         Required inputs (JSON object, optional)

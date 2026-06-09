@@ -45,7 +45,7 @@ function writeFixture(root, overrides = {}) {
     "src/app/api/stripe/checkout/route.ts": `
       export async function POST() {
         if (!user) {}
-        if (membership.role !== "admin") {}
+        if (!canManageWorkspaceBilling(membership.role, {})) {}
         rateLimitCheck(\`stripe-checkout:\${user.id}\`);
         if (isKillBilling()) {}
       }
@@ -53,7 +53,7 @@ function writeFixture(root, overrides = {}) {
     "src/app/api/stripe/portal/route.ts": `
       export async function POST() {
         if (!user) {}
-        if (membership.role !== "admin") {}
+        if (!canManageWorkspaceBilling(membership.role, {})) {}
         rateLimitCheck(\`stripe-portal:\${user.id}\`);
         if (isKillBilling()) {}
       }
@@ -80,7 +80,7 @@ function writeFixture(root, overrides = {}) {
     "src/actions/settings.ts": `
       async function inviteOrgMemberUnsafe() {
         if (!user) return { error: "Not authenticated" };
-        if (membership.role !== "admin") {}
+        if (!canManageTeamOrWorkspace(membership, user.id)) {}
         if (isKillInvites()) {}
       }
     `,
@@ -111,7 +111,7 @@ test("analyzeFeatureFlagSecurityBypass rejects kill switches before required gua
       export async function POST() {
         if (isKillBilling()) {}
         if (!user) {}
-        if (membership.role !== "admin") {}
+        if (!canManageWorkspaceBilling(membership.role, {})) {}
         rateLimitCheck(\`stripe-checkout:\${user.id}\`);
       }
     `,

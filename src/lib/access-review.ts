@@ -30,6 +30,10 @@ export type AccessRequestInsert = {
   painSummary: string;
   message: string;
   source: "request_access" | "contact";
+  /** Fit context captured in last_submission_json (no dedicated columns yet). */
+  accountableOwner?: string;
+  procurementBeforeUpload?: string;
+  smallFirstSet?: string;
 };
 
 export type AccessRequestRow = {
@@ -55,6 +59,14 @@ export type AccessRequestRow = {
   decided_at: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ApprovedAccessRequestRecoveryRow = {
+  id: string;
+  normalized_email: string;
+  requester_name: string | null;
+  company_name: string | null;
+  status: "approved";
 };
 
 export type AccessGrantRow = {
@@ -124,6 +136,16 @@ export function isAccessGrantTokenShape(token: string): boolean {
   return ACCESS_GRANT_TOKEN_RE.test(token.trim());
 }
 
+export function resolveApprovedAccessRequestWorkspaceName(
+  request: Pick<ApprovedAccessRequestRecoveryRow, "company_name" | "requester_name">,
+  fallback = "My Organization"
+): string {
+  const companyName = typeof request.company_name === "string" ? request.company_name.trim() : "";
+  if (companyName) return companyName;
+  const requesterName = typeof request.requester_name === "string" ? request.requester_name.trim() : "";
+  return requesterName ? `${requesterName}'s Organization` : fallback;
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   const e = error as { code?: unknown; message?: unknown; details?: unknown };
   const code = typeof e.code === "string" ? e.code : "";
@@ -188,6 +210,9 @@ export async function insertAccessRequestRecord(
     has_tracker: input.hasTracker,
     redacted_sample_available: input.redactedSampleAvailable,
     follow_up_preference: input.followUpPreference,
+    accountable_owner: input.accountableOwner ?? "",
+    procurement_before_upload: input.procurementBeforeUpload ?? "",
+    small_first_set: input.smallFirstSet ?? "",
   };
 
   const { data: existing, error: existingError } = await admin
@@ -335,6 +360,120 @@ export async function validateWorkspaceAccessGrant(
   }
 
   return { ok: true, grant };
+}
+
+export async function validateConsumedWorkspaceAccessGrantForUser(
+  admin: Admin,
+  input: { token: string; email: string; userId: string }
+): Promise<{ ok: true; grant: AccessGrantRow } | { ok: false; error: string }> {
+  const token = input.token.trim();
+  if (!token) return { ok: false, error: "missing_grant" };
+  if (!isAccessGrantTokenShape(token)) return { ok: false, error: "invalid_grant" };
+
+  const normalizedEmail = normalizeAccessReviewEmail(input.email);
+  if (!isReasonableEmail(normalizedEmail)) return { ok: false, error: "grant_email_mismatch" };
+
+  const userId = input.userId.trim();
+  if (!userId) return { ok: false, error: "grant_user_mismatch" };
+
+  const { data, error } = await admin
+    .from("workspace_access_grants")
+    .select("id, request_id, normalized_email, status, expires_at, issued_by, used_by, used_at, revoked_at, created_at")
+    .eq("token_hash", hashAccessGrantToken(token))
+    .maybeSingle();
+
+  if (error) return { ok: false, error: "grant_unavailable" };
+  if (!data) return { ok: false, error: "invalid_grant" };
+
+  const grant = data as AccessGrantRow;
+  if (grant.status !== "used") return { ok: false, error: "grant_not_consumed" };
+  if (grant.normalized_email !== normalizedEmail) return { ok: false, error: "grant_email_mismatch" };
+  if (grant.used_by !== userId) return { ok: false, error: "grant_user_mismatch" };
+  return { ok: true, grant };
+}
+
+export async function recoverWorkspaceAccessGrantForAuthenticatedUser(
+  admin: Admin,
+  input: { email: string; userId: string; now?: Date }
+): Promise<{ ok: true; grant: AccessGrantRow } | { ok: false; error: string }> {
+  const normalizedEmail = normalizeAccessReviewEmail(input.email);
+  if (!isReasonableEmail(normalizedEmail)) return { ok: false, error: "grant_email_mismatch" };
+
+  const userId = input.userId.trim();
+  if (!userId) return { ok: false, error: "grant_user_mismatch" };
+
+  const now = input.now ?? new Date();
+  const nowIso = now.toISOString();
+  const { data, error } = await admin
+    .from("workspace_access_grants")
+    .select("id, request_id, normalized_email, status, expires_at, issued_by, used_by, used_at, revoked_at, created_at")
+    .eq("normalized_email", normalizedEmail)
+    .in("status", ["issued", "used"])
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (error) return { ok: false, error: "grant_unavailable" };
+  const grants = Array.isArray(data) ? (data as AccessGrantRow[]) : [];
+
+  for (const grant of grants) {
+    if (grant.status === "used") {
+      if (grant.used_by === userId) return { ok: true, grant };
+      continue;
+    }
+
+    if (grant.status !== "issued") continue;
+    if (new Date(grant.expires_at).getTime() <= now.getTime()) {
+      await admin.from("workspace_access_grants").update({ status: "expired" }).eq("id", grant.id).eq("status", "issued");
+      continue;
+    }
+
+    const { data: consumed, error: consumeError } = await admin
+      .from("workspace_access_grants")
+      .update({ status: "used", used_by: userId, used_at: nowIso })
+      .eq("id", grant.id)
+      .eq("status", "issued")
+      .eq("normalized_email", normalizedEmail)
+      .gt("expires_at", nowIso)
+      .select("id, request_id, normalized_email, status, expires_at, issued_by, used_by, used_at, revoked_at, created_at")
+      .maybeSingle();
+    if (consumeError) return { ok: false, error: "grant_consume_failed" };
+    if (consumed) return { ok: true, grant: consumed as AccessGrantRow };
+  }
+
+  return { ok: false, error: "grant_not_recoverable" };
+}
+
+export async function recoverApprovedWorkspaceAccessRequestForAuthenticatedUser(
+  admin: Admin,
+  input: { email: string }
+): Promise<{ ok: true; request: ApprovedAccessRequestRecoveryRow } | { ok: false; error: string }> {
+  const normalizedEmail = normalizeAccessReviewEmail(input.email);
+  if (!isReasonableEmail(normalizedEmail)) return { ok: false, error: "request_email_mismatch" };
+
+  const { data: request, error: requestError } = await admin
+    .from("workspace_access_requests")
+    .select("id, normalized_email, requester_name, company_name, status")
+    .eq("normalized_email", normalizedEmail)
+    .eq("status", "approved")
+    .maybeSingle();
+  if (requestError) return { ok: false, error: "request_unavailable" };
+  if (!request) return { ok: false, error: "request_not_recoverable" };
+
+  const row = request as ApprovedAccessRequestRecoveryRow;
+  if (row.normalized_email !== normalizedEmail || row.status !== "approved") {
+    return { ok: false, error: "request_not_recoverable" };
+  }
+
+  const { data: grants, error: grantsError } = await admin
+    .from("workspace_access_grants")
+    .select("id, status")
+    .eq("request_id", row.id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (grantsError) return { ok: false, error: "grant_unavailable" };
+  if (Array.isArray(grants) && grants.length > 0) return { ok: false, error: "grant_present" };
+
+  return { ok: true, request: row };
 }
 
 export async function inspectWorkspaceAccessGrantToken(

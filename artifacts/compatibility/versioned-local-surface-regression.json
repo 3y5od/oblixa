@@ -11,7 +11,7 @@
   "totals": {
     "groupCount": 6,
     "guardedGroupCount": 6,
-    "contractCount": 1460,
+    "contractCount": 1432,
     "manualOnlyContractCount": 29,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
@@ -34,8 +34,8 @@
         "static_text_fixtures_snapshots"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 603,
-      "hitCount": 3638,
+      "contractCount": 576,
+      "hitCount": 3523,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -43,8 +43,7 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {},
       "ownerCoverage": {
-        "docs-platform": 18,
-        "platform-hardening": 585
+        "platform-hardening": 576
       }
     },
     {
@@ -62,8 +61,8 @@
         "api_payload_metric_dom_selector_contracts"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 62,
-      "hitCount": 104,
+      "contractCount": 61,
+      "hitCount": 102,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -74,7 +73,7 @@
         "awaiting_production_cutover": 13
       },
       "ownerCoverage": {
-        "qa-platform": 62
+        "qa-platform": 61
       }
     },
     {
@@ -137,7 +136,7 @@
       "queueStatusCounts": {
         "alias_added": 53,
         "awaiting_linked_verification": 1,
-        "awaiting_production_cutover": 389
+        "awaiting_production_cutover": 390
       },
       "ownerCoverage": {
         "platform-hardening": 260,

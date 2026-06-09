@@ -4,6 +4,7 @@ import { Activity, History, Layers, Mail, Package } from "lucide-react";
 import { ExternalLink } from "@/components/ui/external-link";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { getAuthContext } from "@/lib/supabase/server";
+import { UiSelect } from "@/components/ui/ui-select";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -186,17 +187,17 @@ export default async function ReportsHistoryPage(props: {
           </div>
           <form action={createReportPackFormAction} className="grid gap-2 border-b border-[var(--border-subtle)] px-5 py-4 md:grid-cols-2">
             <input aria-label="Weekly execution health" name="name" required placeholder="Weekly execution health" className="ui-input" />
-            <select
+            <UiSelect
               name="reportType"
-              className="ui-input"
               defaultValue={eligibleReportTypes[0] ?? "weekly_execution_health"}
-            >
-              {eligibleReportTypes.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+              ariaLabel="Report type"
+              options={eligibleReportTypes.map((t) => ({ value: t, label: t }))}
+              variant="compact"
+              portal
+              searchThreshold={8}
+              className="w-full"
+              buttonClassName="w-full !min-h-11"
+            />
             <input aria-label="15 * * * * (UTC minute hour …) — empty = every cron run" name="schedule" placeholder="15 * * * * (UTC minute hour …) — empty = every cron run" className="ui-input" />
             <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)] md:col-span-2">
               <input aria-label="Emit webhooks" type="checkbox" name="emitWebhooks" className="ui-checkbox" />

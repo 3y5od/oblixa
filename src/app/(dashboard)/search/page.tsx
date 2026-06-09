@@ -23,7 +23,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-const MAX_QUERY_LENGTH = 200;
+const MAX_QUERY_LENGTH = 120;
 
 function parseFilterGroup(value: string | undefined): SearchGroup | null {
   if (!value) return null;
@@ -57,7 +57,7 @@ export default async function SearchPage({
   }
 
   return (
-    <div className="ui-page-stack mx-auto max-w-2xl gap-5">
+    <div className="ui-page-stack mx-auto max-w-2xl gap-5 lg:max-w-6xl xl:max-w-[84rem]">
       <a
         href="#search-input"
         className="ui-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-[var(--surface-raised)] focus:px-3 focus:py-2 focus:text-[var(--text-primary)]"

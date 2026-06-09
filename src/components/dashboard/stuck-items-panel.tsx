@@ -81,10 +81,10 @@ export async function StuckItemsPanel({ orgId }: StuckItemsPanelProps) {
   rows.sort((a, b) => b.age - a.age);
 
   return (
-    <section className="space-y-3" aria-label="Stuck items">
+    <section className="space-y-3" aria-label="Items needing input">
       <h2 className="inline-flex items-center gap-2 text-[1.375rem] font-semibold tracking-tight text-[var(--text-primary)]">
         <AlertOctagon className="h-4 w-4 text-[var(--danger-ink)]" strokeWidth={1.85} aria-hidden />
-        Stuck items
+        Items needing input
       </h2>
       <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] overflow-hidden rounded-2xl border border-[var(--border-card)] bg-[var(--surface-raised)]">
         {rows.slice(0, 5).map((row) => (
@@ -102,7 +102,7 @@ export async function StuckItemsPanel({ orgId }: StuckItemsPanelProps) {
                   {row.title}
                 </p>
                 <p className="mt-0.5 truncate text-[11px] text-[var(--text-tertiary)]">
-                  {row.kind === "task" ? `Blocked task · ${row.contractTitle}` : "Blocked exception"} ·{" "}
+                  {row.kind === "task" ? `Task needs input · ${row.contractTitle}` : "Issue needs input"} ·{" "}
                   {row.age === 0 ? "today" : `${row.age}d`}
                 </p>
               </div>

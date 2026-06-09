@@ -233,13 +233,17 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
       counterparties: [{ value: "", label: "Any counterparty" }, ...counterpartyOptions],
       statuses: [
         { value: "", label: "Any status" },
-        ...Object.entries(RENEWAL_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+        ...Object.entries(RENEWAL_STATUS_LABELS).map(([value, label]) => ({
+          value,
+          label,
+          count: allRows.filter((row) => row.status === value).length,
+        })),
       ],
       reviewStates: [
-        { value: "", label: "Any review state" },
-        { value: "reviewed", label: "Reviewed" },
+        { value: "", label: "Any date status" },
+        { value: "reviewed", label: "Confirmed" },
         { value: "suggested", label: "Suggested" },
-        { value: "computed", label: "Computed" },
+        { value: "computed", label: "Calculated" },
         { value: "missing", label: "Missing" },
       ],
     },

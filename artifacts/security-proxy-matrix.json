@@ -17,6 +17,7 @@
     ],
     "public_information_paths": [
       "/product",
+      "/request-access",
       "/early-access",
       "/pricing",
       "/contact",
@@ -41,10 +42,16 @@
   },
   "marketing_sitemap_paths": [
     "/",
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/reset-password"
+    "/product",
+    "/request-access",
+    "/pricing",
+    "/contact",
+    "/security",
+    "/privacy",
+    "/terms",
+    "/acceptable-use",
+    "/accessibility",
+    "/cookies"
   ],
   "api_routes_flagged_public_guess": [],
   "notes": "Anonymous users may hit /api/*; each route enforces its own auth. public_guess heuristics are not a substitute for handler review."

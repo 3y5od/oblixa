@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/http/client-json";
+import { UiSelect } from "@/components/ui/ui-select";
 import { captureClientException } from "@/lib/observability/sentry-client";
 import { analyzePolicyRegistry, validatePolicyRegistry } from "@/lib/contract-operations/policy-registry";
 
@@ -29,7 +30,7 @@ function formatPreviewResponse(responseText: string): { title: string; lines: st
         : "Approval timing fallback: none",
       simulation.contract_missing_critical_dates
         ? "Contract needs critical date review before relying on policy automation."
-        : "No critical date blocker was found for this contract.",
+        : "No critical date dependency was found for this contract.",
     ];
     if (Array.isArray(parsed.warnings) && parsed.warnings.length > 0) {
       lines.push(`${parsed.warnings.length} policy warning${parsed.warnings.length === 1 ? "" : "s"} returned.`);
@@ -148,18 +149,20 @@ export function PolicySimulationPanel({
         <label htmlFor={contractSelectId} className="block text-xs font-medium text-[var(--text-secondary)]">
           Contract
         </label>
-        <select
+        <UiSelect
           id={contractSelectId}
-          className="ui-input text-sm"
           value={contractId}
-          onChange={(e) => setContractId(e.target.value)}
-        >
-          {contracts.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.title || "Untitled"} · {c.id.slice(0, 8)}…
-            </option>
-          ))}
-        </select>
+          onChange={setContractId}
+          options={contracts.map((c) => ({
+            value: c.id,
+            label: `${c.title || "Untitled"} · ${c.id.slice(0, 8)}…`,
+          }))}
+          variant="compact"
+          portal
+          searchThreshold={8}
+          className="w-full"
+          buttonClassName="w-full !min-h-11 text-sm"
+        />
       </div>
 
       {isDiagnostics ? (

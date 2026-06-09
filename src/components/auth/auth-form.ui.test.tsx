@@ -43,7 +43,7 @@ describe("AuthForm", () => {
 
   it("renders login content and forgot-password path", () => {
     renderWithProviders(<AuthForm mode="login" />);
-    expect(screen.getByRole("heading", { name: /sign in to your account/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /sign in to your workspace/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: /forgot password/i })).toBeTruthy();
   });
 
@@ -54,11 +54,12 @@ describe("AuthForm", () => {
     expect(screen.getByText(/suggested/i)).toBeTruthy();
   });
 
-  it("leads the product panel with the canonical signed-contract frame", () => {
+  it("frames the product panel without repeating the public landing promise", () => {
     renderWithProviders(<AuthForm mode="login" />);
-    // Release-state positioning: the product frame is "what signed contracts require
-    // next", not the spreadsheet-replacement wedge.
-    expect(screen.getByText(/track what signed contracts require next/i)).toBeTruthy();
+    // Product proof uses a quiet eyebrow + support copy (§10.15) — it must NOT
+    // restate the public landing H1 inside the auth surface.
+    expect(screen.getByText(/contract tracking/i)).toBeTruthy();
+    expect(screen.queryByText(/track what signed contracts require next/i)).toBeNull();
   });
 
   it("surfaces the policy links row under the auth columns", () => {

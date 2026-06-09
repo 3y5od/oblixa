@@ -17,14 +17,34 @@ const GRID_TEMPLATE = "minmax(0,1fr) 8rem 3.5rem 7rem auto";
  * a completed run offers "Export", a failed run offers "Retry".
  */
 export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
+  // Collapse repeated exports of the same report + scope + format into one row,
+  // so a burst of identical re-runs reads as a single grouped entry (the latest
+  // run, prominent, with a run count) instead of a wall of duplicate lines.
+  const groups = groupRuns(runs);
   return (
     <div className="border-t border-[var(--border-subtle)] px-5 py-4">
-      <p className="ui-caps-2 mb-2.5 text-[10.5px] text-[var(--text-tertiary)]">Recent exports</p>
-
-      {runs.length === 0 ? (
-        <p className="text-[12.5px] leading-snug text-[var(--text-tertiary)]">
-          No exports yet. Exported reports appear here with their status and time.
+      <div className="mb-2.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+        <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Recent exports</p>
+        <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+          Rows are the records included in that export run.
         </p>
+      </div>
+
+      {groups.length === 0 ? (
+        <div className="flex items-center gap-3 py-1">
+          <span
+            aria-hidden
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+          >
+            <Download className="h-4 w-4" strokeWidth={1.85} />
+          </span>
+          <div className="min-w-0">
+            <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">No exports yet</p>
+            <p className="ui-caps-3 mt-0.5 text-[9.5px] text-[var(--text-tertiary)]">
+              Exported reports appear here
+            </p>
+          </div>
+        </div>
       ) : (
         <div>
           <div
@@ -42,7 +62,8 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
           </div>
 
           <div className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_72%,transparent)]">
-            {runs.map((run, index) => {
+            {groups.map((group, index) => {
+              const run = group.latest;
               const semantic = statusToSemantic(run.status);
               const Icon = STATUS_ICON[semantic];
               const phase = classifyRunPhase(run.status);
@@ -60,8 +81,19 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
                   style={{ gridTemplateColumns: GRID_TEMPLATE }}
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-[var(--text-primary)]" title={run.reportLabel}>
-                      {run.reportLabel}
+                    <p
+                      className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--text-primary)]"
+                      title={run.reportLabel}
+                    >
+                      <span className="truncate">{run.reportLabel}</span>
+                      {group.count > 1 ? (
+                        <span
+                          className="ui-caps-3 inline-flex shrink-0 items-center rounded-full border border-[var(--border-subtle)] px-1.5 py-0.5 text-[9px] tabular-nums text-[var(--text-tertiary)]"
+                          title={`${group.count} exports of this report and scope`}
+                        >
+                          ×{group.count}
+                        </span>
+                      ) : null}
                     </p>
                     {metaTokens.length > 0 ? (
                       <p className="ui-caps-3 mt-0.5 text-[9.5px] text-[var(--text-tertiary)] tabular-nums">
@@ -153,4 +185,35 @@ function classifyRunPhase(status: string): "completed" | "failed" | "processing"
   if (/fail|error|expired|cancel|reject/.test(s)) return "failed";
   if (/process|pending|queue|running|progress|started/.test(s)) return "processing";
   return "completed";
+}
+
+type RunGroup = { latest: ReportExportRun; count: number };
+
+/**
+ * Group export runs by what was exported (report + scope + format) so repeated
+ * re-runs of the same report collapse to one row. Within each group the latest
+ * run (by ISO `at`) is the representative; the group size becomes the run count.
+ * First-seen group order is preserved, so the freshest exports stay on top.
+ */
+function groupRuns(runs: ReportExportRun[]): RunGroup[] {
+  const order: string[] = [];
+  const buckets = new Map<string, ReportExportRun[]>();
+  for (const run of runs) {
+    const key = `${run.reportKey}|${run.scope.join(",")}|${run.format ?? ""}`;
+    const bucket = buckets.get(key);
+    if (bucket) {
+      bucket.push(run);
+    } else {
+      buckets.set(key, [run]);
+      order.push(key);
+    }
+  }
+  return order.map((key) => {
+    const bucket = buckets.get(key)!;
+    const latest = bucket.reduce(
+      (best, run) => ((run.at ?? "") > (best.at ?? "") ? run : best),
+      bucket[0]!
+    );
+    return { latest, count: bucket.length };
+  });
 }

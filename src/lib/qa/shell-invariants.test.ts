@@ -21,7 +21,7 @@ describe("shell invariants", () => {
   it("keeps the desktop sidebar viewport-bounded with an independently scrollable nav body", () => {
     const raw = readFileSync(join(process.cwd(), "src/components/layout/sidebar.tsx"), "utf8");
     expect(raw).toContain("sticky top-0 hidden h-dvh max-h-dvh min-h-0 shrink-0 flex-col");
-    expect(raw).toContain('const bodyClassName = "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2.5 py-3"');
+    expect(raw).toContain('const bodyClassName = "flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-2.5 py-3"');
     expect(raw).not.toContain("min-h-0 shrink-0 overflow-y-auto overscroll-y-contain px-2.5 py-3");
   });
 
@@ -42,4 +42,3 @@ describe("shell invariants", () => {
     }
   });
 });
-

@@ -14,7 +14,7 @@ export const WORK_HUB_LENS_VALUES = [
 
 export type WorkHubLens = (typeof WORK_HUB_LENS_VALUES)[number];
 
-export const V9_WORK_HUB_LENS_VALUES = [
+export const CURRENT_WORK_HUB_LENS_VALUES = [
   "assigned",
   "due_soon",
   "overdue",
@@ -36,7 +36,7 @@ export const WORK_HUB_LENS_LABELS: Record<WorkHubLens, string> = {
   due_today: "Due today",
   due_soon: "Due soon",
   overdue: "Overdue",
-  blocked: "Blocked",
+  blocked: "Needs input",
   high_risk: "High risk",
   recent: "Recently completed",
   failed_jobs: "Failed jobs",

@@ -66,8 +66,8 @@ export const options = {
   ],
   setup_intent: [
     { id: "upload_import" as const, label: "Upload or import contracts" },
-    { id: "review_extracted_fields" as const, label: "Review extracted fields" },
-    { id: "organize_work_renewals" as const, label: "Organize work and renewals" },
+    { id: "review_extracted_fields" as const, label: "Review suggested details" },
+    { id: "organize_work_renewals" as const, label: "Organize tasks and renewals" },
     { id: "configure_workflows_advanced" as const, label: "Request evidence and export reports" },
   ],
   assurance_intent: [
@@ -108,8 +108,8 @@ export const modeLabels: Record<"core" | "advanced" | "assurance", string> = {
 export const setupChecklistKeyLabels: Record<SetupChecklistStepKey, string> = {
   bulk_import: "Bulk import contracts",
   upload_contract: "Upload contracts",
-  review_fields: "Review extracted fields",
-  organize_work: "Organize work and renewals",
+  review_fields: "Review suggested details",
+  organize_work: "Organize tasks and renewals",
   product_settings: "Tune product experience settings",
   compliance_alignment: "Align compliance-oriented setup",
 };
@@ -125,8 +125,8 @@ export function formatSetupChecklistSummary(keys: string[]): string {
 
 export function labelForSearchScope(scope: ProductSearchScope): string {
   return scope === "core_only"
-    ? "Search starts with contracts, fields, work, and evidence."
-    : "Search includes contract records, related work, evidence, and reports.";
+    ? "Search starts with contracts, details, tasks, and evidence."
+    : "Search includes contract records, related tasks, evidence, and reports.";
 }
 
 export function labelForDashboardProfile(
@@ -144,14 +144,14 @@ export function labelForDashboardProfile(
 
 export function labelForNotificationSuppressAdvanced(suppress: boolean): string {
   return suppress
-    ? "Email starts with renewal, notice, field review, work, evidence, and weekly digest reminders."
+    ? "Email starts with renewal, notice, detail confirmation, tasks, evidence, and weekly digest reminders."
     : "Email reminders follow the contract tracking categories enabled for this workspace.";
 }
 
 export function labelForReportProfileSuppress(suppress: boolean): string {
   return suppress
-    ? "Reports start with Core contract tracking views until more data is reviewed."
-    : "Reports can use reviewed fields, owners, dates, work, evidence, and exports.";
+    ? "Reports start with Core contract tracking views until more data is confirmed."
+    : "Reports can use confirmed details, owners, dates, tasks, evidence, and exports.";
 }
 
 export const calibrationHistoryChoiceLabels: {

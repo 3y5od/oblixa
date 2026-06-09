@@ -20,8 +20,10 @@ non-product operating process.
 
 Intended-state authority:
 
-- This document defines the intended release state and technical behavior, not
-  the current as-built state.
+- This document defines the intended release state and technical behavior. It is
+  not a passive as-built changelog, but it should be kept aligned with current
+  implemented release behavior when that behavior is accepted as the product
+  direction.
 - When implementation, copy, route guards, or configuration fall short of this
   document, the gap is release work. The document should not be weakened merely
   to describe current implementation.
@@ -149,9 +151,9 @@ Primary positioning:
 
 Primary subheadline:
 
-> Upload agreements or import your tracker, review source-backed fields, and
-> turn dates, owners, obligations, evidence, and exceptions into accountable
-> work and exportable reports.
+> Upload agreements or import your tracker, confirm suggested contract details,
+> and turn dates, owners, requirements, evidence, and problems into accountable
+> tasks and exportable reports.
 
 Release stance:
 
@@ -190,7 +192,8 @@ Target user:
 - Contract tracking currently happens in spreadsheets, folders, email,
   calendars, shared drives, or memory.
 - The acute pains are unclear follow-up ownership, renewal and notice dates,
-  obligations, exceptions, evidence, and operational reports.
+  contract requirements, contract problems, evidence, tasks, and operational
+  reports.
 - The first useful workspace can start with a bounded contract set, not a full
   migration.
 - The replacement object is the live manual tracker and follow-up process, not
@@ -199,9 +202,9 @@ Target user:
 Product boundary:
 
 - Oblixa starts after signature.
-- Oblixa tracks signed contracts, reviewed fields, renewals, notice deadlines,
-  owners, obligations, approvals, exceptions, evidence, work, reports, exports,
-  imports, and accountable follow-up.
+- Oblixa tracks signed contracts, confirmed contract details, renewals, notice
+  deadlines, owners, contract requirements, approvals, problems, evidence,
+  tasks, reports, exports, imports, and accountable follow-up.
 - Oblixa does not provide legal advice.
 - Oblixa is not a CLM, e-signature tool, drafting tool, redlining tool, formal
   GRC platform, enterprise assurance product, or autonomous decision-maker.
@@ -210,10 +213,11 @@ AI boundary:
 
 - AI is a support mechanism, not the headline category.
 - Public and app copy should describe "source-backed suggestions" or
-  "suggested fields."
+  "suggested contract details."
 - "Source-backed" means the cited source text is present and locatable. A model
   suggestion with no located support is only a suggested value awaiting review.
-- Important suggested fields are not trusted operational data until reviewed.
+- Important suggested contract details are not trusted operational data until
+  confirmed or corrected.
 - Model confidence is extraction metadata, not a trust state.
 - Copy must not imply legal analysis, guaranteed extraction, autonomous
   decisions, risk authority, compliance decisions, or renewal guarantees.
@@ -259,8 +263,8 @@ Intended audience:
 
 - Small teams with real signed contracts and no reliable contract-operations
   system.
-- Teams where ownership, dates, obligations, evidence, and reporting are handled
-  manually.
+- Teams where ownership, dates, contract requirements, evidence, tasks, and
+  reporting are handled manually.
 - Primary operator: the person accountable for keeping signed-contract follow-up
   from slipping, usually an operations, finance, legal-adjacent, administrative,
   or team-lead owner.
@@ -273,8 +277,8 @@ Intended audience:
 - When multiple personas are present, prioritize the person accountable for
   follow-up, owner coverage, deadline confidence, evidence collection, and
   reporting.
-- Secondary users: teammates who own specific contracts, review extracted
-  fields, complete work, provide evidence, or use reports.
+- Secondary users: teammates who own specific contracts, confirm suggested
+  contract details, complete tasks, provide evidence, or use reports.
 - Teams that can start with a bounded set of signed agreements.
 
 Non-audience:
@@ -296,10 +300,10 @@ Primary job-to-be-done:
 Secondary jobs:
 
 - Know which contracts exist and who owns them.
-- See which fields are reviewed, missing, or still suggested.
+- See which contract details are confirmed, missing, or still suggested.
 - Track renewal, notice, termination, effective, and end dates.
-- Convert obligations, approvals, exceptions, and follow-up into accountable
-  work.
+- Convert requirements, approvals, problems, and follow-up into accountable
+  tasks.
 - Request and collect evidence.
 - Export reports without rebuilding a spreadsheet.
 
@@ -319,8 +323,8 @@ Product promise:
 
 Product non-promise:
 
-- Oblixa does not guarantee that every renewal, notice, or obligation will be
-  found or acted on.
+- Oblixa does not guarantee that every renewal, notice, or contract requirement
+  will be found or acted on.
 - Oblixa does not guarantee extraction accuracy.
 - Oblixa does not interpret legal meaning or recommend legal action.
 - Oblixa does not replace counsel, procurement, finance approval, or business
@@ -331,9 +335,9 @@ Product non-promise:
 Positioning hierarchy:
 
 1. Signed contracts have next requirements.
-2. Reviewed data turns those requirements into accountable work.
-3. Dates, owners, obligations, evidence, exceptions, and reports are the Core
-   surfaces.
+2. Confirmed contract details turn those requirements into accountable tasks.
+3. Dates, owners, contract requirements, tasks, evidence, problems, and reports
+   are the Core surfaces.
 4. Spreadsheet, folder, inbox, calendar, and memory replacement is the migration
    pain.
 5. AI is source-backed assistance, not the category.
@@ -348,12 +352,12 @@ workspace receives access.
 An approved workspace should be able to:
 
 - Add signed agreements by upload or import.
-- Review source-backed suggested fields.
+- Confirm or correct suggested contract details.
 - Maintain a contract inventory.
 - Assign owners.
 - Track critical dates.
-- See open, overdue, blocked, and unassigned work.
-- Track obligations, approvals, exceptions, and evidence requests.
+- See open, past-due, cannot-proceed, and unassigned tasks.
+- Track contract requirements, approvals, problems, and evidence requests.
 - Use external token links for bounded evidence/follow-up collection.
 - Use external token links for both file evidence upload and non-file
   response/reference submission when the workflow asks a non-workspace
@@ -374,24 +378,26 @@ The release should not require:
 Activation state:
 
 - A workspace is activated when at least one contract has been uploaded or
-  imported, at least one suggested field has been reviewed or corrected, and the
-  workspace shows meaningful dashboard, work, renewal, evidence, or report state.
+  imported, at least one suggested contract detail has been confirmed or
+  corrected, and the workspace shows meaningful dashboard, task, renewal,
+  evidence, or report state.
 - Activation is a product-state concept, not an external status milestone.
 - Activation evidence must record the first accepted upload or import, first
-  reviewed or corrected field, first owner assignment or confirmed owner, first
-  visible renewal/notice/date or intentional missing-date state, first work or
-  evidence item created/resolved when available, and first report preview or
-  export. If a workspace cannot reach one of these events because the data does
-  not support it, the activation evidence records the omission and recovery path.
+  confirmed or corrected contract detail, first owner assignment or confirmed
+  owner, first visible renewal/notice/date or intentional missing-date state,
+  first task or evidence item created/resolved when available, and first report
+  preview or export. If a workspace cannot reach one of these events because the
+  data does not support it, the activation evidence records the omission and
+  recovery path.
 
 First-use proof path:
 
 - The intended first useful workspace starts with 20-50 signed contracts or a
   similarly bounded tracker import, not with a full-company migration.
-- The user uploads or imports the bounded set, reviews the first important
-  source-backed fields, confirms or assigns owners, sees upcoming renewals or
-  notice dates, creates or resolves at least one work/evidence item, and previews
-  or exports a report.
+- The user uploads or imports the bounded set, confirms the first important
+  suggested contract details, confirms or assigns owners, sees upcoming renewals
+  or notice dates, creates or resolves at least one task/evidence item, and
+  previews or exports a report.
 - The user should be able to understand value from that path without an
   onboarding call, custom implementation, spreadsheet cleanup by Oblixa, or
   legal review.
@@ -401,14 +407,14 @@ First-use proof path:
   states, and onboarding should reinforce this bounded first-use path. They
   should not imply that the user must migrate every contract, complete every
   review, configure every report, or adopt every module before value is visible.
-- Product proof should show reviewed fields becoming owners, dates, work,
-  evidence, and reports. Screenshots or mock views that show disconnected
+- Product proof should show suggested contract details becoming owners, dates,
+  tasks, evidence, and reports. Screenshots or mock views that show disconnected
   module breadth are weaker than a visible end-to-end first path.
 
 Release proof:
 
 - The release should prove itself with the product surfaces: Dashboard, Review
-  fields, Contracts, Work, Renewals, Evidence, Reports, Settings, and contextual
+  queue, Contracts, Tasks, Renewals, Evidence, Reports, Settings, and contextual
   upload/import/detail routes.
 - Public pages should use product proof and precise boundaries.
 - Documentation, private operating knowledge, or non-product context are not
@@ -481,7 +487,7 @@ these decisions unless the product decision is explicitly changed here.
 - A request is qualified when the requester has real signed contracts, a manual
   or unreliable follow-up system, a clear owner for the first workspace, a
   bounded starting set, and a plausible need for renewals, notice dates, owners,
-  obligations, evidence, work, or reports.
+  contract requirements, evidence, tasks, or reports.
 - Strong positive fit means the team has roughly 20-500 signed contracts, one
   accountable workspace owner, a current tracker in a spreadsheet, folder,
   inbox, calendar, shared drive, or memory, a bounded first set to upload or
@@ -679,14 +685,15 @@ these decisions unless the product decision is explicitly changed here.
   workspace data deletion, approve irreversible workspace export/deletion
   operations, and remove or downgrade another Owner.
 - Admin can manage team members, roles, invites, workspace identity, security
-  settings, billing recovery, uploads, imports, reviews, work, evidence, reports,
-  and exports, except owner-only controls.
-- Member can upload/import contracts, review fields, edit operational contract
-  data, manage work/evidence, and view Core workspace data.
+  settings, billing recovery, uploads, imports, reviews, tasks, evidence,
+  reports, and exports, except owner-only controls.
+- Member can upload/import contracts, confirm suggested details, edit
+  operational contract data, manage tasks/evidence, and view Core workspace
+  data.
 - Member cannot export reports or contract inventory by default. Member export
   becomes allowed only if a workspace Owner enables a specific export permission.
 - Viewer is read-only. Viewer cannot upload, import, review, edit, request
-  evidence, create work, manage billing, manage team access, or export by
+  evidence, create tasks, manage billing, manage team access, or export by
   default.
 - Viewer export becomes allowed only by explicit Owner-enabled workspace policy
   for a named export/report class.
@@ -820,10 +827,10 @@ These are intended release defaults:
   or provider payloads.
 - Re-extraction is triggered by new file upload, explicit retry, failed
   extraction recovery, changed extraction configuration, or operator-approved
-  reprocessing. It does not silently overwrite reviewed fields.
-- Re-extraction can create new suggested values and mark existing reviewed values
-  stale only when the source basis changed. Reviewed values remain visible with
-  prior actor, timestamp, and source context.
+  reprocessing. It does not silently overwrite confirmed details.
+- Re-extraction can create new suggested values and mark existing confirmed
+  values stale only when the source basis changed. Confirmed values remain
+  visible with prior actor, timestamp, and source context.
 - Confidence is displayed only as extraction metadata. It never replaces source
   citation or human review.
 - Extraction-quality claims require a code-owned or manual evaluation record
@@ -852,18 +859,18 @@ These are intended release defaults:
 - Imported dates are unverified until reviewed or explicitly marked unknown.
 - Renewal windows default to 90 days.
 - Notice windows default to 90 days.
-- Due-soon work defaults to 7 days.
-- Missing dates create data-gap/review work instead of silently disappearing
+- Due-soon tasks default to 7 days.
+- Missing dates create data-gap/review tasks instead of silently disappearing
   from dashboards and reports.
-- Computed dates must disclose the source basis. Reviewed dates take precedence
-  over computed or suggested dates.
+- Calculated dates must disclose the source basis. Confirmed dates take
+  precedence over calculated or suggested dates.
 
 ### Notifications And Reminders
 
 - In-app notifications are enabled by default for operational events listed in
   the Notification Matrix.
 - Email notifications are enabled by default for invites, evidence requested,
-  work assigned, extraction ready or failed for the uploading user, upcoming
+  task assigned, extraction ready or failed for the uploading user, upcoming
   renewal/notice reminders for the assigned owner, and billing recovery for
   admins.
 - Weekly digest is off by default unless the user opts in.
@@ -871,7 +878,7 @@ These are intended release defaults:
 - Renewal reminders send at 90, 30, and 7 days before the renewal date.
 - Notice-deadline reminders send at 60, 30, 14, and 7 days before the notice
   deadline.
-- Work overdue reminders send once per day for the assignee until the item is
+- Task overdue reminders send once per day for the assignee until the item is
   completed, canceled, or unassigned.
 - Evidence due-soon reminders send 3 days before due date; evidence overdue
   reminders send once per day to the requester and recipient until closed.
@@ -896,40 +903,40 @@ These are intended release defaults:
 - The release report catalog is:
   - Upcoming renewals.
   - Notice deadlines.
-  - Overdue work.
-  - Exceptions by owner.
-  - Open obligations.
+  - Overdue tasks.
+  - Problems by owner.
+  - Open requirements.
   - Evidence requests.
   - Missing owners.
-  - Missing key fields.
+  - Missing key details.
   - Contract inventory.
   - Review completeness.
 - Upcoming renewals uses active or retained contracts with a renewal date inside
   the selected renewal window. Default window is 90 days.
-- Notice deadlines uses contracts with a notice date inside the selected notice
-  window, including computed dates clearly labeled as computed.
-- Overdue work uses open or in-progress work whose due date is before today in
+- Notice deadlines uses contracts with a notice deadline inside the selected
+  notice window, including calculated dates clearly labeled as Calculated.
+- Overdue tasks use open or in-progress tasks whose due date is before today in
   the workspace timezone.
-- Exceptions by owner groups open exceptions by operational owner.
-- Open obligations includes active obligation work not completed, canceled, or
+- Problems by owner groups open problems by operational owner.
+- Open requirements includes active requirement tasks not completed, canceled, or
   archived.
 - Evidence requests includes requested, overdue, received, reviewed, accepted,
   rejected, and closed evidence, with filters for open/default views.
 - Missing owners includes contracts with no operational owner.
-- Missing key fields includes contracts missing configured Core fields from the
-  Core Field Catalog.
+- Missing key details includes contracts missing configured Core details from
+  the Core Detail Catalog.
 - Contract inventory includes contract identity, counterparty, status, owner,
-  reviewed dates, work/evidence signals, and update state.
+  confirmed dates, task/evidence signals, and update state.
 - Review completeness includes reviewed, suggested, missing, unknown, skipped,
-  and stale field counts per contract.
+  and stale detail counts per contract.
 - Report previews show 100 rows by default.
 - Report exports allow up to 10,000 rows by default.
 - A report is fresh when its read model or query source is less than 24 hours old
   or is computed directly from current source data.
 - A report is partial when its source jobs are still processing, failed, stale,
   provider-unavailable, or missing permission-scoped data.
-- Preview and export must disclose stale, partial, suggested, computed, missing,
-  and unverified data.
+- Preview and export must disclose stale, partial, suggested, calculated,
+  missing, and unverified data.
 
 ### Verification And Acceptance
 
@@ -1037,10 +1044,10 @@ Release roles:
 - **Owner**: controls the workspace, team, billing, export/deletion requests, and
   ownership transfer.
 - **Admin**: manages workspace settings, team access, upload/import, review,
-  work, evidence, reports, and configured billing actions except owner-only
+  tasks, evidence, reports, and configured billing actions except owner-only
   controls.
-- **Member**: performs operational contract work: upload/import, review fields,
-  manage assigned work/evidence, and view Core data.
+- **Member**: performs operational contract tasks: upload/import, confirm
+  suggested details, manage assigned tasks/evidence, and view Core data.
 - **Viewer**: reads permitted workspace data and cannot mutate Core records
   unless a specific workflow explicitly grants a narrow action.
 - **Operator**: internal support or maintenance role outside the workspace role
@@ -1052,9 +1059,9 @@ Permission defaults:
 | --- | --- | --- | --- | --- |
 | View Core workspace data | Yes | Yes | Yes | Yes, read-only |
 | Upload or import contracts | Yes | Yes | Yes | No |
-| Review or correct fields | Yes | Yes | Yes | No |
+| Confirm or correct suggested details | Yes | Yes | Yes | No |
 | Edit reviewed operational data | Yes | Yes | Yes | No |
-| Create, assign, complete, block, or resolve work | Yes | Yes | Yes | No |
+| Create, assign, complete, mark needs response, or resolve tasks | Yes | Yes | Yes | No |
 | Request, receive, review, accept, or reject evidence | Yes | Yes | Yes | No |
 | Export reports or contract inventory | Yes | Yes | No by default; Owner can enable specific exports | No by default; Owner can enable specific exports |
 | Manage team members and roles | Yes | Yes, except owner-only controls | No | No |
@@ -1122,32 +1129,38 @@ Contracts:
   retains minimal audit references.
 - File deletion must not erase historical activity references.
 
-Field review:
+Contract detail review:
 
-- Suggested fields become trusted operational data only after review,
-  correction, or explicit unknown marking.
-- Skipping a field keeps it out of trusted operational data.
-- Editing a reviewed field creates visible activity/history context where
+- Suggested contract details become trusted operational data only after
+  confirmation, correction, or explicit unknown marking.
+- Skipping a suggested detail keeps it out of trusted operational data.
+- Editing a confirmed detail creates visible activity/history context where
   relevant.
-- Source snippets remain available when the user is asked to trust, correct, or
-  reject a suggested value.
+- Source snippets remain available when the user is asked to confirm, correct,
+  or reject a suggested value.
 
-Work:
+Tasks:
 
-- Work items can be open, in progress, blocked, overdue, completed, canceled, or
-  unassigned.
-- Work rows show owner, status, due date, contract context, and next action.
-- Completing, blocking, assigning, or resolving work is role-shaped and records
-  activity.
+- Task items can be open, in progress, cannot proceed, overdue, completed,
+  canceled, or unassigned.
+- Task rows show owner, status, due date, contract context, and next action.
+- Completing, assigning, marking as cannot proceed, or resolving a task is
+  role-shaped and records activity.
+- Internal keys such as `blocked`, `exception`, and `obligation` may remain for
+  compatibility, but normal Core UI presents them as Cannot proceed, Problem,
+  and Contract requirement.
 
 Renewals and notice dates:
 
-- Renewal and notice dates distinguish reviewed, suggested, computed, missing,
-  unknown, and stale states.
-- Computed deadlines explain their basis when that basis affects the next
+- Renewal and notice dates distinguish confirmed, suggested, calculated,
+  missing, unknown, and stale states in user-facing Core UI.
+- User-facing date provenance labels use Confirmed, Suggested, Calculated, and
+  Missing. Internal `computed` state may remain, but visible Core UI says
+  Calculated.
+- Calculated deadlines explain their basis when that basis affects the next
   action.
 - Reminder and report behavior should prefer reviewed or clearly labeled
-  computed data.
+  calculated data.
 
 Evidence:
 
@@ -1155,9 +1168,9 @@ Evidence:
   accepted, rejected, or closed.
 - Received evidence is not accepted evidence until reviewed or accepted.
 - File-required and non-file response states are explicit.
-- Evidence remains tied to contract, obligation, work, requester, recipient, due
-  date, and review state. Obligation and work links are optional only when the
-  request is contract-level rather than obligation- or work-level.
+- Evidence remains tied to contract, requirement, task, requester, recipient,
+  due date, and review state. Requirement and task links are optional only when
+  the request is contract-level rather than requirement- or task-level.
 
 Imports and exports:
 
@@ -1166,7 +1179,7 @@ Imports and exports:
 - Partial import success shows accepted rows, rejected rows, reasons, and a path
   to correction.
 - Exports use the same filters as the preview and disclose stale, partial,
-  suggested, missing, or computed data limitations.
+  suggested, missing, or calculated data limitations.
 - CSV exports guard spreadsheet formula injection and preserve user intent.
 
 Reports:
@@ -1187,7 +1200,7 @@ Reports:
 - Token states are valid, expired, revoked, already submitted, invalid, and
   inaccessible.
 - Token pages expose only the requested action context and the minimum contract,
-  obligation, requester, recipient, file, and due-date context needed to act.
+  requirement, requester, recipient, file, and due-date context needed to act.
 - File evidence upload is the primary external use case.
 - Structured non-file responses are allowed only when the owning workflow
   explicitly asks for them.
@@ -1207,9 +1220,10 @@ Reports:
 
 - Notifications are limited to operational events: invite, first contract
   uploaded, import completed or needs correction, extraction ready, extraction
-  failed or manual review needed, field review reminder, renewal reminder, notice
-  deadline reminder, work assigned, work overdue, evidence requested, evidence
-  overdue, and user-initiated report/export completion or failure.
+  failed or manual confirmation needed, detail-review reminder, renewal
+  reminder, notice deadline reminder, task assigned, task overdue, evidence
+  requested, evidence overdue, and user-initiated report/export completion or
+  failure.
 - Reminder timing uses the workspace timezone.
 - Date displays must make due dates, overdue state, and relative timing clear.
 - Users can opt out of digest and non-critical reminders. Transactional invite,
@@ -1565,18 +1579,18 @@ Field states:
 | `stale` | Value depends on outdated source, job, or recompute state. |
 | `skipped` | User deferred the field without making it trusted. |
 
-Work states:
+Task states:
 
 | State | Meaning |
 | --- | --- |
 | `open` | Action is not complete. |
-| `in_progress` | Work is being handled. |
-| `blocked` | Work cannot proceed without another action or input. |
-| `overdue` | Due date has passed and work is not complete. |
+| `in_progress` | Task is being handled. |
+| `blocked` | Task cannot proceed without another action or input. |
+| `overdue` | Due date has passed and task is not complete. |
 | `due_soon` | Due date is within the configured due-soon window. |
 | `unassigned` | No owner is assigned. |
-| `completed` | Work is complete. |
-| `canceled` | Work is intentionally closed without completion. |
+| `completed` | Task is complete. |
+| `canceled` | Task is intentionally closed without completion. |
 
 Evidence states:
 
@@ -1691,17 +1705,17 @@ not broader than the role allows.
 
 | Action | Owner | Admin | Member | Viewer | Operator |
 | --- | --- | --- | --- | --- | --- |
-| View dashboard, contracts, work, renewals, evidence, reports | Yes | Yes | Yes | Read-only | Support-only |
+| View dashboard, contracts, tasks, renewals, evidence, reports | Yes | Yes | Yes | Read-only | Support-only |
 | Upload contract file | Yes | Yes | Yes | No | No ordinary action |
 | Import tracker CSV | Yes | Yes | Yes | No | No ordinary action |
-| Approve suggested field | Yes | Yes | Yes | No | No ordinary action |
-| Edit reviewed field | Yes | Yes | Yes | No | No ordinary action |
-| Mark field unknown | Yes | Yes | Yes | No | No ordinary action |
-| Skip field review | Yes | Yes | Yes | No | No ordinary action |
+| Confirm suggested detail | Yes | Yes | Yes | No | No ordinary action |
+| Edit confirmed detail | Yes | Yes | Yes | No | No ordinary action |
+| Mark detail unknown | Yes | Yes | Yes | No | No ordinary action |
+| Skip detail review | Yes | Yes | Yes | No | No ordinary action |
 | Assign contract owner metadata | Yes | Yes | Yes | No | No ordinary action |
-| Create work item | Yes | Yes | Yes | No | No ordinary action |
-| Assign or reassign work | Yes | Yes | Yes | No | No ordinary action |
-| Complete, block, reopen, or cancel work | Yes | Yes | Yes | No | No ordinary action |
+| Create task | Yes | Yes | Yes | No | No ordinary action |
+| Assign or reassign task | Yes | Yes | Yes | No | No ordinary action |
+| Complete, mark needs response, reopen, or cancel task | Yes | Yes | Yes | No | No ordinary action |
 | Create evidence request | Yes | Yes | Yes | No | No ordinary action |
 | Accept or reject evidence | Yes | Yes | Yes | No | No ordinary action |
 | Create external token | Yes | Yes | Yes | No | No ordinary action |
@@ -1748,7 +1762,7 @@ notifications.
 
 ### Concurrency And Stale-Write Rules
 
-- Mutations that update reviewed fields, work items, evidence requests,
+- Mutations that update confirmed details, tasks, evidence requests,
   contracts, team roles, billing state, external tokens, imports, or reports
   must protect against stale writes or duplicate submissions.
 - If another user changes the same entity first, the user sees a recoverable
@@ -1874,10 +1888,10 @@ Minimum release records:
 | Invite | Workspace, invited email, role, sender, expiry, status, resend/revoke state. |
 | Contract | Workspace, name, counterparty, type, owner metadata, lifecycle state, source/import context, review state, timestamps. |
 | Source file | Workspace, contract, file state, safe display name, type, size, processing state, deletion state. |
-| Reviewed field | Contract, field key, value, confidence metadata when shown, review state, source context, actor, timestamp. |
-| Work item | Workspace, contract when relevant, type, title, owner, status, due date, source trigger, activity. |
-| Renewal/notice item | Contract, date type, date value, provenance, owner, next action, related work. |
-| Evidence request | Workspace, contract/obligation/work context, requester, recipient, due date, file/non-file mode, state. |
+| Confirmed detail | Contract, detail key, value, confidence metadata when shown, review state, source context, actor, timestamp. |
+| Task | Workspace, contract when relevant, type, title, owner, status, due date, source trigger, activity. |
+| Renewal/notice item | Contract, date type, date value, provenance, owner, next action, related task. |
+| Evidence request | Workspace, contract/requirement/task context, requester, recipient, due date, file/non-file mode, state. |
 | External token | Token scope, recipient context, requested action, expiry, status, redacted display metadata. |
 | Import job | Workspace, source file, status, row counts, accepted/rejected counts, safe correction messages. |
 | Report run/export | Workspace, report type, filters, row count, freshness state, status, initiator, download/send state. |
@@ -1897,6 +1911,10 @@ redaction/minimization coverage, and release evidence for safe handling.
 - Reset-password requires a valid recovery context; invalid or expired contexts
   return to recovery.
 - Signup requires a valid access grant before password creation.
+- Approved first-workspace signup does not require a second confirmation email.
+  The access-grant email establishes the mailbox context for this path; signup
+  creates a confirmed account, creates the workspace, signs the user in, and
+  routes to setup or dashboard.
 - Email verification is required before sensitive actions when account security
   configuration requires it.
 - Step-up authentication is required for sensitive account, billing, security,
@@ -1971,9 +1989,9 @@ Account creation after approval:
 | Revoked grant | Validate grant | `revoked` | Contact or request access. |
 | Used grant | Validate grant | `already_used` | Sign in or request help. |
 | Wrong email | Authenticate | `wrong_email` | Use invited email or request a new invite. |
-| Valid workspace creation | Submit valid account details | Account plus workspace setup | Continue to onboarding or dashboard. |
+| Valid workspace creation | Submit valid account details | Confirmed account plus workspace setup | Signed in and routed to onboarding or dashboard. |
 | Valid workspace invite | Submit valid account details | Account plus membership | Continue to workspace setup or dashboard. |
-| Existing account invite | Authenticate | Membership | Join invited workspace after confirmation. |
+| Existing account invite | Authenticate | Membership | Join invited workspace after authentication; no additional email confirmation is required for an already-confirmed account. |
 
 Invite rules:
 
@@ -2027,7 +2045,7 @@ Contract flow:
 Contract rules:
 
 - A signed contract record must have identity, workspace, source/import
-  context, owner metadata, lifecycle/status, review state, dates, work/evidence
+  context, owner metadata, lifecycle/status, review state, dates, task/evidence
   signals, timestamps, and activity.
 - Contract names and counterparties can be imported, extracted, or edited, but
   reviewed values must be distinguishable from suggestions.
@@ -2046,10 +2064,10 @@ Upload flow:
 | --- | --- | --- | --- |
 | Select file | Validate file | `rejected` or `uploaded` | Show field/file errors or upload progress. |
 | `uploaded` | Start processing | `processing` | Processing state and next step. |
-| `processing` | Extraction succeeds | `ready_for_review` | Review fields CTA. |
+| `processing` | Extraction succeeds | `ready_for_review` | Review queue CTA. |
 | `processing` | Extraction insufficient | `manual_review_needed` | Manual review or edit path. |
 | `processing` | Extraction fails | `failed` | Retry, manual review, or support recovery. |
-| `ready_for_review` | Review completed | Contract state refresh | Dashboard/work/renewals/reports update. |
+| `ready_for_review` | Review completed | Contract state refresh | Dashboard/tasks/renewals/reports update. |
 
 Upload rules:
 
@@ -2089,30 +2107,32 @@ Import rules:
 - Imported unreviewed values are `unverified` or `suggested`, not trusted.
 - Import detail must not expose raw file blobs or unrelated workspace rows.
 
-### Field Review State Machine
+### Contract Detail Review State Machine
 
-Field review flow:
+Contract detail review flow:
 
 | Current state | User action | Next state | Operational effect |
 | --- | --- | --- | --- |
-| `suggested` with source | Approve | `reviewed` and `source_backed` | Can drive queues/reports. |
-| `suggested` without source | Approve | `reviewed` | Can drive queues/reports, but not called source-backed. |
+| `suggested` with source | Confirm | `reviewed` and `source_backed` | Can drive queues/reports. |
+| `suggested` without source | Confirm | `reviewed` | Can drive queues/reports, but not called source-backed. |
 | `suggested` or `unverified` | Edit | `edited` and `reviewed` | Can drive queues/reports. |
 | `suggested`, `missing`, or `unverified` | Mark unknown | `unknown` | Treated as intentionally unresolved. |
 | `suggested` or `unverified` | Skip | `skipped` | Does not become trusted. |
 | `reviewed` or `edited` | Edit again | `edited` and `reviewed` | Activity/history updated. |
 | Source changes or recompute invalidates basis | System marks stale | `stale` | Requires review before trusted use where relevant. |
 
-Field review rules:
+Contract detail review rules:
 
-- Approval, edit, mark unknown, and skip are separate actions with distinct
+- Confirm, edit, mark unknown, and skip are separate actions with distinct
   user-visible results.
-- Skipped fields remain eligible for later review unless the route explicitly
+- Skipped details remain eligible for later review unless the route explicitly
   hides skipped items behind a filter.
 - Mark unknown is an intentional data state, not an error.
 - Edited reviewed values should preserve prior value, actor, timestamp, and
   source context where available.
 - Model confidence can be displayed only as extraction metadata.
+- User-facing Core copy should say detail, suggested detail, or contract detail
+  instead of field or extracted field.
 
 ### Date And Deadline Rules
 
@@ -2123,58 +2143,62 @@ Field review rules:
   intended date.
 - Renewal date, notice date, effective date, end date, and termination date must
   keep independent review/provenance states.
-- Computed notice deadlines must disclose the source inputs and computation
+- Calculated notice deadlines must disclose the source inputs and calculation
   basis.
-- Reviewed extracted dates take precedence over suggested dates for operational
+- Confirmed dates take precedence over suggested dates for operational
   reports and reminders.
-- Missing or unknown dates should create data-gap/review work, not silent
+- Missing or unknown dates should create data-gap/review tasks, not silent
   reminders.
 - Due-soon windows are code-owned configuration and must be consistent between
-  Dashboard, Work, Renewals, Evidence, emails, and reports.
+  Dashboard, Tasks, Renewals, Evidence, emails, and reports.
 - Default due-soon, renewal-window, and notice-window values are defined in
   Operational Decisions.
 - Reminder jobs must be idempotent across retries and delayed runs.
 
-### Work Lifecycle
+### Task Lifecycle
 
-Work transition rules:
+Task transition rules:
 
 | Current state | Event | Next state |
 | --- | --- | --- |
 | `open` | Assign owner | `open` or `in_progress` |
 | `open` | Mark in progress | `in_progress` |
-| `open` or `in_progress` | Block | `blocked` |
-| `blocked` | Resolve blocker | `open` or `in_progress` |
+| `open` or `in_progress` | Mark as needs response | `blocked` |
+| `blocked` | Resolve needed response | `open` or `in_progress` |
 | `open`, `in_progress`, or `blocked` | Due date passes | `overdue` display state |
 | `open`, `in_progress`, `blocked`, or `overdue` | Complete | `completed` |
 | Any active state | Cancel | `canceled` |
 | `completed` or `canceled` | Reopen | `open` |
 
-Work rules:
+Task rules:
 
 - `overdue`, `due_soon`, and `unassigned` can be derived display states, but the
   user must see them consistently.
-- Work item type should be one of task, approval, obligation, exception,
-  renewal follow-up, evidence follow-up, or manually created work.
-- Work creation requires title, contract context, owner or unassigned state,
+- Task item type should be one of task, approval, contract requirement, problem,
+  renewal follow-up, evidence follow-up, or manually created task.
+- Task creation requires title, contract context, owner or unassigned state,
   status, due date, and type.
-- Auto-created work must identify its source trigger, such as reviewed field,
-  renewal date, evidence request, exception, or import/review state.
-- Manual work must not imply legal approval or legal advice.
-- Completing or canceling work should record actor and timestamp.
+- Auto-created tasks must identify their source trigger, such as confirmed
+  contract detail, renewal date, evidence request, problem, or import/review
+  state.
+- Manual tasks must not imply legal approval or legal advice.
+- Completing or canceling tasks should record actor and timestamp.
+- Internal compatibility values may remain `work`, `blocked`, `obligation`, and
+  `exception`; ordinary Core UI must translate those values to Tasks, Cannot
+  proceed, Contract requirement, and Problem.
 
 ### Renewal And Notice Lifecycle
 
-- Renewal rows appear when a contract has reviewed, computed, suggested, missing,
+- Renewal rows appear when a contract has confirmed, calculated, suggested, missing,
   or imported renewal/notice context inside the selected window or data-gap
   filter.
-- Suggested renewal or notice dates are visible but not trusted until reviewed.
-- Computed notice deadlines can drive reports only when their source inputs are
+- Suggested renewal or notice dates are visible but not trusted until confirmed.
+- Calculated notice deadlines can drive reports only when their source inputs are
   reviewed or clearly labeled.
 - Mark reviewed, create task, complete task, assign owner, and export actions
   are role-shaped.
 - Changing a renewal, notice, end, or effective date should recompute affected
-  deadlines and refresh dashboard, work, reports, and reminders.
+  deadlines and refresh dashboard, tasks, reports, and reminders.
 - Renewal copy must avoid guarantees that Oblixa will prevent missed renewals.
 
 ### Evidence Lifecycle
@@ -2195,9 +2219,9 @@ Evidence transition rules:
 Evidence rules:
 
 - Evidence request requires title, requester, recipient or owner, due date,
-  file-required or non-file response mode, and contract context. Obligation or
-  work context is included when the request is created from an obligation or work
-  item.
+  file-required or non-file response mode, and contract context. Requirement or
+  task context is included when the request is created from a requirement or
+  task.
 - External evidence links expose only the minimum context needed to act.
 - Received evidence is not accepted evidence.
 - Rejected evidence should support correction or closure.
@@ -2249,7 +2273,7 @@ Report/export rules:
 - Preview and export use the same filters.
 - Export filenames, headers, and CSV cells must be safe for spreadsheet opening.
 - Export rows must be tenant-scoped and permission-scoped.
-- Exports disclose stale, partial, suggested, computed, missing, or unreviewed
+- Exports disclose stale, partial, suggested, calculated, missing, or unreviewed
   data limitations.
 - Large exports should run as jobs rather than blocking page render.
 - Report-send actions appear only when delivery provider and permissions are
@@ -2283,13 +2307,13 @@ Notifications should be emitted only for operational state changes.
 | Invite teammate | Invited email | Invite created or resent | Signup/login invite flow |
 | First contract uploaded | Uploading user or workspace admins | First accepted upload | Contract, review, or dashboard |
 | Import completed | Importing user | Import completed or partially failed | Import detail |
-| Extraction ready | Uploading user or reviewers | Suggestions ready for review | Review fields |
-| Extraction failed/manual review needed | Uploading user or admins | Extraction failed or needs manual review | Upload/import or review recovery |
-| Field review reminder | Review-capable users | Pending review remains | Review fields |
-| Upcoming renewal reminder | Contract/work owner | Reviewed/computed deadline enters window | Renewal or work item |
-| Notice deadline reminder | Contract/work owner | Reviewed/computed notice deadline enters window | Renewal or work item |
-| Work item assigned | Assignee | Work assignment created/changed | Work item or Work queue |
-| Work item overdue | Assignee and relevant owner/admin | Work passes due date | Work item or Work queue |
+| Extraction ready | Uploading user or reviewers | Suggested details are ready for confirmation | Review queue |
+| Extraction failed/manual confirmation needed | Uploading user or admins | Extraction failed or needs manual confirmation | Upload/import or review recovery |
+| Detail review reminder | Review-capable users | Pending review remains | Review queue |
+| Upcoming renewal reminder | Contract/task owner | Confirmed/calculated deadline enters window | Renewal or task |
+| Notice deadline reminder | Contract/task owner | Confirmed/calculated notice deadline enters window | Renewal or task |
+| Task assigned | Assignee | Task assignment created/changed | Task or Tasks queue |
+| Task overdue | Assignee and relevant owner/admin | Task passes due date | Task or Tasks queue |
 | Evidence requested | Recipient | Evidence request created | External token or Evidence route |
 | Evidence overdue | Recipient/requester | Evidence request passes due date | External token or Evidence route |
 | Report/export completed or failed | Initiating user | User-initiated job completes/fails | Report/export result |
@@ -2302,7 +2326,7 @@ Notification rules:
   guards.
 - Notifications should be deduplicated across retries.
 - Delivery failure creates degraded state or retry activity; it does not mark
-  the underlying work complete.
+  the underlying task complete.
 - Emails and notifications contain minimum necessary context and no raw document
   text, provider payloads, tokens, signed URLs, hidden module names, or internal
   diagnostics.
@@ -2314,7 +2338,7 @@ Activity visible to ordinary workspace users should include operational events:
 - Contract uploaded, imported, archived, restored, or deleted.
 - Field approved, edited, marked unknown, skipped, or stale.
 - Owner assigned or changed.
-- Work created, assigned, blocked, completed, canceled, reopened.
+- Task created, assigned, marked needs response, completed, canceled, reopened.
 - Evidence requested, submitted, reviewed, accepted, rejected, closed.
 - Report/export run, completed, failed, downloaded when tracked.
 - Invite sent, accepted, revoked, resent.
@@ -2434,12 +2458,12 @@ API response contract:
 
 ### Navigation, Layout, And URL State
 
-- Primary navigation contains only Dashboard, Contracts, Work, Renewals,
+- Primary navigation contains only Dashboard, Contracts, Tasks, Renewals,
   Evidence, Reports, and Settings.
 - Contextual routes can be reached from workflow CTAs, table rows, details,
   notifications, search, command palette, and direct links.
 - Merge routes redirect or wrap into their parent Core surface while preserving
-  useful context such as tab, filter, report type, or work type.
+  useful context such as tab, filter, report type, or task type.
 - Query parameters can encode filters, tabs, sort, pagination, selected window,
   and search query only when values are bounded and safe.
 - Back/forward navigation should preserve user context after filters, tabs,
@@ -2456,8 +2480,8 @@ API response contract:
 - Filters should preserve selected values across loading, refresh, and
   recoverable errors.
 - Filter chips and quick filters should map to visible data states such as open,
-  overdue, blocked, missing, pending review, due soon, active, received, or
-  accepted.
+  overdue, needs response, missing, pending review, due soon, active, received,
+  or accepted.
 - Filtered-empty state differs from empty state and must offer clear-filter
   recovery.
 - Pagination or incremental loading is required for lists that can grow beyond a
@@ -2474,10 +2498,10 @@ API response contract:
   cross-workspace, or unsupported records.
 - Bulk destructive actions require stronger confirmation than ordinary edits.
 
-### Core Field Catalog
+### Core Detail Catalog
 
-Core contract fields should be grouped consistently across upload/import, review,
-contract detail, renewals, work, reports, and exports.
+Core contract details should be grouped consistently across upload/import,
+review, contract detail, renewals, tasks, reports, and exports.
 
 Contract identity:
 
@@ -2502,19 +2526,19 @@ Operational fields:
 - Contract value as an optional field.
 - Currency as an optional field tied to contract value.
 - Payment/renewal cadence as an optional field.
-- Obligations.
+- Contract requirements.
 - Approvals.
-- Exceptions.
+- Problems.
 - Evidence requirements.
-- Related work.
+- Related tasks.
 
-Field behavior:
+Detail behavior:
 
-- Every field used for operational queues, reports, reminders, or exports must
-  expose reviewed, suggested, source-backed, computed, missing, unknown,
-  unverified, stale, or skipped state as applicable.
+- Every detail used for operational queues, reports, reminders, or exports must
+  expose reviewed/confirmed, suggested, source-backed, calculated, missing,
+  unknown, unverified, stale, or skipped state as applicable.
 - Required fields are workflow-specific. Missing owner, missing renewal/notice
-  date, missing key field, and missing evidence state should surface in owning
+  date, missing key detail, and missing evidence state should surface in owning
   workflows rather than blocking all contract use.
 - Contract type should be a bounded set or safe free-text value with clear
   display behavior. It must not imply legal classification certainty.
@@ -2540,7 +2564,7 @@ Field behavior:
 ### AI And Document Processing
 
 - AI extraction is an assistive processing path for source-backed suggestions.
-- AI output is never trusted operational data until reviewed, corrected, or
+- AI output is never trusted operational data until confirmed, corrected, or
   explicitly marked unknown by an authorized user.
 - Prompts, extracted text, source snippets, embeddings, model responses, and
   document-processing metadata are sensitive.
@@ -2565,7 +2589,7 @@ Field behavior:
 
 ### Data Freshness And Read Models
 
-- Dashboard, Work, Renewals, Evidence, Reports, and Search may rely on derived
+- Dashboard, Tasks, Renewals, Evidence, Reports, and Search may rely on derived
   counts or read models, but stale or partial states must be visible when they
   affect user decisions.
 - Derived counts should link to the underlying queue, filtered view, or detail
@@ -2580,8 +2604,8 @@ Field behavior:
 
 ### Calendar, Reminder, And Digest Behavior
 
-- Calendar export is a Core support feature only when it exports reviewed or
-  clearly labeled computed renewal/notice/work dates.
+- Calendar export is a Core support feature only when it exports confirmed or
+  clearly labeled calculated renewal/notice/task dates.
 - Calendar exports are generated files, not persistent public calendar-feed
   links. Regeneration creates a new guarded download subject to report/export
   retention.
@@ -2636,8 +2660,8 @@ Field behavior:
   payloads, and sensitive free text.
 - Event names and payload shapes are code-owned contracts.
 - Important product events include access request submitted, signup grant state,
-  first upload/import, extraction ready/failed, field reviewed, work created or
-  completed, evidence requested/received/accepted, report/export run, billing
+  first upload/import, extraction ready/failed, detail confirmed, task created
+  or completed, evidence requested/received/accepted, report/export run, billing
   state change, invite lifecycle, external token lifecycle, and degraded state.
 - Telemetry must not expose hidden, internal, Advanced, Assurance, decision,
   campaign, relationship, account-workspace, or counterparty-workspace surfaces
@@ -2729,16 +2753,16 @@ permissions support them.
 
 | Report | Required row context | Required state disclosure |
 | --- | --- | --- |
-| Upcoming renewals | Contract, counterparty, renewal date, owner, status, next action. | Reviewed/suggested/computed/missing/stale date state. |
-| Notice deadlines | Contract, counterparty, notice date, renewal/end context, owner, next action. | Computation basis and date provenance. |
+| Upcoming renewals | Contract, counterparty, renewal date, owner, status, next action. | Confirmed/suggested/calculated/missing/stale date state. |
+| Notice deadlines | Contract, counterparty, notice deadline, renewal/end context, owner, next action. | Calculation basis and date provenance. |
 | Missing owners | Contract, counterparty, current owner state, last updated. | Missing/unassigned state and correction path. |
-| Missing key fields | Contract, counterparty, missing fields, review state. | Missing/unknown/skipped distinction. |
-| Open obligations | Contract, obligation title, owner, due date, status, evidence state. | Reviewed/source state, or missing-source label when no source state exists. |
-| Overdue work | Work item, contract, owner, due date, status, blocker state. | Overdue basis and source trigger. |
-| Exceptions by owner | Owner, exception count, contracts, severity/status. | Exception state and non-compliance-framing. |
-| Evidence requests | Request, contract/obligation, recipient, due date, file state, review state. | Requested/received/reviewed/accepted distinction. |
+| Missing key details | Contract, counterparty, missing details, review state. | Missing/unknown/skipped distinction. |
+| Open requirements | Contract, requirement title, owner, due date, status, evidence state. | Reviewed/source state, or missing-source label when no source state exists. |
+| Overdue tasks | Task item, contract, owner, due date, status, cannot-proceed state. | Overdue basis and source trigger. |
+| Problems by owner | Owner, problem count, contracts, severity/status. | Problem state and non-compliance-framing. |
+| Evidence requests | Request, contract/requirement, recipient, due date, file state, review state. | Requested/received/reviewed/accepted distinction. |
 | Contract inventory | Contract, counterparty, type, owner, status, dates, review state. | Reviewed/suggested/missing data disclosure. |
-| Review completeness | Contract, pending fields, reviewed fields, missing/unknown/skipped fields. | Trust-state disclosure. |
+| Review completeness | Contract, details to confirm, confirmed details, missing/unknown/skipped details. | Trust-state disclosure. |
 
 Reports should not introduce Assurance scorecards, risk findings, legal advice,
 decision intelligence, portfolio analytics as primary content, or Autopilot
@@ -2784,10 +2808,10 @@ Import rules:
 
 - Contract detail is the only Core surface where all related contract objects can
   appear together.
-- Related work, obligations, approvals, exceptions, evidence, renewals, source
-  files, reviewed fields, and activity should link back to their owning queue
+- Related tasks, requirements, approvals, problems, evidence, renewals, source
+  files, confirmed details, and activity should link back to their owning queue
   when a broader workflow exists.
-- Detail pages must not create separate product categories for obligations,
+- Detail pages must not create separate product categories for requirements,
   approvals, reports, collaboration, programs, analytics, or assurance.
 - Related records hidden by role or route disposition should not appear as
   empty inaccessible modules.
@@ -3260,7 +3284,7 @@ Required disposition corrections:
 | `/early-access` | Merge into `/request-access`; no separate public positioning. |
 | `/contracts/renewals` | Merge into `/renewals`. |
 | `/contracts/evidence-studio` | Merge into `/evidence`. |
-| `/contracts/exceptions` | Merge or contextualize into Work and contract detail; no standalone Core module. |
+| `/contracts/exceptions` | Merge or contextualize into Tasks and contract detail; no standalone Core module. |
 | `/settings/operations` | Omit for ordinary release users unless reclassified. |
 | `/settings/health` | Internal operator surface. |
 | `/settings/product` | Internal operator surface. |
@@ -3338,7 +3362,7 @@ workflow polish.
 | --- | --- | --- |
 | 0 | Route inventory, route dispositions, omitted/contained/internal direct-access behavior, auth boundary, and Global not found behavior. | Any external test user uses production. |
 | 1 | Tenant isolation, role permission matrix, session/auth recovery, access grant validation, signup/invite state machine, and no account/workspace enumeration. | Any customer contract is uploaded. |
-| 2 | Upload, import, extraction handoff, field review, contract inventory/detail, dashboard, work, renewals, evidence, reports, and settings happy paths with recoverable failure states. | Any workspace is considered activated. |
+| 2 | Upload, import, extraction handoff, detail review, contract inventory/detail, dashboard, tasks, renewals, evidence, reports, and settings happy paths with recoverable failure states. | Any workspace is considered activated. |
 | 3 | Billing/access states, checkout/portal/invoice provider proof, cancellation/past-due/read-only/export recovery, notification delivery/dedupe, external-token submission, report export/download safety. | Any user is charged. |
 | 4 | Public legal/trust claim evidence, provider dashboard verification, production smoke, accessibility/responsive proof, hidden-surface positive/negative proof, and release evidence index completeness. | General release readiness is declared. |
 
@@ -3364,12 +3388,12 @@ and release gating.
 | View Core workspace data | Yes | Yes | Yes | Yes | Support-scoped only |
 | Upload contract | Yes | Yes | Yes | No | Support-scoped only |
 | Import contracts | Yes | Yes | Yes | No | Support-scoped only |
-| Review/edit contract fields | Yes | Yes | Yes | No | Support-scoped only |
-| Mark field unknown/skip | Yes | Yes | Yes | No | Support-scoped only |
+| Confirm/edit contract details | Yes | Yes | Yes | No | Support-scoped only |
+| Mark detail unknown/skip | Yes | Yes | Yes | No | Support-scoped only |
 | Archive contract | Yes | Yes | No by default; explicit Owner-enabled policy only | No | Support-scoped only |
 | Hard-delete contract/file | Yes | Yes | No | No | Support-scoped only |
-| Create/edit work item | Yes | Yes | Yes | No | Support-scoped only |
-| Complete/cancel work item | Yes | Yes | Yes | No | Support-scoped only |
+| Create/edit task | Yes | Yes | Yes | No | Support-scoped only |
+| Complete/cancel task | Yes | Yes | Yes | No | Support-scoped only |
 | Create evidence request | Yes | Yes | Yes | No | Support-scoped only |
 | Review/accept/reject evidence | Yes | Yes | Yes | No | Support-scoped only |
 | Upload evidence through workspace | Yes | Yes | Yes | No | Support-scoped only |
@@ -3418,12 +3442,12 @@ contract upload.
 | Access grant | id, type, target email, workspace creation or existing workspace scope, role when invite, status, token hash/reference, issued at, expires at, revoked at, consumed at, issuer, resend lineage. |
 | Workspace | id, name, owner, lifecycle/access state, billing state, timezone, active-contract count, seat count, entitlement set, setup state, created at, updated at, deletion/retention state. |
 | Membership | id, workspace, user, canonical role, provider/legacy role mapping, membership state, invited by, joined at, removed/disabled at, historical attribution label. |
-| Contract | id, workspace, title/name, counterparty, type, owner state, lifecycle state, source/import context, review summary, key dates, work/evidence signals, created/updated timestamps, archive/delete state. |
+| Contract | id, workspace, title/name, counterparty, type, owner state, lifecycle state, source/import context, review summary, key dates, task/evidence signals, created/updated timestamps, archive/delete state. |
 | Contract file | id, workspace, contract, safe display name, file type, size, storage reference, upload actor, processing state, extraction state, retention/delete state, created/updated timestamps. |
-| Reviewed field | id, contract, field key, value, value type, source snippet/citation when available, confidence metadata when shown, review/trust state, actor, reviewed/updated timestamps, stale reason. |
-| Work item | id, workspace, contract/object link, type, title, description/notes when supported, owner/assignee, status, priority/urgency, due date, source trigger, created/updated/completed timestamps. |
-| Renewal/notice item | id, contract, date type, date value, provenance, reviewed/computed state, notice basis when computed, owner, next action, related work, reminder state. |
-| Evidence request | id, workspace, contract/obligation/work context, requester, recipient, file/non-file mode, title, due date, status, token scope, received files/responses, review outcome, closure state. |
+| Confirmed detail | id, contract, detail key, value, value type, source snippet/citation when available, confidence metadata when shown, review/trust state, actor, reviewed/updated timestamps, stale reason. |
+| Task | id, workspace, contract/object link, type, title, description/notes when supported, owner/assignee, status, priority/urgency, due date, source trigger, created/updated/completed timestamps. |
+| Renewal/notice item | id, contract, date type, date value, provenance, reviewed/calculated state, notice basis when calculated, owner, next action, related task, reminder state. |
+| Evidence request | id, workspace, contract/requirement/task context, requester, recipient, file/non-file mode, title, due date, status, token scope, received files/responses, review outcome, closure state. |
 | External token | id/reference, token hash, workspace/object scope, recipient context, requested action, permissions, expiry, status, submission count, redacted display metadata, audit/activity links. |
 | Import job | id, workspace, source file reference, status, row/column counts, accepted/rejected/duplicate counts, diagnostics, initiator, started/completed timestamps, retry lineage. |
 | Report run/export | id, workspace, report type, filters, freshness state, row count, status, initiator, output reference, expiry, download/send state, CSV safety marker. |
@@ -3441,10 +3465,10 @@ and fill exact method/path/request/response details.
 | Public forms | Access request create/update duplicate, contact create, security/report intake if present, telemetry intake if present; each with validation, rate limit, non-enumeration, safe success/failure. |
 | Auth/signup | Login callback, signup grant validation, signup completion, password recovery request, password reset completion, invite acceptance; each with invalid/expired/revoked/used/wrong-email/existing-account states. |
 | Workspace setup | Setup read/update, timezone/defaults update, first upload/import handoff, setup completion/skip when allowed. |
-| Contracts | List/search/filter, create/upload, detail read, update reviewed data, archive/restore/delete, file download/delete, activity read. |
+| Contracts | List/search/filter, create/upload, detail read, update confirmed data, archive/restore/delete, file download/delete, activity read. |
 | Imports | CSV validate/start, job status/detail, row diagnostics, retry/cancel where supported. |
-| Extraction/review | Extraction status/retry, review queue, approve/edit/mark-unknown/skip, source preview access. |
-| Work/renewals/evidence | Work CRUD/state transitions, renewal/notice actions, evidence request create/update, evidence upload/receive/review/close. |
+| Extraction/review | Extraction status/retry, review queue, confirm/edit/mark-unknown/skip, source preview access. |
+| Tasks/renewals/evidence | Task CRUD/state transitions, renewal/notice actions, evidence request create/update, evidence upload/receive/review/close. |
 | External tokens | Token status, token submit file, token submit non-file response, token terminal state. |
 | Reports/exports | Report preview, report run/export start, report job status, download, send if supported, calendar export if supported. |
 | Settings/team/security | Workspace settings, profile/security controls, team invite/resend/revoke/role/remove, notification preferences, import/export settings. |
@@ -3503,21 +3527,23 @@ Preferred public and Core terms:
 
 - signed contract requirements
 - what signed contracts require next
-- accountable contract work
+- accountable contract tasks
 - contract tracking
 - signed agreements
 - contract tracker
 - spreadsheet
-- reviewed fields
+- suggested contract details
+- confirmed contract details
+- contract details to confirm
 - source-backed suggestions
 - owners
 - renewal dates
 - notice deadlines
-- obligations
+- contract requirements
 - approvals
-- exceptions
+- problems
 - evidence
-- work
+- tasks
 - reports
 - export
 
@@ -3559,13 +3585,26 @@ Avoid in public and Core release surfaces:
 - contact us for price, unless a later pricing decision explicitly removes the
   public Core price
 
+Presentation translations:
+
+- Internal `field`/`extracted field` concepts render as contract detail,
+  suggested detail, or detail to confirm in normal Core UI.
+- Internal `work` route and work-item concepts render as Tasks except where a
+  developer-facing route, artifact, or compatibility note must name `/work`.
+- Internal `obligation` renders as Contract requirement.
+- Internal `exception` renders as Problem.
+- Internal `blocked` or generic `waiting` renders as Cannot proceed when shown
+  to ordinary Core users.
+- Internal `computed` date state renders as Calculated when shown to ordinary
+  Core users.
+
 ## Known Non-Claims
 
 Oblixa must not claim or imply:
 
 - Legal advice, legal review, legal interpretation, or recommended legal action.
 - Guaranteed extraction accuracy.
-- Guaranteed renewal, notice, obligation, or evidence capture.
+- Guaranteed renewal, notice, contract requirement, or evidence capture.
 - Autonomous decisions, autonomous execution, or risk authority.
 - Compliance findings, certification, control effectiveness, or assurance
   conclusions.
@@ -3700,9 +3739,9 @@ If a route entry omits direct access behavior, use these defaults:
 
 - Primary public promise: tracking what signed contracts require next.
 - Primary app promise: every visible surface helps a user answer what exists,
-  what is trusted, who owns it, what is due, what is blocked, what proof exists,
-  and what can be exported.
-- Primary navigation contains exactly Dashboard, Contracts, Work, Renewals,
+  what is trusted, who owns it, what is due, what needs response, what proof
+  exists, and what can be exported.
+- Primary navigation contains exactly Dashboard, Contracts, Tasks, Renewals,
   Evidence, Reports, and Settings.
 - Search and command palette may expose Core pages, Core queues, Core reports,
   and Core tools only when the user can access them.
@@ -3717,7 +3756,7 @@ If a route entry omits direct access behavior, use these defaults:
 - Spreadsheet replacement is the migration wedge, not the whole product
   category.
 - Public pages should use actual product proof where possible. Dashboard, Review
-  Fields, Contracts, Work, Renewals, Evidence, and Reports screenshots are
+  queue, Contracts, Tasks, Renewals, Evidence, and Reports screenshots are
   stronger than abstract diagrams.
 - Product copy should avoid "platform" unless the surrounding text immediately
   narrows it to tracking what signed contracts require next.
@@ -3738,15 +3777,17 @@ Any page showing extracted or imported contract data should distinguish:
   that is present and locatable in the source material.
 - **Missing**: expected field absent or not found.
 - **Unknown**: user intentionally marked the value unknown.
-- **Computed**: derived from reviewed or imported inputs; must label the source
-  of computation when it affects deadlines or reports.
+- **Calculated**: derived from reviewed or imported inputs; must label the
+  source of calculation when it affects deadlines or reports. Internal
+  `computed` state may remain, but ordinary Core UI presents the label as
+  Calculated.
 - **Unverified**: imported or inferred value that has not been reviewed.
 - **Model confidence**: extraction metadata only. It is never equivalent to
   reviewed, source-backed, or operationally trusted.
 
 Display rules:
 
-- Reports, renewals, dashboard cards, work queues, and evidence workflows should
+- Reports, renewals, dashboard cards, task queues, and evidence workflows should
   prefer reviewed data.
 - Suggested or unverified values need visible state labels before they influence
   next actions.
@@ -3788,11 +3829,12 @@ Contains:
   follow-up; export anytime; no annual commitment unless billing actually
   requires one.
 - Product proof showing the real workflow or faithful mock views.
-- Problem section: renewal and notice dates in spreadsheets, obligations buried
-  in PDFs, unclear owners, follow-up in email, evidence hard to collect, reports
-  rebuilt by hand.
-- Workflow section: upload/import, review fields, assign owners and dates, turn
-  obligations into work, request evidence, report/export.
+- Problem section: renewal and notice dates in spreadsheets, contract
+  requirements buried in PDFs, unclear owners, follow-up in email, evidence hard
+  to collect, reports rebuilt by hand.
+- Workflow section: upload/import, confirm suggested contract details, assign
+  owners and dates, turn requirements into tasks, request evidence,
+  report/export.
 - Outcome section: contracts needing review, upcoming renewals and notices,
   owned work, evidence status, exportable reports.
 - Buyer-outcome section or equivalent proof: avoid missed renewal or notice
@@ -3836,14 +3878,15 @@ Contains:
 - Product-tour H1 focused on what signed contracts require next.
 - Phase 1: bring contracts out of spreadsheets, folders, inboxes, and memory.
 - Phase 2: upload signed PDFs/DOCX files and import CSV tracker rows.
-- Phase 3: review source-backed suggested fields.
+- Phase 3: confirm source-backed suggested contract details.
 - Phase 4: track renewal, notice, termination, effective, and end dates.
-- Phase 5: assign work across tasks, approvals, obligations, and exceptions.
-- Phase 6: request and track evidence tied to contracts or obligations.
+- Phase 5: assign tasks across follow-up, approvals, contract requirements, and
+  problems.
+- Phase 6: request and track evidence tied to contracts or requirements.
 - Phase 7: run and export operational reports.
 - Product visuals or mockups that match the actual Core product.
-- A visible first-use path from bounded upload/import to reviewed fields,
-  owners, dates, work or evidence, and report/export.
+- A visible first-use path from bounded upload/import to confirmed details,
+  owners, dates, tasks or evidence, and report/export.
 - CTA to request access.
 
 Excludes:
@@ -3885,7 +3928,7 @@ Contains:
   - name, work email, company, role;
   - number of signed contracts;
   - current tracking method;
-  - top pain: renewals, owners, obligations, evidence, reporting, or work;
+  - top pain: renewals, owners, requirements, evidence, reporting, or tasks;
   - whether a small contract set can be used first;
   - whether the requester can be the accountable workspace owner or name that
     owner;
@@ -3982,7 +4025,7 @@ Contains:
 - Price and included limits are visible before requesters submit payment
   information; no charge occurs before approval and explicit checkout.
 - Included Core capabilities: upload/import, source-backed review, renewals,
-  notices, owners, obligations, evidence, work, reports, CSV export, support
+  notices, owners, requirements, evidence, tasks, reports, CSV export, support
   during approved access.
 - Not included: legal review, drafting/redlining, e-signature, managed migration,
   spreadsheet cleanup, enterprise procurement, formal SLA, Advanced, Assurance.
@@ -4313,9 +4356,13 @@ Direct access behavior:
   not create a user account or workspace.
 - Authenticated users redirect to dashboard or onboarding.
 - Authenticated users with a valid workspace invite join the invited workspace
-  after confirmation, then proceed to setup or dashboard.
+  after authentication, then proceed to setup or dashboard. Already-confirmed
+  accounts do not receive a second confirmation email for this step.
 - Approved first-workspace users proceed to Core setup or dashboard after the
   workspace is created.
+- Approved first-workspace signup does not send or require a separate Supabase
+  confirmation email. The grant link is single-use, email-bound, and consumed
+  only for the account that receives the workspace.
 
 Contains:
 
@@ -4351,8 +4398,8 @@ Excludes:
 Acceptance:
 
 - Unapproved user is routed to request access.
-- Approved user can create an account and enter Core setup or the invited
-  workspace.
+- Approved user can create a confirmed account, enter Core setup, or enter the
+  invited workspace.
 - Invalid grant states do not create accounts or workspaces.
 
 ### `/forgot-password`
@@ -4460,7 +4507,7 @@ Contains:
   - structured non-file response or reference submission only when the owning
     workflow explicitly requests it;
   - status confirmation only when tied to the specific requested step.
-- Due date, requester name/team, and minimal contract or obligation context when
+- Due date, requester name/team, and minimal contract or requirement context when
   needed for the recipient to act.
 - Contract/request/workflow context limited to recipient need.
 - Participant fields only when needed.
@@ -4559,21 +4606,32 @@ Contains:
 - Upload contract action.
 - Import contracts action.
 - Import-processing notice when relevant.
-- Top cards: Needs review, Upcoming deadlines, Blocked work, Missing owners,
-  Open exceptions, Evidence requested.
-- Review queue with fields/contracts needing review.
-- Upcoming deadlines with renewal/notice context.
-- Work needing action.
-- Data gaps.
+- Top cards in this order: Contracts needing review, Dates coming up, Tasks
+  awaiting response, Contracts missing an owner, Contract problems, Evidence
+  requests.
+- Each top card has a count, icon, concise title, and explanatory sentence. The
+  count must identify the represented object class in copy or tooltip rather
+  than forcing users to infer whether it counts contracts, tasks, dates, or
+  requests.
+- Main sections: Details to Confirm, Dates Coming Up, Tasks Needing Action,
+  Missing Details, and Recent Activity.
+- Details to Confirm lists contracts whose suggested dates, owners, and terms
+  still need confirmation before reminders and reports rely on them.
+- Dates Coming Up lists approved or calculated renewal, notice, end, or
+  effective dates that may need action soon.
+- Tasks Needing Action lists tasks that need response, decision, approval, file,
+  or owner.
+- Missing Details groups missing owners, dates, or counterparties that weaken
+  routing and reports.
 - Recent activity.
-- Empty state leading to upload/import and field review.
+- Empty state leading to upload/import and the review queue.
 
 States:
 
-- Empty: first contract upload/import CTA, explanation of reviewed fields, no
-  fake metrics.
-- Populated: operational counts, queues, deadlines, work, data gaps, and recent
-  activity reflect workspace data.
+- Empty: first contract upload/import CTA, explanation of confirmed contract
+  details, no fake metrics.
+- Populated: operational counts, queues, dates, tasks, missing details, and
+  recent activity reflect workspace data.
 - Metric cards link to the corresponding actionable surface, queue, or filtered
   view.
 - Degraded: partial-data notice when imports, extraction, or report data is
@@ -4610,12 +4668,25 @@ Contains:
 
 - Contract inventory table/list.
 - Contract name, counterparty, type, owner, lifecycle/status, next date, review
-  state, open work count, exception/evidence signals, updated time.
+  state, open task count, problem/evidence signals, updated time.
 - Search across contracts, counterparties, owners, and tags.
 - Date, status, owner, counterparty, type, renewal window, review state, missing
-  data, open work, evidence, and health filters.
-- Quick filters for open exceptions, pending review, missing dates, evidence due,
-  open work, renewing soon, and active contracts when backed by data.
+  data, open tasks, evidence, and health filters.
+- Shortcut row labeled Contract shortcuts. The helper text states that each
+  count is a contract count and that selecting a shortcut filters the table to
+  contracts with that condition.
+- Shortcuts: Open problems, Details to review, Missing dates, Evidence due, Open
+  tasks, Renewal within 90 days, and Active. Shortcut counts count matching
+  contracts across the inventory, not page-local rows and not related item
+  totals.
+- Shortcut definitions are visible near the chips:
+  - Open problems: unresolved problems linked to the contract.
+  - Details to review: suggested dates, owners, or terms awaiting confirmation.
+  - Missing dates: required renewal, notice, end, or effective dates are absent.
+  - Evidence due: open evidence request linked to the contract.
+  - Open tasks: active follow-up tasks linked to the contract.
+  - Renewal within 90 days: renewal date inside the next 90 days.
+  - Active: contract status is active.
 - Upload, import, export, and saved-view actions when complete.
 - Empty state for adding signed contracts.
 
@@ -4628,8 +4699,8 @@ States:
 
 Excludes:
 
-- Passive repository framing where files matter more than tracked obligations,
-  dates, owners, and work.
+- Passive repository framing where files matter more than tracked requirements,
+  dates, owners, and tasks.
 
 Acceptance:
 
@@ -4642,8 +4713,10 @@ Status: Ship.
 
 Release role:
 
+- Route path for the Core Tasks surface.
 - Turns contract records into accountable action.
-- Consolidates tasks, approvals, obligations, and exceptions.
+- Consolidates follow-up tasks, approvals, contract requirements, problems, and
+  evidence requests.
 
 Direct access behavior:
 
@@ -4652,22 +4725,43 @@ Direct access behavior:
 
 Contains:
 
-- Header: Work.
-- Primary action to create a work item if the workflow is complete.
-- Summary chips: active, blocked, overdue, due soon, unassigned.
-- Tabs: All, My work, Overdue, Blocked, Approvals, Obligations, Exceptions.
+- Eyebrow: Contract follow-up.
+- Header: Tasks.
+- Lead: Tasks are follow-up actions from signed contracts: approvals, evidence
+  requests, contract requirements, and problems to resolve.
+- Primary action to create a task if the workflow is complete.
+- Summary band: Active tasks plus non-zero condition filters for Cannot proceed,
+  Past due, Due within 7 days, and Unassigned.
+- The summary copy states that active tasks are open follow-up items linked to
+  signed contracts, and that condition filters show matching task counts and
+  narrow the table when selected.
+- Condition-filter definitions are visible:
+  - Cannot proceed: answer, approval, file, or owner is missing.
+  - Past due: due date has passed.
+  - Due within 7 days: due today or this week.
+  - Unassigned: no owner is assigned.
+- Tabs: All active, Assigned to me, Past due, Cannot proceed, Approvals,
+  Contract requirements, Problems to resolve.
 - Filters for owner, due date, contract, status, and type.
 - Sort by urgency and other implemented sort options.
-- Rows with work item, contract, owner, due date, status, updated time, and
-  primary action.
-- Actions for review, complete, assign, update, block, resolve, and more menu
-  only where backed by working mutations.
+- Rows with task title, contract, owner, due date, status, updated time, type,
+  and primary action.
+- Type labels: Task, Contract requirement, Approval, Problem, Evidence request,
+  Renewal task, and Unassigned task.
+- Status labels present `blocked` or `waiting` internal states as Cannot
+  proceed.
+- Presentation-only task-title cleanup avoids old extraction/blocker wording.
+  Examples: "Approve extracted fields for X" becomes "Review contract details
+  for X"; "blocked evidence" becomes "evidence request"; "blocker" becomes
+  "hold."
+- Actions for review, complete, assign, update, mark cannot proceed, resolve,
+  and more menu only where backed by working mutations.
 - Empty and filtered-empty states.
 
 States:
 
-- Empty: explain that work appears from reviewed fields, dates, obligations,
-  approvals, exceptions, and manual work items.
+- Empty: Create a task for a contract date, requirement, approval, problem, or
+  evidence request.
 - Filtered empty: clear filters without leaving the page.
 - Degraded: counts may show partial-data state when work aggregation is delayed.
 
@@ -4685,8 +4779,8 @@ Absorbs:
 
 Acceptance:
 
-- User can identify overdue, blocked, assigned, and unassigned work in one
-  place.
+- User can identify past-due, cannot-proceed, assigned, and unassigned tasks in
+  one place.
 
 ### `/renewals`
 
@@ -4712,14 +4806,29 @@ Contains:
 - Header: Renewals.
 - Export renewal report action.
 - Create renewal task action.
+- Summary band eyebrow: Renewal and notice dates.
+- Count label reads as dates in view, not abstract deadlines.
+- Summary metrics render only non-zero action states such as Needs confirmation,
+  Missing owner, and Notice window open.
+- Summary definitions are visible:
+  - Dates in view: renewal and notice deadlines inside the selected window.
+  - Needs confirmation: renewal or notice date is missing, suggested, or
+    calculated and still needs confirmation.
+  - Missing owner: no person is assigned to the contract.
+  - Notice open: notice period is currently open.
 - Upcoming renewals table.
-- Filters for due window, owner, counterparty, status, and review state.
-- Renewal date, notice date, owner, status, next action, and related work/evidence
-  context.
-- Reviewed/source/computed state for date fields where available.
-- Reviewed, suggested, computed, and missing provenance anywhere renewal or
+- Filters for due window, owner, counterparty, status, and Date status.
+- Date status options: Confirmed, Suggested, Calculated, and Missing.
+- Renewal date, notice deadline, owner, status, next action, and related
+  tasks/evidence context.
+- Confirmed, suggested, calculated, and missing provenance anywhere renewal or
   notice dates appear.
-- Links to contracts and work.
+- Calculated date chips explain that the value is derived from the renewal date
+  and notice window.
+- Related chips are de-duplicated so the same row does not show the same related
+  type twice.
+- Long owner/email values truncate within stable table columns.
+- Links to contracts and tasks.
 - Empty state prompting date review or upload.
 
 States:
@@ -4727,8 +4836,8 @@ States:
 - Empty: upload/import and review-date CTAs.
 - Missing dates: show which contracts need renewal or notice review.
 - Suggested dates: clearly marked as unreviewed and not operationally trusted.
-- Computed dates: clearly marked as derived and not equivalent to reviewed
-  extracted dates.
+- Calculated dates: clearly marked as derived and not equivalent to confirmed
+  dates.
 - Partial data: visible warning when date freshness or recompute state is
   degraded.
 - Filtered empty: clear filters and preserve selected window.
@@ -4748,7 +4857,7 @@ Status: Ship.
 
 Release role:
 
-- Supports proof collection for obligations and follow-up.
+- Supports proof collection for contract requirements and follow-up tasks.
 - Differentiates Oblixa from a static tracker without becoming compliance
   automation.
 
@@ -4766,19 +4875,28 @@ Contains:
 
 - Header: Evidence.
 - Request evidence action.
-- Request counts: open, overdue, received, due soon, missing file.
-- Tabs for open requests, overdue requests, received evidence, linked
-  obligations.
-- Filters for owner, status, contract, obligation, due date, and file state.
-- Quick filters for due soon and missing file.
-- Rows with request title, linked obligation, owner, due date, status, updated
-  time, file count, upload/review action, and more menu.
+- Summary band: Evidence requests and total visible count.
+- Tabs: Open, Overdue, Received, Linked requirements.
+- Tab definitions are visible:
+  - Open: requests not completed or accepted.
+  - Overdue: open requests with a past due date.
+  - Received: evidence has been submitted and may need review.
+  - Linked requirements: requests tied to a contract requirement.
+- Filters for owner, status, contract, requirement, due date, and file state.
+- Optional Attention row for due-soon and missing-file shortcuts only when
+  non-zero or active; there is no duplicated Quick filters presentation.
+- Attention-filter definitions are visible when the Attention row appears:
+  - Due soon: request is due within 7 days.
+  - Missing file: no evidence file is attached.
+- Rows with request, requirement, owner, due date, status, files, updated time,
+  upload/review action, and more menu.
 - Empty state for creating the first request.
 
 States:
 
-- Empty: create first evidence request or open linked obligations.
-- Requested: show owner, due date, recipient, linked obligation or contract, and
+- Empty: Request evidence when a contract requirement or follow-up task needs
+  proof.
+- Requested: show owner, due date, recipient, linked requirement or contract, and
   whether a file or non-file response is required.
 - Missing file: explicit file-needed state and upload action.
 - Received: distinguish submitted proof from reviewed proof.
@@ -4795,7 +4913,7 @@ Terminology:
 Acceptance:
 
 - User can request, track, receive, and review evidence tied to a contract or
-  obligation.
+  requirement.
 
 ### `/reports`
 
@@ -4818,18 +4936,26 @@ Contains:
 - Export upcoming renewals action.
 - Recoverable partial-data state when data freshness is degraded.
 - Report catalog.
+- Report catalog count shows the number of reports; rail counts are matching
+  rows available in each report.
 - Report filters/parameters.
 - Preview table.
+- Active report header explains:
+  - Window: selected reporting period.
+  - Rows: previewed rows over matching rows.
+  - Last export: most recent export for this report.
 - Run, export, download, retry, or send actions only when backed by working
   permissions and job states.
-- Report history when report runs can be created or sent.
+- Report history when report runs can be created or sent. Recent export history
+  explains that its Rows column is the number of records included in that export
+  run.
 
 Report preview requirements:
 
 - Preview identifies report type, selected filters, visible row count, partial
   data state, and export availability.
 - Preview identifies source and freshness limits for the selected report,
-  including whether rows depend on reviewed, suggested, computed, missing,
+  including whether rows depend on reviewed, suggested, calculated, missing,
   partial, or stale data.
 - Tables show contract, counterparty, owner, status, date, next action, or
   request fields appropriate to the selected report.
@@ -4840,10 +4966,10 @@ Core reports:
 - Upcoming renewals.
 - Notice deadlines.
 - Missing owners.
-- Missing key fields.
-- Open obligations.
-- Overdue work.
-- Exceptions by owner.
+- Missing key details.
+- Open requirements.
+- Overdue tasks.
+- Problems by owner.
 - Evidence requests.
 - Contract inventory.
 - Review completeness.
@@ -4940,7 +5066,7 @@ Contains:
 - Upload progress and success/failure states.
 - Duplicate or already-uploaded handling where available.
 - Recent upload or next-step state.
-- Link to review fields after extraction begins or completes.
+- Link to the review queue after extraction begins or completes.
 
 Excludes:
 
@@ -5040,13 +5166,13 @@ Contains:
 
 - Contract identity, counterparty, type, status, owner, and current next action.
 - Uploaded file/source context.
-- Reviewed key fields and missing/unreviewed field states.
+- Confirmed key details and missing/unreviewed detail states.
 - Renewal and notice checkpoints.
 - Owner assignment.
-- Obligations.
-- Tasks/work.
+- Contract requirements.
+- Tasks.
 - Approvals.
-- Exceptions.
+- Problems.
 - Evidence requirements and submissions.
 - Activity/audit history.
 - Notes only when create, edit, delete, permission, and audit states are
@@ -5072,7 +5198,7 @@ Status: Contextual.
 Release role:
 
 - Trust conversion surface.
-- Turns source-backed suggestions into reviewed operational data.
+- Turns suggested contract details into confirmed operational data.
 
 Direct access behavior:
 
@@ -5083,21 +5209,51 @@ Direct access behavior:
 
 Contains:
 
-- Header: Review fields.
-- Progress indicator.
-- Field queue with contract list.
-- Suggested value, current approved value, source snippet, source preview, and
+- Sidebar/nav child label: Review queue.
+- Page title: Contract Review Queue.
+- Page lead: Review suggested contract dates, owners, and terms against source
+  text before Oblixa uses them in reminders, tasks, and reports.
+- Header meta: Details to review and Contracts needing review.
+- Progress indicator for the active contract and active detail.
+- Left rail title: Contracts needing review.
+- Rail filters: All, Mine, Important; source filters grouped under Source with
+  No preview and Source needed.
+- Decision pane label: Detail to review.
+- Suggested value, current confirmed value, source snippet, source preview, and
   contract context.
+- `Where this is used` block explaining the operational consequence of
+  confirming the active detail.
+- Right rail sections: Where Oblixa found it, Source preview, Contract context.
+- Source badges: Source found, Source not found, Source preview unavailable,
+  Needs source, Manual entry.
 - Confidence hint only when it is clearly labeled as extraction metadata, not a
   trust state.
-- Actions: approve, edit, mark unknown, skip.
+- Actions: Confirm, Edit, Mark unknown, Skip.
 - Link to source and contract.
-- Empty state when no fields need review.
+- Empty state when no details need confirmation.
 - Recoverable state when source text or preview is temporarily unavailable.
+
+`Where this is used` copy:
+
+| Detail type | User-facing explanation |
+| --- | --- |
+| Auto-renewal | Shows whether the contract renews automatically, so renewal tasks and reports can flag contracts that continue unless cancelled. |
+| Notice deadline | Records the last day to send notice, so Oblixa can warn before that deadline passes. |
+| Notice window | Records the amount of advance notice required, so Oblixa can calculate the last day to send notice. |
+| Renewal date | Sets the date used for renewal reminders, renewal lists, and reports. |
+| Owner | Assigns the responsible person for reminders, tasks, evidence requests, and reports. |
+| Counterparty | Identifies the other organization or person on the contract for search, grouping, and reports. |
+| Payment terms | Records payment timing and billing terms for contract tracking, tasks, and reports. |
+| Contract value | Records contract value for inventory, prioritization, and reports. |
+| Effective/start date | Sets when the contract starts, so status, reminders, and reports use the correct date. |
+| Termination/end/expiration date | Sets when the contract ends or terminates, so status, renewal timing, and reports use the correct date. |
+| Contract requirement | Records a contract requirement that may need a task, evidence request, or owner. |
+| Governing law/jurisdiction | Records the law or jurisdiction that applies, so legal and contract questions can be routed correctly. |
+| Other suggested detail | After confirmation, this detail can appear in contract views, tasks, reminders, and reports. |
 
 Acceptance:
 
-- User can approve or correct suggested values with source context visible.
+- User can confirm or correct suggested values with source context visible.
 
 ### `/search`
 
@@ -5165,7 +5321,7 @@ Release state:
 
 - Redirect or thin wrapper to `/work` with task context.
 - No separate primary nav, public copy, or dashboard promotion.
-- Task rows live in Work with owner, status, due date, contract, and action.
+- Task rows live in Tasks with owner, status, due date, contract, and action.
 
 ### `/contracts/obligations`
 
@@ -5173,10 +5329,10 @@ Status: Merge.
 
 Release state:
 
-- Redirect or thin wrapper to `/work` with obligations context.
-- Obligation detail belongs on contract detail.
-- Obligation rows include owner, contract, due date, status, evidence state, and
-  source/review state.
+- Redirect or thin wrapper to `/work` with requirement context.
+- Contract requirement detail belongs on contract detail.
+- Requirement rows include owner, contract, due date, status, evidence state,
+  and source/review state.
 
 ### `/contracts/approvals`
 
@@ -5195,14 +5351,14 @@ Status: Merge.
 
 Release state:
 
-- Redirect or thin wrapper to `/work` with exception context.
-- Exception rows live in Work with severity, owner, contract, status, due state,
+- Redirect or thin wrapper to `/work` with problem context.
+- Problem rows live in Tasks with severity, owner, contract, status, due state,
   and next action.
-- Contract detail may show contract-specific exceptions when the relation is
+- Contract detail may show contract-specific problems when the relation is
   complete.
 - No separate Exceptions product surface appears in primary navigation,
   dashboard promotion, search, command palette, onboarding, or public copy.
-- Exceptions are tracking issues, not compliance findings.
+- Problems are tracking issues, not compliance findings.
 
 ### `/contracts/reports`
 
@@ -5618,7 +5774,7 @@ Reason:
 
 Release state:
 
-- Blockers remain visible in Work and Dashboard.
+- Cannot-proceed tasks remain visible in Tasks and Dashboard.
 
 ### `/contracts/approvals/workload`
 
@@ -5706,7 +5862,7 @@ Reason:
 
 Release state:
 
-- Renewal and exception decisions remain work items or contract context.
+- Renewal and problem decisions remain tasks or contract context.
 
 ### `/decisions/[id]`
 
@@ -6039,8 +6195,8 @@ Families:
 
 - Contracts and command-palette contract search.
 - Upload, import, import-job detail, extraction, and recompute signals.
-- Field review.
-- Tasks, approvals, obligations, exceptions, renewals, reminders, evidence.
+- Contract detail review.
+- Tasks, approvals, requirements, problems, renewals, reminders, evidence.
 - Reports, report packs, report runs, calendar export, contract export, renewal
   export, review-packet export.
 - Workspace settings, account export, account data, notification preferences,
@@ -6164,12 +6320,12 @@ Contains:
 - First contract uploaded.
 - Import completed or needs correction.
 - Extraction ready.
-- Extraction failed or manual review needed.
-- Field review reminder.
+- Extraction failed or manual confirmation needed.
+- Detail review reminder.
 - Upcoming renewal reminder.
 - Notice deadline reminder.
-- Work item assigned.
-- Work item overdue.
+- Task assigned.
+- Task overdue.
 - Evidence requested.
 - Evidence overdue.
 - Report/export completed or failed when the user initiated it.
@@ -6220,7 +6376,7 @@ Rules:
   limited-rollout, or early-access positioning.
 - Public pricing states the Core monthly offer and included limits plainly, while
   account creation and checkout remain approval-gated.
-- Primary app navigation contains only Dashboard, Contracts, Work, Renewals,
+- Primary app navigation contains only Dashboard, Contracts, Tasks, Renewals,
   Evidence, Reports, and Settings.
 - Signup, workspace access, billing, role, invite, token, and destructive-action
   behavior follows the Technical Behavior Specification.
@@ -6232,7 +6388,7 @@ Rules:
 - Route guards, canonical states, mutation side effects, permissions, validation,
   notifications, API behavior, and recovery states follow the Technical Behavior
   Specification.
-- Core pages expose upload/import, review, ownership, dates, work, evidence,
+- Core pages expose upload/import, review, ownership, dates, tasks, evidence,
   reporting, and export paths.
 - Merged routes resolve into their parent Core surfaces.
 - Contextual routes are reachable from owning workflows or direct links, not
@@ -6323,15 +6479,15 @@ workspace:
   confirmation, and assistive-technology behavior for shipped surfaces.
 - First signed-contract upload and first CSV/import workflow, including
   recoverable validation errors.
-- Extraction, source preview, field review, approval, edit, mark-unknown, and
-  skip workflow.
-- Contract, source-file, extraction, field, work, renewal, evidence, import,
+- Extraction, source preview, detail confirmation, edit, mark-unknown, and skip
+  workflow.
+- Contract, source-file, extraction, detail, task, renewal, evidence, import,
   external-token, report, and export lifecycle states.
-- Dashboard, Contracts, Work, Renewals, Evidence, Reports, Settings, and
+- Dashboard, Contracts, Tasks, Renewals, Evidence, Reports, Settings, and
   contract-detail surfaces with real empty, loading, denied, degraded, and
   populated states.
-- Renewal date and notice-date review/provenance, including reviewed,
-  suggested, computed, and missing states.
+- Renewal date and notice-date review/provenance, including confirmed,
+  suggested, calculated, and missing states.
 - Evidence request, external-token file upload, external-token non-file
   response, receipt, review, and closure workflow.
 - Report preview and export with source/freshness disclosure and CSV export
@@ -6433,25 +6589,25 @@ context.
 | `/external/[token]` | Contextual | Let a non-workspace participant complete exactly one requested evidence or follow-up action without workspace access. | Scoped token route only; invalid, expired, revoked, inaccessible, or completed tokens show safe terminal states. |
 | `/external` | Boundary | Handle missing or invalid external-link entry. | Shows a safe invalid-link state or sends users to a public recovery route; no workspace data appears. |
 | `/onboarding/calibration` | Ship simplify | Set workspace defaults and guide the first useful action without exposing product architecture. | Authenticated admin setup route; non-admins or already-complete workspaces leave setup for dashboard or upload/import. |
-| `/dashboard` | Ship | Show the workspace's operational next actions across review, dates, work, evidence, data gaps, and recent activity. | Authenticated workspace route; empty workspaces point to upload/import and review, while blocked setup goes to setup. |
-| `/contracts` | Ship | Serve as the signed-contract inventory and primary table for owners, status, review, dates, work, and evidence signals. | Authenticated workspace route; actions are shaped by role and available data. |
-| `/work` | Ship | Consolidate tasks, approvals, obligations, and exceptions into one accountable work queue. | Authenticated workspace route; creation and mutation actions appear according to role, entitlement, billing, and object state. |
-| `/renewals` | Ship | Track upcoming renewal and notice requirements with reviewed, suggested, computed, and missing provenance. | Authenticated workspace route; export and task actions are role-shaped. |
-| `/evidence` | Ship | Request, receive, review, and close evidence tied to contracts or obligations under the visible product label Evidence. | Authenticated workspace route; file and non-file evidence actions appear only when relevant and allowed. |
+| `/dashboard` | Ship | Show the workspace's operational next actions across details to confirm, dates, tasks, evidence, missing details, and recent activity. | Authenticated workspace route; empty workspaces point to upload/import and review, while required setup goes to setup. |
+| `/contracts` | Ship | Serve as the signed-contract inventory and primary table for owners, status, review, dates, tasks, problems, and evidence signals. | Authenticated workspace route; actions are shaped by role and available data. |
+| `/work` | Ship | Serve the user-facing Tasks surface, consolidating follow-up tasks, approvals, contract requirements, problems, and evidence requests. | Authenticated workspace route; creation and mutation actions appear according to role, entitlement, billing, and object state. |
+| `/renewals` | Ship | Track upcoming renewal and notice requirements with confirmed, suggested, calculated, and missing provenance. | Authenticated workspace route; export and task actions are role-shaped. |
+| `/evidence` | Ship | Request, receive, review, and close evidence tied to contracts, requirements, or tasks under the visible product label Evidence. | Authenticated workspace route; file and non-file evidence actions appear only when relevant and allowed. |
 | `/reports` | Ship | Preview and export operational reports with filter, freshness, and source-state context. | Authenticated workspace route; export or send actions appear only when backed by permissions and provider state. |
 | `/settings` | Ship | Let users manage profile, workspace identity, team, roles, invites, billing/access status, security, notifications, and imports/exports. | Authenticated workspace route; non-admins see only allowed or read-only settings. |
 | `/contracts/new` | Contextual | Add a signed agreement and guide the user to extraction/review next steps. | Authenticated contextual route; users without upload permission see a denied or read-only recovery state. |
 | `/contracts/bulk` | Contextual | Import tracker rows and recover from CSV/import issues. | Authenticated contextual route; users without import permission see denied or recovery copy. |
 | `/contracts/imports/[jobId]` | Contextual | Show a single import job's result, errors, and next actions. | Workspace-scoped detail route; missing, invalid, or inaccessible jobs show safe not-found or inaccessible states. |
-| `/contracts/[id]` | Ship | Show contract-level reviewed data, source context, files, dates, owners, work, evidence, exceptions, and activity. | Workspace-scoped detail route; missing or inaccessible contracts show safe not-found or denied states. |
-| `/contracts/review` | Contextual | Turn suggested fields into reviewed operational data. | Authenticated contextual route from review CTAs; users without review permission see denied or read-only recovery. |
+| `/contracts/[id]` | Ship | Show contract-level confirmed data, source context, files, dates, owners, tasks, evidence, problems, and activity. | Workspace-scoped detail route; missing or inaccessible contracts show safe not-found or denied states. |
+| `/contracts/review` | Contextual | Present the Contract Review Queue and turn suggested contract details into confirmed operational data. | Authenticated contextual route from review CTAs; users without review permission see denied or read-only recovery. |
 | `/search` | Contextual | Help users find accessible Core pages, contracts, queues, reports, and tools without becoming a primary destination. | Authenticated contextual route; results only include destinations the user can access. |
 | `/contracts/renewals` | Merge | Preserve renewal-route compatibility while making Renewals the real renewal surface. | Direct access redirects or wraps into `/renewals` with renewal context. |
 | `/contracts/evidence-studio` | Merge | Preserve evidence-route compatibility while making Evidence the real evidence surface. | Direct access redirects or wraps into `/evidence` with evidence context. |
-| `/contracts/tasks` | Merge | Preserve task-route compatibility while making Work the real task surface. | Direct access redirects or wraps into `/work` with task context. |
-| `/contracts/obligations` | Merge | Preserve obligation-route compatibility while making Work the real obligation surface. | Direct access redirects or wraps into `/work` with obligation context. |
-| `/contracts/approvals` | Merge | Preserve approval-route compatibility while making Work the real approval surface. | Direct access redirects or wraps into `/work` with approval context. |
-| `/contracts/exceptions` | Merge | Preserve exception-route compatibility while making Work the real exception surface. | Direct access redirects or wraps into `/work` with exception context. |
+| `/contracts/tasks` | Merge | Preserve task-route compatibility while making Tasks at `/work` the real task surface. | Direct access redirects or wraps into `/work` with task context. |
+| `/contracts/obligations` | Merge | Preserve obligation-route compatibility while making Tasks at `/work` the real requirement surface. | Direct access redirects or wraps into `/work` with requirement context. |
+| `/contracts/approvals` | Merge | Preserve approval-route compatibility while making Tasks at `/work` the real approval surface. | Direct access redirects or wraps into `/work` with approval context. |
+| `/contracts/exceptions` | Merge | Preserve exception-route compatibility while making Tasks at `/work` the real problem surface. | Direct access redirects or wraps into `/work` with problem context. |
 | `/contracts/reports` | Merge | Preserve contract-report context while making Reports the real reporting surface. | Direct access redirects or wraps into `/reports` with contract/report context. |
 | `/settings/security` | Ship | Let users inspect security state and manage provider-backed account/workspace security controls. | Authenticated settings route; sensitive actions require the step-up behavior defined in Operational Decisions. |
 | `/settings/billing` | Admin | Show billing/access state, paid-continuation status, restrictions, and provider-backed billing actions. | Admin route; non-admins leave or see read-only access status; unavailable billing shows safe contact/unavailable copy. |
@@ -6470,7 +6626,7 @@ context.
 | `/contracts/review-cadence` | Contained | Keep review work tactical in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
 | `/contracts/watchlists` | Contained | Use filters and saved views in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
 | `/contracts/execution-graph` | Contained | Avoid advanced dependency-graph framing in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
-| `/contracts/approvals/workload` | Contained | Keep approval workload signals in Work for Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
+| `/contracts/approvals/workload` | Contained | Keep approval workload signals in Tasks for Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
 | `/contracts/approvals/sla-simulator` | Contained | Avoid SLA simulation and enterprise-SLA framing in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
 | `/contracts/analytics` | Contained | Keep analytics subordinate to Dashboard and Reports in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |
 | `/contracts/collaboration` | Contained | Avoid a broad collaboration center in Core; allow contained development/testing only. | Ordinary Core users receive Global not found; authorized contained access follows hidden-surface rules. |

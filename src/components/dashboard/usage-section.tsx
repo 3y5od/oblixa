@@ -13,8 +13,8 @@ export function UsageSection({
 }: UsageSectionProps) {
   const items = [
     { label: "Contracts created", value: contractsCreated },
-    { label: "AI extractions", value: extractionsRun },
-    { label: "Field reviews", value: fieldsReviewed },
+    { label: "AI suggestion runs", value: extractionsRun },
+    { label: "Detail confirmations", value: fieldsReviewed },
   ];
 
   return (

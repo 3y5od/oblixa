@@ -31,9 +31,8 @@ const baseField = (overrides: Partial<ExtractedField>): ExtractedField => ({
   ...overrides,
 });
 
-// V9 review-queue anchor: key date coverage still needs review (see v9-review-queue-surface.v9.test.ts)
 describe("FieldReview — §11.2 critical date grouping", () => {
-  it("surfaces an operator-first blocker when critical dates are pending or lack approved values", () => {
+  it("surfaces a plain-language notice when critical dates need confirmation", () => {
     const fields: ExtractedField[] = [
       baseField({
         id: "1",
@@ -61,12 +60,8 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     renderWithProviders(<FieldReview fields={fields} canEdit={false} />);
 
     const notice = screen.getByTestId("critical-date-review-notice");
-    expect(notice.textContent).toMatch(/date automation is blocked/i);
-    expect(notice.textContent).toMatch(/needs review/i);
-    // v23 aesthetic pass: the "Missing approved value" group was dropped — it
-    // surfaced critical-date keys that weren't extracted, producing labels
-    // with no matching row below (mismatch with the visible field list). The
-    // sole Needs-review group now maps 1:1 to visible pending rows.
+    expect(notice.textContent).toMatch(/date reminders need key dates/i);
+    expect(notice.textContent).toMatch(/needs confirmation/i);
     expect(notice.textContent).not.toMatch(/missing approved value/i);
     expect(notice.textContent).toMatch(/ask an editor/i);
   });
@@ -86,11 +81,11 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     const { container } = renderWithProviders(<FieldReview fields={fields} canEdit />);
 
     expect(container.querySelector("[role='list']")?.getAttribute("aria-label")).toBe(
-      "Extracted contract fields"
+      "Contract details to confirm"
     );
     expect(screen.queryByRole("table")).toBeNull();
-    expect(screen.getByText(/extracted suggestion/i).className).toContain("leading-snug");
-    expect(screen.getByText(/This Agreement renews/i).className).toContain("overflow-y-auto");
+    expect(screen.getByText(/suggested detail/i).className).toContain("leading-snug");
+    expect(screen.getByText(/This Agreement renews/i).className).toContain("line-clamp-3");
   });
 
   it("keeps row state in sync when refreshed field props change", () => {
@@ -104,15 +99,15 @@ describe("FieldReview — §11.2 critical date grouping", () => {
     const approved = { ...pending, status: "approved" as const };
 
     const { rerender } = renderWithProviders(<FieldReview fields={[pending]} canEdit />);
-    expect(screen.getByRole("button", { name: /approve end date/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /confirm end date/i })).toBeTruthy();
 
     rerender(<FieldReview fields={[approved]} canEdit />);
 
-    expect(screen.getByText("Approved")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /approve end date/i })).toBeNull();
+    expect(screen.getByText("Confirmed")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /confirm end date/i })).toBeNull();
   });
 
-  it("blocks silent approval when AI value lacks citation (§11.3)", () => {
+  it("blocks silent confirmation when an AI value lacks source text (§11.3)", () => {
     const fields: ExtractedField[] = [
       baseField({
         id: "c1",
@@ -127,10 +122,10 @@ describe("FieldReview — §11.2 critical date grouping", () => {
 
     renderWithProviders(<FieldReview fields={fields} canEdit />);
 
-    expect(screen.getByText(/citation required:/i)).toBeTruthy();
+    expect(screen.getByText(/source required:/i)).toBeTruthy();
     expect(screen.getByText(/mark this value unknown/i)).toBeTruthy();
-    const approve = screen.getByRole("button", { name: /approve counterparty/i });
-    expect((approve as HTMLButtonElement).disabled).toBe(true);
+    const confirm = screen.getByRole("button", { name: /confirm counterparty/i });
+    expect((confirm as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("labels unresolved field decisions as Mark unknown while reusing the rejected mutation", async () => {
@@ -191,7 +186,7 @@ describe("FieldReview — §11.2 critical date grouping", () => {
 
     renderWithProviders(<FieldReview fields={fields} canEdit />);
 
-    fireEvent.click(screen.getByRole("button", { name: /approve end date/i }));
+    fireEvent.click(screen.getByRole("button", { name: /confirm end date/i }));
 
     await waitFor(() => {
       expect(screen.getAllByText(/session expired/i).length).toBeGreaterThan(0);

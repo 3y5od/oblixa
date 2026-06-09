@@ -128,7 +128,7 @@ export async function autoTransitionTasksForField(input: {
         .from("contract_tasks")
         .update({
           status: "blocked",
-          blocked_reason: "Blocked until linked field is approved",
+          blocked_reason: "Waiting until linked detail is confirmed",
           last_auto_transition_at: new Date().toISOString(),
         })
         .eq("id", task.id);

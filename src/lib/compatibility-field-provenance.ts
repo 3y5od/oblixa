@@ -1,4 +1,4 @@
-/** Provenance line for an extracted field row (approved vs pending vs unknown). */
+/** Provenance line for a contract-detail row (confirmed vs pending vs unknown). */
 export function fieldReviewProvenanceLabel(input: {
   status: string;
   confidence?: number | null;
@@ -9,13 +9,13 @@ export function fieldReviewProvenanceLabel(input: {
       typeof input.confidence === "number" && Number.isFinite(input.confidence)
         ? ` at ${Math.round(Math.min(100, Math.max(0, input.confidence)))}% model confidence`
         : "";
-    return `Approved operational value${c}.`;
+    return `Confirmed operational value${c}.`;
   }
   if (st === "pending" || st === "in_review") {
-    return "Extracted suggestion — not approved yet. Downstream reminders and renewals stay gated until you approve.";
+    return "Suggested detail — not confirmed yet. Reminders and renewals stay gated until you confirm.";
   }
   if (st === "rejected") {
-    return "Rejected during review — does not drive approved-date workflows.";
+    return "Marked unknown during confirmation — does not drive confirmed-date workflows.";
   }
-  return "Unknown review state — treat as not trusted for automation.";
+  return "Unknown confirmation state — treat as not trusted for reminders or reports.";
 }

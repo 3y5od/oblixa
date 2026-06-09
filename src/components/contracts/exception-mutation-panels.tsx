@@ -92,7 +92,7 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
                           className={`inline-flex min-h-9 items-center rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:opacity-60 ${
                             selected
                               ? "border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_32%,var(--surface-raised))] text-[var(--accent-strong)]"
-                              : "border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:text-[var(--text-primary)]"
+                              : "border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,var(--surface-raised))] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:text-[var(--text-primary)]"
                           }`}
                           aria-pressed={selected}
                         >
@@ -154,7 +154,7 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
                       return;
                     }
                     setMessageTone("success");
-                    setMessage(result.message ?? "Exception updated.");
+                    setMessage(result.message ?? "Issue updated.");
                     scheduleRefresh();
                   });
                 }}
@@ -185,7 +185,7 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
                       className={`inline-flex min-h-9 items-center rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:opacity-60 ${
                         selected
                           ? "border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_32%,var(--surface-raised))] text-[var(--accent-strong)]"
-                          : "border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,white)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:text-[var(--text-primary)]"
+                          : "border-[color:color-mix(in_oklab,var(--border-subtle)_92%,transparent)] bg-[color:color-mix(in_oklab,var(--surface)_88%,var(--surface-raised))] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] hover:text-[var(--text-primary)]"
                       }`}
                       aria-pressed={selected}
                     >
@@ -233,7 +233,7 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
                       return;
                     }
                     setMessageTone("success");
-                    setMessage(result.message ?? "Exception updated.");
+                    setMessage(result.message ?? "Issue updated.");
                     scheduleRefresh();
                   });
                 }}
@@ -261,13 +261,13 @@ function ExceptionMutationPanelsInner(props: ExceptionMutationPanelsProps) {
                     return;
                   }
                   setMessageTone("success");
-                  setMessage(result.message ?? "Exception updated.");
+                    setMessage(result.message ?? "Issue updated.");
                   scheduleRefresh();
                 });
               }}
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-              {isPending ? "Saving..." : refreshQueued ? "Refreshing..." : "Reopen exception"}
+              {isPending ? "Saving..." : refreshQueued ? "Refreshing..." : "Reopen issue"}
             </button>
           </div>
         ) : null}

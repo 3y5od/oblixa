@@ -4,7 +4,7 @@ import {
   buildContractOperationsStrip,
 } from "./contract-detail-summary";
 
-describe("contract detail summary helpers (V9)", () => {
+describe("contract detail summary helpers", () => {
   it("builds above-the-fold operations strip values from real reminder and freshness state", () => {
     const items = buildContractOperationsStrip({
       ownerLabel: null,
@@ -37,7 +37,7 @@ describe("contract detail summary helpers (V9)", () => {
     expect(items[3].value).toContain("Latest source file");
   });
 
-  it("prioritizes pending review, approvals, exceptions, evidence, ownership, and date blockers into immediate actions", () => {
+  it("prioritizes pending confirmation, approvals, issues, evidence, ownership, and date gaps into immediate actions", () => {
     const items = buildContractImmediateActions({
       contractId: "contract-1",
       pendingFieldsCount: 2,
@@ -49,17 +49,17 @@ describe("contract detail summary helpers (V9)", () => {
     });
 
     expect(items.map((item) => item.eyebrow)).toEqual([
-      "Review",
+      "Confirm",
       "Approvals",
-      "Exceptions",
+      "Issues",
       "Evidence",
       "Ownership",
       "Dates",
     ]);
     expect(items[0]).toMatchObject({
       href: "#extracted-fields",
-      title: "Pending extracted fields need confirmation",
-      actionLabel: "Review fields",
+      title: "Suggested details need confirmation",
+      actionLabel: "Confirm details",
       tone: "attention",
     });
     expect(items[1]).toMatchObject({
@@ -76,6 +76,6 @@ describe("contract detail summary helpers (V9)", () => {
       actionLabel: "Assign owner",
     });
     expect(items[3].hint).toContain("submission or correction");
-    expect(items[5].hint).toContain("Approve at least one key date");
+    expect(items[5].hint).toContain("Confirm at least one key date");
   });
 });

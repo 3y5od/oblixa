@@ -117,7 +117,7 @@ function evaluateBreaches(
   ) {
     breaches.push({
       code: "exception_pressure",
-      detail: `Open exceptions (${metrics.open_exceptions + metrics.open_exceptions_in_progress}) exceed max ${policyJson.max_open_exceptions}`,
+      detail: `Open issues (${metrics.open_exceptions + metrics.open_exceptions_in_progress}) exceed max ${policyJson.max_open_exceptions}`,
       severity: "high",
     });
   }

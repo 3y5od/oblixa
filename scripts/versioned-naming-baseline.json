@@ -26,9 +26,9 @@
     "versioned-naming-baseline.json",
     "versioned-naming-removal-queue.json"
   ],
-  "filesScanned": 3313,
-  "fileCount": 1148,
-  "totalHits": 14044,
+  "filesScanned": 3552,
+  "fileCount": 1160,
+  "totalHits": 14057,
   "files": [
     {
       "path": ".github/workflows/ci.yml",
@@ -186,6 +186,234 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "config/operational-ci-enforcement.json",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-cron-jobs.json",
+      "total": 2,
+      "tokens": {
+        "v6": 2
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-frontend-resilience.json",
+      "total": 3,
+      "tokens": {
+        "v10": 3
+      },
+      "sources": {
+        "content": 3
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-notifications-messaging.json",
+      "total": 1,
+      "tokens": {
+        "v4": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-observability-redaction.json",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-privacy-auditability.json",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-schema-compatibility.json",
+      "total": 2,
+      "tokens": {
+        "v10": 1,
+        "v9": 1
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-search-reporting-analytics-exports.json",
+      "total": 8,
+      "tokens": {
+        "v10": 3,
+        "v4": 5
+      },
+      "sources": {
+        "content": 8
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/operational-secrets-configuration.json",
+      "total": 2,
+      "tokens": {
+        "v10": 1,
+        "v9": 1
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "config/pairwise-feature-flags.json",
       "total": 1,
       "tokens": {
@@ -212,15 +440,43 @@
     },
     {
       "path": "config/qa-comprehensive-taxonomy.json",
-      "total": 31,
+      "total": 84,
       "tokens": {
-        "v10": 14,
+        "v10": 33,
+        "v7": 6,
+        "v8": 42,
+        "v9": 3
+      },
+      "sources": {
+        "content": 84
+      },
+      "surfaceClass": "external_contracts",
+      "owner": "platform-security",
+      "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+      "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "external_contracts",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-security",
+        "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
+        "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "config/qa-tier-coverage-allowlist.json",
+      "total": 28,
+      "tokens": {
+        "v10": 11,
         "v7": 2,
         "v8": 14,
         "v9": 1
       },
       "sources": {
-        "content": 31
+        "content": 28
       },
       "surfaceClass": "external_contracts",
       "owner": "platform-security",
@@ -317,43 +573,6 @@
         "reason": "External contract, provider, public asset, or generated config names may be consumed outside the repository.",
         "removalStrategy": "add_alias_or_allowlist_then_cutover_after_manual_evidence",
         "manualOnly": true
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "docs/version-name-removal-code-only-checklist.md",
-      "total": 144,
-      "tokens": {
-        "v0": 3,
-        "v1": 15,
-        "v10": 38,
-        "v13": 1,
-        "v14": 2,
-        "v2": 13,
-        "v3": 8,
-        "v4": 10,
-        "v5": 17,
-        "v6": 17,
-        "v7": 2,
-        "v8": 5,
-        "v9": 13
-      },
-      "sources": {
-        "content": 144
-      },
-      "surfaceClass": "documentation",
-      "owner": "docs-platform",
-      "reason": "Documentation and planning artifacts can describe reviewed version debt without creating runtime dependencies.",
-      "removalStrategy": "documentation_cleanup_or_reviewed_planning_exception",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "documentation",
-        "reviewedOn": "2026-05-23",
-        "owner": "docs-platform",
-        "reason": "Documentation and planning artifacts can describe reviewed version debt without creating runtime dependencies.",
-        "removalStrategy": "documentation_cleanup_or_reviewed_planning_exception",
-        "manualOnly": false
       },
       "suggestedNeutralName": null
     },
@@ -559,6 +778,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "e2e/fixtures/app-fixture.ts",
+      "total": 2,
+      "tokens": {
+        "v10": 2
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "e2e_tests",
+      "owner": "qa-platform",
+      "reason": "End-to-end test names and tags are source-owned unless consumed by CI filters or external evidence.",
+      "removalStrategy": "local_rename_with_ci_reference_update",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "e2e_tests",
+        "reviewedOn": "2026-05-23",
+        "owner": "qa-platform",
+        "reason": "End-to-end test names and tags are source-owned unless consumed by CI filters or external evidence.",
+        "removalStrategy": "local_rename_with_ci_reference_update",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "e2e/qa-maximal-matrix.spec.ts",
       "total": 1,
       "tokens": {
@@ -660,15 +904,15 @@
     },
     {
       "path": "openapi.yaml",
-      "total": 39,
+      "total": 135,
       "tokens": {
-        "v10": 3,
-        "v4": 8,
-        "v5": 8,
-        "v6": 20
+        "v10": 12,
+        "v4": 32,
+        "v5": 32,
+        "v6": 59
       },
       "sources": {
-        "content": 39
+        "content": 135
       },
       "surfaceClass": "external_contracts",
       "owner": "platform-security",
@@ -688,15 +932,15 @@
     },
     {
       "path": "package.json",
-      "total": 40,
+      "total": 39,
       "tokens": {
-        "v10": 17,
+        "v10": 16,
         "v7": 2,
         "v8": 16,
         "v9": 5
       },
       "sources": {
-        "content": 40
+        "content": 39
       },
       "surfaceClass": "other",
       "owner": "platform-hardening",
@@ -831,6 +1075,31 @@
       },
       "sources": {
         "content": 3
+      },
+      "surfaceClass": "tooling",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "removalStrategy": "rename_with_package_script_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "tooling",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+        "removalStrategy": "rename_with_package_script_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "scripts/audit-release-state-code-only.mjs",
+      "total": 9,
+      "tokens": {
+        "v10": 9
+      },
+      "sources": {
+        "content": 9
       },
       "surfaceClass": "tooling",
       "owner": "platform-hardening",
@@ -1077,13 +1346,13 @@
     },
     {
       "path": "scripts/check-audit-event-coverage.mjs",
-      "total": 6,
+      "total": 5,
       "tokens": {
-        "v10": 5,
+        "v10": 4,
         "v9": 1
       },
       "sources": {
-        "content": 6
+        "content": 5
       },
       "surfaceClass": "tooling",
       "owner": "platform-hardening",
@@ -1411,31 +1680,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "scripts/check-feature-flag-lifecycle.mjs",
-      "total": 1,
-      "tokens": {
-        "v7": 1
-      },
-      "sources": {
-        "content": 1
-      },
-      "surfaceClass": "tooling",
-      "owner": "platform-hardening",
-      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
-      "removalStrategy": "rename_with_package_script_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "tooling",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
-        "removalStrategy": "rename_with_package_script_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "scripts/check-feature-flag-security-bypass.test.mjs",
       "total": 1,
       "tokens": {
@@ -1717,6 +1961,56 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "scripts/check-operational-authz-session.mjs",
+      "total": 1,
+      "tokens": {
+        "v6": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "tooling",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "removalStrategy": "rename_with_package_script_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "tooling",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+        "removalStrategy": "rename_with_package_script_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "scripts/check-operational-feature-flags-rollout.mjs",
+      "total": 1,
+      "tokens": {
+        "v7": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "tooling",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "removalStrategy": "rename_with_package_script_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "tooling",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+        "removalStrategy": "rename_with_package_script_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "scripts/check-persistence-redaction.mjs",
       "total": 1,
       "tokens": {
@@ -1768,12 +2062,12 @@
     },
     {
       "path": "scripts/check-previous-release-suite.mjs",
-      "total": 2,
+      "total": 1,
       "tokens": {
-        "v9": 2
+        "v9": 1
       },
       "sources": {
-        "content": 2
+        "content": 1
       },
       "surfaceClass": "tooling",
       "owner": "platform-hardening",
@@ -2577,12 +2871,12 @@
     },
     {
       "path": "scripts/check-upload-security-guards.mjs",
-      "total": 2,
+      "total": 1,
       "tokens": {
-        "v10": 2
+        "v10": 1
       },
       "sources": {
-        "content": 2
+        "content": 1
       },
       "surfaceClass": "tooling",
       "owner": "platform-hardening",
@@ -4087,6 +4381,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "scripts/route-handler-complexity-baseline.json",
+      "total": 1,
+      "tokens": {
+        "v4": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "tooling",
+      "owner": "platform-hardening",
+      "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+      "removalStrategy": "rename_with_package_script_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "tooling",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Tooling names are source-owned but package script aliases and generated references must stay compatible.",
+        "removalStrategy": "rename_with_package_script_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "scripts/route-runtime-semantics.test.mjs",
       "total": 1,
       "tokens": {
@@ -4240,37 +4559,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "SECURITY-SPEC-AS-BUILT.md",
-      "total": 87,
-      "tokens": {
-        "v0": 1,
-        "v1": 1,
-        "v10": 67,
-        "v4": 4,
-        "v5": 6,
-        "v6": 7,
-        "v8": 1
-      },
-      "sources": {
-        "content": 87
-      },
-      "surfaceClass": "other",
-      "owner": "platform-hardening",
-      "reason": "Unclassified versioned naming debt needs owner review before removal.",
-      "removalStrategy": "classify_then_rename_or_queue",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "other",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Unclassified versioned naming debt needs owner review before removal.",
-        "removalStrategy": "classify_then_rename_or_queue",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "semgrep/oblixa-performance.yml",
       "total": 1,
       "tokens": {
@@ -4414,36 +4702,6 @@
       }
     },
     {
-      "path": "SPEC-AS-BUILT.md",
-      "total": 96,
-      "tokens": {
-        "v10": 69,
-        "v3": 2,
-        "v4": 6,
-        "v5": 8,
-        "v6": 10,
-        "v9": 1
-      },
-      "sources": {
-        "content": 96
-      },
-      "surfaceClass": "other",
-      "owner": "platform-hardening",
-      "reason": "Unclassified versioned naming debt needs owner review before removal.",
-      "removalStrategy": "classify_then_rename_or_queue",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "other",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Unclassified versioned naming debt needs owner review before removal.",
-        "removalStrategy": "classify_then_rename_or_queue",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/actions/approvals-helpers.ts",
       "total": 1,
       "tokens": {
@@ -4502,6 +4760,31 @@
       },
       "sources": {
         "content": 82
+      },
+      "surfaceClass": "server_actions",
+      "owner": "platform-api",
+      "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+      "removalStrategy": "add_action_alias_then_cutover_after_tests",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "server_actions",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-api",
+        "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+        "removalStrategy": "add_action_alias_then_cutover_after_tests",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/actions/bulk-compatible-work-validation.test.ts",
+      "total": 26,
+      "tokens": {
+        "v10": 26
+      },
+      "sources": {
+        "content": 26
       },
       "surfaceClass": "server_actions",
       "owner": "platform-api",
@@ -4777,13 +5060,38 @@
     },
     {
       "path": "src/actions/onboarding-calibration.ts",
-      "total": 10,
+      "total": 11,
       "tokens": {
-        "v6": 3,
+        "v6": 4,
         "v9": 7
       },
       "sources": {
-        "content": 10
+        "content": 11
+      },
+      "surfaceClass": "server_actions",
+      "owner": "platform-api",
+      "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+      "removalStrategy": "add_action_alias_then_cutover_after_tests",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "server_actions",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-api",
+        "reason": "Server action names and form contracts are source-owned but can be browser-submitted during a compatibility window.",
+        "removalStrategy": "add_action_alias_then_cutover_after_tests",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/actions/policy-operations.test.ts",
+      "total": 4,
+      "tokens": {
+        "v4": 4
+      },
+      "sources": {
+        "content": 4
       },
       "surfaceClass": "server_actions",
       "owner": "platform-api",
@@ -5637,31 +5945,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/app/(dashboard)/contracts/new/page.tsx",
-      "total": 2,
-      "tokens": {
-        "v23": 2
-      },
-      "sources": {
-        "content": 2
-      },
-      "surfaceClass": "app_routes",
-      "owner": "frontend-platform",
-      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-      "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
-      "manualOnly": true,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_routes",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-        "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
-        "manualOnly": true
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/app/(dashboard)/contracts/page.tsx",
       "total": 5,
       "tokens": {
@@ -6121,6 +6404,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/app/(dashboard)/reports/page.tsx",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_routes",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_routes",
+        "reviewedOn": "2026-05-23",
+        "owner": "frontend-platform",
+        "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+        "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/app/(dashboard)/reports/reports-advanced-content.tsx",
       "total": 12,
       "tokens": {
@@ -6147,14 +6455,14 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/app/(dashboard)/settings/billing/page.surface.test.ts",
-      "total": 2,
+      "path": "src/app/(dashboard)/search/page.surface.test.ts",
+      "total": 35,
       "tokens": {
-        "v7": 1,
-        "v9": 1
+        "v2": 34,
+        "v6": 1
       },
       "sources": {
-        "content": 2
+        "content": 35
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -6274,15 +6582,66 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/app/(dashboard)/settings/operations/notifications-readonly.tsx",
+      "total": 1,
+      "tokens": {
+        "v4": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_routes",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_routes",
+        "reviewedOn": "2026-05-23",
+        "owner": "frontend-platform",
+        "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+        "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/(dashboard)/settings/operations/notifications-summary.tsx",
+      "total": 1,
+      "tokens": {
+        "v4": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_routes",
+      "owner": "frontend-platform",
+      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+      "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+      "manualOnly": true,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_routes",
+        "reviewedOn": "2026-05-23",
+        "owner": "frontend-platform",
+        "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
+        "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
+        "manualOnly": true
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "total": 15,
+      "total": 25,
       "tokens": {
         "v1": 1,
         "v2": 1,
-        "v3": 13
+        "v3": 17,
+        "v4": 6
       },
       "sources": {
-        "content": 15
+        "content": 25
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -6302,14 +6661,15 @@
     },
     {
       "path": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
-      "total": 103,
+      "total": 113,
       "tokens": {
-        "v1": 12,
+        "v1": 11,
         "v2": 2,
-        "v3": 89
+        "v3": 82,
+        "v4": 18
       },
       "sources": {
-        "content": 103
+        "content": 113
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -6554,15 +6914,15 @@
     },
     {
       "path": "src/app/(dashboard)/settings/security/page.surface.test.ts",
-      "total": 111,
+      "total": 100,
       "tokens": {
-        "v2": 50,
-        "v3": 24,
-        "v4": 36,
+        "v2": 48,
+        "v3": 23,
+        "v4": 28,
         "v9": 1
       },
       "sources": {
-        "content": 111
+        "content": 100
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -6582,14 +6942,14 @@
     },
     {
       "path": "src/app/(dashboard)/settings/security/page.tsx",
-      "total": 52,
+      "total": 16,
       "tokens": {
-        "v2": 32,
-        "v3": 14,
-        "v4": 6
+        "v2": 14,
+        "v3": 1,
+        "v4": 1
       },
       "sources": {
-        "content": 52
+        "content": 16
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -6640,31 +7000,6 @@
       },
       "sources": {
         "content": 1
-      },
-      "surfaceClass": "app_routes",
-      "owner": "frontend-platform",
-      "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-      "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
-      "manualOnly": true,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_routes",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Frontend route and deep-link names can be bookmarked, indexed, or embedded in notifications.",
-        "removalStrategy": "add_redirect_alias_then_cutover_after_manual_evidence",
-        "manualOnly": true
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(marketing)/product/page.tsx",
-      "total": 16,
-      "tokens": {
-        "v7": 16
-      },
-      "sources": {
-        "content": 16
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -11201,12 +11536,12 @@
     },
     {
       "path": "src/app/api/cron/v6/onboarding-calibration-stale/route.test.ts",
-      "total": 8,
+      "total": 10,
       "tokens": {
-        "v6": 8
+        "v6": 10
       },
       "sources": {
-        "content": 7,
+        "content": 9,
         "path": 1
       },
       "surfaceClass": "api_routes",
@@ -13098,12 +13433,12 @@
     },
     {
       "path": "src/app/api/integrations/refresh-tokens/route.test.ts",
-      "total": 3,
+      "total": 7,
       "tokens": {
-        "v2": 3
+        "v2": 7
       },
       "sources": {
-        "content": 3
+        "content": 7
       },
       "surfaceClass": "api_routes",
       "owner": "platform-api",
@@ -14331,13 +14666,13 @@
     },
     {
       "path": "src/app/api/webhooks/dispatch/route.test.ts",
-      "total": 6,
+      "total": 7,
       "tokens": {
         "v1": 1,
-        "v2": 5
+        "v2": 6
       },
       "sources": {
-        "content": 6
+        "content": 7
       },
       "surfaceClass": "api_routes",
       "owner": "platform-api",
@@ -14432,13 +14767,13 @@
     },
     {
       "path": "src/app/api/workspace/v6-settings/route.test.ts",
-      "total": 13,
+      "total": 16,
       "tokens": {
         "v10": 2,
-        "v6": 11
+        "v6": 14
       },
       "sources": {
-        "content": 12,
+        "content": 15,
         "path": 1
       },
       "surfaceClass": "api_routes",
@@ -14464,12 +14799,12 @@
     },
     {
       "path": "src/app/api/workspace/v6-settings/route.ts",
-      "total": 17,
+      "total": 18,
       "tokens": {
-        "v6": 17
+        "v6": 18
       },
       "sources": {
-        "content": 16,
+        "content": 17,
         "path": 1
       },
       "surfaceClass": "api_routes",
@@ -14495,20 +14830,21 @@
     },
     {
       "path": "src/app/globals.css",
-      "total": 23,
+      "total": 26,
       "tokens": {
         "v11": 2,
-        "v13": 5,
-        "v14": 4,
-        "v15": 4,
+        "v13": 4,
+        "v14": 7,
+        "v15": 5,
+        "v16": 1,
         "v21": 1,
         "v3": 1,
-        "v5": 3,
+        "v5": 2,
         "v6": 2,
         "v7": 1
       },
       "sources": {
-        "content": 23
+        "content": 26
       },
       "surfaceClass": "app_routes",
       "owner": "frontend-platform",
@@ -14556,31 +14892,6 @@
       "total": 1,
       "tokens": {
         "v6": 1
-      },
-      "sources": {
-        "content": 1
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/auth/auth-form.tsx",
-      "total": 1,
-      "tokens": {
-        "v3": 1
       },
       "sources": {
         "content": 1
@@ -14652,31 +14963,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/components/contracts/bulk-upload-form.ui.test.tsx",
-      "total": 2,
-      "tokens": {
-        "v23": 2
-      },
-      "sources": {
-        "content": 2
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/components/contracts/contract-evidence-requirements-panel.tsx",
       "total": 1,
       "tokens": {
@@ -14709,31 +14995,6 @@
       },
       "sources": {
         "content": 6
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/contracts/contract-table.tsx",
-      "total": 3,
-      "tokens": {
-        "v22": 3
-      },
-      "sources": {
-        "content": 3
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -14928,56 +15189,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/components/contracts/recent-uploads.tsx",
-      "total": 1,
-      "tokens": {
-        "v23": 1
-      },
-      "sources": {
-        "content": 1
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/contracts/upload-form.tsx",
-      "total": 6,
-      "tokens": {
-        "v23": 6
-      },
-      "sources": {
-        "content": 6
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/components/contracts/upload-form.ui.test.tsx",
       "total": 1,
       "tokens": {
@@ -15010,36 +15221,6 @@
       },
       "sources": {
         "content": 1
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/dashboard/core-dashboard.tsx",
-      "total": 13,
-      "tokens": {
-        "v15": 3,
-        "v17": 2,
-        "v18": 4,
-        "v19": 1,
-        "v20": 2,
-        "v21": 1
-      },
-      "sources": {
-        "content": 13
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15239,39 +15420,14 @@
     },
     {
       "path": "src/components/landing/landing-content.ts",
-      "total": 12,
+      "total": 9,
       "tokens": {
-        "v10": 5,
-        "v9": 7
+        "v10": 3,
+        "v14": 1,
+        "v9": 5
       },
       "sources": {
-        "content": 12
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/landing/landing-json-ld.tsx",
-      "total": 3,
-      "tokens": {
-        "v3": 1,
-        "v4": 2
-      },
-      "sources": {
-        "content": 3
+        "content": 9
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15291,67 +15447,22 @@
     },
     {
       "path": "src/components/landing/landing-page.tsx",
-      "total": 17,
+      "total": 39,
       "tokens": {
-        "v10": 3,
+        "v10": 1,
         "v11": 5,
         "v12": 3,
+        "v13": 9,
+        "v14": 5,
+        "v15": 6,
+        "v16": 2,
+        "v17": 3,
         "v2": 1,
         "v3": 1,
-        "v9": 4
+        "v9": 3
       },
       "sources": {
-        "content": 17
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/landing/landing-page.ui.test.tsx",
-      "total": 2,
-      "tokens": {
-        "v9": 2
-      },
-      "sources": {
-        "content": 2
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/landing/marketing-site-chrome.tsx",
-      "total": 1,
-      "tokens": {
-        "v9": 1
-      },
-      "sources": {
-        "content": 1
+        "content": 39
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15371,13 +15482,12 @@
     },
     {
       "path": "src/components/landing/product-anchor-nav.tsx",
-      "total": 3,
+      "total": 2,
       "tokens": {
-        "v6": 2,
-        "v7": 1
+        "v6": 2
       },
       "sources": {
-        "content": 3
+        "content": 2
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15422,40 +15532,13 @@
     },
     {
       "path": "src/components/landing/product-mocks.tsx",
-      "total": 5,
+      "total": 3,
       "tokens": {
-        "v6": 3,
+        "v6": 1,
         "v7": 2
       },
       "sources": {
-        "content": 5
-      },
-      "surfaceClass": "components",
-      "owner": "frontend-platform",
-      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-      "removalStrategy": "local_rename_with_reference_update",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "components",
-        "reviewedOn": "2026-05-23",
-        "owner": "frontend-platform",
-        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
-        "removalStrategy": "local_rename_with_reference_update",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/landing/product-sections-data.ts",
-      "total": 10,
-      "tokens": {
-        "v5": 1,
-        "v6": 5,
-        "v7": 4
-      },
-      "sources": {
-        "content": 10
+        "content": 3
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15475,12 +15558,14 @@
     },
     {
       "path": "src/components/layout/command-palette-helpers.ts",
-      "total": 2,
+      "total": 6,
       "tokens": {
+        "v1": 1,
+        "v2": 3,
         "v5": 2
       },
       "sources": {
-        "content": 2
+        "content": 6
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15627,14 +15712,13 @@
     },
     {
       "path": "src/components/layout/sidebar-model.test.ts",
-      "total": 12,
+      "total": 11,
       "tokens": {
-        "v11": 1,
         "v5": 4,
         "v6": 7
       },
       "sources": {
-        "content": 12
+        "content": 11
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -15803,6 +15887,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/components/search/search-field.tsx",
+      "total": 3,
+      "tokens": {
+        "v2": 3
+      },
+      "sources": {
+        "content": 3
+      },
+      "surfaceClass": "components",
+      "owner": "frontend-platform",
+      "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
+      "removalStrategy": "local_rename_with_reference_update",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "components",
+        "reviewedOn": "2026-05-23",
+        "owner": "frontend-platform",
+        "reason": "Component and UI test naming debt is source-owned unless referenced by public selectors or generated evidence.",
+        "removalStrategy": "local_rename_with_reference_update",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/components/settings/billing-stripe-surface.test.ts",
       "total": 1,
       "tokens": {
@@ -15829,14 +15938,14 @@
     },
     {
       "path": "src/components/settings/security-settings-panel.tsx",
-      "total": 51,
+      "total": 44,
       "tokens": {
-        "v2": 35,
+        "v2": 33,
         "v3": 1,
-        "v4": 15
+        "v4": 10
       },
       "sources": {
-        "content": 51
+        "content": 44
       },
       "surfaceClass": "components",
       "owner": "frontend-platform",
@@ -17061,12 +17170,12 @@
     },
     {
       "path": "src/lib/assurance/org-settings.test.ts",
-      "total": 9,
+      "total": 11,
       "tokens": {
-        "v6": 9
+        "v6": 11
       },
       "sources": {
-        "content": 9
+        "content": 11
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -18343,56 +18452,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/contract-table-a11y-responsive.test.ts",
-      "total": 1,
-      "tokens": {
-        "v9": 1
-      },
-      "sources": {
-        "content": 1
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/contracts-import-release-state.test.ts",
-      "total": 2,
-      "tokens": {
-        "v23": 2
-      },
-      "sources": {
-        "content": 2
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/contracts-lifecycle-surface.test.ts",
       "total": 2,
       "tokens": {
@@ -18447,31 +18506,6 @@
       "total": 2,
       "tokens": {
         "v9": 2
-      },
-      "sources": {
-        "content": 2
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/contracts-upload-release-state.test.ts",
-      "total": 2,
-      "tokens": {
-        "v23": 2
       },
       "sources": {
         "content": 2
@@ -18819,12 +18853,12 @@
     },
     {
       "path": "src/lib/dashboard/core-dashboard-model.test.ts",
-      "total": 7,
+      "total": 9,
       "tokens": {
-        "v10": 7
+        "v10": 9
       },
       "sources": {
-        "content": 7
+        "content": 9
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -18844,12 +18878,12 @@
     },
     {
       "path": "src/lib/dashboard/core-dashboard-model.ts",
-      "total": 8,
+      "total": 9,
       "tokens": {
-        "v10": 8
+        "v10": 9
       },
       "sources": {
-        "content": 8
+        "content": 9
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -21568,31 +21602,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/marketing/home-metadata.test.ts",
-      "total": 1,
-      "tokens": {
-        "v1": 1
-      },
-      "sources": {
-        "content": 1
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/marketing/og-twitter-surface.test.ts",
       "total": 2,
       "tokens": {
@@ -21601,31 +21610,6 @@
       },
       "sources": {
         "content": 2
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/marketing/pricing-contract.test.ts",
-      "total": 3,
-      "tokens": {
-        "v10": 3
-      },
-      "sources": {
-        "content": 3
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -21701,39 +21685,6 @@
       },
       "sources": {
         "content": 1
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/marketing/voice-sweep.test.ts",
-      "total": 83,
-      "tokens": {
-        "v10": 13,
-        "v2": 8,
-        "v3": 1,
-        "v4": 5,
-        "v5": 3,
-        "v6": 4,
-        "v7": 17,
-        "v8": 6,
-        "v9": 26
-      },
-      "sources": {
-        "content": 83
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -22003,13 +21954,14 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "total": 47,
+      "total": 48,
       "tokens": {
+        "v2": 1,
         "v5": 32,
         "v6": 15
       },
       "sources": {
-        "content": 47
+        "content": 48
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -22331,12 +22283,12 @@
     },
     {
       "path": "src/lib/objective-telemetry.test.ts",
-      "total": 71,
+      "total": 90,
       "tokens": {
-        "v10": 71
+        "v10": 90
       },
       "sources": {
-        "content": 71
+        "content": 90
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -22977,6 +22929,58 @@
       },
       "sources": {
         "content": 311
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/operational-feature-flags.ts",
+      "total": 66,
+      "tokens": {
+        "v3": 24,
+        "v5": 19,
+        "v6": 23
+      },
+      "sources": {
+        "content": 66
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/operational-notifications-messaging.ts",
+      "total": 2,
+      "tokens": {
+        "v4": 2
+      },
+      "sources": {
+        "content": 2
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -24790,13 +24794,14 @@
     },
     {
       "path": "src/lib/product-surface/resolver.ts",
-      "total": 7,
+      "total": 8,
       "tokens": {
+        "v2": 1,
         "v5": 4,
         "v6": 3
       },
       "sources": {
-        "content": 7
+        "content": 8
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -25349,13 +25354,13 @@
     },
     {
       "path": "src/lib/product-telemetry.ts",
-      "total": 107,
+      "total": 126,
       "tokens": {
-        "v10": 51,
+        "v10": 70,
         "v9": 56
       },
       "sources": {
-        "content": 107
+        "content": 126
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -25729,12 +25734,12 @@
     },
     {
       "path": "src/lib/read-model-refresh.test.ts",
-      "total": 189,
+      "total": 204,
       "tokens": {
-        "v10": 189
+        "v10": 204
       },
       "sources": {
-        "content": 189
+        "content": 204
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -25754,12 +25759,12 @@
     },
     {
       "path": "src/lib/read-model-refresh.ts",
-      "total": 208,
+      "total": 222,
       "tokens": {
-        "v10": 208
+        "v10": 222
       },
       "sources": {
-        "content": 208
+        "content": 222
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -26056,6 +26061,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/lib/release-state-analytics.ts",
+      "total": 34,
+      "tokens": {
+        "v10": 34
+      },
+      "sources": {
+        "content": 34
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/lib/reliability-states-27-2.test.ts",
       "total": 4,
       "tokens": {
@@ -26113,31 +26143,6 @@
       },
       "sources": {
         "content": 17
-      },
-      "surfaceClass": "app_libraries",
-      "owner": "platform-hardening",
-      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-      "removalStrategy": "local_rename_or_symbol_alias",
-      "manualOnly": false,
-      "validationCommand": "npm run check:versioned-naming",
-      "governance": {
-        "surface": "app_libraries",
-        "reviewedOn": "2026-05-23",
-        "owner": "platform-hardening",
-        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
-        "removalStrategy": "local_rename_or_symbol_alias",
-        "manualOnly": false
-      },
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/renewals-surface.test.ts",
-      "total": 1,
-      "tokens": {
-        "v23": 1
-      },
-      "sources": {
-        "content": 1
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -26791,13 +26796,88 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/security/audit-write.ts",
+      "path": "src/lib/security/audit-event-policy.test.ts",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/audit-event-policy.ts",
       "total": 3,
       "tokens": {
         "v10": 3
       },
       "sources": {
         "content": 3
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/audit-write.test.ts",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/audit-write.ts",
+      "total": 9,
+      "tokens": {
+        "v10": 9
+      },
+      "sources": {
+        "content": 9
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -26841,10 +26921,135 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/lib/security/data-lifecycle.ts",
+      "total": 8,
+      "tokens": {
+        "v10": 8
+      },
+      "sources": {
+        "content": 8
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/dsar-fixtures.ts",
+      "total": 3,
+      "tokens": {
+        "v10": 3
+      },
+      "sources": {
+        "content": 3
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/privacy-inventory.test.ts",
+      "total": 1,
+      "tokens": {
+        "v10": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/privacy-inventory.ts",
+      "total": 2,
+      "tokens": {
+        "v10": 2
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/lib/security/read-json-body-limited.ts",
       "total": 1,
       "tokens": {
         "v5": 1
+      },
+      "sources": {
+        "content": 1
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/security/safe-fetch.test.ts",
+      "total": 1,
+      "tokens": {
+        "v1": 1
       },
       "sources": {
         "content": 1
@@ -27018,6 +27223,31 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/lib/security/webhook-callback-fixtures.ts",
+      "total": 9,
+      "tokens": {
+        "v1": 9
+      },
+      "sources": {
+        "content": 9
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/lib/semantics.test.ts",
       "total": 30,
       "tokens": {
@@ -27120,14 +27350,14 @@
     },
     {
       "path": "src/lib/settings/spec-strings.ts",
-      "total": 60,
+      "total": 59,
       "tokens": {
-        "v2": 25,
+        "v2": 21,
         "v3": 31,
-        "v4": 4
+        "v4": 7
       },
       "sources": {
-        "content": 60
+        "content": 59
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -27599,6 +27829,56 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/lib/supabase/org-scoped-admin.test.ts",
+      "total": 4,
+      "tokens": {
+        "v6": 4
+      },
+      "sources": {
+        "content": 4
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/lib/supabase/org-scoped-admin.ts",
+      "total": 2,
+      "tokens": {
+        "v6": 2
+      },
+      "sources": {
+        "content": 2
+      },
+      "surfaceClass": "app_libraries",
+      "owner": "platform-hardening",
+      "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+      "removalStrategy": "local_rename_or_symbol_alias",
+      "manualOnly": false,
+      "validationCommand": "npm run check:versioned-naming",
+      "governance": {
+        "surface": "app_libraries",
+        "reviewedOn": "2026-05-23",
+        "owner": "platform-hardening",
+        "reason": "Internal library naming debt can be removed by reviewed local renames, symbol aliases, or standards allowlists.",
+        "removalStrategy": "local_rename_or_symbol_alias",
+        "manualOnly": false
+      },
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/lib/supabase/server.ts",
       "total": 3,
       "tokens": {
@@ -27751,12 +28031,12 @@
     },
     {
       "path": "src/lib/ui-state-contracts.test.ts",
-      "total": 47,
+      "total": 46,
       "tokens": {
-        "v10": 47
+        "v10": 46
       },
       "sources": {
-        "content": 47
+        "content": 46
       },
       "surfaceClass": "app_libraries",
       "owner": "platform-hardening",
@@ -29629,12 +29909,12 @@
     },
     {
       "path": "supabase/migrations/089_sql_neutral_table_view_aliases.sql",
-      "total": 33,
+      "total": 35,
       "tokens": {
-        "v10": 33
+        "v10": 35
       },
       "sources": {
-        "content": 33
+        "content": 35
       },
       "surfaceClass": "database_migrations",
       "owner": "database-platform",

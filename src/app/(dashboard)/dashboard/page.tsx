@@ -1,5 +1,4 @@
 import { CoreDashboard } from "@/components/dashboard/core-dashboard";
-import { CursorGlow } from "@/components/dashboard/cursor-glow";
 import { DashboardKeyboardShortcuts } from "@/components/dashboard/dashboard-keyboard-shortcuts";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { loadCoreDashboardModel } from "@/lib/dashboard/core-dashboard-model";
@@ -35,7 +34,6 @@ export default async function DashboardPage(props: { searchParams: Promise<{ vie
     <>
       <CoreDashboard model={model} />
       <DashboardKeyboardShortcuts />
-      <CursorGlow />
     </>
   );
 }

@@ -186,7 +186,7 @@ describe("V10 command palette contract ranking", () => {
         record_type: "work_item",
         description_safe: "approval · open",
       })
-    ).toBe("Continue work");
+    ).toBe("Continue task");
     expect(
       v10CommandActionLabel({
         record_type: "import_job",
@@ -204,7 +204,7 @@ describe("V10 command palette contract ranking", () => {
         record_type: "field",
         description_safe: "field · missing · msa",
       })
-    ).toBe("Review field");
+    ).toBe("Confirm detail");
     expect(
       v10CommandActionLabel({
         record_type: "reminder",
@@ -228,7 +228,7 @@ describe("V10 command palette contract ranking", () => {
         record_type: "exception",
         description_safe: "Exception · high · open",
       })
-    ).toBe("Triage exception");
+    ).toBe("Review issue");
     expect(
       v10CommandActionLabel({
         record_type: "report_family",
@@ -264,7 +264,7 @@ describe("V10 command palette contract ranking", () => {
         record_type: "extraction_job",
         description_safe: "extraction · failed_retryable",
       })
-    ).toBe("Review extraction");
+    ).toBe("Review suggestions");
     expect(
       v10CommandActionLabel({
         record_type: "notification_delivery",
@@ -473,7 +473,8 @@ describe("V10 command palette contract ranking", () => {
       message: expect.stringContaining("No command result matched"),
       diagnosticId: "v10_command_zero_result",
       actions: expect.arrayContaining([
-        { label: "Review work queue", href: "/work", reason: "zero_result" },
+        { label: "Review task queue", href: "/work", reason: "zero_result" },
+        { label: "Browse contracts", href: "/contracts", reason: "zero_result" },
         { label: "Review reports", href: "/reports", reason: "zero_result" },
         { label: "Check system health", href: "/settings/health", reason: "zero_result" },
         { label: "Open settings", href: "/settings", reason: "zero_result" },

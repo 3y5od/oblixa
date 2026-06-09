@@ -117,7 +117,7 @@ export function OnboardingBanner({
       actionLabel: stepSetup ? "Review workspace setup" : "Complete workspace calibration",
       detail: stepSetup
         ? "Workspace calibration is on file. Revisit the setup flow if your contract tracking needs have changed."
-        : "Complete the workspace calibration so Oblixa can focus on the renewals, owners, obligations, evidence, and reports that matter most.",
+        : "Complete the workspace calibration so Oblixa can focus on the renewals, owners, requirements, evidence, and reports that matter most.",
       el: (
         <span>
           {stepSetup ? (
@@ -154,7 +154,7 @@ export function OnboardingBanner({
           : "A recent import finished with inserted rows. Browse Contracts if the list has not refreshed yet."
         : stats.importJobProcessing
           ? "A CSV import is still running. Contracts appear as rows are inserted; use Bulk import to monitor or retry if something fails."
-          : "Add at least one signed agreement so extraction and review can begin.",
+          : "Add at least one signed agreement so Oblixa can suggest contract details for confirmation.",
       el:
         stats.importJobProcessing && !stepUpload ? (
           <span>
@@ -184,20 +184,19 @@ export function OnboardingBanner({
     review: {
       done: stepReview,
       href: "/contracts/review",
-      actionLabel: stepReview ? "Resume review" : "Review extracted fields",
+      actionLabel: stepReview ? "Resume review" : "Review details",
       detail: stepReview
-        ? "Extraction has produced reviewable data for this workspace."
+        ? "Suggested contract details are ready for confirmation in this workspace."
         : stats.hasExtractions && stats.pendingReviewCount > 0
-          ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need review attention before this step is complete.`
-          : "Run extraction, then confirm fields with source-backed review.",
+          ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need detail confirmation before this step is complete.`
+          : "Upload a contract, then confirm suggested details with source-backed review.",
       el: (
         <span>
-          Run <strong className="font-semibold text-[var(--text-primary)]">Extract fields with AI</strong>
-          , then use the{" "}
+          Let Oblixa suggest contract details, then use the{" "}
           <Link href="/contracts/review" className="ui-link">
             review queue
           </Link>{" "}
-          — source citations are required before approval.
+          to check the source text before those details drive reminders or reports.
         </span>
       ),
     },
@@ -221,13 +220,13 @@ export function OnboardingBanner({
     approve: {
       done: stepApprove,
       href: "/contracts/review",
-      actionLabel: stepApprove ? "Review dashboard" : "Approve key operational dates",
+      actionLabel: stepApprove ? "Review dashboard" : "Confirm key operational dates",
       detail: stepApprove
         ? `${stats.approvedOperationalDates} approved operational date${stats.approvedOperationalDates === 1 ? "" : "s"} now drive reminders and reporting.`
-        : "Approve at least one key date so reminders, renewals, and reports can trust the record.",
+        : "Confirm at least one key date so reminders, renewals, and reports can trust the record.",
       el: (
         <span>
-          Approve at least one operational date so{" "}
+          Confirm at least one operational date so{" "}
           <Link href="/dashboard" className="ui-link">
             reminders and reporting
           </Link>{" "}
@@ -248,7 +247,7 @@ export function OnboardingBanner({
         ? stats.visibleWorkItems > 0
           ? `${stats.visibleWorkItems} visible work item${stats.visibleWorkItems === 1 ? "" : "s"} can now be worked from the shared queue.`
           : `${stats.renewalAttention} renewal item${stats.renewalAttention === 1 ? "" : "s"} already ${stats.renewalAttention === 1 ? "needs" : "need"} attention in the active horizon.`
-        : "Finish review and key approvals so assigned work, reminders, or renewal follow-up have something actionable to drive.",
+        : "Finish detail confirmation and key approvals so tasks, reminders, or renewal follow-up have something actionable to drive.",
       el: (
         <span>
           Use the{" "}
@@ -258,7 +257,7 @@ export function OnboardingBanner({
           >
             {stats.visibleWorkItems > 0 ? "assigned work lens" : "renewals queue"}
           </Link>{" "}
-          once approvals and generated work are ready to execute.
+          once approvals and generated tasks are ready to execute.
         </span>
       ),
     },
@@ -285,10 +284,10 @@ export function OnboardingBanner({
     !stepReview && stats.failedExtractionContractId
       ? {
           href: `/contracts/${stats.failedExtractionContractId}`,
-          actionLabel: "Recover failed extraction",
+          actionLabel: "Recover failed suggestions",
           detail:
             stats.failedExtractionIssue ||
-            "Extraction failed on a recent contract. Re-open it and retry from the latest error state.",
+            "Suggestions failed on a recent contract. Re-open it and retry from the latest error state.",
         }
       : stats.recoverableImportIssue
         ? {
@@ -310,9 +309,9 @@ export function OnboardingBanner({
   const summary = recoveryRow
     ? recoveryRow.detail
     : isLateStage
-      ? "You already have source-backed data flowing. Finish the remaining activation steps so reminders, renewals, and work queues can trust this workspace."
+      ? "You already have source-backed data flowing. Finish the remaining activation steps so reminders, renewals, and task queues can trust this workspace."
       : stats.hasExtractions && stats.pendingReviewCount > 0 && !stepReview
-        ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need review attention before the workspace can trust extracted dates and generated work.`
+        ? `${stats.pendingReviewCount} contract${stats.pendingReviewCount === 1 ? "" : "s"} still need detail confirmation before the workspace can trust suggested dates and generated tasks.`
       : nextRow.detail;
 
   return (
@@ -365,7 +364,7 @@ export function OnboardingBanner({
               <Link href="/work?lens=assigned" className="ui-link">
                 assigned work lens
               </Link>{" "}
-              for tasks, approvals, and obligations in one place.
+              for tasks, approvals, and contract requirements in one place.
             </p>
           ) : null}
           {error && <p className="mt-3 text-xs font-medium text-[var(--danger-ink)]">{error}</p>}

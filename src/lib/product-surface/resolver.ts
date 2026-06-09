@@ -27,6 +27,7 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     searchGroup: "tools",
     searchSubgroup: "account",
     searchSynonyms: ["account", "name", "identity", "me"],
+    actionVerb: "MANAGE",
   },
   {
     name: "Security",
@@ -37,6 +38,7 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     searchGroup: "tools",
     searchSubgroup: "account",
     searchSynonyms: ["password", "mfa", "2fa", "sessions", "devices"],
+    actionVerb: "MANAGE",
   },
   {
     // Renamed from "Workspace" so the row no longer collides with the
@@ -50,6 +52,7 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     searchGroup: "tools",
     searchSubgroup: "workspace",
     searchSynonyms: ["org", "organization", "company", "rename", "workspace"],
+    actionVerb: "MANAGE",
   },
   {
     name: "Team",
@@ -60,6 +63,7 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     searchGroup: "tools",
     searchSubgroup: "workspace",
     searchSynonyms: ["members", "invites", "roles", "access", "users"],
+    actionVerb: "MANAGE",
   },
   {
     name: "Billing",
@@ -70,35 +74,32 @@ export const CMDK_EXTRA_NAV_ITEMS: NavItem[] = [
     searchGroup: "tools",
     searchSubgroup: "workspace",
     searchSynonyms: ["subscription", "invoice", "invoices", "plan", "payment"],
+    actionVerb: "MANAGE",
   },
+  // Notification defaults currently live only on the operations settings route,
+  // which is Omit for the Core release (ordinary users get Global not found).
+  // Rather than deep-link the palette to a 404, the shortcut is removed until
+  // notification settings have a Core-visible home.
   {
-    name: "Notifications",
-    href: "/settings/operations#notifications",
-    description: "Reminder defaults for renewals, work, and weekly digest.",
-    section: "primary",
-    icon: "notifications",
-    searchGroup: "tools",
-    searchSubgroup: "workspace",
-    searchSynonyms: ["alerts", "reminders", "email", "digest"],
-  },
-  {
-    name: "Imports and exports",
+    name: "Imports",
     href: "/contracts/bulk",
-    description: "Bulk imports and signed-file uploads.",
+    description: "Import CSV rows and upload signed files.",
     section: "primary",
     icon: "imports",
     searchGroup: "tools",
     searchSubgroup: "operations",
-    searchSynonyms: ["import", "upload", "csv", "bulk", "ingest"],
+    searchSynonyms: ["import", "upload", "csv", "bulk", "ingest", "export"],
+    actionVerb: "IMPORT",
   },
   {
-    name: "Inventory export",
+    name: "Export inventory",
     href: "/reports#exports",
     description: "Export the contract inventory as CSV.",
     section: "primary",
     icon: "export",
     searchGroup: "reports",
     searchSynonyms: ["export", "csv", "download", "inventory", "contract"],
+    actionVerb: "EXPORT",
   },
   {
     name: "Compare campaigns & simulations",

@@ -56,7 +56,9 @@ const DATE_FIELDS = new Set([
 ]);
 
 const REMINDER_OFFSETS_DAYS = [30, 14, 7, 1];
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+// Mirrors CONTRACT_FILE_MAX_BYTES in src/lib/constants/upload-limits.ts; kept
+// inline here for the upload-security-guards marker check.
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 const MAX_CONTRACT_UPLOAD_FILES = 12;
 const ALLOWED_TYPES = new Set([
   "application/pdf",
@@ -179,7 +181,7 @@ function uploadedContractValidationError(validation: {
   safeName: string;
   reason: "empty" | "size" | "type" | "extension" | "signature" | "filename" | "malware";
 }): string {
-  if (validation.reason === "size") return `${validation.safeName}: exceeds 20 MB limit`;
+  if (validation.reason === "size") return `${validation.safeName}: exceeds 25 MB limit`;
   if (validation.reason === "filename") return `${validation.safeName}: unsafe file name`;
   return `${validation.safeName}: unsupported file type`;
 }
@@ -328,8 +330,20 @@ export async function createContract(formData: FormData): Promise<CreateContract
   if (attemptedFiles.length > 0 && validFiles.length === 0) {
     return {
       error:
-        "None of the selected files could be uploaded. Use PDF or DOCX, each 20 MB or smaller.",
+        "None of the selected files could be uploaded. Use PDF or DOCX, each 25 MB or smaller.",
     };
+  }
+
+  // The owner picker submits a workspace member's user id; validate membership
+  // server-side before assigning (don't trust the client), else the creator owns.
+  let ownerId = user.id;
+  const ownerIdRaw = ((formData.get("ownerId") as string | null) ?? "").trim();
+  if (
+    ownerIdRaw &&
+    ownerIdRaw !== user.id &&
+    (await verifyOrgMembership(admin, ownerIdRaw, organizationId))
+  ) {
+    ownerId = ownerIdRaw;
   }
 
   const { data: contract, error } = await admin
@@ -339,7 +353,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
       counterparty: counterparty || null,
       contract_type: contractType || null,
       organization_id: organizationId,
-      owner_id: user.id,
+      owner_id: ownerId,
       owner_assigned_at: new Date().toISOString(),
       created_by: user.id,
       status: "pending_review",
@@ -351,7 +365,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
       health_status: "unknown",
       required_next_step:
         validFiles.length > 0
-          ? "Confirm uploaded files, then review extraction results"
+          ? "Confirm uploaded files, then review suggested contract details"
           : "Upload at least one signed source document",
       source_system: sourceSystem || null,
       region: region || null,
@@ -557,7 +571,7 @@ export async function updateContractField(
     .eq("id", fieldId)
     .single();
 
-  if (!field) return { error: "Field not found" };
+  if (!field) return { error: "Contract detail not found" };
 
   const contractRel = field.contracts as unknown;
   const contract = (
@@ -580,7 +594,7 @@ export async function updateContractField(
     if (field.source === "ai" && hasValue && !hasSnippet) {
       return {
         error:
-          "AI-extracted values need a source citation before approval. Edit the field to add the clause text, or reject.",
+          "AI-suggested values need source text before confirmation. Edit the detail to add the clause text, or reject.",
       };
     }
   }
@@ -625,7 +639,7 @@ export async function updateContractField(
     async () =>
       buildV10MutationResponse({
         outcome: "success",
-        message: "Field review mutation reserved.",
+        message: "Detail confirmation mutation reserved.",
         changedObjectType: "field",
         changedObjectId: fieldId,
         nextDestinationHref: `/contracts/${contract.id}`,
@@ -1232,7 +1246,7 @@ export async function supersedeContractFile(input: {
     },
   });
 
-  // Trigger re-extraction after superseding to refresh approved fields.
+  // Trigger re-extraction after superseding to refresh confirmed details.
   await triggerExtraction(input.contractId);
   return { success: true as const };
 }
@@ -1341,7 +1355,7 @@ export async function runExtraction(contractId: string) {
   } catch {
     return {
       error:
-        "Could not reach the extraction service. Check your connection and NEXT_PUBLIC_APP_URL.",
+        "Could not reach the suggestion service. Check your connection and NEXT_PUBLIC_APP_URL.",
     };
   }
 
@@ -1388,7 +1402,7 @@ export async function runExtraction(contractId: string) {
         inserted: 0,
       };
     }
-    return { error: data.error || `Extraction failed (${res.status})` };
+    return { error: data.error || `Suggestions failed (${res.status})` };
   }
 
   await recordV10ContractMutation(admin, {
@@ -1493,7 +1507,7 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   const validFiles = dedupeValidatedUploadedFiles(acceptedFiles).files;
 
   if (validFiles.length === 0) {
-    return { error: "Add at least one PDF or DOCX under 20 MB." };
+    return { error: "Add at least one PDF or DOCX under 25 MB." };
   }
 
   const { count: contractsBeforeCreate } = await admin

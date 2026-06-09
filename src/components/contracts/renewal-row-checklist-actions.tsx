@@ -49,7 +49,7 @@ export function RenewalRowChecklistActions(props: Props) {
         return;
       }
       setTone("success");
-      setMessage("Checklist seeded. Work items may appear for pending checkpoints.");
+      setMessage("Checklist seeded. Tasks may appear for pending checkpoints.");
       scheduleRefresh();
     });
   }

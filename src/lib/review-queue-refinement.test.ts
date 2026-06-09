@@ -14,15 +14,16 @@ const reviewPage = () =>
 const loadingPage = () =>
   readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/review/loading.tsx"), "utf8");
 
-describe("field review release-state workspace", () => {
+describe("review queue release-state workspace", () => {
   it("uses the release-state page identity and empty state", () => {
     const raw = reviewPage();
 
-    expect(FIELD_REVIEW_TITLE).toBe("Review fields");
-    expect(FIELD_REVIEW_EMPTY_STATE).toBe("No fields need review.");
+    expect(FIELD_REVIEW_TITLE).toBe("Contract Review Queue");
+    expect(FIELD_REVIEW_EMPTY_STATE).toBe("No details need confirmation.");
     expect(raw).toContain("export const metadata = { title: FIELD_REVIEW_TITLE }");
     expect(raw).toContain("{FIELD_REVIEW_TITLE}");
     expect(raw).toContain("{FIELD_REVIEW_EYEBROW}");
+    expect(raw).toContain("Review suggested contract dates, owners, and terms against source text");
     expect(raw).toContain("Back to contracts");
     expect(raw).toContain("FIELD_REVIEW_EMPTY_STATE");
   });
@@ -33,16 +34,27 @@ describe("field review release-state workspace", () => {
       join(process.cwd(), "src/components/contracts/field-review-workspace-actions.tsx"),
       "utf8"
     );
+    // The workbench markup lives in the review component family (the page is a
+    // thin orchestrator); scan the panes for the required content labels.
+    const componentRaw = [
+      "review-control-bar.tsx",
+      "review-decision-pane.tsx",
+      "review-evidence-rail.tsx",
+      "review-queue-rail.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), "src/components/contracts/review", file), "utf8"))
+      .join("\n");
+    const surface = `${raw}\n${componentRaw}`;
 
     for (const label of FIELD_REVIEW_REQUIRED_CONTENT) {
-      expect(raw).toContain(label);
+      expect(surface).toContain(label);
     }
     for (const label of FIELD_REVIEW_ACTIONS) {
-      expect(`${raw}\n${actionRaw}`).toContain(label);
+      expect(`${surface}\n${actionRaw}`).toContain(label);
     }
   });
 
-  it("uses the field-review model instead of table-first queue structure", () => {
+  it("uses the review model instead of table-first queue structure", () => {
     const raw = reviewPage();
 
     expect(raw).toContain("loadFieldReviewWorkspaceModel");
@@ -67,12 +79,14 @@ describe("field review release-state workspace", () => {
     expect(model).toContain("selectedFieldId");
   });
 
-  it("keeps loading state aligned to the field-review workspace", () => {
+  it("keeps loading state aligned to the review workspace", () => {
     const raw = loadingPage();
 
-    expect(raw).toContain("Loading review fields");
+    expect(raw).toContain("Loading details to confirm");
     expect(raw).toContain("ui-card");
-    expect(raw).toContain("lg:grid-cols-[minmax(0,0.94fr)_minmax(22rem,0.74fr)]");
+    // The review workspace is a three-pane shell (queue rail | decision |
+    // evidence); the loading skeleton mirrors its grid template (16rem rail).
+    expect(raw).toContain("lg:grid-cols-[20rem_minmax(0,1fr)_22rem]");
     expect(raw).not.toContain("Loading review queue");
     expect(raw).not.toContain("xl:grid-cols-4");
   });

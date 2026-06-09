@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AsyncActionButton } from "@/components/ui/async-action-button";
+import { UiSelect } from "@/components/ui/ui-select";
 import { InlineMutationStatus } from "@/components/ui/inline-mutation-status";
 import { fetchJson, mutateJson } from "@/lib/http/client-json";
 
@@ -64,18 +65,18 @@ export function ControlPolicyRemediationPlaybookPanel(props: {
         Linked playbooks appear on new policy breach findings as the recommended intervention.
       </p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <select
-          className="ui-input-compact w-full sm:max-w-md"
+        <UiSelect
           value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-        >
-          <option value="">None</option>
-          {playbooks.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+          onChange={setSelected}
+          ariaLabel="Remediation playbook"
+          placeholder="None"
+          options={playbooks.map((p) => ({ value: p.id, label: p.name }))}
+          variant="compact"
+          portal
+          searchThreshold={8}
+          className="w-full sm:max-w-md"
+          buttonClassName="w-full"
+        />
         <AsyncActionButton
           type="button"
           className="rounded-lg bg-[var(--text-primary)] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"

@@ -220,7 +220,7 @@ describe("POST /api/extract", () => {
     startExtractionJob.mockResolvedValue({
       ok: false,
       status: 409,
-      error: "Extraction already in progress",
+      error: "Suggestions already in progress",
     });
     createClient.mockResolvedValue({
       auth: {
@@ -297,7 +297,7 @@ describe("POST /api/extract", () => {
     expect(body).toMatchObject({
       accepted: true,
       async: true,
-      message: "Extraction already in progress",
+      message: "Suggestions already in progress",
     });
     expect(startExtractionJob).toHaveBeenCalledTimes(1);
     expect(finishExtractionJob).not.toHaveBeenCalled();
