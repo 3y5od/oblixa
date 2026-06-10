@@ -21,26 +21,26 @@ const siteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
 export const metadata: Metadata = {
   metadataBase: new URL(getAppBaseUrlFromEnv()),
   title: {
-    default: "Oblixa — Track renewals, obligations, and owners from signed contracts",
+    default: "Oblixa — Track what signed contracts require next",
     template: "%s — Oblixa",
   },
   description:
-    "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
+    "Oblixa tracks what signed contracts require next with reviewed dates, owners, requirements, evidence, problems, tasks, and reports.",
   applicationName: "Oblixa",
   openGraph: {
     type: "website",
     siteName: "Oblixa",
     locale: "en_US",
-    title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
+    title: "Oblixa — Track what signed contracts require next",
     description:
-      "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Contract tracking workspace for renewals, owners, obligations, evidence, and reports" }],
+      "Oblixa tracks what signed contracts require next with reviewed dates, owners, requirements, evidence, problems, tasks, and reports.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oblixa — Track renewals, requirements, and owners from signed contracts" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Oblixa — Track renewals, obligations, and owners from signed contracts",
+    title: "Oblixa — Track what signed contracts require next",
     description:
-      "Oblixa tracks what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
+      "Oblixa tracks what signed contracts require next with reviewed dates, owners, requirements, evidence, problems, tasks, and reports.",
     images: ["/twitter-image"],
   },
   formatDetection: {

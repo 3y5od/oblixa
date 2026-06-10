@@ -17,7 +17,7 @@ import {
 describe("release-state program assets", () => {
   it("keeps the public promise exact and access-request oriented", () => {
     expect(RELEASE_STATE_PUBLIC_PROMISE).toBe("Track what signed contracts require next.");
-    expect(RELEASE_STATE_SUPPORTING_PROMISE).toContain("review source-backed fields");
+    expect(RELEASE_STATE_SUPPORTING_PROMISE).toContain("confirm suggested contract details");
     expect(RELEASE_STATE_PUBLIC_PAGES.some((page) => page.path === "/request-access")).toBe(true);
   });
 

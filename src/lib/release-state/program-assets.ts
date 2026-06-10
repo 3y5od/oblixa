@@ -1,7 +1,7 @@
 export const RELEASE_STATE_PUBLIC_PROMISE = "Track what signed contracts require next." as const;
 
 export const RELEASE_STATE_SUPPORTING_PROMISE =
-  "Upload agreements or import your tracker, review source-backed fields, and turn dates, owners, obligations, evidence, and exceptions into accountable work and exportable reports." as const;
+  "Upload agreements or import your tracker, confirm suggested contract details, and turn dates, owners, requirements, evidence, and problems into accountable tasks and exportable reports." as const;
 
 export const RELEASE_STATE_PUBLIC_PAGES = [
   { path: "/", purpose: "Homepage and public promise", primaryCta: "Request access" },

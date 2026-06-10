@@ -107,7 +107,7 @@ for (const [name, source] of Object.entries(publicSources)) {
 }
 
 requireContains("landingContent", files.landingContent, "Track what signed contracts require next.");
-requireContains("landingContent", files.landingContent, "review source-backed fields");
+requireContains("landingContent", files.landingContent, "confirm suggested contract details");
 requireContains("landingContent", files.landingContent, 'export const ctaPrimaryLabel = "Request access"');
 requireContains("landingPage", files.landingPage, "Track what signed contracts require next.");
 requireContains("landingPage", files.landingPage, 'href="/request-access"');

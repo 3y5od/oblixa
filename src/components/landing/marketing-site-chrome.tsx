@@ -295,7 +295,7 @@ export function MarketingSiteFooter() {
               </span>
             </Link>
             <p className="max-w-xs text-[12.5px] leading-snug text-[var(--text-secondary)]">
-              Track what signed contracts require next — reviewed dates, owners, obligations,
+              Track what signed contracts require next — reviewed dates, owners, requirements,
               evidence, and exportable reports.
             </p>
             {/* Trust signals as a quiet caps line (leading shield + hairline

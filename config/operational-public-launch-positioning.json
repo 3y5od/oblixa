@@ -95,7 +95,7 @@
       "path": "src/components/landing/landing-content.ts",
       "owner": "@product-marketing",
       "validationCommand": "audit:marketing-identity:strict",
-      "markers": ["your team reviews and approves", "source snippet"]
+      "markers": ["your team confirms the details", "source snippet"]
     },
     {
       "id": "reviewed-access-request",

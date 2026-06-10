@@ -24,7 +24,7 @@ export function LandingJsonLd() {
       url: `${base}/apple-icon`,
     },
     description:
-      "Contract tracking workspace for renewals, obligations, owners, evidence, and reports from signed agreements.",
+      "Contract tracking workspace for renewals, requirements, owners, evidence, and reports from signed agreements.",
   };
 
   const website = {
@@ -33,7 +33,7 @@ export function LandingJsonLd() {
     name: "Oblixa",
     url: base,
     description:
-      "Track what signed contracts require next with reviewed dates, owners, obligations, evidence, exceptions, work, and reports.",
+      "Track what signed contracts require next with reviewed dates, owners, requirements, evidence, problems, tasks, and reports.",
   };
 
   const faqPage = {
@@ -54,7 +54,7 @@ export function LandingJsonLd() {
     "@type": "SoftwareApplication",
     name: "Oblixa",
     description:
-      "Contract tracking workspace for renewals, obligations, owners, evidence, and reports from signed agreements.",
+      "Contract tracking workspace for renewals, requirements, owners, evidence, and reports from signed agreements.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     featureList: [...softwareFeatureList],

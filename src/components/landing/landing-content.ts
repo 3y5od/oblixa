@@ -1,13 +1,21 @@
 /** Marketing copy — single source for landing UI and JSON-LD FAQ.
  *  Aligned to the intended release state: track what signed contracts require
- *  next, with reviewed source-backed data and controlled workspace access. */
+ *  next, with reviewed source-backed data and controlled workspace access.
+ *
+ *  v18 vocabulary contract (release-state §Surface Vocabulary): user-facing
+ *  copy says contract details (not fields), requirements (not obligations),
+ *  problems (not exceptions), tasks (not work), and confirm (not approve). */
 
 export const heroEyebrow = "Contract tracking";
 
 export const heroTitle = "Track what signed contracts require next.";
 
+/* v18: aligned verbatim to the release-state primary subheadline
+   (docs/oblixa-release-state.md §Release Posture). The prior wording used
+   internal vocabulary (fields/obligations/exceptions/work) that the spec
+   translates for user-facing copy; the audit pin moved with it. */
 export const heroSubcopy =
-  "Upload agreements or import your tracker, review source-backed fields, and turn dates, owners, obligations, evidence, and exceptions into accountable work and exportable reports.";
+  "Upload agreements or import your tracker, confirm suggested contract details, and turn dates, owners, requirements, evidence, and problems into accountable tasks and exportable reports.";
 
 export const ctaPrimaryLabel = "Request access";
 export const ctaSecondaryLabel = "View product tour";
@@ -17,7 +25,7 @@ export const riskReducerLine =
   "Reviewed workspace access for teams tracking signed contracts in spreadsheets, folders, inboxes, calendars, or memory.";
 
 export const antiGoalSummary =
-  "Oblixa is not a full CLM, legal-advice tool, or autonomous agent. It tracks renewals, obligations, owners, evidence, and reports from agreements you have already signed.";
+  "Oblixa is not a full CLM, legal-advice tool, or autonomous agent. It tracks renewals, requirements, owners, evidence, and reports from agreements you have already signed.";
 
 export const objectionBullets = [
   {
@@ -29,18 +37,21 @@ export const objectionBullets = [
     body: "Start with a small contract set or your existing spreadsheet — no months-long implementation, no redlining workflow you do not need.",
   },
   {
-    title: "Suggested fields need human review",
-    body: "Suggested fields stay tied to source snippets until your team approves what drives reminders, work, and reports.",
+    title: "Suggested details need human review",
+    body: "Suggested contract details stay tied to source snippets until your team confirms what drives reminders, tasks, and reports.",
   },
 ] as const;
 
-/* FAQ — restored to release-state spec §Home Page > FAQ (8 questions verbatim)
-   after v9 reduced to 5. Spec-mandated coverage. */
+/* FAQ — release-state spec §`/` > FAQ requires coverage of: CLM boundary,
+   no legal advice, starting small, file types, AI review, AI-provider/file
+   handling, export, deletion/contact recovery, and paid continuation.
+   v18 adds the two previously missing topics (provider handling, deletion/
+   contact recovery) and sweeps vocabulary. */
 export const faqItems = [
   {
     question: "Is Oblixa a CLM?",
     answer:
-      "No. Oblixa is a tracking workspace for agreements you have already signed. It does not replace drafting, redlining, or e-signature tools — it picks up where they leave off, tracking renewals, owners, obligations, evidence, and reports.",
+      "No. Oblixa is a tracking workspace for agreements you have already signed. It does not replace drafting, redlining, or e-signature tools — it picks up where they leave off, tracking renewals, owners, requirements, evidence, and reports.",
   },
   {
     question: "Does Oblixa provide legal advice?",
@@ -55,7 +66,7 @@ export const faqItems = [
   {
     question: "Can Oblixa replace our manual tracker?",
     answer:
-      "Yes. Import your CSV, attach the signed agreements as you go, and turn renewals, owners, obligations, evidence, and exceptions into reminders, work, and reports.",
+      "Yes. Import your CSV, attach the signed agreements as you go, and turn renewals, owners, requirements, evidence, and problems into reminders, tasks, and reports.",
   },
   {
     question: "What file types are supported?",
@@ -63,14 +74,24 @@ export const faqItems = [
       "PDF and DOCX for signed agreements, plus CSV for spreadsheet imports. Files and metadata are tracked together against each contract record.",
   },
   {
-    question: "How does AI extraction work?",
+    question: "How do AI suggestions work?",
     answer:
-      "Oblixa suggests key fields such as renewal, notice, and termination dates from uploaded agreements. Each suggestion stays tied to a source snippet from the document, and your team reviews and approves the fields you are willing to operate on before reminders and reports use them.",
+      "Oblixa suggests contract details such as renewal, notice, and termination dates from uploaded agreements. Each suggestion stays tied to a source snippet from the document, and your team confirms the details you are willing to operate on before reminders and reports use them.",
+  },
+  {
+    question: "Are uploaded files shared with an AI provider?",
+    answer:
+      "Uploaded files or extracted text may be sent to an AI provider to suggest contract details and locate source snippets. Files stay workspace-scoped, and suggestions are not trusted until someone on your team confirms them. The privacy page describes data handling in more detail.",
   },
   {
     question: "Can I export my data?",
     answer:
       "Yes. Export operational reports and contract records as CSV at any time so you are never locked in.",
+  },
+  {
+    question: "How do I delete my data or get help?",
+    answer:
+      "Workspace admins can export contract records and request deletion of workspace data. For deletion requests, account recovery, or anything else, the contact page reaches the team asynchronously.",
   },
   {
     question: "What happens after access is approved?",
@@ -79,110 +100,86 @@ export const faqItems = [
   },
 ] as const;
 
-/* Problem section — restored to release-state spec verbatim
-   (`docs/oblixa-release-state.md` §Home Page > Problem). v9 trim to 4
-   violated the spec; v10 restores all 6 bullets. */
+/* Problem section — release-state spec §`/` > Problem section. v18 aligns
+   bullet 2 with the spec's own wording ("contract requirements buried in
+   PDFs"); the prior "Obligations" phrasing predated the vocabulary contract. */
 export const problemSectionTitle =
   "Your contracts are signed. The follow-up is scattered.";
 export const problemBullets = [
   "Renewal and notice dates live in spreadsheets",
-  "Obligations are buried in PDFs",
+  "Contract requirements are buried in PDFs",
   "Owners are unclear or outdated",
   "Follow-up happens over email",
   "Evidence is hard to request and collect",
   "Reports take hours to rebuild",
 ] as const;
 
-/* Visual-density pass: each spec bullet pairs with a supporting one-liner +
-   icon name + tone so the Problem section can render substantial cards
-   rather than compact pills. The `title` matches `problemBullets` verbatim
-   (spec content unchanged); the `description` restates the same problem in
-   one supporting sentence (voice work, not new content). */
-export type ProblemTone = "warning" | "neutral" | "danger";
-export const problemCards: ReadonlyArray<{
-  title: string;
-  description: string;
-  iconName: "Calendar" | "ScrollText" | "Users" | "MailQuestion" | "FolderSearch" | "BarChart3";
-  tone: ProblemTone;
-}> = [
+/* Each spec bullet pairs with one supporting sentence. v18: rendered as an
+   editorial rule list (no icon tiles, no tone coding) — title matches
+   `problemBullets` verbatim; the description restates the same problem. */
+export const problemItems: ReadonlyArray<{ title: string; description: string }> = [
   {
     title: "Renewal and notice dates live in spreadsheets",
     description: "Spreadsheets don't remind anyone when dates approach.",
-    iconName: "Calendar",
-    tone: "warning",
   },
   {
-    title: "Obligations are buried in PDFs",
+    title: "Contract requirements are buried in PDFs",
     description: "Commitments stay where they were signed: inside the PDF.",
-    iconName: "ScrollText",
-    tone: "warning",
   },
   {
     title: "Owners are unclear or outdated",
     description: "Nobody knows whose contract this is until something breaks.",
-    iconName: "Users",
-    tone: "neutral",
   },
   {
     title: "Follow-up happens over email",
     description: "Threads scatter; outcomes are hard to reconstruct.",
-    iconName: "MailQuestion",
-    tone: "neutral",
   },
   {
     title: "Evidence is hard to request and collect",
     description: "Requests come in; teams hunt; the trail goes cold.",
-    iconName: "FolderSearch",
-    tone: "danger",
   },
   {
     title: "Reports take hours to rebuild",
     description: "Re-built from scratch every quarter, by hand.",
-    iconName: "BarChart3",
-    tone: "warning",
   },
 ] as const;
 
-/* Outcomes section — release-state spec §Home Page > Outcomes. Restored
-   in v10 after v9 deletion violated the spec. */
+/* Outcomes section — release-state spec §`/` > Outcome section. */
 export const outcomesSectionTitle =
   "Know what needs attention before it becomes a problem";
 export const outcomesBullets = [
   "See contracts that need review",
   "Catch upcoming renewal and notice dates",
-  "Assign work to the right owner",
-  "Track obligations and evidence",
+  "Assign tasks to the right owner",
+  "Track requirements and evidence",
   "Export reports without rebuilding the spreadsheet again",
 ] as const;
 
-/* Best-Fit section — release-state spec §Home Page > Best-Fit. Restored
-   in v10 after v9 deletion violated the spec. */
+/* Best-Fit section — release-state spec §`/` > Best-fit section. */
 export const bestFitSectionTitle = "Built for teams outgrowing manual contract tracking";
 export const bestFitItems = [
   "Signed contracts already exist and need operational follow-up",
   "Tracking happens in a spreadsheet, folder, email thread, calendar, or someone's memory",
-  "Owners, renewal dates, obligations, evidence, or reports are becoming unreliable",
-  "The first evaluation can start with a small contract subset, not a full migration",
+  "Owners, renewal dates, requirements, evidence, or reports are becoming unreliable",
+  "The first workspace can start with a small contract set, not a full migration",
 ] as const;
 
 /* Pricing CTA section — release-state spec §"Billing, Pricing, And
    Cancellation": the public Core offer is decided and published plainly
    ($249 per month per workspace, month-to-month, charged only after approval +
-   explicit checkout). Access review is a condition, not the headline — the
-   prior "Request reviewed workspace access" framing led with access and hid
-   the price, which the release-state pricing posture forbids. */
+   explicit checkout). Access review is a condition, not the headline. */
 export const pricingCtaMessage = "One Core plan. $249 per workspace, monthly.";
 export const pricingCtaLead =
   "Billed month-to-month, with up to 500 active contracts and 10 users. You're charged only after access is approved and you explicitly check out — no free trial, no annual lock-in.";
 
-/* Trust chip badges — moved to the marketing footer in v9 (was a standalone
-   Trust band section on the landing page). */
-/* v14: trimmed to three claims. "Signed webhooks" is dropped per repeated
-   review request even though it is genuinely implemented (HMAC-SHA256
-   x-oblixa-signature in src/app/api/webhooks/dispatch/route.ts) — it read as
-   too implementation-detail-y for a public trust strip. Re-add if desired. */
+/* Trust chip badges — rendered in the marketing footer.
+   v18: "TLS 1.3 encryption" softened to "Encrypted in transit" — the specific
+   protocol-version claim has no claim-evidence record (release-state §Public
+   Legal, Trust, And Policy Behavior requires claim-level evidence; conservative
+   wording is the mandated fallback). Restore the version claim only with a
+   named verification record. */
 export const trustChipBadges = [
-  "TLS 1.3 encryption",
+  "Encrypted in transit",
   "Role-based access",
   "Audit history",
 ] as const;
@@ -191,7 +188,7 @@ export const softwareFeatureList = [
   "Upload signed agreements and import existing contract spreadsheets",
   "Source-backed suggestions your team reviews",
   "Renewal, notice, and termination date tracking with reminders",
-  "Owner assignment, obligations, approvals, and exceptions",
-  "Evidence requests linked to contract obligations",
+  "Owner assignment, requirements, approvals, and problem tracking",
+  "Evidence requests linked to contract requirements",
   "Reports and CSV export without rebuilding the spreadsheet",
 ] as const;
