@@ -237,9 +237,60 @@ It should avoid:
 - generic AI wording
 - relying on blue buttons as the only brand signal
 
-The first viewport does not have to be light-only. It may use a high-contrast
-stage, dark inset, dramatic product frame, or strong geometric field if that
-serves the creative concept. The product app remains light-first.
+The first viewport should be light-first by default, but it does not have to be
+flat or white-only. It may use a high-contrast inset, dramatic product frame, or
+strong geometric field when that serves the creative concept. Do not make
+black-first drama the default public-site identity. The product app remains
+light-first.
+
+### 4.2.1 Landing Page Standard
+
+The landing page has one job: make a qualified visitor understand why signed
+contracts need an operational system after execution, then make requesting
+access feel credible.
+
+The strongest landing narrative is:
+
+1. signed contract source
+2. reviewed contract detail
+3. trusted operational record
+4. dates, owners, tasks, evidence, and reports
+5. workspace access
+
+The landing page should not read as a sequence of generic SaaS sections. Its
+primary visual argument should be a product-specific transformation:
+
+> signed document -> confirmed detail -> accountable follow-up
+
+Required first-viewport content:
+
+- category: post-signature contract operations
+- promise: track what each signed contract requires next
+- product-derived transformation visual
+- request-access action
+- trust cue: reviewed suggestions, workspace-scoped files, or admin-controlled
+  access
+
+Preferred first-viewport product object:
+
+- a signed agreement or source excerpt
+- highlighted clause or source location
+- confirmed renewal date, notice deadline, owner, or requirement
+- resulting task, evidence request, date row, or report row
+
+Avoid landing designs that rely on:
+
+- centered slogan plus generic dashboard mock
+- feature-card grid as the main structure
+- decorative icons without product evidence
+- empty minimalist bands
+- invented metrics
+- broad AI claims
+- security theater or unsupported compliance claims
+
+The landing may use editorial scale, stronger contrast, and staged product
+objects, but it must stay concrete. The visitor should not need existing product
+knowledge to understand the page.
 
 ### 4.3 Public Page Rhythm
 
@@ -375,6 +426,36 @@ Public page checks:
 - Does each section have a distinct role?
 - Is there enough visual force to compete with high-quality SaaS references?
 - Does the page avoid copying a reference while matching its ambition?
+
+### 4.9 Public Site Visual System
+
+The public site should be light-first, but not visually thin. Build richness from
+product-specific structure instead of decoration.
+
+Preferred public-site visual ingredients:
+
+- warm or neutral light canvas
+- near-black editorial typography
+- disciplined primary accent for calls to action and selected states
+- contract-source highlights
+- document edges and margin rules
+- ledger/table geometry
+- source-to-record transformation modules
+- staged product panels with realistic operational data
+- crisp depth from overlap, contrast, and scale rather than soft glow
+
+Avoid default public-site styling:
+
+- broad blue haze as brand identity
+- repeated equal-weight cards
+- generic dashboard screenshots
+- decorative gradient blobs
+- AI sparkle language or visuals
+- unsupported trust badges
+- empty whitespace used as a substitute for composition
+
+Public surfaces may be more expressive than app surfaces, but they should still
+feel like they come from a product that handles sensitive signed agreements.
 
 ## 5. Product App Visual System
 
