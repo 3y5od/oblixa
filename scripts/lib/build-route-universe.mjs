@@ -80,6 +80,10 @@ function walk(dir, predicate = () => true, acc = []) {
   return acc;
 }
 
+function isRuntimeActionFile(name) {
+  return /\.(ts|tsx)$/.test(name) && !/\.(test|spec)\.(ts|tsx)$/.test(name) && !/\.d\.ts$/.test(name);
+}
+
 function normalizeAppSegments(segments) {
   return segments.filter((segment) => {
     if (!segment) return false;
@@ -404,7 +408,7 @@ function serverActionAuthModel(source) {
 
 function buildServerActionRows(root) {
   const actionsRoot = path.join(root, "src", "actions");
-  const files = walk(actionsRoot, (_full, name) => /\.(ts|tsx)$/.test(name)).sort((a, b) => a.localeCompare(b));
+  const files = walk(actionsRoot, (_full, name) => isRuntimeActionFile(name)).sort((a, b) => a.localeCompare(b));
   return files.flatMap((file) => {
     const source = read(file);
     const exports = [

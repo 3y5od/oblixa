@@ -14,7 +14,9 @@ const REQUIRED_FILE_MARKERS = {
     'inv.consumed_at ||',
     'inv.revoked_at ||',
     'new Date(inv.expires_at).getTime() < Date.now()',
-    '.update({ consumed_at: new Date().toISOString() })',
+    'const consumeTimeIso = new Date().toISOString();',
+    '.update({ consumed_at: consumeTimeIso })',
+    '.gt("expires_at", consumeTimeIso)',
   ],
   "src/app/auth/refinement-auth-callback.test.ts": [
     'it("rejects invite callbacks when the signed-in email does not match the invite target", async () => {',

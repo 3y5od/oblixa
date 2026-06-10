@@ -1,9 +1,11 @@
 import { parseBearerToken, secureCompareUtf8 } from "@/lib/security/secret-compare";
 import { validatePreviousSecretExpiry } from "@/lib/security/rotating-secret";
+import { isProductionLikeInboundEnvironment } from "@/lib/security/inbound-production-env";
 
 /**
  * Inbound HTTP integrations (email, Slack, CRM-style callbacks) share a bearer token.
  * Optional per-route secrets override {@link INBOUND_AUTOMATION_TOKEN} for least privilege and rotation.
+ * Production-like deployments require the route-specific secret and do not fall back to the shared token.
  *
  * Env resolution order per route:
  * - email: INBOUND_EMAIL_AUTOMATION_TOKEN → INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS → INBOUND_AUTOMATION_TOKEN → INBOUND_AUTOMATION_TOKEN_PREVIOUS
@@ -47,6 +49,7 @@ export function getInboundAutomationSecrets(route: InboundAutomationRoute): stri
   });
   const routeSpecificSecrets = compactSecrets([specific, previousSpecificStatus.ok ? previousSpecific : undefined]);
   if (routeSpecificSecrets.length > 0) return routeSpecificSecrets;
+  if (isProductionLikeInboundEnvironment()) return [];
   const shared = process.env.INBOUND_AUTOMATION_TOKEN;
   const previousShared = process.env.INBOUND_AUTOMATION_TOKEN_PREVIOUS;
   const previousSharedStatus = validatePreviousSecretExpiry({

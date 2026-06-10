@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-06T18:36:28.472Z",
+  "generatedAt": "2026-06-10T14:54:05.415Z",
   "rows": [
     {
       "route": "/",
@@ -2831,20 +2831,6 @@
       "diagnosticPrefix": "action_applyprogramaction"
     },
     {
-      "route": "action:approvals-action-scope.test",
-      "sourcePath": "src/actions/approvals-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_approvals_action_scope_test"
-    },
-    {
-      "route": "action:approvals.test",
-      "sourcePath": "src/actions/approvals.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_approvals_test"
-    },
-    {
       "route": "action:archiveContractAsDuplicateForm",
       "sourcePath": "src/actions/maintenance.ts",
       "owner": "engineering",
@@ -2864,27 +2850,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_assignworkitemowner"
-    },
-    {
-      "route": "action:auth-actions.test",
-      "sourcePath": "src/actions/auth-actions.test.ts",
-      "owner": "security",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_auth_actions_test"
-    },
-    {
-      "route": "action:automation-action-scope.test",
-      "sourcePath": "src/actions/automation-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_automation_action_scope_test"
-    },
-    {
-      "route": "action:automation.test",
-      "sourcePath": "src/actions/automation.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_automation_test"
     },
     {
       "route": "action:autoTransitionTasksForApproval",
@@ -2927,20 +2892,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_beginrecalibration"
-    },
-    {
-      "route": "action:bulk-compatible-work-validation.test",
-      "sourcePath": "src/actions/bulk-compatible-work-validation.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_bulk_compatible_work_validation_test"
-    },
-    {
-      "route": "action:bulk-compatible-work.test",
-      "sourcePath": "src/actions/bulk-compatible-work.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_bulk_compatible_work_test"
     },
     {
       "route": "action:bulkAssignCompatibleContractTasks",
@@ -3021,13 +2972,6 @@
     },
     {
       "route": "action:completeQuestionnaireAcceptRecommendation",
-      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_completequestionnaireacceptrecommendation"
-    },
-    {
-      "route": "action:completeQuestionnaireAcceptRecommendation",
       "sourcePath": "src/actions/onboarding-calibration.ts",
       "owner": "engineering",
       "riskTier": "P1",
@@ -3042,13 +2986,6 @@
     },
     {
       "route": "action:completeQuestionnaireSimplerSetup",
-      "sourcePath": "src/actions/onboarding-calibration-edge.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_completequestionnairesimplersetup"
-    },
-    {
-      "route": "action:completeQuestionnaireSimplerSetup",
       "sourcePath": "src/actions/onboarding-calibration.ts",
       "owner": "engineering",
       "riskTier": "P1",
@@ -3060,27 +2997,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_completeworkitem"
-    },
-    {
-      "route": "action:contracts-action-scope.test",
-      "sourcePath": "src/actions/contracts-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_contracts_action_scope_test"
-    },
-    {
-      "route": "action:contracts-bulk-import-telemetry.test",
-      "sourcePath": "src/actions/contracts-bulk-import-telemetry.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_contracts_bulk_import_telemetry_test"
-    },
-    {
-      "route": "action:contracts-outbound-fetch.test",
-      "sourcePath": "src/actions/contracts-outbound-fetch.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_contracts_outbound_fetch_test"
     },
     {
       "route": "action:countScheduledReportSubscriptionsSuppressedByModeChange",
@@ -3300,13 +3216,6 @@
       "diagnosticPrefix": "action_createwebhooksubscriptionform"
     },
     {
-      "route": "action:dashboard-action-scope.test",
-      "sourcePath": "src/actions/dashboard-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_dashboard_action_scope_test"
-    },
-    {
       "route": "action:delegateContractApproval",
       "sourcePath": "src/actions/approvals.ts",
       "owner": "engineering",
@@ -3391,25 +3300,11 @@
       "diagnosticPrefix": "action_deletesavedview"
     },
     {
-      "route": "action:demo-action-scope.test",
-      "sourcePath": "src/actions/demo-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_demo_action_scope_test"
-    },
-    {
       "route": "action:disconnectIntegrationConnectionForm",
       "sourcePath": "src/actions/workflow-config.ts",
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_disconnectintegrationconnectionform"
-    },
-    {
-      "route": "action:email-verification.test",
-      "sourcePath": "src/actions/email-verification.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_email_verification_test"
     },
     {
       "route": "action:emitCmdkPaletteOpenedTelemetry",
@@ -3482,32 +3377,11 @@
       "diagnosticPrefix": "action_ensurereportpackreporttypeallowed"
     },
     {
-      "route": "action:exceptions-action-scope.test",
-      "sourcePath": "src/actions/exceptions-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_exceptions_action_scope_test"
-    },
-    {
-      "route": "action:exportOnboardingCalibrationSupportJson",
-      "sourcePath": "src/actions/onboarding-calibration-export-chunk-static.test.ts",
-      "owner": "release",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_exportonboardingcalibrationsupportjson"
-    },
-    {
       "route": "action:exportOnboardingCalibrationSupportJson",
       "sourcePath": "src/actions/onboarding-calibration.ts",
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_exportonboardingcalibrationsupportjson"
-    },
-    {
-      "route": "action:field-comments-action-scope.test",
-      "sourcePath": "src/actions/field-comments-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_field_comments_action_scope_test"
     },
     {
       "route": "action:forgotPassword",
@@ -3545,13 +3419,6 @@
       "diagnosticPrefix": "action_inviteorgmember"
     },
     {
-      "route": "action:is",
-      "sourcePath": "src/actions/onboarding-calibration-action-registry.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_is"
-    },
-    {
       "route": "action:listMySessions",
       "sourcePath": "src/actions/sessions.ts",
       "owner": "engineering",
@@ -3573,13 +3440,6 @@
       "diagnosticPrefix": "action_logcontractchangeeventform"
     },
     {
-      "route": "action:maintenance-scope.test",
-      "sourcePath": "src/actions/maintenance-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_maintenance_scope_test"
-    },
-    {
       "route": "action:markNotificationRead",
       "sourcePath": "src/actions/field-comments.ts",
       "owner": "engineering",
@@ -3594,104 +3454,6 @@
       "diagnosticPrefix": "action_marknotificationreadvoid"
     },
     {
-      "route": "action:mfa.test",
-      "sourcePath": "src/actions/mfa.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_mfa_test"
-    },
-    {
-      "route": "action:notes-action-scope.test",
-      "sourcePath": "src/actions/notes-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_notes_action_scope_test"
-    },
-    {
-      "route": "action:notifications.test",
-      "sourcePath": "src/actions/notifications.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_notifications_test"
-    },
-    {
-      "route": "action:obligations.test",
-      "sourcePath": "src/actions/obligations.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_obligations_test"
-    },
-    {
-      "route": "action:onboarding-audit-inventory.test",
-      "sourcePath": "src/actions/onboarding-audit-inventory.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_audit_inventory_test"
-    },
-    {
-      "route": "action:onboarding-calibration-audit.test",
-      "sourcePath": "src/actions/onboarding-calibration-audit.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_audit_test"
-    },
-    {
-      "route": "action:onboarding-calibration-export.test",
-      "sourcePath": "src/actions/onboarding-calibration-export.test.ts",
-      "owner": "release",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_export_test"
-    },
-    {
-      "route": "action:onboarding-calibration-rate-limit.test",
-      "sourcePath": "src/actions/onboarding-calibration-rate-limit.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_rate_limit_test"
-    },
-    {
-      "route": "action:onboarding-calibration-server-invariants.test",
-      "sourcePath": "src/actions/onboarding-calibration-server-invariants.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_server_invariants_test"
-    },
-    {
-      "route": "action:onboarding-calibration-workflow-static.test",
-      "sourcePath": "src/actions/onboarding-calibration-workflow-static.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_workflow_static_test"
-    },
-    {
-      "route": "action:onboarding-calibration-zod-adversarial.test",
-      "sourcePath": "src/actions/onboarding-calibration-zod-adversarial.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_calibration_zod_adversarial_test"
-    },
-    {
-      "route": "action:onboarding-no-org-id-from-client.test",
-      "sourcePath": "src/actions/onboarding-no-org-id-from-client.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_no_org_id_from_client_test"
-    },
-    {
-      "route": "action:onboarding-outbound-scope.test",
-      "sourcePath": "src/actions/onboarding-outbound-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_onboarding_outbound_scope_test"
-    },
-    {
-      "route": "action:policy-operations.test",
-      "sourcePath": "src/actions/policy-operations.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_policy_operations_test"
-    },
-    {
       "route": "action:previewCalibrationRecommendation",
       "sourcePath": "src/actions/onboarding-calibration.ts",
       "owner": "engineering",
@@ -3704,34 +3466,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_processcontractchangeeventsform"
-    },
-    {
-      "route": "action:product-surface-audit-events.test",
-      "sourcePath": "src/actions/product-surface-audit-events.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_product_surface_audit_events_test"
-    },
-    {
-      "route": "action:product-surface-settings.test",
-      "sourcePath": "src/actions/product-surface-settings.test.ts",
-      "owner": "security",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_product_surface_settings_test"
-    },
-    {
-      "route": "action:product-telemetry.test",
-      "sourcePath": "src/actions/product-telemetry.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_product_telemetry_test"
-    },
-    {
-      "route": "action:program-surface-guard.test",
-      "sourcePath": "src/actions/program-surface-guard.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_program_surface_guard_test"
     },
     {
       "route": "action:publishProgramAction",
@@ -3774,13 +3508,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_removewatchlistentry"
-    },
-    {
-      "route": "action:renewal-playbook-action-scope.test",
-      "sourcePath": "src/actions/renewal-playbook-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_renewal_playbook_action_scope_test"
     },
     {
       "route": "action:reopenException",
@@ -3909,13 +3636,6 @@
       "diagnosticPrefix": "action_safeinsertsettingsauditevent"
     },
     {
-      "route": "action:saved-views-scope.test",
-      "sourcePath": "src/actions/saved-views-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_saved_views_scope_test"
-    },
-    {
       "route": "action:savePolicyRegistryAction",
       "sourcePath": "src/actions/policy-operations.ts",
       "owner": "engineering",
@@ -3958,20 +3678,6 @@
       "diagnosticPrefix": "action_seedrenewalplaybook"
     },
     {
-      "route": "action:server-action-input-safety.test",
-      "sourcePath": "src/actions/server-action-input-safety.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_server_action_input_safety_test"
-    },
-    {
-      "route": "action:sessions.test",
-      "sourcePath": "src/actions/sessions.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_sessions_test"
-    },
-    {
       "route": "action:setDashboardQueuePinForm",
       "sourcePath": "src/actions/dashboard.ts",
       "owner": "engineering",
@@ -4012,13 +3718,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_setsavedviewweeklysummary"
-    },
-    {
-      "route": "action:settings-action-scope.test",
-      "sourcePath": "src/actions/settings-action-scope.test.ts",
-      "owner": "security",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_settings_action_scope_test"
     },
     {
       "route": "action:signIn",
@@ -4082,13 +3781,6 @@
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_supersedecontractfileform"
-    },
-    {
-      "route": "action:tasks.test",
-      "sourcePath": "src/actions/tasks.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_tasks_test"
     },
     {
       "route": "action:toggleApprovalPolicyForm",
@@ -4490,39 +4182,11 @@
       "diagnosticPrefix": "action_verifytotpenrollment"
     },
     {
-      "route": "action:watchlists-action-scope.test",
-      "sourcePath": "src/actions/watchlists-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_watchlists_action_scope_test"
-    },
-    {
-      "route": "action:workflow-config-action-scope.test",
-      "sourcePath": "src/actions/workflow-config-action-scope.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_workflow_config_action_scope_test"
-    },
-    {
       "route": "action:workflow-config-helpers",
       "sourcePath": "src/actions/workflow-config-helpers.ts",
       "owner": "engineering",
       "riskTier": "P1",
       "diagnosticPrefix": "action_workflow_config_helpers"
-    },
-    {
-      "route": "action:workflow-config-sanitize.test",
-      "sourcePath": "src/actions/workflow-config-sanitize.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_workflow_config_sanitize_test"
-    },
-    {
-      "route": "action:workspace-mode-billing-eligibility.test",
-      "sourcePath": "src/actions/workspace-mode-billing-eligibility.test.ts",
-      "owner": "engineering",
-      "riskTier": "P1",
-      "diagnosticPrefix": "action_workspace_mode_billing_eligibility_test"
     }
   ]
 }

@@ -52,6 +52,11 @@ create policy "Editors can manage tenant records"
       "supabase/migrations/072_force_rls_tenant_tables.sql",
       "relrowsecurity\nforce row level security\nNo direct tenant insert by default\nNo direct tenant update by default\nNo direct tenant delete by default\nservice_role bypass remains explicit\n"
     );
+    write(
+      root,
+      "supabase/migrations/094_force_rls_current_public_tables.sql",
+      "relrowsecurity\nforce row level security\nworkspace_access_requests\nworkspace_access_grants\nworkspace_access_request_events\nservice_role bypass remains explicit\n"
+    );
   }
   if (includeSmoke) {
     write(

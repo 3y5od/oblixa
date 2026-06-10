@@ -81,7 +81,10 @@ export function classifyContentContract({ path: rel, excerpt, token }) {
   }
   if (rel === "openapi.yaml" || rel.startsWith("openapi/")) return "openapi_schema";
   if (rel.startsWith("src/app/api/")) return "api_or_cron_contract";
-  if (rel.startsWith("src/app/")) return "app_route_contract";
+  if (rel.startsWith("src/app/")) {
+    if (/\.(?:css|scss|sass)$/iu.test(rel)) return "source_content";
+    return "app_route_contract";
+  }
   if (rel.startsWith("supabase/")) return "sql_object";
   if (rel.startsWith("public/") || rel.startsWith("config/") || rel.endsWith(".config.ts") || rel.endsWith(".config.mjs")) {
     return "external_contract";

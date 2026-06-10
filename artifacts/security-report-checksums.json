@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-10T14:38:34.295Z",
+  "generatedAt": "2026-06-10T20:42:38.164Z",
   "volatileKeysIgnored": [
     "generated",
     "generatedAt",
@@ -9,8 +9,8 @@
   "artifacts": [
     {
       "path": "artifacts/security-route-matrix.json",
-      "stableSha256": "a736f96b039bfbc117321daf1be1d3eec9a8e4dfdf7e9a7111310cc5bd5a0733",
-      "stableBytes": 255278
+      "stableSha256": "c365fd1725738d124604e1a552545efa5803610ee073aff70b7c1aeb751da72e",
+      "stableBytes": 255298
     },
     {
       "path": "artifacts/security-proxy-matrix.json",
@@ -29,8 +29,8 @@
     },
     {
       "path": "artifacts/assurance/scripts-to-epic-map.json",
-      "stableSha256": "3d5ccb1dfc3ab463277630c303c906e116eb7c3402333556e1fed4fcde3d776e",
-      "stableBytes": 81877
+      "stableSha256": "31a453ab913288f227ff6fae715586fbf6276335c634b17c3f0d168a0b8d876c",
+      "stableBytes": 82650
     },
     {
       "path": "artifacts/assurance/catalog-script-index.json",
@@ -39,23 +39,23 @@
     },
     {
       "path": "artifacts/route-universe.json",
-      "stableSha256": "8ff1e0a529454d011fb1eceba506de56764058eb2bb0bebb272c7dba74b0aa94",
-      "stableBytes": 1070377
+      "stableSha256": "e3cf375376cb3777642f57deba32e10469c31785ecf4df93429a621a2311f29b",
+      "stableBytes": 998827
     },
     {
       "path": "artifacts/route-functionality-matrix.json",
-      "stableSha256": "bc068fb2d86b360967ebfc6d6695759012c1cd883bdc1bc98749d79c4c5e741b",
-      "stableBytes": 760879
+      "stableSha256": "787d5a58f0c25680719b9aaa67264d5e64d29274bf85d4c307156eb89dc912c7",
+      "stableBytes": 708875
     },
     {
       "path": "artifacts/route-runtime-contract.json",
-      "stableSha256": "98211cd0dca2453097bbbc3274425453ed0132f2782cf181c5e13b9e98187b85",
-      "stableBytes": 203626
+      "stableSha256": "7c435b6ae070feeaff4efb9a7d1bdb532c0af30bf2ef6cd8d691074aa7d51652",
+      "stableBytes": 187846
     },
     {
       "path": "artifacts/route-provider-matrix.json",
-      "stableSha256": "caadfe621461c7ac4f2e23601dfbe2a01e92fbd6482ebc2a19904ed8228ade99",
-      "stableBytes": 139186
+      "stableSha256": "f48670e638e89567128e200df5361c81edefc279b8b0bd53763b82b5d2adb610",
+      "stableBytes": 128759
     },
     {
       "path": "artifacts/route-db-dependencies.json",

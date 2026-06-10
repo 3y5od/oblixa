@@ -61,6 +61,9 @@ function extractAffectedTables(sql) {
   if (/\bfor\s+\w+\s+in\s+[\s\S]*?\bfrom\s+pg_class\b[\s\S]*?\bcreate\s+policy\b/iu.test(sql)) {
     tables.add("public.*");
   }
+  if (/\bfor\s+\w+\s+in\s+[\s\S]*?\bfrom\s+pg_class\b[\s\S]*?\balter\s+table\b[\s\S]*?\b(?:enable|force)\s+row\s+level\s+security\b/iu.test(sql)) {
+    tables.add("public.*");
+  }
   return Array.from(tables).sort((a, b) => a.localeCompare(b));
 }
 

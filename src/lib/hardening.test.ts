@@ -20,7 +20,8 @@ describe("V9 cross-cutting hardening contracts", () => {
   });
 
   it("surfaces field provenance without overstating trust", () => {
-    expect(fieldReviewProvenanceLabel({ status: "pending" })).toMatch(/not approved/i);
+    expect(fieldReviewProvenanceLabel({ status: "pending" })).toMatch(/not confirmed/i);
+    expect(fieldReviewProvenanceLabel({ status: "pending" })).toMatch(/gated/i);
     expect(fieldReviewProvenanceLabel({ status: "approved", confidence: 82 })).toMatch(/82%/);
   });
 

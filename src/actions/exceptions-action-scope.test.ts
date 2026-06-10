@@ -122,7 +122,7 @@ describe("exceptions server actions", () => {
       resolutionNote: "done",
     });
 
-    expect(result).toEqual({ error: "Only active exceptions can be resolved." });
+    expect(result).toEqual({ error: "Only active issues can be resolved." });
     expect(updateBuilder.eq).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
     expect(emitVisibleMutationErrorTelemetry).not.toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe("exceptions server actions", () => {
       exceptionId: "550e8400-e29b-41d4-a716-446655440000",
     });
 
-    expect(result).toEqual({ error: "Only resolved exceptions can be reopened." });
+    expect(result).toEqual({ error: "Only resolved issues can be reopened." });
     expect(updateBuilder.eq).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
     expect(emitVisibleMutationErrorTelemetry).not.toHaveBeenCalled();

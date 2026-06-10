@@ -42,6 +42,11 @@ describe("isSafeExtractionWorkerOrigin", () => {
     expect(isSafeExtractionWorkerOrigin("http://[fd00::1]")).toBe(false);
   });
 
+  it("rejects shared safe-fetch IPv6 documentation and DNS64 ranges", () => {
+    expect(isSafeExtractionWorkerOrigin("https://[2001:db8::1]")).toBe(false);
+    expect(isSafeExtractionWorkerOrigin("https://[64:ff9b::c000:0201]")).toBe(false);
+  });
+
   it("rejects IPv4-mapped IPv6 to loopback and private IPv4", () => {
     expect(isSafeExtractionWorkerOrigin("https://[::ffff:127.0.0.1]")).toBe(false);
     expect(isSafeExtractionWorkerOrigin("https://[::ffff:10.0.0.1]")).toBe(false);

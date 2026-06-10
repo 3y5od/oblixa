@@ -27,6 +27,10 @@ function loadJson(rootDir, relPath) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
+function isNonRuntimeServerActionSource(sourcePath) {
+  return /\.(test|spec)\.(ts|tsx)$/.test(sourcePath) || /\.d\.ts$/.test(sourcePath);
+}
+
 export function findMissingRequiredAppRouterStateFailures(rows) {
   const failures = [];
   for (const row of rows) {
@@ -66,6 +70,9 @@ export function findRouteUniverseFailures(rootDir = root) {
     if (!row.smokeTier) failures.push(`${row.sourcePath}:missing_smoke_tier`);
     if (row.authModel === "requires_review") failures.push(`${row.sourcePath}:auth_model_requires_review`);
     if (row.class === "cron" && row.authModel !== "cron_secret") failures.push(`${row.sourcePath}:cron_auth_model`);
+    if (row.kind === "server_action" && isNonRuntimeServerActionSource(row.sourcePath)) {
+      failures.push(`${row.sourcePath}:non_runtime_server_action_source`);
+    }
     if (row.kind === "api_route") {
       if (!Array.isArray(row.methods) || row.methods.length === 0) {
         failures.push(`${row.sourcePath}:missing_http_method_export`);

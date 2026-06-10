@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireV6Context = vi.fn();
 const requireApiWorkspaceEligibility = vi.fn(async () => null);
+const enforceIdempotency = vi.fn<(...args: unknown[]) => Promise<Response | null>>(async (...args) => {
+  void args;
+  return null;
+});
 const incrementAssuranceQualityCounter = vi.fn(async (...args: unknown[]) => {
   void args;
 });
@@ -16,6 +20,10 @@ vi.mock("@/lib/assurance/api-auth", () => ({
 
 vi.mock("@/lib/product-surface/api-workspace-guard", () => ({
   requireApiWorkspaceEligibility,
+}));
+
+vi.mock("@/lib/idempotency", () => ({
+  enforceIdempotency: (...args: unknown[]) => enforceIdempotency(...args),
 }));
 
 vi.mock("@/lib/assurance/telemetry", () => ({
@@ -62,6 +70,7 @@ function adminForReviewBoardRun() {
 describe("GET /api/review-boards/runs/[id]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    enforceIdempotency.mockResolvedValue(null);
     requireV6Context.mockResolvedValue({
       ctx: { admin: adminForReviewBoardRun(), orgId: "o1", userId: "u1", role: "admin" },
       errorResponse: null,
@@ -94,6 +103,118 @@ describe("GET /api/review-boards/runs/[id]", () => {
     await expect(res.json()).resolves.toMatchObject({
       code: "invalid_request",
       details: { reason: "invalid_route_param", param: "id" },
+    });
+  });
+});
+
+describe("PATCH /api/review-boards/runs/[id]", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    enforceIdempotency.mockResolvedValue(null);
+    requireApiWorkspaceEligibility.mockResolvedValue(null);
+  });
+
+  it("returns duplicate idempotency response before patching a review board run", async () => {
+    enforceIdempotency.mockResolvedValueOnce(
+      Response.json({ error: "Duplicate request blocked by idempotency key" }, { status: 409 })
+    );
+    requireV6Context.mockResolvedValue({
+      ctx: { admin: { from: vi.fn() }, orgId: "o1", userId: "u1", role: "admin" },
+      errorResponse: null,
+    });
+
+    const { PATCH } = await import("@/app/api/review-boards/runs/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/review-boards/runs/run-1", {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          "x-idempotency-key": "review-run-replay-0001",
+        },
+        body: JSON.stringify({ status: "reviewed" }),
+      }),
+      { params: Promise.resolve({ id: "run-1" }) }
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: "Duplicate request blocked by idempotency key" });
+    expect(enforceIdempotency).toHaveBeenCalledWith(expect.any(Request), {
+      scope: "api.review-boards.runs.id",
+      actorKey: "o1:u1",
+    });
+  });
+
+  it("uses updated_at as an optimistic guard when appending action and decision logs", async () => {
+    const priorEq = vi.fn();
+    const priorChain = {
+      select: vi.fn(() => priorChain),
+      eq: priorEq.mockImplementation(() => priorChain),
+      maybeSingle: vi.fn(async () => ({
+        data: {
+          action_capture_json: [{ existing: true }],
+          decision_log_json: [{ previous: true }],
+          updated_at: "2026-05-01T00:00:00.000Z",
+        },
+        error: null,
+      })),
+    };
+    const updateEq = vi.fn();
+    const updateChain = {
+      eq: updateEq.mockImplementation(() => updateChain),
+      select: vi.fn(() => updateChain),
+      maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+    };
+    const update = vi.fn(() => updateChain);
+    const admin = {
+      from: vi.fn((table: string) => {
+        if (table === "review_board_runs") {
+          return {
+            select: priorChain.select,
+            eq: priorChain.eq,
+            maybeSingle: priorChain.maybeSingle,
+            update,
+          };
+        }
+        return maybeSingleChain(null);
+      }),
+    };
+    requireV6Context.mockResolvedValue({
+      ctx: { admin, orgId: "o1", userId: "u1", role: "admin" },
+      errorResponse: null,
+    });
+
+    const { PATCH } = await import("@/app/api/review-boards/runs/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/review-boards/runs/run-1", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          actionCapture: { action: "follow_up" },
+          decisionLog: { decision: "approved" },
+        }),
+      }),
+      { params: Promise.resolve({ id: "run-1" }) }
+    );
+
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action_capture_json: [
+          { existing: true },
+          expect.objectContaining({ action: "follow_up" }),
+        ],
+        decision_log_json: [
+          { previous: true },
+          expect.objectContaining({ decision: "approved" }),
+        ],
+      })
+    );
+    expect(updateEq).toHaveBeenCalledWith("organization_id", "o1");
+    expect(updateEq).toHaveBeenCalledWith("id", "run-1");
+    expect(updateEq).toHaveBeenCalledWith("updated_at", "2026-05-01T00:00:00.000Z");
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "stale_version",
+      diagnostic_id: "review_board_run_stale_version",
     });
   });
 });

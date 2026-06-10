@@ -25,10 +25,8 @@ assurance/scorecards/route.ts
 assurance/analytics/summary/route.ts
 playbooks/runs/[id]/route.ts
 autopilot/rules/route.ts
-autopilot/rules/[id]/enable/route.ts
 autopilot/rules/[id]/route.ts
 autopilot/runs/route.ts
-review-boards/[id]/runs/route.ts
 
 # workspace v6 org settings
 

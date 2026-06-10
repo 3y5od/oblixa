@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-06-02T22:22:30.184Z",
+  "generatedAt": "2026-06-10T16:54:04.847Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -213,6 +213,14 @@
     },
     {
       "path": "scripts/check-baseline-registry.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-beacon-timing-leakage.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-beacon-timing-leakage.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -672,6 +680,10 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-git-history-secret-exposure.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-github-actions-permissions.mjs",
       "primaryEpicNumber": null
     },
@@ -997,6 +1009,10 @@
     },
     {
       "path": "scripts/check-ofac-screening-stub-parity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-ofac-screening-stub-parity.test.mjs",
       "primaryEpicNumber": null
     },
     {
@@ -1776,6 +1792,14 @@
       "primaryEpicNumber": null
     },
     {
+      "path": "scripts/check-security-external-obligations.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-security-external-obligations.test.mjs",
+      "primaryEpicNumber": null
+    },
+    {
       "path": "scripts/check-security-fallback-paths.mjs",
       "primaryEpicNumber": null
     },
@@ -2213,6 +2237,10 @@
     },
     {
       "path": "scripts/check-third-party-script-integrity.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-third-party-script-integrity.test.mjs",
       "primaryEpicNumber": null
     },
     {

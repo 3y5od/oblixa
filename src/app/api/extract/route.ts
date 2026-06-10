@@ -26,6 +26,7 @@ import { isKillExtraction, killSwitchJsonResponse } from "@/lib/security/kill-sw
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { signInternalRequest } from "@/lib/security/internal-hmac";
 import { requireTenantAiProcessingEnabled } from "@/lib/security/ai-tenant-gate";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 
 const ROUTE = "/api/extract";
 
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
         "Suggestions failed unexpectedly. Please try again."
       );
     } catch (finishErr) {
-      console.error("[api/extract] failed to finalize job after error:", finishErr);
+      console.error("[api/extract] failed to finalize job after error:", formatUnknownForServerLog(finishErr));
       captureServerException(finishErr, {
         extra: { route: "api/extract", phase: "finalize-inline-failure", contractId },
       });
@@ -269,18 +270,12 @@ export async function POST(request: Request) {
           { maxAttempts: 4, baseDelayMs: 400 }
         );
         if (!res.ok) {
-          const t = await res.text().catch(() => "");
-          console.error(
-            "[api/extract] worker fetch failed:",
-            res.status,
-            t.slice(0, 500)
-          );
+          console.error("[api/extract] worker fetch failed:", res.status);
           captureServerMessage("extraction worker fetch failed", {
             level: "error",
             extra: {
               contractId,
               status: res.status,
-              body: t.slice(0, 500),
             },
           });
           if (shouldFallbackToInlinePipeline(res.status)) {
@@ -296,7 +291,7 @@ export async function POST(request: Request) {
               });
               return;
             } catch (inlineErr) {
-              console.error("[api/extract] inline fallback after worker failure:", inlineErr);
+              console.error("[api/extract] inline fallback after worker failure:", formatUnknownForServerLog(inlineErr));
               captureServerException(inlineErr, {
                 extra: { route: "api/extract", mode: "worker-fallback-inline", contractId },
               });
@@ -312,7 +307,7 @@ export async function POST(request: Request) {
           await finishExtractionJob(admin, contractId, orgId, false, friendly);
         }
       } catch (err) {
-        console.error("[api/extract] worker fetch error:", err);
+        console.error("[api/extract] worker fetch error:", formatUnknownForServerLog(err));
         captureServerException(err, { extra: { contractId } });
         captureServerMessage("extraction worker fetch threw; running inline pipeline", {
           level: "warning",
@@ -325,7 +320,7 @@ export async function POST(request: Request) {
             organizationId: orgId,
           });
         } catch (inlineErr) {
-          console.error("[api/extract] inline fallback after worker throw:", inlineErr);
+          console.error("[api/extract] inline fallback after worker throw:", formatUnknownForServerLog(inlineErr));
           captureServerException(inlineErr, {
             extra: { route: "api/extract", mode: "worker-fallback-inline", contractId },
           });
@@ -343,7 +338,7 @@ export async function POST(request: Request) {
           organizationId: orgId,
         });
       } catch (err) {
-        console.error("[api/extract] after() pipeline error:", err);
+        console.error("[api/extract] after() pipeline error:", formatUnknownForServerLog(err));
         captureServerException(err, {
           extra: { route: "api/extract", mode: "inline-after", contractId },
         });
@@ -357,7 +352,7 @@ export async function POST(request: Request) {
             "Suggestions failed unexpectedly. Please try again."
           );
         } catch (finishErr) {
-          console.error("[api/extract] failed to finalize job after error:", finishErr);
+          console.error("[api/extract] failed to finalize job after error:", formatUnknownForServerLog(finishErr));
           captureServerException(finishErr, {
             extra: { route: "api/extract", phase: "finalize-inline-failure", contractId },
           });

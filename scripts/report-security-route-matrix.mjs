@@ -113,6 +113,75 @@ function handlerBlockFromSource(source, method) {
   return source;
 }
 
+const LOCAL_HELPER_CALL_IGNORE = new Set([
+  "if",
+  "for",
+  "while",
+  "switch",
+  "catch",
+  "return",
+  "await",
+  "new",
+  "throw",
+  "typeof",
+  "Boolean",
+  "String",
+  "Number",
+  "Object",
+  "Array",
+  "JSON",
+  "Response",
+  "NextResponse",
+]);
+
+function localFunctionBlockFromSource(source, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const patterns = [
+    new RegExp(`(?:async\\s+)?function\\s+${escaped}\\b`),
+    new RegExp(`const\\s+${escaped}\\s*=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>`),
+  ];
+  for (const re of patterns) {
+    const match = re.exec(source);
+    if (!match) continue;
+    let openBraceIdx = source.indexOf("{", match.index);
+    while (openBraceIdx >= 0) {
+      const block = extractBracedBlock(source, openBraceIdx);
+      if (block && /\b(?:await|return|const|let|if|for|try|throw)\b/.test(block)) return block;
+      openBraceIdx = source.indexOf("{", openBraceIdx + 1);
+    }
+  }
+  return null;
+}
+
+function localHelperCallsFromSource(source) {
+  const calls = [];
+  const re = /\b([A-Za-z_$][\w$]*)\s*\(/g;
+  let match;
+  while ((match = re.exec(source)) !== null) {
+    const name = match[1];
+    if (!LOCAL_HELPER_CALL_IGNORE.has(name)) calls.push(name);
+  }
+  return calls;
+}
+
+function expandLocalHelperAnalysisSource(source, handlerSource) {
+  const parts = [handlerSource];
+  const seen = new Set();
+  const queue = localHelperCallsFromSource(handlerSource);
+  while (queue.length > 0 && seen.size < 40) {
+    const name = queue.shift();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    const block = localFunctionBlockFromSource(source, name);
+    if (!block) continue;
+    parts.push(block);
+    for (const nested of localHelperCallsFromSource(block)) {
+      if (!seen.has(nested)) queue.push(nested);
+    }
+  }
+  return parts.join("\n");
+}
+
 function loadPublicAllowlist(root) {
   const file = path.join(root, "scripts", "api-route-public-allowlist.txt");
   return new Set(
@@ -289,6 +358,7 @@ export function buildSecurityRouteMatrix(root = defaultRoot) {
     const methods = (universeRow.methods ?? []).filter((method) => TARGET_METHODS.includes(method));
     for (const method of methods) {
       const handlerSource = handlerBlockFromSource(source, method);
+      const analysisSource = expandLocalHelperAnalysisSource(source, handlerSource);
       const authType = classifyAuthType({ path: routePath, routeFile: routeFile.replace(/^src\/app\/api\//, ""), source, method, cronPaths, publicAllowlist });
       const row = {
         path: routePath,
@@ -301,10 +371,10 @@ export function buildSecurityRouteMatrix(root = defaultRoot) {
         workspace_eligibility_gate: workspaceEligibilityGate(routePath, source),
         rate_limit_policy: rateLimitPolicy(authType, method, source, globalWorkspaceApiRateLimit),
         rate_limit_key_shape: rateLimitKeyShape(authType, routePath, source, globalWorkspaceApiRateLimit),
-        body_size_policy: bodySizePolicy(authType, method, handlerSource),
+        body_size_policy: bodySizePolicy(authType, method, analysisSource),
         csrf_origin_policy: csrfOriginPolicy(authType, method, source, globalBrowserOriginPolicy),
-        idempotency_or_job_lock_policy: idempotencyOrJobLockPolicy(method, handlerSource, routePath),
-        audit_event_expectation: auditEventExpectation(method, handlerSource, routePath),
+        idempotency_or_job_lock_policy: idempotencyOrJobLockPolicy(method, analysisSource, routePath),
+        audit_event_expectation: auditEventExpectation(method, analysisSource, routePath),
       };
       rows.push({ ...row, sec_ids: secIds(row) });
     }

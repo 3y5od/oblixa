@@ -36,7 +36,7 @@ function writeValidFixture(root) {
   write(
     root,
     "src/lib/extraction/parse-document.ts",
-    'export const DOCUMENT_PARSER_TIMEOUT_MS = 15_000;\nexport const DOCUMENT_PARSER_MAX_BUFFER_BYTES = 20 * 1024 * 1024;\nexport const DOCUMENT_PARSER_MAX_PDF_PAGES = 250;\nexport const DOCUMENT_PARSER_MAX_EXTRACTED_TEXT_CHARS = EXTRACTION_MAX_TEXT_CHARS;\nexport const DOCUMENT_PARSER_MAX_HTML_CHARS = EXTRACTION_MAX_TEXT_CHARS * 2;\nexport function assertPdfParserBounds(\nfunction assertHtmlFallbackWithinParserLimit(\nreturn assertPdfParserBounds(result);\nassertDocxZipExpansionWithinParserLimits(buffer);\nthrow new Error("Document parser DOCX required entries missing");\nassertExtractedTextWithinParserLimit(raw.value)\nhtmlToPlainText(assertHtmlFallbackWithinParserLimit(htmlResult.value))\n'
+    'DOCUMENT_PARSER_SANDBOX_POLICY\nassertDocumentParserSandboxPolicy(mimeType);\nallowFileSystem: false\nallowNetwork: false\nallowExternalResources: false\nexport const DOCUMENT_PARSER_TIMEOUT_MS = 15_000;\nexport const DOCUMENT_PARSER_MAX_BUFFER_BYTES = 20 * 1024 * 1024;\nexport const DOCUMENT_PARSER_MAX_PDF_PAGES = 250;\nexport const DOCUMENT_PARSER_MAX_EXTRACTED_TEXT_CHARS = EXTRACTION_MAX_TEXT_CHARS;\nexport const DOCUMENT_PARSER_MAX_HTML_CHARS = EXTRACTION_MAX_TEXT_CHARS * 2;\nexport function assertPdfParserBounds(\nfunction assertHtmlFallbackWithinParserLimit(\nreturn assertPdfParserBounds(result);\nassertDocxZipExpansionWithinParserLimits(buffer);\nthrow new Error("Document parser DOCX required entries missing");\nassertExtractedTextWithinParserLimit(raw.value)\nhtmlToPlainText(assertHtmlFallbackWithinParserLimit(htmlResult.value))\n'
   );
   write(
     root,
@@ -61,7 +61,7 @@ function writeValidFixture(root) {
   write(
     root,
     "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts",
-    'it("rejects PDF page counts above the parser ceiling", () => {})\nit("rejects extracted parser text above the extraction ceiling", () => {})\nit("rejects docx zip expansion before mammoth parsing", () => {})\nit("rejects docx archives missing required document entries", () => {})\nit("rejects parser buffers larger than the upload ceiling", () => {})\n'
+    'it("keeps document parsing in a frozen in-memory sandbox policy", () => {})\nit("rejects PDF page counts above the parser ceiling", () => {})\nit("rejects extracted parser text above the extraction ceiling", () => {})\nit("rejects docx zip expansion before mammoth parsing", () => {})\nit("rejects docx archives missing required document entries", () => {})\nit("rejects parser buffers larger than the upload ceiling", () => {})\n'
   );
   write(
     root,

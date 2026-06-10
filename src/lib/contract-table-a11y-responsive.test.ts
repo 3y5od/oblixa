@@ -24,7 +24,7 @@ describe("contract inventory uses a real table with release-state columns", () =
       "Status",
       "Next important date",
       "Review state",
-      "Open work",
+      "Open tasks",
       "Last updated",
     ]) {
       expect(src).toContain(label);
@@ -36,7 +36,7 @@ describe("contract inventory uses a real table with release-state columns", () =
       "Open contract",
       "Assign owner",
       "Add reminder",
-      "Create work",
+      "Create task",
     ]) {
       expect(src).toContain(action);
     }

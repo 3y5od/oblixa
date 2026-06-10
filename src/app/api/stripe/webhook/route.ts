@@ -11,6 +11,7 @@ import {
   captureServerException,
   captureServerMessage,
 } from "@/lib/observability/sentry";
+import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
 import { rotatingSecretCandidates } from "@/lib/security/rotating-secret";
@@ -47,6 +48,19 @@ function subscriptionPeriodEndIso(sub: Stripe.Subscription): string | null {
   return null;
 }
 
+function captureStripeWebhookFailure(
+  phase: string,
+  error: unknown,
+  extra: Record<string, unknown> = {}
+): string {
+  const reason = formatUnknownForServerLog(error);
+  captureServerMessage("stripe webhook processing failure", {
+    level: "error",
+    extra: { phase, reason, ...extra },
+  });
+  return reason;
+}
+
 export async function POST(request: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
@@ -61,8 +75,8 @@ export async function POST(request: Request) {
   }
   const stripeClient = await getStripeClient();
   if (!stripeClient.ok) {
-    console.error("[stripe/webhook] config:", stripeClient.error);
-    captureServerMessage(stripeClient.error, { level: "error" });
+    const safeError = captureStripeWebhookFailure("provider_config", stripeClient.error);
+    console.error("[stripe/webhook] config:", safeError);
     return stripeDependencyBlocked({
       route: "/api/stripe/webhook",
       diagnosticId: "stripe_webhook_provider_missing",
@@ -71,6 +85,12 @@ export async function POST(request: Request) {
     });
   }
   const stripe = stripeClient.stripe;
+
+  const ip = getClientIpFromRequest(request);
+  const preAuthRate = await rateLimitCheck(`stripe-webhook:preauth:${ip}`, RATE_LIMITS.stripeWebhook);
+  if (!preAuthRate.ok) {
+    return jsonRateLimited(preAuthRate.retryAfterMs, ROUTE);
+  }
 
   const contentTypeRejection = jsonContentTypeRejection(request);
   if (contentTypeRejection) {
@@ -111,8 +131,12 @@ export async function POST(request: Request) {
     }
     if (!event) throw signatureError ?? new Error("Stripe signature verification failed");
   } catch (err) {
-    console.error("[stripe/webhook] signature verification failed:", err);
-    captureServerException(err, { extra: { phase: "constructEvent" } });
+    const safeError = formatUnknownForServerLog(err);
+    console.error("[stripe/webhook] signature verification failed:", safeError);
+    captureServerMessage("stripe webhook signature verification failed", {
+      level: "warning",
+      extra: { phase: "constructEvent", reason: safeError },
+    });
     return jsonProblem(400, {
       error: "Invalid signature",
       code: "invalid_signature",
@@ -139,7 +163,6 @@ export async function POST(request: Request) {
     });
   }
 
-  const ip = getClientIpFromRequest(request);
   const rl = await rateLimitCheck(`stripe-webhook:${ip}`, RATE_LIMITS.stripeWebhook);
   if (!rl.ok) {
     return jsonRateLimited(rl.retryAfterMs, ROUTE);
@@ -156,9 +179,8 @@ export async function POST(request: Request) {
   try {
     supabase = await createAdminClient();
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Supabase env misconfigured";
+    const message = captureStripeWebhookFailure("supabase_config", err);
     console.error("[stripe/webhook] configuration error:", message);
-    captureServerMessage(message, { level: "error" });
     return jsonProblem(500, {
       error: "Server misconfigured",
       code: "server_misconfigured",
@@ -175,11 +197,8 @@ export async function POST(request: Request) {
     if (claimErr.code === "23505") {
       return jsonOk({ received: true, duplicate: true });
     }
-    console.error("[stripe/webhook] could not claim event:", claimErr.message);
-    captureServerMessage(claimErr.message, {
-      level: "error",
-      extra: { eventId: event.id },
-    });
+    const safeError = captureStripeWebhookFailure("claim_event", claimErr.message, { eventId: event.id });
+    console.error("[stripe/webhook] could not claim event:", safeError);
     return jsonProblem(500, {
       error: "Could not claim event",
       code: "event_claim_failed",
@@ -216,7 +235,7 @@ export async function POST(request: Request) {
           if (existingOrg?.stripe_customer_id && existingOrg.stripe_customer_id !== customerId) {
             captureServerMessage("checkout customer-org binding mismatch", {
               level: "error",
-              extra: { orgId, expected: existingOrg.stripe_customer_id, received: customerId },
+              extra: { orgId, hasExpectedCustomer: true, hasReceivedCustomer: true },
             });
             break;
           }
@@ -241,14 +260,14 @@ export async function POST(request: Request) {
               .eq("id", orgId);
             if (upErr) {
               processingFailed = true;
+              const safeError = captureStripeWebhookFailure("checkout_update", upErr.message, {
+                event: event.type,
+                orgId,
+              });
               console.error(
                 "[stripe/webhook] checkout.session.completed DB update:",
-                upErr.message
+                safeError
               );
-              captureServerMessage(upErr.message, {
-                level: "error",
-                extra: { event: event.type, orgId },
-              });
             } else {
               await supabase.from("audit_events").insert({
                 organization_id: orgId,
@@ -263,17 +282,14 @@ export async function POST(request: Request) {
             }
           } catch (err) {
             processingFailed = true;
-            console.error("[stripe/webhook] subscription retrieve failed:", err);
+            console.error("[stripe/webhook] subscription retrieve failed:", formatUnknownForServerLog(err));
             captureServerException(err, { extra: { event: event.type, orgId } });
           }
         } else if (orgId && session.subscription && !customerId) {
-          console.error(
-            "[stripe/webhook] checkout.session.completed missing customer id",
-            session.id
-          );
+          console.error("[stripe/webhook] checkout.session.completed missing customer id");
           captureServerMessage("checkout missing customer id", {
             level: "error",
-            extra: { sessionId: session.id },
+            extra: { hasSessionId: Boolean(session.id) },
           });
         }
         break;
@@ -298,11 +314,11 @@ export async function POST(request: Request) {
             .eq("stripe_subscription_id", sub.id);
           if (clearErr) {
             processingFailed = true;
-            console.error("[stripe/webhook] subscription.updated clear:", clearErr.message);
-            captureServerMessage(clearErr.message, {
-              level: "error",
-              extra: { event: event.type, subId: sub.id },
+            const safeError = captureStripeWebhookFailure("subscription_clear", clearErr.message, {
+              event: event.type,
+              subId: sub.id,
             });
+            console.error("[stripe/webhook] subscription.updated clear:", safeError);
           }
         } else {
           const { error: upErr } = await supabase
@@ -316,11 +332,11 @@ export async function POST(request: Request) {
             .eq("stripe_subscription_id", sub.id);
           if (upErr) {
             processingFailed = true;
-            console.error("[stripe/webhook] subscription.updated DB update:", upErr.message);
-            captureServerMessage(upErr.message, {
-              level: "error",
-              extra: { event: event.type, subId: sub.id },
+            const safeError = captureStripeWebhookFailure("subscription_update", upErr.message, {
+              event: event.type,
+              subId: sub.id,
             });
+            console.error("[stripe/webhook] subscription.updated DB update:", safeError);
           }
         }
         break;
@@ -338,11 +354,11 @@ export async function POST(request: Request) {
           .eq("stripe_subscription_id", sub.id);
         if (delErr) {
           processingFailed = true;
-          console.error("[stripe/webhook] subscription.deleted DB update:", delErr.message);
-          captureServerMessage(delErr.message, {
-            level: "error",
-            extra: { event: event.type, subId: sub.id },
+          const safeError = captureStripeWebhookFailure("subscription_delete", delErr.message, {
+            event: event.type,
+            subId: sub.id,
           });
+          console.error("[stripe/webhook] subscription.deleted DB update:", safeError);
         }
         break;
       }
@@ -363,11 +379,10 @@ export async function POST(request: Request) {
             .maybeSingle();
           if (orgErr) {
             processingFailed = true;
-            console.error("[stripe/webhook] invoice.payment_failed org lookup:", orgErr.message);
-            captureServerMessage(orgErr.message, {
-              level: "error",
-              extra: { event: event.type },
+            const safeError = captureStripeWebhookFailure("invoice_org_lookup", orgErr.message, {
+              event: event.type,
             });
+            console.error("[stripe/webhook] invoice.payment_failed org lookup:", safeError);
             break;
           }
           if (orgRow?.id) {
@@ -377,11 +392,10 @@ export async function POST(request: Request) {
               .eq("id", orgRow.id);
             if (upErr) {
               processingFailed = true;
-              console.error("[stripe/webhook] invoice.payment_failed DB update:", upErr.message);
-              captureServerMessage(upErr.message, {
-                level: "error",
-                extra: { event: event.type },
+              const safeError = captureStripeWebhookFailure("invoice_update", upErr.message, {
+                event: event.type,
               });
+              console.error("[stripe/webhook] invoice.payment_failed DB update:", safeError);
               break;
             }
             await supabase.from("audit_events").insert({
@@ -396,11 +410,11 @@ export async function POST(request: Request) {
             });
           }
         }
-        console.error(`Payment failed for Stripe customer ${customerId ?? "unknown"}`);
+        console.error("[stripe/webhook] invoice.payment_failed");
         captureServerMessage("invoice.payment_failed", {
           level: "warning",
           extra: {
-            customer: customerId ?? "unknown",
+            hasCustomer: Boolean(customerId),
             invoiceId: invoice.id,
           },
         });
@@ -409,7 +423,7 @@ export async function POST(request: Request) {
     }
 
   } catch (err) {
-    console.error("[stripe/webhook] handler error:", err);
+    console.error("[stripe/webhook] handler error:", formatUnknownForServerLog(err));
     captureServerException(err, {
       extra: { eventType: event.type, eventId: event.id },
     });
@@ -438,11 +452,8 @@ export async function POST(request: Request) {
     .eq("id", event.id);
 
   if (completeErr) {
-    console.error("[stripe/webhook] could not mark event completed:", completeErr.message);
-    captureServerMessage(completeErr.message, {
-      level: "error",
-      extra: { eventId: event.id },
-    });
+    const safeError = captureStripeWebhookFailure("complete_event", completeErr.message, { eventId: event.id });
+    console.error("[stripe/webhook] could not mark event completed:", safeError);
   }
 
   return jsonOk({ received: true });

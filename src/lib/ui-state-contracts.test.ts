@@ -99,6 +99,7 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     const recoverableState = readFileSync(join(process.cwd(), "src/components/ui/recoverable-state.tsx"), "utf8");
     const commandPalette = readFileSync(join(process.cwd(), "src/components/layout/command-palette.tsx"), "utf8");
     const sidebar = readFileSync(join(process.cwd(), "src/components/layout/sidebar.tsx"), "utf8");
+    const mobileDrawer = readFileSync(join(process.cwd(), "src/components/layout/sidebar/mobile-drawer.tsx"), "utf8");
 
     expect(globalsCss).toContain("prefers-reduced-motion");
     expect(globalsCss).toMatch(/html\s*\{[\s\S]*overflow-x:\s*clip/);
@@ -113,7 +114,8 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     expect(commandPalette).toContain("openButtonRef.current?.focus()");
     expect(commandPalette).toContain('aria-label="Command palette"');
     expect(sidebar).toContain("mobileOpenButtonRef.current?.focus()");
-    expect(sidebar).toContain('aria-label="Navigation drawer"');
+    expect(sidebar).toContain("<MobileDrawer");
+    expect(mobileDrawer).toContain('aria-label="Navigation drawer"');
   });
 
   it("keeps visual regression coverage tied to recoverable states, breakpoints, and contrast modes", () => {

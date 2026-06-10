@@ -20,6 +20,7 @@ const STRIDE_LABELS = new Set([
 ]);
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE", "ACTION"]);
+const testFileCache = new Map();
 
 function stableStringify(value) {
   return `${JSON.stringify(value)}\n`;
@@ -28,6 +29,26 @@ function stableStringify(value) {
 function read(root, rel) {
   const abs = path.join(root, rel);
   return fs.existsSync(abs) ? fs.readFileSync(abs, "utf8") : "";
+}
+
+function readFile(file) {
+  return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+}
+
+function rel(root, file) {
+  return path.relative(root, file).replace(/\\/g, "/");
+}
+
+function walk(dir, predicate = () => true, acc = []) {
+  if (!fs.existsSync(dir)) return acc;
+  for (const name of fs.readdirSync(dir)) {
+    if (name === "node_modules" || name === ".next" || name === ".git") continue;
+    const full = path.join(dir, name);
+    const stat = fs.statSync(full);
+    if (stat.isDirectory()) walk(full, predicate, acc);
+    else if (predicate(full, name)) acc.push(full);
+  }
+  return acc;
 }
 
 function readJson(root, rel, fallback = null) {
@@ -331,7 +352,7 @@ function dreadScore(row, categories) {
   };
 }
 
-function testCandidates(sourcePath) {
+function pathBasedTestCandidates(sourcePath) {
   if (!sourcePath) return [];
   const ext = path.extname(sourcePath);
   const base = sourcePath.slice(0, -ext.length);
@@ -340,6 +361,44 @@ function testCandidates(sourcePath) {
   if (ext === ".ts") candidates.push(`${base}.test.tsx`);
   if (ext === ".tsx") candidates.push(`${base}.test.ts`);
   return uniqueSorted(candidates);
+}
+
+function testModuleSpecifiers(sourcePath) {
+  const normalized = sourcePath.replace(/\\/g, "/");
+  const ext = path.extname(normalized);
+  const withoutExt = normalized.slice(0, -ext.length);
+  const specifiers = [withoutExt];
+  if (withoutExt.startsWith("src/")) specifiers.push(`@/${withoutExt.slice("src/".length)}`);
+  return uniqueSorted(specifiers);
+}
+
+function contentReferencesModule(content, specifiers) {
+  return specifiers.some((specifier) => content.includes(`"${specifier}"`) || content.includes(`'${specifier}'`));
+}
+
+function importBasedTestCandidates(root, sourcePath) {
+  const specifiers = testModuleSpecifiers(sourcePath);
+  if (specifiers.length === 0) return [];
+  return testFilesForRoot(root)
+    .filter((file) => contentReferencesModule(file.content, specifiers))
+    .map((file) => file.rel);
+}
+
+function testCandidates(root, sourcePath) {
+  return uniqueSorted([
+    ...pathBasedTestCandidates(sourcePath),
+    ...importBasedTestCandidates(root, sourcePath),
+  ]);
+}
+
+function testFilesForRoot(root) {
+  const cacheKey = path.resolve(root);
+  if (testFileCache.has(cacheKey)) return testFileCache.get(cacheKey);
+  const srcRoot = path.join(root, "src");
+  const files = walk(srcRoot, (_full, name) => /\.(test|spec)\.(ts|tsx)$/.test(name))
+    .map((file) => ({ rel: rel(root, file), content: readFile(file) }));
+  testFileCache.set(cacheKey, files);
+  return files;
 }
 
 function staticChecksForSurface(row, categories) {
@@ -442,7 +501,7 @@ function buildControlMetadata(row, routeSecurityRows) {
 }
 
 function buildEvidence(root, scripts, row, categories) {
-  const directTests = testCandidates(row.sourcePath).filter((rel) => fs.existsSync(path.join(root, rel)));
+  const directTests = testCandidates(root, row.sourcePath).filter((rel) => fs.existsSync(path.join(root, rel)));
   const staticChecks = staticChecksForSurface(row, categories).map((script) => ({
     script,
     present: Boolean(scripts[script]),

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createHmac } from "crypto";
 
 const createAdminClient = vi.fn();
 const rateLimitCheck = vi.fn();
@@ -8,6 +9,7 @@ const ORG_ID = "11111111-1111-1111-1111-111111111111";
 const OTHER_ORG_ID = "22222222-2222-2222-2222-222222222222";
 const CONTRACT_ID = "33333333-3333-3333-3333-333333333333";
 const SUBMISSION_ID = "44444444-4444-4444-4444-444444444444";
+const DELEGATE_USER_ID = "55555555-5555-5555-5555-555555555555";
 
 vi.mock("@/lib/supabase/server", () => ({
   createAdminClient,
@@ -21,15 +23,61 @@ vi.mock("@/lib/rate-limit", () => ({
   getClientIpFromRequest,
 }));
 
+function signedCallbackRequest(
+  body: Record<string, unknown>,
+  token = "callback-only",
+  secret = "callback-hmac-secret"
+) {
+  const raw = JSON.stringify(body);
+  const timestamp = String(Math.floor(Date.now() / 1000));
+  const signature = `sha256=${createHmac("sha256", secret).update(`${timestamp}.${raw}`).digest("hex")}`;
+  return new Request("http://localhost:3000/api/integrations/actions/callback", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+      "x-oblixa-callback-signature": signature,
+      "x-oblixa-callback-timestamp": timestamp,
+    },
+    body: raw,
+  });
+}
+
 describe("POST /api/integrations/actions/callback", () => {
   beforeEach(() => {
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
+    delete process.env.INBOUND_AUTOMATION_TOKEN;
     delete process.env.INBOUND_AUTOMATION_ORG_ALLOWLIST;
     delete process.env.INBOUND_INTEGRATIONS_CALLBACK_TOKEN;
+    delete process.env.INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET;
+    delete process.env.VERCEL;
+    delete process.env.VERCEL_ENV;
     getClientIpFromRequest.mockReturnValue("127.0.0.1");
     rateLimitCheck.mockResolvedValue({ ok: true });
     createAdminClient.mockResolvedValue({
       from: vi.fn((table: string) => {
+        const statusByTable: Record<string, string> = {
+          evidence_submissions: "submitted",
+          contract_approvals: "pending",
+          exceptions: "open",
+        };
+        const selectStatus = (status: string) => ({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1", status }, error: null }),
+            }),
+          }),
+        });
+        const updateOk = () => ({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+              }),
+            }),
+          }),
+        });
         if (table === "contracts") {
           return {
             select: vi.fn().mockReturnValue({
@@ -41,17 +89,31 @@ describe("POST /api/integrations/actions/callback", () => {
             }),
           };
         }
-        return {
-          insert: vi.fn().mockResolvedValue({}),
-          update: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
+        if (table === "organization_members") {
+          return {
+            select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
-                select: vi.fn().mockReturnValue({
-                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+                eq: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: { id: "member-1" }, error: null }),
                 }),
               }),
             }),
-          }),
+          };
+        }
+        if (statusByTable[table]) {
+          return {
+            select: vi.fn().mockReturnValue(selectStatus(statusByTable[table])),
+            insert: vi.fn(() => ({
+              select: vi.fn(() => ({
+                single: vi.fn().mockResolvedValue({ data: { id: "row-1" }, error: null }),
+              })),
+            })),
+            update: vi.fn().mockReturnValue(updateOk()),
+          };
+        }
+        return {
+          insert: vi.fn().mockResolvedValue({}),
+          update: vi.fn().mockReturnValue(updateOk()),
         };
       }),
     });
@@ -90,6 +152,46 @@ describe("POST /api/integrations/actions/callback", () => {
       }),
     });
     const res = await POST(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 503 in production when callback HMAC secret is missing", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    process.env.INBOUND_INTEGRATIONS_CALLBACK_TOKEN = "callback-only";
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const req = new Request("http://localhost:3000/api/integrations/actions/callback", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer callback-only",
+      },
+      body: JSON.stringify({
+        organizationId: ORG_ID,
+        action: "ack_complete",
+        contractId: CONTRACT_ID,
+      }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      code: "server_misconfigured",
+      details: { missing_env: "INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET" },
+    });
+  });
+
+  it("accepts a signed integration callback body", async () => {
+    delete process.env.INBOUND_AUTOMATION_TOKEN;
+    process.env.INBOUND_INTEGRATIONS_CALLBACK_TOKEN = "callback-only";
+    process.env.INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET = "callback-hmac-secret";
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const res = await POST(
+      signedCallbackRequest({
+        organizationId: ORG_ID,
+        action: "ack_complete",
+        contractId: CONTRACT_ID,
+      })
+    );
     expect(res.status).toBe(200);
   });
 
@@ -158,6 +260,13 @@ describe("POST /api/integrations/actions/callback", () => {
     process.env.INBOUND_AUTOMATION_TOKEN = "token";
     createAdminClient.mockResolvedValueOnce({
       from: vi.fn(() => ({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+            }),
+          }),
+        }),
         insert: vi.fn().mockResolvedValue({}),
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
@@ -395,16 +504,27 @@ describe("POST /api/integrations/actions/callback", () => {
 
   it("handles duplicate replay of approve_evidence callback idempotently", async () => {
     process.env.INBOUND_AUTOMATION_TOKEN = "token";
-    const maybeSingle = vi.fn().mockResolvedValue({ data: { id: SUBMISSION_ID }, error: null });
+    const statusMaybeSingle = vi
+      .fn()
+      .mockResolvedValueOnce({ data: { id: SUBMISSION_ID, status: "submitted" }, error: null })
+      .mockResolvedValueOnce({ data: { id: SUBMISSION_ID, status: "approved" }, error: null });
+    const updateMaybeSingle = vi.fn().mockResolvedValue({ data: { id: SUBMISSION_ID }, error: null });
     const update = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({ maybeSingle }),
+          select: vi.fn().mockReturnValue({ maybeSingle: updateMaybeSingle }),
         }),
       }),
     });
     createAdminClient.mockResolvedValue({
       from: vi.fn(() => ({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: statusMaybeSingle,
+            }),
+          }),
+        }),
         insert: vi.fn().mockResolvedValue({}),
         update,
       })),
@@ -432,7 +552,110 @@ describe("POST /api/integrations/actions/callback", () => {
     await expect(first.json()).resolves.toEqual({ ok: true, submissionId: SUBMISSION_ID });
     expect(second.status).toBe(200);
     await expect(second.json()).resolves.toEqual({ ok: true, submissionId: SUBMISSION_ID });
-    expect(update).toHaveBeenCalledTimes(2);
-    expect(maybeSingle).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(statusMaybeSingle).toHaveBeenCalledTimes(2);
+    expect(updateMaybeSingle).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects reject_evidence when the submission is already approved", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const update = vi.fn();
+    createAdminClient.mockResolvedValue({
+      from: vi.fn(() => ({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({
+                data: { id: SUBMISSION_ID, status: "approved" },
+                error: null,
+              }),
+            }),
+          }),
+        }),
+        insert: vi.fn().mockResolvedValue({}),
+        update,
+      })),
+    });
+
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/actions/callback", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer token",
+        },
+        body: JSON.stringify({
+          organizationId: ORG_ID,
+          action: "reject_evidence",
+          id: SUBMISSION_ID,
+          reason: "missing evidence",
+        }),
+      })
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "conflict",
+      details: { reason: "terminal_state", resource: "evidence_submission", status: "approved" },
+    });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("rejects delegate_approval when delegateUserId is not an organization member", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const update = vi.fn();
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "organization_members") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                }),
+              }),
+            }),
+          };
+        }
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockResolvedValue({
+                  data: { id: "approval-1", status: "pending" },
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+          insert: vi.fn().mockResolvedValue({}),
+          update,
+        };
+      }),
+    });
+
+    const { POST } = await import("@/app/api/integrations/actions/callback/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/integrations/actions/callback", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer token",
+        },
+        body: JSON.stringify({
+          organizationId: ORG_ID,
+          action: "delegate_approval",
+          id: "66666666-6666-6666-6666-666666666666",
+          delegateUserId: DELEGATE_USER_ID,
+        }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({
+      diagnostic_id: "integration_callback_delegate_user_not_member",
+    });
+    expect(update).not.toHaveBeenCalled();
   });
 });

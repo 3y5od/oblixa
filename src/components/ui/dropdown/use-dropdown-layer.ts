@@ -83,7 +83,11 @@ export function useDropdownLayer(
   const openRef = useRef(false);
   const [open, setOpenState] = useState(false);
   const [position, setPosition] = useState<DropdownPosition | null>(null);
-  openRef.current = open;
+
+  const setOpenValue = useCallback((next: boolean) => {
+    openRef.current = next;
+    setOpenState(next);
+  }, []);
 
   const computePosition = useCallback((): DropdownPosition | null => {
     const el = triggerRef.current;
@@ -115,19 +119,19 @@ export function useDropdownLayer(
 
   const close = useCallback(
     (restoreFocus: boolean = returnFocusOnClose) => {
-      setOpenState(false);
+      setOpenValue(false);
       if (restoreFocus) triggerRef.current?.focus();
     },
-    [returnFocusOnClose],
+    [returnFocusOnClose, setOpenValue],
   );
 
   const setOpen = useCallback(
     (next: boolean) => {
       // Measure synchronously before opening so the portal never paints at (0,0).
       if (next) setPosition(computePosition());
-      setOpenState(next);
+      setOpenValue(next);
     },
-    [computePosition],
+    [computePosition, setOpenValue],
   );
 
   const toggle = useCallback(() => {

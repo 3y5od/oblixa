@@ -101,8 +101,8 @@
       "manualFollowUp": "Keep compatibility-sensitive names retained until their queue status reaches ready_for_removal.",
       "closureStatus": "coverage_proven",
       "categoryCount": 29,
-      "contractCount": 8356,
-      "manualOnlyContractCount": 2620,
+      "contractCount": 8218,
+      "manualOnlyContractCount": 2532,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
       "missingMetadataCount": 0,
@@ -133,7 +133,7 @@
         "fixtures_evidence_and_qa_registries",
         "test_tags_skip_and_snapshot_prefixes"
       ],
-      "contractCount": 488,
+      "contractCount": 490,
       "manualOnlyContractCount": 1,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -171,7 +171,7 @@
         "copy_and_localization_keys",
         "test_tags_skip_and_snapshot_prefixes"
       ],
-      "contractCount": 586,
+      "contractCount": 575,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -189,7 +189,7 @@
         "copy_and_localization_keys",
         "style_tokens_and_visual_keys"
       ],
-      "contractCount": 592,
+      "contractCount": 593,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,

@@ -1,6 +1,7 @@
 export const MAIN_CONTENT_ID = "main-content";
 
 export const shellTestIds = {
+  headerTopbar: "workspace-header",
   sidebarDesktop: "sidebar-desktop",
   sidebarCollapseToggle: "sidebar-collapse-toggle",
   sidebarMobileOpen: "sidebar-mobile-open",

@@ -80,7 +80,7 @@ describe("createContractTask", () => {
     ["invalid priority", { priority: "urgent" }, "Invalid task priority"],
     ["long team key", { teamKey: "x".repeat(81) }, "Team key is too long"],
     ["invalid blocked-by task", { blockedByTaskId: "bad-id" }, "Invalid blocked-by task"],
-    ["long blocked reason", { blockedReason: "x".repeat(401) }, "Blocked reason is too long"],
+    ["long blocked reason", { blockedReason: "x".repeat(401) }, "Waiting reason is too long"],
     ["invalid recurrence anchor", { recurrenceAnchorDate: "not-a-date" }, "Invalid recurrence anchor date"],
     ["invalid SLA due date", { slaDueAt: "not-a-date" }, "Invalid SLA due date"],
     ["long checklist item", { checklistItems: ["x".repeat(241)] }, "Checklist item is too long"],

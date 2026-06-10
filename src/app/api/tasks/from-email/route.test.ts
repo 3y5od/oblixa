@@ -4,6 +4,7 @@ import { createHmac } from "crypto";
 const ORG_ID = "11111111-1111-1111-1111-111111111111";
 const OTHER_ORG_ID = "22222222-2222-2222-2222-222222222222";
 const CONTRACT_ID = "33333333-3333-3333-3333-333333333333";
+const REQUIREMENT_ID = "44444444-4444-4444-4444-444444444444";
 const createAdminClient = vi.fn();
 const rateLimitCheck = vi.fn();
 const recordApiMutationAuditEvent = vi.fn();
@@ -23,6 +24,7 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
 
 describe("POST /api/tasks/from-email", () => {
   beforeEach(() => {
+    vi.unstubAllEnvs();
     vi.resetModules();
     vi.clearAllMocks();
     delete process.env.INBOUND_AUTOMATION_TOKEN;
@@ -30,6 +32,8 @@ describe("POST /api/tasks/from-email", () => {
     delete process.env.INBOUND_AUTOMATION_ORG_ALLOWLIST;
     delete process.env.EMAIL_INBOUND_HMAC_SECRET;
     delete process.env.OBLIXA_KILL_INBOUND_AUTOMATION;
+    delete process.env.VERCEL;
+    delete process.env.VERCEL_ENV;
     rateLimitCheck.mockResolvedValue({ ok: true });
     recordApiMutationAuditEvent.mockResolvedValue("v10-audit-1");
   });
@@ -115,6 +119,29 @@ describe("POST /api/tasks/from-email", () => {
       code: "invalid_signature",
       diagnostic_id: "email_inbound_signature_invalid",
     });
+  });
+
+  it("returns 503 in production when email HMAC secret is missing", async () => {
+    process.env.VERCEL = "1";
+    process.env.VERCEL_ENV = "production";
+    process.env.INBOUND_EMAIL_AUTOMATION_TOKEN = "email-token";
+    const { POST } = await import("@/app/api/tasks/from-email/route");
+    const req = new Request("http://localhost:3000/api/tasks/from-email", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer email-token",
+      },
+      body: JSON.stringify({ organizationId: ORG_ID, contractId: CONTRACT_ID, subject: "hello" }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      code: "server_misconfigured",
+      details: { missing_env: "EMAIL_INBOUND_HMAC_SECRET" },
+    });
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 429 when organization rate limit is exceeded", async () => {
@@ -284,6 +311,70 @@ describe("POST /api/tasks/from-email", () => {
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body.error).toMatch(/from must be 320/);
+  });
+
+  it("rejects evidence_submission when evidenceRequirementId is not scoped to the contract", async () => {
+    process.env.INBOUND_AUTOMATION_TOKEN = "token";
+    const insertSubmission = vi.fn();
+    createAdminClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "contracts") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({
+                    data: { id: CONTRACT_ID, organization_id: ORG_ID },
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
+          };
+        }
+        if (table === "evidence_requirements") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                })),
+              })),
+            })),
+            update: vi.fn(),
+          };
+        }
+        if (table === "evidence_submissions") {
+          return { insert: insertSubmission };
+        }
+        throw new Error(`Unexpected table ${table}`);
+      }),
+    });
+
+    const { POST } = await import("@/app/api/tasks/from-email/route");
+    const res = await POST(
+      new Request("http://localhost:3000/api/tasks/from-email", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer token",
+        },
+        body: JSON.stringify({
+          organizationId: ORG_ID,
+          contractId: CONTRACT_ID,
+          intakeType: "evidence_submission",
+          evidenceRequirementId: REQUIREMENT_ID,
+          subject: "Evidence",
+        }),
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      diagnostic_id: "email_inbound_evidence_requirement_not_found",
+    });
+    expect(insertSubmission).not.toHaveBeenCalled();
   });
 
   it("dedupes replayed email task creation by externalMessageId without inserting again", async () => {

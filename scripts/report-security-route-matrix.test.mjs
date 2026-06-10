@@ -139,3 +139,34 @@ test("findSecurityRouteMatrixUniverseFailures rejects matrix rows that drift fro
     }
   );
 });
+
+test("buildSecurityRouteMatrix follows local body-reader helper functions", () => {
+  const rows = withFixture(
+    {
+      "scripts/api-route-public-allowlist.txt": "",
+      "src/app/api/integrations/actions/callback/route.ts": `
+        async function readCallbackBody(request) {
+          return readTextBodyLimited(request, 1024);
+        }
+        export async function POST(request: Request) {
+          await rateLimitCheck("callback", "ip");
+          if (!isInboundAutomationAuthorized(request, "integrations_callback")) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
+          }
+          const body = await readCallbackBody(request);
+          await enforceIdempotency(request, { scope: "callback", actorKey: "org" });
+          await recordApiMutationAuditEvent();
+          return Response.json({ body });
+        }
+      `,
+    },
+    buildSecurityRouteMatrix
+  );
+
+  const callbackPost = rows.find(
+    (row) => row.path === "/api/integrations/actions/callback" && row.method === "POST"
+  );
+  assert.equal(callbackPost?.auth_type, "bearer_secret");
+  assert.equal(callbackPost?.body_size_policy, "bounded_text");
+  assert.equal(callbackPost?.idempotency_or_job_lock_policy, "idempotency_or_duplicate_guard");
+});

@@ -11,7 +11,7 @@
   "totals": {
     "groupCount": 6,
     "guardedGroupCount": 6,
-    "contractCount": 1432,
+    "contractCount": 1435,
     "manualOnlyContractCount": 29,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
@@ -34,8 +34,8 @@
         "static_text_fixtures_snapshots"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 576,
-      "hitCount": 3523,
+      "contractCount": 565,
+      "hitCount": 3470,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -43,7 +43,7 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {},
       "ownerCoverage": {
-        "platform-hardening": 576
+        "platform-hardening": 565
       }
     },
     {
@@ -92,8 +92,8 @@
         "audit_security_evidence_governance_ids"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 478,
-      "hitCount": 2476,
+      "contractCount": 480,
+      "hitCount": 2477,
       "manualOnlyContractCount": 1,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -107,7 +107,7 @@
       },
       "ownerCoverage": {
         "database-platform": 1,
-        "platform-hardening": 477
+        "platform-hardening": 479
       }
     },
     {
@@ -136,7 +136,7 @@
       "queueStatusCounts": {
         "alias_added": 53,
         "awaiting_linked_verification": 1,
-        "awaiting_production_cutover": 390
+        "awaiting_production_cutover": 387
       },
       "ownerCoverage": {
         "platform-hardening": 260,
@@ -157,8 +157,8 @@
         "design_token_theme_contracts"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 16,
-      "hitCount": 23,
+      "contractCount": 28,
+      "hitCount": 46,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -166,7 +166,7 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {},
       "ownerCoverage": {
-        "platform-hardening": 16
+        "platform-hardening": 28
       }
     },
     {

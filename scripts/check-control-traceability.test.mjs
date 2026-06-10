@@ -154,6 +154,46 @@ test("builds a complete control traceability report for a high-risk webhook", ()
   assert.equal(strideDreadThreatModel.surfaces[0].path, "/api/stripe/webhook");
 });
 
+test("links server action direct tests by imported module specifier", () => {
+  const root = makeRoot();
+  writeMinimalFixture(root);
+  const routeUniversePath = path.join(root, "artifacts/route-universe.json");
+  const routeUniverse = JSON.parse(fs.readFileSync(routeUniversePath, "utf8"));
+  routeUniverse.routes.push({
+    id: "server_action:createWebhookSubscriptionForm:src/actions/workflow-config.ts",
+    route: "action:createWebhookSubscriptionForm",
+    sourcePath: "src/actions/workflow-config.ts",
+    kind: "server_action",
+    class: "server_action",
+    methods: ["ACTION"],
+    authModel: "session",
+    rolePolicy: ["admin"],
+    rateLimitPolicy: "mutation_required",
+    bodyPolicy: "structured_action_payload",
+    cachePolicy: "private_no_store",
+    owner: "integrations",
+    riskTier: "P1",
+    providers: [],
+    dbDependencies: { tables: [], rpcs: [] },
+    dynamicSegments: [],
+    orgScopeRequired: true,
+    orgScopeEvidence: true,
+    observabilityRequired: true,
+  });
+  writeJson(root, "artifacts/route-universe.json", routeUniverse);
+  writeText(
+    root,
+    "src/actions/workflow-config-action-scope.test.ts",
+    'test("workflow config action scope", async () => { await import("@/actions/workflow-config"); });\n'
+  );
+
+  const { report } = buildOperationalThreatModelControlTraceabilityReport(root);
+  const action = report.attackSurfaceInventory.rows.find((row) => row.id === routeUniverse.routes.at(-1).id);
+
+  assert.ok(action);
+  assert.deepEqual(action.evidence.directTests, ["src/actions/workflow-config-action-scope.test.ts"]);
+});
+
 test("residual risk rows must include owner expiry impact and validation command", () => {
   const root = makeRoot();
   writeMinimalFixture(root, {

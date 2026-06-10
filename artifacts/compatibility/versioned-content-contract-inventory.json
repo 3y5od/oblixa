@@ -2,21 +2,21 @@
   "schemaVersion": 2,
   "generatedBy": "scripts/check-versioned-content-contracts.mjs --write",
   "policy": "Classify content-level product version labels without reading .env.local or embedding source excerpts. Manual surfaces require aliases, queues, or external evidence before removal.",
-  "contractCount": 2892,
-  "hitCount": 13942,
-  "manualOnlyContractCount": 1254,
+  "contractCount": 2864,
+  "hitCount": 13623,
+  "manualOnlyContractCount": 1229,
   "bySurface": {
     "api_or_cron_contract": 1213,
-    "app_route_contract": 598,
+    "app_route_contract": 327,
     "ci_contract": 19,
     "dom_or_test_selector": 102,
     "e2e_contract": 20,
-    "environment_key": 454,
+    "environment_key": 447,
     "external_contract": 143,
     "openapi_schema": 129,
     "package_script_or_metadata": 38,
-    "provider_or_crypto_format": 1330,
-    "source_content": 7281,
+    "provider_or_crypto_format": 1327,
+    "source_content": 7243,
     "sql_object": 1214,
     "telemetry_event": 204,
     "tooling_contract": 1197
@@ -25,7 +25,7 @@
     "ai_fixture_or_prompt_contract": 25,
     "api_route_contract": 794,
     "artifact_schema_version": 24,
-    "audit_evidence_or_diagnostic_key": 1394,
+    "audit_evidence_or_diagnostic_key": 1395,
     "ci_job_matrix_or_artifact": 19,
     "cron_route_contract": 418,
     "cryptographic_envelope_version": 29,
@@ -33,30 +33,30 @@
     "dom_or_test_selector": 12,
     "e2e_contract": 3,
     "e2e_test_tag_or_fixture": 17,
-    "environment_key": 233,
+    "environment_key": 226,
     "feature_flag_key": 121,
-    "local_source_literal": 3459,
-    "localization_or_copy_key": 64,
+    "local_source_literal": 3407,
+    "localization_or_copy_key": 63,
     "migration_sql_content": 712,
-    "notification_or_export_contract": 72,
+    "notification_or_export_contract": 71,
     "openapi_or_json_schema_contract": 129,
     "operational_env_key": 58,
-    "operational_storage_or_queue_key": 1719,
+    "operational_storage_or_queue_key": 1714,
     "package_script_key": 37,
     "package_script_or_metadata": 1,
-    "page_route_or_deep_link_contract": 598,
-    "provider_model_or_eval_version": 1126,
+    "page_route_or_deep_link_contract": 327,
+    "provider_model_or_eval_version": 1124,
     "provider_oauth_protocol_version": 5,
     "provider_or_protocol_version": 52,
-    "provider_signature_version": 64,
+    "provider_signature_version": 63,
     "public_env_key": 31,
     "seed_fixture_key": 3,
     "source_owned_config_or_scanner_id": 233,
-    "source_schema_or_action_contract": 525,
+    "source_schema_or_action_contract": 522,
     "sql_or_persisted_key": 76,
     "sql_security_object": 423,
     "standards_compliance_reference": 30,
-    "style_token_or_selector": 23,
+    "style_token_or_selector": 46,
     "supply_chain_evidence_id": 28,
     "telemetry_event_name": 204,
     "test_runtime_env_key": 11,
@@ -73,11 +73,11 @@
       "token": "v10",
       "count": 10,
       "sampleLines": [
-        790,
-        1134,
-        1136,
-        1138,
-        1140
+        793,
+        1137,
+        1139,
+        1141,
+        1143
       ],
       "evidenceHashes": [
         "fcf91254e841b20a",
@@ -372,7 +372,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        168
+        156
       ],
       "evidenceHashes": [
         "c529fac2b4bbeb4e"
@@ -982,7 +982,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        958
+        957
       ],
       "evidenceHashes": [
         "0643a0b4f86cb0b1"
@@ -1004,7 +1004,7 @@
       "count": 2,
       "sampleLines": [
         394,
-        722
+        721
       ],
       "evidenceHashes": [
         "29778f19de220528",
@@ -1052,8 +1052,8 @@
         54,
         296,
         375,
-        700,
-        763
+        699,
+        762
       ],
       "evidenceHashes": [
         "e67d37369002b434",
@@ -1078,7 +1078,7 @@
       "token": "v2",
       "count": 1,
       "sampleLines": [
-        901
+        900
       ],
       "evidenceHashes": [
         "04f7d77094ec5dc6"
@@ -1100,7 +1100,7 @@
       "count": 2,
       "sampleLines": [
         214,
-        744
+        743
       ],
       "evidenceHashes": [
         "b545455a7368c526",
@@ -1124,7 +1124,7 @@
       "sampleLines": [
         94,
         113,
-        920
+        919
       ],
       "evidenceHashes": [
         "55e09a22cb90cd8f",
@@ -1193,7 +1193,7 @@
       "token": "v4",
       "count": 1,
       "sampleLines": [
-        658
+        666
       ],
       "evidenceHashes": [
         "8169063ecfbfca0f"
@@ -1850,7 +1850,7 @@
       "token": "v8",
       "count": 1,
       "sampleLines": [
-        956
+        959
       ],
       "evidenceHashes": [
         "ecf97061dde32e27"
@@ -2201,9 +2201,9 @@
       "sampleLines": [
         22,
         22,
-        33,
-        35,
-        36
+        32,
+        34,
+        35
       ],
       "evidenceHashes": [
         "18dd9d39f3b108f3",
@@ -2228,9 +2228,9 @@
       "token": "v9",
       "count": 3,
       "sampleLines": [
+        37,
         38,
-        39,
-        39
+        38
       ],
       "evidenceHashes": [
         "c0c5fed3af69d927",
@@ -5296,7 +5296,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        137
+        138
       ],
       "evidenceHashes": [
         "37d95ad1a7bf80c4"
@@ -6185,7 +6185,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        127
+        133
       ],
       "evidenceHashes": [
         "4ece1f6faadfd808"
@@ -7168,7 +7168,7 @@
       "count": 2,
       "sampleLines": [
         26,
-        102
+        105
       ],
       "evidenceHashes": [
         "9108daf0852ee088",
@@ -7191,7 +7191,7 @@
       "count": 2,
       "sampleLines": [
         26,
-        102
+        105
       ],
       "evidenceHashes": [
         "9108daf0852ee088",
@@ -7213,8 +7213,8 @@
       "token": "v8",
       "count": 2,
       "sampleLines": [
-        94,
-        94
+        97,
+        97
       ],
       "evidenceHashes": [
         "62fa1cffd33425cf",
@@ -7239,8 +7239,8 @@
         36,
         64,
         67,
-        88,
-        96
+        111,
+        119
       ],
       "evidenceHashes": [
         "73ea91f96caa7e44",
@@ -7287,10 +7287,10 @@
       "count": 5,
       "sampleLines": [
         32,
-        86,
-        97,
-        108,
-        122
+        109,
+        120,
+        131,
+        145
       ],
       "evidenceHashes": [
         "3be9f5741285ae8e",
@@ -7402,8 +7402,8 @@
       "count": 3,
       "sampleLines": [
         35,
-        87,
-        98
+        110,
+        121
       ],
       "evidenceHashes": [
         "b6b5554d69665fca",
@@ -12170,7 +12170,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        773
+        787
       ],
       "evidenceHashes": [
         "79f8f72ac12cefa0"
@@ -12191,11 +12191,11 @@
       "token": "v10",
       "count": 9,
       "sampleLines": [
-        474,
-        608,
-        616,
-        634,
-        635
+        488,
+        622,
+        630,
+        648,
+        649
       ],
       "evidenceHashes": [
         "41a1e06a05c0d310",
@@ -12220,7 +12220,7 @@
       "token": "v4",
       "count": 1,
       "sampleLines": [
-        496
+        510
       ],
       "evidenceHashes": [
         "6f6088448a5bcc9f"
@@ -12241,7 +12241,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        1912
+        1926
       ],
       "evidenceHashes": [
         "03ea2480a8534f6c"
@@ -12262,8 +12262,8 @@
       "token": "v9",
       "count": 2,
       "sampleLines": [
-        503,
-        1682
+        517,
+        1696
       ],
       "evidenceHashes": [
         "2cfe25da7c0fe4fe",
@@ -12285,7 +12285,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        1661
+        1675
       ],
       "evidenceHashes": [
         "6542a533f0feae73"
@@ -12306,7 +12306,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        1658
+        1672
       ],
       "evidenceHashes": [
         "47b0921cfec3174b"
@@ -12327,7 +12327,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        1660
+        1674
       ],
       "evidenceHashes": [
         "c28083615200fcb3"
@@ -12348,7 +12348,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        1532
+        1546
       ],
       "evidenceHashes": [
         "517d0929a6e0b346"
@@ -12369,7 +12369,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        719
+        733
       ],
       "evidenceHashes": [
         "9ce4917caa248258"
@@ -12390,7 +12390,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        727
+        741
       ],
       "evidenceHashes": [
         "7ae710ebaea08b6c"
@@ -12411,7 +12411,7 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        704
+        718
       ],
       "evidenceHashes": [
         "9e347c0788e8347d"
@@ -12432,7 +12432,7 @@
       "token": "v4",
       "count": 1,
       "sampleLines": [
-        7
+        9
       ],
       "evidenceHashes": [
         "5a2e9dd330755435"
@@ -14251,7 +14251,7 @@
       "token": "v5",
       "count": 1,
       "sampleLines": [
-        15
+        16
       ],
       "evidenceHashes": [
         "cb78671e6563a58c"
@@ -14295,11 +14295,11 @@
       "token": "v10",
       "count": 145,
       "sampleLines": [
-        690,
-        759,
-        760,
-        761,
-        762
+        463,
+        532,
+        533,
+        534,
+        535
       ],
       "evidenceHashes": [
         "92be5710c64bfead",
@@ -14324,8 +14324,8 @@
       "token": "v5",
       "count": 2,
       "sampleLines": [
-        499,
-        505
+        272,
+        278
       ],
       "evidenceHashes": [
         "1f32208597c6ce04",
@@ -14347,7 +14347,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        506
+        279
       ],
       "evidenceHashes": [
         "660228fd040fa4bc"
@@ -14368,10 +14368,10 @@
       "token": "v9",
       "count": 1,
       "sampleLines": [
-        140
+        139
       ],
       "evidenceHashes": [
-        "2eabc8d92a0e5583"
+        "e0cbeb7ac0cd736d"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -14389,7 +14389,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        2829
+        2325
       ],
       "evidenceHashes": [
         "fd2226244d936ea4"
@@ -14410,8 +14410,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        2828,
-        2916
+        2324,
+        2412
       ],
       "evidenceHashes": [
         "e2f185e993505c3e",
@@ -14433,8 +14433,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        2830,
-        2919
+        2326,
+        2415
       ],
       "evidenceHashes": [
         "ea0371d338887c49",
@@ -14456,8 +14456,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        2917,
-        2917
+        2413,
+        2413
       ],
       "evidenceHashes": [
         "ca9cd1bf50337da3",
@@ -14479,8 +14479,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        2827,
-        2915
+        2323,
+        2411
       ],
       "evidenceHashes": [
         "00de81017a2d19cb",
@@ -14502,8 +14502,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        2918,
-        2918
+        2414,
+        2414
       ],
       "evidenceHashes": [
         "2f508e69a6d617e5",
@@ -14567,7 +14567,7 @@
       "token": "v11",
       "count": 1,
       "sampleLines": [
-        24
+        25
       ],
       "evidenceHashes": [
         "75bb3a2d078939b2"
@@ -14588,7 +14588,7 @@
       "token": "v13",
       "count": 1,
       "sampleLines": [
-        696
+        743
       ],
       "evidenceHashes": [
         "f33073f86de8aa6a"
@@ -14607,13 +14607,11 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "v14",
       "token": "v14",
-      "count": 2,
+      "count": 1,
       "sampleLines": [
-        461,
-        1189
+        969
       ],
       "evidenceHashes": [
-        "c0236e957909d942",
         "b62e236e164a07a7"
       ],
       "owner": "frontend-platform",
@@ -14632,8 +14630,8 @@
       "token": "v15",
       "count": 2,
       "sampleLines": [
-        1189,
-        1191
+        969,
+        971
       ],
       "evidenceHashes": [
         "b62e236e164a07a7",
@@ -14697,7 +14695,7 @@
       "token": "v3",
       "count": 1,
       "sampleLines": [
-        25
+        26
       ],
       "evidenceHashes": [
         "72afe0676696a225"
@@ -14718,7 +14716,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        402
+        403
       ],
       "evidenceHashes": [
         "1e3afc3dae43ca5a"
@@ -14867,7 +14865,7 @@
       "token": "v3",
       "count": 1,
       "sampleLines": [
-        194
+        195
       ],
       "evidenceHashes": [
         "3c6c08b01172a74f"
@@ -14913,8 +14911,8 @@
       "token": "v5",
       "count": 2,
       "sampleLines": [
-        15,
-        16
+        16,
+        17
       ],
       "evidenceHashes": [
         "ba39fd402819892e",
@@ -15061,7 +15059,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        116
+        117
       ],
       "evidenceHashes": [
         "8cfbdf9fb97c3fac"
@@ -15103,7 +15101,7 @@
       "token": "v22",
       "count": 1,
       "sampleLines": [
-        115
+        116
       ],
       "evidenceHashes": [
         "9ad8cbe37ded60b0"
@@ -15145,7 +15143,7 @@
       "token": "v22",
       "count": 1,
       "sampleLines": [
-        110
+        111
       ],
       "evidenceHashes": [
         "a8857bd450208a4f"
@@ -15231,7 +15229,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        197
+        229
       ],
       "evidenceHashes": [
         "fc6b460e6c84a80a"
@@ -15345,10 +15343,10 @@
       "count": 34,
       "sampleLines": [
         194,
-        308,
-        311,
-        312,
-        317
+        310,
+        313,
+        314,
+        319
       ],
       "evidenceHashes": [
         "670122c9eeb8c56c",
@@ -15373,7 +15371,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        663
+        662
       ],
       "evidenceHashes": [
         "9a760580d3111777"
@@ -15559,125 +15557,17 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V1",
-      "token": "v1",
-      "count": 1,
-      "sampleLines": [
-        27
-      ],
-      "evidenceHashes": [
-        "dfc4a1a8907ba33a"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 1,
-      "sampleLines": [
-        27
-      ],
-      "evidenceHashes": [
-        "dfc4a1a8907ba33a"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V3",
-      "token": "v3",
-      "count": 17,
-      "sampleLines": [
-        27,
-        27,
-        36,
-        39,
-        92
-      ],
-      "evidenceHashes": [
-        "dfc4a1a8907ba33a",
-        "dfc4a1a8907ba33a",
-        "7a67a059d46b83d2",
-        "bba842c17deaaff1",
-        "62123cac95b654d0"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V4",
-      "token": "v4",
-      "count": 6,
-      "sampleLines": [
-        27,
-        90,
-        142,
-        393,
-        417
-      ],
-      "evidenceHashes": [
-        "dfc4a1a8907ba33a",
-        "2a0e9f8ecbd78c3d",
-        "49c6d9726e53119d",
-        "74cbf08949ecca69",
-        "aaaa7f39da0c03c8"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V1",
       "token": "v1",
-      "count": 11,
+      "count": 1,
       "sampleLines": [
-        7,
-        61,
-        62,
-        67,
-        72
+        46
       ],
       "evidenceHashes": [
-        "c5e6e32373a6cf2d",
-        "534228ce3b55be0e",
-        "7c310307ba509c65",
-        "57c76feee9ca90a5",
-        "23b5535208d94d0b"
+        "5fbb9452032b1c00"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -15693,35 +15583,12 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V2",
       "token": "v2",
-      "count": 2,
-      "sampleLines": [
-        7,
-        246
-      ],
-      "evidenceHashes": [
-        "c5e6e32373a6cf2d",
-        "9c3c3185117ef1ea"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "v3",
-      "token": "v3",
       "count": 1,
       "sampleLines": [
-        6
+        46
       ],
       "evidenceHashes": [
-        "6951d95feefa546b"
+        "5fbb9452032b1c00"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -15737,20 +15604,12 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V3",
       "token": "v3",
-      "count": 80,
+      "count": 1,
       "sampleLines": [
-        6,
-        7,
-        55,
-        118,
-        119
+        46
       ],
       "evidenceHashes": [
-        "6951d95feefa546b",
-        "c5e6e32373a6cf2d",
-        "cac0d10915d8623c",
-        "3d0670fe85762dac",
-        "c83ef7b443af1e1e"
+        "5fbb9452032b1c00"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -15766,20 +15625,12 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V4",
       "token": "v4",
-      "count": 18,
+      "count": 1,
       "sampleLines": [
-        51,
-        102,
-        137,
-        144,
-        145
+        46
       ],
       "evidenceHashes": [
-        "2fe0b1f072b88f36",
-        "a6a579a031911395",
-        "adddff1405fe6060",
-        "d09251f12597bae2",
-        "c762e3c633e3fbcf"
+        "5fbb9452032b1c00"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -15787,27 +15638,6 @@
       "removalStrategy": "add_alias_or_queue_then_manual_cutover",
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/operations/page.surface.test.ts",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_signature_version",
-      "contractName": "V3",
-      "token": "v3",
-      "count": 1,
-      "sampleLines": [
-        503
-      ],
-      "evidenceHashes": [
-        "d14ac0f8e394b0f8"
-      ],
-      "owner": "platform-security",
-      "reason": "Compatibility-sensitive provider_signature_version version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this provider_signature_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
       "suggestedNeutralName": null
     },
     {
@@ -15818,9 +15648,9 @@
       "token": "v3",
       "count": 3,
       "sampleLines": [
-        7,
         8,
-        24
+        9,
+        25
       ],
       "evidenceHashes": [
         "3b5f4d3183780fe6",
@@ -15939,11 +15769,11 @@
       "token": "v6",
       "count": 15,
       "sampleLines": [
-        62,
         63,
         64,
         65,
-        66
+        66,
+        67
       ],
       "evidenceHashes": [
         "14c826f0114544e2",
@@ -15968,7 +15798,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        492
+        501
       ],
       "evidenceHashes": [
         "1b822a5a2763ad37"
@@ -16048,22 +15878,35 @@
       "path": "src/app/(dashboard)/settings/security/page.surface.test.ts",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 48,
+      "contractName": "V1",
+      "token": "v1",
+      "count": 1,
       "sampleLines": [
-        98,
-        99,
-        169,
-        170,
-        236
+        55
       ],
       "evidenceHashes": [
-        "570eb80c09311c6f",
-        "e8ed7022793ccb2c",
-        "f18224f31847d52a",
-        "80d93aafa07c6b4f",
-        "24dc19de042181d4"
+        "e319f87968d73426"
+      ],
+      "owner": "frontend-platform",
+      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
+      "manualOnly": true,
+      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/(dashboard)/settings/security/page.surface.test.ts",
+      "surfaceClass": "app_route_contract",
+      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "contractName": "V2",
+      "token": "v2",
+      "count": 1,
+      "sampleLines": [
+        55
+      ],
+      "evidenceHashes": [
+        "e319f87968d73426"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -16079,20 +15922,12 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V3",
       "token": "v3",
-      "count": 23,
+      "count": 1,
       "sampleLines": [
-        92,
-        374,
-        375,
-        426,
-        428
+        55
       ],
       "evidenceHashes": [
-        "b6043376104bba65",
-        "18d7d12f367d374c",
-        "cdeb9fc1dfc50a3b",
-        "1ba9a4581838fe6d",
-        "cb620c1f7bdad10d"
+        "e319f87968d73426"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -16108,135 +15943,12 @@
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "contractName": "V4",
       "token": "v4",
-      "count": 28,
-      "sampleLines": [
-        234,
-        240,
-        665,
-        668,
-        669
-      ],
-      "evidenceHashes": [
-        "58ae830bca5a1a6d",
-        "4c047b6279b8a1c0",
-        "c047e256d2eec65f",
-        "6f0e4006bea9fa07",
-        "b626c64c7ecda136"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/security/page.surface.test.ts",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "v9",
-      "token": "v9",
       "count": 1,
       "sampleLines": [
-        9
+        55
       ],
       "evidenceHashes": [
-        "9d642c0fd0ccc2a2"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/security/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "v2",
-      "token": "v2",
-      "count": 2,
-      "sampleLines": [
-        26,
-        26
-      ],
-      "evidenceHashes": [
-        "d098d29cc050d350",
-        "d098d29cc050d350"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/security/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 12,
-      "sampleLines": [
-        31,
-        35,
-        64,
-        108,
-        119
-      ],
-      "evidenceHashes": [
-        "47879cdad36132ad",
-        "8faef7ae9436a888",
-        "9f6df33d77dd11f3",
-        "76c933cddfabed4d",
-        "e0677168f1d30cf0"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/security/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V3",
-      "token": "v3",
-      "count": 1,
-      "sampleLines": [
-        161
-      ],
-      "evidenceHashes": [
-        "828a0f5c9c26c642"
-      ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/app/(dashboard)/settings/security/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "V4",
-      "token": "v4",
-      "count": 1,
-      "sampleLines": [
-        165
-      ],
-      "evidenceHashes": [
-        "b4979c916eda4ea5"
+        "e319f87968d73426"
       ],
       "owner": "frontend-platform",
       "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -26109,238 +25821,379 @@
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "contractName": "v13",
+      "token": "v13",
+      "count": 1,
+      "sampleLines": [
+        1348
+      ],
+      "evidenceHashes": [
+        "0a7baf6bad148533"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "contractName": "v14",
+      "token": "v14",
+      "count": 1,
+      "sampleLines": [
+        1348
+      ],
+      "evidenceHashes": [
+        "0a7baf6bad148533"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "contractName": "v15",
+      "token": "v15",
+      "count": 1,
+      "sampleLines": [
+        1348
+      ],
+      "evidenceHashes": [
+        "0a7baf6bad148533"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
       "contractName": "v11",
       "token": "v11",
       "count": 1,
       "sampleLines": [
-        1059
+        1085
       ],
       "evidenceHashes": [
         "ce0b68750dd9e2b3"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
       "contractName": "v13",
       "token": "v13",
-      "count": 4,
+      "count": 1,
       "sampleLines": [
-        1287,
-        1308,
-        1335,
-        1351
+        1284
       ],
       "evidenceHashes": [
-        "8e5c618546851271",
-        "244b97a8b7b4317a",
-        "0d056c3d531aab9e",
-        "0a7baf6bad148533"
+        "8e5c618546851271"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "contractName": "v14",
-      "token": "v14",
-      "count": 7,
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "contractName": "v11",
+      "token": "v11",
+      "count": 1,
       "sampleLines": [
-        1351,
-        1375,
-        1454,
-        1459,
-        2658
+        759
       ],
       "evidenceHashes": [
-        "0a7baf6bad148533",
+        "14839a1129c0df37"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "contractName": "v13",
+      "token": "v13",
+      "count": 2,
+      "sampleLines": [
+        1305,
+        1332
+      ],
+      "evidenceHashes": [
+        "244b97a8b7b4317a",
+        "0d056c3d531aab9e"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "contractName": "v14",
+      "token": "v14",
+      "count": 6,
+      "sampleLines": [
+        1372,
+        1451,
+        1456,
+        2693,
+        2721
+      ],
+      "evidenceHashes": [
         "dccc25afea932d06",
         "2f6b5034fdf09fd3",
         "c43ed1d8c501379a",
-        "e5d1cef856b30d3b"
+        "e5d1cef856b30d3b",
+        "d36f5db816e81c8e"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v15",
       "token": "v15",
-      "count": 5,
+      "count": 4,
       "sampleLines": [
-        1351,
-        1352,
-        1375,
-        1376,
-        1893
+        1349,
+        1372,
+        1373,
+        1899
       ],
       "evidenceHashes": [
-        "0a7baf6bad148533",
         "8d61f2e0727b3fdd",
         "dccc25afea932d06",
         "3590da8990afa966",
         "eada5ab958b6c3fa"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v16",
       "token": "v16",
       "count": 1,
       "sampleLines": [
-        4701
+        4741
       ],
       "evidenceHashes": [
         "8cb4341ae66f84e6"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "contractName": "v17",
+      "token": "v17",
+      "count": 1,
+      "sampleLines": [
+        2520
+      ],
+      "evidenceHashes": [
+        "1ef2989531ffd72f"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "contractName": "v18",
+      "token": "v18",
+      "count": 1,
+      "sampleLines": [
+        2534
+      ],
+      "evidenceHashes": [
+        "f4675b8587744f32"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v21",
       "token": "v21",
       "count": 1,
       "sampleLines": [
-        1163
+        1189
       ],
       "evidenceHashes": [
         "366a4cad451ac544"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "V3",
       "token": "v3",
       "count": 1,
       "sampleLines": [
-        672
+        694
       ],
       "evidenceHashes": [
         "bea63ea58d458761"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v5",
       "token": "v5",
       "count": 2,
       "sampleLines": [
-        4036,
-        4118
+        4088,
+        4170
       ],
       "evidenceHashes": [
         "1f3fbac121707e44",
         "920949d9918e5fae"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v6",
       "token": "v6",
       "count": 2,
       "sampleLines": [
-        4130,
-        4387
+        4182,
+        4427
       ],
       "evidenceHashes": [
         "66c25da0d29b9b90",
         "27268128c3c44de2"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
       "path": "src/app/globals.css",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "contractName": "v7",
       "token": "v7",
       "count": 1,
       "sampleLines": [
-        4387
+        4427
       ],
       "evidenceHashes": [
         "27268128c3c44de2"
       ],
-      "owner": "frontend-platform",
-      "reason": "Compatibility-sensitive page_route_or_deep_link_contract version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
+      "owner": "platform-hardening",
+      "reason": "Repo-local style_token_or_selector version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this page_route_or_deep_link_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+      "manualFollowUp": "This style_token_or_selector can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
@@ -26416,10 +26269,10 @@
       "token": "v10",
       "count": 4,
       "sampleLines": [
-        49,
-        54,
-        146,
-        147
+        53,
+        58,
+        150,
+        151
       ],
       "evidenceHashes": [
         "60722282f7abf6b8",
@@ -26443,9 +26296,9 @@
       "token": "v10",
       "count": 3,
       "sampleLines": [
-        618,
-        618,
-        630
+        459,
+        459,
+        471
       ],
       "evidenceHashes": [
         "18e559ca372ff8ff",
@@ -26637,48 +26490,6 @@
       "suggestedNeutralName": "data-state"
     },
     {
-      "path": "src/components/contracts/critical-date-review-notice.tsx",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "contractName": "v23",
-      "token": "v23",
-      "count": 1,
-      "sampleLines": [
-        11
-      ],
-      "evidenceHashes": [
-        "7cbdf0664de51009"
-      ],
-      "owner": "platform-security",
-      "reason": "Compatibility-sensitive provider_model_or_eval_version version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this provider_model_or_eval_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/contracts/critical-date-review-notice.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "v23",
-      "token": "v23",
-      "count": 1,
-      "sampleLines": [
-        23
-      ],
-      "evidenceHashes": [
-        "5ca9c71c285961b7"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/components/contracts/evidence-submission-review-actions.ui.test.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
@@ -26731,71 +26542,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/components/contracts/field-review.ui.test.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "v23",
-      "token": "v23",
-      "count": 1,
-      "sampleLines": [
-        66
-      ],
-      "evidenceHashes": [
-        "9809c1df8f2659c0"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/contracts/field-review.ui.test.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "v9",
-      "token": "v9",
-      "count": 2,
-      "sampleLines": [
-        34,
-        34
-      ],
-      "evidenceHashes": [
-        "cfe46505be621956",
-        "cfe46505be621956"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/contracts/field-review.ui.test.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        34
-      ],
-      "evidenceHashes": [
-        "cfe46505be621956"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/components/contracts/import-job-retry-button.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
@@ -26804,7 +26550,7 @@
       "count": 2,
       "sampleLines": [
         8,
-        60
+        68
       ],
       "evidenceHashes": [
         "8709536c13d449e4",
@@ -26851,7 +26597,7 @@
       "token": "v1",
       "count": 1,
       "sampleLines": [
-        92
+        94
       ],
       "evidenceHashes": [
         "a447e5562a0b0e23"
@@ -26912,20 +26658,20 @@
       "subSurfaceClass": "local_source_literal",
       "contractName": "v11",
       "token": "v11",
-      "count": 9,
+      "count": 8,
       "sampleLines": [
         27,
         79,
         127,
         162,
-        435
+        530
       ],
       "evidenceHashes": [
         "3ac738984a21e016",
         "631459153ecd6545",
         "7333c7c87ea60898",
         "f3ffb8d4fac6c44d",
-        "cedc7dc3242185a8"
+        "a036685772fc380d"
       ],
       "owner": "platform-hardening",
       "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
@@ -26943,8 +26689,8 @@
       "token": "v12",
       "count": 2,
       "sampleLines": [
-        457,
-        580
+        456,
+        579
       ],
       "evidenceHashes": [
         "a72d49e1456fd01d",
@@ -26966,7 +26712,7 @@
       "token": "v13",
       "count": 1,
       "sampleLines": [
-        844
+        843
       ],
       "evidenceHashes": [
         "a428a9150e631253"
@@ -26988,7 +26734,7 @@
       "count": 2,
       "sampleLines": [
         311,
-        516
+        515
       ],
       "evidenceHashes": [
         "28340850e47c3d8a",
@@ -27010,7 +26756,7 @@
       "token": "v13",
       "count": 1,
       "sampleLines": [
-        803
+        802
       ],
       "evidenceHashes": [
         "f2d2e4ec5e6f8810"
@@ -27146,20 +26892,20 @@
       "subSurfaceClass": "local_source_literal",
       "contractName": "v11",
       "token": "v11",
-      "count": 12,
+      "count": 7,
       "sampleLines": [
-        232,
-        279,
-        293,
-        317,
-        364
+        360,
+        396,
+        407,
+        451,
+        508
       ],
       "evidenceHashes": [
-        "76621f0ce3ca4157",
-        "76621f0ce3ca4157",
-        "76621f0ce3ca4157",
-        "00976a58af11682a",
-        "2fcc8f1c5b03448c"
+        "2fcc8f1c5b03448c",
+        "1e9955ccc9d16005",
+        "859d096a4d782ce0",
+        "8b297b7c0da3aaa3",
+        "544e7fc40c864801"
       ],
       "owner": "platform-hardening",
       "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
@@ -27215,27 +26961,6 @@
       "path": "src/components/dashboard/dashboard-upper.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "v11",
-      "token": "v11",
-      "count": 1,
-      "sampleLines": [
-        339
-      ],
-      "evidenceHashes": [
-        "393279ab104fd6c9"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/dashboard/dashboard-upper.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
       "contractName": "v6",
       "token": "v6",
       "count": 1,
@@ -27261,7 +26986,7 @@
       "token": "v13",
       "count": 1,
       "sampleLines": [
-        537
+        532
       ],
       "evidenceHashes": [
         "ffa5b0167d0b1430"
@@ -27831,6 +27556,50 @@
       "suggestedNeutralName": null
     },
     {
+      "path": "src/components/landing/product-mocks.tsx",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "contractName": "v7",
+      "token": "v7",
+      "count": 2,
+      "sampleLines": [
+        37,
+        39
+      ],
+      "evidenceHashes": [
+        "7c3d6c096c450c94",
+        "5f1db029f9042cb6"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
+      "path": "src/components/landing/product-mocks.tsx",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "contractName": "v6",
+      "token": "v6",
+      "count": 1,
+      "sampleLines": [
+        409
+      ],
+      "evidenceHashes": [
+        "f24acd7af31b040f"
+      ],
+      "owner": "platform-hardening",
+      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+      "manualOnly": false,
+      "removalStrategy": "local_manifest_rewrite",
+      "validationCommand": "npm run check:versioned-content-contracts",
+      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+      "suggestedNeutralName": null
+    },
+    {
       "path": "src/components/layout/command-palette-helpers.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
@@ -27932,11 +27701,11 @@
       "token": "v5",
       "count": 6,
       "sampleLines": [
-        94,
-        102,
-        103,
-        104,
-        107
+        97,
+        105,
+        106,
+        107,
+        110
       ],
       "evidenceHashes": [
         "fecf416b0365acf4",
@@ -27961,8 +27730,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        491,
-        491
+        497,
+        497
       ],
       "evidenceHashes": [
         "e6baf6e478c2f834",
@@ -27984,9 +27753,9 @@
       "token": "v10",
       "count": 3,
       "sampleLines": [
-        472,
-        507,
-        511
+        478,
+        513,
+        517
       ],
       "evidenceHashes": [
         "dce7ce581e255a63",
@@ -28009,7 +27778,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        462
+        468
       ],
       "evidenceHashes": [
         "d7eeb13b46e3cd4a"
@@ -28030,7 +27799,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        492
+        498
       ],
       "evidenceHashes": [
         "07656ba7a4c6dc88"
@@ -28051,7 +27820,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        506
+        512
       ],
       "evidenceHashes": [
         "f0cd154e7a292eb7"
@@ -28131,7 +27900,7 @@
       "count": 2,
       "sampleLines": [
         110,
-        442
+        448
       ],
       "evidenceHashes": [
         "75e2d5ef194cb391",
@@ -28251,11 +28020,11 @@
       "token": "v5",
       "count": 6,
       "sampleLines": [
-        528,
-        536,
-        536,
-        536,
-        537
+        62,
+        70,
+        70,
+        70,
+        71
       ],
       "evidenceHashes": [
         "fecf416b0365acf4",
@@ -28397,7 +28166,7 @@
       "sampleLines": [
         54,
         56,
-        207
+        213
       ],
       "evidenceHashes": [
         "65347de55d518ece",
@@ -28434,144 +28203,17 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/components/settings/security-settings-panel.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 2,
-      "sampleLines": [
-        371,
-        469
-      ],
-      "evidenceHashes": [
-        "41b1987559de3b97",
-        "2485042e424168ec"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/settings/security-settings-panel.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "v2",
-      "token": "v2",
-      "count": 2,
-      "sampleLines": [
-        45,
-        45
-      ],
-      "evidenceHashes": [
-        "032ed043bbbb4150",
-        "032ed043bbbb4150"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/settings/security-settings-panel.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 27,
-      "sampleLines": [
-        91,
-        104,
-        145,
-        150,
-        152
-      ],
-      "evidenceHashes": [
-        "07d0aba5d986621b",
-        "38845a95d9eb0fe1",
-        "b6e9c5a3807f266b",
-        "4d0027e0773ffc86",
-        "9c0188223fd4d681"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/settings/security-settings-panel.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V3",
-      "token": "v3",
-      "count": 1,
-      "sampleLines": [
-        834
-      ],
-      "evidenceHashes": [
-        "3a43606361992c6e"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/settings/security-settings-panel.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V4",
-      "token": "v4",
-      "count": 10,
-      "sampleLines": [
-        67,
-        381,
-        391,
-        412,
-        689
-      ],
-      "evidenceHashes": [
-        "c5abfe0f3b520fc2",
-        "9ad2d2cebef09932",
-        "51700756820e135a",
-        "be42f9102b911054",
-        "e626ee29608ae556"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/components/settings/security-settings-panel.tsx",
+      "path": "src/components/ui/action-chip.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
-      "contractName": "V2",
-      "token": "v2",
-      "count": 2,
+      "contractName": "v11",
+      "token": "v11",
+      "count": 1,
       "sampleLines": [
-        163,
-        759
+        25
       ],
       "evidenceHashes": [
-        "d919a220bfcdcba8",
-        "689ae2d2fccba1fa"
+        "64b71c926bb8c068"
       ],
       "owner": "platform-hardening",
       "reason": "Repo-local source_schema_or_action_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
@@ -29505,8 +29147,8 @@
         225
       ],
       "evidenceHashes": [
-        "2f2ccd19a1325999",
-        "2f2ccd19a1325999",
+        "899be049647c944f",
+        "899be049647c944f",
         "ae4136eee80da320",
         "6a43322a1d937fa4",
         "6a43322a1d937fa4"
@@ -29550,11 +29192,11 @@
       "token": "v10",
       "count": 9,
       "sampleLines": [
-        43,
-        52,
-        53,
-        54,
-        66
+        57,
+        66,
+        67,
+        68,
+        80
       ],
       "evidenceHashes": [
         "acbb9e13834c2284",
@@ -29579,9 +29221,9 @@
       "token": "v10",
       "count": 3,
       "sampleLines": [
-        17,
-        28,
-        48
+        18,
+        42,
+        62
       ],
       "evidenceHashes": [
         "f72d30c859884988",
@@ -29604,8 +29246,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        20,
-        22
+        21,
+        36
       ],
       "evidenceHashes": [
         "01789b8413266920",
@@ -29627,8 +29269,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        11,
-        30
+        12,
+        44
       ],
       "evidenceHashes": [
         "86283acfa6845d7f",
@@ -30603,9 +30245,9 @@
       "token": "v10",
       "count": 3,
       "sampleLines": [
-        84,
-        138,
-        138
+        79,
+        133,
+        133
       ],
       "evidenceHashes": [
         "f7b85ba235699567",
@@ -30628,8 +30270,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        117,
-        155
+        112,
+        150
       ],
       "evidenceHashes": [
         "1cd93262afd85c24",
@@ -30653,9 +30295,9 @@
       "sampleLines": [
         9,
         10,
-        26,
-        38,
-        39
+        27,
+        39,
+        40
       ],
       "evidenceHashes": [
         "c87091419013e289",
@@ -30680,11 +30322,11 @@
       "token": "v10",
       "count": 6,
       "sampleLines": [
-        13,
         14,
-        24,
-        35,
-        110
+        15,
+        25,
+        36,
+        105
       ],
       "evidenceHashes": [
         "3e9566fbacb472e7",
@@ -30709,7 +30351,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        75
+        70
       ],
       "evidenceHashes": [
         "b03a19ebea93b5c4"
@@ -30730,8 +30372,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        58,
-        62
+        53,
+        57
       ],
       "evidenceHashes": [
         "9dc650f0442e25fd",
@@ -37452,71 +37094,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/consistency-vocabulary-core.test.ts",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "contractName": "V9_CORE_VOCAB",
-      "token": "v9",
-      "count": 2,
-      "sampleLines": [
-        10,
-        30
-      ],
-      "evidenceHashes": [
-        "45321b579e9e3225",
-        "eac8563581470b7d"
-      ],
-      "owner": "platform-runtime",
-      "reason": "Compatibility-sensitive environment_key version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this environment_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": "CORE_VOCAB"
-    },
-    {
-      "path": "src/lib/consistency-vocabulary-core.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "v9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        9
-      ],
-      "evidenceHashes": [
-        "00e03e5ce5879a6f"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/consistency-vocabulary-core.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        20
-      ],
-      "evidenceHashes": [
-        "ccf779d8b75b93c2"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/continuity.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
@@ -37593,27 +37170,6 @@
       "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/contract-detail-summary.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        7
-      ],
-      "evidenceHashes": [
-        "49fa6826cde6bc18"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
@@ -38697,11 +38253,11 @@
       "token": "v10",
       "count": 7,
       "sampleLines": [
-        858,
-        937,
-        941,
-        961,
-        979
+        920,
+        999,
+        1003,
+        1023,
+        1041
       ],
       "evidenceHashes": [
         "587f865412d6ada4",
@@ -38727,7 +38283,7 @@
       "count": 2,
       "sampleLines": [
         22,
-        609
+        671
       ],
       "evidenceHashes": [
         "2804796f8e271302",
@@ -38750,7 +38306,7 @@
       "count": 2,
       "sampleLines": [
         105,
-        156
+        158
       ],
       "evidenceHashes": [
         "12e3840dafdd222c",
@@ -38772,7 +38328,7 @@
       "token": "v5",
       "count": 1,
       "sampleLines": [
-        243
+        245
       ],
       "evidenceHashes": [
         "2d2b5b79ce328901"
@@ -38783,27 +38339,6 @@
       "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/dashboard/dashboard-spec-compliance.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "v10",
-      "token": "v10",
-      "count": 1,
-      "sampleLines": [
-        104
-      ],
-      "evidenceHashes": [
-        "e5a1f3f99da81596"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
@@ -41811,27 +41346,6 @@
       "suggestedNeutralName": "product.export_started"
     },
     {
-      "path": "src/lib/extraction-job-alert-states.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        6
-      ],
-      "evidenceHashes": [
-        "8c45a9bfa84f8fcc"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/extraction-partial-visibility.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
@@ -41902,7 +41416,7 @@
       "token": "v2",
       "count": 1,
       "sampleLines": [
-        190
+        218
       ],
       "evidenceHashes": [
         "57a3b639abf88da2"
@@ -44571,8 +44085,8 @@
       "count": 3,
       "sampleLines": [
         6,
-        39,
-        40
+        40,
+        41
       ],
       "evidenceHashes": [
         "bdb1d43f6d4be63a",
@@ -44596,7 +44110,7 @@
       "count": 2,
       "sampleLines": [
         8,
-        52
+        53
       ],
       "evidenceHashes": [
         "4c63cd21657cc51a",
@@ -44620,8 +44134,8 @@
       "sampleLines": [
         10,
         11,
-        61,
-        62
+        62,
+        63
       ],
       "evidenceHashes": [
         "701bae4eb6dbe072",
@@ -44667,7 +44181,7 @@
       "count": 2,
       "sampleLines": [
         9,
-        57
+        58
       ],
       "evidenceHashes": [
         "61828612ebf80c26",
@@ -45186,21 +44700,17 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/in-app-notification-display.test.ts",
+      "path": "src/lib/in-app-notification-display.ts",
       "surfaceClass": "environment_key",
       "subSurfaceClass": "environment_key",
       "contractName": "V9_IN_APP_NOTIFICATION_BODY_MAX",
       "token": "v9",
-      "count": 3,
+      "count": 1,
       "sampleLines": [
-        8,
-        22,
-        24
+        3
       ],
       "evidenceHashes": [
-        "d5984a1a115e16c6",
-        "2d01568a5c17a952",
-        "eddd20018252d447"
+        "9b456c8ae98c204e"
       ],
       "owner": "platform-runtime",
       "reason": "Compatibility-sensitive environment_key version content is inventoried and queued instead of removed in code-only passes.",
@@ -45209,71 +44719,6 @@
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "Do not remove or rename this environment_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
       "suggestedNeutralName": "IN_APP_NOTIFICATION_BODY_MAX"
-    },
-    {
-      "path": "src/lib/in-app-notification-display.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "notification_or_export_contract",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        11
-      ],
-      "evidenceHashes": [
-        "887af7b46bfdd7e7"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/in-app-notification-display.ts",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "contractName": "V9_IN_APP_NOTIFICATION_BODY_MAX",
-      "token": "v9",
-      "count": 2,
-      "sampleLines": [
-        2,
-        80
-      ],
-      "evidenceHashes": [
-        "9e9620b5059996e2",
-        "8fd8fa1c3f4fc89f"
-      ],
-      "owner": "platform-runtime",
-      "reason": "Compatibility-sensitive environment_key version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this environment_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": "IN_APP_NOTIFICATION_BODY_MAX"
-    },
-    {
-      "path": "src/lib/in-app-notification-display.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        1
-      ],
-      "evidenceHashes": [
-        "3ef3e876956deb61"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local source_schema_or_action_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This source_schema_or_action_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
     },
     {
       "path": "src/lib/integration/mock-agent-upstream.contract.test.ts",
@@ -47018,7 +46463,7 @@
       "token": "v2",
       "count": 1,
       "sampleLines": [
-        94
+        102
       ],
       "evidenceHashes": [
         "791ceb5cb7fb24ac"
@@ -47039,11 +46484,11 @@
       "token": "v5",
       "count": 31,
       "sampleLines": [
-        69,
-        78,
-        210,
-        210,
-        216
+        75,
+        84,
+        221,
+        221,
+        227
       ],
       "evidenceHashes": [
         "1627e4be8307e85a",
@@ -47068,7 +46513,7 @@
       "token": "v5",
       "count": 1,
       "sampleLines": [
-        66
+        72
       ],
       "evidenceHashes": [
         "54c1e7486bcfa678"
@@ -47089,11 +46534,11 @@
       "token": "v6",
       "count": 15,
       "sampleLines": [
-        251,
-        252,
-        253,
-        254,
-        255
+        262,
+        263,
+        264,
+        265,
+        266
       ],
       "evidenceHashes": [
         "cf72b425348ecb1c",
@@ -48900,27 +48345,6 @@
       "removalStrategy": "local_manifest_rewrite",
       "validationCommand": "npm run check:versioned-content-contracts",
       "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/onboarding-recovery-copy.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "localization_or_copy_key",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        5
-      ],
-      "evidenceHashes": [
-        "4bb4082d1b8ec480"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local localization_or_copy_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This localization_or_copy_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
       "suggestedNeutralName": null
     },
     {
@@ -55066,10 +54490,10 @@
       "token": "v5",
       "count": 4,
       "sampleLines": [
-        108,
-        108,
-        155,
-        155
+        109,
+        109,
+        156,
+        156
       ],
       "evidenceHashes": [
         "5c271c92d2a49314",
@@ -55093,7 +54517,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        126
+        127
       ],
       "evidenceHashes": [
         "1ca91161acf812fc"
@@ -55114,7 +54538,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        117
+        118
       ],
       "evidenceHashes": [
         "9c98d4fe42c931b4"
@@ -55135,7 +54559,7 @@
       "token": "v6",
       "count": 1,
       "sampleLines": [
-        124
+        125
       ],
       "evidenceHashes": [
         "071d19697574ab8f"
@@ -59706,7 +59130,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        299
+        303
       ],
       "evidenceHashes": [
         "4ea69df3deb004e9"
@@ -59906,29 +59330,6 @@
       "evidenceHashes": [
         "b76d481f1d99b4fb",
         "dea30f399e31f2fd"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/review-cadence-vs-queue-labels.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 2,
-      "sampleLines": [
-        2,
-        8
-      ],
-      "evidenceHashes": [
-        "bb363aab309f137d",
-        "973b124ef3ad7ae3"
       ],
       "owner": "platform-hardening",
       "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
@@ -60787,33 +60188,10 @@
       "token": "v11",
       "count": 1,
       "sampleLines": [
-        19
+        16
       ],
       "evidenceHashes": [
         "2d08f40ac3a1964d"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/route-metadata-core-anchors.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 2,
-      "sampleLines": [
-        2,
-        8
-      ],
-      "evidenceHashes": [
-        "e68a800f08858557",
-        "eff9dceea2bda2d4"
       ],
       "owner": "platform-hardening",
       "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
@@ -62265,11 +61643,11 @@
       "token": "v2",
       "count": 17,
       "sampleLines": [
-        65,
-        91,
-        105,
-        119,
-        141
+        66,
+        92,
+        106,
+        120,
+        142
       ],
       "evidenceHashes": [
         "48f061607a39c680",
@@ -62294,11 +61672,11 @@
       "token": "v3",
       "count": 29,
       "sampleLines": [
-        65,
-        65,
-        88,
-        99,
-        112
+        66,
+        66,
+        89,
+        100,
+        113
       ],
       "evidenceHashes": [
         "48f061607a39c680",
@@ -62323,11 +61701,11 @@
       "token": "v4",
       "count": 7,
       "sampleLines": [
-        117,
-        121,
-        162,
-        165,
-        170
+        118,
+        122,
+        163,
+        166,
+        171
       ],
       "evidenceHashes": [
         "4d0df89b8b090e7e",
@@ -62352,9 +61730,9 @@
       "token": "v2",
       "count": 3,
       "sampleLines": [
-        110,
-        435,
-        535
+        111,
+        450,
+        550
       ],
       "evidenceHashes": [
         "62647fafbc02f3ee",
@@ -62377,7 +61755,7 @@
       "token": "v3",
       "count": 1,
       "sampleLines": [
-        538
+        553
       ],
       "evidenceHashes": [
         "3a1d92e93a5f31bb"
@@ -62398,7 +61776,7 @@
       "token": "v2",
       "count": 1,
       "sampleLines": [
-        461
+        476
       ],
       "evidenceHashes": [
         "5149471922d331b4"
@@ -62419,7 +61797,7 @@
       "token": "v3",
       "count": 1,
       "sampleLines": [
-        159
+        160
       ],
       "evidenceHashes": [
         "e2abd60baa1dcafa"
@@ -63607,48 +62985,6 @@
       "suggestedNeutralName": "NEW_WORKSPACE_ORG_SETTINGS_JSON"
     },
     {
-      "path": "src/lib/tasks-obligations-distinct-language.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        8
-      ],
-      "evidenceHashes": [
-        "2c30a624204dc07d"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
-      "path": "src/lib/tasks-obligations-distinct-language.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "contractName": "V9",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        2
-      ],
-      "evidenceHashes": [
-        "55eafa71a578beb4"
-      ],
-      "owner": "platform-hardening",
-      "reason": "Repo-local source_schema_or_action_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-      "manualOnly": false,
-      "removalStrategy": "local_manifest_rewrite",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "This source_schema_or_action_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/telemetry-tier-c-paths.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
@@ -64018,7 +63354,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        287
+        289
       ],
       "evidenceHashes": [
         "871c6dbeae452928"
@@ -64039,7 +63375,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        288
+        290
       ],
       "evidenceHashes": [
         "e358d165acb6c2ad"
@@ -64089,7 +63425,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        294
+        296
       ],
       "evidenceHashes": [
         "f60991ca36897836"
@@ -64110,8 +63446,8 @@
       "token": "v10",
       "count": 2,
       "sampleLines": [
-        291,
-        331
+        293,
+        333
       ],
       "evidenceHashes": [
         "568082942fa42a25",
@@ -64136,7 +63472,7 @@
         43,
         76,
         90,
-        297
+        299
       ],
       "evidenceHashes": [
         "d53540c53bbeb867",
@@ -64639,27 +63975,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/work-hub-lens.ts",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "contractName": "V9_WORK_HUB_LENS_VALUES",
-      "token": "v9",
-      "count": 1,
-      "sampleLines": [
-        17
-      ],
-      "evidenceHashes": [
-        "235d5cbd9096aba2"
-      ],
-      "owner": "platform-runtime",
-      "reason": "Compatibility-sensitive environment_key version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this environment_key until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": "WORK_HUB_LENS_VALUES"
-    },
-    {
       "path": "src/lib/work-request-evidence-exempt.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
@@ -64797,27 +64112,6 @@
       "suggestedNeutralName": null
     },
     {
-      "path": "src/lib/work/model.test.ts",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "contractName": "V10",
-      "token": "v10",
-      "count": 1,
-      "sampleLines": [
-        63
-      ],
-      "evidenceHashes": [
-        "320975987cfff9d6"
-      ],
-      "owner": "platform-security",
-      "reason": "Compatibility-sensitive provider_model_or_eval_version version content is inventoried and queued instead of removed in code-only passes.",
-      "manualOnly": true,
-      "removalStrategy": "add_alias_or_queue_then_manual_cutover",
-      "validationCommand": "npm run check:versioned-content-contracts",
-      "manualFollowUp": "Do not remove or rename this provider_model_or_eval_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-      "suggestedNeutralName": null
-    },
-    {
       "path": "src/lib/work/model.ts",
       "surfaceClass": "provider_or_crypto_format",
       "subSurfaceClass": "provider_model_or_eval_version",
@@ -64825,7 +64119,7 @@
       "token": "v10",
       "count": 1,
       "sampleLines": [
-        272
+        285
       ],
       "evidenceHashes": [
         "4ea69df3deb004e9"

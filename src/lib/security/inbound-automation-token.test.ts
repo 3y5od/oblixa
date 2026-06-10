@@ -29,6 +29,37 @@ describe("inbound-automation-token", () => {
     expect(getInboundAutomationSecret("slack")).toBe("shared");
   });
 
+  it("does not fall back to INBOUND_AUTOMATION_TOKEN in production-like environments", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("INBOUND_AUTOMATION_TOKEN", "shared");
+
+    expect(getInboundAutomationSecrets("slack")).toEqual([]);
+    expect(
+      isInboundAutomationAuthorized(
+        new Request("http://localhost/", {
+          headers: { authorization: "Bearer shared" },
+        }),
+        "slack"
+      )
+    ).toBe(false);
+  });
+
+  it("accepts route-specific secrets in production-like environments", () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("INBOUND_AUTOMATION_TOKEN", "shared");
+    vi.stubEnv("INBOUND_INTEGRATIONS_CALLBACK_TOKEN", "callback-only");
+
+    expect(getInboundAutomationSecrets("integrations_callback")).toEqual(["callback-only"]);
+    expect(
+      isInboundAutomationAuthorized(
+        new Request("http://localhost/", {
+          headers: { authorization: "Bearer callback-only" },
+        }),
+        "integrations_callback"
+      )
+    ).toBe(true);
+  });
+
   it("returns null when no secret configured", () => {
     expect(getInboundAutomationSecret("integrations_callback")).toBeNull();
   });

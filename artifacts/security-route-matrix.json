@@ -3835,7 +3835,7 @@
     "rate_limit_key_shape": "org_user",
     "body_size_policy": "bounded_json",
     "csrf_origin_policy": "same_origin_or_sec_fetch_enforced",
-    "idempotency_or_job_lock_policy": "terminal_state_guard",
+    "idempotency_or_job_lock_policy": "idempotency_or_duplicate_guard",
     "audit_event_expectation": "explicit_audit_event",
     "sec_ids": [
       "SEC-API1",
@@ -5056,7 +5056,7 @@
     "workspace_eligibility_gate": "requireApiWorkspaceEligibility",
     "rate_limit_policy": "explicit",
     "rate_limit_key_shape": "org_user",
-    "body_size_policy": "bounded_text",
+    "body_size_policy": "bounded_json",
     "csrf_origin_policy": "same_origin_or_sec_fetch_enforced",
     "idempotency_or_job_lock_policy": "idempotency_or_duplicate_guard",
     "audit_event_expectation": "explicit_audit_event",
@@ -6968,7 +6968,7 @@
     "rate_limit_key_shape": "org_user",
     "body_size_policy": "bounded_json",
     "csrf_origin_policy": "same_origin_or_sec_fetch_enforced",
-    "idempotency_or_job_lock_policy": "terminal_state_guard",
+    "idempotency_or_job_lock_policy": "idempotency_or_duplicate_guard",
     "audit_event_expectation": "explicit_audit_event",
     "sec_ids": [
       "SEC-API1",

@@ -2,7 +2,7 @@
  * Inbound automation: call from a Slack slash command or workflow step (HTTP) with Bearer
  * INBOUND_AUTOMATION_TOKEN. Body: organizationId, contractId, title, optional details, assigneeId, dueDate.
  */
-import { jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { jsonMisconfigured, jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited, readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
@@ -12,6 +12,7 @@ import { isIsoDateOnly, isUuid } from "@/lib/security/validation";
 import { verifySlackSigningSecret } from "@/lib/security/slack-signing";
 import { isKillInboundAutomation, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { isProductionLikeInboundEnvironment } from "@/lib/security/inbound-production-env";
 
 type SlackTaskPayload = {
   organizationId: string;
@@ -67,7 +68,11 @@ export async function POST(request: Request) {
 
   const slackSecret = process.env.SLACK_SIGNING_SECRET?.trim();
   let body: SlackTaskPayload | null = null;
-  if (slackSecret) {
+  const signatureRequired = !!slackSecret || isProductionLikeInboundEnvironment();
+  if (signatureRequired) {
+    if (!slackSecret) {
+      return jsonMisconfigured("SLACK_SIGNING_SECRET", ROUTE);
+    }
     const _lb_raw = await readTextBodyLimited(request, SLACK_INBOUND_BODY_MAX);
     if (!_lb_raw.ok) return validationError("Body too large", "slack_inbound_body_too_large", 413);
     const raw = _lb_raw.body;
@@ -213,7 +218,7 @@ export async function POST(request: Request) {
     })
     .select("id")
     .single();
-  if (error) return persistenceError(error.message, "slack_inbound_task_create_failed");
+  if (error) return persistenceError("Unable to create task", "slack_inbound_task_create_failed");
 
   await admin.from("contract_task_events").insert({
     organization_id: body.organizationId,

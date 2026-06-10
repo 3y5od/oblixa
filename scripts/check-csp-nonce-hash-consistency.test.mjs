@@ -24,6 +24,10 @@ function writeValidFixture(root) {
       "OBLIXA_CSP_STRICT_ENFORCING_STYLE",
       "OBLIXA_CSP_STRICT_ENFORCING_SCRIPT",
       "OBLIXA_CSP_ENFORCING_SCRIPT_HASHES",
+      "resolveSecurityHeaderRollout",
+      "env: process.env",
+      "trustedTypesMode",
+      "coepMode",
       "cspStrictEnforcingScriptSrc:",
       "cspEnforcingScriptHashes:",
     ].join("\n")
@@ -68,6 +72,9 @@ function writeValidFixture(root) {
       "report-only CSP carries script attribute and mixed-content protections",
       "buildSecurityHeaders wires CSP report-uri and report-to endpoints",
       "optional Trusted Types directive appended to report-only CSP when enabled",
+      "strict deployment defaults Trusted Types and COEP to enforcing modes",
+      "strict deployment rejects undocumented security header rollback metadata",
+      "strict deployment accepts explicit rollback metadata with future expiry",
     ].join("\n")
   );
   write(

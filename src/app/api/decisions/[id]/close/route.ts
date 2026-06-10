@@ -13,6 +13,7 @@ import {
 } from "@/lib/decision-intelligence/relationship-timeline";
 import { incrementOrgV5SignalQuality } from "@/lib/decision-intelligence/persist-signal-quality";
 import { requireV5ApiFeature } from "@/lib/decision-intelligence/feature-guards";
+import { enforceIdempotency } from "@/lib/idempotency";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
@@ -34,6 +35,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     apiPath: "/api/decisions/[id]/close",
   });
   if (modeGate) return modeGate;
+
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.decisions.id.close",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
 
   void recordApiMutationAuditEvent(ctx.admin, {
     organizationId: ctx.orgId,

@@ -23,6 +23,7 @@ vi.mock("@/lib/security/api-mutation-audit", () => ({
 
 describe("POST /api/tasks/from-slack", () => {
   beforeEach(() => {
+    vi.unstubAllEnvs();
     vi.resetModules();
     vi.clearAllMocks();
     delete process.env.INBOUND_AUTOMATION_TOKEN;
@@ -30,6 +31,8 @@ describe("POST /api/tasks/from-slack", () => {
     delete process.env.INBOUND_AUTOMATION_ORG_ALLOWLIST;
     delete process.env.SLACK_SIGNING_SECRET;
     delete process.env.OBLIXA_KILL_INBOUND_AUTOMATION;
+    delete process.env.VERCEL;
+    delete process.env.VERCEL_ENV;
     rateLimitCheck.mockResolvedValue({ ok: true });
     recordApiMutationAuditEvent.mockResolvedValue("v10-audit-1");
   });
@@ -115,6 +118,29 @@ describe("POST /api/tasks/from-slack", () => {
       code: "invalid_signature",
       diagnostic_id: "slack_inbound_signature_invalid",
     });
+  });
+
+  it("returns 503 in production when Slack signing secret is missing", async () => {
+    process.env.VERCEL = "1";
+    process.env.VERCEL_ENV = "production";
+    process.env.INBOUND_SLACK_AUTOMATION_TOKEN = "slack-token";
+    const { POST } = await import("@/app/api/tasks/from-slack/route");
+    const req = new Request("http://localhost:3000/api/tasks/from-slack", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer slack-token",
+      },
+      body: JSON.stringify({ organizationId: ORG_ID, contractId: CONTRACT_ID, title: "task" }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body).toMatchObject({
+      code: "server_misconfigured",
+      details: { missing_env: "SLACK_SIGNING_SECRET" },
+    });
+    expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("returns 429 when organization rate limit is exceeded", async () => {

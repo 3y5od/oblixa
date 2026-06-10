@@ -7,7 +7,6 @@ import {
   BellRing,
   Boxes,
   CalendarClock,
-  ChevronRight,
   CreditCard,
   FileCheck2,
   Files,

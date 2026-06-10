@@ -14,7 +14,7 @@
     "retainedLegacyAliasCount": 79,
     "neutralOnlyAliasCount": 0,
     "legacyReferenceCount": 375,
-    "neutralReferenceCount": 1612,
+    "neutralReferenceCount": 1616,
     "issueCount": 0
   },
   "aliases": [
@@ -1435,8 +1435,8 @@
       "owner": "frontend-platform",
       "queueCovered": true,
       "legacyReferenceCount": 3,
-      "neutralReferenceCount": 43,
-      "referenceFileCount": 19,
+      "neutralReferenceCount": 45,
+      "referenceFileCount": 20,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
       "references": [
@@ -1498,6 +1498,12 @@
           "path": "src/components/contracts/contract-table.tsx",
           "legacyCount": 0,
           "neutralCount": 3,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/contracts/review/review-evidence-rail.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
           "referenceClass": "source_or_test"
         },
         {
@@ -2135,8 +2141,8 @@
       "owner": "frontend-platform",
       "queueCovered": true,
       "legacyReferenceCount": 3,
-      "neutralReferenceCount": 23,
-      "referenceFileCount": 9,
+      "neutralReferenceCount": 25,
+      "referenceFileCount": 10,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/business-dates-drift.test.ts src/lib/hardening.test.ts",
       "references": [
@@ -2154,6 +2160,12 @@
         },
         {
           "path": "src/app/(dashboard)/work/work-page-helpers.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/components/contracts/contract-key-dates.tsx",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"

@@ -86,6 +86,9 @@ const REQUIRED_FILE_MARKERS = {
   ],
   "src/app/api/integrations/actions/callback/route.ts": [
     'if (!isInboundAutomationAuthorized(request, "integrations_callback")) {',
+    "INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET",
+    "verifyInboundCallbackHmac({",
+    'diagnostic_id: "integration_callback_signature_invalid",',
     '`inbound:integrations-actions:org:${organizationId}:${String(body.action ?? "unknown")}`',
     'const blocked = inboundOrgNotAllowedResponse(organizationId);',
     'if (!isUuid(organizationId))',

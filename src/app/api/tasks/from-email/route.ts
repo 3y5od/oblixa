@@ -1,4 +1,4 @@
-import { jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
+import { jsonMisconfigured, jsonOk, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import { readJsonBodyLimited, readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { createAdminClient } from "@/lib/supabase/server";
 import { inboundOrgNotAllowedResponse } from "@/lib/security/inbound-org-allowlist";
@@ -14,6 +14,7 @@ import {
 import { isKillInboundAutomation, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { verifyInboundEmailHmac } from "@/lib/security/inbound-email-signing";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
+import { isProductionLikeInboundEnvironment } from "@/lib/security/inbound-production-env";
 
 const ROUTE = "/api/tasks/from-email";
 const EMAIL_INBOUND_SIGNED_BODY_MAX = 262_144;
@@ -67,7 +68,11 @@ export async function POST(request: Request) {
 
   const hmacSecret = process.env.EMAIL_INBOUND_HMAC_SECRET?.trim();
   let payload: EmailTaskPayload | null = null;
-  if (hmacSecret) {
+  const signatureRequired = !!hmacSecret || isProductionLikeInboundEnvironment();
+  if (signatureRequired) {
+    if (!hmacSecret) {
+      return jsonMisconfigured("EMAIL_INBOUND_HMAC_SECRET", ROUTE);
+    }
     const _lb_raw = await readTextBodyLimited(request, EMAIL_INBOUND_SIGNED_BODY_MAX);
     if (!_lb_raw.ok) return validationError("Body too large", "email_inbound_body_too_large", 413);
     const raw = _lb_raw.body;
@@ -219,7 +224,7 @@ export async function POST(request: Request) {
       })
       .select("id")
       .single();
-    if (error) return persistenceError(error.message, "email_inbound_exception_create_failed");
+    if (error) return persistenceError("Unable to create exception", "email_inbound_exception_create_failed");
     return jsonOk({ success: true, exceptionId: exception.id });
   }
 
@@ -229,6 +234,27 @@ export async function POST(request: Request) {
       return validationError(
         "evidenceRequirementId is required for evidence_submission",
         "email_inbound_evidence_requirement_id_required"
+      );
+    }
+    if (!isUuid(requirementId)) {
+      return validationError(
+        "evidenceRequirementId must be a valid UUID",
+        "email_inbound_evidence_requirement_id_invalid"
+      );
+    }
+    const { data: requirement, error: requirementError } = await admin
+      .from("evidence_requirements")
+      .select("id, contract_id")
+      .eq("id", requirementId)
+      .eq("organization_id", payload.organizationId)
+      .maybeSingle();
+    if (requirementError) {
+      return persistenceError("Unable to verify evidence requirement", "email_inbound_evidence_requirement_lookup_failed");
+    }
+    if (!requirement || requirement.contract_id !== payload.contractId) {
+      return validationError(
+        "Evidence requirement not found in contract",
+        "email_inbound_evidence_requirement_not_found"
       );
     }
     const { data: submission, error } = await admin
@@ -248,7 +274,7 @@ export async function POST(request: Request) {
       })
       .select("id")
       .single();
-    if (error) return persistenceError(error.message, "email_inbound_evidence_submission_create_failed");
+    if (error) return persistenceError("Unable to create evidence submission", "email_inbound_evidence_submission_create_failed");
     await admin
       .from("evidence_requirements")
       .update({ status: "submitted" })
@@ -273,7 +299,7 @@ export async function POST(request: Request) {
     .select("id")
     .single();
 
-  if (error) return persistenceError(error.message, "email_inbound_task_create_failed");
+  if (error) return persistenceError("Unable to create task", "email_inbound_task_create_failed");
   await admin.from("contract_task_events").insert({
     organization_id: payload.organizationId,
     contract_id: payload.contractId,

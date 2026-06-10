@@ -46,7 +46,7 @@
       "validationCommand": "npm run check:versioned-exported-symbol-aliases",
       "safeActionStatus": "exhausted",
       "pendingSafeActionCount": 0,
-      "completedActionCount": 1132,
+      "completedActionCount": 1131,
       "reason": "All non-manual exported-symbol aliases must be added or intentionally queued."
     },
     {
@@ -108,7 +108,7 @@
         "apiRoutes": 1,
         "cronRoutes": 32,
         "environmentKeys": 24,
-        "exportedSymbolAliases": 1150,
+        "exportedSymbolAliases": 1149,
         "packageScriptAliases": 37,
         "sqlObjects": 75,
         "telemetryEventNames": 93
@@ -146,8 +146,8 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1573,
-        "exportDownloadContracts": 168
+        "contentContractAliases": 1548,
+        "exportDownloadContracts": 167
       },
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,
@@ -173,7 +173,7 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1573,
+        "contentContractAliases": 1548,
         "cronRoutes": 32,
         "environmentKeys": 24,
         "packageScriptAliases": 37,
@@ -234,7 +234,7 @@
       ],
       "queueCounts": {
         "apiRoutes": 1,
-        "contentContractAliases": 1573,
+        "contentContractAliases": 1548,
         "cronRoutes": 32
       },
       "uncoveredManualCount": 0,
@@ -295,7 +295,7 @@
         "contentContractAliases"
       ],
       "queueCounts": {
-        "contentContractAliases": 1573,
+        "contentContractAliases": 1548,
         "telemetryEventNames": 93
       },
       "uncoveredManualCount": 0,

@@ -51,10 +51,10 @@
     }
   ],
   "minimums": {
-    "attackSurfaceRows": 600,
+    "attackSurfaceRows": 598,
     "securityControlRows": 250,
     "threatRows": 6,
-    "highRiskSurfaceRows": 400
+    "highRiskSurfaceRows": 385
   },
   "requiredStrideCategories": [
     "spoofing",

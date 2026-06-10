@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { Wrench } from "lucide-react";
 import type { NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
+import { shellTestIds } from "@/lib/qa/test-ids";
 import { AccountMenu } from "./account-menu";
 import { TopbarBreadcrumb } from "./topbar/topbar-breadcrumb";
 import { TopbarSearch } from "./topbar/topbar-search";
@@ -40,7 +41,10 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
   const showTools = showUtilitiesLink && navSurface?.mode !== "core";
 
   return (
-    <header className="ui-topbar sticky top-0 z-30 shrink-0 px-4 md:px-6 xl:px-8">
+    <header
+      data-testid={shellTestIds.headerTopbar}
+      className="ui-topbar sticky top-0 z-30 shrink-0 px-4 md:px-6 xl:px-8"
+    >
       <div className="mx-auto flex h-[var(--shell-topbar-h)] w-full max-w-[var(--shell-content-max)] items-center gap-3 pl-12 md:gap-4 lg:pl-0">
         <TopbarBreadcrumb />
 

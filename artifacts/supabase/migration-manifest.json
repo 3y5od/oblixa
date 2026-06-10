@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-migration-manifest.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 94,
+  "migrationCount": 95,
   "firstVersion": "001",
-  "latestVersion": "094",
+  "latestVersion": "095",
   "gaps": [],
   "migrations": [
     {
@@ -1129,6 +1129,18 @@
       "sha256": "3b94511fef7876032bee0447aec5778c6bfae20c262b16fae82a9b531fe0176f",
       "slug": "force_rls_current_public_tables",
       "purpose": "Force Rls Current Public Tables",
+      "domain": "security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "095",
+      "file": "095_inbound_evidence_scope_guards.sql",
+      "sha256": "6ab0b9128182ecc80b21571663f198e08b121066395ae1c3d51d3fd6cb160733",
+      "slug": "inbound_evidence_scope_guards",
+      "purpose": "Inbound Evidence Scope Guards",
       "domain": "security",
       "changeType": "policy-changing",
       "riskLevel": "medium",

@@ -34,6 +34,34 @@ test("buildMigrationOrganizationIndex groups migrations and extracts policy affe
   assert.deepEqual(index.policyChangingMigrations[0].affectedTables, ["public.accounts"]);
 });
 
+test("buildMigrationOrganizationIndex classifies dynamic public-table RLS loops", () => {
+  const root = makeRoot();
+  write(
+    root,
+    "supabase/migrations/001_force_current_public_tables.sql",
+    `do $$
+declare
+  r record;
+begin
+  for r in
+    select n.nspname as schema_name, c.relname as table_name
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind in ('r', 'p')
+  loop
+    execute format('alter table %I.%I enable row level security', r.schema_name, r.table_name);
+    execute format('alter table %I.%I force row level security', r.schema_name, r.table_name);
+  end loop;
+end $$;
+`
+  );
+
+  const index = buildMigrationOrganizationIndex(root);
+
+  assert.deepEqual(index.policyChangingMigrations[0].affectedTables, ["public.*"]);
+});
+
 test("analyzeMigrationOrganization passes when artifact is current", () => {
   const root = makeRoot();
   write(root, "supabase/migrations/001_initial_schema.sql", "create table if not exists public.accounts (id uuid primary key);\n");

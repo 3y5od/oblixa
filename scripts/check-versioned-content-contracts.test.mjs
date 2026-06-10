@@ -80,6 +80,29 @@ test("classifyContentSubSurface adds concrete content-surface metadata", () => {
   );
 });
 
+test("classifyContentContract treats app stylesheets as source content", () => {
+  const token = `${"v"}17`;
+  const excerpt = `/* Avatar tile in header - ${token}: softened bevel. */`;
+
+  const surfaceClass = classifyContentContract({
+    path: "src/app/globals.css",
+    excerpt,
+    token,
+  });
+
+  assert.equal(surfaceClass, "source_content");
+  assert.equal(
+    classifyContentSubSurface({
+      path: "src/app/globals.css",
+      excerpt,
+      token,
+      surfaceClass,
+      contractName: token,
+    }),
+    "style_token_or_selector",
+  );
+});
+
 test("inventory groups content contracts without storing source excerpts", () => {
   const root = makeRoot({
     "src/lib/example.ts": [

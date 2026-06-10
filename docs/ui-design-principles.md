@@ -35,47 +35,49 @@ Design goals:
   product surfaces more than glow, gradients, or decorative cards.
 - **Public-site memorability**: marketing pages must have a strong creative
   concept, product-specific motifs, and enough visual force to be remembered.
-- **Distinctiveness without imitation**: references can calibrate quality, but
-  Oblixa needs its own visual world.
+- **Distinctiveness without imitation**: external references can calibrate
+  quality, but Oblixa needs its own visual world.
 
-## 2. Dovetail Reference Boundary
+## 2. Reference Boundary
 
-Dovetail is a useful reference for quality, confidence, and art direction. It is
-not a template to copy.
+References are calibration tools, not design commitments. They may inform quality
+bar, confidence, density, contrast, or section choreography, but they must never
+dictate Oblixa's palette, structure, typography, motifs, or product positioning.
 
-Extract these qualities:
+Extract only durable qualities:
 
-- a decisive first viewport
-- a clear creative concept
+- decisive first viewport
+- clear creative concept
 - strong typography and contrast
-- a repeatable geometric motif
-- product UI staged as an object of interest
+- repeatable product-native motif
+- product UI staged as proof
 - memorable atmosphere
 - section choreography rather than stacked templates
 - confidence that precedes explanation
 
-Do not copy these qualities:
+Do not import:
 
-- Dovetail's black-first palette as the Oblixa default
-- pixelated type
-- Dovetail's exact landing structure
-- 3D keyboard/object spectacle as a routine motif
-- Dovetail's customer-signal positioning
-- abstract AI magic visuals
+- another product's palette
+- novelty typography
+- exact section order
+- unrelated object spectacle
+- abstract AI visuals
 - logo-wall proof as a substitute for product clarity
+- reference-specific positioning
 
-For Oblixa, the translation is:
+For Oblixa, every reference must translate back to this product-specific idea:
 
 > Source-backed contract operations, staged with enough visual conviction that
 > signed contracts feel like they become a living control system.
 
-Reference usage rule:
+Reference usage rules:
 
-- Use Dovetail to calibrate ambition, not to justify copying palette, structure,
-  type, or objects.
 - A reference is useful only when it clarifies a visual quality Oblixa should own.
+- If a direction cannot be explained through Oblixa's product model, discard it.
 - If a pass produces a compliant but forgettable page, the reference has not been
   applied at the right level.
+- Never change product structure merely because a reference uses a different
+  structure.
 
 ## 3. Design Modes
 
@@ -149,7 +151,7 @@ Public pages should not feel:
 - like a compliance checklist
 - empty in the name of restraint
 - table-heavy without visual relief
-- copied from Dovetail
+- copied from a reference product
 
 Public pages may use stronger contrast, larger type, staged product visuals,
 denser proof modules, selective high-contrast bands, and more dramatic section
@@ -372,14 +374,14 @@ Public page checks:
 - Does the page show the product transformation, not just describe it?
 - Does each section have a distinct role?
 - Is there enough visual force to compete with high-quality SaaS references?
-- Does the page avoid copying the reference while matching its ambition?
+- Does the page avoid copying a reference while matching its ambition?
 
 ## 5. Product App Visual System
 
 ### 5.1 Light-First Palette Direction
 
 The app's target palette is light-first, technical, and neutral. It is not
-Dovetail black and not the old pale-blue SaaS system.
+black-first and not the old pale-blue SaaS system.
 
 Use a light technical palette:
 
@@ -431,7 +433,7 @@ Dark mode is supported only as an adaptation of the light-first app system.
 Rules:
 
 - Do not design dark mode as the canonical product-app appearance.
-- Do not import Dovetail's black canvas as the app default.
+- Do not import a black-first public-site canvas as the app default.
 - Preserve the same route structure, density, and object hierarchy as light mode.
 - Use dark surfaces to maintain readability, not to create spectacle.
 - Re-tune borders and status colors so they remain visible without glowing.
@@ -508,14 +510,14 @@ remove it.
 
 ## 6. Typography
 
-Use a clean sans-serif for all human-readable UI. Do not use pixelated type in
-Oblixa, even when referencing Dovetail.
+Use a clean sans-serif for all human-readable UI. Do not use pixelated or novelty
+type for Oblixa's core interface language.
 
 Typography rules:
 
 - App page titles should be confident but not landing-scale.
 - Public page titles may be much larger and more editorial when the concept earns
-  it.
+-  it.
 - Route leads should explain the page's job in one short sentence.
 - Body text should be direct and operational.
 - Uppercase text is reserved for structural labels and compact metadata.
@@ -1176,7 +1178,7 @@ Use these replacements when restyling public pages:
 | Table after table | Mix of table, record, source, workflow, and editorial modules |
 | Blue as the whole identity | Oblixa-native motifs plus controlled accent |
 | Minimalism through empty space | Richness through product-specific proof |
-| Dovetail imitation | Oblixa concept with comparable ambition |
+| Reference imitation | Oblixa concept with comparable ambition |
 
 Public migration sequence:
 
@@ -1209,7 +1211,7 @@ Hard anti-patterns:
 
 - public pages without a creative concept
 - public pages that are clear but forgettable
-- copying Dovetail's palette, pixel type, or structure
+- copying another product's palette, novelty type, or structure
 - pastel SaaS card stacks
 - blue haze as the default app background
 - glow used as app hierarchy
@@ -1297,7 +1299,7 @@ Public-site checks:
 - product visuals teach workflow states
 - sections vary in role, density, and composition
 - there is enough visual force to compete with high-quality SaaS references
-- public page does not copy Dovetail's palette, type, or structure
+- public page does not copy another product's palette, type, or structure
 - each major viewport contains proof, product evidence, or a clear transition
 - FAQ is objection handling, not filler
 

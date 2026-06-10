@@ -8,6 +8,7 @@ import { requireV6Context } from "@/lib/assurance/api-auth";
 import { runIncrementalAssuranceChecks } from "@/lib/assurance/assurance-checks";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
 import { incrementAssuranceQualityCounter } from "@/lib/assurance/telemetry";
+import { enforceIdempotency } from "@/lib/idempotency";
 import { escapeCsvCellForSpreadsheet } from "@/lib/csv-formula-safe";
 import {
   contentDispositionAttachment,
@@ -16,6 +17,7 @@ import {
 } from "@/lib/security/export-filename";
 import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import { staleExpectedVersionResponse } from "@/lib/security/stale-write-guard";
 import { parseFixedEnumParam } from "@/lib/security/validation";
 
 const ROUTE = "/api/review-boards/runs/[id]";
@@ -141,6 +143,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   });
   if (modeGate) return modeGate;
 
+  const duplicate = await enforceIdempotency(request, {
+    scope: "api.review-boards.runs.id",
+    actorKey: `${ctx.orgId}:${ctx.userId}`,
+  });
+  if (duplicate) return duplicate;
+
   void recordApiMutationAuditEvent(ctx.admin, {
     organizationId: ctx.orgId,
     actorUserId: ctx.userId,
@@ -164,6 +172,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const body = parsedBody.data;
 
   const patch: Record<string, unknown> = {};
+  let optimisticVersion: string | null = null;
   if (body.status === "reviewed" || body.status === "closed") {
     patch.status = body.status;
     if (body.status === "reviewed") patch.reviewed_at = nowIso();
@@ -171,22 +180,32 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.actionCapture && typeof body.actionCapture === "object") {
     const { data: prior } = await ctx.admin
       .from("review_board_runs")
-      .select("action_capture_json")
+      .select("action_capture_json, decision_log_json, updated_at")
       .eq("organization_id", ctx.orgId)
       .eq("id", runId)
       .maybeSingle();
+    if (!prior) return jsonNotFound(ROUTE);
+    optimisticVersion =
+      typeof prior.updated_at === "string" && prior.updated_at.trim() ? prior.updated_at : null;
     const prev = Array.isArray(prior?.action_capture_json)
       ? (prior?.action_capture_json as unknown[])
       : [];
     patch.action_capture_json = [...prev, { ...body.actionCapture, at: nowIso() }];
+    if (body.decisionLog && typeof body.decisionLog === "object") {
+      const prevDecisionLog = Array.isArray(prior?.decision_log_json) ? (prior?.decision_log_json as unknown[]) : [];
+      patch.decision_log_json = [...prevDecisionLog, { ...body.decisionLog, at: nowIso() }];
+    }
   }
-  if (body.decisionLog && typeof body.decisionLog === "object") {
+  if (!patch.decision_log_json && body.decisionLog && typeof body.decisionLog === "object") {
     const { data: prior } = await ctx.admin
       .from("review_board_runs")
-      .select("decision_log_json")
+      .select("decision_log_json, updated_at")
       .eq("organization_id", ctx.orgId)
       .eq("id", runId)
       .maybeSingle();
+    if (!prior) return jsonNotFound(ROUTE);
+    optimisticVersion =
+      typeof prior.updated_at === "string" && prior.updated_at.trim() ? prior.updated_at : null;
     const prev = Array.isArray(prior?.decision_log_json) ? (prior?.decision_log_json as unknown[]) : [];
     patch.decision_log_json = [...prev, { ...body.decisionLog, at: nowIso() }];
   }
@@ -200,11 +219,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     });
   }
 
-  const { data, error } = await ctx.admin
+  let updateQuery = ctx.admin
     .from("review_board_runs")
     .update(patch)
     .eq("organization_id", ctx.orgId)
-    .eq("id", runId)
+    .eq("id", runId);
+  if (optimisticVersion) {
+    updateQuery = updateQuery.eq("updated_at", optimisticVersion);
+  }
+  const { data, error } = await updateQuery
     .select("id, status, reviewed_at, action_capture_json, decision_log_json")
     .maybeSingle();
 
@@ -216,7 +239,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       route: ROUTE,
     });
   }
-  if (!data) return jsonNotFound(ROUTE);
+  if (!data) {
+    if (optimisticVersion) {
+      return staleExpectedVersionResponse({
+        route: ROUTE,
+        diagnosticPrefix: "review_board_run",
+      });
+    }
+    return jsonNotFound(ROUTE);
+  }
   await incrementAssuranceQualityCounter(ctx.admin, ctx.orgId, "api_patch_review_board_run_total", 1).catch(() => undefined);
   if (isFeatureEnabled("v6AssuranceCore")) {
     await runIncrementalAssuranceChecks(ctx.admin, ctx.orgId, ctx.userId).catch(() => undefined);

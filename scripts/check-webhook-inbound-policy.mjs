@@ -99,6 +99,10 @@ const REQUIRED_MARKERS = {
   ],
   "src/app/api/integrations/actions/callback/route.ts": [
     'isInboundAutomationAuthorized(request, "integrations_callback")',
+    "INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET",
+    "verifyInboundCallbackHmac({",
+    'request.headers.get("x-oblixa-callback-signature")',
+    'request.headers.get("x-oblixa-callback-timestamp")',
     '`inbound:integrations-actions:org:${organizationId}:${String(body.action ?? "unknown")}`',
     'inboundOrgNotAllowedResponse(organizationId)',
     '.from("contracts")',

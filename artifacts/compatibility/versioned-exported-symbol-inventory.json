@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-versioned-exported-symbols.mjs --write",
   "policy": "Inventory exported source symbols carrying product version labels. Check mode is read-only and fails only on artifact drift or malformed metadata; compatibility-sensitive exports stay queued until neutral aliases can be adopted safely.",
-  "symbolCount": 1144,
-  "aliasAddedCount": 1132,
+  "symbolCount": 1143,
+  "aliasAddedCount": 1131,
   "aliasCandidateCount": 0,
   "queueOnlyCount": 12,
   "symbols": [
@@ -749,7 +749,7 @@
     },
     {
       "path": "src/components/work/work-inbox-list.tsx",
-      "line": 20,
+      "line": 21,
       "exportKind": "named_export",
       "declarationKind": null,
       "typeOnly": true,
@@ -769,7 +769,7 @@
     },
     {
       "path": "src/components/work/work-inbox-list.tsx",
-      "line": 22,
+      "line": 36,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -2269,7 +2269,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 13,
+      "line": 14,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -2289,7 +2289,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 14,
+      "line": 15,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -2309,7 +2309,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 24,
+      "line": 25,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -2329,7 +2329,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 35,
+      "line": 36,
       "exportKind": "declaration",
       "declarationKind": "type",
       "typeOnly": true,
@@ -2349,7 +2349,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 57,
+      "line": 52,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -2369,7 +2369,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 61,
+      "line": 56,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -2389,7 +2389,7 @@
     },
     {
       "path": "src/lib/api-client.ts",
-      "line": 92,
+      "line": 87,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -8429,14 +8429,14 @@
     },
     {
       "path": "src/lib/in-app-notification-display.ts",
-      "line": 2,
+      "line": 3,
       "exportKind": "declaration",
       "declarationKind": "const",
       "typeOnly": false,
       "sourceModule": null,
       "exportedName": "V9_IN_APP_NOTIFICATION_BODY_MAX",
       "localName": "V9_IN_APP_NOTIFICATION_BODY_MAX",
-      "sourceHash": "9e9620b5059996e2",
+      "sourceHash": "08a72131e200f0ff",
       "surfaceClass": "app_library_export",
       "owner": "platform-hardening",
       "reason": "Source-owned exported symbol can move to a neutral name with a deprecated compatibility alias.",
@@ -10009,7 +10009,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 460,
+      "line": 473,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -10029,7 +10029,7 @@
     },
     {
       "path": "src/lib/navigation.ts",
-      "line": 468,
+      "line": 481,
       "exportKind": "declaration",
       "declarationKind": "function",
       "typeOnly": false,
@@ -22284,26 +22284,6 @@
       "removalStrategy": "add_neutral_export_and_update_internal_callers",
       "validationCommand": "npm run check:versioned-exported-symbols",
       "suggestedNeutralName": "applyCommandSearchVisibility",
-      "neutralExportPresent": true,
-      "compatibilityAction": "alias_added"
-    },
-    {
-      "path": "src/lib/work-hub-lens.ts",
-      "line": 17,
-      "exportKind": "declaration",
-      "declarationKind": "const",
-      "typeOnly": false,
-      "sourceModule": null,
-      "exportedName": "V9_WORK_HUB_LENS_VALUES",
-      "localName": "V9_WORK_HUB_LENS_VALUES",
-      "sourceHash": "235d5cbd9096aba2",
-      "surfaceClass": "app_library_export",
-      "owner": "platform-hardening",
-      "reason": "Source-owned exported symbol can move to a neutral name with a deprecated compatibility alias.",
-      "manualOnly": false,
-      "removalStrategy": "add_neutral_export_and_update_internal_callers",
-      "validationCommand": "npm run check:versioned-exported-symbols",
-      "suggestedNeutralName": "WORK_HUB_LENS_VALUES",
       "neutralExportPresent": true,
       "compatibilityAction": "alias_added"
     },

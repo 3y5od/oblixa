@@ -13,7 +13,7 @@ describe("V9 §11.3 ambiguity / provenance anchors", () => {
       join(process.cwd(), "src/components/contracts/field-review.ui.test.tsx"),
       "utf8"
     );
-    expect(ui).toMatch(/citation required/i);
+    expect(ui).toMatch(/source required/i);
     expect(ui).toMatch(/disabled/i);
   });
 });
