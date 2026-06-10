@@ -9,6 +9,8 @@ import {
   DOCUMENT_PARSER_MAX_DOCX_UNCOMPRESSED_BYTES,
   DOCUMENT_PARSER_MAX_EXTRACTED_TEXT_CHARS,
   DOCUMENT_PARSER_MAX_PDF_PAGES,
+  DOCUMENT_PARSER_SANDBOX_POLICY,
+  assertDocumentParserSandboxPolicy,
   assertDocxZipExpansionWithinParserLimits,
   assertPdfParserBounds,
   extractTextFromBuffer,
@@ -67,6 +69,18 @@ describe("DOCX / PDF parse boundaries (corrupt input)", () => {
   it("rejects parser buffers larger than the upload ceiling", async () => {
     const buf = Buffer.alloc(DOCUMENT_PARSER_MAX_BUFFER_BYTES + 1);
     await expect(extractTextFromBuffer(buf, "application/pdf")).rejects.toThrow("Document parser input too large");
+  });
+
+  it("keeps document parsing in a frozen in-memory sandbox policy", () => {
+    expect(Object.isFrozen(DOCUMENT_PARSER_SANDBOX_POLICY)).toBe(true);
+    expect(DOCUMENT_PARSER_SANDBOX_POLICY).toMatchObject({
+      inputBoundary: "memory-buffer-only",
+      allowFileSystem: false,
+      allowNetwork: false,
+      allowExternalResources: false,
+    });
+    expect(() => assertDocumentParserSandboxPolicy("application/pdf")).not.toThrow();
+    expect(() => assertDocumentParserSandboxPolicy("text/html")).toThrow("Unsupported file type: text/html");
   });
 
   it("rejects PDF page counts above the parser ceiling", () => {

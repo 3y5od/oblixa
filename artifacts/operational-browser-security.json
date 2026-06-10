@@ -5,7 +5,7 @@
   "generatedBy": "scripts/check-operational-browser-security.mjs --write",
   "generatedFrom": "config/operational-browser-security.json",
   "ciWorkflow": ".github/workflows/ci.yml",
-  "commandCount": 19,
+  "commandCount": 20,
   "routeFamilyCount": 5,
   "cspRolloutContractCount": 4,
   "clientLeakageSurfaceCount": 5,
@@ -126,6 +126,20 @@
     },
     {
       "objective": "csp-rollout-hardening",
+      "script": "check:beacon-timing-leakage",
+      "ciRequired": true,
+      "packageScriptPresent": true,
+      "ciPresent": true,
+      "securityPipelineRequired": true,
+      "securityPipelinePresent": true,
+      "covers": [
+        "approved_keepalive_endpoints",
+        "beacon_wrapper_boundary",
+        "server_timing_header_absence"
+      ]
+    },
+    {
+      "objective": "csp-rollout-hardening",
       "script": "check:csp-nonce-hash-consistency",
       "ciRequired": true,
       "packageScriptPresent": true,
@@ -173,7 +187,7 @@
       "packageScriptPresent": true,
       "ciPresent": true,
       "securityPipelineRequired": false,
-      "securityPipelinePresent": false,
+      "securityPipelinePresent": true,
       "covers": [
         "script_integrity_signals",
         "third_party_script_inventory"

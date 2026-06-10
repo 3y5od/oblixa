@@ -47,7 +47,7 @@
       "command": "check:github-workflows-yaml"
     }
   ],
-  "failClosedObservationCount": 61,
+  "failClosedObservationCount": 59,
   "governedFailClosedObservations": [
     {
       "issue": "continue_on_error",
@@ -623,17 +623,6 @@
     },
     {
       "issue": "optional_job",
-      "file": "qa-secrets-history-scan-optional.yml",
-      "job": "trufflehog_placeholder",
-      "step": null,
-      "condition": "false",
-      "allowedBy": "disabled-external-provider-stub-jobs",
-      "owner": "test-platform",
-      "expiresOn": "2027-05-28",
-      "validationCommand": "check:qa-workflow-fleet"
-    },
-    {
-      "issue": "optional_job",
       "file": "qa-terraform-plan.yml",
       "job": "disabled",
       "step": null,
@@ -686,17 +675,6 @@
       "owner": "platform-runtime",
       "expiresOn": "2027-05-28",
       "validationCommand": "check:operational-ci-enforcement"
-    },
-    {
-      "issue": "shell_ignores_error",
-      "file": "qa-dast-zap.yml",
-      "job": "zap_baseline",
-      "step": "Run ZAP baseline",
-      "condition": null,
-      "allowedBy": "zap-baseline-delegates-failure-to-compare",
-      "owner": "platform-security",
-      "expiresOn": "2027-05-28",
-      "validationCommand": "check:zap-baseline-compare"
     },
     {
       "issue": "shell_ignores_error",

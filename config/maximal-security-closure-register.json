@@ -725,7 +725,7 @@
       "renewal_expiry": "2027-06-30",
       "evidence_url": "https://github.com/oblixa/oblixa/actions",
       "phase_key": "phase70-dast-iast-rasp",
-      "notes": "OWASP ZAP against ephemeral preview — optional workflow; tracked until blocking tier enabled."
+      "notes": "OWASP ZAP runs strict by default when a governed preview or staging target is configured; target availability remains external."
     },
     {
       "control_id": "certificate_transparency_monitoring",
@@ -752,24 +752,24 @@
     {
       "control_id": "force_rls_owner_tables_wave",
       "bucket": "A",
-      "status": "pending",
+      "status": "implemented",
       "owner": "@security",
       "expiry": "2026-12-31",
       "renewal_expiry": "2026-09-30",
       "evidence_url": "https://oblixa.io",
       "phase_key": "phase5-rls",
-      "notes": "FORCE ROW LEVEL SECURITY + policy symmetry — staged per table risk review."
+      "notes": "FORCE ROW LEVEL SECURITY is reapplied by forward-only migrations and checked by check:rls-sanity-tables."
     },
     {
       "control_id": "third_party_script_sri",
       "bucket": "C",
-      "status": "waiver",
+      "status": "enforced",
       "owner": "@security",
       "expiry": "2027-12-31",
       "renewal_expiry": "2027-06-30",
       "evidence_url": "https://oblixa.io",
       "phase_key": "phase47-sw-importmaps-sri",
-      "notes": "Next/font + analytics exceptions; prefer first-party or nonce CSP."
+      "notes": "check:third-party-script-integrity blocks external scripts without SRI and cross-origin metadata."
     }
   ]
 }

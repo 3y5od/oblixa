@@ -9,6 +9,7 @@ import {
   type V10ApiResponseClass,
   type V10MutationResponse,
 } from "./mutation-envelope";
+import { secureRandomId } from "@/lib/security/random";
 
 export type V10BrowserMutationMethod = "POST" | "PATCH" | "DELETE";
 export type V10BrowserRecoveryState =
@@ -45,13 +46,7 @@ export type V10BrowserMutationResult = {
 };
 
 function makeBrowserToken(prefix: string): string {
-  const cryptoApi = globalThis.crypto;
-  if (cryptoApi && typeof cryptoApi.randomUUID === "function") {
-    return `${prefix}:${cryptoApi.randomUUID()}`;
-  }
-  const random = Math.random().toString(36).slice(2);
-  const now = Date.now().toString(36);
-  return `${prefix}:${now}_${random}`;
+  return `${prefix}:${secureRandomId()}`;
 }
 
 export function createV10IdempotencyKey(): string {

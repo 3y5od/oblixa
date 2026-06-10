@@ -589,14 +589,13 @@
       "control_id": "navigator_beacon_timing_leak_audit",
       "priority": "P3",
       "bucket": "C",
-      "status": "waiver",
+      "status": "enforced",
       "owner": "@security",
-      "expiry": "2027-06-30",
-      "renewal_expiry": "2027-03-31",
+      "enforce_script": "check:beacon-timing-leakage",
       "cwe_ids": [
         "CWE-200"
       ],
-      "notes": "Manual audit + matrix tracking; strip Server-Timing in prod if introduced.",
+      "notes": "Static gate blocks Server-Timing header surfaces and restricts beacon/keepalive telemetry to approved first-party endpoints.",
       "mitre_refs": [],
       "regulatory_refs": [
         "SOC2-CC6.1",
@@ -632,12 +631,12 @@
       "control_id": "ofac_screening_mode",
       "priority": "P4",
       "bucket": "C",
-      "status": "waiver",
+      "status": "enforced",
       "owner": "@compliance",
-      "expiry": "2027-12-31",
-      "renewal_expiry": "2027-06-30",
+      "enforce_script": "check:ofac-screening-stub-parity",
       "itar_eccn_ref": "EAR99-delegated-vendor",
       "ofac_screening_mode": "vendor_kyb_stack",
+      "notes": "Repository gate verifies the OFAC sample placeholder hash while vendor KYB screening remains the operational mode.",
       "mitre_refs": [],
       "regulatory_refs": [
         "SOC2-CC6.1",

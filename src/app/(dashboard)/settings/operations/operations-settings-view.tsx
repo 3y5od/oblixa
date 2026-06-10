@@ -21,6 +21,7 @@ import {
   SETTINGS_NOTIFICATIONS_STRINGS,
   type NotificationCategoryKey,
 } from "@/lib/settings/spec-strings";
+import { secureRandomId } from "@/lib/security/random";
 import type { OperationsSettingsPayload } from "./load-operations-settings-data";
 import { NotificationsSummary } from "./notifications-summary";
 import { NotificationsReadOnly } from "./notifications-readonly";
@@ -145,11 +146,7 @@ export function OperationsSettingsView({
   const [pending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [idempotencyKey] = useState(() =>
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-  );
+  const [idempotencyKey] = useState(() => secureRandomId());
 
   const emailRemindersId = useId();
   const quietStartId = useId();

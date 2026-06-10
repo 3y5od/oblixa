@@ -27,6 +27,22 @@
       "environmentRiskClass": "staging-safe-smoke"
     },
     {
+      "id": "security-external-obligations",
+      "objective": "Validate external security obligation review evidence before release promotion.",
+      "command": "check:security-external-obligations:strict",
+      "required": true,
+      "blockerClass": "external_security_obligations_missing",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "security-comprehensive-sweep",
+      "objective": "Run the aggregate comprehensive security sweep as a release gate.",
+      "command": "verify:security",
+      "required": true,
+      "blockerClass": "security_comprehensive_sweep_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
       "id": "supabase-release-checklist",
       "objective": "Validate Supabase release checklist evidence without applying production migrations.",
       "command": "check:supabase:release-checklist",
@@ -63,6 +79,12 @@
       "detects": ["Supabase", "Stripe", "Upstash", "Resend", "Sentry", "OpenAI", "cron", "HMAC", "encryption"]
     },
     {
+      "id": "security-external-obligations",
+      "command": "check:security-external-obligations",
+      "environments": ["staging", "production"],
+      "detects": ["external obligation registry drift", "missing closure register rows", "strict review evidence gaps"]
+    },
+    {
       "id": "callback-destination-integrity",
       "command": "check:callback-destination-integrity",
       "environments": ["preview", "staging", "production"],
@@ -83,7 +105,10 @@
       { "name": "operational-release-readiness-config", "path": "config/operational-release-readiness.json" },
       { "name": "operational-release-readiness-check", "path": "scripts/check-operational-release-readiness.mjs" },
       { "name": "release-security-required-env-check", "path": "scripts/check-release-security-required-env.mjs" },
-      { "name": "release-security-required-env-tests", "path": "scripts/check-release-security-required-env.test.mjs" }
+      { "name": "release-security-required-env-tests", "path": "scripts/check-release-security-required-env.test.mjs" },
+      { "name": "security-external-obligations-config", "path": "config/security-external-obligations.json" },
+      { "name": "security-external-obligations-check", "path": "scripts/check-security-external-obligations.mjs" },
+      { "name": "security-external-obligations-tests", "path": "scripts/check-security-external-obligations.test.mjs" }
     ],
     "redactionPolicy": "hash-only",
     "commandResultPolicy": "commands-listed-not-executed"
@@ -116,6 +141,20 @@
       "severity": "stop_ship",
       "validationCommand": "check:release-security-required-env",
       "nextAction": "Fix missing, malformed, or mixed-environment release variables."
+    },
+    {
+      "id": "external_security_obligations_missing",
+      "category": "external-security-obligations",
+      "severity": "stop_ship",
+      "validationCommand": "check:security-external-obligations:strict",
+      "nextAction": "Attach current external obligation review evidence before release promotion."
+    },
+    {
+      "id": "security_comprehensive_sweep_failed",
+      "category": "security-sweep",
+      "severity": "stop_ship",
+      "validationCommand": "verify:security",
+      "nextAction": "Resolve the failing comprehensive security sweep gate."
     },
     {
       "id": "branch_protection_unknown",

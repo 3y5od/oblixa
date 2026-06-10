@@ -77,18 +77,6 @@
       "validationCommand": "check:test-skip-governance"
     },
     {
-      "id": "zap-baseline-delegates-failure-to-compare",
-      "issue": "shell_ignores_error",
-      "file": "qa-dast-zap.yml",
-      "job": "zap_baseline",
-      "step": "Run ZAP baseline",
-      "patternRegex": "zap-baseline\\.py[\\s\\S]*\\|\\| true",
-      "owner": "platform-security",
-      "reason": "The baseline command always emits a report; check:zap-baseline-compare owns pass/fail semantics.",
-      "expiresOn": "2027-05-28",
-      "validationCommand": "check:zap-baseline-compare"
-    },
-    {
       "id": "refinement-deletion-notice-empty-diff-safe",
       "issue": "shell_ignores_error",
       "file": "refinement-deletion-notice.yml",

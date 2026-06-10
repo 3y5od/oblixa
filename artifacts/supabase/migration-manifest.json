@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-migration-manifest.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 93,
+  "migrationCount": 94,
   "firstVersion": "001",
-  "latestVersion": "093",
+  "latestVersion": "094",
   "gaps": [],
   "migrations": [
     {
@@ -1117,6 +1117,18 @@
       "sha256": "e99e431c8554928f760e5d25a37f2dbb7f093ecf20e5287e500126477180850a",
       "slug": "access_review_deny_all_policies",
       "purpose": "Access Review Deny All Policies",
+      "domain": "security",
+      "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "094",
+      "file": "094_force_rls_current_public_tables.sql",
+      "sha256": "3b94511fef7876032bee0447aec5778c6bfae20c262b16fae82a9b531fe0176f",
+      "slug": "force_rls_current_public_tables",
+      "purpose": "Force Rls Current Public Tables",
       "domain": "security",
       "changeType": "policy-changing",
       "riskLevel": "medium",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-06T14:30:01.918Z",
+  "generatedAt": "2026-06-10T14:38:34.295Z",
   "volatileKeysIgnored": [
     "generated",
     "generatedAt",
@@ -39,13 +39,13 @@
     },
     {
       "path": "artifacts/route-universe.json",
-      "stableSha256": "ba68eca8f1f51026164d6d952b36b1fd07cf1fe44f17a043bdfd77b062d098f1",
-      "stableBytes": 1070455
+      "stableSha256": "8ff1e0a529454d011fb1eceba506de56764058eb2bb0bebb272c7dba74b0aa94",
+      "stableBytes": 1070377
     },
     {
       "path": "artifacts/route-functionality-matrix.json",
-      "stableSha256": "f95b2689eaeeb615f3a46448e9c9a3e8347c8f2871f78070b5d5d06d068b0c64",
-      "stableBytes": 760957
+      "stableSha256": "bc068fb2d86b360967ebfc6d6695759012c1cd883bdc1bc98749d79c4c5e741b",
+      "stableBytes": 760879
     },
     {
       "path": "artifacts/route-runtime-contract.json",
@@ -59,8 +59,8 @@
     },
     {
       "path": "artifacts/route-db-dependencies.json",
-      "stableSha256": "3b37a446742329aaaef70d828395ccd1f4bf20ae6d9675223140379b79de57cf",
-      "stableBytes": 155804
+      "stableSha256": "7466d35b3543d0e6dd02e2ac613ad3ca969d9f8400aa5f2539a1f4852c4d772e",
+      "stableBytes": 155541
     },
     {
       "path": "artifacts/page-route-state-matrix.json",

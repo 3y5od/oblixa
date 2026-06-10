@@ -25,6 +25,12 @@ export const DOCUMENT_PARSER_MAX_DOCX_ENTRIES = 2_000;
 export const DOCUMENT_PARSER_MAX_DOCX_UNCOMPRESSED_BYTES = 80 * 1024 * 1024;
 export const DOCUMENT_PARSER_MAX_DOCX_EXPANSION_RATIO = 100;
 export const DOCUMENT_PARSER_MAX_HTML_CHARS = EXTRACTION_MAX_TEXT_CHARS * 2;
+export const DOCUMENT_PARSER_SANDBOX_POLICY = Object.freeze({
+  inputBoundary: "memory-buffer-only",
+  allowFileSystem: false,
+  allowNetwork: false,
+  allowExternalResources: false,
+});
 
 type PdfParserResult = {
   text?: string;
@@ -59,6 +65,27 @@ export function assertExtractedTextWithinParserLimit(text: string): string {
     throw new Error("Document parser extracted text too large");
   }
   return text;
+}
+
+export function assertDocumentParserSandboxPolicy(mimeType: string): void {
+  if (!Object.isFrozen(DOCUMENT_PARSER_SANDBOX_POLICY)) {
+    throw new Error("Document parser sandbox policy is mutable");
+  }
+  if (DOCUMENT_PARSER_SANDBOX_POLICY.allowFileSystem) {
+    throw new Error("Document parser filesystem access is not allowed");
+  }
+  if (DOCUMENT_PARSER_SANDBOX_POLICY.allowNetwork) {
+    throw new Error("Document parser network access is not allowed");
+  }
+  if (DOCUMENT_PARSER_SANDBOX_POLICY.allowExternalResources) {
+    throw new Error("Document parser external resources are not allowed");
+  }
+  if (
+    mimeType !== "application/pdf" &&
+    mimeType !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    throw new Error(`Unsupported file type: ${mimeType}`);
+  }
 }
 
 export function assertPdfParserBounds(result: PdfParserResult): string {
@@ -183,6 +210,7 @@ export async function extractTextFromBuffer(
   buffer: Buffer,
   mimeType: string
 ): Promise<string> {
+  assertDocumentParserSandboxPolicy(mimeType);
   if (buffer.length > DOCUMENT_PARSER_MAX_BUFFER_BYTES) {
     throw new Error("Document parser input too large");
   }

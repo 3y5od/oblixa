@@ -285,7 +285,7 @@ jobs:
         run: npm run check:security-headers && npm run check:csp-nonce-hash-consistency
 
       - name: Browser security drift and reporting endpoints
-        run: npm run check:content-sniffing-defenses && npm run check:unsafe-inline-regressions && npm run check:third-party-script-integrity && npm run check:next-script-integrity && npm run check:reporting-endpoints
+        run: npm run check:content-sniffing-defenses && npm run check:unsafe-inline-regressions && npm run check:third-party-script-integrity && npm run check:next-script-integrity && npm run check:reporting-endpoints && npm run check:beacon-timing-leakage
 
       - name: Security audit event contract
         run: npm run check:security-event-contract
@@ -759,6 +759,9 @@ jobs:
 
       - name: Release security required env
         run: npm run check:release-security-required-env
+
+      - name: Security external obligations
+        run: npm run check:security-external-obligations
 
       - name: Security fallback paths
         run: npm run check:security-fallback-paths

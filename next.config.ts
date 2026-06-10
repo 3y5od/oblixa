@@ -1,7 +1,7 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
-import { buildApiNoStoreHeaders, buildSecurityHeaders, normalizeCoepMode, normalizeTrustedTypesMode } from "@/lib/security/csp-builders";
+import { buildApiNoStoreHeaders, buildSecurityHeaders, resolveSecurityHeaderRollout } from "@/lib/security/csp-builders";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
@@ -14,23 +14,18 @@ const enableSentryNextConfig =
   Boolean(process.env.CI) ||
   process.env.OBLIXA_ENABLE_SENTRY_DEV === "1";
 const selfHostedHsts = process.env.OBLIXA_SELF_HOSTED_HSTS === "1";
-const deploymentStrictEnforcingCsp = isVercel || selfHostedHsts;
-const upgradeInsecureRequests =
-  process.env.OBLIXA_CSP_UPGRADE_INSECURE_REQUESTS === "1" ||
-  (isProd && (isVercel || selfHostedHsts));
-const cspStrictEnforcingStyleSrc =
-  process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "0"
-    ? false
-    : deploymentStrictEnforcingCsp || process.env.OBLIXA_CSP_STRICT_ENFORCING_STYLE === "1";
-const cspStrictEnforcingScriptSrc =
-  process.env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT === "0"
-    ? false
-    : deploymentStrictEnforcingCsp || process.env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT === "1";
-const trustedTypesMode = normalizeTrustedTypesMode(
-  process.env.OBLIXA_TRUSTED_TYPES_MODE ??
-    (process.env.OBLIXA_TRUSTED_TYPES_REPORT_ONLY === "1" ? "report-only" : "off")
-);
-const coepMode = normalizeCoepMode(process.env.OBLIXA_COEP_MODE);
+const {
+  trustedTypesMode,
+  coepMode,
+  cspStrictEnforcingStyleSrc,
+  cspStrictEnforcingScriptSrc,
+  upgradeInsecureRequests,
+} = resolveSecurityHeaderRollout({
+  env: process.env,
+  isProd,
+  isVercel,
+  selfHostedHsts,
+});
 
 const sentryRelease =
   process.env.SENTRY_RELEASE?.trim() ||

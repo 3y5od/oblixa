@@ -8,6 +8,7 @@ import {
   normalizeCspScriptNonce,
   normalizeCspScriptHashSources,
   normalizeTrustedTypesMode,
+  resolveSecurityHeaderRollout,
 } from "@/lib/security/csp-builders";
 
 describe("csp-builders", () => {
@@ -257,6 +258,66 @@ describe("csp-builders", () => {
     expect(credentialless.find((x) => x.key === "Cross-Origin-Embedder-Policy")?.value).toBe("credentialless");
     const requireCorp = buildSecurityHeaders({ isProd: true, isVercel: true, coepMode: "require-corp" });
     expect(requireCorp.find((x) => x.key === "Cross-Origin-Embedder-Policy")?.value).toBe("require-corp");
+  });
+
+  it("strict deployment defaults Trusted Types and COEP to enforcing modes", () => {
+    const rollout = resolveSecurityHeaderRollout({
+      env: {},
+      isProd: true,
+      isVercel: true,
+      nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+    });
+    expect(rollout).toMatchObject({
+      trustedTypesMode: "enforce",
+      coepMode: "credentialless",
+      cspStrictEnforcingStyleSrc: true,
+      cspStrictEnforcingScriptSrc: true,
+      upgradeInsecureRequests: true,
+    });
+  });
+
+  it("strict deployment rejects undocumented security header rollback metadata", () => {
+    expect(() =>
+      resolveSecurityHeaderRollout({
+        env: { OBLIXA_TRUSTED_TYPES_MODE: "report-only" },
+        isProd: true,
+        isVercel: true,
+        nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+      })
+    ).toThrow(/Security header rollback metadata required/);
+  });
+
+  it("strict deployment accepts explicit rollback metadata with future expiry", () => {
+    const rollout = resolveSecurityHeaderRollout({
+      env: {
+        OBLIXA_CSP_STRICT_ENFORCING_SCRIPT: "0",
+        OBLIXA_TRUSTED_TYPES_MODE: "report-only",
+        OBLIXA_COEP_MODE: "off",
+        OBLIXA_SECURITY_ROLLBACK_REASON: "temporary compatibility investigation",
+        OBLIXA_SECURITY_ROLLBACK_EXPIRES_AT: "2026-02-01T00:00:00.000Z",
+      },
+      isProd: true,
+      isVercel: true,
+      nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+    });
+    expect(rollout.cspStrictEnforcingScriptSrc).toBe(false);
+    expect(rollout.trustedTypesMode).toBe("report-only");
+    expect(rollout.coepMode).toBe("off");
+  });
+
+  it("strict deployment rejects expired security header rollback metadata", () => {
+    expect(() =>
+      resolveSecurityHeaderRollout({
+        env: {
+          OBLIXA_CSP_STRICT_ENFORCING_STYLE: "0",
+          OBLIXA_SECURITY_ROLLBACK_REASON: "temporary compatibility investigation",
+          OBLIXA_SECURITY_ROLLBACK_EXPIRES_AT: "2025-12-31T00:00:00.000Z",
+        },
+        isProd: true,
+        isVercel: true,
+        nowMs: Date.parse("2026-01-01T00:00:00.000Z"),
+      })
+    ).toThrow(/Security header rollback metadata required/);
   });
 
   it("buildApiNoStoreHeaders emits CDN-resistant private API cache headers", () => {

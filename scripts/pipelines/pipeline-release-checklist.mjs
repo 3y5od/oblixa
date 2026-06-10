@@ -21,7 +21,9 @@ const e2eRequired = releaseE2eRequired();
 const steps = [
   "preflight:release",
   "check:release-evidence",
+  "check:security-external-obligations:strict",
   "check:release-suite-current",
+  "verify:security",
   "verify",
   { script: "check:comprehensive-pass", required: comprehensivePassRequired },
 ];

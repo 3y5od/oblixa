@@ -10,7 +10,8 @@ const REQUIRED_CI_COMMANDS = ["npm run check:browser-isolation-headers"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:browser-isolation-headers"'];
 const REQUIRED_FILE_MARKERS = {
   "next.config.ts": [
-    'buildSecurityHeaders, normalizeCoepMode, normalizeTrustedTypesMode',
+    'buildSecurityHeaders, resolveSecurityHeaderRollout',
+    "resolveSecurityHeaderRollout({",
     "const securityHeaders = buildSecurityHeaders({",
     'source: "/:path*"',
     "headers: securityHeaders",
@@ -22,6 +23,9 @@ const REQUIRED_FILE_MARKERS = {
     'key: "X-Frame-Options", value: "DENY"',
     "normalizeTrustedTypesMode",
     "normalizeCoepMode",
+    "resolveSecurityHeaderRollout",
+    "OBLIXA_SECURITY_ROLLBACK_REASON",
+    "OBLIXA_SECURITY_ROLLBACK_EXPIRES_AT",
     "trustedTypesMode === \"enforce\"",
     "script-src-attr 'none'",
     "upgrade-insecure-requests",
@@ -31,6 +35,8 @@ const REQUIRED_FILE_MARKERS = {
     "frame-ancestors 'none'",
     "report-only CSP carries script attribute and mixed-content protections",
     "Trusted Types can be enforced on the main CSP with an explicit mode",
+    "strict deployment defaults Trusted Types and COEP to enforcing modes",
+    "strict deployment rejects undocumented security header rollback metadata",
     "COEP compatibility gate supports off, credentialless, and require-corp",
   ],
   "src/app/api/security/csp-report/route.ts": [

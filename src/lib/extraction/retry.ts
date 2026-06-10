@@ -1,3 +1,5 @@
+import { secureRandomFloat } from "@/lib/security/random";
+
 export interface WithRetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;
@@ -81,7 +83,7 @@ export async function withRetry<T>(
       }
       const delay = Math.min(
         maxDelayMs,
-        baseDelayMs * 2 ** (attempt - 1) + Math.random() * 200
+        baseDelayMs * 2 ** (attempt - 1) + secureRandomFloat() * 200
       );
       await sleep(delay);
     }
@@ -132,7 +134,7 @@ export async function fetchWithRetry(
       }
       const delay = Math.min(
         maxDelayMs,
-        baseDelayMs * 2 ** (attempt - 1) + Math.random() * 150
+        baseDelayMs * 2 ** (attempt - 1) + secureRandomFloat() * 150
       );
       await sleep(delay);
       continue;
@@ -150,7 +152,7 @@ export async function fetchWithRetry(
     }
     const delay = Math.min(
       maxDelayMs,
-      baseDelayMs * 2 ** (attempt - 1) + Math.random() * 150
+      baseDelayMs * 2 ** (attempt - 1) + secureRandomFloat() * 150
     );
     await sleep(delay);
   }

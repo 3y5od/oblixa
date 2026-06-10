@@ -47,7 +47,16 @@ const SECURITY_REPORTING_ENDPOINT_GROUP = "csp-endpoint";
 const SECURITY_REPORTING_ENDPOINT_PATH = "/api/security/csp-report";
 export type TrustedTypesMode = "off" | "report-only" | "enforce";
 export type CoepMode = "off" | "credentialless" | "require-corp";
+export type SecurityHeaderRollout = {
+  trustedTypesMode: TrustedTypesMode;
+  coepMode: CoepMode;
+  cspStrictEnforcingStyleSrc: boolean;
+  cspStrictEnforcingScriptSrc: boolean;
+  upgradeInsecureRequests: boolean;
+};
 const TRUSTED_TYPES_DIRECTIVE = "trusted-types oblixa default; require-trusted-types-for 'script'";
+const SECURITY_ROLLBACK_REASON_ENV = "OBLIXA_SECURITY_ROLLBACK_REASON";
+const SECURITY_ROLLBACK_EXPIRES_AT_ENV = "OBLIXA_SECURITY_ROLLBACK_EXPIRES_AT";
 const DISABLED_PERMISSION_POLICY_FEATURES = [
   "accelerometer",
   "ambient-light-sensor",
@@ -159,6 +168,80 @@ export function normalizeCoepMode(rawMode?: string | null): CoepMode {
   if (mode === "credentialless") return "credentialless";
   if (mode === "require-corp" || mode === "require_corp") return "require-corp";
   throw new Error(`Invalid COEP mode: ${rawMode}`);
+}
+
+function isTruthyEnv(value: string | undefined): boolean {
+  return value === "1" || value === "true";
+}
+
+function isExplicitlyDisabled(value: string | undefined): boolean {
+  return value === "0" || value === "false";
+}
+
+function assertRollbackMetadata(
+  env: Record<string, string | undefined>,
+  weakenedControls: readonly string[],
+  nowMs: number
+): void {
+  if (weakenedControls.length === 0) return;
+  const reason = env[SECURITY_ROLLBACK_REASON_ENV]?.trim() ?? "";
+  const expiresAt = env[SECURITY_ROLLBACK_EXPIRES_AT_ENV]?.trim() ?? "";
+  const expiryMs = Date.parse(expiresAt);
+  if (reason.length < 12 || !Number.isFinite(expiryMs) || expiryMs <= nowMs) {
+    throw new Error(
+      `Security header rollback metadata required for ${weakenedControls.join(", ")}: set ${SECURITY_ROLLBACK_REASON_ENV} and a future ${SECURITY_ROLLBACK_EXPIRES_AT_ENV}`
+    );
+  }
+}
+
+export function resolveSecurityHeaderRollout(input: {
+  env?: Record<string, string | undefined>;
+  isProd: boolean;
+  isVercel: boolean;
+  selfHostedHsts?: boolean;
+  nowMs?: number;
+}): SecurityHeaderRollout {
+  const env = input.env ?? {};
+  const strictDeployment = input.isProd && (input.isVercel || Boolean(input.selfHostedHsts));
+  const cspStrictEnforcingStyleSrc = isExplicitlyDisabled(env.OBLIXA_CSP_STRICT_ENFORCING_STYLE)
+    ? false
+    : strictDeployment || isTruthyEnv(env.OBLIXA_CSP_STRICT_ENFORCING_STYLE);
+  const cspStrictEnforcingScriptSrc = isExplicitlyDisabled(env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT)
+    ? false
+    : strictDeployment || isTruthyEnv(env.OBLIXA_CSP_STRICT_ENFORCING_SCRIPT);
+  const upgradeInsecureRequests = isExplicitlyDisabled(env.OBLIXA_CSP_UPGRADE_INSECURE_REQUESTS)
+    ? false
+    : strictDeployment || isTruthyEnv(env.OBLIXA_CSP_UPGRADE_INSECURE_REQUESTS);
+  const trustedTypesMode = normalizeTrustedTypesMode(
+    env.OBLIXA_TRUSTED_TYPES_MODE ??
+      (env.OBLIXA_TRUSTED_TYPES_REPORT_ONLY === "1"
+        ? "report-only"
+        : strictDeployment
+          ? "enforce"
+          : "off")
+  );
+  const coepMode = normalizeCoepMode(
+    env.OBLIXA_COEP_MODE ?? (strictDeployment ? "credentialless" : "off")
+  );
+
+  if (strictDeployment) {
+    const weakenedControls = [
+      ...(cspStrictEnforcingStyleSrc ? [] : ["csp-style-src"]),
+      ...(cspStrictEnforcingScriptSrc ? [] : ["csp-script-src"]),
+      ...(upgradeInsecureRequests ? [] : ["upgrade-insecure-requests"]),
+      ...(trustedTypesMode === "enforce" ? [] : ["trusted-types"]),
+      ...(coepMode === "off" ? ["coep"] : []),
+    ];
+    assertRollbackMetadata(env, weakenedControls, input.nowMs ?? Date.now());
+  }
+
+  return {
+    trustedTypesMode,
+    coepMode,
+    cspStrictEnforcingStyleSrc,
+    cspStrictEnforcingScriptSrc,
+    upgradeInsecureRequests,
+  };
 }
 
 function buildPermissionsPolicy(): string {

@@ -7,7 +7,7 @@
       "ownerArea": "document-pipeline",
       "commands": [
         { "command": "check:operational-uploads-files-extraction", "ciRequired": true, "covers": ["aggregate_registry", "artifact_drift", "upload_parser_ai_export_closure"] },
-        { "command": "check:upload-security-guards", "ciRequired": true, "covers": ["size_mime_extension_signature_malware", "empty_file", "multipart_caps", "duplicate_uploads"] },
+        { "command": "check:upload-security-guards", "ciRequired": true, "covers": ["size_mime_extension_signature_malware", "empty_file", "multipart_caps", "duplicate_uploads", "parser_sandbox_policy"] },
         { "command": "check:upload-banlist", "ciRequired": true, "covers": ["executable_archive_extension_denylist"] },
         { "command": "check:storage-path-safety", "ciRequired": true, "covers": ["org_scoped_storage_keys", "signed_url_scope", "cross_org_path_rejection"] },
         { "command": "check:path-traversal-guards", "ciRequired": true, "covers": ["path_separator_and_traversal_rejection"] }
@@ -74,7 +74,7 @@
     {
       "id": "bounded-document-parser",
       "path": "src/lib/extraction/parse-document.ts",
-      "markers": ["DOCUMENT_PARSER_TIMEOUT_MS", "DOCUMENT_PARSER_MAX_BUFFER_BYTES", "DOCUMENT_PARSER_MAX_PDF_PAGES", "DOCUMENT_PARSER_MAX_DOCX_UNCOMPRESSED_BYTES", "assertDocxZipExpansionWithinParserLimits", "htmlToPlainText(assertHtmlFallbackWithinParserLimit"]
+      "markers": ["DOCUMENT_PARSER_SANDBOX_POLICY", "assertDocumentParserSandboxPolicy(mimeType);", "allowFileSystem: false", "allowNetwork: false", "allowExternalResources: false", "DOCUMENT_PARSER_TIMEOUT_MS", "DOCUMENT_PARSER_MAX_BUFFER_BYTES", "DOCUMENT_PARSER_MAX_PDF_PAGES", "DOCUMENT_PARSER_MAX_DOCX_UNCOMPRESSED_BYTES", "assertDocxZipExpansionWithinParserLimits", "htmlToPlainText(assertHtmlFallbackWithinParserLimit"]
     },
     {
       "id": "parser-fault-corpus-tests",
@@ -101,7 +101,7 @@
     {
       "id": "source-backed-human-review",
       "path": "src/actions/contracts.ts",
-      "markers": ["AI-extracted values need a source citation before approval", "source_snippet", "status: action", "source: \"human\""]
+      "markers": ["AI-suggested values need source text before confirmation", "source_snippet", "status: action", "source: \"human\""]
     },
     {
       "id": "provider-failure-redaction",

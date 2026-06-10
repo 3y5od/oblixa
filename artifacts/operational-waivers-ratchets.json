@@ -155,7 +155,7 @@
       "stubWorkflows": 17,
       "warnOnlyScripts": 5,
       "skippedTests": 174,
-      "allowlistRows": 623,
+      "allowlistRows": 625,
       "uncoveredRoutes": 0,
       "waivedObjectives": 8
     },
@@ -164,7 +164,7 @@
       "stubWorkflows": 17,
       "warnOnlyScripts": 5,
       "skippedTests": 174,
-      "allowlistRows": 623,
+      "allowlistRows": 625,
       "uncoveredRoutes": 0,
       "waivedObjectives": 8
     },
@@ -195,8 +195,8 @@
       },
       {
         "metric": "allowlistRows",
-        "baseline": 623,
-        "current": 623,
+        "baseline": 625,
+        "current": 625,
         "delta": 0
       },
       {
@@ -261,7 +261,7 @@
       ],
       "hardeningDebtSource": {
         "skipCount": 174,
-        "allowlistEntryCount": 623,
+        "allowlistEntryCount": 625,
         "uncoveredApiRoutes": 0
       }
     }

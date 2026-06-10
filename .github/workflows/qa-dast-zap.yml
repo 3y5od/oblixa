@@ -10,7 +10,7 @@ on:
       strict:
         description: "Fail when no target is configured and fail on new high-risk ZAP alerts."
         required: false
-        default: false
+        default: true
         type: boolean
 
 permissions:
@@ -22,8 +22,6 @@ jobs:
     timeout-minutes: 30
     env:
       STAGING_BASE_URL: ${{ inputs.target_url || secrets.STAGING_BASE_URL }}
-      DAST_TARGET_MODE: local
-      DAST_LOCAL_BASE_URL: http://127.0.0.1:3000
       OBLIXA_RELEASE_SECURITY_STRICT: ${{ inputs.strict && '1' || '' }}
       ZAP_STRICT: ${{ inputs.strict && '1' || '' }}
     steps:
@@ -53,7 +51,7 @@ jobs:
         env:
           ZAP_TARGET_URL: ${{ steps.dast_target.outputs.target }}
         run: |
-          docker run --rm -v "${PWD}:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t "${ZAP_TARGET_URL}" -J zap-report.json || true
+          docker run --rm -v "${PWD}:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t "${ZAP_TARGET_URL}" -J zap-report.json
 
       - name: Compare ZAP baseline
         env:

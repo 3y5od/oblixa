@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 const ROOT = process.cwd();
 const ARTIFACT_REL = "artifacts/assurance/rls-sanity-tables.json";
 const FORCE_RLS_MIGRATION_REL = "supabase/migrations/072_force_rls_tenant_tables.sql";
+const CURRENT_FORCE_RLS_MIGRATION_REL = "supabase/migrations/094_force_rls_current_public_tables.sql";
 const SMOKE_SQL_REL = "supabase/tests/rls_sanity_smoke.sql";
 const DEFAULT_DENY_SMOKE_SQL_REL = "supabase/tests/rls_default_deny_smoke.sql";
 const REQUIRED_PACKAGE_SCRIPTS = ["check:rls-sanity-tables"];
@@ -204,6 +205,17 @@ function hasForceMigration(text) {
   );
 }
 
+function hasCurrentForceMigration(text) {
+  return (
+    /force\s+row\s+level\s+security/i.test(text) &&
+    /relrowsecurity/i.test(text) &&
+    /workspace_access_requests/i.test(text) &&
+    /workspace_access_grants/i.test(text) &&
+    /workspace_access_request_events/i.test(text) &&
+    /service[-_]role bypass remains explicit/i.test(text)
+  );
+}
+
 function hasSmokeMarkers(text) {
   return (
     /same_org_allowed/i.test(text) &&
@@ -234,6 +246,10 @@ export function analyzeRlsSanityTables(root = ROOT) {
   const publicTableGrants = collectPublicTableGrants(allSql);
   const forceMigrationText = exists(root, FORCE_RLS_MIGRATION_REL) ? read(root, FORCE_RLS_MIGRATION_REL) : "";
   const forceMigrationOk = hasForceMigration(forceMigrationText);
+  const currentForceMigrationText = exists(root, CURRENT_FORCE_RLS_MIGRATION_REL)
+    ? read(root, CURRENT_FORCE_RLS_MIGRATION_REL)
+    : "";
+  const currentForceMigrationOk = hasCurrentForceMigration(currentForceMigrationText);
 
   const pkg = JSON.parse(read(root, "package.json"));
   for (const script of REQUIRED_PACKAGE_SCRIPTS) {
@@ -277,6 +293,9 @@ export function analyzeRlsSanityTables(root = ROOT) {
 
   if (!forceMigrationOk) {
     issues.push({ issue: "missing_force_rls_default_deny_migration", rel: FORCE_RLS_MIGRATION_REL });
+  }
+  if (!currentForceMigrationOk) {
+    issues.push({ issue: "missing_current_force_rls_migration", rel: CURRENT_FORCE_RLS_MIGRATION_REL });
   }
 
   if (!exists(root, SMOKE_SQL_REL)) {

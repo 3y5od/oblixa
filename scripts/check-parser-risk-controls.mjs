@@ -22,6 +22,11 @@ const REQUIRED_SECURITY_PIPELINE_STEPS = [
 ];
 const REQUIRED_FILE_MARKERS = {
   "src/lib/extraction/parse-document.ts": [
+    "DOCUMENT_PARSER_SANDBOX_POLICY",
+    "assertDocumentParserSandboxPolicy(mimeType);",
+    "allowFileSystem: false",
+    "allowNetwork: false",
+    "allowExternalResources: false",
     "export const DOCUMENT_PARSER_TIMEOUT_MS = 15_000;",
     "export const DOCUMENT_PARSER_MAX_BUFFER_BYTES = 20 * 1024 * 1024;",
     "export const DOCUMENT_PARSER_MAX_PDF_PAGES = 250;",
@@ -54,6 +59,7 @@ const REQUIRED_FILE_MARKERS = {
     "CONTRACT TEXT:",
   ],
   "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts": [
+    'it("keeps document parsing in a frozen in-memory sandbox policy"',
     'it("rejects PDF page counts above the parser ceiling"',
     'it("rejects extracted parser text above the extraction ceiling"',
     'it("rejects docx zip expansion before mammoth parsing"',

@@ -101,7 +101,7 @@
       "threshold": "CRITICAL,HIGH",
       "reportOutput": "Trivy workflow report",
       "waiverPolicy": "config/qa-external-waiver-registry.json#trivy_fs_optional_tier",
-      "markers": ["aquasecurity/trivy-action", "severity: CRITICAL,HIGH", "exit-code: \"0\""]
+      "markers": ["aquasecurity/trivy-action", "severity: CRITICAL,HIGH", "exit-code: \"1\""]
     },
     {
       "id": "codeql",

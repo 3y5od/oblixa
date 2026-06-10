@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import type { NextResponse } from "next/server";
+import { secureRandomId } from "@/lib/security/random";
 
 const REQUEST_ID = "x-request-id";
 const CORRELATION_ID = "x-correlation-id";
@@ -12,10 +13,7 @@ function sanitizeHeaderValue(raw: string | null): string | null {
 }
 
 function newRequestId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `rid-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return secureRandomId("rid");
 }
 
 export type CorrelationIds = { requestId: string; correlationId: string };

@@ -3,12 +3,12 @@
   "source": "code-owned-operational-release-readiness",
   "generatedFrom": "config/operational-release-readiness.json",
   "manualBoundariesSource": "config/operational-manual-boundaries.json",
-  "commitSha": "9975dca650a1cca3660cef22820d9351c57e0f5a",
-  "releaseCheckCount": 5,
-  "requiredReleaseCheckCount": 5,
-  "environmentContractCount": 4,
+  "commitSha": "b5674ebfc7dcf740e3a3ea4c218e691af1370341",
+  "releaseCheckCount": 7,
+  "requiredReleaseCheckCount": 7,
+  "environmentContractCount": 5,
   "rollbackReadinessCount": 2,
-  "blockerClassCount": 9,
+  "blockerClassCount": 11,
   "evidenceBundle": {
     "id": "release-code-owned-evidence-bundle",
     "redactionPolicy": "hash-only",
@@ -18,7 +18,7 @@
       {
         "name": "migration-manifest",
         "path": "artifacts/supabase/migration-manifest.json",
-        "sha256": "9f61dcd681cc881c59c94da78927b4db3c82ad0397cc12a8f7f8cddcfaaf6086"
+        "sha256": "fc14cf2f344cf0ff2b598b46f21e30291e9b4e89beb2abcf57ef2880d5a434fb"
       },
       {
         "name": "openapi",
@@ -38,7 +38,7 @@
       {
         "name": "operational-release-readiness-config",
         "path": "config/operational-release-readiness.json",
-        "sha256": "e237bd7b63cfc0a0996a3c046432c6b0eef5e044a5c6c305c278cc696b910a32"
+        "sha256": "019bd9ae12a6fae964b2a1f6a9d00297158d2ef69a5561908b10bf45ae98b124"
       },
       {
         "name": "package-lock",
@@ -71,19 +71,36 @@
         "sha256": "4f713b76422e14c53cb870b4777c9ece017ba09604ed61c24b13fa9d40bf8aa8"
       },
       {
+        "name": "security-external-obligations-check",
+        "path": "scripts/check-security-external-obligations.mjs",
+        "sha256": "f8f0da4bc4a8483e6ee4dce604dd14debc83c0c5911f4f1d78fa64c4357a39bd"
+      },
+      {
+        "name": "security-external-obligations-config",
+        "path": "config/security-external-obligations.json",
+        "sha256": "f8284a96b5cd7cb2e4f015f2387c64c682c0583bc8832d638759a29e092920b3"
+      },
+      {
+        "name": "security-external-obligations-tests",
+        "path": "scripts/check-security-external-obligations.test.mjs",
+        "sha256": "5b38867a48f33a79a135657f0a0e24859d3713f0c87afc061dcddf9138af78dc"
+      },
+      {
         "name": "security-report-checksums",
         "path": "artifacts/security-report-checksums.json",
-        "sha256": "1c15047576817518f4a0953d48a52d90095b7697be4891f214f84099c2870143"
+        "sha256": "181d03b0d0f0cb865f3a6094aa06cdd7d516babbe7b4b2cc71d7127ca696aecf"
       }
     ]
   },
   "blockerCategories": [
     "branch-protection",
     "cron",
+    "external-security-obligations",
     "migrations",
     "observability",
     "provider-config",
     "secrets",
+    "security-sweep",
     "slo",
     "smoke",
     "webhook"
@@ -115,6 +132,20 @@
       "command": "check:release-security-required-env",
       "required": true,
       "blockerClass": "release_env_contract_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "security-comprehensive-sweep",
+      "command": "verify:security",
+      "required": true,
+      "blockerClass": "security_comprehensive_sweep_failed",
+      "environmentRiskClass": "staging-safe-smoke"
+    },
+    {
+      "id": "security-external-obligations",
+      "command": "check:security-external-obligations:strict",
+      "required": true,
+      "blockerClass": "external_security_obligations_missing",
       "environmentRiskClass": "staging-safe-smoke"
     },
     {
@@ -191,6 +222,19 @@
         "Supabase",
         "Upstash"
       ]
+    },
+    {
+      "id": "security-external-obligations",
+      "command": "check:security-external-obligations",
+      "environments": [
+        "production",
+        "staging"
+      ],
+      "detects": [
+        "external obligation registry drift",
+        "missing closure register rows",
+        "strict review evidence gaps"
+      ]
     }
   ],
   "rollbackReadiness": [
@@ -231,6 +275,13 @@
       "nextAction": "Resolve cron auth, schedule, or health failures before release."
     },
     {
+      "id": "external_security_obligations_missing",
+      "category": "external-security-obligations",
+      "severity": "stop_ship",
+      "validationCommand": "check:security-external-obligations:strict",
+      "nextAction": "Attach current external obligation review evidence before release promotion."
+    },
+    {
       "id": "migration_history_mismatch",
       "category": "migrations",
       "severity": "stop_ship",
@@ -257,6 +308,13 @@
       "severity": "stop_ship",
       "validationCommand": "check:release-security-required-env",
       "nextAction": "Fix missing, malformed, or mixed-environment release variables."
+    },
+    {
+      "id": "security_comprehensive_sweep_failed",
+      "category": "security-sweep",
+      "severity": "stop_ship",
+      "validationCommand": "verify:security",
+      "nextAction": "Resolve the failing comprehensive security sweep gate."
     },
     {
       "id": "slo_budget_failed",

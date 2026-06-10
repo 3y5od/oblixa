@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { captureServerException } from "@/lib/observability/sentry";
 import { PRIVATE_NO_STORE_HEADERS } from "@/lib/http/problem";
+import { secureRandomId } from "@/lib/security/random";
 
 export type RouteHandler<TArgs extends unknown[]> = (...args: TArgs) => Promise<Response> | Response;
 
@@ -23,10 +24,7 @@ function requestFromArgs(args: readonly unknown[]): Request | null {
 }
 
 function newRequestId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `rid-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return secureRandomId("rid");
 }
 
 function resolveIds(request: Request | null) {

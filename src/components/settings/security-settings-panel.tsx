@@ -42,6 +42,7 @@ import {
 import { revokeOtherSessions } from "@/actions/sessions";
 import { mutateJson } from "@/lib/http/client-json";
 import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
+import { secureRandomId } from "@/lib/security/random";
 
 export type TotpFactorRow = {
   id: string;
@@ -114,11 +115,7 @@ export function SecuritySettingsPanel({
   const [copyFallback, setCopyFallback] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   // Stable idempotency key so a noscript refresh-replay submits the same key.
-  const [idempotencyKey] = useState(() =>
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-  );
+  const [idempotencyKey] = useState(() => secureRandomId());
   const enrollHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const stepUpFocusTimerRef = useRef<number | null>(null);
   const copiedSecretTimerRef = useRef<number | null>(null);

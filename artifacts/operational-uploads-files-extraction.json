@@ -256,6 +256,7 @@
         "duplicate_uploads",
         "empty_file",
         "multipart_caps",
+        "parser_sandbox_policy",
         "size_mime_extension_signature_malware"
       ]
     }
@@ -294,7 +295,7 @@
     {
       "id": "bounded-document-parser",
       "path": "src/lib/extraction/parse-document.ts",
-      "markerCount": 6,
+      "markerCount": 11,
       "missingCount": 0,
       "ok": true
     },

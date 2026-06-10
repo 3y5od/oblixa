@@ -39,7 +39,7 @@
       "stubWorkflows": 17,
       "warnOnlyScripts": 5,
       "skippedTests": 174,
-      "allowlistRows": 623,
+      "allowlistRows": 625,
       "uncoveredRoutes": 0,
       "waivedObjectives": 8
     }

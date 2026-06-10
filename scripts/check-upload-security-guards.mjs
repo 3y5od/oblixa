@@ -76,6 +76,11 @@ const REQUIRED_FILE_MARKERS = {
     'it("supports disabled, test, and fail-closed required scanner modes"',
   ],
   "src/lib/extraction/parse-document.ts": [
+    "DOCUMENT_PARSER_SANDBOX_POLICY",
+    "assertDocumentParserSandboxPolicy(mimeType);",
+    "allowFileSystem: false",
+    "allowNetwork: false",
+    "allowExternalResources: false",
     "export const DOCUMENT_PARSER_TIMEOUT_MS = 15_000;",
     "export const DOCUMENT_PARSER_MAX_BUFFER_BYTES = 20 * 1024 * 1024;",
     "async function withParserTimeout<T>(operation: Promise<T>): Promise<T> {",
@@ -99,6 +104,7 @@ const REQUIRED_FILE_MARKERS = {
     'reason: "text_too_large",',
   ],
   "src/lib/extraction/pdf-mammoth-boundary.contract.test.ts": [
+    'it("keeps document parsing in a frozen in-memory sandbox policy"',
     'it("rejects malformed docx through the bounded parser wrapper"',
     'it("rejects malformed pdf through the bounded parser wrapper"',
     'it("rejects parser buffers larger than the upload ceiling"',

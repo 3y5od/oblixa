@@ -57,7 +57,7 @@ import { isPublicBillingCheckoutEnabled, isStripeTaxEnabled } from "@/lib/env/se
 import {
   checkStripePriceDrift,
   maybeWarnPriceDrift,
-} from "@/lib/billing/spec-prices";
+} from "@/lib/billing/stripe-price-drift";
 import { reconcileSubscriptionState } from "@/lib/billing/reconcile";
 
 export const metadata = { title: SETTINGS_BILLING_STRINGS.title };

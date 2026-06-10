@@ -23,7 +23,8 @@
         { "command": "check:unsafe-inline-regressions", "ciRequired": true, "covers": ["unsafe_inline_regression_signals"] },
         { "command": "check:third-party-script-integrity", "ciRequired": true, "covers": ["third_party_script_inventory", "script_integrity_signals"] },
         { "command": "check:next-script-integrity", "ciRequired": true, "covers": ["next_script_sri"] },
-        { "command": "check:reporting-endpoints", "ciRequired": true, "covers": ["reporting_endpoints_header", "csp_report_uri", "csp_report_to", "bounded_report_ingest"] }
+        { "command": "check:reporting-endpoints", "ciRequired": true, "covers": ["reporting_endpoints_header", "csp_report_uri", "csp_report_to", "bounded_report_ingest"] },
+        { "command": "check:beacon-timing-leakage", "ciRequired": true, "covers": ["server_timing_header_absence", "approved_keepalive_endpoints", "beacon_wrapper_boundary"] }
       ],
       "artifacts": ["artifacts/reporting-endpoints-stub.json"]
     },

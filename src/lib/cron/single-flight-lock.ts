@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { secureRandomId } from "@/lib/security/random";
 
 const DEFAULT_SINGLE_FLIGHT_TTL_MS = 15 * 60_000;
 const MIN_SINGLE_FLIGHT_TTL_MS = 1_000;
@@ -51,9 +52,7 @@ function clampTtlMs(ttlMs: number | undefined): number {
 }
 
 function createLockToken(): string {
-  const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
-  if (randomUUID) return randomUUID();
-  return `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+  return secureRandomId();
 }
 
 function pruneExpiredMemoryLocks(nowMs: number) {

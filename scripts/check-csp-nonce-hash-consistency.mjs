@@ -11,10 +11,10 @@ const REQUIRED_CI_COMMANDS = ["npm run check:csp-nonce-hash-consistency"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:csp-nonce-hash-consistency"'];
 
 const NEXT_CONFIG_MARKERS = [
-  "OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE",
-  "OBLIXA_TRUSTED_TYPES_REPORT_ONLY",
-  "OBLIXA_CSP_STRICT_ENFORCING_STYLE",
-  "OBLIXA_CSP_STRICT_ENFORCING_SCRIPT",
+  "resolveSecurityHeaderRollout",
+  "env: process.env",
+  "trustedTypesMode",
+  "coepMode",
   "OBLIXA_CSP_ENFORCING_SCRIPT_HASHES",
   "cspStrictEnforcingScriptSrc:",
   "cspEnforcingScriptHashes:",
@@ -47,6 +47,9 @@ const BUILDER_TEST_MARKERS = [
   "report-only CSP carries script attribute and mixed-content protections",
   "buildSecurityHeaders wires CSP report-uri and report-to endpoints",
   "optional Trusted Types directive appended to report-only CSP when enabled",
+  "strict deployment defaults Trusted Types and COEP to enforcing modes",
+  "strict deployment rejects undocumented security header rollback metadata",
+  "strict deployment accepts explicit rollback metadata with future expiry",
 ];
 
 const E2E_MARKERS = [

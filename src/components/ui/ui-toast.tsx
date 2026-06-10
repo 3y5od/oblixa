@@ -12,6 +12,7 @@ import {
 } from "react";
 import { AlertCircle, CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
 import { UiSpinner } from "@/components/ui/ui-spinner";
+import { secureRandomId } from "@/lib/security/random";
 
 export type ToastTone = "neutral" | "success" | "warning" | "danger" | "loading";
 
@@ -45,7 +46,7 @@ export function UiToastProvider({ children }: { children: ReactNode }) {
 
   const show = useCallback(
     (toast: Omit<ToastItem, "id">) => {
-      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const id = secureRandomId("toast");
       setItems((prev) => [...prev, { ...toast, id }]);
       if (toast.tone !== "loading") {
         const duration = toast.durationMs ?? 4000;

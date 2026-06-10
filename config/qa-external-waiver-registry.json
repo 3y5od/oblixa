@@ -31,12 +31,12 @@
       "scope": "trivy_optional_org_tier",
       "risk": "medium",
       "blockerClass": "organization-policy",
-      "reason": "Filesystem Trivy execution is present, but blocking tier policy depends on organization scanner ownership.",
+      "reason": "Filesystem Trivy execution is blocking for high and critical findings; remaining waiver scope is limited to organization-owned scanner cadence and report-retention policy.",
       "validationCommand": "check:supply-chain-waivers",
       "replacementObjective": "oph-020-supply-chain",
       "lastReviewedDate": "2026-05-28",
       "usagePaths": [".github/workflows/trivy-fs.yml", "config/operational-supply-chain-risk.json"],
-      "notes": "Container/fs Trivy workflow present; blocking tier org-specific."
+      "notes": "Trivy filesystem workflow exits nonzero on high or critical findings; organization cadence and retention remain external."
     },
     {
       "id": "codeql_analysis",
@@ -85,12 +85,12 @@
       "scope": "zap_staging_gated",
       "risk": "medium",
       "blockerClass": "external-provider",
-      "reason": "DAST baseline is represented by a disabled-by-default workflow until a governed staging URL is available.",
+      "reason": "DAST baseline is strict by default and fails without a governed target; remaining waiver scope is limited to external staging URL availability.",
       "validationCommand": "check:qa-waiver-registry",
       "replacementObjective": "oph-020-supply-chain",
       "lastReviewedDate": "2026-05-28",
       "usagePaths": [".github/workflows/qa-dast-zap.yml", "artifacts/zap-baseline.json"],
-      "notes": "DAST disabled by default (if: false); enable with STAGING_BASE_URL."
+      "notes": "DAST strict mode is the default; STAGING_BASE_URL or workflow_dispatch target_url must identify the governed target."
     },
     {
       "id": "qa_taxonomy_gap_wcag22_automation",
