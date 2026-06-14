@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/search/page.tsx");
 const VIEW = join(process.cwd(), "src/app/(dashboard)/search/search-view.tsx");
+const VIEW_BANDS = join(process.cwd(), "src/app/(dashboard)/search/search-result-bands.tsx");
+const VIEW_RAIL = join(process.cwd(), "src/app/(dashboard)/search/search-detail-rail.tsx");
 const LOADING = join(process.cwd(), "src/app/(dashboard)/search/loading.tsx");
 const ERROR = join(process.cwd(), "src/app/(dashboard)/search/error.tsx");
 const RESULT_ROW = join(process.cwd(), "src/components/search/result-row.tsx");
@@ -12,7 +14,7 @@ const HELPERS = join(process.cwd(), "src/components/layout/command-palette-helpe
 const NAV = join(process.cwd(), "src/lib/navigation.ts");
 
 const pageSrc = readFileSync(PAGE, "utf8");
-const viewSrc = readFileSync(VIEW, "utf8");
+const viewSrc = [VIEW, VIEW_BANDS, VIEW_RAIL].map((file) => readFileSync(file, "utf8")).join("\n");
 const loadingSrc = readFileSync(LOADING, "utf8");
 const errorSrc = readFileSync(ERROR, "utf8");
 const rowSrc = readFileSync(RESULT_ROW, "utf8");

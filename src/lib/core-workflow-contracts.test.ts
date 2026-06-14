@@ -156,7 +156,7 @@ describe("V10 core workflow contracts", () => {
     expect(workPage).toContain("<RecoverableState");
     expect(workPage).not.toContain("@/components/ui/empty-state");
     expect(workSpecStrings).toContain("WORK_EMPTY_STATE");
-    expect(workSpecStrings).toContain("Create work from a contract date, obligation, approval, or exception.");
+    expect(workSpecStrings).toContain("Create a task for a contract date, requirement, approval, problem, or evidence request.");
   });
 
   it("ratchets core surface parity across Home, Work, contracts, command palette, and nav", () => {

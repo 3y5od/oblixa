@@ -39,6 +39,8 @@
     { "path": "playwright-report/", "gitignorePattern": "playwright-report/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-report" },
     { "path": "blob-report/", "gitignorePattern": "blob-report/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-blob-report" },
     { "path": "playwright/.cache/", "gitignorePattern": "playwright/.cache/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-playwright-cache" },
+    { "path": ".tmp-shots/", "gitignorePattern": ".tmp-shots/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-local-screenshot-scratch" },
+    { "path": "tmp-*.mjs", "gitignorePattern": "tmp-*.mjs", "ownerArea": "test-platform", "cleanupPolicy": "ignored-local-screenshot-helper" },
     { "path": "e2e/.auth/", "gitignorePattern": "e2e/.auth/", "ownerArea": "test-platform", "cleanupPolicy": "ignored-local-auth-state" },
     { "path": "artifacts/generated/", "gitignorePattern": "artifacts/generated/", "ownerArea": "platform-hardening", "cleanupPolicy": "ignored-ad-hoc-generated-output" },
     { "path": "cyclonedx-sbom.json", "gitignorePattern": "cyclonedx-sbom.json", "ownerArea": "supply-chain-security", "cleanupPolicy": "ignored-regenerable-sbom-output" },
@@ -55,6 +57,8 @@
     "allowlist": [
       { "path": "artifacts/compatibility/removal-queue.json", "maxBytes": 6000000, "ownerArea": "compatibility", "reason": "Generated compatibility removal queue." },
       { "pathPattern": "e2e/**/*.png", "maxBytes": 1500000, "ownerArea": "test-platform", "reason": "Visual regression snapshots." },
+      { "path": "e2e/visual.public.spec.ts-snapshots/public-product-chromium-win32.png", "maxBytes": 3000000, "ownerArea": "test-platform", "reason": "Full-page public visual regression snapshot retained for Windows coverage." },
+      { "path": "e2e/visual.public.spec.ts-snapshots/public-root-chromium-win32.png", "maxBytes": 3000000, "ownerArea": "test-platform", "reason": "Full-page public visual regression snapshot retained for Windows coverage." },
       { "pathPattern": "public/*.png", "maxBytes": 2000000, "ownerArea": "frontend-platform", "reason": "Public image assets." }
     ]
   },

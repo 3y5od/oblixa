@@ -3,71 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { AUTH_SURFACE_PATHS, COMPATIBILITY_PUBLIC_PATHS, EXPECTED_SITEMAP_PATHS, JSON_LD_COMPONENTS, MARKETING_TENANT_DATA_PATTERNS, PRIVATE_METADATA_LAYOUTS, PRIVATE_PREFIXES, PUBLIC_FILE_ALLOWLIST, PUBLIC_ROUTE_TEST_FILES, SITEMAP_FORBIDDEN_PATHS, extractArrayStringLiterals, extractGeneratedPublicRoutes, extractPublicPathInventories, isPrivatePath, routeToPageRel } from "./lib/public-seo-surface-requirements.mjs";
 
 const ROOT = process.cwd();
-const PRIVATE_PREFIXES = [
-  "/api",
-  "/dashboard",
-  "/work",
-  "/contracts",
-  "/settings",
-  "/onboarding",
-  "/reports",
-  "/search",
-  "/assurance",
-  "/campaigns",
-  "/decisions",
-  "/relationship-workspaces",
-  "/accounts",
-  "/counterparties",
-  "/more",
-];
-const PUBLIC_FILE_ALLOWLIST = new Set([
-  "public/.well-known/security.txt",
-  "public/oblixa-logo.png",
-  "public/robots.txt",
-]);
-const PRIVATE_METADATA_LAYOUTS = [
-  "src/app/(auth)/layout.tsx",
-  "src/app/(dashboard)/layout.tsx",
-  "src/app/external/layout.tsx",
-  "src/app/(dashboard)/onboarding/layout.tsx",
-];
-const JSON_LD_COMPONENTS = [
-  "src/components/landing/landing-json-ld.tsx",
-  "src/components/landing/legal-page-json-ld.tsx",
-];
-const AUTH_SURFACE_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
-const EXPECTED_SITEMAP_PATHS = [
-  "/",
-  "/product",
-  "/request-access",
-  "/pricing",
-  "/contact",
-  "/security",
-  "/privacy",
-  "/terms",
-  "/acceptable-use",
-  "/accessibility",
-  "/cookies",
-];
-const COMPATIBILITY_PUBLIC_PATHS = new Set(["/early-access"]);
-const SITEMAP_FORBIDDEN_PATHS = new Set([...AUTH_SURFACE_PATHS, ...COMPATIBILITY_PUBLIC_PATHS]);
-const PUBLIC_ROUTE_TEST_FILES = [
-  "e2e/marketing-public.spec.ts",
-  "e2e/external-public.spec.ts",
-  "e2e/public-route-h1-contract.spec.ts",
-  "e2e/security-headers-smoke.spec.ts",
-];
-const MARKETING_TENANT_DATA_PATTERNS = [
-  { issue: "public_page_imports_supabase", re: /from\s+["']@\/lib\/supabase\// },
-  { issue: "public_page_imports_server_env", re: /from\s+["']@\/lib\/env\/server["']/ },
-  { issue: "public_page_imports_server_actions", re: /from\s+["']@\/actions\// },
-  { issue: "public_page_uses_supabase_admin", re: /\bcreateAdminClient\b/ },
-  { issue: "public_page_uses_supabase_client", re: /\bcreateClient\b/ },
-  { issue: "public_page_queries_database", re: /\b(?:supabase|admin|client|db)\w*\s*\.\s*from\s*\(/ },
-  { issue: "public_page_fetches_internal_api", re: /\bfetch\s*\(\s*["']\/api\// },
-];
 
 function toPosix(value) {
   return value.replace(/\\/g, "/");
@@ -90,40 +28,6 @@ function walkFiles(root, rel, out = []) {
     else if (ent.isFile()) out.push(childRel);
   }
   return out;
-}
-
-function extractArrayStringLiterals(source, name) {
-  const re = new RegExp(`(?:export\\s+)?const\\s+${name}\\s*=\\s*\\[([\\s\\S]*?)\\](?:\\s*as\\s+const)?`, "m");
-  const body = re.exec(source)?.[1] ?? "";
-  return [...body.matchAll(/["']([^"']+)["']/g)].map((match) => match[1]);
-}
-
-function extractPublicPathInventories(source) {
-  const publicInformationPaths = extractArrayStringLiterals(source, "PUBLIC_INFORMATION_PATHS");
-  const sitemapPaths = extractArrayStringLiterals(source, "SITEMAP_PATHS");
-  if (/\.\.\.\s*PUBLIC_INFORMATION_PATHS\b/u.test(source)) {
-    for (const route of publicInformationPaths) {
-      if (!sitemapPaths.includes(route)) sitemapPaths.push(route);
-    }
-  }
-  return { publicInformationPaths, sitemapPaths };
-}
-
-function extractGeneratedPublicRoutes(source) {
-  const match = /GENERATED_PUBLIC_ROUTES\s*=\s*(\[[\s\S]*?\])\s*as\s+const/u.exec(source);
-  if (!match) return [];
-  try {
-    return JSON.parse(match[1]);
-  } catch {
-    return [];
-  }
-}
-
-function routeToPageRel(route) {
-  if (route === "/") return "src/app/page.tsx";
-  const name = route.replace(/^\//, "");
-  if (AUTH_SURFACE_PATHS.includes(route)) return `src/app/(auth)/${name}/page.tsx`;
-  return `src/app/(marketing)/${name}/page.tsx`;
 }
 
 function resolveInternalImport(root, fromRel, specifier) {
@@ -162,8 +66,11 @@ function collectInternalImportGraph(root, entryRel, seen = new Set()) {
   return seen;
 }
 
-function isPrivatePath(value) {
-  return PRIVATE_PREFIXES.some((prefix) => value === prefix || value.startsWith(`${prefix}/`));
+function readAuthActionSource(root, actionRel) {
+  return [...collectInternalImportGraph(root, actionRel)]
+    .filter((rel) => rel === actionRel || rel.startsWith("src/lib/auth/"))
+    .map((rel) => read(root, rel))
+    .join("\n");
 }
 
 function collectPublicFileIssues(root) {
@@ -388,7 +295,7 @@ function collectPublicAuthRedirectIssues(root) {
   if (!exists(root, authActionRel)) {
     issues.push({ issue: "missing_auth_actions", rel: authActionRel });
   } else {
-    const source = read(root, authActionRel);
+    const source = readAuthActionSource(root, authActionRel);
     if (
       !source.includes("admin.auth.admin.createUser") ||
       !source.includes("email_confirm: true") ||

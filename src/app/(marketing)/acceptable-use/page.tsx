@@ -25,11 +25,7 @@ const title = "Acceptable use — Oblixa";
 const description =
   "Acceptable use rules for Oblixa, the signed-contract follow-up workspace: what you can upload, fair-use AI extraction, account responsibility, prohibited conduct, and grounds for suspension.";
 
-// Pinned review marker (LAST_REVIEWED_ISO) feeds the trust-compliance freshness
-// check; LABEL is the human-readable display. Keep both in sync by hand — the
-// surface check forbids a runtime review date.
-const LAST_REVIEWED_ISO = "2026-05-28";
-const LAST_REVIEWED_LABEL = "May 28, 2026";
+const LAST_REVIEWED_ISO = "2026-05-28", LAST_REVIEWED_LABEL = "May 28, 2026";
 
 export const metadata: Metadata = {
   title,
@@ -39,19 +35,14 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
-const HAIRLINE = "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]";
-const DIVIDE = "divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]";
-const POLICY_BAND = "bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,transparent)]";
+const HAIRLINE = "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]",
+  DIVIDE = "divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)]",
+  POLICY_BAND = "bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,transparent)]";
 
-// Small accent-tinted square that leads every section header — matches the
-// icon-row idiom on /privacy, /terms, /cookies, and /accessibility.
 const SECTION_TILE =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]";
-
 type SummaryItem = { icon: LucideIcon; label: string; body: string; href: string };
 
-// Summary panel doubles as the on-this-page contents strip: each row jumps to
-// its section anchor.
 const SUMMARY: readonly SummaryItem[] = [
   { icon: Check, label: "Allowed use", body: "Track signed agreements you have a right to operate on.", href: "#may-upload" },
   { icon: ShieldAlert, label: "Upload boundaries", body: "No illegal, malicious, or unauthorized regulated data.", href: "#may-not-upload" },
@@ -78,7 +69,6 @@ const NOT_ALLOWED: readonly string[] = [
 ];
 
 type Rule = { label: string; body: string };
-
 const PROHIBITED: readonly Rule[] = [
   { label: "Access abuse", body: "Circumventing security or attempting to reach another organization's workspace." },
   { label: "Scraping and resale", body: "Scraping, mirroring, reselling, or using the product's outputs to build a competing service." },
@@ -110,13 +100,11 @@ export default function AcceptableUsePage() {
         tabIndex={-1}
         className="landing-luminous relative isolate flex min-h-full flex-1 flex-col overflow-hidden outline-none"
       >
-        {/* Restrained backdrop — base wash + a faint glow, no dotted grid. */}
         <div aria-hidden className="landing-luminous__base" />
         <div aria-hidden className="landing-luminous__glow opacity-40" />
         <div aria-hidden className="product-top-hairline" />
 
         <div className="relative mx-auto w-full max-w-3xl px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-12">
-          {/* Identity — flat inline icon-tile header, parity with sibling legal pages. */}
           <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
             <div className="flex min-w-0 items-start gap-4">
               <span
@@ -146,7 +134,6 @@ export default function AcceptableUsePage() {
             </span>
           </header>
 
-          {/* Focal summary panel — the single raised surface; rows link to sections. */}
           <section aria-labelledby="aup-summary-h" className="mt-8">
             <article className="landing-card-premium landing-card-rail relative overflow-hidden rounded-2xl border p-5 sm:p-6">
               <p className="ui-caps-1 text-[10.5px] leading-none text-[var(--accent-strong)]">Summary</p>
@@ -184,7 +171,6 @@ export default function AcceptableUsePage() {
             </article>
           </section>
 
-          {/* Sections — flat, hairline-separated, icon-led. */}
           <Section id="what-oblixa-is-for" icon={FileText} title="What Oblixa is for">
             <p>
               Oblixa is a signed-contract follow-up workspace for agreements you have already signed. Teams
@@ -281,7 +267,6 @@ export default function AcceptableUsePage() {
             </p>
           </Section>
 
-          {/* Related policies — structured link strip. */}
           <section aria-labelledby="aup-related-h" className={`mt-8 border-t pt-5 ${HAIRLINE}`}>
             <p id="aup-related-h" className="ui-caps-2 text-[10px] leading-none text-[var(--text-tertiary)]">
               Related policies
@@ -293,7 +278,6 @@ export default function AcceptableUsePage() {
             </div>
           </section>
 
-          {/* Legal boundary — quiet hairline note, parity with /security. */}
           <section id="legal" aria-labelledby="aup-legal-h" className={`mt-6 flex gap-3 border-t pt-5 ${HAIRLINE}`}>
             <Scale className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
             <div className="min-w-0">
@@ -321,8 +305,6 @@ export default function AcceptableUsePage() {
   );
 }
 
-/** Icon-led legal section: accent tile + h2 + body, separated by a hairline.
- *  Mirrors the icon-row header used across the sibling legal pages. */
 function Section({
   id,
   icon: Icon,
@@ -351,7 +333,6 @@ function Section({
   );
 }
 
-/** Compact policy rows: a caps label column on a quiet band, body on the right. */
 function PolicyList({ rows }: { rows: readonly Rule[] }) {
   return (
     <ul className={`overflow-hidden rounded-xl border ${HAIRLINE} ${POLICY_BAND} divide-y ${DIVIDE}`}>

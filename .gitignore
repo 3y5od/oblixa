@@ -31,6 +31,8 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+.tmp-shots/
+tmp-*.mjs
 
 # Vercel / Turborepo
 .vercel

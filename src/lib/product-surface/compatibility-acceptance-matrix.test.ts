@@ -36,7 +36,7 @@ describe("v7 acceptance matrix", () => {
       expect.arrayContaining([
         "Dashboard",
         "Contracts",
-        "Work",
+        "Tasks",
         "Renewals",
         "Evidence",
         "Reports",

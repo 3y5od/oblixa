@@ -18,6 +18,7 @@ import { OperationalSummaryCard } from "@/components/ui/operational-summary-card
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { normalizeAnalyticsScope } from "@/lib/analytics-scope";
 import { parseBusinessDateAtNoon } from "@/lib/business-dates";
+import { AnalyticsListCard } from "./analytics-list-card";
 
 function monthKey(dateIso: string): string {
   return dateIso.slice(0, 7);
@@ -429,176 +430,21 @@ export default async function ContractAnalyticsPage(props: {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Velocity</p>
-            <h2 className="ui-section-title mt-1 text-base">Contracts created by month</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {contractRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
-            ) : (
-              contractRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Execution</p>
-            <h2 className="ui-section-title mt-1 text-base">Task completions by month</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {taskRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
-            ) : (
-              taskRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Horizon</p>
-            <h2 className="ui-section-title mt-1 text-base">Renewal concentration (next 6m)</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {renewalRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No upcoming renewals.</li>
-            ) : (
-              renewalRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        <AnalyticsListCard eyebrow="Velocity" title="Contracts created by month" rows={contractRows} emptyLabel="No data yet." />
+        <AnalyticsListCard eyebrow="Execution" title="Task completions by month" rows={taskRows} emptyLabel="No data yet." />
+        <AnalyticsListCard eyebrow="Horizon" title="Renewal concentration (next 6m)" rows={renewalRows} emptyLabel="No upcoming renewals." />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Scoped trend</p>
-            <h2 className="ui-section-title mt-1 text-base">Owner ({topOwner ?? "none"})</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {ownerTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
-            ) : (
-              ownerTrendRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Scoped trend</p>
-            <h2 className="ui-section-title mt-1 text-base">Region ({topRegion ?? "none"})</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {regionTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
-            ) : (
-              regionTrendRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Scoped trend</p>
-            <h2 className="ui-section-title mt-1 text-base">Contract type ({topType ?? "none"})</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {typeTrendRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No trend data.</li>
-            ) : (
-              typeTrendRows.map(([month, count]) => (
-                <li key={month} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-[var(--text-secondary)]">{month}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        <AnalyticsListCard eyebrow="Scoped trend" title={`Owner (${topOwner ?? "none"})`} rows={ownerTrendRows} emptyLabel="No trend data." />
+        <AnalyticsListCard eyebrow="Scoped trend" title={`Region (${topRegion ?? "none"})`} rows={regionTrendRows} emptyLabel="No trend data." />
+        <AnalyticsListCard eyebrow="Scoped trend" title={`Contract type (${topType ?? "none"})`} rows={typeTrendRows} emptyLabel="No trend data." />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Mix</p>
-            <h2 className="ui-section-title mt-1 text-base">Portfolio by owner</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {ownerRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
-            ) : (
-              ownerRows.map(([owner, count]) => (
-                <li key={owner} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-[var(--text-secondary)]">{owner}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Mix</p>
-            <h2 className="ui-section-title mt-1 text-base">Portfolio by region</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {regionRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
-            ) : (
-              regionRows.map(([region, count]) => (
-                <li key={region} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-[var(--text-secondary)]">{region}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
-        <section className="ui-card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Mix</p>
-            <h2 className="ui-section-title mt-1 text-base">Portfolio by contract type</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {typeRows.length === 0 ? (
-              <li className="px-5 py-4 text-sm text-[var(--text-tertiary)]">No data yet.</li>
-            ) : (
-              typeRows.map(([type, count]) => (
-                <li key={type} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="truncate text-[var(--text-secondary)]">{type}</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{count}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        <AnalyticsListCard eyebrow="Mix" title="Portfolio by owner" rows={ownerRows} emptyLabel="No data yet." truncateLabel />
+        <AnalyticsListCard eyebrow="Mix" title="Portfolio by region" rows={regionRows} emptyLabel="No data yet." truncateLabel />
+        <AnalyticsListCard eyebrow="Mix" title="Portfolio by contract type" rows={typeRows} emptyLabel="No data yet." truncateLabel />
       </div>
     </div>
   );

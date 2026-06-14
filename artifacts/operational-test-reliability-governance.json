@@ -138,7 +138,7 @@
     }
   },
   "testDataIsolation": {
-    "scannedTestFileCount": 1124,
+    "scannedTestFileCount": 1142,
     "requiredFixtureCount": 5,
     "missingFixtureCount": 0,
     "requiredCommandCount": 6,

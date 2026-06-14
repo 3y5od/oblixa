@@ -5,7 +5,7 @@
   "generatedBy": "scripts/check-operational-platform-variant-coverage.mjs --write",
   "generatedFrom": "config/operational-platform-variant-coverage.json",
   "commandCount": 17,
-  "routeFamilyPolicyCount": 11,
+  "routeFamilyPolicyCount": 15,
   "browserDimensionCount": 11,
   "webViewPlatformCount": 2,
   "osInputVariantCount": 9,
@@ -425,8 +425,18 @@
       "ok": true
     },
     {
-      "family": "external",
+      "family": "evidence",
       "routeCount": 1,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "external",
+      "routeCount": 2,
       "multiBrowserRouteCount": 1,
       "supportLevel": "multi-browser-representative",
       "owner": "@frontend-platform",
@@ -436,11 +446,41 @@
     },
     {
       "family": "marketing",
-      "routeCount": 11,
+      "routeCount": 12,
       "multiBrowserRouteCount": 1,
       "supportLevel": "multi-browser-representative",
       "owner": "@frontend-platform",
       "validationCommand": "test:e2e:multi-browser",
+      "waiverId": null,
+      "ok": true
+    },
+    {
+      "family": "operator",
+      "routeCount": 1,
+      "multiBrowserRouteCount": 0,
+      "supportLevel": "chromium-primary-internal",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:operational-platform-variant-coverage",
+      "waiverId": "qa_taxonomy_gap_phase2_feature",
+      "ok": true
+    },
+    {
+      "family": "relationships",
+      "routeCount": 2,
+      "multiBrowserRouteCount": 0,
+      "supportLevel": "chromium-primary-pre-ga",
+      "owner": "@frontend-platform",
+      "validationCommand": "check:operational-platform-variant-coverage",
+      "waiverId": "qa_taxonomy_gap_phase2_feature",
+      "ok": true
+    },
+    {
+      "family": "renewals",
+      "routeCount": 1,
+      "multiBrowserRouteCount": 1,
+      "supportLevel": "multi-browser-representative",
+      "owner": "@frontend-platform",
+      "validationCommand": "test:e2e:current-product:matrix",
       "waiverId": null,
       "ok": true
     },
@@ -682,7 +722,7 @@
       "checkId": "versioned-export-download-contracts",
       "ok": true,
       "issueCount": 0,
-      "contractCount": 168,
+      "contractCount": 166,
       "categoryCount": 6
     }
   ],

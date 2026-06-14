@@ -18,6 +18,8 @@
 /dashboard                          src/app/(dashboard)/dashboard/loading.tsx
 /dashboard/persona                  src/app/(dashboard)/dashboard/persona/loading.tsx
 /work                               src/app/(dashboard)/work/loading.tsx
+/evidence                           src/app/(dashboard)/evidence/loading.tsx
+/renewals                           src/app/(dashboard)/renewals/loading.tsx
 /contracts                          src/app/(dashboard)/contracts/loading.tsx
 /contracts/[id]                     src/app/(dashboard)/contracts/[id]/loading.tsx
 /contracts/bulk                     src/app/(dashboard)/contracts/bulk/loading.tsx
@@ -41,4 +43,6 @@
 /decisions                          src/app/(dashboard)/decisions/loading.tsx
 /assurance                          src/app/(dashboard)/assurance/loading.tsx
 /more                               src/app/(dashboard)/more/loading.tsx
+/external                           src/app/external/loading.tsx
 /external/[token]                   src/app/external/loading.tsx
+/operator/access-requests           src/app/operator/access-requests/loading.tsx

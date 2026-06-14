@@ -19,7 +19,6 @@ import {
   createReportPackSubscriptionAction,
   saveReportPackAnnotationsAction,
 } from "@/actions/policy-operations";
-
 export default async function ReportsHistoryPage(props: {
   searchParams: Promise<{ runId?: string }>;
 }) {

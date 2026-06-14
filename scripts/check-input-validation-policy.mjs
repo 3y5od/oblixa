@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { readAuthActionImplementationSource, readSourceWithSupplements } from "./lib/source-marker-readers.mjs";
 
 const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:input-validation-policy"];
@@ -357,7 +358,12 @@ export function analyzeInputValidationPolicy(root = ROOT) {
 
   for (const [rel, markers] of Object.entries(REQUIRED_FILE_MARKERS)) {
     if (!exists(root, rel)) continue;
-    const content = read(root, rel);
+    const content =
+      rel === "src/actions/auth.ts"
+        ? readAuthActionImplementationSource(root, rel)
+        : rel === "src/actions/contracts.ts"
+          ? readSourceWithSupplements(root, rel, ["src/lib/actions/contracts-form-readers.ts"])
+          : read(root, rel);
     for (const marker of missingMarkers(content, markers)) {
       issues.push({ issue: "missing_marker", rel, marker });
     }

@@ -6,7 +6,7 @@
   "ok": true,
   "summary": {
     "environmentClassCount": 6,
-    "envKeyCount": 263,
+    "envKeyCount": 269,
     "e2eMatrixKeyCount": 25,
     "seedFileCount": 3,
     "fixtureLifecycleControlCount": 7,
@@ -85,14 +85,14 @@
   },
   "envFileIsolation": {
     "envFileCount": 2,
-    "envEntryCount": 281,
-    "uniqueEnvKeyCount": 263,
+    "envEntryCount": 287,
+    "uniqueEnvKeyCount": 269,
     "e2eMatrixKeyCount": 25,
     "requiredE2eMatrixKeyCount": 13,
     "rows": [
       {
         "file": ".env.example",
-        "line": 588,
+        "line": 605,
         "key": "ADR_REQUIRED_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -122,7 +122,7 @@
       },
       {
         "file": ".env.example",
-        "line": 589,
+        "line": 606,
         "key": "CLA_DCO_POLICY_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -132,7 +132,7 @@
       },
       {
         "file": ".env.example",
-        "line": 395,
+        "line": 408,
         "key": "COMPREHENSIVE_PASS_BASE_URL",
         "commented": true,
         "valueClass": "local",
@@ -142,7 +142,7 @@
       },
       {
         "file": ".env.example",
-        "line": 398,
+        "line": 411,
         "key": "COMPREHENSIVE_PASS_EMAIL",
         "commented": true,
         "valueClass": "empty",
@@ -172,7 +172,7 @@
       },
       {
         "file": ".env.example",
-        "line": 399,
+        "line": 412,
         "key": "COMPREHENSIVE_PASS_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -192,7 +192,7 @@
       },
       {
         "file": ".env.example",
-        "line": 397,
+        "line": 410,
         "key": "COMPREHENSIVE_PASS_SECONDARY_BASE_URL",
         "commented": true,
         "valueClass": "local",
@@ -212,7 +212,7 @@
       },
       {
         "file": ".env.example",
-        "line": 574,
+        "line": 591,
         "key": "COSIGN_PUBLIC_KEY",
         "commented": true,
         "valueClass": "empty",
@@ -222,7 +222,7 @@
       },
       {
         "file": ".env.example",
-        "line": 387,
+        "line": 400,
         "key": "CRON_HEALTHCHECK_URL",
         "commented": true,
         "valueClass": "empty",
@@ -232,7 +232,7 @@
       },
       {
         "file": ".env.example",
-        "line": 337,
+        "line": 350,
         "key": "CRON_SECRET_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -242,7 +242,7 @@
       },
       {
         "file": ".env.example",
-        "line": 335,
+        "line": 348,
         "key": "CRON_SECRET_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -252,7 +252,7 @@
       },
       {
         "file": ".env.example",
-        "line": 333,
+        "line": 346,
         "key": "CRON_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -262,7 +262,7 @@
       },
       {
         "file": ".env.example",
-        "line": 416,
+        "line": 429,
         "key": "DAST_LOCAL_BASE_URL",
         "commented": true,
         "valueClass": "empty",
@@ -275,7 +275,7 @@
       },
       {
         "file": ".env.example",
-        "line": 414,
+        "line": 427,
         "key": "DAST_TARGET_MODE",
         "commented": true,
         "valueClass": "staging",
@@ -287,7 +287,7 @@
       },
       {
         "file": ".env.example",
-        "line": 415,
+        "line": 428,
         "key": "DAST_TARGET_MODE",
         "commented": true,
         "valueClass": "empty",
@@ -299,7 +299,7 @@
       },
       {
         "file": ".env.example",
-        "line": 299,
+        "line": 312,
         "key": "DECISION_PACKET_BUCKET",
         "commented": true,
         "valueClass": "unknown",
@@ -309,7 +309,7 @@
       },
       {
         "file": ".env.example",
-        "line": 497,
+        "line": 510,
         "key": "DISABLE_ONBOARDING_CALIBRATION_GATE",
         "commented": true,
         "valueClass": "unknown",
@@ -319,7 +319,7 @@
       },
       {
         "file": ".env.example",
-        "line": 500,
+        "line": 513,
         "key": "DISABLE_ONBOARDING_CALIBRATION_STALE_CRON",
         "commented": true,
         "valueClass": "unknown",
@@ -329,7 +329,7 @@
       },
       {
         "file": ".env.example",
-        "line": 582,
+        "line": 599,
         "key": "DR_DRILL_INCLUDE_RPO",
         "commented": true,
         "valueClass": "unknown",
@@ -339,7 +339,7 @@
       },
       {
         "file": ".env.example",
-        "line": 580,
+        "line": 597,
         "key": "DR_DRILL_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -349,7 +349,7 @@
       },
       {
         "file": ".env.example",
-        "line": 581,
+        "line": 598,
         "key": "DR_VENDOR_STATUS_URL",
         "commented": true,
         "valueClass": "empty",
@@ -359,7 +359,7 @@
       },
       {
         "file": ".env.example",
-        "line": 490,
+        "line": 503,
         "key": "E2E_ACCOUNT_KEY",
         "commented": true,
         "valueClass": "empty",
@@ -371,7 +371,7 @@
       },
       {
         "file": ".env.example",
-        "line": 483,
+        "line": 496,
         "key": "E2E_ADVANCED_EMAIL",
         "commented": true,
         "valueClass": "empty",
@@ -383,7 +383,7 @@
       },
       {
         "file": ".env.example",
-        "line": 484,
+        "line": 497,
         "key": "E2E_ADVANCED_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -395,7 +395,7 @@
       },
       {
         "file": ".env.example",
-        "line": 485,
+        "line": 498,
         "key": "E2E_ASSURANCE_EMAIL",
         "commented": true,
         "valueClass": "empty",
@@ -407,7 +407,7 @@
       },
       {
         "file": ".env.example",
-        "line": 486,
+        "line": 499,
         "key": "E2E_ASSURANCE_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -419,7 +419,7 @@
       },
       {
         "file": ".env.example",
-        "line": 487,
+        "line": 500,
         "key": "E2E_CORE_NON_ADMIN_EMAIL",
         "commented": true,
         "valueClass": "empty",
@@ -431,7 +431,7 @@
       },
       {
         "file": ".env.example",
-        "line": 488,
+        "line": 501,
         "key": "E2E_CORE_NON_ADMIN_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -443,7 +443,7 @@
       },
       {
         "file": ".env.example",
-        "line": 491,
+        "line": 504,
         "key": "E2E_COUNTERPARTY_KEY",
         "commented": true,
         "valueClass": "empty",
@@ -455,7 +455,7 @@
       },
       {
         "file": ".env.example",
-        "line": 481,
+        "line": 494,
         "key": "E2E_ONBOARDING_BLOCKING",
         "commented": true,
         "valueClass": "unknown",
@@ -467,7 +467,7 @@
       },
       {
         "file": ".env.example",
-        "line": 509,
+        "line": 522,
         "key": "E2E_ONBOARDING_EXPORT",
         "commented": true,
         "valueClass": "unknown",
@@ -479,7 +479,7 @@
       },
       {
         "file": ".env.example",
-        "line": 421,
+        "line": 434,
         "key": "E2E_RANDOM_SEED",
         "commented": true,
         "valueClass": "empty",
@@ -491,7 +491,7 @@
       },
       {
         "file": ".env.example",
-        "line": 460,
+        "line": 473,
         "key": "E2E_TEARDOWN_RPC",
         "commented": true,
         "valueClass": "empty",
@@ -503,7 +503,7 @@
       },
       {
         "file": ".env.example",
-        "line": 461,
+        "line": 474,
         "key": "E2E_TEARDOWN_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -515,7 +515,7 @@
       },
       {
         "file": ".env.example",
-        "line": 459,
+        "line": 472,
         "key": "E2E_TEARDOWN_TABLES",
         "commented": true,
         "valueClass": "empty",
@@ -527,7 +527,7 @@
       },
       {
         "file": ".env.example",
-        "line": 458,
+        "line": 471,
         "key": "E2E_TEARDOWN_WEBHOOK_URL",
         "commented": true,
         "valueClass": "empty",
@@ -539,7 +539,7 @@
       },
       {
         "file": ".env.example",
-        "line": 457,
+        "line": 470,
         "key": "E2E_TEARDOWN",
         "commented": true,
         "valueClass": "unknown",
@@ -551,7 +551,7 @@
       },
       {
         "file": ".env.example",
-        "line": 209,
+        "line": 219,
         "key": "E2E_TEST_EMAIL",
         "commented": true,
         "valueClass": "local",
@@ -563,7 +563,7 @@
       },
       {
         "file": ".env.example",
-        "line": 450,
+        "line": 463,
         "key": "E2E_TEST_EMAIL",
         "commented": true,
         "valueClass": "empty",
@@ -587,7 +587,7 @@
       },
       {
         "file": ".env.example",
-        "line": 210,
+        "line": 220,
         "key": "E2E_TEST_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -599,7 +599,7 @@
       },
       {
         "file": ".env.example",
-        "line": 451,
+        "line": 464,
         "key": "E2E_TEST_PASSWORD",
         "commented": true,
         "valueClass": "empty",
@@ -633,7 +633,7 @@
       },
       {
         "file": ".env.example",
-        "line": 173,
+        "line": 177,
         "key": "EMAIL_INBOUND_HMAC_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -643,7 +643,7 @@
       },
       {
         "file": ".env.example",
-        "line": 278,
+        "line": 291,
         "key": "ENABLE_ADAPTIVE_PLAYBOOKS",
         "commented": true,
         "valueClass": "unknown",
@@ -653,7 +653,7 @@
       },
       {
         "file": ".env.example",
-        "line": 240,
+        "line": 253,
         "key": "ENABLE_APPROVALS_SLA",
         "commented": true,
         "valueClass": "unknown",
@@ -663,7 +663,7 @@
       },
       {
         "file": ".env.example",
-        "line": 276,
+        "line": 289,
         "key": "ENABLE_ASSURANCE_CORE",
         "commented": true,
         "valueClass": "unknown",
@@ -673,7 +673,7 @@
       },
       {
         "file": ".env.example",
-        "line": 245,
+        "line": 258,
         "key": "ENABLE_AUTOMATION_EXPANSION",
         "commented": true,
         "valueClass": "unknown",
@@ -683,7 +683,7 @@
       },
       {
         "file": ".env.example",
-        "line": 281,
+        "line": 294,
         "key": "ENABLE_AUTOPILOT_ALLOW_EXECUTION",
         "commented": true,
         "valueClass": "unknown",
@@ -693,7 +693,7 @@
       },
       {
         "file": ".env.example",
-        "line": 279,
+        "line": 292,
         "key": "ENABLE_AUTOPILOT",
         "commented": true,
         "valueClass": "unknown",
@@ -703,7 +703,7 @@
       },
       {
         "file": ".env.example",
-        "line": 277,
+        "line": 290,
         "key": "ENABLE_CONTROL_POLICIES",
         "commented": true,
         "valueClass": "unknown",
@@ -713,7 +713,7 @@
       },
       {
         "file": ".env.example",
-        "line": 265,
+        "line": 278,
         "key": "ENABLE_CONTROL_ROOM_UX",
         "commented": true,
         "valueClass": "unknown",
@@ -723,7 +723,7 @@
       },
       {
         "file": ".env.example",
-        "line": 260,
+        "line": 273,
         "key": "ENABLE_DECISION_FOUNDATION",
         "commented": true,
         "valueClass": "unknown",
@@ -733,7 +733,7 @@
       },
       {
         "file": ".env.example",
-        "line": 224,
+        "line": 237,
         "key": "ENABLE_DEMO_SEED",
         "commented": true,
         "valueClass": "unknown",
@@ -753,7 +753,7 @@
       },
       {
         "file": ".env.example",
-        "line": 264,
+        "line": 277,
         "key": "ENABLE_EXTERNAL_COLLABORATION",
         "commented": true,
         "valueClass": "unknown",
@@ -763,7 +763,7 @@
       },
       {
         "file": ".env.example",
-        "line": 242,
+        "line": 255,
         "key": "ENABLE_INTAKE_PIPELINE",
         "commented": true,
         "valueClass": "unknown",
@@ -773,7 +773,7 @@
       },
       {
         "file": ".env.example",
-        "line": 239,
+        "line": 252,
         "key": "ENABLE_OBLIGATIONS_EXECUTION",
         "commented": true,
         "valueClass": "unknown",
@@ -783,7 +783,7 @@
       },
       {
         "file": ".env.example",
-        "line": 282,
+        "line": 295,
         "key": "ENABLE_OUTCOME_INTELLIGENCE",
         "commented": true,
         "valueClass": "unknown",
@@ -793,7 +793,7 @@
       },
       {
         "file": ".env.example",
-        "line": 243,
+        "line": 256,
         "key": "ENABLE_PERSONA_DASHBOARDS",
         "commented": true,
         "valueClass": "unknown",
@@ -803,7 +803,7 @@
       },
       {
         "file": ".env.example",
-        "line": 261,
+        "line": 274,
         "key": "ENABLE_PORTFOLIO_CAMPAIGNS",
         "commented": true,
         "valueClass": "unknown",
@@ -813,7 +813,7 @@
       },
       {
         "file": ".env.example",
-        "line": 263,
+        "line": 276,
         "key": "ENABLE_RELATIONSHIP_LAYER",
         "commented": true,
         "valueClass": "unknown",
@@ -823,7 +823,7 @@
       },
       {
         "file": ".env.example",
-        "line": 241,
+        "line": 254,
         "key": "ENABLE_RENEWAL_WORKSPACE",
         "commented": true,
         "valueClass": "unknown",
@@ -833,7 +833,7 @@
       },
       {
         "file": ".env.example",
-        "line": 244,
+        "line": 257,
         "key": "ENABLE_REPORTING_HISTORY",
         "commented": true,
         "valueClass": "unknown",
@@ -843,7 +843,7 @@
       },
       {
         "file": ".env.example",
-        "line": 283,
+        "line": 296,
         "key": "ENABLE_REVIEW_BOARDS",
         "commented": true,
         "valueClass": "unknown",
@@ -853,7 +853,7 @@
       },
       {
         "file": ".env.example",
-        "line": 284,
+        "line": 297,
         "key": "ENABLE_SEGMENTS",
         "commented": true,
         "valueClass": "unknown",
@@ -863,7 +863,7 @@
       },
       {
         "file": ".env.example",
-        "line": 262,
+        "line": 275,
         "key": "ENABLE_SIMULATION_AND_INTELLIGENCE",
         "commented": true,
         "valueClass": "unknown",
@@ -873,7 +873,7 @@
       },
       {
         "file": ".env.example",
-        "line": 238,
+        "line": 251,
         "key": "ENABLE_TASKS_ENGINE",
         "commented": true,
         "valueClass": "unknown",
@@ -883,7 +883,7 @@
       },
       {
         "file": ".env.example",
-        "line": 249,
+        "line": 262,
         "key": "ENABLE_V3_APPROVALS_SLA",
         "commented": true,
         "valueClass": "unknown",
@@ -893,7 +893,7 @@
       },
       {
         "file": ".env.example",
-        "line": 254,
+        "line": 267,
         "key": "ENABLE_V3_AUTOMATION_EXPANSION",
         "commented": true,
         "valueClass": "unknown",
@@ -903,7 +903,7 @@
       },
       {
         "file": ".env.example",
-        "line": 251,
+        "line": 264,
         "key": "ENABLE_V3_INTAKE_PIPELINE",
         "commented": true,
         "valueClass": "unknown",
@@ -913,7 +913,7 @@
       },
       {
         "file": ".env.example",
-        "line": 248,
+        "line": 261,
         "key": "ENABLE_V3_OBLIGATIONS_EXECUTION",
         "commented": true,
         "valueClass": "unknown",
@@ -923,7 +923,7 @@
       },
       {
         "file": ".env.example",
-        "line": 252,
+        "line": 265,
         "key": "ENABLE_V3_PERSONA_DASHBOARDS",
         "commented": true,
         "valueClass": "unknown",
@@ -933,7 +933,7 @@
       },
       {
         "file": ".env.example",
-        "line": 250,
+        "line": 263,
         "key": "ENABLE_V3_RENEWAL_WORKSPACE",
         "commented": true,
         "valueClass": "unknown",
@@ -943,7 +943,7 @@
       },
       {
         "file": ".env.example",
-        "line": 253,
+        "line": 266,
         "key": "ENABLE_V3_REPORTING_HISTORY",
         "commented": true,
         "valueClass": "unknown",
@@ -953,7 +953,7 @@
       },
       {
         "file": ".env.example",
-        "line": 247,
+        "line": 260,
         "key": "ENABLE_V3_TASKS_ENGINE",
         "commented": true,
         "valueClass": "unknown",
@@ -963,7 +963,7 @@
       },
       {
         "file": ".env.example",
-        "line": 272,
+        "line": 285,
         "key": "ENABLE_V5_CONTROL_ROOM_UX",
         "commented": true,
         "valueClass": "unknown",
@@ -973,7 +973,7 @@
       },
       {
         "file": ".env.example",
-        "line": 267,
+        "line": 280,
         "key": "ENABLE_V5_DECISION_FOUNDATION",
         "commented": true,
         "valueClass": "unknown",
@@ -983,7 +983,7 @@
       },
       {
         "file": ".env.example",
-        "line": 271,
+        "line": 284,
         "key": "ENABLE_V5_EXTERNAL_COLLABORATION",
         "commented": true,
         "valueClass": "unknown",
@@ -993,7 +993,7 @@
       },
       {
         "file": ".env.example",
-        "line": 268,
+        "line": 281,
         "key": "ENABLE_V5_PORTFOLIO_CAMPAIGNS",
         "commented": true,
         "valueClass": "unknown",
@@ -1003,7 +1003,7 @@
       },
       {
         "file": ".env.example",
-        "line": 270,
+        "line": 283,
         "key": "ENABLE_V5_RELATIONSHIP_LAYER",
         "commented": true,
         "valueClass": "unknown",
@@ -1013,7 +1013,7 @@
       },
       {
         "file": ".env.example",
-        "line": 269,
+        "line": 282,
         "key": "ENABLE_V5_SIMULATION_AND_INTELLIGENCE",
         "commented": true,
         "valueClass": "unknown",
@@ -1023,7 +1023,7 @@
       },
       {
         "file": ".env.example",
-        "line": 288,
+        "line": 301,
         "key": "ENABLE_V6_ADAPTIVE_PLAYBOOKS",
         "commented": true,
         "valueClass": "unknown",
@@ -1033,7 +1033,7 @@
       },
       {
         "file": ".env.example",
-        "line": 286,
+        "line": 299,
         "key": "ENABLE_V6_ASSURANCE_CORE",
         "commented": true,
         "valueClass": "unknown",
@@ -1043,7 +1043,7 @@
       },
       {
         "file": ".env.example",
-        "line": 291,
+        "line": 304,
         "key": "ENABLE_V6_AUTOPILOT_ALLOW_EXECUTION",
         "commented": true,
         "valueClass": "unknown",
@@ -1053,7 +1053,7 @@
       },
       {
         "file": ".env.example",
-        "line": 289,
+        "line": 302,
         "key": "ENABLE_V6_AUTOPILOT",
         "commented": true,
         "valueClass": "unknown",
@@ -1063,7 +1063,7 @@
       },
       {
         "file": ".env.example",
-        "line": 287,
+        "line": 300,
         "key": "ENABLE_V6_CONTROL_POLICIES",
         "commented": true,
         "valueClass": "unknown",
@@ -1073,7 +1073,7 @@
       },
       {
         "file": ".env.example",
-        "line": 292,
+        "line": 305,
         "key": "ENABLE_V6_OUTCOME_INTELLIGENCE",
         "commented": true,
         "valueClass": "unknown",
@@ -1083,7 +1083,7 @@
       },
       {
         "file": ".env.example",
-        "line": 293,
+        "line": 306,
         "key": "ENABLE_V6_REVIEW_BOARDS",
         "commented": true,
         "valueClass": "unknown",
@@ -1093,7 +1093,7 @@
       },
       {
         "file": ".env.example",
-        "line": 294,
+        "line": 307,
         "key": "ENABLE_V6_SEGMENTS",
         "commented": true,
         "valueClass": "unknown",
@@ -1103,7 +1103,7 @@
       },
       {
         "file": ".env.example",
-        "line": 308,
+        "line": 321,
         "key": "EXTERNAL_ACTION_PASSCODE_PEPPER",
         "commented": true,
         "valueClass": "empty",
@@ -1113,7 +1113,7 @@
       },
       {
         "file": ".env.example",
-        "line": 306,
+        "line": 319,
         "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1123,7 +1123,7 @@
       },
       {
         "file": ".env.example",
-        "line": 305,
+        "line": 318,
         "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -1133,7 +1133,7 @@
       },
       {
         "file": ".env.example",
-        "line": 303,
+        "line": 316,
         "key": "EXTERNAL_ACTION_SUBMIT_TICKET_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1173,7 +1173,7 @@
       },
       {
         "file": ".env.example",
-        "line": 583,
+        "line": 600,
         "key": "GAME_DAY_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -1183,7 +1183,7 @@
       },
       {
         "file": ".env.example",
-        "line": 213,
+        "line": 223,
         "key": "GOOGLE_SITE_VERIFICATION",
         "commented": true,
         "valueClass": "empty",
@@ -1193,7 +1193,7 @@
       },
       {
         "file": ".env.example",
-        "line": 520,
+        "line": 535,
         "key": "HC_SLO_MONITOR_PING",
         "commented": true,
         "valueClass": "empty",
@@ -1203,7 +1203,7 @@
       },
       {
         "file": ".env.example",
-        "line": 368,
+        "line": 381,
         "key": "INBOUND_AUTOMATION_ORG_ALLOWLIST",
         "commented": true,
         "valueClass": "empty",
@@ -1213,7 +1213,7 @@
       },
       {
         "file": ".env.example",
-        "line": 354,
+        "line": 367,
         "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1223,7 +1223,7 @@
       },
       {
         "file": ".env.example",
-        "line": 353,
+        "line": 366,
         "key": "INBOUND_AUTOMATION_TOKEN_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -1233,7 +1233,7 @@
       },
       {
         "file": ".env.example",
-        "line": 352,
+        "line": 365,
         "key": "INBOUND_AUTOMATION_TOKEN",
         "commented": true,
         "valueClass": "empty",
@@ -1243,7 +1243,7 @@
       },
       {
         "file": ".env.example",
-        "line": 358,
+        "line": 371,
         "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1253,7 +1253,7 @@
       },
       {
         "file": ".env.example",
-        "line": 357,
+        "line": 370,
         "key": "INBOUND_EMAIL_AUTOMATION_TOKEN_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -1263,7 +1263,7 @@
       },
       {
         "file": ".env.example",
-        "line": 356,
+        "line": 369,
         "key": "INBOUND_EMAIL_AUTOMATION_TOKEN",
         "commented": true,
         "valueClass": "empty",
@@ -1273,7 +1273,17 @@
       },
       {
         "file": ".env.example",
-        "line": 364,
+        "line": 181,
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET",
+        "commented": true,
+        "valueClass": "empty",
+        "public": false,
+        "sensitive": true,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 377,
         "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1283,7 +1293,7 @@
       },
       {
         "file": ".env.example",
-        "line": 363,
+        "line": 376,
         "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -1293,7 +1303,7 @@
       },
       {
         "file": ".env.example",
-        "line": 362,
+        "line": 375,
         "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN",
         "commented": true,
         "valueClass": "empty",
@@ -1303,7 +1313,7 @@
       },
       {
         "file": ".env.example",
-        "line": 361,
+        "line": 374,
         "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1313,7 +1323,7 @@
       },
       {
         "file": ".env.example",
-        "line": 360,
+        "line": 373,
         "key": "INBOUND_SLACK_AUTOMATION_TOKEN_PREVIOUS",
         "commented": true,
         "valueClass": "empty",
@@ -1323,7 +1333,7 @@
       },
       {
         "file": ".env.example",
-        "line": 359,
+        "line": 372,
         "key": "INBOUND_SLACK_AUTOMATION_TOKEN",
         "commented": true,
         "valueClass": "empty",
@@ -1333,7 +1343,7 @@
       },
       {
         "file": ".env.example",
-        "line": 375,
+        "line": 388,
         "key": "INTEGRATION_TOKEN_ENCRYPTION_KEY",
         "commented": true,
         "valueClass": "empty",
@@ -1343,7 +1353,7 @@
       },
       {
         "file": ".env.example",
-        "line": 585,
+        "line": 602,
         "key": "NATIVE_ASAN_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -1373,7 +1383,7 @@
       },
       {
         "file": ".env.example",
-        "line": 230,
+        "line": 243,
         "key": "NEXT_PUBLIC_INLINE_QUEUE_ACTIONS",
         "commented": true,
         "valueClass": "empty",
@@ -1385,7 +1395,7 @@
       },
       {
         "file": ".env.example",
-        "line": 204,
+        "line": 214,
         "key": "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
         "commented": true,
         "valueClass": "unknown",
@@ -1395,7 +1405,31 @@
       },
       {
         "file": ".env.example",
+        "line": 547,
+        "key": "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": [
+          "local"
+        ]
+      },
+      {
+        "file": ".env.example",
         "line": 533,
+        "key": "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": true,
+        "sensitive": false,
+        "classHints": [
+          "local"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 550,
         "key": "NEXT_PUBLIC_PRODUCT_SURFACE_DIAGNOSTICS",
         "commented": true,
         "valueClass": "empty",
@@ -1405,7 +1439,7 @@
       },
       {
         "file": ".env.example",
-        "line": 534,
+        "line": 551,
         "key": "NEXT_PUBLIC_PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
         "commented": true,
         "valueClass": "empty",
@@ -1415,7 +1449,7 @@
       },
       {
         "file": ".env.example",
-        "line": 518,
+        "line": 531,
         "key": "NEXT_PUBLIC_SENTRY_DSN",
         "commented": true,
         "valueClass": "empty",
@@ -1425,7 +1459,7 @@
       },
       {
         "file": ".env.example",
-        "line": 523,
+        "line": 538,
         "key": "NEXT_PUBLIC_SENTRY_RELEASE",
         "commented": true,
         "valueClass": "empty",
@@ -1437,7 +1471,7 @@
       },
       {
         "file": ".env.example",
-        "line": 530,
+        "line": 545,
         "key": "NEXT_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE",
         "commented": true,
         "valueClass": "unknown",
@@ -1447,7 +1481,7 @@
       },
       {
         "file": ".env.example",
-        "line": 529,
+        "line": 544,
         "key": "NEXT_PUBLIC_SENTRY_REPLAY_SESSION_SAMPLE_RATE",
         "commented": true,
         "valueClass": "unknown",
@@ -1457,7 +1491,7 @@
       },
       {
         "file": ".env.example",
-        "line": 528,
+        "line": 543,
         "key": "NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE",
         "commented": true,
         "valueClass": "unknown",
@@ -1527,7 +1561,7 @@
       },
       {
         "file": ".env.example",
-        "line": 403,
+        "line": 416,
         "key": "NEXT_PUBLIC_SUPPORT_DIAGNOSTICS",
         "commented": true,
         "valueClass": "empty",
@@ -1537,7 +1571,7 @@
       },
       {
         "file": ".env.example",
-        "line": 405,
+        "line": 418,
         "key": "NEXT_PUBLIC_V10_SUPPORT_DIAGNOSTICS",
         "commented": true,
         "valueClass": "empty",
@@ -1547,7 +1581,7 @@
       },
       {
         "file": ".env.example",
-        "line": 232,
+        "line": 245,
         "key": "NEXT_PUBLIC_V9_INLINE_QUEUE_ACTIONS",
         "commented": true,
         "valueClass": "empty",
@@ -1559,7 +1593,7 @@
       },
       {
         "file": ".env.example",
-        "line": 379,
+        "line": 392,
         "key": "OAUTH_SLACK_AUTHORIZE_URL",
         "commented": true,
         "valueClass": "empty",
@@ -1569,7 +1603,7 @@
       },
       {
         "file": ".env.example",
-        "line": 381,
+        "line": 394,
         "key": "OAUTH_SLACK_CLIENT_ID",
         "commented": true,
         "valueClass": "empty",
@@ -1579,7 +1613,7 @@
       },
       {
         "file": ".env.example",
-        "line": 382,
+        "line": 395,
         "key": "OAUTH_SLACK_CLIENT_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1589,7 +1623,7 @@
       },
       {
         "file": ".env.example",
-        "line": 383,
+        "line": 396,
         "key": "OAUTH_SLACK_SCOPE",
         "commented": true,
         "valueClass": "empty",
@@ -1599,7 +1633,7 @@
       },
       {
         "file": ".env.example",
-        "line": 380,
+        "line": 393,
         "key": "OAUTH_SLACK_TOKEN_URL",
         "commented": true,
         "valueClass": "empty",
@@ -1609,7 +1643,7 @@
       },
       {
         "file": ".env.example",
-        "line": 166,
+        "line": 169,
         "key": "OBLIXA_ACTIVE_TOKEN_ENCRYPTION_KEY_ID",
         "commented": true,
         "valueClass": "empty",
@@ -1619,7 +1653,7 @@
       },
       {
         "file": ".env.example",
-        "line": 137,
+        "line": 140,
         "key": "OBLIXA_COEP_MODE",
         "commented": true,
         "valueClass": "unknown",
@@ -1629,7 +1663,7 @@
       },
       {
         "file": ".env.example",
-        "line": 146,
+        "line": 149,
         "key": "OBLIXA_CSP_ENFORCING_SCRIPT_HASHES",
         "commented": true,
         "valueClass": "unknown",
@@ -1639,7 +1673,7 @@
       },
       {
         "file": ".env.example",
-        "line": 127,
+        "line": 130,
         "key": "OBLIXA_CSP_REPORT_ONLY_SCRIPT_NONCE",
         "commented": true,
         "valueClass": "empty",
@@ -1649,7 +1683,7 @@
       },
       {
         "file": ".env.example",
-        "line": 143,
+        "line": 146,
         "key": "OBLIXA_CSP_STRICT_ENFORCING_SCRIPT",
         "commented": true,
         "valueClass": "unknown",
@@ -1659,7 +1693,7 @@
       },
       {
         "file": ".env.example",
-        "line": 140,
+        "line": 143,
         "key": "OBLIXA_CSP_STRICT_ENFORCING_STYLE",
         "commented": true,
         "valueClass": "unknown",
@@ -1669,7 +1703,7 @@
       },
       {
         "file": ".env.example",
-        "line": 185,
+        "line": 193,
         "key": "OBLIXA_DEBUGGING_SWEEP_ENDPOINT",
         "commented": true,
         "valueClass": "unknown",
@@ -1679,7 +1713,7 @@
       },
       {
         "file": ".env.example",
-        "line": 179,
+        "line": 187,
         "key": "OBLIXA_DSR_ACCOUNT_DELETE",
         "commented": true,
         "valueClass": "unknown",
@@ -1689,7 +1723,7 @@
       },
       {
         "file": ".env.example",
-        "line": 176,
+        "line": 184,
         "key": "OBLIXA_DSR_SELF_EXPORT",
         "commented": true,
         "valueClass": "unknown",
@@ -1699,7 +1733,7 @@
       },
       {
         "file": ".env.example",
-        "line": 538,
+        "line": 555,
         "key": "OBLIXA_ENABLE_PRIVATE_PRODUCT_CONTROLS",
         "commented": true,
         "valueClass": "empty",
@@ -1709,7 +1743,29 @@
       },
       {
         "file": ".env.example",
-        "line": 191,
+        "line": 226,
+        "key": "OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 127,
+        "key": "OBLIXA_ENABLE_SENTRY_DEV",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": [
+          "local"
+        ]
+      },
+      {
+        "file": ".env.example",
+        "line": 199,
         "key": "OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID",
         "commented": true,
         "valueClass": "empty",
@@ -1719,7 +1775,7 @@
       },
       {
         "file": ".env.example",
-        "line": 189,
+        "line": 197,
         "key": "OBLIXA_INTERNAL_DIAG_IP_ALLOWLIST",
         "commented": true,
         "valueClass": "empty",
@@ -1729,7 +1785,7 @@
       },
       {
         "file": ".env.example",
-        "line": 187,
+        "line": 195,
         "key": "OBLIXA_INTERNAL_DIAG_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1739,7 +1795,7 @@
       },
       {
         "file": ".env.example",
-        "line": 344,
+        "line": 357,
         "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_EXPIRES_AT",
         "commented": true,
         "valueClass": "empty",
@@ -1749,7 +1805,7 @@
       },
       {
         "file": ".env.example",
-        "line": 342,
+        "line": 355,
         "key": "OBLIXA_INTERNAL_HMAC_PREVIOUS_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1759,7 +1815,7 @@
       },
       {
         "file": ".env.example",
-        "line": 340,
+        "line": 353,
         "key": "OBLIXA_INTERNAL_HMAC_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1769,7 +1825,7 @@
       },
       {
         "file": ".env.example",
-        "line": 151,
+        "line": 154,
         "key": "OBLIXA_KILL_BILLING",
         "commented": true,
         "valueClass": "unknown",
@@ -1779,7 +1835,7 @@
       },
       {
         "file": ".env.example",
-        "line": 154,
+        "line": 157,
         "key": "OBLIXA_KILL_CRON_FAMILY",
         "commented": true,
         "valueClass": "unknown",
@@ -1789,7 +1845,7 @@
       },
       {
         "file": ".env.example",
-        "line": 152,
+        "line": 155,
         "key": "OBLIXA_KILL_EXTRACTION",
         "commented": true,
         "valueClass": "unknown",
@@ -1799,7 +1855,7 @@
       },
       {
         "file": ".env.example",
-        "line": 155,
+        "line": 158,
         "key": "OBLIXA_KILL_IMPORT_EXPORT",
         "commented": true,
         "valueClass": "unknown",
@@ -1809,7 +1865,7 @@
       },
       {
         "file": ".env.example",
-        "line": 158,
+        "line": 161,
         "key": "OBLIXA_KILL_INBOUND_AUTOMATION",
         "commented": true,
         "valueClass": "unknown",
@@ -1819,7 +1875,7 @@
       },
       {
         "file": ".env.example",
-        "line": 156,
+        "line": 159,
         "key": "OBLIXA_KILL_INTEGRATION_SYNC",
         "commented": true,
         "valueClass": "unknown",
@@ -1829,7 +1885,7 @@
       },
       {
         "file": ".env.example",
-        "line": 157,
+        "line": 160,
         "key": "OBLIXA_KILL_INVITES",
         "commented": true,
         "valueClass": "unknown",
@@ -1839,7 +1895,7 @@
       },
       {
         "file": ".env.example",
-        "line": 153,
+        "line": 156,
         "key": "OBLIXA_KILL_OUTBOUND_EMAIL",
         "commented": true,
         "valueClass": "unknown",
@@ -1849,7 +1905,7 @@
       },
       {
         "file": ".env.example",
-        "line": 150,
+        "line": 153,
         "key": "OBLIXA_KILL_SIGNUP",
         "commented": true,
         "valueClass": "unknown",
@@ -1859,7 +1915,7 @@
       },
       {
         "file": ".env.example",
-        "line": 159,
+        "line": 162,
         "key": "OBLIXA_KILL_WEBHOOK_DISPATCH",
         "commented": true,
         "valueClass": "unknown",
@@ -1869,7 +1925,7 @@
       },
       {
         "file": ".env.example",
-        "line": 371,
+        "line": 384,
         "key": "OBLIXA_MALWARE_SCANNER_MODE",
         "commented": true,
         "valueClass": "unknown",
@@ -1879,7 +1935,17 @@
       },
       {
         "file": ".env.example",
-        "line": 196,
+        "line": 201,
+        "key": "OBLIXA_OPERATOR_EMAILS",
+        "commented": true,
+        "valueClass": "unknown",
+        "public": false,
+        "sensitive": false,
+        "classHints": []
+      },
+      {
+        "file": ".env.example",
+        "line": 206,
         "key": "OBLIXA_PROCESS_DIAGNOSTICS",
         "commented": true,
         "valueClass": "unknown",
@@ -1889,7 +1955,7 @@
       },
       {
         "file": ".env.example",
-        "line": 202,
+        "line": 212,
         "key": "OBLIXA_PROVENANCE_FETCH_REFS",
         "commented": true,
         "valueClass": "unknown",
@@ -1899,7 +1965,7 @@
       },
       {
         "file": ".env.example",
-        "line": 200,
+        "line": 210,
         "key": "OBLIXA_PROVENANCE_TITLE_SCAN",
         "commented": true,
         "valueClass": "unknown",
@@ -1909,7 +1975,7 @@
       },
       {
         "file": ".env.example",
-        "line": 473,
+        "line": 486,
         "key": "OBLIXA_RELEASE_SECURITY_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -1931,7 +1997,7 @@
       },
       {
         "file": ".env.example",
-        "line": 162,
+        "line": 165,
         "key": "OBLIXA_STEP_UP_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -1941,7 +2007,7 @@
       },
       {
         "file": ".env.example",
-        "line": 198,
+        "line": 208,
         "key": "OBLIXA_STRICT_ARTIFACTS",
         "commented": true,
         "valueClass": "unknown",
@@ -1961,7 +2027,7 @@
       },
       {
         "file": ".env.example",
-        "line": 194,
+        "line": 204,
         "key": "OBLIXA_SWEEP_STUB_VERBOSE",
         "commented": true,
         "valueClass": "unknown",
@@ -1971,7 +2037,7 @@
       },
       {
         "file": ".env.example",
-        "line": 167,
+        "line": 170,
         "key": "OBLIXA_TOKEN_ENCRYPTION_KEY_DEFAULT",
         "commented": true,
         "valueClass": "empty",
@@ -2001,7 +2067,7 @@
       },
       {
         "file": ".env.example",
-        "line": 131,
+        "line": 134,
         "key": "OBLIXA_TRUSTED_TYPES_MODE",
         "commented": true,
         "valueClass": "unknown",
@@ -2011,7 +2077,7 @@
       },
       {
         "file": ".env.example",
-        "line": 133,
+        "line": 136,
         "key": "OBLIXA_TRUSTED_TYPES_REPORT_ONLY",
         "commented": true,
         "valueClass": "unknown",
@@ -2021,7 +2087,7 @@
       },
       {
         "file": ".env.example",
-        "line": 504,
+        "line": 517,
         "key": "ONBOARDING_CALIBRATION_PENDING_STALE_AFTER_DAYS",
         "commented": true,
         "valueClass": "empty",
@@ -2031,7 +2097,7 @@
       },
       {
         "file": ".env.example",
-        "line": 502,
+        "line": 515,
         "key": "ONBOARDING_CALIBRATION_STALE_AFTER_DAYS",
         "commented": true,
         "valueClass": "unknown",
@@ -2041,7 +2107,7 @@
       },
       {
         "file": ".env.example",
-        "line": 501,
+        "line": 514,
         "key": "ONBOARDING_CALIBRATION_STALE_CRON_DRY_RUN",
         "commented": true,
         "valueClass": "unknown",
@@ -2051,7 +2117,7 @@
       },
       {
         "file": ".env.example",
-        "line": 506,
+        "line": 519,
         "key": "ONBOARDING_CALIBRATION_STALE_MS_BETWEEN_ORGS",
         "commented": true,
         "valueClass": "unknown",
@@ -2121,7 +2187,7 @@
       },
       {
         "file": ".env.example",
-        "line": 465,
+        "line": 478,
         "key": "OPENAPI_CONTRACT_BEARER",
         "commented": true,
         "valueClass": "empty",
@@ -2131,7 +2197,7 @@
       },
       {
         "file": ".env.example",
-        "line": 464,
+        "line": 477,
         "key": "OPENAPI_CONTRACT_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2141,7 +2207,7 @@
       },
       {
         "file": ".env.example",
-        "line": 466,
+        "line": 479,
         "key": "OPENAPI_SMOKE_PATHS",
         "commented": true,
         "valueClass": "unknown",
@@ -2151,7 +2217,7 @@
       },
       {
         "file": ".env.example",
-        "line": 392,
+        "line": 405,
         "key": "OPS_RETENTION_AUDIT_EVENTS_DAYS",
         "commented": true,
         "valueClass": "unknown",
@@ -2161,7 +2227,7 @@
       },
       {
         "file": ".env.example",
-        "line": 391,
+        "line": 404,
         "key": "OPS_RETENTION_NOTIFICATION_DELIVERIES_DAYS",
         "commented": true,
         "valueClass": "unknown",
@@ -2171,7 +2237,7 @@
       },
       {
         "file": ".env.example",
-        "line": 454,
+        "line": 467,
         "key": "ORG_DATA_REGION",
         "commented": true,
         "valueClass": "empty",
@@ -2211,7 +2277,7 @@
       },
       {
         "file": ".env.example",
-        "line": 419,
+        "line": 432,
         "key": "PLAYWRIGHT_BASE_URL",
         "commented": true,
         "valueClass": "local",
@@ -2223,7 +2289,7 @@
       },
       {
         "file": ".env.example",
-        "line": 433,
+        "line": 446,
         "key": "PLAYWRIGHT_BLOB_REPORT",
         "commented": true,
         "valueClass": "unknown",
@@ -2235,7 +2301,7 @@
       },
       {
         "file": ".env.example",
-        "line": 206,
+        "line": 216,
         "key": "PLAYWRIGHT_CORRELATION_ID",
         "commented": true,
         "valueClass": "empty",
@@ -2247,7 +2313,7 @@
       },
       {
         "file": ".env.example",
-        "line": 447,
+        "line": 460,
         "key": "PLAYWRIGHT_DEVICE_MATRIX",
         "commented": true,
         "valueClass": "unknown",
@@ -2259,7 +2325,7 @@
       },
       {
         "file": ".env.example",
-        "line": 560,
+        "line": 577,
         "key": "PLAYWRIGHT_MAXIMAL_CI",
         "commented": true,
         "valueClass": "unknown",
@@ -2272,7 +2338,7 @@
       },
       {
         "file": ".env.example",
-        "line": 439,
+        "line": 452,
         "key": "PLAYWRIGHT_MEASURE_MEMORY",
         "commented": true,
         "valueClass": "unknown",
@@ -2284,7 +2350,7 @@
       },
       {
         "file": ".env.example",
-        "line": 436,
+        "line": 449,
         "key": "PLAYWRIGHT_MOBILE",
         "commented": true,
         "valueClass": "unknown",
@@ -2296,7 +2362,7 @@
       },
       {
         "file": ".env.example",
-        "line": 445,
+        "line": 458,
         "key": "PLAYWRIGHT_MULTI_BROWSER",
         "commented": true,
         "valueClass": "unknown",
@@ -2308,7 +2374,7 @@
       },
       {
         "file": ".env.example",
-        "line": 449,
+        "line": 462,
         "key": "PLAYWRIGHT_ONBOARDING_DEEP",
         "commented": true,
         "valueClass": "unknown",
@@ -2320,7 +2386,7 @@
       },
       {
         "file": ".env.example",
-        "line": 427,
+        "line": 440,
         "key": "PLAYWRIGHT_REUSE_AUTH_STORAGE",
         "commented": true,
         "valueClass": "unknown",
@@ -2332,7 +2398,7 @@
       },
       {
         "file": ".env.example",
-        "line": 561,
+        "line": 578,
         "key": "PLAYWRIGHT_SHARD_INDEX",
         "commented": true,
         "valueClass": "unknown",
@@ -2344,7 +2410,7 @@
       },
       {
         "file": ".env.example",
-        "line": 562,
+        "line": 579,
         "key": "PLAYWRIGHT_SHARD_TOTAL",
         "commented": true,
         "valueClass": "unknown",
@@ -2356,7 +2422,7 @@
       },
       {
         "file": ".env.example",
-        "line": 563,
+        "line": 580,
         "key": "PLAYWRIGHT_TRACE_FAILURE_ONLY",
         "commented": true,
         "valueClass": "unknown",
@@ -2368,7 +2434,7 @@
       },
       {
         "file": ".env.example",
-        "line": 564,
+        "line": 581,
         "key": "PLAYWRIGHT_TRACE_FULL",
         "commented": true,
         "valueClass": "unknown",
@@ -2380,7 +2446,7 @@
       },
       {
         "file": ".env.example",
-        "line": 565,
+        "line": 582,
         "key": "PLAYWRIGHT_VIDEO",
         "commented": true,
         "valueClass": "unknown",
@@ -2392,7 +2458,7 @@
       },
       {
         "file": ".env.example",
-        "line": 425,
+        "line": 438,
         "key": "PLAYWRIGHT_VISUAL_AUTH",
         "commented": true,
         "valueClass": "unknown",
@@ -2404,7 +2470,7 @@
       },
       {
         "file": ".env.example",
-        "line": 566,
+        "line": 583,
         "key": "PLAYWRIGHT_VISUAL_CONTINUE",
         "commented": true,
         "valueClass": "unknown",
@@ -2416,7 +2482,7 @@
       },
       {
         "file": ".env.example",
-        "line": 423,
+        "line": 436,
         "key": "PLAYWRIGHT_VISUAL",
         "commented": true,
         "valueClass": "unknown",
@@ -2428,7 +2494,7 @@
       },
       {
         "file": ".env.example",
-        "line": 536,
+        "line": 553,
         "key": "PRODUCT_SURFACE_SENTRY_DIAGNOSTICS",
         "commented": true,
         "valueClass": "empty",
@@ -2438,7 +2504,7 @@
       },
       {
         "file": ".env.example",
-        "line": 586,
+        "line": 603,
         "key": "QA_ARCHAEOLOGY_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2448,7 +2514,7 @@
       },
       {
         "file": ".env.example",
-        "line": 590,
+        "line": 607,
         "key": "QA_COPYLEFT_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2458,7 +2524,7 @@
       },
       {
         "file": ".env.example",
-        "line": 587,
+        "line": 604,
         "key": "QA_DEPENDENCY_CYCLES_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2468,7 +2534,7 @@
       },
       {
         "file": ".env.example",
-        "line": 558,
+        "line": 575,
         "key": "QA_MAXIMAL_DISCOVER_BATCH_INDEX",
         "commented": true,
         "valueClass": "unknown",
@@ -2478,7 +2544,7 @@
       },
       {
         "file": ".env.example",
-        "line": 557,
+        "line": 574,
         "key": "QA_MAXIMAL_DISCOVER_BATCH_TOTAL",
         "commented": true,
         "valueClass": "unknown",
@@ -2488,7 +2554,7 @@
       },
       {
         "file": ".env.example",
-        "line": 556,
+        "line": 573,
         "key": "QA_MAXIMAL_DISCOVER_CHECK_UNION",
         "commented": true,
         "valueClass": "unknown",
@@ -2498,7 +2564,7 @@
       },
       {
         "file": ".env.example",
-        "line": 555,
+        "line": 572,
         "key": "QA_MAXIMAL_INCLUDE_POSTMERGE",
         "commented": true,
         "valueClass": "unknown",
@@ -2508,7 +2574,7 @@
       },
       {
         "file": ".env.example",
-        "line": 554,
+        "line": 571,
         "key": "QA_MAXIMAL_INCLUDE_ULTIMATE",
         "commented": true,
         "valueClass": "unknown",
@@ -2518,7 +2584,7 @@
       },
       {
         "file": ".env.example",
-        "line": 559,
+        "line": 576,
         "key": "QA_MAXIMAL_MULTI_BROWSER",
         "commented": true,
         "valueClass": "unknown",
@@ -2528,7 +2594,7 @@
       },
       {
         "file": ".env.example",
-        "line": 553,
+        "line": 570,
         "key": "QA_MAXIMAL_PLAYWRIGHT_ONLY",
         "commented": true,
         "valueClass": "unknown",
@@ -2540,7 +2606,7 @@
       },
       {
         "file": ".env.example",
-        "line": 552,
+        "line": 569,
         "key": "QA_MAXIMAL_SKIP_PLAYWRIGHT",
         "commented": true,
         "valueClass": "unknown",
@@ -2552,7 +2618,7 @@
       },
       {
         "file": ".env.example",
-        "line": 551,
+        "line": 568,
         "key": "QA_MAXIMAL_SUBSET",
         "commented": true,
         "valueClass": "unknown",
@@ -2562,7 +2628,7 @@
       },
       {
         "file": ".env.example",
-        "line": 469,
+        "line": 482,
         "key": "QA_ULTIMATE_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2572,7 +2638,7 @@
       },
       {
         "file": ".env.example",
-        "line": 221,
+        "line": 234,
         "key": "REQUIRE_ACTIVE_SUBSCRIPTION",
         "commented": true,
         "valueClass": "unknown",
@@ -2602,7 +2668,7 @@
       },
       {
         "file": ".env.example",
-        "line": 570,
+        "line": 587,
         "key": "RLS_SMOKE_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2612,7 +2678,7 @@
       },
       {
         "file": ".env.example",
-        "line": 442,
+        "line": 455,
         "key": "RUN_LIGHTHOUSE_NIGHTLY",
         "commented": true,
         "valueClass": "unknown",
@@ -2622,7 +2688,7 @@
       },
       {
         "file": ".env.example",
-        "line": 571,
+        "line": 588,
         "key": "RUN_LIGHTHOUSE_NIGHTLY",
         "commented": true,
         "valueClass": "unknown",
@@ -2632,7 +2698,7 @@
       },
       {
         "file": ".env.example",
-        "line": 478,
+        "line": 491,
         "key": "SBOM_BASELINE_PATH",
         "commented": true,
         "valueClass": "unknown",
@@ -2642,7 +2708,7 @@
       },
       {
         "file": ".env.example",
-        "line": 477,
+        "line": 490,
         "key": "SBOM_DIFF_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2652,7 +2718,7 @@
       },
       {
         "file": ".env.example",
-        "line": 573,
+        "line": 590,
         "key": "SBOM_DIFF_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2662,7 +2728,7 @@
       },
       {
         "file": ".env.example",
-        "line": 474,
+        "line": 487,
         "key": "SECURITY_RELEASE_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2674,7 +2740,7 @@
       },
       {
         "file": ".env.example",
-        "line": 576,
+        "line": 593,
         "key": "SEMGREP_FULL",
         "commented": true,
         "valueClass": "unknown",
@@ -2684,7 +2750,7 @@
       },
       {
         "file": ".env.example",
-        "line": 517,
+        "line": 530,
         "key": "SENTRY_DSN",
         "commented": true,
         "valueClass": "empty",
@@ -2694,7 +2760,7 @@
       },
       {
         "file": ".env.example",
-        "line": 526,
+        "line": 541,
         "key": "SENTRY_PROFILES_SAMPLE_RATE",
         "commented": true,
         "valueClass": "unknown",
@@ -2704,7 +2770,7 @@
       },
       {
         "file": ".env.example",
-        "line": 524,
+        "line": 539,
         "key": "SENTRY_RELEASE",
         "commented": true,
         "valueClass": "empty",
@@ -2716,7 +2782,7 @@
       },
       {
         "file": ".env.example",
-        "line": 525,
+        "line": 540,
         "key": "SENTRY_TRACES_SAMPLE_RATE",
         "commented": true,
         "valueClass": "unknown",
@@ -2726,7 +2792,7 @@
       },
       {
         "file": ".env.example",
-        "line": 170,
+        "line": 173,
         "key": "SLACK_SIGNING_SECRET",
         "commented": true,
         "valueClass": "empty",
@@ -2736,7 +2802,7 @@
       },
       {
         "file": ".env.example",
-        "line": 577,
+        "line": 594,
         "key": "SLO_BUDGETS_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2746,7 +2812,7 @@
       },
       {
         "file": ".env.example",
-        "line": 575,
+        "line": 592,
         "key": "SLSA_VERIFY_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2756,7 +2822,7 @@
       },
       {
         "file": ".env.example",
-        "line": 412,
+        "line": 425,
         "key": "STAGING_BASE_URL",
         "commented": true,
         "valueClass": "empty",
@@ -2768,7 +2834,7 @@
       },
       {
         "file": ".env.example",
-        "line": 569,
+        "line": 586,
         "key": "STAGING_BASE_URL",
         "commented": true,
         "valueClass": "empty",
@@ -2850,7 +2916,7 @@
       },
       {
         "file": ".env.example",
-        "line": 494,
+        "line": 507,
         "key": "STRIPE_TRIAL_PERIOD_DAYS",
         "commented": true,
         "valueClass": "unknown",
@@ -2910,7 +2976,7 @@
       },
       {
         "file": ".env.example",
-        "line": 572,
+        "line": 589,
         "key": "SYNTHETIC_STRICT",
         "commented": true,
         "valueClass": "unknown",
@@ -2920,7 +2986,7 @@
       },
       {
         "file": ".env.example",
-        "line": 543,
+        "line": 560,
         "key": "TEST_FAULT_INJECTION",
         "commented": true,
         "valueClass": "unknown",
@@ -2932,7 +2998,7 @@
       },
       {
         "file": ".env.example",
-        "line": 546,
+        "line": 563,
         "key": "TEST_FAULT_UPSTREAM_OPENAI",
         "commented": true,
         "valueClass": "unknown",
@@ -2944,7 +3010,7 @@
       },
       {
         "file": ".env.example",
-        "line": 545,
+        "line": 562,
         "key": "TEST_FAULT_UPSTREAM_STRIPE",
         "commented": true,
         "valueClass": "unknown",
@@ -2956,7 +3022,7 @@
       },
       {
         "file": ".env.example",
-        "line": 544,
+        "line": 561,
         "key": "TEST_FAULT_UPSTREAM_SUPABASE",
         "commented": true,
         "valueClass": "unknown",
@@ -2968,7 +3034,7 @@
       },
       {
         "file": ".env.example",
-        "line": 409,
+        "line": 422,
         "key": "UPSTASH_REDIS_REST_TOKEN",
         "commented": true,
         "valueClass": "empty",
@@ -2978,7 +3044,7 @@
       },
       {
         "file": ".env.example",
-        "line": 408,
+        "line": 421,
         "key": "UPSTASH_REDIS_REST_URL",
         "commented": true,
         "valueClass": "empty",
@@ -2988,7 +3054,7 @@
       },
       {
         "file": ".env.example",
-        "line": 301,
+        "line": 314,
         "key": "V5_DECISION_PACKET_BUCKET",
         "commented": true,
         "valueClass": "unknown",
@@ -3010,7 +3076,7 @@
       },
       {
         "file": ".env.example",
-        "line": 567,
+        "line": 584,
         "key": "VITEST_COVERAGE_MAXIMAL",
         "commented": true,
         "valueClass": "unknown",
@@ -3981,6 +4047,15 @@
         "sensitive": true
       },
       {
+        "key": "INBOUND_INTEGRATIONS_CALLBACK_HMAC_SECRET",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": true
+      },
+      {
         "key": "INBOUND_INTEGRATIONS_CALLBACK_TOKEN",
         "files": [
           ".env.example"
@@ -4075,6 +4150,24 @@
       },
       {
         "key": "NEXT_PUBLIC_OBLIXA_CLIENT_SWEEP_BREADCRUMB",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_OBLIXA_ENABLE_DEV_PAGE_LOAD_TELEMETRY",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": true,
+        "sensitive": false
+      },
+      {
+        "key": "NEXT_PUBLIC_OBLIXA_ENABLE_SENTRY_DEV",
         "files": [
           ".env.example"
         ],
@@ -4339,6 +4432,24 @@
         "sensitive": true
       },
       {
+        "key": "OBLIXA_ENABLE_PUBLIC_BILLING_CHECKOUT",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_ENABLE_SENTRY_DEV",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
         "key": "OBLIXA_INTERNAL_DIAG_AUDIT_ORG_ID",
         "files": [
           ".env.example"
@@ -4484,6 +4595,15 @@
       },
       {
         "key": "OBLIXA_MALWARE_SCANNER_MODE",
+        "files": [
+          ".env.example"
+        ],
+        "valueClasses": [],
+        "public": false,
+        "sensitive": false
+      },
+      {
+        "key": "OBLIXA_OPERATOR_EMAILS",
         "files": [
           ".env.example"
         ],

@@ -1,5 +1,4 @@
 "use server";
-
 import { createAdminClient, createClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
 import { canEditContracts, getOrgMemberRole } from "@/lib/permissions";
@@ -13,12 +12,7 @@ import { buildV10MutationResponse, type V10MutationResponse } from "@/lib/mutati
 import { parseBusinessDateAtNoon } from "@/lib/business-dates";
 import type { AuditAction } from "@/lib/security/audit-actions";
 
-const OBLIGATION_STATUSES: ContractObligationStatus[] = [
-  "open",
-  "in_progress",
-  "done",
-  "waived",
-];
+const OBLIGATION_STATUSES: ContractObligationStatus[] = ["open", "in_progress", "done", "waived"];
 
 const VALID_OBLIGATION_TRANSITIONS: Record<ContractObligationStatus, ContractObligationStatus[]> = {
   open: ["in_progress", "done", "waived"],

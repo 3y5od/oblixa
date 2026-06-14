@@ -118,7 +118,8 @@
         "frontend-platform",
         "document-pipeline",
         "product-marketing",
-        "product-operations"
+        "product-operations",
+        "product-surface"
       ],
       "routeOwners": [
         "assurance"
@@ -561,10 +562,10 @@
     ]
   },
   "routeProviderOwnership": {
-    "routeCount": 624,
+    "routeCount": 598,
     "routeOwnerCount": 6,
     "routeFamilyCount": 12,
-    "providerCount": 11,
+    "providerCount": 10,
     "routeOwners": [
       {
         "routeOwner": "assurance",
@@ -608,7 +609,7 @@
         "family": "authenticated_page",
         "ownerArea": "frontend",
         "validationCommand": "check:operational-frontend-resilience",
-        "routeCount": 58
+        "routeCount": 63
       },
       {
         "family": "cron",
@@ -626,7 +627,7 @@
         "family": "internal",
         "ownerArea": "infrastructure",
         "validationCommand": "check:operational-api-runtime-contracts",
-        "routeCount": 1
+        "routeCount": 4
       },
       {
         "family": "layout",
@@ -638,19 +639,19 @@
         "family": "public_page",
         "ownerArea": "frontend",
         "validationCommand": "check:operational-public-launch-positioning",
-        "routeCount": 16
+        "routeCount": 19
       },
       {
         "family": "route_state",
         "ownerArea": "frontend",
         "validationCommand": "check:route-state-coverage",
-        "routeCount": 45
+        "routeCount": 50
       },
       {
         "family": "server_action",
         "ownerArea": "security",
         "validationCommand": "check:server-action-auth-contract",
-        "routeCount": 253
+        "routeCount": 211
       },
       {
         "family": "tracking",
@@ -670,37 +671,31 @@
         "provider": "calendar",
         "ownerArea": "providers",
         "validationCommand": "check:operational-oauth-integration-sync",
-        "routeCount": 36
+        "routeCount": 24
       },
       {
         "provider": "crm",
         "ownerArea": "providers",
         "validationCommand": "check:operational-oauth-integration-sync",
-        "routeCount": 24
-      },
-      {
-        "provider": "external_fetch",
-        "ownerArea": "security",
-        "validationCommand": "check:outbound-fetch",
-        "routeCount": 1
+        "routeCount": 5
       },
       {
         "provider": "openai",
         "ownerArea": "providers",
         "validationCommand": "check:operational-provider-integrations",
-        "routeCount": 113
+        "routeCount": 94
       },
       {
         "provider": "resend",
         "ownerArea": "providers",
         "validationCommand": "check:operational-notifications-messaging",
-        "routeCount": 15
+        "routeCount": 16
       },
       {
         "provider": "sentry",
         "ownerArea": "infrastructure",
         "validationCommand": "check:operational-observability-redaction",
-        "routeCount": 30
+        "routeCount": 33
       },
       {
         "provider": "storage",
@@ -718,27 +713,27 @@
         "provider": "supabase",
         "ownerArea": "data",
         "validationCommand": "check:operational-supabase-database",
-        "routeCount": 477
+        "routeCount": 463
       },
       {
         "provider": "upstash_or_memory_rate_limit",
         "ownerArea": "infrastructure",
         "validationCommand": "check:operational-rate-limits-abuse-bounds",
-        "routeCount": 126
+        "routeCount": 123
       },
       {
         "provider": "webhook_outbox",
         "ownerArea": "providers",
         "validationCommand": "check:operational-webhooks-callbacks",
-        "routeCount": 110
+        "routeCount": 106
       }
     ]
   },
   "generatedArtifactOwnership": {
-    "generatedArtifactCount": 104,
-    "deterministicArtifactCount": 83,
-    "ownedArtifactCount": 104,
-    "canonicalOwnerMappedCount": 104,
+    "generatedArtifactCount": 105,
+    "deterministicArtifactCount": 84,
+    "ownedArtifactCount": 105,
+    "canonicalOwnerMappedCount": 105,
     "rows": [
       {
         "path": "artifacts/assurance/catalog-script-index.json",
@@ -1289,6 +1284,14 @@
         "deterministic": false,
         "writeCommand": null,
         "ownerArea": "frontend-platform",
+        "canonicalOwnerArea": "frontend",
+        "cleanupPolicy": "regenerate-on-check-drift"
+      },
+      {
+        "path": "artifacts/release-state-implementation-objectives.json",
+        "deterministic": true,
+        "writeCommand": "npm run write:release-state-implementation-objectives",
+        "ownerArea": "product-surface",
         "canonicalOwnerArea": "frontend",
         "cleanupPolicy": "regenerate-on-check-drift"
       },
@@ -2406,8 +2409,8 @@
         "category": "security",
         "path": "artifacts/security-report-checksums.json",
         "generator": "npm run generate:security-report-checksums",
-        "stableSha256": "af09cea953bb740bfa8192392a7424954e860352b7813323dd8e78b30cd24c89",
-        "stableBytes": 3485
+        "stableSha256": "3fc07a9738f1ab957be2f2bac8ee389f53b775c9b410918cefc5c95a924940e1",
+        "stableBytes": 3484
       },
       {
         "id": "security-control-coverage",
@@ -2422,8 +2425,8 @@
         "category": "release",
         "path": "artifacts/operational-release-readiness.json",
         "generator": "npm run write:operational-release-readiness",
-        "stableSha256": "ffe525297ab0bed8989347dba12633b9869691e90609f4318b017f574f49cbd1",
-        "stableBytes": 9050
+        "stableSha256": "d13a415c3999951ea7dc0fd85edf22fb85af3d583dbbaadb0f5b9f5f2b72ba73",
+        "stableBytes": 11183
       },
       {
         "id": "privacy-auditability",
@@ -2446,16 +2449,16 @@
         "category": "route",
         "path": "artifacts/route-universe.json",
         "generator": "npm run generate:route-universe",
-        "stableSha256": "a37428937617e12b0fc91f0f82af1351499c69fd4a9440b190337e3ab9666e6f",
-        "stableBytes": 1035873
+        "stableSha256": "8bd5176e209f808c635373da9275309d0d5be945886979b2e8c7649279dfa88e",
+        "stableBytes": 998883
       },
       {
         "id": "route-provider-matrix",
         "category": "route",
         "path": "artifacts/route-provider-matrix.json",
         "generator": "npm run generate:route-universe",
-        "stableSha256": "50588797862c7a9b2190f6a76a1894292092a8a9316d27ebaa604cfe8a66ca2e",
-        "stableBytes": 135462
+        "stableSha256": "11c0239e3724cff6f5f637350b678f5e5c680fab8d90cd1c74de865558323bb0",
+        "stableBytes": 128799
       },
       {
         "id": "operational-hardening-closure",
@@ -2470,24 +2473,24 @@
         "category": "operational",
         "path": "artifacts/operational-package-pipelines.json",
         "generator": "npm run write:operational-package-pipelines",
-        "stableSha256": "99047c128a0b4249a6e376dad2d03fdbaa794447c383d84babb76ac024ce5331",
-        "stableBytes": 43305
+        "stableSha256": "f64a15937a6b7c50144da2cdbc17691b356b37ef6499307cdcdc5bd025e873ee",
+        "stableBytes": 43587
       },
       {
         "id": "operational-environment-isolation",
         "category": "operational",
         "path": "artifacts/operational-environment-isolation.json",
         "generator": "npm run write:operational-environment-isolation",
-        "stableSha256": "8413c1494ccc0d91c453115adc075150a79864c15d25129d00a4043cc5b7593d",
-        "stableBytes": 137615
+        "stableSha256": "adee558f130cddc8cfb551765898674efb9248c57b3e0c5ad728e96093958187",
+        "stableBytes": 140494
       },
       {
         "id": "operational-threat-model-control-traceability",
         "category": "operational",
         "path": "artifacts/operational-threat-model-control-traceability.json",
         "generator": "npm run write:control-traceability",
-        "stableSha256": "182c6ae94ea1472f8a35abf387b6964a279712f1cdd848dba3983b4a35e2d8a5",
-        "stableBytes": 2368931
+        "stableSha256": "d7f7450f99e4f5fd98fde9152af01947b4009f56dcf08428605a317caa7cb62a",
+        "stableBytes": 2309519
       }
     ]
   },

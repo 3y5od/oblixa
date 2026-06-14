@@ -14,11 +14,13 @@ describe("pricing contract", () => {
     // public Core price ($249/month per workspace, month-to-month) must be
     // shown plainly — not hidden behind "price disclosure" language.
     expect(raw).toContain("Pricing");
-    expect(raw).toContain("Simple pricing for contract follow-up.");
+    expect(raw).toContain("Simple pricing for contract");
+    expect(raw).toContain("<GradientPhrase>tracking</GradientPhrase>");
     expect(raw).toContain("$249");
     expect(raw).toMatch(/month-to-month/i);
     expect(raw).toContain("Request access");
-    expect(raw).toContain("Included features");
+    expect(raw).toContain("See included features");
+    expect(raw).toContain("Included in Core");
   });
 
   it("keeps unsupported pricing, checkout, and hidden-price claims out", () => {

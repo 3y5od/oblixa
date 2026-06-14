@@ -97,7 +97,12 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     const globalsCss = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
     const loading = readFileSync(join(process.cwd(), "src/components/ui/segment-loading.tsx"), "utf8");
     const recoverableState = readFileSync(join(process.cwd(), "src/components/ui/recoverable-state.tsx"), "utf8");
-    const commandPalette = readFileSync(join(process.cwd(), "src/components/layout/command-palette.tsx"), "utf8");
+    const commandPalette = [
+      "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-dialog.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     const sidebar = readFileSync(join(process.cwd(), "src/components/layout/sidebar.tsx"), "utf8");
     const mobileDrawer = readFileSync(join(process.cwd(), "src/components/layout/sidebar/mobile-drawer.tsx"), "utf8");
 

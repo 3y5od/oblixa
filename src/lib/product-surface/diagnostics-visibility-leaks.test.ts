@@ -5,7 +5,7 @@ import { cmdkFilterRecentHrefsForSurface } from "@/lib/product-surface/resolver"
 import { filterNavBadgesForSurface, type NavSurfaceInput } from "@/lib/product-surface/nav-visibility";
 
 const DASHBOARD_PAGE = join(process.cwd(), "src/app/(dashboard)/dashboard/page.tsx");
-const REPORT_PACKS_CRON = join(process.cwd(), "src/app/api/cron/v4/report-packs-generate/route.ts");
+const REPORT_PACKS_CRON = join(process.cwd(), "src/lib/reports/report-pack-generation-route.ts");
 const NOTIFICATION_POLICY = join(process.cwd(), "src/lib/notification-policy.ts");
 const API_WORKSPACE_GUARD = join(process.cwd(), "src/lib/product-surface/api-workspace-guard.ts");
 const HREF_ELIGIBILITY = join(process.cwd(), "src/lib/product-surface/href-eligibility.ts");

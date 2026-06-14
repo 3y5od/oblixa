@@ -30,7 +30,6 @@ const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   expired: ["active"],
   terminated: ["active"],
 };
-
 const MAX_REQUIRED_NEXT_STEP_LEN = 240;
 const MAX_SOURCE_SYSTEM_LEN = 80;
 const MAX_EXTERNAL_REF_LEN = 160;

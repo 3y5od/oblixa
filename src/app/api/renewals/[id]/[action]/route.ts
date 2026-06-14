@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { readJsonBodyLimited } from "@/lib/security/read-json-body-limited";
-import { getApiAuthContext, canManageCapability } from "@/lib/contract-operations/api-auth";
-import { appendCasefileEvent } from "@/lib/contract-operations/casefile";
+import {
+  getApiAuthContext,
+  canManageCapability,
+} from "@/lib/contract-operations/api-auth";
 import { buildRenewalDecisionPacketPayload } from "@/lib/contract-operations/renewal-decision-packet";
 import { requireApiWorkspaceEligibility } from "@/lib/product-surface/api-workspace-guard";
-import { emitProductTelemetryEvent } from "@/lib/product-telemetry";
+import {
+  buildRenewalActionSuccessResponse,
+  buildRenewalCheckpointToggleConfig,
+  providedState,
+  trimRenewalText,
+  type RenewalCheckpointRow,
+} from "@/lib/renewals/action-route";
 import {
   buildV10MutationResponse,
   buildV10MutationResponseInit,
@@ -17,26 +25,44 @@ import {
   recordV10AuditEvent,
 } from "@/lib/server-contracts";
 import { refreshV10ReadModelsForOrganization } from "@/lib/read-model-refresh";
-import { rejectInvalidRouteParamEnums, rejectUnsafeRouteParams } from "@/lib/security/route-params";
+import {
+  rejectInvalidRouteParamEnums,
+  rejectUnsafeRouteParams,
+} from "@/lib/security/route-params";
 
 const PRIVATE_NO_STORE_HEADERS = { "Cache-Control": "private, no-store" };
-const RENEWAL_ACTIONS = ["complete", "reopen", "generate-decision-packet", "recommendation"] as const;
+const RENEWAL_ACTIONS = [
+  "complete",
+  "reopen",
+  "generate-decision-packet",
+  "recommendation",
+] as const;
 
 function jsonV10(response: V10MutationResponse, replayed = false) {
-  return NextResponse.json(response, buildV10MutationResponseInit(response, { replayed, headers: PRIVATE_NO_STORE_HEADERS }));
+  return NextResponse.json(
+    response,
+    buildV10MutationResponseInit(response, {
+      replayed,
+      headers: PRIVATE_NO_STORE_HEADERS,
+    }),
+  );
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string; action: string }> }
+  { params }: { params: Promise<{ id: string; action: string }> },
 ) {
   const { id, action } = await params;
-  const routeParamRejection = rejectUnsafeRouteParams({ id, action }, ["id", "action"], "/api/renewals/[id]/[action]");
+  const routeParamRejection = rejectUnsafeRouteParams(
+    { id, action },
+    ["id", "action"],
+    "/api/renewals/[id]/[action]",
+  );
   if (routeParamRejection) return routeParamRejection;
   const routeActionRejection = rejectInvalidRouteParamEnums(
     { action },
     { action: RENEWAL_ACTIONS },
-    "/api/renewals/[id]/[action]"
+    "/api/renewals/[id]/[action]",
   );
   if (routeActionRejection) return routeActionRejection;
   const ctx = await getApiAuthContext();
@@ -47,7 +73,7 @@ export async function POST(
         message: "Not authenticated.",
         diagnosticId: "v10_renewal_action_unauthorized",
         nextDestinationHref: "/login",
-      })
+      }),
     );
   }
   const modeGate = await requireApiWorkspaceEligibility({
@@ -64,14 +90,14 @@ export async function POST(
         outcome: "forbidden",
         message: "Access denied.",
         diagnosticId: "v10_renewal_action_forbidden",
-      })
+      }),
     );
   }
 
   const { data: checkpoint } = await ctx.admin
     .from("contract_renewal_checkpoints")
     .select(
-      "id, contract_id, organization_id, label, due_date, status, workspace_json, renewal_state, scenario_id, updated_at"
+      "id, contract_id, organization_id, label, due_date, status, workspace_json, renewal_state, scenario_id, updated_at",
     )
     .eq("id", id)
     .eq("organization_id", ctx.orgId)
@@ -82,18 +108,22 @@ export async function POST(
         outcome: "not_found",
         message: "Renewal checkpoint not found.",
         diagnosticId: "v10_renewal_checkpoint_not_found",
-      })
+      }),
     );
   }
+  const checkpointRow = checkpoint as RenewalCheckpointRow;
+  const dependencies = {
+    recordAuditEvent: recordV10AuditEvent,
+    refreshReadModelsForOrganization: refreshV10ReadModelsForOrganization,
+  };
 
   if (action === "complete" || action === "reopen") {
     const _lb_body = await readJsonBodyLimited(request);
-  if (!_lb_body.ok) return _lb_body.response;
-  const body = (_lb_body.body ?? {}) as { note?: string };
-    const completed = action === "complete";
-    const nextStatus = completed ? "completed" : "open";
-    const nextRenewalState = completed ? "completed" : "plan";
-    const auditAction = completed ? "renewal_checkpoint.completed" : "renewal_checkpoint.reopened";
+    if (!_lb_body.ok) return _lb_body.response;
+    const body = (_lb_body.body ?? {}) as { note?: string };
+    const note = trimRenewalText(body.note);
+    const noteState = providedState(note);
+    const actionConfig = buildRenewalCheckpointToggleConfig(action);
     const mutation = await executeV10IdempotentMutation(
       ctx.admin,
       {
@@ -104,19 +134,24 @@ export async function POST(
         targetId: id,
         idempotencyKey: getV10IdempotencyKeyFromRequest(request),
         expectedVersion: getV10ExpectedVersionFromRequest(request),
-        currentVersion: checkpoint.updated_at ?? checkpoint.renewal_state ?? checkpoint.status,
-        payload: { action, note_state: body.note?.trim() ? "provided" : "not_provided" },
+        currentVersion:
+          checkpointRow.updated_at ??
+          checkpointRow.renewal_state ??
+          checkpointRow.status,
+        payload: { action, note_state: noteState },
       },
       async () => {
         const { error } = await ctx.admin
           .from("contract_renewal_checkpoints")
           .update({
-            status: nextStatus,
-            renewal_state: nextRenewalState,
-            notes: body.note?.trim() || null,
-            completed_at: completed ? new Date().toISOString() : null,
+            status: actionConfig.nextStatus,
+            renewal_state: actionConfig.nextRenewalState,
+            notes: note,
+            completed_at: actionConfig.completed
+              ? new Date().toISOString()
+              : null,
           })
-          .eq("id", checkpoint.id)
+          .eq("id", checkpointRow.id)
           .eq("organization_id", ctx.orgId);
         if (error) {
           return buildV10MutationResponse({
@@ -125,70 +160,43 @@ export async function POST(
             diagnosticId: "v10_renewal_checkpoint_update_failed",
           });
         }
-        await appendCasefileEvent({
-          admin: ctx.admin,
-          organizationId: ctx.orgId,
-          contractId: checkpoint.contract_id,
-          eventType: auditAction,
-          entityType: "renewal_checkpoint",
-          entityId: checkpoint.id,
-          actorUserId: ctx.userId,
-          details: { note_state: body.note?.trim() ? "provided" : "not_provided" },
+
+        return buildRenewalActionSuccessResponse({
+          ctx,
+          checkpoint: checkpointRow,
+          dependencies,
+          casefileEventType: actionConfig.auditAction,
+          casefileEntityType: "renewal_checkpoint",
+          casefileEntityId: checkpointRow.id,
+          casefileDetails: { note_state: noteState },
+          auditAction: actionConfig.auditAction,
+          auditAfterStateHash: actionConfig.nextRenewalState,
+          auditSafeMetadata: { note_state: noteState },
+          telemetry: {
+            action: actionConfig.telemetryAction,
+            details: { checkpoint_id: checkpointRow.id, note_state: noteState },
+          },
+          message: actionConfig.message,
+          auditMissingMessage:
+            "Renewal checkpoint was not updated because audit confirmation failed.",
+          auditMissingDiagnosticId: "v10_renewal_checkpoint_audit_missing",
+          nextDestinationHref: `/contracts/${checkpointRow.contract_id}?tab=overview#renewal-checkpoints`,
         });
-        await emitProductTelemetryEvent(ctx.admin, {
-          organizationId: ctx.orgId,
-          userId: ctx.userId,
-          contractId: checkpoint.contract_id,
-          action: completed ? "product.v10.renewal_checkpoint_completed" : "product.v10.renewal_checkpoint_reopened",
-          details: { checkpoint_id: checkpoint.id, note_state: body.note?.trim() ? "provided" : "not_provided" },
-        });
-        const auditEventId = await recordV10AuditEvent(ctx.admin, {
-          organizationId: ctx.orgId,
-          actorUserId: ctx.userId,
-          action: auditAction,
-          targetType: "renewal_checkpoint",
-          targetId: checkpoint.id,
-          contractId: checkpoint.contract_id,
-          outcome: "success",
-          beforeStateHash: String(checkpoint.renewal_state ?? checkpoint.status ?? "pending"),
-          afterStateHash: nextRenewalState,
-          safeMetadata: { note_state: body.note?.trim() ? "provided" : "not_provided" },
-        });
-        await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
-          refreshScope: checkpoint.contract_id ? "one_contract" : "one_model",
-          contractId: (checkpoint.contract_id as string | null) ?? undefined,
-          reason: "renewal_mutation",
-          modelKeys: [
-            "work_items",
-            "contract_health_snapshots",
-            "contract_activity_events",
-            "renewal_posture_snapshots",
-            "renewal_checkpoint_records",
-            "audit_events",
-            "command_search_index",
-          ],
-        });
-        return buildV10MutationResponse({
-          outcome: auditEventId ? "success" : "audit_write_failed",
-          message: auditEventId ? (completed ? "Renewal checkpoint completed." : "Renewal checkpoint reopened.") : "Renewal checkpoint was not updated because audit confirmation failed.",
-          changedObjectType: "renewal_checkpoint",
-          changedObjectId: checkpoint.id,
-          nextDestinationHref: `/contracts/${checkpoint.contract_id}?tab=overview#renewal-checkpoints`,
-          auditEventId,
-          diagnosticId: auditEventId ? null : "v10_renewal_checkpoint_audit_missing",
-        });
-      }
+      },
     );
     return jsonV10(mutation.response, mutation.replayed);
   }
 
   if (action === "generate-decision-packet") {
     const _lb_payload = await readJsonBodyLimited(request);
-  if (!_lb_payload.ok) return _lb_payload.response;
-  const payload = (_lb_payload.body ?? {}) as {
+    if (!_lb_payload.ok) return _lb_payload.response;
+    const payload = (_lb_payload.body ?? {}) as {
       assumptions?: Record<string, unknown>;
       summary?: string;
     };
+    const summary = trimRenewalText(payload.summary);
+    const summaryState = providedState(summary);
+    const assumptionsState = providedState(payload.assumptions);
     const mutation = await executeV10IdempotentMutation(
       ctx.admin,
       {
@@ -199,15 +207,21 @@ export async function POST(
         targetId: id,
         idempotencyKey: getV10IdempotencyKeyFromRequest(request),
         expectedVersion: getV10ExpectedVersionFromRequest(request),
-        currentVersion: checkpoint.updated_at ?? checkpoint.renewal_state ?? checkpoint.status,
+        currentVersion:
+          checkpointRow.updated_at ??
+          checkpointRow.renewal_state ??
+          checkpointRow.status,
         payload: {
           action,
-          summary_state: payload.summary?.trim() ? "provided" : "not_provided",
-          assumptions_state: payload.assumptions ? "provided" : "not_provided",
+          summary_state: summaryState,
+          assumptions_state: assumptionsState,
         },
       },
       async () => {
-        const scenarioId = checkpoint.scenario_id as string | null | undefined;
+        const scenarioId = checkpointRow.scenario_id as
+          | string
+          | null
+          | undefined;
         let scenarioRow: {
           id: string;
           scenario: string | null;
@@ -218,31 +232,34 @@ export async function POST(
         if (scenarioId) {
           const { data: s } = await ctx.admin
             .from("contract_renewal_scenarios")
-            .select("id, scenario, workspace_status, target_decision_date, decision_date")
+            .select(
+              "id, scenario, workspace_status, target_decision_date, decision_date",
+            )
             .eq("id", scenarioId)
             .eq("organization_id", ctx.orgId)
             .maybeSingle();
           if (s) scenarioRow = s;
         }
-        const { packet_json, assumptions_json } = buildRenewalDecisionPacketPayload({
-          checkpoint: {
-            label: checkpoint.label as string | null,
-            due_date: checkpoint.due_date as string | null,
-            status: checkpoint.status as string | null,
-            renewal_state: checkpoint.renewal_state as string | null,
-            workspace_json: checkpoint.workspace_json,
-          },
-          scenarioRow,
-          assumptionsFromRequest: payload.assumptions ?? null,
-        });
+        const { packet_json, assumptions_json } =
+          buildRenewalDecisionPacketPayload({
+            checkpoint: {
+              label: checkpointRow.label,
+              due_date: checkpointRow.due_date,
+              status: checkpointRow.status,
+              renewal_state: checkpointRow.renewal_state,
+              workspace_json: checkpointRow.workspace_json,
+            },
+            scenarioRow,
+            assumptionsFromRequest: payload.assumptions ?? null,
+          });
         const { data: packet, error } = await ctx.admin
           .from("renewal_decision_packets")
           .insert({
             organization_id: ctx.orgId,
-            contract_id: checkpoint.contract_id,
-            checkpoint_id: checkpoint.id,
+            contract_id: checkpointRow.contract_id,
+            checkpoint_id: checkpointRow.id,
             status: "draft",
-            summary: payload.summary?.trim() || null,
+            summary,
             assumptions_json,
             packet_json,
             generated_by: ctx.userId,
@@ -260,79 +277,56 @@ export async function POST(
 
         await ctx.admin
           .from("contract_renewal_checkpoints")
-          .update({ decision_packet_id: packet.id, renewal_state: "under_review" })
-          .eq("id", checkpoint.id)
+          .update({
+            decision_packet_id: packet.id,
+            renewal_state: "under_review",
+          })
+          .eq("id", checkpointRow.id)
           .eq("organization_id", ctx.orgId);
 
-        await appendCasefileEvent({
-          admin: ctx.admin,
-          organizationId: ctx.orgId,
-          contractId: checkpoint.contract_id,
-          eventType: "renewal.decision_packet_generated",
-          entityType: "renewal_decision_packet",
-          entityId: packet.id,
-          actorUserId: ctx.userId,
-        });
-        await emitProductTelemetryEvent(ctx.admin, {
-          organizationId: ctx.orgId,
-          userId: ctx.userId,
-          contractId: checkpoint.contract_id,
-          action: "product.v10.renewal_decision_packet_generated",
-          details: {
-            checkpoint_id: checkpoint.id,
-            summary_state: payload.summary?.trim() ? "provided" : "not_provided",
-            assumptions_state: payload.assumptions ? "provided" : "not_provided",
+        return buildRenewalActionSuccessResponse({
+          ctx,
+          checkpoint: checkpointRow,
+          dependencies,
+          casefileEventType: "renewal.decision_packet_generated",
+          casefileEntityType: "renewal_decision_packet",
+          casefileEntityId: packet.id,
+          auditAction: "renewal.decision_packet_generated",
+          auditAfterStateHash: "under_review",
+          auditSafeMetadata: {
+            packet_generated: true,
+            summary_state: summaryState,
           },
+          telemetry: {
+            action: "product.v10.renewal_decision_packet_generated",
+            details: {
+              checkpoint_id: checkpointRow.id,
+              summary_state: summaryState,
+              assumptions_state: assumptionsState,
+            },
+          },
+          message: "Decision packet generated.",
+          auditMissingMessage:
+            "Decision packet was not generated because audit confirmation failed.",
+          auditMissingDiagnosticId: "v10_renewal_packet_audit_missing",
+          nextDestinationHref: `/contracts/${checkpointRow.contract_id}?tab=overview#renewal-decision`,
         });
-        const auditEventId = await recordV10AuditEvent(ctx.admin, {
-          organizationId: ctx.orgId,
-          actorUserId: ctx.userId,
-          action: "renewal.decision_packet_generated",
-          targetType: "renewal_checkpoint",
-          targetId: checkpoint.id,
-          contractId: checkpoint.contract_id,
-          outcome: "success",
-          beforeStateHash: String(checkpoint.renewal_state ?? checkpoint.status ?? "pending"),
-          afterStateHash: "under_review",
-          safeMetadata: { packet_generated: true, summary_state: payload.summary?.trim() ? "provided" : "not_provided" },
-        });
-        await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
-          refreshScope: checkpoint.contract_id ? "one_contract" : "one_model",
-          contractId: (checkpoint.contract_id as string | null) ?? undefined,
-          reason: "renewal_mutation",
-          modelKeys: [
-            "work_items",
-            "contract_health_snapshots",
-            "contract_activity_events",
-            "renewal_posture_snapshots",
-            "renewal_checkpoint_records",
-            "audit_events",
-            "command_search_index",
-          ],
-        });
-        return buildV10MutationResponse({
-          outcome: auditEventId ? "success" : "audit_write_failed",
-          message: auditEventId ? "Decision packet generated." : "Decision packet was not generated because audit confirmation failed.",
-          changedObjectType: "renewal_checkpoint",
-          changedObjectId: checkpoint.id,
-          nextDestinationHref: `/contracts/${checkpoint.contract_id}?tab=overview#renewal-decision`,
-          auditEventId,
-          diagnosticId: auditEventId ? null : "v10_renewal_packet_audit_missing",
-        });
-      }
+      },
     );
     return jsonV10(mutation.response, mutation.replayed);
   }
 
   if (action === "recommendation") {
     const _lb_body = await readJsonBodyLimited(request);
-  if (!_lb_body.ok) return _lb_body.response;
-  const body = (_lb_body.body ?? {}) as {
+    if (!_lb_body.ok) return _lb_body.response;
+    const body = (_lb_body.body ?? {}) as {
       packetId?: string;
       recommendation?: "renew" | "amend" | "terminate";
       summary?: string;
     };
     const packetId = String(body.packetId ?? "").trim();
+    const summary = trimRenewalText(body.summary);
+    const recommendationState = providedState(body.recommendation);
     const mutation = await executeV10IdempotentMutation(
       ctx.admin,
       {
@@ -343,8 +337,15 @@ export async function POST(
         targetId: id,
         idempotencyKey: getV10IdempotencyKeyFromRequest(request),
         expectedVersion: getV10ExpectedVersionFromRequest(request),
-        currentVersion: checkpoint.updated_at ?? checkpoint.renewal_state ?? checkpoint.status,
-        payload: { action, packet_id: packetId, recommendation: body.recommendation ?? null },
+        currentVersion:
+          checkpointRow.updated_at ??
+          checkpointRow.renewal_state ??
+          checkpointRow.status,
+        payload: {
+          action,
+          packet_id: packetId,
+          recommendation: body.recommendation ?? null,
+        },
       },
       async () => {
         if (!packetId) {
@@ -366,12 +367,12 @@ export async function POST(
           .from("renewal_decision_packets")
           .update({
             recommendation: body.recommendation ?? null,
-            summary: body.summary?.trim() || null,
+            summary,
             status: "recommended",
           })
           .eq("id", packetId)
           .eq("organization_id", ctx.orgId)
-          .eq("checkpoint_id", checkpoint.id)
+          .eq("checkpoint_id", checkpointRow.id)
           .select("id");
         if (error) {
           return buildV10MutationResponse({
@@ -391,55 +392,27 @@ export async function POST(
         await ctx.admin
           .from("contract_renewal_checkpoints")
           .update({ renewal_state: "decision_pending" })
-          .eq("id", checkpoint.id)
+          .eq("id", checkpointRow.id)
           .eq("organization_id", ctx.orgId);
 
-        await appendCasefileEvent({
-          admin: ctx.admin,
-          organizationId: ctx.orgId,
-          contractId: checkpoint.contract_id,
-          eventType: "renewal.recommendation_updated",
-          entityType: "renewal_decision_packet",
-          entityId: packetId,
-          actorUserId: ctx.userId,
-          details: { recommendation: body.recommendation ?? null },
+        return buildRenewalActionSuccessResponse({
+          ctx,
+          checkpoint: checkpointRow,
+          dependencies,
+          casefileEventType: "renewal.recommendation_updated",
+          casefileEntityType: "renewal_decision_packet",
+          casefileEntityId: packetId,
+          casefileDetails: { recommendation: body.recommendation ?? null },
+          auditAction: "renewal.recommendation_updated",
+          auditAfterStateHash: "decision_pending",
+          auditSafeMetadata: { recommendation_state: recommendationState },
+          message: "Recommendation updated.",
+          auditMissingMessage:
+            "Recommendation was not updated because audit confirmation failed.",
+          auditMissingDiagnosticId: "v10_renewal_recommendation_audit_missing",
+          nextDestinationHref: `/contracts/${checkpointRow.contract_id}?tab=overview#renewal-decision`,
         });
-        const auditEventId = await recordV10AuditEvent(ctx.admin, {
-          organizationId: ctx.orgId,
-          actorUserId: ctx.userId,
-          action: "renewal.recommendation_updated",
-          targetType: "renewal_checkpoint",
-          targetId: checkpoint.id,
-          contractId: checkpoint.contract_id,
-          outcome: "success",
-          beforeStateHash: String(checkpoint.renewal_state ?? checkpoint.status ?? "pending"),
-          afterStateHash: "decision_pending",
-          safeMetadata: { recommendation_state: body.recommendation ? "provided" : "not_provided" },
-        });
-        await refreshV10ReadModelsForOrganization(ctx.admin, ctx.orgId, {
-          refreshScope: checkpoint.contract_id ? "one_contract" : "one_model",
-          contractId: (checkpoint.contract_id as string | null) ?? undefined,
-          reason: "renewal_mutation",
-          modelKeys: [
-            "work_items",
-            "contract_health_snapshots",
-            "contract_activity_events",
-            "renewal_posture_snapshots",
-            "renewal_checkpoint_records",
-            "audit_events",
-            "command_search_index",
-          ],
-        });
-        return buildV10MutationResponse({
-          outcome: auditEventId ? "success" : "audit_write_failed",
-          message: auditEventId ? "Recommendation updated." : "Recommendation was not updated because audit confirmation failed.",
-          changedObjectType: "renewal_checkpoint",
-          changedObjectId: checkpoint.id,
-          nextDestinationHref: `/contracts/${checkpoint.contract_id}?tab=overview#renewal-decision`,
-          auditEventId,
-          diagnosticId: auditEventId ? null : "v10_renewal_recommendation_audit_missing",
-        });
-      }
+      },
     );
     return jsonV10(mutation.response, mutation.replayed);
   }
@@ -449,6 +422,6 @@ export async function POST(
       outcome: "not_found",
       message: "Unsupported action.",
       diagnosticId: "v10_renewal_action_unsupported",
-    })
+    }),
   );
 }

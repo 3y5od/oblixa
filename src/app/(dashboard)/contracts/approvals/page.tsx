@@ -27,7 +27,6 @@ import { StatCell, type StatTone } from "@/components/ui/stat-cell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { formatBusinessDateAtNoon } from "@/lib/business-dates";
-
 export const metadata = { title: "Approvals" };
 
 const APPROVAL_STATUS_FILTERS = [
@@ -37,13 +36,11 @@ const APPROVAL_STATUS_FILTERS = [
   { value: "rejected", label: "Rejected" },
   { value: "changes_requested", label: "Changes requested" },
 ];
-
 function formatOperatorLabel(value: string | null | undefined) {
   return String(value ?? "")
     .replace(/_/g, " ")
     .trim();
 }
-
 function approvalStatusTone(status: string): StatTone {
   if (status === "approved") return "success";
   if (status === "rejected") return "danger";
@@ -51,7 +48,6 @@ function approvalStatusTone(status: string): StatTone {
   if (status === "pending") return "warning";
   return "neutral";
 }
-
 export default async function ApprovalsPage(props: {
   searchParams: Promise<{ status?: string }>;
 }) {

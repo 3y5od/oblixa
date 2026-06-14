@@ -20,7 +20,7 @@ describe("V9 §21.3 mutation feedback — recoverable errors on Core work action
 
   it("high-traffic review, onboarding, import, extraction, and contract mutations reuse recoverable mutation copy", () => {
     for (const rel of [
-      "src/components/contracts/field-review.tsx",
+      "src/components/contracts/field-review-row.tsx",
       "src/components/dashboard/onboarding-banner.tsx",
       "src/components/contracts/contract-obligations-panel.tsx",
       "src/components/contracts/contract-table.tsx",

@@ -2,69 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { AlertTriangle, Check, CircleHelp, Pencil, SkipForward } from "lucide-react";
 import { updateContractField } from "@/actions/contracts";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { UiSpinner } from "@/components/ui/ui-spinner";
-
-/** Structured alert row — replaces loose helper prose under the action bar so a
- *  gating message reads as a bordered status row, not stray text (§10.7). */
-function ActionAlert({ tone, children }: { tone: "warning" | "danger"; children: ReactNode }) {
-  const ink = tone === "danger" ? "var(--danger-ink)" : "var(--warning-ink)";
-  const accent = tone === "danger" ? "var(--danger)" : "var(--warning)";
-  const soft = tone === "danger" ? "var(--danger-soft)" : "var(--warning-soft)";
-  return (
-    <div
-      role="status"
-      className="flex items-start gap-2 rounded-lg border px-3 py-2"
-      style={{
-        borderColor: `color-mix(in oklab, ${accent} 30%, var(--border-subtle))`,
-        background: `color-mix(in oklab, ${soft} 26%, var(--surface))`,
-      }}
-    >
-      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden style={{ color: ink }} />
-      <p className="text-[12px] font-medium leading-snug" style={{ color: ink }}>
-        {children}
-      </p>
-    </div>
-  );
-}
-
-/** Compact right-aligned keyboard legend. The real shortcut semantics live on the
- *  buttons (aria-keyshortcuts); this is a quiet visual reminder, hidden where
- *  there is no physical keyboard. Replaces per-button keycaps that crowded the row. */
-function KeyLegend() {
-  const keys: Array<[string, string]> = [
-    ["A", "Confirm"],
-    ["E", "Edit"],
-    ["U", "Mark unknown"],
-    ["S", "Skip"],
-  ];
-  return (
-    <span className="ml-auto hidden items-center gap-1.5 self-center sm:inline-flex" aria-hidden>
-      <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">Keys</span>
-      {keys.map(([k, label]) => (
-        <kbd
-          key={k}
-          title={label}
-          className="rounded border border-[var(--border-card)] bg-[var(--surface)] px-1 font-mono text-[9px] font-normal not-italic leading-[1.5] text-[var(--text-tertiary)]"
-        >
-          {k}
-        </kbd>
-      ))}
-    </span>
-  );
-}
-
-/** Returns a `<input type="date">`-compatible `YYYY-MM-DD` seed only when the
- *  stored value is already an ISO date; otherwise null so callers fall back to a
- *  text input (avoids timezone-shifted reformatting of free-text dates). */
-function isoDateSeed(value: string | null): string | null {
-  if (!value) return null;
-  const m = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim());
-  return m ? m[1] : null;
-}
+import { ActionAlert, isoDateSeed, KeyLegend } from "@/components/contracts/field-review-workspace-action-parts";
 
 interface FieldReviewWorkspaceActionsProps {
   fieldId: string;

@@ -50,6 +50,22 @@ function apiRouteFileForPath(path: string): string | null {
   return join(process.cwd(), "src/app", ...segments, "route.ts");
 }
 
+function loadRouteRuntimeSource(routeFile: string): string {
+  const source = readFileSync(routeFile, "utf8");
+  const importedImplementationArtifacts = Array.from(
+    source.matchAll(/from\s+"@\/(lib\/[^"]*(?:-route|route-helpers|action-route|callback-handler))"/g)
+  )
+    .map((match) => join(process.cwd(), "src", `${match[1]}.ts`))
+    .filter((artifact) => existsSync(artifact));
+
+  if (importedImplementationArtifacts.length === 0) return source;
+
+  return [
+    source,
+    ...importedImplementationArtifacts.map((artifact) => readFileSync(artifact, "utf8")),
+  ].join("\n");
+}
+
 function collectApiRouteFiles(dir = join(process.cwd(), "src/app/api")): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -286,7 +302,7 @@ describe("V10 route and API catalog", () => {
       expect(getV10RouteTestArtifact(contract.path), contract.path).toMatch(/^(e2e\/current-product-core-smoke\.spec\.ts|src\/app\/api\/.+\/route(\.v10)?\.test\.ts)$/);
       if (!routeFile) continue;
       expect(existsSync(routeFile), contract.path).toBe(true);
-      const source = readFileSync(routeFile, "utf8");
+      const source = loadRouteRuntimeSource(routeFile);
       if (contract.privateCacheRequired) {
         expect(source, `${contract.path}:private-cache`).toMatch(SHARED_CRON_PRIVATE_CACHE_RE);
       }

@@ -3,11 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
 import { loadAllowlistWithMetadata } from "./lib/allowlist.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const actionsRoot = path.join(root, "src", "actions");
 const allowlistPath = path.join(__dirname, "server-action-org-scope-allowlist.txt");
 const reportOnly = process.argv.includes("--report");
 
@@ -20,10 +20,6 @@ function walkActions(dir, acc = []) {
     else if (name.endsWith(".ts") && !name.endsWith(".test.ts")) acc.push(p);
   }
   return acc;
-}
-
-function toRelative(abs) {
-  return path.relative(root, abs).replace(/\\/g, "/");
 }
 
 function exportedAsyncFunctions(source) {
@@ -43,48 +39,75 @@ const SCOPE_SIGNALS = [
   ".eq('organization_id'",
 ];
 
-const allowlist = loadAllowlistWithMetadata(allowlistPath);
-const files = walkActions(actionsRoot).sort();
-const violations = [];
-const staleAllowlistEntries = [];
-const coverage = [];
+const PUBLIC_AUTH_FLOW_SIGNALS = [
+  "@/lib/auth/auth-action-impl",
+  "auth.signInWithPassword",
+  "auth.signUp",
+  "auth.resetPasswordForEmail",
+  "auth.updateUser",
+  "auth.signOut",
+];
 
-for (const abs of files) {
-  const rel = toRelative(abs);
-  const source = fs.readFileSync(abs, "utf8");
-  if (!source.includes('"use server"')) continue;
-  if (allowlist.entries.has(rel)) continue;
-  const exportCount = exportedAsyncFunctions(source).length;
-  if (exportCount === 0) continue;
-
-  const scopeSignalCount = SCOPE_SIGNALS.filter((marker) => source.includes(marker)).length;
-  coverage.push({
-    file: rel,
-    exportCount,
-    scopeSignalCount,
-  });
-  if (scopeSignalCount === 0) violations.push(rel);
+function isUseServerModule(source) {
+  return source.includes('"use server"') || source.includes("'use server'");
 }
 
-for (const rel of allowlist.entries) {
-  const abs = path.join(root, rel);
-  if (!fs.existsSync(abs)) staleAllowlistEntries.push(rel);
+function isPublicAuthFlow(source) {
+  return PUBLIC_AUTH_FLOW_SIGNALS.some((marker) => source.includes(marker));
 }
 
-const payload = {
-  totalActionFiles: files.length,
-  violationCount: violations.length,
-  staleAllowlistCount: staleAllowlistEntries.length,
-  allowlistMetadataIssueCount: allowlist.metadataIssues.length,
-  violations,
-  staleAllowlistEntries,
-  allowlistMetadataIssues: allowlist.metadataIssues,
-  coverage,
-};
+export function analyzeServerActionOrgScope(rootDir = root, options = {}) {
+  const currentActionsRoot = path.join(rootDir, "src", "actions");
+  const currentAllowlistPath =
+    options.allowlistPath ?? (rootDir === root ? allowlistPath : path.join(rootDir, "scripts", "server-action-org-scope-allowlist.txt"));
+  const allowlist = loadAllowlistWithMetadata(currentAllowlistPath);
+  const files = walkActions(currentActionsRoot).sort();
+  const violations = [];
+  const staleAllowlistEntries = [];
+  const coverage = [];
 
-console.log(JSON.stringify(payload, null, 2));
+  for (const abs of files) {
+    const rel = path.relative(rootDir, abs).replace(/\\/g, "/");
+    const source = fs.readFileSync(abs, "utf8");
+    if (!isUseServerModule(source)) continue;
+    if (allowlist.entries.has(rel)) continue;
+    const exportCount = exportedAsyncFunctions(source).length;
+    if (exportCount === 0) continue;
 
-if (reportOnly) process.exit(0);
-if (allowlist.metadataIssues.length > 0) process.exit(1);
-if (staleAllowlistEntries.length > 0) process.exit(1);
-if (violations.length > 0) process.exit(1);
+    const scopeSignalCount = SCOPE_SIGNALS.filter((marker) => source.includes(marker)).length;
+    const publicAuthFlow = isPublicAuthFlow(source);
+    coverage.push({
+      file: rel,
+      exportCount,
+      scopeSignalCount,
+      publicAuthFlow,
+    });
+    if (scopeSignalCount === 0 && !publicAuthFlow) violations.push(rel);
+  }
+
+  for (const rel of allowlist.entries) {
+    const abs = path.join(rootDir, rel);
+    if (!fs.existsSync(abs)) staleAllowlistEntries.push(rel);
+  }
+
+  return {
+    totalActionFiles: files.length,
+    violationCount: violations.length,
+    staleAllowlistCount: staleAllowlistEntries.length,
+    allowlistMetadataIssueCount: allowlist.metadataIssues.length,
+    violations,
+    staleAllowlistEntries,
+    allowlistMetadataIssues: allowlist.metadataIssues,
+    coverage,
+  };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const payload = analyzeServerActionOrgScope();
+  console.log(JSON.stringify(payload, null, 2));
+
+  if (reportOnly) process.exit(0);
+  if (payload.allowlistMetadataIssues.length > 0) process.exit(1);
+  if (payload.staleAllowlistEntries.length > 0) process.exit(1);
+  if (payload.violations.length > 0) process.exit(1);
+}

@@ -406,9 +406,9 @@
       "categoryIds": [
         "route_deeplink_redirect_contracts"
       ],
-      "contractCount": 437,
-      "manualOnlyContractCount": 437,
-      "queueEntryCount": 470,
+      "contractCount": 427,
+      "manualOnlyContractCount": 427,
+      "queueEntryCount": 460,
       "allowlistEntryCount": 0,
       "uncoveredManualCount": 0,
       "remainingSafeActionCount": 0,

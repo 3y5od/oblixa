@@ -151,6 +151,7 @@
     {
       "id": "authorization",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -160,6 +161,7 @@
     {
       "id": "cross-org-isolation",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -169,6 +171,9 @@
     {
       "id": "empty-query",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": [
+        "src/lib/command-palette/contracts-search.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -178,6 +183,7 @@
     {
       "id": "pagination",
       "path": "src/lib/contract-list.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -187,6 +193,7 @@
     {
       "id": "query-length",
       "path": "src/lib/contracts-search-url.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,
@@ -196,6 +203,7 @@
     {
       "id": "ranking-determinism",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -205,6 +213,7 @@
     {
       "id": "rate-limits",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -214,6 +223,7 @@
     {
       "id": "special-characters",
       "path": "src/lib/contracts-search-url.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,
@@ -223,6 +233,7 @@
     {
       "id": "unicode-normalization",
       "path": "src/lib/contracts-search-url.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,
@@ -234,6 +245,7 @@
     {
       "id": "export-limits",
       "path": "src/app/api/report-packs/[id]/runs/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 4,
@@ -243,6 +255,9 @@
     {
       "id": "failed-generation",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": [
+        "src/lib/reports/report-pack-generation-route.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 4,
@@ -252,6 +267,7 @@
     {
       "id": "redaction",
       "path": "scripts/check-report-redaction-contract.mjs",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "check:report-redaction-contract",
       "markerCount": 3,
@@ -261,6 +277,9 @@
     {
       "id": "report-generation",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": [
+        "src/lib/reports/report-pack-generation-route.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 6,
@@ -270,6 +289,9 @@
     {
       "id": "report-subscriptions",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": [
+        "src/lib/reports/report-pack-generation-route.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 5,
@@ -279,6 +301,7 @@
     {
       "id": "retry",
       "path": "src/app/api/report-runs/[runId]/retry/route.ts",
+      "supplementalPaths": [],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 5,
@@ -288,6 +311,9 @@
     {
       "id": "scheduled-reports",
       "path": "src/app/api/reports/send-summaries/route.ts",
+      "supplementalPaths": [
+        "src/lib/reports/send-summaries-route.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 5,
@@ -297,6 +323,9 @@
     {
       "id": "stale-report-data",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": [
+        "src/lib/reports/report-pack-generation-route.ts"
+      ],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 4,
@@ -1067,7 +1096,8 @@
         ],
         "destinations": [
           "audit_log",
-          "operations_alert"
+          "operations_alert",
+          "webhook_subscriber"
         ],
         "sourceCount": 1,
         "compatibilitySensitive": true
@@ -8783,6 +8813,7 @@
     {
       "id": "delimiter-abuse",
       "path": "src/lib/csv-formula-safe.test.ts",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,
@@ -8792,6 +8823,7 @@
     {
       "id": "export-route-coverage",
       "path": "scripts/check-export-security-guards.mjs",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "check:export-security-guards",
       "markerCount": 3,
@@ -8801,6 +8833,7 @@
     {
       "id": "formula-prefixes",
       "path": "src/lib/csv-formula-safe.test.ts",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 3,
@@ -8810,6 +8843,7 @@
     {
       "id": "malicious-filenames",
       "path": "src/lib/security/export-filename.test.ts",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "check:export-security-guards",
       "markerCount": 3,
@@ -8819,6 +8853,7 @@
     {
       "id": "newline-injection",
       "path": "src/lib/csv-formula-safe.test.ts",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,
@@ -8828,6 +8863,7 @@
     {
       "id": "unicode-controls",
       "path": "src/lib/csv-formula-safe.test.ts",
+      "supplementalPaths": [],
       "owner": "@frontend-security",
       "validationCommand": "test:vitest:current-product",
       "markerCount": 2,

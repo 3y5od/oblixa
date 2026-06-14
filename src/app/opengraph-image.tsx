@@ -11,44 +11,45 @@ export const size = {
 
 export const contentType = "image/png";
 
-/* v18 — warm editorial card matching the lp-* marketing system: ivory paper
-   canvas, ink type, thin warm rules, a renewal-ledger artifact strip. The
-   prior navy gradient + glassmorphism card was the banned cool-blue system in
-   raster form.
+/* Editorial card on the established palette. The revised design contract is
+   palette-agnostic; earlier warm hexes were swapped for the app's
+   cool-neutral token equivalents: neutral canvas, ink type, thin rules, a
+   renewal-ledger artifact strip. The original navy gradient + glassmorphism
+   card remains the banned generic system in raster form — don't restore it.
 
    Typeface note: `next/og` cannot consume `next/font`, and bundling raw serif
    font data is deliberately deferred — the card uses the built-in sans with
    ink weight/tracking doing the editorial work. Revisit if a TTF is added to
    the repo. */
 
-const INK = "#2c2820";
-const INK_SOFT = "#5c564a";
-const INK_FAINT = "#8a8270";
-const RULE = "#ddd5c2";
-const PAPER = "#f7f4ea";
-const CARD = "#fdfcf7";
-const ROW = "#fffefa";
+const INK = "#262b33";
+const INK_SOFT = "#5d6470";
+const INK_FAINT = "#626970";
+const RULE = "#dde0e5";
+const PAPER = "#f4f6f9";
+const CARD = "#fcfdfe";
+const ROW = "#ffffff";
 
 const LEDGER_ROWS = [
   {
     name: "Meridian Logistics — MSA",
     chip: "Confirmed",
-    chipBg: "#e7f0e3",
-    chipInk: "#3e6647",
+    chipBg: "#e2f1e6",
+    chipInk: "#2e6a45",
     date: "MAY 12",
   },
   {
     name: "Northwind Analytics — Order form",
     chip: "Needs confirmation",
-    chipBg: "#f6eed7",
-    chipInk: "#7a652e",
+    chipBg: "#f7efd5",
+    chipInk: "#7a611f",
     date: "MAY 28",
   },
   {
     name: "Beacon Staffing — Master services",
     chip: "Notice window open",
-    chipBg: "#f6eed7",
-    chipInk: "#7a652e",
+    chipBg: "#f7efd5",
+    chipInk: "#7a611f",
     date: "JUN 14",
   },
 ] as const;
@@ -170,7 +171,7 @@ export default function OpenGraphImage() {
                   justifyContent: "space-between",
                   gap: 16,
                   padding: "13px 22px",
-                  borderTop: i === 0 ? "none" : `1px solid #eee7d6`,
+                  borderTop: i === 0 ? "none" : `1px solid #e9ecf0`,
                 }}
               >
                 <div style={{ display: "flex", fontSize: 19, fontWeight: 600, color: INK }}>

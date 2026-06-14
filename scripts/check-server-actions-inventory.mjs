@@ -10,7 +10,6 @@ import { pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const actionsRoot = path.join(root, "src", "actions");
 
 const AUTH_RE =
   /\b(auth\.getUser|getAuthContext|getApiAuthContext|getAuthenticatedActionContext|getAuthenticatedMembershipContext|getUser|getSession|createClient)\b/;
@@ -19,7 +18,7 @@ const ORG_SCOPE_RE =
 const PRIVILEGED_RE =
   /\b(requireServerActionEligibility|requireContractWriteAccess|hasOrgCapability|canManageCapability|requireRoleAtLeast|recordSecurityAuditEvent|recordV10[A-Za-z]+Mutation)\b/;
 const PUBLIC_AUTH_FLOW_RE =
-  /\b(auth\.signInWithPassword|auth\.signUp|auth\.resetPasswordForEmail|auth\.updateUser|auth\.signOut|RATE_LIMITS\.(signIn|signUp|forgotPassword|resetPassword))\b/;
+  /\b(auth\.signInWithPassword|auth\.signUp|auth\.resetPasswordForEmail|auth\.updateUser|auth\.signOut|RATE_LIMITS\.(signIn|signUp|forgotPassword|resetPassword))\b|@\/lib\/auth\/auth-action-impl/;
 const SAFE_ERROR_RETURN_RE =
   /\b(mapDataSourceError|mapAuthError|describeRecoverableMutationError)\s*\(/;
 const RAW_ERROR_RETURN_RE =

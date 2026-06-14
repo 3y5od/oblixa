@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/font/google", () => ({
+  Source_Serif_4: () => ({ className: "lp-serif", variable: "--font-serif-display" }),
+}));
+
 import { metadata as homeMetadata } from "@/app/page";
 
 describe("home metadata", () => {

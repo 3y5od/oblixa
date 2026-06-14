@@ -3,10 +3,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/work/page.tsx");
+const WORK_TABLE = join(process.cwd(), "src/app/(dashboard)/work/work-table.tsx");
+
+function readWorkSurfaceSource() {
+  return [PAGE, WORK_TABLE].map((file) => readFileSync(file, "utf8")).join("\n");
+}
 
 describe("work page surface", () => {
   it("keeps the task queue summary compact while clarifying count semantics", () => {
-    const raw = readFileSync(PAGE, "utf8");
+    const raw = readWorkSurfaceSource();
 
     expect(raw).toContain("Active tasks");
     expect(raw).toContain("Active tasks are open follow-up items linked to signed contracts.");
@@ -27,7 +32,7 @@ describe("work page surface", () => {
   });
 
   it("constrains the nested page stack on narrow viewports", () => {
-    const raw = readFileSync(PAGE, "utf8");
+    const raw = readWorkSurfaceSource();
 
     expect(raw).toContain(
       'className="ui-page-stack mx-auto w-full min-w-0 max-w-[1440px] overflow-x-clip"'

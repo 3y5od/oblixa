@@ -618,7 +618,7 @@ export default async function ContractsPage(props: {
       header={
         <DashboardPageHeader
         icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-        eyebrow="Contract inventory"
+        eyebrow="Contract tracking"
         density="compact"
         title="Contracts"
         lead={

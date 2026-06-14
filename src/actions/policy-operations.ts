@@ -1,5 +1,4 @@
 "use server";
-
 import { createClient, createAdminClient, getOrEnsureDeterministicMembership } from "@/lib/supabase/server";
 import { hasRoleCapability } from "@/lib/access-control";
 import { revalidatePath } from "next/cache";
@@ -23,10 +22,8 @@ async function getContext() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-
   const membership = await getOrEnsureDeterministicMembership(admin, user);
   if (!membership) return null;
-
   const { data: settings } = await admin
     .from("organization_workflow_settings")
     .select("organization_id, role_policy_json")
@@ -60,7 +57,6 @@ export async function createProgramAction(formData: FormData) {
   }
   const surfaceGate = await ensureProgramsSurfaceAccess(ctx);
   if (surfaceGate) return surfaceGate;
-
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   if (!name) return { error: "Name is required" as const };

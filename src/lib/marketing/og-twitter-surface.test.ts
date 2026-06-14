@@ -14,7 +14,8 @@ describe("OG / Twitter preview surfaces (V7)", () => {
     // v1 marketing pass: aligned to release-state wedge ("Replace the
     // contract tracking spreadsheet"). Headline leads with the operational
     // verb instead of the legacy "Contract execution" framing.
-    expect(og).toContain("Track renewals, obligations, and owners from signed contracts");
+    expect(og).toContain("Track renewals, requirements, and owners from signed contracts");
+    expect(og).toContain("Track what signed contracts require next.");
     expect(og.toLowerCase()).not.toContain("decisions");
     expect(og.toLowerCase()).not.toContain("campaigns");
     expect(og.toLowerCase()).not.toContain("assurance");

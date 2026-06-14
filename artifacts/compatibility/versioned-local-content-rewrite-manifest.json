@@ -3,12 +3,12 @@
   "generatedBy": "scripts/check-versioned-local-content-rewrites.mjs --write",
   "policy": "Local content rewrites are limited to manifest-listed documentation copy, test titles, and script comments. Runtime identifiers, public contracts, SQL, telemetry, env keys, provider config, OpenAPI, generated artifacts, and manual rows are refused.",
   "pendingRewriteCount": 0,
-  "refusalCount": 2864,
+  "refusalCount": 2875,
   "byRewriteType": {},
   "byRefusalReason": {
-    "manual_only_surface": 1229,
-    "missing_suggested_neutral_name": 1384,
-    "no_manifest_safe_context": 251
+    "manual_only_surface": 1219,
+    "missing_suggested_neutral_name": 1404,
+    "no_manifest_safe_context": 252
   },
   "rewrites": [],
   "refusals": [
@@ -3952,6 +3952,15 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
+      "path": "scripts/lib/local-auth-workspace-seed.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "tooling_or_local_fixture",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
       "path": "scripts/lib/route-runtime-semantics.mjs",
       "surfaceClass": "tooling_contract",
       "subSurfaceClass": "tooling_or_local_fixture",
@@ -4412,15 +4421,6 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "scripts/route-handler-complexity-baseline.json",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "source_owned_config_or_scanner_id",
-      "oldValue": "v4",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
       "path": "scripts/route-runtime-semantics.test.mjs",
       "surfaceClass": "tooling_contract",
       "subSurfaceClass": "tooling_or_local_fixture",
@@ -4461,15 +4461,6 @@
       "surfaceClass": "tooling_contract",
       "subSurfaceClass": "tooling_or_local_fixture",
       "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "scripts/seed-local-auth.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "tooling_or_local_fixture",
-      "oldValue": "v10",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -7055,15 +7046,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/api/command-palette/contracts/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/api/contracts/recompute-signals/route.ts",
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "api_route_contract",
@@ -7275,15 +7257,6 @@
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "cron_route_contract",
       "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/cron/cron-outbound-surface.test.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "cron_route_contract",
-      "oldValue": "v4",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
@@ -8039,34 +8012,7 @@
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "cron_route_contract",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "cron_route_contract",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "cron_route_contract",
       "oldValue": "v4",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "cron_route_contract",
-      "oldValue": "v6",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
@@ -8936,15 +8882,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/api/exceptions/[id]/[action]/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/api/export/calendar/feed/[token]/route.test.ts",
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "api_route_contract",
@@ -9074,15 +9011,6 @@
       "path": "src/app/api/export/contracts/route.ts",
       "surfaceClass": "telemetry_event",
       "subSurfaceClass": "telemetry_event_name",
-      "oldValue": "product.v9.export_failed",
-      "neutralValue": "product.export_failed",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/export/contracts/route.ts",
-      "surfaceClass": "telemetry_event",
-      "subSurfaceClass": "telemetry_event_name",
       "oldValue": "product.v9.export_started",
       "neutralValue": "product.export_started",
       "manualOnly": true,
@@ -9093,15 +9021,6 @@
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "api_route_contract",
       "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/export/contracts/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "V10",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
@@ -9539,15 +9458,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/api/integrations/crm/sync/route.ts",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "artifact_schema_version",
-      "oldValue": "v1",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/api/integrations/oauth/callback/route.test.ts",
       "surfaceClass": "provider_or_crypto_format",
       "subSurfaceClass": "provider_signature_version",
@@ -9944,33 +9854,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/api/reports/send-summaries/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/reports/send-summaries/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/api/reports/send-summaries/route.ts",
-      "surfaceClass": "api_or_cron_contract",
-      "subSurfaceClass": "api_route_contract",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/api/review-boards/[id]/generate-run/route.ts",
       "surfaceClass": "api_or_cron_contract",
       "subSurfaceClass": "api_route_contract",
@@ -10261,15 +10144,6 @@
     {
       "path": "src/app/globals.css",
       "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/app/globals.css",
-      "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
       "oldValue": "v13",
       "neutralValue": null,
@@ -10343,34 +10217,88 @@
       "path": "src/app/globals.css",
       "surfaceClass": "source_content",
       "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v17",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/app/globals.css",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v18",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/app/globals.css",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v21",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/app/globals.css",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
       "oldValue": "V3",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v34",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v35",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v35",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v42",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v43",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v43",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v44",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v46",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v46",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -10769,26 +10697,8 @@
     {
       "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-content.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "notification_or_export_contract",
-      "oldValue": "v14",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-content.ts",
-      "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v9",
+      "oldValue": "v18",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -10797,142 +10707,43 @@
       "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
-      "oldValue": "v9",
+      "oldValue": "v18",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
+      "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
-      "oldValue": "v11",
+      "oldValue": "v20",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/landing-page.tsx",
+      "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
-      "oldValue": "v12",
+      "oldValue": "v23",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/landing-page.tsx",
+      "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
-      "oldValue": "v13",
+      "oldValue": "v35",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "localization_or_copy_key",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
+      "path": "src/components/landing/landing-content.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
-      "oldValue": "v14",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v15",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v16",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v17",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "style_token_or_selector",
-      "oldValue": "v17",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v2",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v3",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v9",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/landing-page.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "oldValue": "v9",
+      "oldValue": "v45",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -10960,15 +10771,6 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
       "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/landing/product-mocks.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v7",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -11228,6 +11030,15 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
       "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/components/ui/gradient-phrase.tsx",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v46",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -12219,6 +12030,42 @@
     },
     {
       "path": "src/lib/approval-exception.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/approvals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/approvals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/approvals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/approvals/action-route.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "source_schema_or_action_contract",
       "oldValue": "V10",
@@ -14815,6 +14662,78 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/command-palette/contracts-search.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
       "path": "src/lib/compatibility-pr-body-rollup.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
@@ -16708,6 +16627,27 @@
       "reason": "manual_only_surface"
     },
     {
+      "path": "src/lib/evidence/submit-external-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/evidence/submit-external-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v6_freshness_score",
+      "neutralValue": "freshness_score",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
+        "3acf4eb9e141f7c9"
+      ]
+    },
+    {
       "path": "src/lib/exception-audit-trail-nonclutter.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
@@ -16748,6 +16688,42 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "V9",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/exceptions/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/exceptions/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/exceptions/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/exceptions/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v6",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -16865,6 +16841,33 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
       "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/export/contracts-route-helpers.ts",
+      "surfaceClass": "telemetry_event",
+      "subSurfaceClass": "telemetry_event_name",
+      "oldValue": "product.v9.export_failed",
+      "neutralValue": "product.export_failed",
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/lib/export/contracts-route-helpers.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/export/contracts-route-helpers.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "V10",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -18205,6 +18208,15 @@
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/integrations/crm-sync-route.ts",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "artifact_schema_version",
+      "oldValue": "v1",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
     },
     {
       "path": "src/lib/integrations/events.test.ts",
@@ -21305,15 +21317,6 @@
       "path": "src/lib/product-surface/diagnostics-visibility-leaks.test.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v4",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/lib/product-surface/diagnostics-visibility-leaks.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
       "oldValue": "v5",
       "neutralValue": null,
       "manualOnly": false,
@@ -21819,15 +21822,6 @@
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "V7",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/lib/product-surface/refinement-critical-cron-invariants.test.ts",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v4",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -23687,6 +23681,33 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
+      "path": "src/lib/renewals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/renewals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/renewals/action-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
       "path": "src/lib/renewals/model.ts",
       "surfaceClass": "provider_or_crypto_format",
       "subSurfaceClass": "provider_model_or_eval_version",
@@ -23757,6 +23778,87 @@
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "notification_or_export_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/report-pack-generation-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/send-summaries-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/lib/reports/send-summaries-route.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
     },
     {
       "path": "src/lib/revalidate-cache-stability.test.ts",

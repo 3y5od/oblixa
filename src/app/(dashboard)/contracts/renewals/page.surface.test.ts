@@ -15,7 +15,7 @@ describe("contracts renewals page surface", () => {
     expect(raw).toContain("Dates in view:");
     expect(raw).toContain("renewal or notice date is missing, suggested, or calculated and still needs confirmation");
     expect(raw).toContain(
-      'className="max-h-[60vh] max-w-full overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable]"'
+      'className="max-h-[60vh] max-w-full overflow-x-auto overflow-y-auto [scrollbar-gutter:stable]"'
     );
   });
 

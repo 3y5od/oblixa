@@ -19,7 +19,7 @@
       "description": "Each legacy name has one canonical neutral name in the compatibility queue."
     }
   ],
-  "candidateCount": 3613,
+  "candidateCount": 3618,
   "transitionalUseCount": 73,
   "bannedReplacementCount": 0,
   "renameableWithoutNeutralCount": 0,

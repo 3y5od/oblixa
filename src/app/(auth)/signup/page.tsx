@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { AuthForm } from "@/components/auth/auth-form";
 import {
   createAdminClient,
@@ -6,6 +7,8 @@ import {
   inspectWorkspaceAccessGrantToken,
   type AccessGrantInspectionState,
 } from "@/lib/access-review";
+import { RATE_LIMITS, rateLimitCheck } from "@/lib/rate-limit";
+import { getTrustedClientIpFromHeaders } from "@/lib/security/trusted-forwarded";
 
 export const metadata = {
   title: "Request access to Oblixa",
@@ -20,8 +23,14 @@ export default async function SignupPage({
   const accessCode = q.grant ?? q.access_code ?? q.token ?? "";
   let signupGrantState: AccessGrantInspectionState = "missing";
   if (accessCode) {
-    const admin = await createAdminClient();
-    signupGrantState = (await inspectWorkspaceAccessGrantToken(admin, { token: accessCode })).state;
+    const ip = getTrustedClientIpFromHeaders(await headers());
+    const rl = await rateLimitCheck(`signup-grant-inspect:${ip}`, RATE_LIMITS.signupGrantInspect);
+    if (rl.ok) {
+      const admin = await createAdminClient();
+      signupGrantState = (await inspectWorkspaceAccessGrantToken(admin, { token: accessCode })).state;
+    } else {
+      signupGrantState = "unavailable";
+    }
   }
 
   return <AuthForm mode="signup" accessCode={accessCode} signupGrantState={signupGrantState} />;

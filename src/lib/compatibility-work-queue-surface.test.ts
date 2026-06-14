@@ -5,7 +5,12 @@ import { WORK_ACTION_LABELS, WORK_EMPTY_STATE, WORK_FILTER_LABELS, WORK_TAB_LABE
 
 describe("Work release-state surface", () => {
   it("renders the release-state Work page structure", () => {
-    const page = readFileSync(join(process.cwd(), "src/app/(dashboard)/work/page.tsx"), "utf8");
+    const page = [
+      "src/app/(dashboard)/work/page.tsx",
+      "src/app/(dashboard)/work/work-table.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(page).toContain("title={WORK_PAGE_TITLE}");
     expect(page).toContain("eyebrow={model.eyebrow}");
     expect(page).toContain("model.primaryCta");

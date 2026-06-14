@@ -24,7 +24,6 @@ import {
   isUuid,
   parseContractStoragePath,
   parseFixedEnumParam,
-  parsePositiveIntParam,
   validateBoundedString,
 } from "@/lib/security/validation";
 import { dedupeValidatedUploadedFiles } from "@/lib/security/upload-batch";
@@ -46,6 +45,8 @@ import {
   deleteContract as deleteContractImpl,
   applyContractTemplatePack as applyContractTemplatePackImpl,
 } from "@/actions/contracts-lifecycle";
+import { mapWithConcurrency } from "@/lib/extraction/concurrency";
+import { contractTextError, optionalContractText, optionalPercentFormValue } from "@/lib/actions/contracts-form-readers";
 
 const DATE_FIELDS = new Set([
   "end_date",
@@ -60,6 +61,7 @@ const REMINDER_OFFSETS_DAYS = [30, 14, 7, 1];
 // inline here for the upload-security-guards marker check.
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 const MAX_CONTRACT_UPLOAD_FILES = 12;
+const CONTRACT_UPLOAD_CONCURRENCY = 3;
 const ALLOWED_TYPES = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -111,37 +113,6 @@ type ContractAuditAction = Extract<
   | `import.${string}`
 >;
 
-function contractTextError(
-  label: string,
-  validation: { error: "invalid_string" | "string_too_long" | "unsafe_characters" },
-  options: { requiredMessage?: string } = {}
-): string {
-  if (validation.error === "string_too_long") return `${label} is too long`;
-  if (validation.error === "unsafe_characters") return `${label} contains unsupported characters`;
-  return options.requiredMessage ?? `${label} contains unsupported characters`;
-}
-
-function optionalContractText(
-  value: unknown,
-  label: string,
-  maxLength: number,
-  options: { allowTextWhitespaceControls?: boolean } = {}
-): { ok: true; value: string | null } | { ok: false; error: string } {
-  const validation = validateBoundedString(value ?? "", {
-    maxLength,
-    allowEmpty: true,
-    allowTextWhitespaceControls: options.allowTextWhitespaceControls,
-  });
-  if (!validation.ok) return { ok: false, error: contractTextError(label, validation) };
-  return { ok: true, value: validation.value || null };
-}
-
-function optionalPercentFormValue(formData: FormData, key: string): number | null {
-  const raw = String(formData.get(key) ?? "").trim();
-  if (!raw) return null;
-  return parsePositiveIntParam(raw, { defaultValue: 0, min: 0, max: 100 });
-}
-
 function hasAllowedUploadedContractSignature(fileType: string, signature: Uint8Array): boolean {
   const sniffed = sniffUploadedFileMime(signature);
   return sniffed.ok && sniffed.mimeType === fileType;
@@ -174,6 +145,10 @@ async function getSafeUploadedContractFile(file: File): Promise<
     return { ok: false, safeName, reason: "malware" };
   }
   return { ok: true, safeName };
+}
+
+function validateUploadedContractFiles(files: File[]) {
+  return mapWithConcurrency(files, CONTRACT_UPLOAD_CONCURRENCY, async (file) => ({ file, validation: await getSafeUploadedContractFile(file) }));
 }
 
 function uploadedContractValidationError(validation: {
@@ -319,7 +294,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
   if (attemptedFiles.length > MAX_CONTRACT_UPLOAD_FILES) {
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
-  const validatedFiles = await Promise.all(attemptedFiles.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const validatedFiles = await validateUploadedContractFiles(attemptedFiles);
   const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
   const dedupedFiles = dedupeValidatedUploadedFiles(acceptedFiles);
   const validFiles = dedupedFiles.files;
@@ -377,8 +352,10 @@ export async function createContract(formData: FormData): Promise<CreateContract
 
   if (error) return { error: mapDataSourceError(error.message) };
 
-  const uploadResults = await Promise.all(
-    validFiles.map(async ({ file, validation }) => {
+  const uploadResults = await mapWithConcurrency(
+    validFiles,
+    CONTRACT_UPLOAD_CONCURRENCY,
+    async ({ file, validation }) => {
       const safeName = validation.safeName;
       const storagePath = buildContractStoragePath(organizationId, contract.id, safeName);
 
@@ -417,7 +394,7 @@ export async function createContract(formData: FormData): Promise<CreateContract
         ok: true as const,
         fileName: safeName,
       };
-    })
+    }
   );
 
   const uploadedFiles = uploadResults.filter((result) => result.ok).length;
@@ -1114,16 +1091,18 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
   if (files.length > MAX_CONTRACT_UPLOAD_FILES) {
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
-  const validatedFiles = await Promise.all(files.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const validatedFiles = await validateUploadedContractFiles(files);
   const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
   const invalidErrors = validatedFiles
     .filter((entry): entry is { file: File; validation: { ok: false; safeName: string; reason: "empty" | "size" | "type" | "extension" | "signature" | "filename" | "malware" } } => !entry.validation.ok)
     .map((entry) => uploadedContractValidationError(entry.validation));
   const dedupedFiles = dedupeValidatedUploadedFiles(acceptedFiles);
   const validFiles = dedupedFiles.files;
-  const results = await Promise.allSettled(
-    validFiles
-      .map(async ({ file, validation }) => {
+  const results = await mapWithConcurrency(
+    validFiles,
+    CONTRACT_UPLOAD_CONCURRENCY,
+    async ({ file, validation }): Promise<PromiseSettledResult<void>> => {
+      try {
         const safeName = validation.safeName;
         const storagePath = buildContractStoragePath(contract.organization_id, contract.id, safeName);
 
@@ -1132,10 +1111,10 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
           .upload(storagePath, file);
 
         if (uploadError) {
-          throw new Error(`${file.name}: ${uploadError.message}`);
+          throw new Error(`${safeName}: ${uploadError.message}`);
         }
 
-        await admin.from("contract_files").insert({
+        const { error: fileInsertError } = await admin.from("contract_files").insert({
           contract_id: contract.id,
           file_name: safeName,
           file_type: file.type,
@@ -1143,15 +1122,22 @@ export async function uploadAdditionalFiles(contractId: string, formData: FormDa
           storage_path: storagePath,
           uploaded_by: user.id,
         });
-      })
+        if (fileInsertError) {
+          throw new Error(`${safeName}: ${fileInsertError.message}`);
+        }
+        return { status: "fulfilled", value: undefined };
+      } catch (error) {
+        return { status: "rejected", reason: error };
+      }
+    }
   );
 
   const uploaded = results.filter((r) => r.status === "fulfilled").length;
   const errors = [
     ...invalidErrors,
     ...results
-    .filter((r): r is PromiseRejectedResult => r.status === "rejected")
-    .map((r) => r.reason?.message ?? "Unknown error"),
+      .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+      .map((r) => r.reason?.message ?? "Unknown error"),
   ];
 
   if (uploaded > 0) {
@@ -1502,7 +1488,7 @@ export async function bulkCreateContractsFromFiles(formData: FormData) {
   if (files.length > MAX_CONTRACT_UPLOAD_FILES) {
     return { error: `Upload at most ${MAX_CONTRACT_UPLOAD_FILES} files at a time.` };
   }
-  const validatedFiles = await Promise.all(files.map(async (file) => ({ file, validation: await getSafeUploadedContractFile(file) })));
+  const validatedFiles = await validateUploadedContractFiles(files);
   const acceptedFiles = validatedFiles.filter((entry): entry is { file: File; validation: { ok: true; safeName: string } } => entry.validation.ok);
   const validFiles = dedupeValidatedUploadedFiles(acceptedFiles).files;
 

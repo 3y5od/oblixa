@@ -4852,6 +4852,52 @@
       },
       {
         "surface": "exported_symbol_alias",
+        "legacyName": "buildV10CommandSearchRecovery",
+        "neutralAlias": "buildCommandSearchRecovery",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "buildV10CommandTelemetryDetails",
+        "neutralAlias": "buildCommandTelemetryDetails",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
         "legacyName": "buildV10CompleteClosureReport",
         "neutralAlias": "buildCompleteClosureReport",
         "owner": "platform-hardening",
@@ -10410,6 +10456,29 @@
       },
       {
         "surface": "exported_symbol_alias",
+        "legacyName": "resolveV10CommandSearchPlan",
+        "neutralAlias": "resolveCommandSearchPlan",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
         "legacyName": "resolveV10ReportExportPlan",
         "neutralAlias": "resolveReportExportPlan",
         "owner": "platform-hardening",
@@ -10565,6 +10634,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
         "sourcePath": "src/lib/readiness-scorecard.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "selectV10DiverseCommandResults",
+        "neutralAlias": "selectDiverseCommandResults",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
         "exportKind": "declaration",
         "declarationKind": "function",
         "typeOnly": false
@@ -11307,6 +11399,29 @@
       },
       {
         "surface": "exported_symbol_alias",
+        "legacyName": "V10_COMMAND_INDEX_CANDIDATE_LIMIT",
+        "neutralAlias": "COMMAND_INDEX_CANDIDATE_LIMIT",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "const",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
         "legacyName": "V10_COMMAND_QUERY_SAMPLE_SET",
         "neutralAlias": "COMMAND_QUERY_SAMPLE_SET",
         "owner": "platform-hardening",
@@ -11324,6 +11439,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
         "sourcePath": "src/lib/final-gap-audit.ts",
+        "exportKind": "declaration",
+        "declarationKind": "const",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "V10_COMMAND_RESPONSE_LIMIT",
+        "neutralAlias": "COMMAND_RESPONSE_LIMIT",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
         "exportKind": "declaration",
         "declarationKind": "const",
         "typeOnly": false
@@ -16896,6 +17034,29 @@
       },
       {
         "surface": "exported_symbol_alias",
+        "legacyName": "v10CommandActionLabel",
+        "neutralAlias": "commandActionLabel",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
         "legacyName": "V10CommandQuerySample",
         "neutralAlias": "CommandQuerySample",
         "owner": "platform-hardening",
@@ -16936,6 +17097,52 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
         "sourcePath": "src/lib/read-models.ts",
+        "exportKind": "declaration",
+        "declarationKind": "type",
+        "typeOnly": true
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "V10CommandSearchRecovery",
+        "neutralAlias": "CommandSearchRecovery",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "type",
+        "typeOnly": true
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "V10CommandSearchRecoveryAction",
+        "neutralAlias": "CommandSearchRecoveryAction",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
         "exportKind": "declaration",
         "declarationKind": "type",
         "typeOnly": true
@@ -19170,6 +19377,52 @@
         "exportKind": "declaration",
         "declarationKind": "type",
         "typeOnly": true
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "v10IndexedResultRank",
+        "neutralAlias": "indexedResultRank",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
+      },
+      {
+        "surface": "exported_symbol_alias",
+        "legacyName": "v10IndexedRowPassesStaticVisibility",
+        "neutralAlias": "indexedRowPassesStaticVisibility",
+        "owner": "platform-hardening",
+        "reason": "Retain deprecated exported symbol alias while source callers migrate to the neutral export.",
+        "status": "alias_added",
+        "validationCommand": "npm run check:versioned-exported-symbols",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-exported-symbols",
+          "neutral": "npm run check:versioned-exported-symbols"
+        },
+        "earliestRemovalCondition": "All internal imports use the neutral export, downstream packages have had a compatibility window, and check:versioned-exported-symbols remains green.",
+        "manualFollowUp": "Remove the legacy exported alias only after code search and release evidence show no remaining consumers.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this exported-symbol queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this exported-symbol queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this exported-symbol.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this exported-symbol queue entry.",
+        "sourcePath": "src/lib/command-palette/contracts-search.ts",
+        "exportKind": "declaration",
+        "declarationKind": "function",
+        "typeOnly": false
       },
       {
         "surface": "exported_symbol_alias",
@@ -35592,29 +35845,6 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/export/contracts/route.ts",
-        "manualOnly": true,
-        "contractCount": 1
-      },
-      {
-        "surface": "telemetry_event",
-        "subSurface": "telemetry_event_name",
-        "legacyName": "product.v9.export_failed",
-        "neutralAlias": "product.export_failed",
-        "owner": "platform-telemetry",
-        "reason": "Compatibility-sensitive telemetry_event_name version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_analytics_dashboard_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this telemetry_event_name until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/export/renewals/route.ts",
         "manualOnly": true,
         "contractCount": 1
@@ -35708,6 +35938,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/export/contracts-csv.ts",
+        "manualOnly": true,
+        "contractCount": 1
+      },
+      {
+        "surface": "telemetry_event",
+        "subSurface": "telemetry_event_name",
+        "legacyName": "product.v9.export_failed",
+        "neutralAlias": "product.export_failed",
+        "owner": "platform-telemetry",
+        "reason": "Compatibility-sensitive telemetry_event_name version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_analytics_dashboard_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this telemetry_event_name until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/lib/export/contracts-route-helpers.ts",
         "manualOnly": true,
         "contractCount": 1
       },
@@ -39370,29 +39623,6 @@
       },
       {
         "surface": "provider_or_crypto_format",
-        "subSurface": "artifact_schema_version",
-        "legacyName": "v1",
-        "neutralAlias": null,
-        "owner": "platform-security",
-        "reason": "Compatibility-sensitive artifact_schema_version version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this artifact_schema_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
-        "manualOnly": true,
-        "contractCount": 2
-      },
-      {
-        "surface": "provider_or_crypto_format",
         "subSurface": "cryptographic_envelope_version",
         "legacyName": "v1",
         "neutralAlias": null,
@@ -39457,6 +39687,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/lib/assurance/policy-types.ts",
+        "manualOnly": true,
+        "contractCount": 2
+      },
+      {
+        "surface": "provider_or_crypto_format",
+        "subSurface": "artifact_schema_version",
+        "legacyName": "v1",
+        "neutralAlias": null,
+        "owner": "platform-security",
+        "reason": "Compatibility-sensitive artifact_schema_version version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
+        "manualFollowUp": "Do not remove or rename this artifact_schema_version until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
+        "sourcePath": "src/lib/integrations/crm-sync-route.ts",
         "manualOnly": true,
         "contractCount": 2
       },
@@ -39941,7 +40194,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
         "manualOnly": true,
-        "contractCount": 24
+        "contractCount": 18
       },
       {
         "surface": "api_or_cron_contract",
@@ -40056,7 +40309,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/command-palette/contracts/route.ts",
         "manualOnly": true,
-        "contractCount": 33
+        "contractCount": 28
       },
       {
         "surface": "api_or_cron_contract",
@@ -40313,29 +40566,6 @@
       },
       {
         "surface": "api_or_cron_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "v10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "manualOnly": true,
-        "contractCount": 24
-      },
-      {
-        "surface": "api_or_cron_contract",
         "subSurface": "api_route_contract",
         "legacyName": "v10",
         "neutralAlias": null,
@@ -40516,7 +40746,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/evidence/submit/route.ts",
         "manualOnly": true,
-        "contractCount": 28
+        "contractCount": 16
       },
       {
         "surface": "api_or_cron_contract",
@@ -40562,7 +40792,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
         "manualOnly": true,
-        "contractCount": 22
+        "contractCount": 6
       },
       {
         "surface": "api_or_cron_contract",
@@ -40677,7 +40907,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/export/contracts/route.ts",
         "manualOnly": true,
-        "contractCount": 16
+        "contractCount": 6
       },
       {
         "surface": "api_or_cron_contract",
@@ -40953,7 +41183,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/renewals/[id]/[action]/route.ts",
         "manualOnly": true,
-        "contractCount": 16
+        "contractCount": 14
       },
       {
         "surface": "api_or_cron_contract",
@@ -41046,29 +41276,6 @@
         "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
         "manualOnly": true,
         "contractCount": 10
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "v10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/reports/send-summaries/route.ts",
-        "manualOnly": true,
-        "contractCount": 4
       },
       {
         "surface": "api_or_cron_contract",
@@ -44562,9 +44769,9 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "scripts/pipelines/pipeline-qa-code-maximal.mjs",
+        "sourcePath": "scripts/lib/local-auth-workspace-seed.mjs",
         "manualOnly": false,
-        "contractCount": 1
+        "contractCount": 12
       },
       {
         "surface": "tooling_contract",
@@ -44585,9 +44792,9 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "scripts/seed-local-auth.mjs",
+        "sourcePath": "scripts/pipelines/pipeline-qa-code-maximal.mjs",
         "manualOnly": false,
-        "contractCount": 12
+        "contractCount": 1
       },
       {
         "surface": "tooling_contract",
@@ -44702,7 +44909,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/command-palette/contracts/route.ts",
         "manualOnly": true,
-        "contractCount": 24
+        "contractCount": 9
       },
       {
         "surface": "api_or_cron_contract",
@@ -44821,29 +45028,6 @@
       },
       {
         "surface": "api_or_cron_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "V10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "manualOnly": true,
-        "contractCount": 2
-      },
-      {
-        "surface": "api_or_cron_contract",
         "subSurface": "api_route_contract",
         "legacyName": "V10",
         "neutralAlias": null,
@@ -44932,7 +45116,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
         "manualOnly": true,
-        "contractCount": 6
+        "contractCount": 2
       },
       {
         "surface": "api_or_cron_contract",
@@ -44979,29 +45163,6 @@
         "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
         "manualOnly": true,
         "contractCount": 3
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "V10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/export/contracts/route.ts",
-        "manualOnly": true,
-        "contractCount": 1
       },
       {
         "surface": "api_or_cron_contract",
@@ -45140,29 +45301,6 @@
         "sourcePath": "src/app/api/report-runs/[runId]/retry/route.ts",
         "manualOnly": true,
         "contractCount": 3
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "V10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/reports/send-summaries/route.ts",
-        "manualOnly": true,
-        "contractCount": 1
       },
       {
         "surface": "app_route_contract",
@@ -49530,29 +49668,6 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/cron/cron-outbound-surface.test.ts",
-        "manualOnly": true,
-        "contractCount": 1
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "v4",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/cron/escalations-dispatch/route.test.ts",
         "manualOnly": true,
         "contractCount": 1
@@ -50888,29 +51003,6 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "scripts/report-user-facing-interactions.mjs",
-        "manualOnly": false,
-        "contractCount": 1
-      },
-      {
-        "surface": "tooling_contract",
-        "subSurface": "source_owned_config_or_scanner_id",
-        "legacyName": "v4",
-        "neutralAlias": null,
-        "owner": "platform-hardening",
-        "reason": "Repo-local source_owned_config_or_scanner_id version content can be renamed or normalized after references are manifest-listed and tests pass.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "All repository references use the neutral content contract and check:versioned-content-contracts remains green.",
-        "manualFollowUp": "This source_owned_config_or_scanner_id can be rewritten only through a deterministic local manifest and after its validation command passes.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "scripts/route-handler-complexity-baseline.json",
         "manualOnly": false,
         "contractCount": 1
       },
@@ -55901,29 +55993,6 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/command-palette/contracts/route.ts",
-        "manualOnly": true,
-        "contractCount": 9
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "v6",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/control-policies/[id]/assign/route.ts",
         "manualOnly": true,
         "contractCount": 2
@@ -56617,29 +56686,6 @@
         "sourcePath": "src/app/api/cron/segment-recompute/route.ts",
         "manualOnly": true,
         "contractCount": 1
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "v6",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "manualOnly": true,
-        "contractCount": 4
       },
       {
         "surface": "api_or_cron_contract",
@@ -57419,29 +57465,6 @@
         "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
-        "manualOnly": true,
-        "contractCount": 3
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "v6",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/export/contracts/[jobId]/route.ts",
         "manualOnly": true,
         "contractCount": 3
@@ -57928,29 +57951,6 @@
         "sourcePath": "src/app/api/report-packs/route.ts",
         "manualOnly": true,
         "contractCount": 4
-      },
-      {
-        "surface": "api_or_cron_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "v6",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "A neutral alias or compatibility reader exists, external consumers have moved, and manual cutover evidence has been captured.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this content-contract queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this content-contract queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this content-contract.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
-        "sourcePath": "src/app/api/reports/send-summaries/route.ts",
-        "manualOnly": true,
-        "contractCount": 2
       },
       {
         "surface": "api_or_cron_contract",
@@ -61032,7 +61032,7 @@
         "sqlObjectFollowUp": "No SQL object change is authorized by this content-contract queue entry.",
         "sourcePath": "src/app/api/evidence/submit/route.ts",
         "manualOnly": true,
-        "contractCount": 2
+        "contractCount": 1
       },
       {
         "surface": "sql_object",
@@ -68849,29 +68849,6 @@
       {
         "surface": "export_download_contract",
         "subSurface": "telemetry_event_name",
-        "legacyName": "product.v9.export_failed",
-        "neutralAlias": "product.export_failed",
-        "owner": "platform-telemetry",
-        "reason": "Compatibility-sensitive telemetry_event_name version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "Do not remove or rename this telemetry_event_name until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/app/api/export/contracts/route.ts",
-        "category": "export_import_diagnostics",
-        "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "telemetry_event_name",
         "legacyName": "product.v9.export_started",
         "neutralAlias": "product.export_started",
         "owner": "platform-telemetry",
@@ -68896,29 +68873,6 @@
         "surface": "export_download_contract",
         "subSurface": "api_route_contract",
         "legacyName": "v10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "Do not remove or rename this api_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/app/api/export/contracts/route.ts",
-        "category": "export_import_diagnostics",
-        "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "api_route_contract",
-        "legacyName": "V10",
         "neutralAlias": null,
         "owner": "platform-api",
         "reason": "Compatibility-sensitive api_route_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -69309,29 +69263,6 @@
       {
         "surface": "export_download_contract",
         "subSurface": "notification_or_export_contract",
-        "legacyName": "v14",
-        "neutralAlias": null,
-        "owner": "platform-hardening",
-        "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/components/landing/landing-content.ts",
-        "category": "export_import_diagnostics",
-        "manualOnly": false
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "notification_or_export_contract",
         "legacyName": "V10",
         "neutralAlias": null,
         "owner": "platform-hardening",
@@ -69487,6 +69418,29 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
         "sourcePath": "src/lib/export-job-visibility.test.ts",
+        "category": "export_import_diagnostics",
+        "manualOnly": true
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "telemetry_event_name",
+        "legacyName": "product.v9.export_failed",
+        "neutralAlias": "product.export_failed",
+        "owner": "platform-telemetry",
+        "reason": "Compatibility-sensitive telemetry_event_name version content is inventoried and queued instead of removed in code-only passes.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "Do not remove or rename this telemetry_event_name until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/export/contracts-route-helpers.ts",
         "category": "export_import_diagnostics",
         "manualOnly": true
       },
@@ -70735,76 +70689,7 @@
       {
         "surface": "export_download_contract",
         "subSurface": "cron_route_contract",
-        "legacyName": "v10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "category": "report_artifacts",
-        "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "V10",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "category": "report_artifacts",
-        "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "cron_route_contract",
         "legacyName": "v4",
-        "neutralAlias": null,
-        "owner": "platform-api",
-        "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
-        "status": "awaiting_production_cutover",
-        "validationCommand": "npm run check:versioned-content-contracts",
-        "validationCommands": {
-          "legacy": "npm run check:versioned-content-contracts",
-          "neutral": "npm run check:versioned-content-contracts"
-        },
-        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
-        "manualFollowUp": "Do not remove or rename this cron_route_contract until neutral compatibility is available, external consumers have moved, and manual cutover evidence is captured.",
-        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
-        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
-        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
-        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
-        "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-        "category": "report_artifacts",
-        "manualOnly": true
-      },
-      {
-        "surface": "export_download_contract",
-        "subSurface": "cron_route_contract",
-        "legacyName": "v6",
         "neutralAlias": null,
         "owner": "platform-api",
         "reason": "Compatibility-sensitive cron_route_contract version content is inventoried and queued instead of removed in code-only passes.",
@@ -71424,6 +71309,167 @@
       },
       {
         "surface": "export_download_contract",
+        "subSurface": "audit_evidence_or_diagnostic_key",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "local_source_literal",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "notification_or_export_contract",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local notification_or_export_contract version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This notification_or_export_contract can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "operational_storage_or_queue_key",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "audit_evidence_or_diagnostic_key",
+        "legacyName": "V10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local audit_evidence_or_diagnostic_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This audit_evidence_or_diagnostic_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "local_source_literal",
+        "legacyName": "V10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "local_source_literal",
+        "legacyName": "v6",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local local_source_literal version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This local_source_literal can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/reports/report-pack-generation-route.ts",
+        "category": "report_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
         "subSurface": "operational_storage_or_queue_key",
         "legacyName": "SPEC_ARTIFACT_V10",
         "neutralAlias": null,
@@ -71741,6 +71787,52 @@
         "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
         "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
         "sourcePath": "src/lib/export-job-visibility.ts",
+        "category": "signed_link_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "operational_storage_or_queue_key",
+        "legacyName": "v10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/export/contracts-route-helpers.ts",
+        "category": "signed_link_artifacts",
+        "manualOnly": false
+      },
+      {
+        "surface": "export_download_contract",
+        "subSurface": "operational_storage_or_queue_key",
+        "legacyName": "V10",
+        "neutralAlias": null,
+        "owner": "platform-hardening",
+        "reason": "Repo-local operational_storage_or_queue_key version content can be renamed or normalized after references are manifest-listed and tests pass.",
+        "status": "awaiting_production_cutover",
+        "validationCommand": "npm run check:versioned-content-contracts",
+        "validationCommands": {
+          "legacy": "npm run check:versioned-content-contracts",
+          "neutral": "npm run check:versioned-content-contracts"
+        },
+        "earliestRemovalCondition": "Neutral filename/header/metadata builders are emitted, downstream importers and signed-link consumers have migrated, and export/download checks remain green.",
+        "manualFollowUp": "This operational_storage_or_queue_key can be rewritten only through a deterministic local manifest and after its validation command passes.",
+        "productionSchedulerFollowUp": "No scheduler change is authorized by this export-download queue entry.",
+        "providerDashboardFollowUp": "No provider dashboard change is authorized by this export-download queue entry.",
+        "analyticsDashboardFollowUp": "Update analytics dashboards only if they explicitly inspect this export-download.",
+        "sqlObjectFollowUp": "No SQL object change is authorized by this export-download queue entry.",
+        "sourcePath": "src/lib/export/contracts-route-helpers.ts",
         "category": "signed_link_artifacts",
         "manualOnly": false
       },

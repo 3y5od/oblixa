@@ -14,7 +14,7 @@ const WORKSPACE = [
   { href: "/contracts/review", nav: "Review" },
   { href: "/work", nav: "Work" },
   { href: "/contracts/renewals", nav: "Renewals" },
-  { href: "/contracts/exceptions", nav: "Exceptions" },
+  { href: "/contracts/exceptions", nav: "Issues" },
   { href: "/contracts/evidence-studio", nav: "Evidence" },
   { href: "/reports", nav: "Reports" },
   { href: "/settings", nav: "Settings" },

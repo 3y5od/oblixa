@@ -21,10 +21,6 @@ const title = "Privacy — Oblixa";
 const description =
   "How Oblixa handles account data, workspace content, uploaded contract files, and operational activity for signed-contract follow-up.";
 
-// Review date is a code-owned constant (never a runtime date) so the published
-// stamp stays deterministic and the trust-compliance freshness check can reason
-// about it. LAST_REVIEWED_ISO feeds the <time> machine value; the display
-// string is the human-readable form. "Last reviewed" matches the /cookies chip.
 const LAST_REVIEWED_ISO = "2026-05-28";
 const LAST_REVIEWED_DISPLAY = "May 28, 2026";
 
@@ -36,8 +32,6 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
-// In-page contents strip — doubles as the quick summary of what the policy
-// covers. Each entry anchors to a section id below.
 const CONTENTS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "#process", label: "What we process" },
   { href: "#why", label: "Why" },
@@ -49,8 +43,6 @@ const CONTENTS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "#contact", label: "Contact" },
 ];
 
-// Cross-page policy links — a quiet near-header row (the marketing footer also
-// carries the full legal-links set).
 const RELATED: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/security", label: "Security" },
   { href: "/terms", label: "Terms" },
@@ -58,11 +50,6 @@ const RELATED: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/contact", label: "Contact" },
 ];
 
-// Data categories processed by the product, at a category level (not raw
-// infrastructure detail). Covers the release-state required set: account,
-// workspace, uploaded files, contract records, usage, billing, and
-// contact/support data. Account + billing lead so the account-level data reads
-// together.
 const PROCESSED: ReadonlyArray<{ term: string; detail: string }> = [
   { term: "Account and sign-in", detail: "Name, email, and authentication identifiers." },
   { term: "Billing data", detail: "Subscription and payment status (card data is held by our billing provider)." },
@@ -87,15 +74,11 @@ export default function PrivacyPage() {
         tabIndex={-1}
         className="landing-luminous relative isolate flex min-h-full flex-1 flex-col overflow-hidden outline-none"
       >
-        {/* Restrained backdrop — base wash + a softened glow, no dotted grid. */}
         <div aria-hidden className="landing-luminous__base" />
         <div aria-hidden className="landing-luminous__glow opacity-50" />
         <div aria-hidden className="product-top-hairline" />
 
         <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-          {/* Intro — the single focal premium surface. Identity, lead, an in-page
-              contents strip, and a quiet related-policy row. Sections below are
-              quiet blocks rather than one giant card. */}
           <article className="landing-card-premium landing-card-rail relative overflow-hidden rounded-2xl border p-6 sm:p-8">
             <div className="flex items-start gap-4">
               <span
@@ -157,8 +140,6 @@ export default function PrivacyPage() {
             </div>
           </article>
 
-          {/* What we process — full-width card with a scannable two-column
-              category grid instead of dense bullets. */}
           <section className="mt-3">
             <PolicyCard id="process" eyebrow="Information we process" title="What we process" icon={Database}>
               <dl className="grid gap-x-10 sm:grid-cols-2">
@@ -175,7 +156,6 @@ export default function PrivacyPage() {
             </PolicyCard>
           </section>
 
-          {/* Why + AI — paired cards. */}
           <section className="mt-3 grid gap-3 md:grid-cols-2 md:items-stretch">
             <PolicyCard id="why" eyebrow="Purpose" title="Why we process it" icon={ShieldCheck}>
               <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
@@ -197,7 +177,6 @@ export default function PrivacyPage() {
             </PolicyCard>
           </section>
 
-          {/* Providers + Access — paired cards. */}
           <section className="mt-3 grid gap-3 md:grid-cols-2 md:items-stretch">
             <PolicyCard id="providers" eyebrow="Service providers" title="Providers and subprocessors" icon={Server}>
               <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
@@ -229,9 +208,6 @@ export default function PrivacyPage() {
             </PolicyCard>
           </section>
 
-          {/* Retention + Your rights — flattened to quiet hairline sections (no
-              card boxes) so the lower half of the page breaks the card rhythm.
-              Export and deletion paths are named explicitly under Your rights. */}
           <section className="mt-6 grid gap-x-10 gap-y-6 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-6 sm:grid-cols-2">
             <FlatSection id="retention" eyebrow="Retention" title="How long records are kept" icon={Clock}>
               <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
@@ -255,7 +231,6 @@ export default function PrivacyPage() {
             </FlatSection>
           </section>
 
-          {/* Children — a quiet hairline note. */}
           <section
             id="children"
             aria-labelledby="privacy-children-h"
@@ -278,7 +253,6 @@ export default function PrivacyPage() {
             </div>
           </section>
 
-          {/* Contact — actionable, with clear public and signed-in paths. */}
           <section className="mt-6">
             <PolicyCard id="contact" eyebrow="Contact" title="Privacy and data requests" icon={MessagesSquare}>
               <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
@@ -299,9 +273,6 @@ export default function PrivacyPage() {
   );
 }
 
-/** Quiet supporting section card — neutral icon tile keeps accent reserved for
- *  the focal intro card, links, and action chips. Mirrors the /security cohort.
- *  The `id` is the anchor target for the in-page contents strip. */
 function PolicyCard({
   id,
   eyebrow,
@@ -333,9 +304,6 @@ function PolicyCard({
   );
 }
 
-/** Flat (no-box) section — neutral icon tile + eyebrow + title + body on a
- *  shared hairline. Used for lower-priority sections so they read lighter than
- *  the bordered PolicyCards above. */
 function FlatSection({
   id,
   eyebrow,

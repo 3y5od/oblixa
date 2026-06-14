@@ -11,27 +11,15 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, Search } from "lucide-react";
-import type { DropdownOptionIcon, DropdownStatusTone } from "@/components/ui/dropdown/types";
+import { ChevronDown } from "lucide-react";
+import type { UiSelectOption } from "@/components/ui/ui-select-types";
+import { UiSelectPopover, type UiSelectMenuPosition } from "@/components/ui/ui-select-popover";
 
-export interface UiSelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-  description?: string;
-  count?: number | string;
-  statusDot?: DropdownStatusTone;
-  icon?: DropdownOptionIcon;
-}
+export type { UiSelectOption };
 
 export interface UiSelectProps {
-  /** Optional form name — when set, a hidden input is rendered for form submission. */
   name?: string;
-  /** Optional explicit id for the trigger button — lets an external `<label htmlFor>`
-   *  or `aria-labelledby` associate with the control (needed for accessible-name
-   *  resolution and label-driven test queries). Falls back to a generated id. */
   id?: string;
-  /** Id of an external element labelling the control (e.g. a visible `<label>`). */
   ariaLabelledBy?: string;
   describedById?: string;
   value?: string;
@@ -43,35 +31,15 @@ export interface UiSelectProps {
   required?: boolean;
   className?: string;
   buttonClassName?: string;
-  /** Inline style applied to the trigger button. Used for the active-filter tint,
-   *  which must beat the base border/bg utilities reliably — utility-vs-utility
-   *  override order is not guaranteed, but an inline style always wins. */
   buttonStyle?: CSSProperties;
   ariaLabel?: string;
-  /** Optional caps prefix rendered inside the trigger — the §7.3 leading-label
-   *  pill ("WINDOW  90 days"). Lets a dense toolbar drop separate stacked
-   *  labels while keeping the control unmistakably custom (not a native box). */
   label?: string;
-  /** Width of the popover menu. Defaults to matching the button width. */
   menuWidth?: "trigger" | "fit";
-  /** Trigger chrome variant. `compact` matches `.ui-input-compact` (bordered
-   *  box). `pill` matches §7.3 — a rounded-full pill trigger with leading
-   *  caps-label + value, used in dense sidebars / overlay panels. */
   variant?: "compact" | "pill";
-  /** Render the popover in a `document.body` portal with fixed positioning so it
-   *  escapes ancestor `overflow-hidden` clipping (§7.3 / §11.12). Off by default
-   *  to preserve the absolute-positioned behaviour of existing dense usages. */
   portal?: boolean;
-  /** Show a filter-as-you-type search row above the options. When omitted, falls
-   *  back to `options.length >= searchThreshold` ONLY if `searchThreshold` is set
-   *  — so existing callers (no `search`, no `searchThreshold`) are unaffected. */
   search?: boolean;
-  /** Auto-enable the search row when the option count reaches this number. Unset
-   *  by default, so search never appears unless a caller opts in. */
   searchThreshold?: number;
-  /** Placeholder for the search input. */
   searchPlaceholder?: string;
-  /** Copy shown when a search query matches no options. */
   emptyLabel?: string;
 }
 
@@ -105,23 +73,11 @@ export function UiSelect({
   const value = isControlled ? controlledValue : internalValue;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // Highlighted option in the search-driven combobox model (aria-activedescendant).
-  // Unused in the roving-focus model (no search), where DOM focus tracks the active
-  // option directly.
   const [activeIndex, setActiveIndex] = useState(0);
-  const [menuPos, setMenuPos] = useState<{
-    left: number;
-    width: number;
-    placement: "up" | "down";
-    offset: number;
-    maxHeight: number;
-  } | null>(null);
+  const [menuPos, setMenuPos] = useState<UiSelectMenuPosition | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  // The scrolling listbox — used to enumerate option buttons for roving-focus keys.
   const menuRef = useRef<HTMLUListElement>(null);
-  // The whole popover (search row + listbox) — used for click-outside so clicking
-  // the search input does not dismiss the menu.
   const popoverRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const generatedId = useId();
@@ -130,8 +86,6 @@ export function UiSelect({
 
   const selected = options.find((o) => o.value === value);
 
-  // Search appears when explicitly requested, or when a caller sets a threshold and
-  // the list is long enough. Callers that pass neither keep the original behaviour.
   const showSearch =
     search ?? (typeof searchThreshold === "number" && options.length >= searchThreshold);
 
@@ -149,8 +103,6 @@ export function UiSelect({
     const margin = 8;
     const spaceBelow = window.innerHeight - r.bottom - margin;
     const spaceAbove = r.top - margin;
-    // Flip upward when the menu would overflow below the fold and there is more
-    // room above — a `position: fixed` popover cannot be scrolled into view.
     const up = spaceBelow < MENU_MAX && spaceAbove > spaceBelow;
     return {
       left: r.left,
@@ -161,13 +113,10 @@ export function UiSelect({
     };
   }, []);
 
-  // Move focus into the search input when a searchable menu opens so the user can
-  // type immediately (the §7.3 keyboard-first affordance).
   useEffect(() => {
     if (open && showSearch) searchInputRef.current?.focus();
   }, [open, showSearch]);
 
-  // Keep the highlighted option scrolled into view during keyboard navigation.
   useEffect(() => {
     if (!open || !showSearch) return;
     const node = document.getElementById(`${buttonId}-opt-${activeIndex}`);
@@ -178,10 +127,6 @@ export function UiSelect({
     if (!open) return;
     function handlePointerDown(e: MouseEvent) {
       const target = e.target as Node;
-      // Click-outside must exclude both the trigger wrapper and the (possibly
-      // portaled) popover — otherwise a portaled option click would close the menu
-      // on mousedown before its own click handler fires, and clicking the search
-      // input would dismiss the menu (§7.3).
       if (wrapperRef.current?.contains(target)) return;
       if (popoverRef.current?.contains(target)) return;
       setOpen(false);
@@ -193,12 +138,9 @@ export function UiSelect({
         return;
       }
       if (e.key === "Tab") {
-        // Let focus move on naturally, but close the popover (§7.3).
         setOpen(false);
         return;
       }
-      // In the searchable model the input's own onKeyDown drives the highlight via
-      // aria-activedescendant; the document-level roving handler stands down.
       if (showSearch) return;
       const opts = menuRef.current
         ? Array.from(
@@ -222,10 +164,6 @@ export function UiSelect({
       }
     }
     function handleViewportChange() {
-      // A fixed-position portal popover must follow the trigger on scroll/resize.
-      // Reposition (don't close) — closing on every scroll is too aggressive and
-      // breaks interaction when a scroll is incidental (focus, trackpad inertia,
-      // or a test harness scrolling an option into view).
       if (!portal) return;
       setMenuPos(computeMenuPos());
     }
@@ -243,8 +181,6 @@ export function UiSelect({
 
   const toggle = () => {
     if (!open) {
-      // Open fresh: clear any prior search query + highlight before showing the
-      // popover (resetting here, not in a close effect, avoids cascading renders).
       setQuery("");
       setActiveIndex(0);
       if (portal) setMenuPos(computeMenuPos());
@@ -259,9 +195,6 @@ export function UiSelect({
     buttonRef.current?.focus();
   };
 
-  // Search-input keyboard model: arrows/home/end move the highlight, Enter commits
-  // it, while DOM focus stays in the input. Escape/Tab bubble to the document
-  // handler which closes the menu.
   const handleSearchKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -290,118 +223,31 @@ export function UiSelect({
       : 256;
 
   const popover = (
-    <div
-      ref={popoverRef}
-      style={
-        portal && menuPos
-          ? {
-              position: "fixed",
-              left: menuPos.left,
-              width: menuWidth === "trigger" ? menuPos.width : undefined,
-              // Fit-width menus still anchor to at least the trigger width, so a
-              // short-option popover (e.g. the renewals Review filter) never
-              // renders as a too-narrow floating box misaligned with its trigger.
-              minWidth: menuWidth === "trigger" ? undefined : menuPos.width,
-              // Tight contact shadow over the ambient shadow-3, so the opaque
-              // popover reads as clearly lifted above same-tone content beneath it
-              // (e.g. a sticky table header directly below) instead of blending in.
-              boxShadow:
-                "0 2px 4px color-mix(in oklab, var(--text-primary) 16%, transparent), var(--shadow-3)",
-              ...(menuPos.placement === "up"
-                ? { bottom: menuPos.offset }
-                : { top: menuPos.offset }),
-            }
-          : undefined
-      }
-      className={
-        portal
-          ? "z-50 overflow-hidden rounded-xl border border-[var(--border-strong)] bg-[var(--surface-raised)]"
-          : `absolute left-0 z-30 mt-1.5 overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-[var(--shadow-2)] ${
-              menuWidth === "trigger" ? "right-0" : "min-w-full"
-            }`
-      }
-    >
-      {showSearch ? (
-        <div className="flex items-center gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-3 py-2">
-          <Search
-            className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
-            strokeWidth={1.85}
-            aria-hidden
-          />
-          <input
-            ref={searchInputRef}
-            type="text"
-            role="combobox"
-            aria-expanded
-            aria-controls={listboxId}
-            aria-autocomplete="list"
-            aria-activedescendant={
-              visibleOptions[activeIndex] ? `${buttonId}-opt-${activeIndex}` : undefined
-            }
-            aria-label={`Search ${label ?? ariaLabel ?? "options"}`}
-            value={query}
-            placeholder={searchPlaceholder}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActiveIndex(0);
-            }}
-            onKeyDown={handleSearchKeyDown}
-            className="w-full bg-transparent text-[12.5px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
-          />
-        </div>
-      ) : null}
-      <ul
-        ref={menuRef}
-        id={listboxId}
-        role="listbox"
-        aria-labelledby={ariaLabelledBy ?? buttonId}
-        className="overflow-auto py-1"
-        style={{ maxHeight: ulMaxHeight }}
-      >
-        {visibleOptions.length === 0 ? (
-          <li
-            role="presentation"
-            className="px-3 py-2 text-[12.5px] text-[var(--text-tertiary)]"
-          >
-            {emptyLabel}
-          </li>
-        ) : (
-          visibleOptions.map((opt, i) => {
-            const isSelected = opt.value === value;
-            const isActive = showSearch && i === activeIndex;
-            return (
-              <li key={opt.value || `__${opt.label}`}>
-                <button
-                  type="button"
-                  id={`${buttonId}-opt-${i}`}
-                  role="option"
-                  aria-selected={isSelected}
-                  disabled={opt.disabled}
-                  tabIndex={showSearch ? -1 : undefined}
-                  onMouseEnter={showSearch ? () => setActiveIndex(i) : undefined}
-                  onClick={() => {
-                    if (opt.disabled) return;
-                    commit(opt.value);
-                  }}
-                  className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-[12.5px] transition-colors focus-visible:outline-none focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 ${
-                    isSelected
-                      ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] text-[var(--accent-strong)]"
-                      : isActive
-                        ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,transparent)] text-[var(--text-primary)]"
-                        : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,transparent)] hover:text-[var(--text-primary)]"
-                  }`}
-                >
-                  <span className="truncate">{opt.label}</span>
-                  {isSelected ? (
-                    <Check className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
-                  ) : null}
-                </button>
-              </li>
-            );
-          })
-        )}
-      </ul>
-    </div>
+    <UiSelectPopover
+      popoverRef={popoverRef}
+      menuRef={menuRef}
+      searchInputRef={searchInputRef}
+      portal={portal}
+      menuPos={menuPos}
+      menuWidth={menuWidth}
+      showSearch={showSearch}
+      listboxId={listboxId}
+      ariaLabelledBy={ariaLabelledBy}
+      buttonId={buttonId}
+      label={label}
+      ariaLabel={ariaLabel}
+      visibleOptions={visibleOptions}
+      activeIndex={activeIndex}
+      value={value}
+      query={query}
+      searchPlaceholder={searchPlaceholder}
+      emptyLabel={emptyLabel}
+      ulMaxHeight={ulMaxHeight}
+      setQuery={setQuery}
+      setActiveIndex={setActiveIndex}
+      handleSearchKeyDown={handleSearchKeyDown}
+      commit={commit}
+    />
   );
 
   return (

@@ -34,6 +34,6 @@ describe("Marketing site chrome", () => {
     // Request access is the primary CTA and also a Product-column entry; the
     // product tour is the ghost secondary.
     expect(screen.getAllByRole("link", { name: /request access/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByRole("link", { name: /view product tour/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /view product/i })).toBeTruthy();
   });
 });

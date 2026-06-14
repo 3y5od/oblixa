@@ -15,3 +15,11 @@ src/lib/actions/access.ts
 src/lib/supabase/server.ts
 # meta: reviewedOn=2026-05-12 owner=security expiry=2027-12-31 classification=session-scoped reason=v4_api_auth_context_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
 src/lib/contract-operations/api-auth.ts
+# meta: reviewedOn=2026-06-13 owner=security expiry=2027-12-31 classification=session-scoped reason=public_auth_action_implementation_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
+src/lib/auth/auth-action-impl.ts
+# meta: reviewedOn=2026-06-13 owner=security expiry=2027-12-31 classification=provider-scoped reason=signed_external_evidence_token_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
+src/lib/evidence/submit-external-route.ts
+# meta: reviewedOn=2026-06-13 owner=security expiry=2027-12-31 classification=session-scoped reason=org_scoped_contract_export_route_helper_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
+src/lib/export/contracts-route-helpers.ts
+# meta: reviewedOn=2026-06-13 owner=security expiry=2027-12-31 classification=intentionally-global reason=operator_access_request_step_up_boundary compensatingTest=scripts/check-server-lib-admin.test.mjs
+src/lib/operator/access-requests-actions.ts

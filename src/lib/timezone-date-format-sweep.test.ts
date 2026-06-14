@@ -11,7 +11,7 @@ const DATE_DISPLAY_SURFACES = [
   "src/components/contracts/contract-tasks-panel.tsx",
   "src/components/contracts/contract-obligations-panel.tsx",
   "src/components/contracts/renewal-checkpoints-panel.tsx",
-  "src/components/contracts/field-review.tsx",
+  "src/components/contracts/field-review-row.tsx",
   "src/lib/renewals/model.ts",
   "src/app/(dashboard)/contracts/[id]/page.tsx",
   "src/app/(dashboard)/contracts/tasks/page.tsx",

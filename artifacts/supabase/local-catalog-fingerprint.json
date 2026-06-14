@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-supabase-fingerprint-artifact.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 94,
-  "latestMigration": "094_force_rls_current_public_tables.sql",
-  "migrationRollupSha256": "59bac731743dd38121ef25ef64595ab25c09785bc0d9c30ea2ab3ffb336cc8b0",
+  "migrationCount": 95,
+  "latestMigration": "095_inbound_evidence_scope_guards.sql",
+  "migrationRollupSha256": "49aaacf555f7a764d7f5bd3d702e2a708bacb033798b89581156130ac5d9ae47",
   "sectionOrder": [
     "tables",
     "columns",
@@ -18,8 +18,8 @@
   ],
   "sections": {
     "tables": {
-      "count": 157,
-      "fingerprint": "cc468d8604adcff48fdaa8df885c5bc03107d504c8fdc7c25a1e2ff5176ec42b",
+      "count": 158,
+      "fingerprint": "bec9424e15b8269d8cff7a990412e702a45c75dbed18af5aeca1f8eed60c178f",
       "names": [
         "public.account_workspaces",
         "public.adaptive_playbook_runs",
@@ -92,6 +92,7 @@
         "public.external_action_links",
         "public.extracted_fields",
         "public.field_templates",
+        "public.inbound_provider_events",
         "public.integration_api_keys",
         "public.integration_connections",
         "public.integration_oauth_states",
@@ -536,6 +537,11 @@
           "sourcePath": "supabase/migrations/017_v2_operational_depth.sql"
         },
         {
+          "name": "public.inbound_provider_events",
+          "fingerprint": "73c9a8f74c32a5b23732bb62e4dac0f27dc93700e09721751ce7020e8839614c",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
           "name": "public.integration_api_keys",
           "fingerprint": "3fac870f376408ae1513787b694832a17c0c3f544553fe0d1c73a427f195da7a",
           "sourcePath": "supabase/migrations/018_v2_completion_hardening.sql"
@@ -968,8 +974,8 @@
       ]
     },
     "columns": {
-      "count": 2089,
-      "fingerprint": "a2487a6d9f47490a0ab5bca9db80b79b7a4912f18ee158159600809d39efb4c5",
+      "count": 2096,
+      "fingerprint": "806108b35c097eff82da89248bfc8fb29de017d055a653630673df7533d07faa",
       "names": [
         "public.account_workspaces.account_key",
         "public.account_workspaces.created_at",
@@ -1777,6 +1783,13 @@
         "public.field_templates.id",
         "public.field_templates.organization_id",
         "public.field_templates.required",
+        "public.inbound_provider_events.external_message_id",
+        "public.inbound_provider_events.id",
+        "public.inbound_provider_events.organization_id",
+        "public.inbound_provider_events.received_at",
+        "public.inbound_provider_events.source",
+        "public.inbound_provider_events.target_id",
+        "public.inbound_provider_events.target_table",
         "public.integration_api_keys.active",
         "public.integration_api_keys.created_at",
         "public.integration_api_keys.created_by",
@@ -7091,6 +7104,41 @@
           "name": "public.field_templates.required",
           "fingerprint": "21af3f0f8c3610b99fba24c78b9f0f053441d0ae6c4217d42625fbf757dcf49d",
           "sourcePath": "supabase/migrations/017_v2_operational_depth.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.external_message_id",
+          "fingerprint": "49bb1872ed9e79c146f0e615234f615962ff055b90065d1e9e6c134e6a7e987c",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.id",
+          "fingerprint": "272d19b02371f235aaf788b0e0632bb9815a9a72a8018f6789da43279d4288f9",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.organization_id",
+          "fingerprint": "59f764f8e7ac839258b8b4fd8189864d6b3e45185c22bfad12a09d9d97cfd6d4",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.received_at",
+          "fingerprint": "bfb660942cd4c29827561a178c4217963c71f5e2e7ed847a9aadf4258c1c663b",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.source",
+          "fingerprint": "a2b5205001026f235d332bfa5b2164e6a48857cbf4866c81f4d1fcefb1f41c25",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.target_id",
+          "fingerprint": "b1f9562b1a4b6178a376307cdb0ae7fa81ef223f489063aa573b1c5b2d94cc41",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.target_table",
+          "fingerprint": "6346c400cfd746a0c3d9054a2e53ddb4fab7d49a8087cd0def6d7cfa1d394436",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
         },
         {
           "name": "public.integration_api_keys.active",
@@ -13510,8 +13558,8 @@
       ]
     },
     "constraints": {
-      "count": 137,
-      "fingerprint": "f60480e8bf15a7bc33e01a99ab0bf3382026c4ee0e670d5dc314e3151689a65d",
+      "count": 138,
+      "fingerprint": "3ec0d9d27d1d4e06afa077844a95b08dbd7e765f0e0ceef52553b08c2c40bba6",
       "names": [
         "public.account_workspaces.account_workspaces:unique (organization_id, account_key)",
         "public.adaptive_playbook_steps.adaptive_playbook_steps:unique (organization_id, playbook_run_id, step_key)",
@@ -13558,6 +13606,7 @@
         "public.external_action_links.external_action_links_plaintext_token_null",
         "public.external_action_links.external_action_links_revoked_metadata_consistency",
         "public.field_templates.field_templates:unique (organization_id, contract_type, field_name)",
+        "public.inbound_provider_events.inbound_provider_events:unique (organization_id, source, external_message_id)",
         "public.integration_connections.integration_connections:unique (organization_id, provider)",
         "public.integration_oauth_states.integration_oauth_states:column if not exists redirect_uri text, add column if not exists code_verifier t",
         "public.org_behavior_metrics.org_behavior_metrics:unique (organization_id, metrics_date)",
@@ -13876,6 +13925,11 @@
           "name": "public.field_templates.field_templates:unique (organization_id, contract_type, field_name)",
           "fingerprint": "67523e5ed7735e9c44ccdf3c9e1a7392de01eb78076e3dc5a624330ad06fcdb6",
           "sourcePath": "supabase/migrations/017_v2_operational_depth.sql"
+        },
+        {
+          "name": "public.inbound_provider_events.inbound_provider_events:unique (organization_id, source, external_message_id)",
+          "fingerprint": "1c6edc0ba9ff76ebfd579c2d1cc04e142146f21a1f01c4fd002f8918b7137e79",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
         },
         {
           "name": "public.integration_connections.integration_connections:unique (organization_id, provider)",
@@ -14340,8 +14394,8 @@
       ]
     },
     "indexes": {
-      "count": 316,
-      "fingerprint": "01069a9338498434950f71d8c0ad6c62129e62cd09e1e7df522e8072ad2b7b6d",
+      "count": 317,
+      "fingerprint": "0cb867b0849315f89d98cea4057306defc3bd6e8e2206a9757c6b9c04a2d8e5c",
       "names": [
         "public.account_workspaces.idx_account_workspaces_org",
         "public.adaptive_playbook_runs.idx_adaptive_playbook_runs_org",
@@ -14504,6 +14558,7 @@
         "public.extracted_fields.idx_extracted_fields_contract_status_name",
         "public.extracted_fields.idx_extracted_fields_status",
         "public.field_templates.idx_field_templates_organization_id",
+        "public.inbound_provider_events.idx_inbound_provider_events_org_received",
         "public.integration_api_keys.idx_integration_api_keys_active_expiry",
         "public.integration_api_keys.idx_integration_api_keys_org_active",
         "public.integration_api_keys.idx_integration_api_keys_org_key_hash_unique",
@@ -15467,6 +15522,11 @@
           "sourcePath": "supabase/migrations/070_org_scoped_route_lookup_indexes.sql"
         },
         {
+          "name": "public.inbound_provider_events.idx_inbound_provider_events_org_received",
+          "fingerprint": "72a162989bc0bed9ec394b7e702ae0ea2e31f6f943e775b7138b78c7800e447a",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
           "name": "public.integration_api_keys.idx_integration_api_keys_active_expiry",
           "fingerprint": "025dde4de5d2ced5e9c9c017ff99c6786f081df4e9d60ba49ff7417a1c13c4a5",
           "sourcePath": "supabase/migrations/021_security_hardening_auth_and_keys.sql"
@@ -16244,8 +16304,8 @@
       ]
     },
     "policies": {
-      "count": 255,
-      "fingerprint": "a52ba5f77b76be57ab8fc1f76333ec052dc2e6b26cf607333ddd96c4d8aaab45",
+      "count": 256,
+      "fingerprint": "1e3636c107a702771a590675ea9638f42ff00ff3fa736bd2b4bf392753109108",
       "names": [
         "public.account_workspaces.Editors can manage remaining v5 entities in their org",
         "public.account_workspaces.Members can view account workspaces in their org",
@@ -16380,6 +16440,7 @@
         "public.extracted_fields.Members can view extracted fields",
         "public.field_templates.Editors can manage field templates",
         "public.field_templates.Members can view field templates",
+        "public.inbound_provider_events.No direct inbound provider event access",
         "public.integration_api_keys.Admins can manage integration api keys",
         "public.integration_api_keys.Members can view integration api keys",
         "public.integration_connections.Admins and editors can view integration connections",
@@ -17170,6 +17231,11 @@
           "sourcePath": "supabase/migrations/017_v2_operational_depth.sql"
         },
         {
+          "name": "public.inbound_provider_events.No direct inbound provider event access",
+          "fingerprint": "1988074ffd59d121d0ea57f9065782dce7e8a0101309abe449f605156a3d5c6c",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
           "name": "public.integration_api_keys.Admins can manage integration api keys",
           "fingerprint": "c66aca52723609463d0f43389aa15a40452362dc1d31083b737a9b66aca3f23a",
           "sourcePath": "supabase/migrations/018_v2_completion_hardening.sql"
@@ -17782,8 +17848,8 @@
       ]
     },
     "functions": {
-      "count": 36,
-      "fingerprint": "746430dd0308d25a3fa9f36e882e128061538c259a9a481d35e89e2850e1f982",
+      "count": 37,
+      "fingerprint": "b4aeb2ba93237e7f3f4933ad95a50b9b37fbff35c3cc5f19b5625269190fc1d0",
       "names": [
         "public.apply_updated_at_trigger(table_name text)",
         "public.assurance_hub_snapshot(p_org_id uuid)",
@@ -17805,6 +17871,7 @@
         "public.dashboard_home_snapshot(p_org_id uuid, p_user_id uuid)",
         "public.dashboard_org_metrics(p_org_id uuid)",
         "public.enforce_task_dependency_scope()",
+        "public.ensure_evidence_submission_requirement_scope()",
         "public.handle_new_user()",
         "public.handle_new_user()",
         "public.is_org_member(target_org uuid)",
@@ -17924,6 +17991,11 @@
           "sourcePath": "supabase/migrations/037_v3_task_dependency_scope_guard.sql"
         },
         {
+          "name": "public.ensure_evidence_submission_requirement_scope()",
+          "fingerprint": "f307ff807efda7a0a0f12759a84d4f71e6cca789c740701390dcd6033829497e",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
+        },
+        {
           "name": "public.handle_new_user()",
           "fingerprint": "01b062a1fe26ce436ef506b182576f371e1dc16e9214e8d819648e414ebe9513",
           "sourcePath": "supabase/migrations/001_initial_schema.sql"
@@ -18020,8 +18092,8 @@
       ]
     },
     "triggers": {
-      "count": 61,
-      "fingerprint": "1dd0fcc6c02222695d20d5c905dddf8667034baf95274fffebbdb68bfd3c48d7",
+      "count": 62,
+      "fingerprint": "a28a0353de61c380b1c9ef2eec30e98f77cfe276736ed19e40670c3caef302b5",
       "names": [
         "public.account_workspaces.update_account_workspaces_updated_at",
         "public.approval_policies.update_approval_policies_updated_at",
@@ -18058,6 +18130,7 @@
         "public.escalation_policies.update_escalation_policies_updated_at",
         "public.evidence_requirement_templates.update_evidence_requirement_templates_updated_at",
         "public.evidence_requirements.update_evidence_requirements_updated_at",
+        "public.evidence_submissions.trg_evidence_submission_requirement_scope",
         "public.exceptions.update_exceptions_updated_at",
         "public.external_action_links.set_external_action_links_retention_metadata",
         "public.external_action_links.update_external_action_links_updated_at",
@@ -18260,6 +18333,11 @@
           "name": "public.evidence_requirements.update_evidence_requirements_updated_at",
           "fingerprint": "469150f7d8fd093864585d9f5373db510244d02b9efa92a543d03d24e7145f22",
           "sourcePath": "supabase/migrations/039_v4_execution_platform_foundation.sql"
+        },
+        {
+          "name": "public.evidence_submissions.trg_evidence_submission_requirement_scope",
+          "fingerprint": "d715943decb9470bc1bdcfa85e91cfa63a5829c587d6dbe624a14a27d7773529",
+          "sourcePath": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
         },
         {
           "name": "public.exceptions.update_exceptions_updated_at",

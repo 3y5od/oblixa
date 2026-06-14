@@ -4,10 +4,12 @@ import { describe, expect, it } from "vitest";
 
 describe("V9 §16 CmdK + search jumps", () => {
   it("command palette stays a keyboard-first client surface with CmdK jump wiring", () => {
-    const raw = readFileSync(
-      join(process.cwd(), "src/components/layout/command-palette.tsx"),
-      "utf8"
-    );
+    const raw = [
+      "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-dialog.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(raw).toContain("export function CommandPalette");
     expect(raw).toContain('aria-label="Command palette"');
     expect(raw).toContain("getCmdkSearchJumpItems");

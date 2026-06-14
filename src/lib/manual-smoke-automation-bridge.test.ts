@@ -18,7 +18,7 @@ const MANUAL_SMOKE_AUTOMATION_PROXIES: Record<SmokePath, readonly FileNeedle[]> 
     ["src/components/contracts/import-job-retry-button.ui.test.tsx", "ImportJobRetryButton"],
   ],
   "extraction fail → retry → stale banner": [
-    ["src/components/contracts/extraction-job-alert.tsx", "Extraction may be stuck"],
+    ["src/components/contracts/extraction-job-alert.tsx", "Suggestions may be stuck"],
   ],
   "review save-and-next + downstream messaging": [
     ["src/lib/review-queue-surface.test.ts", "ReviewSaveNextTelemetryLink"],

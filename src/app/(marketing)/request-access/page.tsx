@@ -93,7 +93,7 @@ export default function RequestAccessPage() {
                 href="/product"
                 className="ui-btn-ghost inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold"
               >
-                View product tour
+                View product
               </Link>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-1.5">

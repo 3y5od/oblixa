@@ -4,7 +4,7 @@
   "generatedArtifact": "artifacts/operational-static-architecture-code-health.json",
   "ok": true,
   "summary": {
-    "sourceFileCount": 2170,
+    "sourceFileCount": 2373,
     "importBoundaryViolationCount": 0,
     "routeCount": 226,
     "dependencyCycleCount": 15,
@@ -30,7 +30,7 @@
     "lint"
   ],
   "importBoundaries": {
-    "scannedFileCount": 2170,
+    "scannedFileCount": 2373,
     "ruleCount": 4,
     "violationCount": 0,
     "violations": []
@@ -39,7 +39,7 @@
     "routeCount": 226,
     "edgeRouteCount": 0,
     "nodeRuntimeRouteCount": 226,
-    "nodeOnlyRouteCount": 7,
+    "nodeOnlyRouteCount": 4,
     "routeRuntimeRows": [
       {
         "file": "src/app/api/accounts/[key]/summary/route.ts",
@@ -52,7 +52,7 @@
       {
         "file": "src/app/api/approvals/[id]/[action]/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 508,
+        "lineCount": 384,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -340,7 +340,7 @@
       {
         "file": "src/app/api/command-palette/contracts/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 571,
+        "lineCount": 225,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -348,10 +348,10 @@
       {
         "file": "src/app/api/contact/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 266,
-        "nativeNodeImportCount": 1,
+        "lineCount": 104,
+        "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
-        "nodeOnlyDocumented": true
+        "nodeOnlyDocumented": false
       },
       {
         "file": "src/app/api/contracts/recompute-signals/route.ts",
@@ -764,7 +764,7 @@
       {
         "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
         "runtime": "nodejs",
-        "lineCount": 637,
+        "lineCount": 22,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -948,7 +948,7 @@
       {
         "file": "src/app/api/decisions/[id]/close/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 189,
+        "lineCount": 196,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1044,7 +1044,7 @@
       {
         "file": "src/app/api/evidence/[id]/[action]/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 381,
+        "lineCount": 383,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1060,7 +1060,7 @@
       {
         "file": "src/app/api/evidence/requests/[id]/remind/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 203,
+        "lineCount": 204,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1076,15 +1076,15 @@
       {
         "file": "src/app/api/evidence/submit/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 522,
-        "nativeNodeImportCount": 1,
+        "lineCount": 347,
+        "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
-        "nodeOnlyDocumented": true
+        "nodeOnlyDocumented": false
       },
       {
         "file": "src/app/api/exceptions/[id]/[action]/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 542,
+        "lineCount": 231,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1140,7 +1140,7 @@
       {
         "file": "src/app/api/export/contracts/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 536,
+        "lineCount": 450,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1148,7 +1148,7 @@
       {
         "file": "src/app/api/export/renewals/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 160,
+        "lineCount": 164,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1156,7 +1156,7 @@
       {
         "file": "src/app/api/export/reports/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 191,
+        "lineCount": 197,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1212,7 +1212,7 @@
       {
         "file": "src/app/api/extract/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 378,
+        "lineCount": 373,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1252,7 +1252,7 @@
       {
         "file": "src/app/api/integrations/actions/callback/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 279,
+        "lineCount": 326,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1268,7 +1268,7 @@
       {
         "file": "src/app/api/integrations/crm/sync/route.ts",
         "runtime": "nodejs",
-        "lineCount": 604,
+        "lineCount": 22,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1276,7 +1276,7 @@
       {
         "file": "src/app/api/integrations/oauth/callback/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 414,
+        "lineCount": 424,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1572,7 +1572,7 @@
       {
         "file": "src/app/api/renewals/[id]/[action]/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 455,
+        "lineCount": 428,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1588,7 +1588,7 @@
       {
         "file": "src/app/api/report-packs/[id]/runs/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 156,
+        "lineCount": 161,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1612,7 +1612,7 @@
       {
         "file": "src/app/api/reports/capture-metrics/route.ts",
         "runtime": "nodejs",
-        "lineCount": 163,
+        "lineCount": 165,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1620,10 +1620,10 @@
       {
         "file": "src/app/api/reports/send-summaries/route.ts",
         "runtime": "nodejs",
-        "lineCount": 858,
-        "nativeNodeImportCount": 1,
+        "lineCount": 47,
+        "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
-        "nodeOnlyDocumented": true
+        "nodeOnlyDocumented": false
       },
       {
         "file": "src/app/api/reports/track/click/[token]/route.ts",
@@ -1676,7 +1676,7 @@
       {
         "file": "src/app/api/review-boards/runs/[id]/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 226,
+        "lineCount": 257,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1740,7 +1740,7 @@
       {
         "file": "src/app/api/stripe/checkout/route.ts",
         "runtime": "nodejs",
-        "lineCount": 349,
+        "lineCount": 365,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1748,7 +1748,7 @@
       {
         "file": "src/app/api/stripe/invoices/[id]/pdf/route.ts",
         "runtime": "nodejs",
-        "lineCount": 127,
+        "lineCount": 130,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1756,7 +1756,7 @@
       {
         "file": "src/app/api/stripe/invoices/route.ts",
         "runtime": "nodejs",
-        "lineCount": 188,
+        "lineCount": 191,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1764,7 +1764,7 @@
       {
         "file": "src/app/api/stripe/portal/route.ts",
         "runtime": "nodejs",
-        "lineCount": 225,
+        "lineCount": 227,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1780,7 +1780,7 @@
       {
         "file": "src/app/api/tasks/from-email/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 287,
+        "lineCount": 313,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1788,7 +1788,7 @@
       {
         "file": "src/app/api/tasks/from-slack/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 229,
+        "lineCount": 234,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1812,7 +1812,7 @@
       {
         "file": "src/app/api/webhooks/dispatch/route.ts",
         "runtime": "nodejs",
-        "lineCount": 422,
+        "lineCount": 425,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1844,7 +1844,7 @@
       {
         "file": "src/app/auth/callback/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 93,
+        "lineCount": 264,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1874,7 +1874,7 @@
     ]
   },
   "dependencyCycles": {
-    "scannedFileCount": 1181,
+    "scannedFileCount": 1346,
     "baseline": "scripts/dependency-cycles-baseline.json",
     "cycleCount": 15,
     "regressionCount": 0,
@@ -1900,10 +1900,10 @@
   "complexityRatchets": [
     {
       "id": "script-complexity",
-      "scannedFileCount": 782,
+      "scannedFileCount": 820,
       "maxLines": 450,
       "baseline": "scripts/script-complexity-baseline.json",
-      "offenderCount": 32,
+      "offenderCount": 26,
       "regressionCount": 0,
       "largestFiles": [
         {
@@ -1922,13 +1922,8 @@
           "maxLines": 450
         },
         {
-          "file": "scripts/seed-local-auth.mjs",
-          "lines": 993,
-          "maxLines": 450
-        },
-        {
           "file": "scripts/check-release-evidence.mjs",
-          "lines": 952,
+          "lines": 951,
           "maxLines": 450
         },
         {
@@ -2002,11 +1997,6 @@
           "maxLines": 450
         },
         {
-          "file": "scripts/check-required-security-checkset.mjs",
-          "lines": 521,
-          "maxLines": 450
-        },
-        {
           "file": "scripts/check-sql-object-reference-inventory.mjs",
           "lines": 521,
           "maxLines": 450
@@ -2027,8 +2017,18 @@
           "maxLines": 450
         },
         {
-          "file": "scripts/check-public-seo-surface.mjs",
-          "lines": 495,
+          "file": "scripts/build-qa-comprehensive-taxonomy.mjs",
+          "lines": 490,
+          "maxLines": 450
+        },
+        {
+          "file": "scripts/check-github-workflows-security.mjs",
+          "lines": 483,
+          "maxLines": 450
+        },
+        {
+          "file": "scripts/check-operational-ci-enforcement.mjs",
+          "lines": 482,
           "maxLines": 450
         }
       ],
@@ -2036,7 +2036,7 @@
     },
     {
       "id": "server-action-complexity",
-      "scannedFileCount": 33,
+      "scannedFileCount": 35,
       "maxLines": 450,
       "baseline": "scripts/server-action-complexity-baseline.json",
       "offenderCount": 12,
@@ -2049,12 +2049,12 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "lines": 2081,
+          "lines": 2079,
           "maxLines": 450
         },
         {
           "file": "src/actions/workflow-config.ts",
-          "lines": 1154,
+          "lines": 1082,
           "maxLines": 450
         },
         {
@@ -2074,7 +2074,7 @@
         },
         {
           "file": "src/actions/obligations.ts",
-          "lines": 832,
+          "lines": 828,
           "maxLines": 450
         },
         {
@@ -2119,12 +2119,7 @@
         },
         {
           "file": "src/actions/renewal-playbook.ts",
-          "lines": 345,
-          "maxLines": 450
-        },
-        {
-          "file": "src/actions/auth.ts",
-          "lines": 295,
+          "lines": 346,
           "maxLines": 450
         },
         {
@@ -2145,6 +2140,11 @@
         {
           "file": "src/actions/mfa.ts",
           "lines": 198,
+          "maxLines": 450
+        },
+        {
+          "file": "src/actions/workflow-config-helpers.ts",
+          "lines": 179,
           "maxLines": 450
         },
         {
@@ -2172,25 +2172,20 @@
     },
     {
       "id": "frontend-component-complexity",
-      "scannedFileCount": 401,
+      "scannedFileCount": 517,
       "maxLines": 350,
       "baseline": "scripts/frontend-component-complexity-baseline.json",
-      "offenderCount": 55,
+      "offenderCount": 49,
       "regressionCount": 0,
       "largestFiles": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "lines": 4369,
+          "lines": 4096,
           "maxLines": 350
         },
         {
           "file": "src/app/(dashboard)/settings/billing/page.tsx",
-          "lines": 2050,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/landing/landing-page.tsx",
-          "lines": 1597,
+          "lines": 2038,
           "maxLines": 350
         },
         {
@@ -2200,82 +2195,77 @@
         },
         {
           "file": "src/app/(dashboard)/contracts/page.tsx",
-          "lines": 1311,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/settings/security-settings-panel.tsx",
-          "lines": 1169,
+          "lines": 1171,
           "maxLines": 350
         },
         {
           "file": "src/components/contracts/contract-table.tsx",
-          "lines": 939,
+          "lines": 1167,
           "maxLines": 350
         },
         {
-          "file": "src/components/dashboard/dashboard-lower.tsx",
-          "lines": 881,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(marketing)/pricing/page.tsx",
-          "lines": 874,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(dashboard)/search/search-view.tsx",
-          "lines": 865,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/contracts/upload-form.tsx",
-          "lines": 827,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(marketing)/product/page.tsx",
-          "lines": 825,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/dashboard/core-dashboard.tsx",
-          "lines": 801,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/contracts/contract-tasks-panel.tsx",
-          "lines": 798,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(marketing)/security/page.tsx",
-          "lines": 751,
+          "file": "src/components/landing/landing-page.tsx",
+          "lines": 1141,
           "maxLines": 350
         },
         {
           "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
-          "lines": 715,
+          "lines": 1003,
           "maxLines": 350
         },
         {
-          "file": "src/components/dashboard/dashboard-upper.tsx",
-          "lines": 681,
+          "file": "src/components/settings/security-settings-panel.tsx",
+          "lines": 997,
           "maxLines": 350
         },
         {
-          "file": "src/components/layout/command-palette.tsx",
-          "lines": 678,
+          "file": "src/components/dashboard/core-dashboard.tsx",
+          "lines": 928,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/contracts/bulk-upload-form.tsx",
+          "lines": 892,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/dashboard/dashboard-lower.tsx",
+          "lines": 880,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/contracts/upload-form.tsx",
+          "lines": 797,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/contracts/contract-tasks-panel.tsx",
+          "lines": 794,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(dashboard)/search/search-view.tsx",
+          "lines": 747,
           "maxLines": 350
         },
         {
           "file": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-          "lines": 649,
+          "lines": 723,
           "maxLines": 350
         },
         {
-          "file": "src/components/layout/sidebar.tsx",
-          "lines": 644,
+          "file": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+          "lines": 705,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/dashboard/dashboard-upper.tsx",
+          "lines": 676,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/layout/command-palette.tsx",
+          "lines": 650,
           "maxLines": 350
         },
         {
@@ -2284,23 +2274,33 @@
           "maxLines": 350
         },
         {
+          "file": "src/app/(marketing)/product/page.tsx",
+          "lines": 593,
+          "maxLines": 350
+        },
+        {
           "file": "src/app/(dashboard)/contracts/tasks/page.tsx",
           "lines": 592,
           "maxLines": 350
         },
         {
-          "file": "src/components/landing/contact-form.tsx",
-          "lines": 591,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(dashboard)/contracts/analytics/page.tsx",
-          "lines": 586,
-          "maxLines": 350
-        },
-        {
           "file": "src/app/(dashboard)/contracts/approvals/page.tsx",
           "lines": 582,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(dashboard)/work/page.tsx",
+          "lines": 582,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(dashboard)/contracts/obligations/page.tsx",
+          "lines": 577,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(dashboard)/contracts/exceptions/page.tsx",
+          "lines": 569,
           "maxLines": 350
         }
       ],
@@ -2311,52 +2311,12 @@
       "scannedFileCount": 226,
       "maxLines": 450,
       "baseline": "scripts/route-handler-complexity-baseline.json",
-      "offenderCount": 9,
+      "offenderCount": 0,
       "regressionCount": 0,
       "largestFiles": [
         {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "lines": 858,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "lines": 637,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/integrations/crm/sync/route.ts",
-          "lines": 604,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/command-palette/contracts/route.ts",
-          "lines": 571,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/exceptions/[id]/[action]/route.ts",
-          "lines": 542,
-          "maxLines": 450
-        },
-        {
           "file": "src/app/api/export/contracts/route.ts",
-          "lines": 536,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/evidence/submit/route.ts",
-          "lines": 522,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/approvals/[id]/[action]/route.ts",
-          "lines": 508,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/renewals/[id]/[action]/route.ts",
-          "lines": 455,
+          "lines": 450,
           "maxLines": 450
         },
         {
@@ -2365,23 +2325,28 @@
           "maxLines": 450
         },
         {
+          "file": "src/app/api/renewals/[id]/[action]/route.ts",
+          "lines": 428,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/webhooks/dispatch/route.ts",
+          "lines": 425,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/integrations/oauth/callback/route.ts",
+          "lines": 424,
+          "maxLines": 450
+        },
+        {
           "file": "src/app/api/external-actions/[token]/submit/route.ts",
           "lines": 423,
           "maxLines": 450
         },
         {
-          "file": "src/app/api/webhooks/dispatch/route.ts",
-          "lines": 422,
-          "maxLines": 450
-        },
-        {
           "file": "src/app/api/integrations/calendar/sync/route.ts",
           "lines": 417,
-          "maxLines": 450
-        },
-        {
-          "file": "src/app/api/integrations/oauth/callback/route.ts",
-          "lines": 414,
           "maxLines": 450
         },
         {
@@ -2400,23 +2365,43 @@
           "maxLines": 450
         },
         {
+          "file": "src/app/api/approvals/[id]/[action]/route.ts",
+          "lines": 384,
+          "maxLines": 450
+        },
+        {
           "file": "src/app/api/evidence/[id]/[action]/route.ts",
-          "lines": 381,
+          "lines": 383,
           "maxLines": 450
         },
         {
           "file": "src/app/api/extract/route.ts",
-          "lines": 378,
+          "lines": 373,
           "maxLines": 450
         },
         {
           "file": "src/app/api/stripe/checkout/route.ts",
-          "lines": 349,
+          "lines": 365,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/evidence/submit/route.ts",
+          "lines": 347,
           "maxLines": 450
         },
         {
           "file": "src/app/api/integrations/refresh-tokens/route.ts",
           "lines": 338,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/integrations/actions/callback/route.ts",
+          "lines": 326,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/tasks/from-email/route.ts",
+          "lines": 313,
           "maxLines": 450
         },
         {
@@ -2438,13 +2423,28 @@
           "file": "src/app/api/cron/v4/evidence-followup/route.ts",
           "lines": 299,
           "maxLines": 450
+        },
+        {
+          "file": "src/app/api/import/contracts/route.ts",
+          "lines": 295,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/decisions/[id]/route.ts",
+          "lines": 294,
+          "maxLines": 450
+        },
+        {
+          "file": "src/app/api/cron/v4/exceptions-detect/route.ts",
+          "lines": 290,
+          "maxLines": 450
         }
       ],
       "regressions": []
     },
     {
       "id": "source-file-complexity",
-      "scannedFileCount": 1190,
+      "scannedFileCount": 1355,
       "maxLines": 4500,
       "baseline": null,
       "offenderCount": 0,
@@ -2452,17 +2452,17 @@
       "largestFiles": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "lines": 4369,
+          "lines": 4096,
           "maxLines": 4500
         },
         {
           "file": "src/lib/read-model-refresh.ts",
-          "lines": 3898,
+          "lines": 3948,
           "maxLines": 4500
         },
         {
           "file": "src/lib/route-api-catalog.ts",
-          "lines": 3028,
+          "lines": 3082,
           "maxLines": 4500
         },
         {
@@ -2472,17 +2472,17 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "lines": 2081,
-          "maxLines": 4500
-        },
-        {
-          "file": "src/app/(dashboard)/settings/billing/page.tsx",
-          "lines": 2050,
+          "lines": 2079,
           "maxLines": 4500
         },
         {
           "file": "src/lib/final-gap-audit.ts",
           "lines": 2046,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/app/(dashboard)/settings/billing/page.tsx",
+          "lines": 2038,
           "maxLines": 4500
         },
         {
@@ -2501,11 +2501,6 @@
           "maxLines": 4500
         },
         {
-          "file": "src/components/landing/landing-page.tsx",
-          "lines": 1597,
-          "maxLines": 4500
-        },
-        {
           "file": "src/app/(dashboard)/settings/health/page.tsx",
           "lines": 1498,
           "maxLines": 4500
@@ -2516,23 +2511,38 @@
           "maxLines": 4500
         },
         {
+          "file": "src/lib/dashboard/core-dashboard-model.ts",
+          "lines": 1261,
+          "maxLines": 4500
+        },
+        {
           "file": "src/app/(dashboard)/contracts/page.tsx",
-          "lines": 1311,
+          "lines": 1171,
           "maxLines": 4500
         },
         {
-          "file": "src/components/settings/security-settings-panel.tsx",
-          "lines": 1169,
+          "file": "src/components/contracts/contract-table.tsx",
+          "lines": 1167,
           "maxLines": 4500
         },
         {
-          "file": "src/actions/workflow-config.ts",
-          "lines": 1154,
+          "file": "src/components/landing/landing-page.tsx",
+          "lines": 1141,
           "maxLines": 4500
         },
         {
           "file": "src/lib/debugging-sweep/stubs/catalog-stubs.generated.ts",
           "lines": 1106,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/lib/reports/model.ts",
+          "lines": 1091,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/actions/workflow-config.ts",
+          "lines": 1082,
           "maxLines": 4500
         },
         {
@@ -2552,7 +2562,7 @@
         },
         {
           "file": "src/lib/product-surface/workflow-destinations.ts",
-          "lines": 1023,
+          "lines": 1037,
           "maxLines": 4500
         },
         {
@@ -2561,18 +2571,8 @@
           "maxLines": 4500
         },
         {
-          "file": "src/lib/objective-measurements.ts",
-          "lines": 991,
-          "maxLines": 4500
-        },
-        {
-          "file": "src/lib/server-contracts.ts",
-          "lines": 966,
-          "maxLines": 4500
-        },
-        {
-          "file": "src/lib/assurance/health-graph.ts",
-          "lines": 955,
+          "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
+          "lines": 1003,
           "maxLines": 4500
         }
       ],
@@ -2580,10 +2580,10 @@
     }
   ],
   "deadSurfaces": {
-    "scriptFileCount": 823,
-    "referencedScriptFileCount": 581,
+    "scriptFileCount": 876,
+    "referencedScriptFileCount": 612,
     "unusedScripts": [],
-    "fixtureFileCount": 16,
+    "fixtureFileCount": 17,
     "orphanedFixtures": [],
     "routeMetadataEvidence": [
       {
@@ -2608,12 +2608,12 @@
     "inputHashes": [
       {
         "path": "package-lock.json",
-        "sha256": "b750917e16cb98a625d32ac2a7d5ab4b760a7abc3d78a730f2ce7bc1a6faee0b",
+        "sha256": "a6e1a99a7e1ba6e0966cd4288b877d440ef6a6880631c1b13b7a226b0ed704ba",
         "stable": true
       },
       {
         "path": "next.config.ts",
-        "sha256": "d50e4562df064a16432dd8538cf37a576a5fb548a437958af80776a1c13b5414",
+        "sha256": "86cddb2d8d5ce7d3c511a1f7bb41127a70f8d13d48ab060f1ce885b32ede2562",
         "stable": true
       },
       {
@@ -2662,7 +2662,7 @@
   "generatedArtifactHygiene": {
     "ok": true,
     "issueCount": 0,
-    "artifactCount": 92
+    "artifactCount": 105
   },
   "manualBoundary": {
     "objectiveId": "oph-031-static-architecture-code-health",

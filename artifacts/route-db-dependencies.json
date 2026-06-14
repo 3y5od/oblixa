@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-10T14:54:05.414Z",
+  "generatedAt": "2026-06-13T18:13:02.696Z",
   "rows": [
     {
       "route": "/accounts/[key]",
@@ -30,9 +30,7 @@
       "route": "/api/approvals/[id]/[action]",
       "sourcePath": "src/app/api/approvals/[id]/[action]/route.ts",
       "tables": [
-        "contract_approval_events",
-        "contract_approvals",
-        "organization_members"
+        "contract_approvals"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -513,19 +511,6 @@
       "orgScopeEvidence": true
     },
     {
-      "route": "/api/cron/report-packs-generate",
-      "sourcePath": "src/app/api/cron/report-packs-generate/route.ts",
-      "tables": [
-        "report_pack_runs",
-        "report_pack_subscriptions",
-        "report_packs",
-        "report_runs"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
       "route": "/api/cron/runtime-artifact-cleanup",
       "sourcePath": "src/app/api/cron/runtime-artifact-cleanup/route.ts",
       "tables": [
@@ -684,19 +669,6 @@
       "sourcePath": "src/app/api/cron/v4/renewals-recompute-signals/route.ts",
       "tables": [
         "contract_renewal_checkpoints"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "/api/cron/v4/report-packs-generate",
-      "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
-      "tables": [
-        "report_pack_runs",
-        "report_pack_subscriptions",
-        "report_packs",
-        "report_runs"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -1023,9 +995,7 @@
       "route": "/api/exceptions/[id]/[action]",
       "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
       "tables": [
-        "exception_events",
-        "exceptions",
-        "organization_members"
+        "exceptions"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -1067,7 +1037,6 @@
       "route": "/api/export/contracts",
       "sourcePath": "src/app/api/export/contracts/route.ts",
       "tables": [
-        "contract_export_jobs",
         "contracts",
         "organization_members"
       ],
@@ -1189,12 +1158,8 @@
       "route": "/api/integrations/actions/callback",
       "sourcePath": "src/app/api/integrations/actions/callback/route.ts",
       "tables": [
-        "contract_approvals",
-        "contract_tasks",
         "contracts",
-        "evidence_submissions",
-        "exceptions",
-        "operational_casefile_events"
+        "organization_members"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -1205,20 +1170,6 @@
       "sourcePath": "src/app/api/integrations/calendar/sync/route.ts",
       "tables": [
         "audit_events",
-        "integration_connections"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "/api/integrations/crm/sync",
-      "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
-      "tables": [
-        "audit_events",
-        "contract_renewal_scenarios",
-        "contracts",
-        "exceptions",
         "integration_connections"
       ],
       "rpcs": [],
@@ -1536,24 +1487,6 @@
         "organization_members",
         "organizations",
         "report_run_recipients"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "/api/reports/send-summaries",
-      "sourcePath": "src/app/api/reports/send-summaries/route.ts",
-      "tables": [
-        "contract_intake_history",
-        "contract_obligations",
-        "contract_renewal_scenarios",
-        "contract_tasks",
-        "contracts",
-        "profiles",
-        "report_run_recipients",
-        "report_runs",
-        "report_subscriptions"
       ],
       "rpcs": [],
       "orgScopeRequired": true,
@@ -2123,7 +2056,6 @@
         "contract_change_events",
         "contract_files",
         "contracts",
-        "maintenance_campaign_rows",
         "maintenance_campaigns",
         "organization_workflow_settings"
       ],
@@ -3838,17 +3770,6 @@
       "orgScopeEvidence": true
     },
     {
-      "route": "action:forgotPassword",
-      "sourcePath": "src/actions/auth.ts",
-      "tables": [
-        "workspace_access_grants",
-        "workspace_access_requests"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
       "route": "action:generateRenewalDecisionPacketAction",
       "sourcePath": "src/actions/policy-operations.ts",
       "tables": [
@@ -4174,17 +4095,6 @@
       "orgScopeEvidence": true
     },
     {
-      "route": "action:resetPassword",
-      "sourcePath": "src/actions/auth.ts",
-      "tables": [
-        "workspace_access_grants",
-        "workspace_access_requests"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
       "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
       "sourcePath": "src/actions/product-surface-settings.ts",
       "tables": [
@@ -4491,39 +4401,6 @@
         "organization_members",
         "report_subscriptions",
         "saved_views"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "action:signIn",
-      "sourcePath": "src/actions/auth.ts",
-      "tables": [
-        "workspace_access_grants",
-        "workspace_access_requests"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "action:signOut",
-      "sourcePath": "src/actions/auth.ts",
-      "tables": [
-        "workspace_access_grants",
-        "workspace_access_requests"
-      ],
-      "rpcs": [],
-      "orgScopeRequired": true,
-      "orgScopeEvidence": true
-    },
-    {
-      "route": "action:signUp",
-      "sourcePath": "src/actions/auth.ts",
-      "tables": [
-        "workspace_access_grants",
-        "workspace_access_requests"
       ],
       "rpcs": [],
       "orgScopeRequired": true,

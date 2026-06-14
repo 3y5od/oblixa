@@ -4,6 +4,15 @@
 # meta: owner=@security expiry=2027-12-31 reason=shared cron boundary centralizes authenticated admin client construction but does not itself perform tenant data queries.
 src/lib/cron/route-runner.ts
 
+# meta: owner=@security expiry=2027-12-31 reason=public access-grant inspection is token-scoped and pre-tenant; signup flow only returns coarse grant state after token shape, IP rate limit, and hash lookup.
+src/app/(auth)/signup/page.tsx
+
+# meta: owner=@product-marketing expiry=2027-12-31 reason=public pre-account access request intake has no tenant org scope; bounded JSON, IP rate limit, honeypot, dedupe, and access-review helper constrain service-role writes.
+src/app/api/contact/route.ts
+
+# meta: owner=@security expiry=2027-12-31 reason=operator access-review console is intentionally cross-tenant pre-workspace; OBLIXA_OPERATOR_EMAILS and sensitive-action proof gate mutations, and changes record access request events.
+src/app/operator/access-requests/page.tsx
+
 # meta: owner=@billing expiry=2027-12-31 reason=retention cleanup deletes old Stripe webhook idempotency rows globally by timestamp rather than tenant scope.
 src/app/api/cron/stripe-webhook-events/route.ts
 

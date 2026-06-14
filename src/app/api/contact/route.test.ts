@@ -136,7 +136,7 @@ describe("POST /api/contact", () => {
         JSON.stringify(
           validPayload({
             name: "Dave",
-            email: "zxia0huu@gmail.com",
+            email: "consumer-request@example.com",
             company: "Apple",
             role: "Founder",
             contracts: "20_50",
@@ -154,7 +154,7 @@ describe("POST /api/contact", () => {
     expect(res.status).toBe(204);
     expect(accessRequestInsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        normalized_email: "zxia0huu@gmail.com",
+        normalized_email: "consumer-request@example.com",
         company_name: "Apple",
         has_tracker: "unsure",
         redacted_sample_available: "unsure",
@@ -169,7 +169,7 @@ describe("POST /api/contact", () => {
         JSON.stringify(
           validPayload({
             name: "Dave",
-            email: "zxia0huu@gmail.com",
+            email: "legacy-labels@example.com",
             company: "Apple",
             role: "Founder",
             contracts: "20-50",
@@ -187,7 +187,7 @@ describe("POST /api/contact", () => {
     expect(res.status).toBe(204);
     expect(accessRequestInsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        normalized_email: "zxia0huu@gmail.com",
+        normalized_email: "legacy-labels@example.com",
         current_tracking_method: "shared_folder",
         has_tracker: "unsure",
         redacted_sample_available: "unsure",

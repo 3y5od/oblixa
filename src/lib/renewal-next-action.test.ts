@@ -42,7 +42,7 @@ describe("getRenewalNextAction (v9)", () => {
       })
     ).toEqual({
       href: "/contracts/exceptions?status=open&contract=contract-1",
-      label: "Resolve exceptions",
+      label: "Resolve issues",
     });
   });
 

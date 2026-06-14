@@ -70,7 +70,7 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("RenewalRowsHeader");
     expect(page).toContain("RenewalRowFactGrid");
     expect(page).toContain("RenewalRowStateGrid");
-    expect(page).toContain("xl:grid-cols-[minmax(15rem,1.2fr)_minmax(6rem,0.55fr)_minmax(6.25rem,0.55fr)_minmax(6.25rem,0.55fr)_minmax(7rem,0.6fr)_minmax(12.25rem,0.9fr)_minmax(8.25rem,0.65fr)]");
+    expect(page).toContain("xl:grid-cols-[minmax(13rem,1.15fr)_minmax(7rem,0.65fr)_minmax(6.75rem,0.6fr)_minmax(6.75rem,0.6fr)_minmax(9rem,0.85fr)_minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)]");
     // The status column is widened (and the action column tightened) so the
     // longest actionable label ("Notice window open") fits on one line at the
     // canonical pill scale — no font shrink required.

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { readAuthActionImplementationSource } from "./lib/source-marker-readers.mjs";
 
 const ROOT = process.cwd();
 const REQUIRED_PACKAGE_SCRIPTS = ["check:audit-event-coverage"];
@@ -231,7 +232,7 @@ export function analyzeAuditEventCoverage(root = ROOT) {
   }
   for (const [rel, markers] of Object.entries(REQUIRED_FILE_MARKERS)) {
     if (!exists(root, rel)) continue;
-    const content = read(root, rel);
+    const content = rel === "src/actions/auth.ts" ? readAuthActionImplementationSource(root, rel) : read(root, rel);
     for (const marker of collectMissingMarkers(content, markers)) {
       issues.push({ issue: "missing_marker", rel, marker });
     }

@@ -7,10 +7,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const actionsDir = path.join(root, "src", "actions");
 
 const AUTH_SIGNALS = [
   "createClient(",
@@ -19,6 +19,7 @@ const AUTH_SIGNALS = [
   "getApiAuthContext",
   "getUser(",
   "getSession(",
+  "@/lib/auth/auth-action-impl",
 ];
 
 const ORG_MEMBERSHIP_SIGNALS = [
@@ -46,35 +47,48 @@ function walk(dir, acc = []) {
   return acc;
 }
 
-const files = walk(actionsDir);
-const violations = [];
-const orgViolations = [];
+export function analyzeServerActionAuthContract(rootDir = root) {
+  const currentActionsDir = path.join(rootDir, "src", "actions");
+  const files = walk(currentActionsDir);
+  const violations = [];
+  const orgViolations = [];
 
-for (const abs of files) {
-  const raw = fs.readFileSync(abs, "utf8");
-  if (!raw.includes('"use server"') && !raw.includes("'use server'")) continue;
-  if (!AUTH_SIGNALS.some((s) => raw.includes(s))) {
-    violations.push(path.relative(root, abs).replace(/\\/g, "/"));
+  for (const abs of files) {
+    const raw = fs.readFileSync(abs, "utf8");
+    if (!raw.includes('"use server"') && !raw.includes("'use server'")) continue;
+    if (!AUTH_SIGNALS.some((s) => raw.includes(s))) {
+      violations.push(path.relative(rootDir, abs).replace(/\\/g, "/"));
+    }
+    if (ORG_FORM_PATTERNS.some((re) => re.test(raw)) && !ORG_MEMBERSHIP_SIGNALS.some((s) => raw.includes(s))) {
+      orgViolations.push(path.relative(rootDir, abs).replace(/\\/g, "/"));
+    }
   }
-  if (ORG_FORM_PATTERNS.some((re) => re.test(raw)) && !ORG_MEMBERSHIP_SIGNALS.some((s) => raw.includes(s))) {
-    orgViolations.push(path.relative(root, abs).replace(/\\/g, "/"));
-  }
+
+  return {
+    ok: violations.length === 0 && orgViolations.length === 0,
+    filesChecked: files.length,
+    violations,
+    orgScopeViolations: orgViolations,
+  };
 }
 
-if (violations.length || orgViolations.length) {
-  console.error(
-    JSON.stringify(
-      {
-        ok: false,
-        violations,
-        orgScopeViolations: orgViolations,
-        detail:
-          "Each server action must reference auth helpers; org-scoped FormData actions must query organization_members or verifyOrgMembership.",
-      },
-      null,
-      2
-    )
-  );
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const report = analyzeServerActionAuthContract();
+  if (!report.ok) {
+    console.error(
+      JSON.stringify(
+        {
+          ok: false,
+          violations: report.violations,
+          orgScopeViolations: report.orgScopeViolations,
+          detail:
+            "Each server action must reference auth helpers; org-scoped FormData actions must query organization_members or verifyOrgMembership.",
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
+  console.log(JSON.stringify({ ok: true, filesChecked: report.filesChecked }, null, 2));
 }
-console.log(JSON.stringify({ ok: true, filesChecked: files.length }, null, 2));

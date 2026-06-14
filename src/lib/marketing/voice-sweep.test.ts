@@ -77,8 +77,16 @@ describe("public marketing release-state voice sweep", () => {
 
   it("pins the request-access flow and fit-based confirmation copy", () => {
     const route = read("src/app/(marketing)/request-access/page.tsx");
-    const form = read("src/components/landing/contact-form.tsx");
-    const api = read("src/app/api/contact/route.ts");
+    const form = [
+      "src/components/landing/contact-form.tsx",
+      "src/components/landing/contact-form-data.ts",
+      "src/components/landing/contact-form-fields.tsx",
+      "src/components/landing/contact-form-submitted-state.tsx",
+    ].map(read).join("\n");
+    const api = [
+      "src/app/api/contact/route.ts",
+      "src/lib/contact-route-helpers.ts",
+    ].map(read).join("\n");
 
     expect(route).toContain("Reviewed workspace access");
     expect(route).toContain("Redacted sample");
@@ -97,7 +105,7 @@ describe("public marketing release-state voice sweep", () => {
 
     expect(security).toContain("reviewed access");
     expect(security).toContain("does not provide legal advice");
-    expect(security).toContain("formal enterprise security review");
+    expect(security).toContain("No public security attestation claimed");
     expect(contact).toContain("Contact Oblixa");
     expect(contact).toContain("Request workspace access");
     expect(contact).toContain("Security and vulnerability reports");

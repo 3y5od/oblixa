@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { analyzeExportSecurityGuards } from "./check-export-security-guards.mjs";
 import { analyzeReportRedactionContract } from "./check-report-redaction-contract.mjs";
 import { analyzeTelemetryEventInventory } from "./check-telemetry-event-inventory.mjs";
+import { readSourceWithSupplements } from "./lib/source-marker-readers.mjs";
 
 const ROOT = process.cwd();
 const CONFIG_REL = "config/operational-search-reporting-analytics-exports.json";
@@ -125,7 +126,8 @@ export function validateMarkerRows(root, rows, requiredIds, issuePrefix, issues,
   const out = [];
 
   for (const row of rows ?? []) {
-    const text = read(root, row.path);
+    const primaryText = read(root, row.path);
+    const text = primaryText ? readSourceWithSupplements(root, row.path, row.supplementalPaths ?? []) : "";
     const missing = [];
     if (seen.has(row.id)) {
       issues.push(issue(`${issuePrefix}_duplicate_id`, { id: row.id }));
@@ -151,6 +153,7 @@ export function validateMarkerRows(root, rows, requiredIds, issuePrefix, issues,
     out.push({
       id: row.id,
       path: row.path,
+      supplementalPaths: row.supplementalPaths ?? [],
       owner: row.owner ?? null,
       validationCommand: row.validationCommand ?? null,
       markerCount: row.markers?.length ?? 0,

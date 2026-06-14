@@ -39,6 +39,24 @@ test("analyzeServerActionsInventory classifies guarded server action exports", (
   assert.deepEqual(report.inventory[0]?.classifications, ["authenticated", "org_scoped"]);
 });
 
+test("analyzeServerActionsInventory classifies delegated public auth action wrappers", () => {
+  const report = withFixture(
+    {
+      "src/actions/auth.ts": `
+        "use server";
+        import { signIn as signInImpl } from "@/lib/auth/auth-action-impl";
+        export async function signIn(formData) {
+          return signInImpl(formData);
+        }
+      `,
+    },
+    analyzeServerActionsInventory
+  );
+
+  assert.equal(report.issueCount, 0);
+  assert.deepEqual(report.inventory[0]?.classifications, ["public_auth_flow"]);
+});
+
 test("analyzeServerActionsInventory flags unclassified exported server actions", () => {
   const report = withFixture(
     {

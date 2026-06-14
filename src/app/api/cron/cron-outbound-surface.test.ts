@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const REPORT_PACKS_CRON = join(process.cwd(), "src/app/api/cron/v4/report-packs-generate/route.ts");
+const REPORT_PACKS_CRON = join(process.cwd(), "src/lib/reports/report-pack-generation-route.ts");
 const REVIEW_BOARD_NOTIFICATIONS = join(process.cwd(), "src/lib/assurance/review-board-notifications.ts");
 
 describe("cron outbound product-surface gating", () => {
@@ -26,4 +26,3 @@ describe("cron outbound product-surface gating", () => {
     expect(raw.includes("fetch(webhook.toString()")).toBe(false);
   });
 });
-

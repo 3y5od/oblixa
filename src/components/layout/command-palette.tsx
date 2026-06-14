@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createElement, useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
-import { ArrowRight, Search } from "lucide-react";
+import { useCallback, useMemo, useState, useEffect, useRef, useDeferredValue } from "react";
+import { Search } from "lucide-react";
 import { fetchJson } from "@/lib/http/client-json";
 import type { FeatureFlagKey } from "@/lib/feature-flags";
 import { STATUS_LABELS } from "@/lib/contracts";
@@ -37,10 +36,8 @@ import {
   emitCmdkSearchFailedTelemetry,
   emitCmdkZeroResultsTelemetry,
 } from "@/actions/product-telemetry";
-import { RecoverableState } from "@/components/ui/recoverable-state";
-import { ResultRow, resolveRowActionVerb } from "@/components/search/result-row";
-import { SearchField, type SearchFieldHandle } from "@/components/search/search-field";
-import { resolveNavIcon } from "@/components/search/nav-icon";
+import { resolveRowActionVerb } from "@/components/search/result-row";
+import type { SearchFieldHandle } from "@/components/search/search-field";
 import {
   allCommandItems,
   cmdkJumpMatchesPaletteQuery,
@@ -52,6 +49,7 @@ import {
   type ContractPaletteResult,
   type PaletteItem,
 } from "./command-palette-helpers";
+import { CommandPaletteDialog } from "./command-palette-dialog";
 
 /** Top-of-each-group shortcuts shown in the truly-empty (no recents) state.
  *  Mirrors the dedicated `/search` page so both surfaces feel identical. */
@@ -59,37 +57,6 @@ const QUICK_PICK_HREFS: readonly string[] = ["/dashboard", "/work", "/reports", 
 
 function persistRecentCommands(next: string[]) {
   writeCommandPaletteRecentCommands(next);
-}
-
-/** Contract / report results lead in the "Results" group with rich resultMeta,
- *  so they keep it. Nav + scoped jumps show a quiet mono path so a taxonomy band
- *  never mixes verbose metadata with bare paths. */
-function overlayMetaOverride(item: PaletteItem): string | undefined {
-  if (item.resultOrder != null) return undefined;
-  return item.href.split("?")[0] ?? item.href;
-}
-
-function FooterHint({ keys, label }: { keys: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
-      <kbd className="ui-kbd">{keys}</kbd>
-      {label}
-    </span>
-  );
-}
-
-function GroupHead({ label, count }: { label: string; count: number }) {
-  return (
-    <div className="ui-command-group-head">
-      <span className="ui-caps-2 text-[var(--text-tertiary)]">{label}</span>
-      {count >= 1 ? (
-        <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-          <span className="sr-only">{count} result{count === 1 ? "" : "s"}</span>
-          <span aria-hidden>{count}</span>
-        </span>
-      ) : null}
-    </div>
-  );
 }
 
 export function CommandPalette(props: {
@@ -634,312 +601,48 @@ export function CommandPalette(props: {
       </button>
 
       {open && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Command palette"
-          data-testid={shellTestIds.commandPaletteRoot}
-          className="ui-overlay-scrim fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:px-4 sm:pt-[11vh]"
-        >
-          <button
-            type="button"
-            className="absolute inset-0"
-            onClick={() => setOpen(false)}
-            aria-label="Close command palette overlay"
-          />
-          <div
-            className="ui-command-modal relative flex w-full max-w-3xl flex-col lg:max-w-[56rem]"
-            style={{ maxHeight: "min(33rem, calc(100dvh - 9rem))" }}
-          >
-            <div className="ui-command-search shrink-0">
-              <SearchField
-                ref={fieldRef}
-                variant="overlay"
-                isOpen
-                isCombobox={false}
-                value={query}
-                onChange={handleQueryChange}
-                onClear={() => {
-                  setQuery("");
-                  clearRemoteSearchFeedback();
-                  setActiveIndex(0);
-                }}
-                placeholder="Search pages, queues, reports, tools"
-                ariaLabel="Search pages, queues, reports, tools"
-                ariaControls="command-palette-results"
-                ariaKeyShortcuts="ArrowUp ArrowDown Enter Escape"
-                testId={shellTestIds.commandPaletteInput}
-                trailing={
-                  hasQuery ? (
-                    <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                      <span className="sr-only">{flatItems.length} result{flatItems.length === 1 ? "" : "s"}</span>
-                      <span aria-hidden>{flatItems.length}</span>
-                    </span>
-                  ) : null
-                }
-              />
-            </div>
-            <div role="status" aria-live="polite" className="sr-only">
-              {hasQuery ? announcement : ""}
-            </div>
-            {remoteSearchPartial ? (
-              <div className="shrink-0 border-b border-[var(--border-subtle)] px-4 py-2 sm:px-5">
-                <RecoverableState
-                  state="partial"
-                  title="Command search is partially available"
-                  reason={remoteSearchRecovery?.message ?? remoteSearchPartial}
-                  accessibleName="Command palette partial search state"
-                  surface="command_palette"
-                  section="remote_search"
-                  sourceObject="setting_destination"
-                  diagnosticId={remoteSearchRecovery?.diagnosticId}
-                  nextActionLabel="Review recovery destination"
-                  className="border-0 bg-transparent p-0"
-                  nextAction={(remoteSearchRecovery?.actions ?? [{ label: "Review workspace health", href: "/settings/health" }]).slice(0, 2).map((action) => (
-                    <Link key={action.href} href={action.href} onClick={() => setOpen(false)} className="ui-link inline-flex">
-                      {action.label}
-                    </Link>
-                  ))}
-                />
-              </div>
-            ) : null}
-            {/* Body: results list (left) + a desktop-only detail rail (right).
-                Only the results list scrolls; header + footer stay pinned;
-                overflow is signaled by the scrollbar + bottom padding. */}
-            <div className="flex min-h-0 flex-auto">
-              <div className="flex min-h-0 flex-auto flex-col">
-              <ul
-                id="command-palette-results"
-                data-testid={shellTestIds.commandPaletteResults}
-                onScroll={handleResultsScroll}
-                className="ui-command-scroll min-h-0 flex-auto overflow-y-auto pb-4 pt-1"
-              >
-                {remoteSearchLoading && deferredFilterQ.length >= 2 ? (
-                  <li className="flex items-center gap-2.5 px-4 py-2 text-[12.5px] text-[var(--text-tertiary)]">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--border-strong)] border-t-[var(--accent)] motion-reduce:animate-none"
-                    />
-                    Searching contracts…
-                  </li>
-                ) : null}
-                {flatItems.length === 0 && !remoteSearchLoading ? (
-                  <li className="px-4 py-8 text-center text-sm text-[var(--text-secondary)] sm:px-5">
-                    <RecoverableState
-                      state={remoteSearchFailed ? "failed" : "empty"}
-                      title={remoteSearchFailed ? "Command search could not load." : (remoteSearchRecovery?.message ?? "No matches found.")}
-                      reason={
-                        remoteSearchFailed
-                          ? "Retry command search or open workspace health for recovery diagnostics."
-                          : "No eligible command destination matched this query. Search contracts or use a recovery destination."
-                      }
-                      accessibleName={remoteSearchFailed ? "Command palette failed search state" : "Command palette empty search state"}
-                      surface="command_palette"
-                      section="zero_results"
-                      sourceObject="setting_destination"
-                      diagnosticId={remoteSearchRecovery?.diagnosticId}
-                      nextActionLabel={remoteSearchFailed ? "Retry command search" : "Search contracts for this query"}
-                      className="border-0 bg-transparent p-0"
-                      nextAction={
-                        <>
-                          {remoteSearchFailed ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setRemoteSearchFailed(false);
-                                setRemoteSearchRetryNonce((value) => value + 1);
-                              }}
-                              className="ui-btn-secondary min-h-9 rounded-full px-3 text-xs"
-                            >
-                              Retry search
-                            </button>
-                          ) : null}
-                          {remoteSearchFailed || remoteSearchRecovery ? (
-                            <Link href="/settings/health" onClick={() => setOpen(false)} className="ui-link inline-flex">
-                              Review workspace health
-                            </Link>
-                          ) : null}
-                          {remoteSearchRecovery
-                            ? remoteSearchRecovery.actions.map((action) => (
-                                <Link
-                                  key={`${action.href}:${action.reason ?? "recovery"}`}
-                                  href={action.href}
-                                  onClick={() => setOpen(false)}
-                                  className="ui-btn-secondary min-h-9 rounded-full px-3 text-xs"
-                                >
-                                  {action.label}
-                                </Link>
-                              ))
-                            : null}
-                          <Link
-                            href={`/contracts?search=${encodeURIComponent(query.trim())}`}
-                            onClick={() => setOpen(false)}
-                            className="ui-link inline-flex"
-                          >
-                            Search contracts for this query
-                          </Link>
-                        </>
-                      }
-                      noActionExplanation={
-                        remoteSearchRecovery ? undefined : "Recovery action: route to eligible contract search instead of leaving a blank panel."
-                      }
-                    />
-                  </li>
-                ) : flatItems.length === 0 ? null : (
-                  <>
-                    {recentsForBand ? (
-                      <li>
-                        <GroupHead label="Recent" count={recentsForBand.length} />
-                        <ul>
-                          {recentsForBand.map((item) => (
-                            <li key={`recent-${item.href}`}>
-                              <ResultRow
-                                item={item}
-                                role={role}
-                                metaOverride={overlayMetaOverride(item)}
-                                onSelect={() => handleSelectRow(item)}
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    ) : null}
-
-                    {showQuickPick && quickPickItems.length > 0 ? (
-                      <li>
-                        <GroupHead label="Quick pick" count={0} />
-                        {/* Compact shortcut chips, not full rows — these
-                            destinations also appear in the taxonomy groups
-                            below, so a quieter chip band avoids row-for-row
-                            duplication. */}
-                        <div className="flex flex-wrap gap-1.5 px-4 pb-2.5 pt-1">
-                          {quickPickItems.map((item) => (
-                            <Link
-                              key={`quick-${item.href}`}
-                              href={item.href}
-                              onClick={() => handleSelectRow(item)}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
-                            >
-                              <span aria-hidden className="text-[var(--accent-strong)]">
-                                {createElement(resolveNavIcon(item), { className: "h-3.5 w-3.5", strokeWidth: 1.85 })}
-                              </span>
-                              {item.name}
-                            </Link>
-                          ))}
-                        </div>
-                      </li>
-                    ) : null}
-
-                    {orderedGroups.map((section) => (
-                      <li key={section.key}>
-                        <GroupHead label={section.label} count={section.items.length} />
-                        <ul>
-                          {section.items.map((item) => {
-                            const idx = flatIndexByHref.get(item.href) ?? -1;
-                            const active = idx === clampedActiveIndex;
-                            const isRecent =
-                              !active &&
-                              foldedRecentHref !== null &&
-                              paletteHrefKey(item.href) === foldedRecentHref;
-                            return (
-                              <li key={item.href}>
-                                <ResultRow
-                                  item={item}
-                                  role={role}
-                                  query={hasQuery ? query : undefined}
-                                  isActive={active}
-                                  isRecent={isRecent}
-                                  metaOverride={overlayMetaOverride(item)}
-                                  onSelect={() => handleSelectRow(item)}
-                                  onActivate={() => {
-                                    if (idx >= 0) setActiveIndex(idx);
-                                    setRailVisible(true);
-                                  }}
-                                />
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </li>
-                    ))}
-                  </>
-                )}
-              </ul>
-              </div>
-              <aside className="hidden w-[16rem] shrink-0 flex-col overflow-y-auto border-l border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] p-4 lg:flex">
-                {activeItem && railVisible ? (
-                  <>
-                    <span
-                      aria-hidden
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]"
-                    >
-                      {createElement(resolveNavIcon(activeItem), { className: "h-[1.125rem] w-[1.125rem]", strokeWidth: 1.85 })}
-                    </span>
-                    <p className="mt-3 text-[15px] font-semibold leading-snug tracking-tight text-[var(--text-primary)]">
-                      {activeItem.name}
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      <span className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                        {activeGroupLabel}
-                      </span>
-                      <span className="inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-                        {activeVerb}
-                      </span>
-                    </div>
-                    {activeItem.description ? (
-                      <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                        {activeItem.description}
-                      </p>
-                    ) : null}
-                    <p className="mt-3 break-all font-mono text-[11px] text-[var(--text-tertiary)]">
-                      {activeItem.href}
-                    </p>
-                    <Link
-                      href={activeItem.href}
-                      onClick={() => handleSelectRow(activeItem)}
-                      className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_35%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_28%,var(--surface-raised))] px-3 py-1.5 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_48%,var(--surface-raised))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
-                    >
-                      {activeVerb}
-                      <ArrowRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-                    </Link>
-                  </>
-                ) : (
-                  <div className="m-auto text-center">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-                      Keyboard
-                    </p>
-                    <div className="mt-2.5 flex flex-col gap-2 text-[11px] text-[var(--text-tertiary)]">
-                      <span className="inline-flex items-center justify-center gap-1.5">
-                        <kbd className="ui-kbd">↑↓</kbd> Move
-                      </span>
-                      <span className="inline-flex items-center justify-center gap-1.5">
-                        <kbd className="ui-kbd">Enter</kbd> Open
-                      </span>
-                      <span className="inline-flex items-center justify-center gap-1.5">
-                        <kbd className="ui-kbd">Esc</kbd> Close
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </aside>
-            </div>
-            <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[var(--border-subtle)] bg-[var(--surface-tint)] px-3 py-2.5 sm:px-4">
-              <div className="hidden items-center gap-3 sm:flex">
-                <FooterHint keys="↑↓" label="Move" />
-                <FooterHint keys="Enter" label="Open" />
-                <FooterHint keys="Esc" label="Close" />
-              </div>
-              <Link
-                href={fullSearchHref}
-                onClick={() => setOpen(false)}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1 text-[11.5px] font-semibold text-[var(--text-secondary)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] hover:text-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_45%,transparent)]"
-              >
-                Open full search
-                <ArrowRight className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <CommandPaletteDialog
+          fieldRef={fieldRef}
+          role={role}
+          query={query}
+          hasQuery={hasQuery}
+          announcement={announcement}
+          flatItems={flatItems}
+          orderedGroups={orderedGroups}
+          flatIndexByHref={flatIndexByHref}
+          clampedActiveIndex={clampedActiveIndex}
+          recentsForBand={recentsForBand}
+          showQuickPick={showQuickPick}
+          quickPickItems={quickPickItems}
+          foldedRecentHref={foldedRecentHref}
+          activeItem={activeItem}
+          activeGroupLabel={activeGroupLabel}
+          activeVerb={activeVerb}
+          railVisible={railVisible}
+          remoteSearchLoading={remoteSearchLoading}
+          remoteSearchFailed={remoteSearchFailed}
+          remoteSearchPartial={remoteSearchPartial}
+          remoteSearchRecovery={remoteSearchRecovery}
+          deferredFilterQ={deferredFilterQ}
+          fullSearchHref={fullSearchHref}
+          onClose={() => setOpen(false)}
+          onQueryChange={handleQueryChange}
+          onClearQuery={() => {
+            setQuery("");
+            clearRemoteSearchFeedback();
+            setActiveIndex(0);
+          }}
+          onRetrySearch={() => {
+            setRemoteSearchFailed(false);
+            setRemoteSearchRetryNonce((value) => value + 1);
+          }}
+          onSelectRow={handleSelectRow}
+          onActivateRow={(idx) => {
+            if (idx >= 0) setActiveIndex(idx);
+            setRailVisible(true);
+          }}
+          onResultsScroll={handleResultsScroll}
+        />
       )}
     </>
   );

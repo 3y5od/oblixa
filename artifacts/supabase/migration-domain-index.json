@@ -3247,8 +3247,8 @@
       "affectedTables": [
         "public.inbound_provider_events"
       ],
-      "lineCount": 46,
-      "byteCount": 1636,
+      "lineCount": 64,
+      "byteCount": 2631,
       "large": false,
       "descriptiveSlug": true,
       "verificationQueries": [

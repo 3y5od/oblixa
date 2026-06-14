@@ -26,16 +26,13 @@ import { SettingsProductCalibrationSummary } from "@/app/(dashboard)/settings/pr
 import { SettingsProductEmailSection } from "@/app/(dashboard)/settings/product/settings-product-email-section";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { arePrivateProductControlsEnabled } from "@/lib/release-state-private-controls";
-
-const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS;
-const ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS;
-const UTILITY_MODULE_OPTIONS = WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS;
-
+const MODULE_OPTIONS = WORKSPACE_SETTINGS_ADVANCED_MODULE_OPTIONS,
+  ASSURANCE_MODULE_OPTIONS = WORKSPACE_SETTINGS_ASSURANCE_MODULE_OPTIONS,
+  UTILITY_MODULE_OPTIONS = WORKSPACE_SETTINGS_UTILITY_MODULE_OPTIONS;
 export const metadata = { title: "Product experience" };
 
 export default async function WorkspaceProductSettingsPage() {
   if (!arePrivateProductControlsEnabled()) notFound();
-
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   if (ctx.role !== "admin") {
@@ -140,7 +137,6 @@ export default async function WorkspaceProductSettingsPage() {
           Back to settings
         </Link>
       </div>
-
       <section className="ui-page-shell bg-surface p-6 md:p-8">
         <p className="ui-label-caps">Workspace setup questionnaire</p>
         <p className="ui-support-copy mt-2">
@@ -213,7 +209,6 @@ export default async function WorkspaceProductSettingsPage() {
             </details>
           )}
       </section>
-
       <section className="ui-page-shell p-6 md:p-8">
         <form
           id="workspace-product-settings-form"
@@ -248,7 +243,6 @@ export default async function WorkspaceProductSettingsPage() {
               saving.
             </p>
           </div>
-
           <div>
             <p className="ui-label-caps">Hide advanced modules</p>
             <p className="ui-muted-tight mt-1 text-[12.5px]">
@@ -272,7 +266,6 @@ export default async function WorkspaceProductSettingsPage() {
               ))}
             </ul>
           </div>
-
           <div>
             <div className="flex items-start gap-2">
               <input
@@ -317,7 +310,6 @@ export default async function WorkspaceProductSettingsPage() {
               except workspace admins (support bypass).
             </p>
           </div>
-
           {mode === "assurance" ? (
             <div>
               <div className="flex items-start gap-2">
@@ -385,7 +377,6 @@ export default async function WorkspaceProductSettingsPage() {
               ))}
             </ul>
           </div>
-
           {mode === "assurance" ? (
             <div>
               <p className="ui-label-caps">Hide assurance modules</p>

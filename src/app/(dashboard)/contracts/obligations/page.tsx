@@ -32,9 +32,7 @@ import { UiRadioGroup } from "@/components/ui/ui-radio-group";
 import { UiToggle } from "@/components/ui/ui-toggle";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
-
 export const metadata = { title: "Requirements" };
-
 type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
 const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
   { value: "", label: "All" },

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useState, useTransition } from "react";
 import { Bell, Check, Plus, UploadCloud, X, type LucideIcon } from "lucide-react";
+import { ActionDialog } from "@/components/evidence/evidence-action-dialog";
 import { PermissionEligibilityHint } from "@/components/ui/permission-eligibility-hint";
 import { RowActionMenu, RowActionMenuItem } from "@/components/ui/row-action-menu";
 import { mutateV10 } from "@/lib/api-client";
@@ -259,63 +259,6 @@ export function EvidenceReleaseActions({
         </ActionDialog>
       ) : null}
     </div>
-  );
-}
-
-/**
- * Portaled centered dialog for the evidence action forms. Renders to
- * `document.body` so the upload / reject / confirm forms escape the table cell
- * (they used to grow the row and break the table rhythm). Backdrop click and
- * Escape close it; the caller owns the open state.
- */
-function ActionDialog({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 bg-[color:color-mix(in_oklab,var(--text-primary)_28%,transparent)]"
-      />
-      <div className="relative z-10 w-full max-w-md space-y-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-4 shadow-[var(--shadow-3)]">
-        <div className="flex items-center justify-between gap-3">
-          <p className="ui-caps-2 text-[var(--text-tertiary)]">{title}</p>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="ui-chip-focus inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-tertiary)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_70%,transparent)] hover:text-[var(--text-primary)]"
-          >
-            <X className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>,
-    document.body
   );
 }
 

@@ -173,6 +173,7 @@ export const RATE_LIMITS = {
   /** Re-authenticate before sensitive actions (cookie mint). */
   stepUpPassword: { max: 15, windowMs: 15 * 60_000 },
   signUp: { max: 12, windowMs: 60 * 60_000 },
+  signupGrantInspect: { max: 60, windowMs: 60_000 },
   forgotPassword: { max: 8, windowMs: 60 * 60_000 },
   inviteMember: { max: 40, windowMs: 60 * 60_000 },
   eventsRead: { max: 80, windowMs: 60_000 },

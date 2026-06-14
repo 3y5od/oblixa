@@ -3,16 +3,16 @@
   "schemaVersion": 1,
   "source": "code-owned-operational-package-pipeline-governance",
   "generatedFrom": "config/operational-package-pipelines.json",
-  "packageScriptCount": 911,
-  "operationalScriptCount": 869,
+  "packageScriptCount": 916,
+  "operationalScriptCount": 872,
   "packageGraph": {
-    "nodeCount": 911,
-    "edgeCount": 92,
+    "nodeCount": 916,
+    "edgeCount": 91,
     "cycleCount": 0,
-    "aliasOnlyCount": 46,
+    "aliasOnlyCount": 45,
     "missingReferenceCount": 0
   },
-  "workflowScriptReferenceCount": 449,
+  "workflowScriptReferenceCount": 452,
   "requiredCommands": [
     {
       "id": "ci-parity-pipeline",
@@ -76,9 +76,9 @@
     }
   ],
   "tierCoverage": {
-    "checkScripts": 537,
+    "checkScripts": 540,
     "manifestScripts": 108,
-    "allowlist": 479,
+    "allowlist": 482,
     "uncovered": 0,
     "orphanAllowlist": 0
   },
@@ -191,7 +191,7 @@
     "staticCheckDeterminism": {
       "ok": true,
       "issueCount": 0,
-      "blockingScriptsChecked": 229
+      "blockingScriptsChecked": 232
     },
     "generatedArtifactHygiene": {
       "ok": true,
@@ -1226,14 +1226,6 @@
       "aliasOnly": true,
       "referencedByScriptCount": 0,
       "referencedByWorkflowCount": 0
-    },
-    {
-      "script": "test:e2e:multi-browser",
-      "ownerArea": "test-platform",
-      "coverage": "qa-tier-manifest",
-      "aliasOnly": true,
-      "referencedByScriptCount": 0,
-      "referencedByWorkflowCount": 2
     },
     {
       "script": "test:e2e:v10",

@@ -4,6 +4,10 @@ import { describe, expect, it } from "vitest";
 
 const SETTINGS_PAGE = join(process.cwd(), "src/app/(dashboard)/settings/page.tsx");
 const SETTINGS_SECTIONS = join(process.cwd(), "src/app/(dashboard)/settings/settings-page-sections.tsx");
+const SETTINGS_DIRECTORY_SECTIONS = join(
+  process.cwd(),
+  "src/app/(dashboard)/settings/settings-directory-sections.tsx"
+);
 const SETTINGS_ANCHOR_LINK = join(process.cwd(), "src/app/(dashboard)/settings/settings-anchor-link.tsx");
 const SETTINGS_BILLING = join(process.cwd(), "src/app/(dashboard)/settings/billing/page.tsx");
 const SETTINGS_SECURITY = join(process.cwd(), "src/app/(dashboard)/settings/security/page.tsx");
@@ -16,6 +20,7 @@ function readPublicSettingsSource() {
   return [
     SETTINGS_PAGE,
     SETTINGS_SECTIONS,
+    SETTINGS_DIRECTORY_SECTIONS,
     SETTINGS_BILLING,
     SETTINGS_SECURITY,
     SETTINGS_OPERATIONS,
@@ -23,6 +28,12 @@ function readPublicSettingsSource() {
     SETTINGS_MODEL,
     SETTINGS_STRINGS,
   ]
+    .map((path) => readFileSync(path, "utf8"))
+    .join("\n");
+}
+
+function readSettingsSectionsSource() {
+  return [SETTINGS_SECTIONS, SETTINGS_DIRECTORY_SECTIONS]
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
 }
@@ -57,7 +68,7 @@ describe("settings page release-state compliance", () => {
 
   it("keeps the directory as grouped release-state rows", () => {
     const model = readFileSync(SETTINGS_MODEL, "utf8");
-    const sections = readFileSync(SETTINGS_SECTIONS, "utf8");
+    const sections = readSettingsSectionsSource();
     expect(model).toContain('key: "account"');
     expect(model).toContain('key: "workspace"');
     expect(model).toContain('key: "operations"');
@@ -101,7 +112,7 @@ describe("settings page release-state compliance", () => {
   });
 
   it("keeps release-state forms and anchors for editable same-page sections", () => {
-    const sections = readFileSync(SETTINGS_SECTIONS, "utf8");
+    const sections = readSettingsSectionsSource();
     for (const component of ["ProfileForm", "OrgForm", "InviteMemberForm", "PendingInvitesList"]) {
       expect(sections).toContain(component);
     }
@@ -124,7 +135,7 @@ describe("settings page release-state compliance", () => {
   });
 
   it("uses native anchors and scroll margins for same-page settings links", () => {
-    const sections = readFileSync(SETTINGS_SECTIONS, "utf8");
+    const sections = readSettingsSectionsSource();
     const anchorLink = readFileSync(SETTINGS_ANCHOR_LINK, "utf8");
     expect(sections).toContain('destination.href.startsWith("#")');
     expect(sections).toContain("SettingsAnchorLink");

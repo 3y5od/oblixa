@@ -83,10 +83,6 @@ export default async function ReportsPage(props: {
         title={REPORTS_PAGE_TITLE}
         lead={model.lead}
         actions={
-          // The export acts on the active report + applied filters. The label
-          // now names that report ("Export upcoming renewals") and the window /
-          // partial state ride in the tooltip + aria. When the active report has
-          // no rows the control is disabled rather than producing an empty file.
           hasExportableRows ? (
             <Link
               href={model.exportHref}
@@ -113,14 +109,7 @@ export default async function ReportsPage(props: {
         }
       />
 
-      {/* One flat focal surface (§10.5/§10.6): a standard `.ui-card` master-detail
-          region, not a raised card wrapping a nested table-shell. The rail, report
-          header, filters, preview, and run history are separated by hairlines
-          inside this single surface. */}
       <section className="ui-card p-0" aria-labelledby="reports-surface-title">
-        {/* Card-level bar: the catalog label plus a count chip so the surface
-            announces its scope ("10 reports"). The earlier "All contracts" link
-            was dropped — it duplicated primary nav and added no report context. */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[var(--border-subtle)] px-5 py-3">
           <p className="ui-caps-2 text-[11px] text-[var(--text-tertiary)]">Report catalog</p>
           <CountChip value={model.reports.length} emphasis="subtle" />
@@ -129,10 +118,6 @@ export default async function ReportsPage(props: {
           </p>
         </div>
 
-        {/* Master-detail: a grouped report rail beside the active report's
-            header, filters, preview, and recent-exports history. Keeping the
-            history in the right pane directly under the preview attaches it to
-            the report it summarizes and absorbs the pane's trailing space. */}
         <div className="flex flex-col lg:flex-row">
           <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-3 py-4 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
             <ReportRail ariaLabel="Reports" items={model.reports} />
@@ -155,9 +140,6 @@ export default async function ReportsPage(props: {
                   <span className="font-medium text-[var(--text-secondary)]">Last export:</span> most recent export for this report.
                 </p>
               </div>
-              {/* Freshness + source chips ride with the report identity: window
-                  scope, the preview-sample size, and last-export recency. Moving
-                  them here keeps the preview region itself purely the data. */}
               <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                 {exportScopeWindow ? <KeyValueChip label="Window" value={windowLabel} /> : null}
                 {hasExportableRows ? (
@@ -176,8 +158,6 @@ export default async function ReportsPage(props: {
                   )
                 ) : null}
                 {model.lastGeneratedAt ? (
-                  // Bordered time-metadata chip (caps label + TimeChip value, which
-                  // keeps the full absolute date in its title/aria).
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1">
                     <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Last export</span>
                     <TimeChip
@@ -192,9 +172,6 @@ export default async function ReportsPage(props: {
               </div>
             </div>
 
-            {/* Partial-data warning attached directly under the active report's
-                header as a compact flush strip — no longer a large page-level
-                banner above the whole surface. */}
             {isPartial ? (
               <ReportsPartialNotice scopeLabel={model.activeDefinition.label} />
             ) : null}
@@ -215,10 +192,6 @@ export default async function ReportsPage(props: {
   );
 }
 
-// Compact, single-row partial-data notice. Replaces the taller stacked status
-// panel: an amber hairline strip with the title + active-report scope inline and
-// a single right-aligned recovery action, so a freshness warning stays
-// subordinate to the report content. Keeps status/aria-live semantics for AT.
 function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
   return (
     <section
@@ -250,9 +223,6 @@ function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
         <span className="font-semibold text-[var(--text-primary)]">{REPORTS_PARTIAL_DATA_TITLE}.</span>{" "}
         {scopeLabel} preview may be incomplete until data freshness is restored.
       </p>
-      {/* Recovery stays entirely in Reports — the in-context "Refresh report
-          data" is the only action. A Core report warning never routes users to
-          the admin-only workspace-health surface; admins reach it via Settings. */}
       <div className="shrink-0">
         <ReportsRefreshButton />
       </div>
@@ -261,10 +231,6 @@ function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
 }
 
 function ReportsFilters({ model }: { model: ReportsPageModel }) {
-  // Custom-combobox pills with an Apply that disables until something changes and
-  // a Reset that clears applied filters (see ReportsFilterBar). Applied filters
-  // also render below as individually-removable chips, and selection persists in
-  // the URL query. Only the dimensions this report supports are shown.
   return (
     <div className="border-b border-[var(--border-subtle)] px-5 py-3">
       <ReportsFilterBar
@@ -285,8 +251,6 @@ function ReportActiveFilters({ model }: { model: ReportsPageModel }) {
   const chips = buildActiveFilterChips(model);
   if (chips.length === 0) return null;
 
-  // Individually-removable applied-filter chips. Clearing everything at once is
-  // the toolbar's Reset control, so this row stays focused on granular removal.
   return (
     <div className="mt-2.5 flex flex-wrap items-center gap-2">
       <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Active filters</span>
@@ -312,9 +276,6 @@ type ActiveFilterChip = { key: string; label: string; value: string; removeHref:
 
 function buildActiveFilterChips(model: ReportsPageModel): ActiveFilterChip[] {
   const filters = model.filters;
-  // Only surface chips for dimensions the active report actually applies, so a
-  // stale URL param (e.g. a window on a non-windowed report) never shows a chip
-  // that claims to be narrowing results when it isn't.
   const applicable = new Set(model.applicableFilters);
   const chips: ActiveFilterChip[] = [];
   if (applicable.has("window") && filters.window !== "90") {

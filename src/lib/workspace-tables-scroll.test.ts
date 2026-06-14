@@ -25,6 +25,6 @@ describe("V9 workspace tables keep horizontal scroll and aria labels", () => {
 
     const renewals = read("src/app/(dashboard)/contracts/renewals/page.tsx");
     expect(renewals).toContain("RenewalRowsHeader");
-    expect(renewals).toContain("xl:grid-cols-[minmax(13rem,0.9fr)_minmax(0,1.45fr)_minmax(20rem,1fr)]");
+    expect(renewals).toContain("xl:grid-cols-[minmax(13rem,1.15fr)_minmax(7rem,0.65fr)_minmax(6.75rem,0.6fr)_minmax(6.75rem,0.6fr)_minmax(9rem,0.85fr)_minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)]");
   });
 });

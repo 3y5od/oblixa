@@ -96,7 +96,7 @@ describe("WorkQueueInlineActions", () => {
       />
     );
 
-    expect(screen.getByRole("link", { name: /review item needing input/i }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: /review item needing response/i }).getAttribute("href")).toBe(
       "/contracts/contract-1"
     );
   });

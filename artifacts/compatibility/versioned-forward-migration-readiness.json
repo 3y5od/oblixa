@@ -16,11 +16,11 @@
     "localCatalogFingerprint": "artifacts/supabase/local-catalog-fingerprint.json"
   },
   "migrationRegistration": {
-    "latestVersion": "094",
-    "latestMigration": "094_force_rls_current_public_tables.sql",
-    "manifestMigrationCount": 94,
-    "domainIndexMigrationCount": 94,
-    "fingerprintMigrationCount": 94,
+    "latestVersion": "095",
+    "latestMigration": "095_inbound_evidence_scope_guards.sql",
+    "manifestMigrationCount": 95,
+    "domainIndexMigrationCount": 95,
+    "fingerprintMigrationCount": 95,
     "domainHasLatest": true,
     "fingerprintHasLatest": true,
     "countsMatch": true,

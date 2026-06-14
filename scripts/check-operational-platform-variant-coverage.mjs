@@ -5,51 +5,13 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 
 import { analyzeVersionedExportDownloadContracts } from "./check-versioned-export-download-contracts.mjs";
+import { REQUIRED_BROWSER_DIMENSIONS, REQUIRED_DOWNLOAD_CLASSES, REQUIRED_INPUT_VARIANTS, REQUIRED_WEBVIEW_CONSTRAINTS, REQUIRED_WEBVIEW_PLATFORMS } from "./lib/operational-platform-variant-requirements.mjs";
 import { uiSurfaceManifest } from "../src/lib/qa/ui-surface-manifest.source.mjs";
 
 const ROOT = process.cwd();
 const CONFIG_REL = "config/operational-platform-variant-coverage.json";
 const ARTIFACT_REL = "artifacts/operational-platform-variant-coverage.json";
 const WRITE = process.argv.includes("--write");
-
-const REQUIRED_BROWSER_DIMENSIONS = new Set([
-  "chromium",
-  "firefox",
-  "webkit",
-  "reduced-motion",
-  "color-scheme",
-  "timezone",
-  "locale",
-  "device-scale-factor",
-  "mobile-viewport",
-  "tablet-viewport",
-  "desktop-viewport",
-]);
-
-const REQUIRED_WEBVIEW_PLATFORMS = new Set(["ios-wkwebview", "android-webview"]);
-const REQUIRED_WEBVIEW_CONSTRAINTS = new Set(["storage", "cookies", "redirects", "downloads", "file_uploads"]);
-
-const REQUIRED_INPUT_VARIANTS = new Set([
-  "keyboard",
-  "pointer",
-  "touch",
-  "screen-reader-semantics",
-  "ime-input",
-  "paste",
-  "drag-drop",
-  "high-contrast",
-  "platform-permissions",
-]);
-
-const REQUIRED_DOWNLOAD_CLASSES = new Set([
-  "csv",
-  "pdf",
-  "generated-reports",
-  "signed-links",
-  "browser-download-names",
-  "content-type",
-  "content-disposition",
-]);
 
 function stableStringify(value) {
   return `${JSON.stringify(value, null, 2)}\n`;

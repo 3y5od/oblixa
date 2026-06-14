@@ -3,13 +3,15 @@
 @theme inline {
   --font-sans: var(--font-sans-display), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 1.875rem;
-  --radius-4xl: 2.25rem;
+  /* v46 editorial geometry — the LP system's low radii become the global
+     scale: 3px controls, 4px artifacts, nothing balloon-shaped. */
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.75rem;
+  --radius-4xl: 1rem;
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
@@ -39,64 +41,69 @@
 }
 
 :root {
-  --canvas: oklch(0.968 0.007 250);
-  --canvas-strong: oklch(0.949 0.01 250);
-  --canvas-deep: oklch(0.905 0.015 252);
-  --surface: oklch(0.994 0.004 250);
-  --surface-raised: oklch(0.988 0.006 250);
-  --surface-contrast: oklch(0.976 0.01 250);
-  --surface-muted: oklch(0.965 0.006 252);
-  --surface-inset: oklch(0.958 0.01 252);
-  --accent: oklch(0.52 0.19 259);
-  --accent-strong: oklch(0.43 0.21 262);
-  --accent-soft: oklch(0.95 0.03 259);
-  --accent-fg: oklch(0.985 0.004 250);
-  /* Warm complementary tone — used by tone-coded section systems on /security,
-     /contact, and product-sections-data. Without this, var(--accent-warm,
-     var(--accent)) silently falls back to --accent and warm-toned surfaces
-     render identical to cool. */
-  --accent-warm: #96501d;
-  --text-primary: oklch(0.225 0.018 255);
-  --text-secondary: oklch(0.44 0.015 255);
-  --text-tertiary: #626970;
-  --text-inverse: oklch(0.97 0.006 250);
-  --border-subtle: oklch(0.9 0.008 252);
-  --border-strong: oklch(0.82 0.012 254);
-  --border-contrast: oklch(0.74 0.018 257);
-  --sidebar: oklch(0.22 0.026 260);
-  --sidebar-surface: oklch(0.27 0.026 259);
-  --sidebar-border: oklch(0.35 0.022 258);
-  --sidebar-muted: oklch(0.79 0.022 255);
-  --sidebar-fg: oklch(0.97 0.006 252);
-  --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 48%, transparent);
-  --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
-  --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 9%, transparent);
+  /* v46 — the landing's editorial palette IS the product palette now:
+     porcelain canvas, parchment document ground, ink text, steel rules,
+     cobalt action, oxblood problem evidence, amber source/calculated,
+     green confirmed, neutral steel waiting states. Promoted verbatim from
+     the former .lp-root scope so every public page and app route shares
+     one system. */
+  --canvas: #f7f8f5; /* porcelain — neutral editorial/proof ground */
+  --canvas-strong: #f1e6d2; /* parchment — document/trust ground */
+  --canvas-deep: #e9eff3; /* steel mist — operational band */
+  --surface: #fafbf9;
+  --surface-raised: #ffffff;
+  --surface-contrast: #edf0ef;
+  --surface-muted: #eef1f1; /* cool chrome bands */
+  --surface-inset: #f4ecdb; /* parchment source paper — document zones only */
+  --accent: #2257d6;
+  --accent-strong: #0b49c8; /* cobalt — actions and selection only */
+  --accent-soft: #dce7fa;
+  --accent-fg: #f4f7f8;
+  /* Warm complementary tone — tone-coded section systems on /security,
+     /contact, and product-sections-data. Now the source amber. */
+  --accent-warm: #b76a12;
+  --text-primary: #11140f; /* ink */
+  --text-secondary: #374151; /* slate body */
+  --text-tertiary: #6b7280; /* steel */
+  --text-inverse: #f7f8f5;
+  --border-subtle: #d3dade;
+  --border-strong: #aeb8c2; /* directive rule gray */
+  --border-contrast: #939ea9;
+  /* Sidebar — LIGHT chrome in light mode (the staged app previews have no
+     dark rail); the dark-scheme block below keeps the dark rail there. */
+  --sidebar: #eef1f0;
+  --sidebar-surface: #f7f8f5;
+  --sidebar-border: #d3dade;
+  --sidebar-muted: #5b6470;
+  --sidebar-fg: #11140f;
+  --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
+  --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 14%, transparent);
+  --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 7%, transparent);
   --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 66%, var(--accent));
-  /* Bright status inks for nav count chips. The sidebar is dark in BOTH color
-     schemes, so a single bright value stays legible without a per-mode flip;
-     the soft fill/border are mixed against transparent over the dark rail. */
-  --sidebar-warn-ink: oklch(0.85 0.11 80);
-  --sidebar-danger-ink: oklch(0.8 0.13 22);
-  --success-soft: oklch(0.958 0.038 154);
-  --success-ink: oklch(0.38 0.108 154);
-  --warning-soft: oklch(0.968 0.046 86);
-  --warning-ink: oklch(0.49 0.118 84);
-  --danger-soft: oklch(0.954 0.048 24);
-  --danger-ink: oklch(0.44 0.15 24);
-  --info-soft: oklch(0.958 0.036 250);
-  --info-ink: #3f6f96;
+  --sidebar-warn-ink: #b76a12;
+  --sidebar-danger-ink: #8c1d2c;
+  --success-soft: #dceee4;
+  --success-ink: #1f7a4d; /* confirmed green */
+  --warning-soft: #f4e6c9;
+  --warning-ink: #b76a12; /* source amber */
+  --danger-soft: #f3dadd;
+  --danger-ink: #8c1d2c; /* oxblood */
+  /* Neutral waiting states — no pale-blue pill default. */
+  --info-soft: #e8ecef;
+  --info-ink: #3f4954;
   --focus-ring: color-mix(in oklab, var(--accent) 62%, var(--surface));
   --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px rgba(15, 23, 42, 0.04);
   --shadow-2: 0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.04);
   --shadow-3: 0 26px 70px rgba(15, 23, 42, 0.16), 0 6px 18px rgba(15, 23, 42, 0.08);
   --shadow-4: 0 34px 90px rgba(15, 23, 42, 0.22), 0 14px 34px rgba(15, 23, 42, 0.12);
   --shadow-floating: 0 24px 60px -30px rgba(15, 23, 42, 0.35), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
-  --shadow-glow: 0 18px 44px color-mix(in oklab, var(--accent) 16%, transparent);
+  /* v46: glow decor retired — structure comes from rules, not halos. */
+  --shadow-glow: 0 14px 36px rgba(17, 20, 15, 0.08);
   --surface-tint: color-mix(in oklab, var(--surface) 92%, white);
   --surface-tint-soft: color-mix(in oklab, var(--surface) 96%, white);
   --border-card: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-  --canvas-glow: color-mix(in oklab, var(--accent) 11%, transparent);
-  --canvas-glow-secondary: rgba(14, 165, 233, 0.1);
+  --canvas-glow: transparent;
+  --canvas-glow-secondary: transparent;
   --ui-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ui-duration: 150ms;
   --ui-duration-slow: 240ms;
@@ -176,12 +183,12 @@
     --shadow-3: 0 30px 72px rgba(0, 0, 0, 0.42), 0 12px 28px rgba(0, 0, 0, 0.2);
     --shadow-4: 0 42px 96px rgba(0, 0, 0, 0.5), 0 18px 40px rgba(0, 0, 0, 0.24);
     --shadow-floating: 0 30px 80px -25px rgba(0, 0, 0, 0.7), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 18px 44px color-mix(in oklab, var(--accent) 18%, transparent);
+    --shadow-glow: 0 14px 36px rgba(0, 0, 0, 0.3);
     --surface-tint: color-mix(in oklab, var(--surface) 88%, white);
     --surface-tint-soft: color-mix(in oklab, var(--surface) 94%, white);
     --border-card: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-    --canvas-glow: color-mix(in oklab, var(--accent) 18%, transparent);
-    --canvas-glow-secondary: rgba(6, 182, 212, 0.08);
+    --canvas-glow: transparent;
+    --canvas-glow-secondary: transparent;
     color-scheme: dark;
   }
 }
@@ -406,45 +413,30 @@
 }
 
 @layer components {
-  .ui-card,
-  .ui-panel,
-  .ui-card-raised,
-  .ui-card-hero,
-  .ui-table-shell,
-  .ui-toolbar,
-  .ui-empty-state,
-  .ui-question-card {
-    backdrop-filter: blur(18px);
-  }
-
+  /* v46: card surfaces use the artifact language — flat white, token
+     borders, 4px corners, no blur, no radial accents, no inset pearls. */
   .ui-card {
-    @apply border shadow-[var(--shadow-1)];
-    border-radius: var(--radius-2xl);
-    border-color: color-mix(in oklab, var(--accent) 6%, var(--border-subtle));
-    background:
-      radial-gradient(ellipse 70% 60% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, color-mix(in oklab, var(--surface-muted) 14%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
-      var(--shadow-1);
+    @apply border;
+    border-radius: 4px;
+    border-color: var(--border-subtle);
+    background: var(--surface-raised);
+    box-shadow: none;
     transition-property: box-shadow, border-color, background-color, transform;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-panel {
-    @apply border p-5 shadow-[var(--shadow-1)];
-    border-radius: var(--radius-2xl);
+    @apply border p-5;
+    border-radius: 4px;
     border-color: var(--border-subtle);
-    background:
-      radial-gradient(circle at top right, color-mix(in oklab, var(--accent) 7%, transparent), transparent 44%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface) 100%);
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-card-hover {
-    @apply hover:-translate-y-0.5;
-    border-color: color-mix(in oklab, var(--border-strong) 82%, var(--border-subtle));
-    box-shadow: var(--shadow-2), var(--shadow-glow);
+    border-color: var(--border-contrast);
+    box-shadow: var(--shadow-1);
   }
 
   /* Interactive-card affordance — apply to <a> or <button> wrapping a card so it lifts on hover. */
@@ -467,85 +459,62 @@
 
   .ui-card-quiet {
     @apply border;
-    border-radius: calc(var(--radius-2xl) - 0.125rem);
+    border-radius: 4px;
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 76%, white) 0%, color-mix(in oklab, var(--surface-inset) 88%, transparent) 100%);
+    background: color-mix(in oklab, var(--surface-muted) 45%, var(--surface-raised));
     transition: border-color var(--ui-duration) var(--ui-ease-out), background-color var(--ui-duration) var(--ui-ease-out),
       box-shadow var(--ui-duration) var(--ui-ease-out);
   }
 
   .ui-card-raised {
-    @apply border shadow-[var(--shadow-2)];
-    border-radius: var(--radius-2xl);
-    border-color: color-mix(in oklab, var(--accent) 14%, var(--border-subtle));
-    background:
-      radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 98%, white) 0%, color-mix(in oklab, var(--surface-muted) 18%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.55) inset,
-      var(--shadow-1),
-      0 14px 30px -18px color-mix(in oklab, var(--accent) 38%, transparent);
+    @apply border;
+    border-radius: 4px;
+    border-color: color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-1);
   }
 
   .ui-card-hero {
-    @apply border shadow-[var(--shadow-2)];
-    border-radius: var(--radius-4xl);
-    border-color: color-mix(in oklab, var(--accent) 16%, var(--border-subtle));
-    background:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 12%, transparent), transparent 34%),
-      radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 150%, transparent), transparent 38%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, color-mix(in oklab, var(--surface-raised) 88%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.55) inset,
-      var(--shadow-3),
-      0 24px 50px -22px color-mix(in oklab, var(--accent) 40%, transparent);
+    @apply border;
+    border-radius: 4px;
+    border-color: color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-1);
   }
 
   .ui-shell-surface {
-    @apply border shadow-[var(--shadow-2)];
-    border-radius: var(--radius-3xl);
+    @apply border;
+    border-radius: 4px;
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 90%, white) 0%, var(--surface) 100%);
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-page-shell {
-    @apply border p-5 shadow-[var(--shadow-1)] md:p-6;
-    border-radius: var(--radius-3xl);
-    border-color: color-mix(in oklab, var(--accent) 7%, var(--border-subtle));
-    background:
-      radial-gradient(ellipse 80% 60% at 100% 0%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, color-mix(in oklab, var(--surface-raised) 88%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
-      var(--shadow-1),
-      0 14px 30px -22px color-mix(in oklab, var(--accent) 26%, transparent);
+    @apply border p-5 md:p-6;
+    border-radius: 4px;
+    border-color: var(--border-subtle);
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-loading-panel,
   .ui-route-state-card,
   .ui-support-panel,
   .ui-status-panel {
-    @apply border shadow-[var(--shadow-1)];
-    border-radius: var(--radius-2xl);
-    border-color: color-mix(in oklab, var(--accent) 6%, var(--border-subtle));
-    background:
-      radial-gradient(ellipse 70% 60% at 100% 0%, color-mix(in oklab, var(--accent) 6%, transparent), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, color-mix(in oklab, var(--surface-raised) 88%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.40) inset,
-      var(--shadow-1);
+    @apply border;
+    border-radius: 4px;
+    border-color: var(--border-subtle);
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-loading-panel {
     @apply p-4 md:p-5;
-    border-radius: var(--radius-3xl);
+    border-radius: 4px;
     border: 1px solid color-mix(in oklab, var(--border-subtle) 88%, transparent);
-    background:
-      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 44%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface-muted) 100%);
-    box-shadow: var(--shadow-1);
+    background: color-mix(in oklab, var(--surface-muted) 40%, var(--surface-raised));
+    box-shadow: none;
   }
 
   .ui-status-panel {
@@ -553,27 +522,23 @@
   }
 
   .ui-status-panel-success {
-    border-color: color-mix(in oklab, var(--success-soft) 58%, var(--border-subtle));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--success-soft) 72%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+    border-color: color-mix(in oklab, var(--success-ink) 30%, var(--border-subtle));
+    background: color-mix(in oklab, var(--success-soft) 45%, var(--surface-raised));
   }
 
   .ui-status-panel-warning {
-    border-color: color-mix(in oklab, var(--warning-soft) 58%, var(--border-subtle));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--warning-soft) 76%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+    border-color: color-mix(in oklab, var(--warning-ink) 30%, var(--border-subtle));
+    background: color-mix(in oklab, var(--warning-soft) 45%, var(--surface-raised));
   }
 
   .ui-status-panel-risk {
-    border-color: color-mix(in oklab, var(--danger-soft) 54%, var(--border-subtle));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--danger-soft) 72%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+    border-color: color-mix(in oklab, var(--danger-ink) 30%, var(--border-subtle));
+    background: color-mix(in oklab, var(--danger-soft) 45%, var(--surface-raised));
   }
 
   .ui-status-panel-info {
-    border-color: color-mix(in oklab, var(--info-soft) 54%, var(--border-subtle));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--info-soft) 74%, white) 0%, color-mix(in oklab, var(--surface) 96%, white) 100%);
+    border-color: color-mix(in oklab, var(--border-strong) 70%, var(--border-subtle));
+    background: color-mix(in oklab, var(--info-soft) 50%, var(--surface-raised));
   }
 
   /* Subordinate variant for transient, non-blocking notices (e.g. a reports
@@ -626,12 +591,11 @@
 
   .ui-input {
     @apply block min-h-11 w-full border px-3.5 py-2.5 text-sm leading-tight outline-none;
-    border-radius: var(--radius-lg);
+    border-radius: 3px;
     color: var(--text-primary);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, color-mix(in oklab, var(--surface) 86%, white) 100%);
-    border-color: color-mix(in oklab, var(--border-subtle) 92%, transparent);
-    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.30) inset;
+    background: var(--surface-raised);
+    border-color: color-mix(in oklab, var(--border-strong) 80%, var(--border-subtle));
+    box-shadow: none;
     /* Inputs and selects inherit user-agent font by default; force the app font so values match labels. */
     font-family: var(--font-sans);
     transition-property: border-color, box-shadow, background-color;
@@ -749,42 +713,40 @@
     transition-timing-function: var(--ui-ease-out);
   }
 
+  /* v46: the landing's FLAT ink-press controls are the global recipe —
+     3px radius, no gradients, no halos, hover by tone not glow. */
   .ui-btn-primary {
     @apply min-h-10 border px-4 py-2.5 text-sm motion-safe:active:scale-[0.99];
-    border-radius: var(--radius-lg);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--accent) 84%, white) 0%, var(--accent-strong) 100%);
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--accent-strong) 92%, black);
     color: var(--accent-fg);
-    border-color: color-mix(in oklab, var(--accent-strong) 80%, transparent);
-    /* v11 visual pass: one-pixel inner top highlight so the gradient reads as lifted, not flat. */
-    box-shadow: var(--shadow-1), inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+    border-color: color-mix(in oklab, var(--accent-strong) 80%, black);
+    box-shadow: none;
   }
 
   .ui-btn-primary:hover {
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.24) inset,
-      var(--shadow-2),
-      0 16px 36px -12px color-mix(in oklab, var(--accent-strong) 70%, transparent);
-    filter: brightness(1.03);
+    background: var(--accent-strong);
+    box-shadow: none;
+    filter: none;
   }
 
   .ui-btn-secondary {
     @apply min-h-10 border px-4 py-2.5 text-sm motion-safe:active:scale-[0.99];
-    border-radius: var(--radius-lg);
-    border-color: color-mix(in oklab, var(--border-subtle) 84%, transparent);
+    border-radius: 3px;
+    border-color: color-mix(in oklab, var(--text-primary) 55%, var(--border-strong));
     color: var(--text-primary);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface-raised) 100%);
+    background: var(--surface-raised);
   }
 
   .ui-btn-secondary:hover {
-    border-color: color-mix(in oklab, var(--border-strong) 82%, transparent);
-    box-shadow: var(--shadow-1);
+    background: var(--surface-contrast);
+    border-color: color-mix(in oklab, var(--text-primary) 72%, var(--border-strong));
+    box-shadow: none;
   }
 
   .ui-btn-ghost {
     @apply min-h-10 border border-transparent px-3.5 py-2 text-sm font-medium motion-safe:active:scale-[0.99];
-    border-radius: calc(var(--radius-lg) - 0.05rem);
+    border-radius: 3px;
     color: var(--text-secondary);
     background: transparent;
   }
@@ -796,7 +758,7 @@
 
   .ui-btn-danger {
     @apply min-h-10 border px-4 py-2.5 text-sm motion-safe:active:scale-[0.99];
-    border-radius: var(--radius-lg);
+    border-radius: 3px;
     color: var(--danger-ink);
     background: color-mix(in oklab, var(--danger-soft) 82%, white);
     border-color: color-mix(in oklab, var(--danger-soft) 55%, var(--border-subtle));
@@ -808,10 +770,10 @@
 
   .ui-btn-danger-solid {
     @apply min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold motion-safe:active:scale-[0.99];
-    border-radius: var(--radius-lg);
+    border-radius: 3px;
     color: white;
     background: var(--danger-ink);
-    box-shadow: var(--shadow-1);
+    box-shadow: none;
     transition-property: background-color, box-shadow, transform;
     transition-duration: var(--ui-duration);
     transition-timing-function: var(--ui-ease-out);
@@ -828,11 +790,10 @@
 
   .ui-icon-button {
     @apply inline-flex min-h-10 min-w-10 items-center justify-center border px-2.5 py-2 text-sm;
-    border-radius: calc(var(--radius-lg) - 0.05rem);
+    border-radius: 3px;
     color: var(--text-secondary);
     border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-raised) 100%);
+    background: var(--surface-raised);
     transition:
       color var(--ui-duration) var(--ui-ease-out),
       border-color var(--ui-duration) var(--ui-ease-out),
@@ -850,34 +811,36 @@
   .ui-icon-tile,
   .ui-icon-tile-compact,
   .ui-avatar-tile {
-    @apply flex items-center justify-center border shadow-[var(--shadow-1)];
+    @apply flex items-center justify-center border;
+    box-shadow: none;
     border-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, color-mix(in oklab, var(--surface-contrast) 84%, transparent) 100%);
+    background: var(--surface-contrast);
   }
 
   .ui-icon-tile {
     @apply h-12 w-12;
-    border-radius: calc(var(--radius-xl) + 0.1rem);
+    border-radius: var(--radius-lg);
   }
 
   .ui-icon-tile-compact,
   .ui-avatar-tile {
     @apply h-10 w-10;
-    border-radius: calc(var(--radius-lg) - 0.05rem);
+    border-radius: 4px;
   }
 
+  /* The brand/account seal — ink outline, cobalt center, porcelain glyph
+     (the landing's one mark, everywhere). */
   .ui-avatar-tile {
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--accent-soft) 54%, white) 0%, color-mix(in oklab, var(--accent-soft) 70%, transparent) 100%);
-    color: var(--accent-strong);
+    border-color: color-mix(in oklab, var(--text-primary) 92%, transparent);
+    background: var(--accent-strong);
+    color: #f4f7f8;
   }
 
   .ui-account-trigger {
     @apply inline-flex h-10 max-w-[14rem] shrink-0 items-center gap-2 rounded-full border px-1.5 pr-2.5 text-left transition-colors;
     border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
-    background: color-mix(in oklab, var(--surface-raised) 96%, transparent);
-    box-shadow: var(--shadow-1);
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-account-trigger:hover {
@@ -1154,10 +1117,12 @@
     color: var(--text-tertiary);
   }
 
+  /* v46: status plates are small FLAT rectangles (the landing's plate
+     recipe) — 2-3px corners, firmer weight, tighter tracking. */
   .ui-badge,
   .ui-status-badge,
   .ui-chip {
-    @apply inline-flex h-[22px] items-center whitespace-nowrap rounded-full border px-2 text-[11px] font-semibold uppercase tracking-[0.14em] leading-none;
+    @apply inline-flex h-5 items-center whitespace-nowrap rounded-[3px] border px-2 text-[11px] font-bold uppercase tracking-[0.1em] leading-none;
   }
 
   /* Utility-composed chips (e.g. contract table signals) keep one-line labels in max-w / flex-wrap cells */
@@ -1166,9 +1131,10 @@
   }
 
   .ui-status-badge {
+    border-radius: 2px;
     border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
-    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-contrast) 74%, white) 0%, color-mix(in oklab, var(--surface-muted) 72%, transparent) 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    background: color-mix(in oklab, var(--surface-muted) 72%, transparent);
+    box-shadow: none;
   }
 
   .ui-status-badge-healthy {
@@ -1183,14 +1149,19 @@
     color: var(--info-ink);
   }
 
+  /* Suggested/awaiting reads as a quiet steel plate — the pale-blue pill
+     default is retired; cobalt stays reserved for actions and selection. */
   .ui-status-badge-in-review {
-    border-color: color-mix(in oklab, var(--accent-soft) 72%, transparent);
-    background: color-mix(in oklab, var(--accent-soft) 92%, transparent);
-    /* v21: dropped `color-mix(... black)` per §11.4 — literal `black`
-       doesn't flip in dark mode and produced dark-on-dark text on the
-       accent-soft background, rendering "PENDING REVIEW" / "OPEN"
-       unreadable. accent-strong alone is the canonical accessible ink. */
-    color: var(--accent-strong);
+    border-color: color-mix(in oklab, var(--border-strong) 80%, transparent);
+    background: var(--info-soft);
+    color: var(--text-secondary);
+  }
+  @media (prefers-color-scheme: dark) {
+    .ui-status-badge-in-review {
+      border-color: var(--border-strong);
+      background: color-mix(in oklab, var(--surface-contrast) 80%, transparent);
+      color: var(--text-secondary);
+    }
   }
 
   .ui-status-badge-warning {
@@ -1852,17 +1823,14 @@
     background: color-mix(in oklab, var(--surface-muted) 72%, transparent);
   }
 
+  /* v46: table shells use the artifact frame language — firm ink-mixed
+     border, flat white surface, structure from rules not glow. */
   .ui-table-shell {
     @apply overflow-hidden border;
-    border-radius: var(--radius-2xl);
-    border-color: color-mix(in oklab, var(--accent) 12%, var(--border-subtle));
-    background:
-      radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, var(--surface-raised)) 0%, var(--surface-raised) 100%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      var(--shadow-1),
-      0 14px 30px -18px color-mix(in oklab, var(--accent) 30%, transparent);
+    border-radius: 4px;
+    border-color: color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-table-caption {
@@ -1875,32 +1843,30 @@
   }
 
   .ui-toolbar {
-    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px] shadow-[var(--shadow-1)];
-    border-radius: var(--radius-xl);
+    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px];
+    border-radius: 4px;
+    box-shadow: none;
     color: var(--text-secondary);
     border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+    background: var(--surface-raised);
   }
 
   .ui-toolbar-strong {
-    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px] shadow-[var(--shadow-1)];
-    border-radius: var(--radius-xl);
+    @apply flex flex-wrap items-center gap-2 border px-3 py-2 text-[12px];
+    border-radius: 4px;
+    box-shadow: none;
     color: var(--text-secondary);
-    border-color: color-mix(in oklab, var(--border-strong) 36%, var(--border-subtle));
-    background:
-      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+    border-color: var(--border-strong);
+    background: var(--surface-raised);
   }
 
+  /* v46: marketing chrome is flat paper with one solid ink hairline — the
+     fading accent gradient separator is retired. */
   .ui-footer-shell {
-    @apply relative border-t backdrop-blur-md;
+    @apply relative border-t;
+    backdrop-filter: none;
     border-top-color: transparent;
-    /* v15: dropped the top-center accent bloom — on short pages it read as a
-       floating blue dot above the footer. The single ::before hairline is now
-       the only footer/header section separator. */
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, transparent) 0%, color-mix(in oklab, var(--surface-raised) 88%, transparent) 100%);
+    background: color-mix(in oklab, var(--canvas) 58%, var(--surface-raised));
   }
 
   .ui-footer-shell::before {
@@ -1910,12 +1876,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      color-mix(in oklab, var(--accent) 18%, transparent) 50%,
-      transparent 100%
-    );
+    background: color-mix(in oklab, var(--text-primary) 16%, transparent);
     pointer-events: none;
   }
 
@@ -1926,14 +1887,10 @@
      deliberately drops the marketing .ui-footer-shell accent glow so the chrome
      stays calmer than landing surfaces. */
   .ui-topbar {
-    @apply relative border-b backdrop-blur-md;
-    border-bottom-color: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--surface-raised) 94%, transparent) 0%,
-        color-mix(in oklab, var(--surface) 86%, transparent) 100%
-      );
+    @apply relative border-b;
+    backdrop-filter: none;
+    border-bottom-color: var(--border-subtle);
+    background: color-mix(in oklab, var(--canvas) 58%, var(--surface-raised));
   }
 
   .ui-legal-links {
@@ -2064,42 +2021,31 @@
      New landing-derived utilities (Phase A of the app-wide visual overhaul).
      ────────────────────────────────────────────────────────────────────────── */
 
-  /* App-wide shell backdrop, replaces inline radial gradient on (dashboard)/layout.tsx */
+  /* v46: the app shell is flat porcelain — structure from rules, no
+     ambient gradients. */
   .ui-app-shell {
-    background:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--canvas-glow) 118%, transparent), transparent 30%),
-      radial-gradient(circle at top right, color-mix(in oklab, var(--canvas-glow-secondary) 128%, transparent), transparent 24%),
-      linear-gradient(180deg, color-mix(in oklab, var(--canvas) 86%, white) 0%, var(--canvas-strong) 100%);
+    background: var(--canvas);
   }
 
-  /* Hero-tier card with accent rail — mirrors .landing-card-premium under the .ui-* namespace */
+  /* Hero-tier card — the artifact frame language: firm ink-mixed border,
+     flat white surface, one solid cobalt rail. */
   .ui-hero-shell {
     position: relative;
-    border: 1px solid color-mix(in oklab, var(--accent) 14%, var(--border-subtle));
-    border-radius: var(--radius-3xl);
-    background:
-      radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 98%, white) 0%, color-mix(in oklab, var(--surface-muted) 18%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.55) inset,
-      var(--shadow-1),
-      0 14px 30px -18px color-mix(in oklab, var(--accent) 38%, transparent);
-    transition:
-      transform var(--ui-duration) var(--ui-ease-out),
-      box-shadow var(--ui-duration) var(--ui-ease-out),
-      border-color var(--ui-duration) var(--ui-ease-out);
+    border: 1px solid color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+    border-radius: 4px;
+    background: var(--surface-raised);
+    box-shadow: none;
+    transition: border-color var(--ui-duration) var(--ui-ease-out);
   }
 
   .ui-hero-shell::after {
     content: "";
     position: absolute;
     left: 0;
-    top: 12%;
-    bottom: 12%;
-    width: 2px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--accent-strong) 70%, transparent) 50%, transparent 100%);
-    opacity: 0.55;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent-strong);
     pointer-events: none;
   }
 
@@ -2131,9 +2077,7 @@
     inset: 0;
     z-index: -10;
     pointer-events: none;
-    background:
-      radial-gradient(ellipse 70% 60% at 50% -10%, color-mix(in oklab, var(--accent) 14%, transparent) 0%, transparent 60%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, color-mix(in oklab, var(--surface-muted) 24%, var(--canvas)) 100%);
+    background: var(--canvas);
   }
 }
 
@@ -2141,61 +2085,36 @@
    they cleanly cascade through the dark-mode @media query). */
 
 @media (prefers-color-scheme: dark) {
+  /* v46: dark surfaces flatten to the token elevation steps — no accent
+     radials, no glow halos; depth comes from the neutral shadow scale. */
   .ui-card {
-    background:
-      radial-gradient(ellipse 70% 60% at 100% 0%, oklch(0.55 0.16 268 / 0.10), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 94%, white) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 12%, var(--border-subtle));
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.045),
-      var(--shadow-1);
+    background: var(--surface-raised);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-1);
   }
 
   .ui-page-shell {
-    background:
-      radial-gradient(ellipse 80% 60% at 100% 0%, oklch(0.55 0.16 268 / 0.14), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 94%, white) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 14%, var(--border-subtle));
-    box-shadow:
-      0 1px 0 0 oklch(0.92 0.04 270 / 0.05) inset,
-      var(--shadow-2),
-      0 18px 40px -24px oklch(0.55 0.18 268 / 0.34);
+    background: var(--surface-raised);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-1);
   }
 
   .ui-card-raised,
   .ui-hero-shell {
-    background:
-      radial-gradient(ellipse 70% 80% at 100% 0%, oklch(0.55 0.16 268 / 0.18), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 92%, white) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 22%, var(--border-subtle));
-    box-shadow:
-      0 1px 0 0 oklch(0.92 0.04 270 / 0.06) inset,
-      var(--shadow-2),
-      0 22px 50px -20px oklch(0.55 0.18 268 / 0.45);
+    background: var(--surface-raised);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-1);
   }
 
-  /* The light recipe's 1px inset uses a pearl `white` highlight that doesn't
-     flip in dark mode (§9). Swap it for the cool inset tuned to the navy
-     backdrop, mirroring the calmer-cousin treatment of .ui-card-raised but
-     keeping the dense-surface halo softer. Border stays accent-anchored. */
   .ui-table-shell {
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 16%, var(--border-subtle));
-    box-shadow:
-      inset 0 1px 0 oklch(0.92 0.04 270 / 0.05),
-      var(--shadow-1),
-      0 14px 30px -18px oklch(0.55 0.18 268 / 0.32);
+    border-color: var(--border-strong);
+    box-shadow: none;
   }
 
   .ui-card-hero {
-    background:
-      radial-gradient(circle at top left, oklch(0.55 0.16 268 / 0.22), transparent 34%),
-      radial-gradient(circle at top right, oklch(0.65 0.16 200 / 0.18), transparent 38%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 90%, white) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 26%, var(--border-subtle));
-    box-shadow:
-      0 1px 0 0 oklch(0.92 0.04 270 / 0.07) inset,
-      var(--shadow-3),
-      0 30px 60px -24px oklch(0.55 0.18 268 / 0.55);
+    background: var(--surface-raised);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-2);
   }
 
   /* Legacy dark-mode header override neutralized — the flat-identity vocabulary is theme-agnostic. */
@@ -2209,88 +2128,34 @@
   .ui-route-state-card,
   .ui-support-panel,
   .ui-status-panel {
-    background:
-      radial-gradient(ellipse 70% 60% at 100% 0%, oklch(0.55 0.16 268 / 0.10), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 94%, white) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 12%, var(--border-subtle));
+    background: var(--surface-raised);
+    border-color: var(--border-subtle);
     box-shadow:
       0 1px 0 0 oklch(0.92 0.04 270 / 0.05) inset,
       var(--shadow-1);
   }
 
   .ui-input {
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 92%, white) 0%, var(--surface) 100%);
-    box-shadow: 0 1px 0 0 oklch(0.92 0.04 270 / 0.05) inset;
+    background: var(--surface-raised);
+    box-shadow: none;
   }
 
   .ui-footer-shell {
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 86%, transparent) 0%, color-mix(in oklab, var(--surface) 80%, black) 100%);
+    background: color-mix(in oklab, var(--canvas) 70%, var(--surface-raised));
   }
 
   .ui-footer-shell::before {
-    background: linear-gradient(90deg, transparent 0%, oklch(0.55 0.18 268 / 0.26) 50%, transparent 100%);
+    background: color-mix(in oklab, var(--border-subtle) 65%, transparent);
   }
 
+  /* v46: the dark shell flattens too — no orbs, no grain, no drift. */
   .ui-app-shell {
-    background:
-      radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.2 0.085 268), transparent 72%),
-      radial-gradient(ellipse 60% 40% at 50% 70%, oklch(0.19 0.075 266 / 0.5), transparent 75%),
-      radial-gradient(ellipse 50% 35% at 92% 80%, oklch(0.18 0.07 264 / 0.55), transparent 70%),
-      linear-gradient(180deg, var(--canvas) 0%, var(--canvas-strong) 55%, var(--canvas-deep) 100%);
+    background: var(--canvas);
     position: relative;
-  }
-  /* Faint grain texture overlaid on the dark shell — breaks up flat color
-     without distracting from content. SVG turbulence at low opacity. */
-  .ui-app-shell::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>"),
-      url("data:image/svg+xml;utf8,<svg width='320' height='320' viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%239fb3ff' stroke-width='0.5'><path d='M0 80 Q 80 60 160 80 T 320 80'/><path d='M0 160 Q 80 140 160 160 T 320 160'/><path d='M0 240 Q 80 220 160 240 T 320 240'/></svg>");
-    background-size: 200px 200px, 320px 320px;
-    background-position: 0 0, 0 0;
-    background-repeat: repeat, repeat;
-    opacity: 0.035;
-    mix-blend-mode: overlay;
-    z-index: 0;
-  }
-
-  /* Animated gradient orbs — large soft-edged accent glows that slowly drift.
-     Layered above the noise grain but below content. Disabled when the user
-     has reduced-motion preferences set. */
-  .ui-app-shell::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(
-        circle at var(--orb-1-x, 18%) var(--orb-1-y, 22%),
-        oklch(0.55 0.18 268 / 0.18),
-        transparent 40%
-      ),
-      radial-gradient(
-        circle at var(--orb-2-x, 82%) var(--orb-2-y, 68%),
-        oklch(0.5 0.16 240 / 0.16),
-        transparent 42%
-      );
-    animation: ui-app-shell-orbs 60s ease-in-out infinite alternate;
-    z-index: 0;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ui-app-shell::after {
-      animation: none;
-    }
   }
 
   .ui-page-luminous__base {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.34 0.16 268) 0%, oklch(0.16 0.06 264) 38%, oklch(0.09 0.035 264) 70%, oklch(0.075 0.025 264) 100%);
+    background: var(--canvas);
   }
 }
 
@@ -2443,169 +2308,12 @@
    sits on the dark hero. Light mode keeps the chrome's natural light style.
    ────────────────────────────────────────────────────────────────────────── */
 
-.landing-root > header.ui-footer-shell {
-  position: static !important;
-}
-
-/* Header CTA — soften the resting + hover halo so the primary action does not
-   sit heavier than the page content below it. The CTA lives outside the Site
-   nav, so it uses the base .ui-btn-primary; scope the softer halo to the header
-   to avoid touching primary buttons elsewhere. */
-.landing-root > header.ui-footer-shell a.ui-btn-primary {
-  box-shadow: var(--shadow-1), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
-}
-.landing-root > header.ui-footer-shell a.ui-btn-primary:hover {
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.20) inset,
-    var(--shadow-1),
-    0 10px 22px -14px color-mix(in oklab, var(--accent-strong) 45%, transparent);
-  filter: none;
-}
-
-@media (prefers-color-scheme: light) {
-  .landing-root > header.ui-footer-shell {
-    background:
-      linear-gradient(180deg,
-        color-mix(in oklab, var(--surface) 98%, white) 0%,
-        color-mix(in oklab, var(--surface-muted) 18%, white) 100%
-      ) !important;
-    border-bottom-color: color-mix(in oklab, var(--accent) 10%, var(--border-subtle)) !important;
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.65) inset,
-      0 10px 28px -18px color-mix(in oklab, var(--accent) 22%, transparent);
-  }
-  /* Wordmark "Oblixa" — subtle gradient + slight letter-spacing for polish */
-  .landing-root > header.ui-footer-shell a > span:last-child {
-    background: linear-gradient(180deg,
-      var(--text-primary) 0%,
-      color-mix(in oklab, var(--text-primary) 70%, var(--accent-strong)) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    letter-spacing: -0.015em;
-  }
-  /* Sign in ghost button — refined hover */
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost:hover {
-    background: color-mix(in oklab, var(--accent-soft) 30%, transparent);
-    color: var(--accent-strong);
-  }
-  /* Active route — accent-soft pill, clearer than text colour + underline alone
-     and consistent across both colour schemes. */
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] a[data-active="true"] {
-    background: color-mix(in oklab, var(--accent-soft) 42%, transparent);
-    color: var(--accent-strong);
-  }
-  /* Get started primary button — subtle accent halo */
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-primary {
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.20) inset,
-      var(--shadow-1),
-      0 8px 20px -10px color-mix(in oklab, var(--accent-strong) 50%, transparent);
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-primary:hover {
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.22) inset,
-      var(--shadow-2),
-      0 12px 28px -10px color-mix(in oklab, var(--accent-strong) 60%, transparent);
-  }
-  /* Refined secondary nav hover with accent tint */
-  .landing-root > header.ui-footer-shell nav[aria-label="On this page"] a:hover {
-    background: color-mix(in oklab, var(--accent-soft) 38%, transparent);
-    color: var(--accent-strong);
-  }
-  /* Refined border-top of the secondary nav row */
-  .landing-root > header.ui-footer-shell > div > div + div {
-    border-top-color: color-mix(in oklab, var(--accent) 6%, var(--border-subtle));
-  }
-  /* Avatar tile in header — v17: softened bevel/halo (was shadow-2 + a 38%
-     accent glow that read as glossy). shadow-1 + a faint accent halo keeps it
-     premium without the heavy gloss. */
-  .landing-root > header.ui-footer-shell .ui-avatar-tile {
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
-      var(--shadow-1),
-      0 4px 12px -14px color-mix(in oklab, var(--accent) 12%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-root > header.ui-footer-shell {
-    background: transparent !important;
-    /* v18: tokenized subtle bottom hairline (was rgba white literal). */
-    border-bottom-color: color-mix(in oklab, var(--border-subtle) 65%, transparent) !important;
-    backdrop-filter: none !important;
-  }
-  .landing-root > header.ui-footer-shell a > span:last-child {
-    color: rgba(255, 255, 255, 0.96);
-  }
-  .landing-root > header.ui-footer-shell .ui-avatar-tile {
-    box-shadow:
-      0 6px 16px -14px oklch(0.62 0.18 265 / 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost {
-    color: rgba(255, 255, 255, 0.78);
-    background: transparent;
-    border-color: transparent;
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] a[data-active="true"] {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-primary {
-    background: rgba(255, 255, 255, 0.95);
-    color: oklch(0.18 0.05 260);
-    border-color: rgba(255, 255, 255, 0.55);
-    box-shadow: 0 12px 30px -14px oklch(0.62 0.18 265 / 0.45);
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="Site"] .ui-btn-primary:hover {
-    background: white;
-    filter: brightness(1.02);
-  }
-  .landing-root > header.ui-footer-shell > div > div + div {
-    border-top-color: rgba(255, 255, 255, 0.07) !important;
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="On this page"] a {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  .landing-root > header.ui-footer-shell nav[aria-label="On this page"] a:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: white !important;
-  }
-}
-
-/* Header-area backdrop strip — light pastel ambient in light mode,
-   dark navy in dark mode. */
+/* v46: the old .landing-root header treatments (halos, gradient wordmark,
+   pill states, pastel/navy backdrop strips) are retired — every page now
+   runs the promoted flat chrome below. The .landing-header-backdrop div
+   renders nothing by design. */
 .landing-header-backdrop {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: -10;
-  height: 17rem;
-  pointer-events: none;
-}
-
-@media (prefers-color-scheme: light) {
-  .landing-header-backdrop {
-    background:
-      radial-gradient(ellipse 75% 100% at 50% 0%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 100% at 18% 30%, oklch(0.93 0.05 290 / 0.40) 0%, transparent 65%),
-      radial-gradient(ellipse 60% 100% at 82% 30%, oklch(0.94 0.04 200 / 0.40) 0%, transparent 65%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, transparent 100%);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-header-backdrop {
-    background:
-      radial-gradient(ellipse 70% 100% at 50% 0%, oklch(0.18 0.07 268) 0%, oklch(0.10 0.035 264) 50%, transparent 100%),
-      linear-gradient(180deg, oklch(0.085 0.025 264) 0%, oklch(0.085 0.025 264) 78%, oklch(0.080 0.025 264) 88%, transparent 100%);
-  }
+  display: none;
 }
 
 /* Make the marquee surface darker in dark mode automatically */
@@ -2643,26 +2351,11 @@
   pointer-events: none;
 }
 
-.landing-glow-blue::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 0%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 72%);
-}
-.landing-glow-violet::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 100%, oklch(0.85 0.07 290 / 0.22), transparent 72%);
-}
+/* v46: section glows retired — canvases are flat in the editorial system. */
+.landing-glow-blue::before,
+.landing-glow-violet::before,
 .landing-glow-mint::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 50%, color-mix(in oklab, var(--success-soft) 28%, transparent), transparent 72%);
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-glow-blue::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.55 0.18 265 / 0.22), transparent 72%);
-  }
-  .landing-glow-violet::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 100%, oklch(0.55 0.18 290 / 0.22), transparent 72%);
-  }
-  .landing-glow-mint::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 50%, oklch(0.62 0.14 175 / 0.18), transparent 72%);
-  }
+  background: none;
 }
 
 /* Mode-aware cards: in dark mode, light-section cards gain a faint cool inner highlight */
@@ -2688,71 +2381,31 @@
    Dark mode gets a parallel vivid accent treatment.
    ────────────────────────────────────────────────────────────────────────── */
 
+/* v46: premium cards adopt the artifact frame — flat white, firm ink-mixed
+   border, no lift, no halos; the rail is one solid cobalt edge. */
 .landing-card-premium {
   position: relative;
-  /* v14: tokenized the gradient anchors (were literal white) and softened the
-     accent halo (38%→18%, tighter) + top inset (0.55→0.4) so cards stop
-     reading as heavy "floating white boxes". Shared with /product (parity). */
-  background:
-    radial-gradient(ellipse 70% 80% at 100% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 58%),
-    linear-gradient(180deg, color-mix(in oklab, var(--surface) 98%, var(--surface-raised)) 0%, color-mix(in oklab, var(--surface-muted) 18%, var(--surface-raised)) 100%);
-  border-color: color-mix(in oklab, var(--accent) 14%, var(--border-subtle));
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
-    var(--shadow-1),
-    0 8px 20px -18px color-mix(in oklab, var(--accent) 18%, transparent);
-  transition:
-    transform var(--ui-duration) var(--ui-ease-out),
-    box-shadow var(--ui-duration) var(--ui-ease-out),
-    border-color var(--ui-duration) var(--ui-ease-out);
+  background: var(--surface-raised);
+  border-color: color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+  box-shadow: none;
+  transition: border-color var(--ui-duration) var(--ui-ease-out);
 }
 
 .landing-card-premium:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--accent) 28%, var(--border-subtle));
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
-    var(--shadow-2),
-    0 14px 30px -20px color-mix(in oklab, var(--accent) 28%, transparent);
+  transform: none;
+  border-color: color-mix(in oklab, var(--text-primary) 40%, var(--border-strong));
+  box-shadow: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .landing-card-premium {
-    /* v14: gradient anchor tokenized (was literal white → var(--text-primary),
-       which lightens correctly in dark) and the accent halo softened to match
-       the light-mode "less floaty" reduction. */
-    background:
-      radial-gradient(ellipse 70% 80% at 100% 0%, oklch(0.55 0.16 268 / 0.18), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 92%, var(--text-primary)) 0%, var(--surface) 100%);
-    border-color: color-mix(in oklab, oklch(0.55 0.18 268) 22%, var(--border-subtle));
-    box-shadow:
-      0 1px 0 0 oklch(0.92 0.04 270 / 0.06) inset,
-      var(--shadow-2),
-      0 12px 28px -20px oklch(0.55 0.18 268 / 0.28);
-  }
-  .landing-card-premium:hover {
-    box-shadow:
-      0 1px 0 0 oklch(0.92 0.04 270 / 0.08) inset,
-      var(--shadow-2),
-      0 16px 34px -22px oklch(0.55 0.18 268 / 0.36);
-  }
-}
-
-/* Soft accent rail — a thin gradient stripe on the left edge of premium cards */
 .landing-card-rail::after {
   content: "";
   position: absolute;
   left: 0;
-  top: 12%;
-  bottom: 12%;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--accent-strong) 70%, transparent) 50%, transparent 100%);
-  opacity: 0.5;
-  transition: opacity var(--ui-duration) var(--ui-ease-out);
-}
-.landing-card-premium:hover.landing-card-rail::after {
-  opacity: 0.85;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-strong);
+  opacity: 1;
 }
 
 /* Static modifier — for passive premium cards (e.g. the auth form panel) that
@@ -2804,20 +2457,20 @@
   }
 }
 
-/* Refined eyebrow with accent dot prefix */
+/* v46: eyebrows open on a short steel rule, not a glowing dot — the
+   landing's chapter-eyebrow language. */
 .landing-eyebrow-dot {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 .landing-eyebrow-dot::before {
   content: "";
   display: inline-block;
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 999px;
-  background: var(--accent-strong);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
+  width: 1.75rem;
+  height: 0;
+  border-top: 1px solid var(--border-contrast);
+  box-shadow: none;
 }
 
 /* Marquee labels in light mode: nicer separator dots */
@@ -2853,67 +2506,20 @@
 .landing-luminous__glow { z-index: -20; }
 .landing-luminous__grid { z-index: -10; }
 
-@media (prefers-color-scheme: light) {
-  .landing-luminous__base {
-    background:
-      radial-gradient(ellipse 70% 60% at 50% -10%, color-mix(in oklab, var(--accent) 14%, transparent) 0%, transparent 60%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, color-mix(in oklab, var(--surface-muted) 24%, var(--canvas)) 100%);
-  }
-  .landing-luminous__glow {
-    background:
-      radial-gradient(ellipse 45% 35% at 18% 30%, oklch(0.90 0.07 290 / 0.50) 0%, transparent 65%),
-      radial-gradient(ellipse 45% 35% at 84% 22%, oklch(0.92 0.06 200 / 0.50) 0%, transparent 65%),
-      radial-gradient(ellipse 55% 40% at 50% 90%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 70%);
-  }
-  .landing-luminous__grid {
-    opacity: 0.5;
-    background-image:
-      radial-gradient(circle at center, color-mix(in oklab, var(--accent) 18%, transparent) 1px, transparent 1.5px);
-    background-size: 24px 24px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 25%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 25%, transparent 75%);
-  }
+/* v46: "luminous" sections flatten to the steel-mist operational band with
+   a ruled opening — no glow layers, no dotted grids, no fades. The layer
+   markup stays valid; only the base carries a background now. */
+.landing-luminous__base {
+  background: var(--canvas-deep);
+  border-top: 1px solid color-mix(in oklab, var(--text-primary) 16%, transparent);
 }
-
-@media (prefers-color-scheme: dark) {
-  .landing-luminous__base {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.34 0.16 268) 0%, oklch(0.16 0.06 264) 38%, oklch(0.09 0.035 264) 70%, oklch(0.075 0.025 264) 100%);
-  }
-  .landing-luminous__glow {
-    background:
-      radial-gradient(ellipse 50% 40% at 18% 30%, oklch(0.55 0.20 290 / 0.35) 0%, transparent 65%),
-      radial-gradient(ellipse 45% 35% at 84% 24%, oklch(0.65 0.16 200 / 0.32) 0%, transparent 65%),
-      radial-gradient(ellipse 60% 45% at 50% 85%, oklch(0.55 0.18 268 / 0.4) 0%, transparent 70%);
-  }
-  .landing-luminous__grid {
-    opacity: 0.5;
-    background-image:
-      radial-gradient(circle at center, rgba(255,255,255,0.18) 1px, transparent 1.5px);
-    background-size: 26px 26px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
-  }
+.landing-luminous__glow,
+.landing-luminous__grid {
+  background: none;
+  background-image: none;
 }
-
-/* Bottom fade so the luminous section transitions cleanly into the next section */
 .landing-luminous__fade {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 8rem;
-  pointer-events: none;
-}
-@media (prefers-color-scheme: light) {
-  .landing-luminous__fade {
-    background: linear-gradient(180deg, transparent 0%, var(--canvas) 100%);
-  }
-}
-@media (prefers-color-scheme: dark) {
-  .landing-luminous__fade {
-    background: linear-gradient(180deg, transparent 0%, var(--canvas) 100%);
-  }
+  display: none;
 }
 
 /* Mode-aware text colors used in luminous sections */
@@ -2927,40 +2533,24 @@
   color: var(--text-tertiary);
 }
 
-/* Mode-aware floating glass pill (used for eyebrow + annotation flags) */
+/* v46: the glass pill becomes a flat plated chip — steel caps, hairline
+   frame, no blur, no halo, no glass. */
 .landing-glass-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.25rem 0.75rem;
-  font-size: 11px;
+  border-radius: 3px;
+  padding: 0.25rem 0.625rem;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
-  transition: background var(--ui-duration) var(--ui-ease-out), border-color var(--ui-duration) var(--ui-ease-out);
-}
-
-@media (prefers-color-scheme: light) {
-  .landing-glass-pill {
-    background: color-mix(in oklab, var(--surface) 92%, white);
-    border: 1px solid color-mix(in oklab, var(--accent) 24%, var(--border-subtle));
-    color: var(--accent-strong);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.6) inset,
-      var(--shadow-1),
-      0 8px 22px -10px color-mix(in oklab, var(--accent) 36%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-glass-pill {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: oklch(0.78 0.13 230);
-    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
-  }
+  backdrop-filter: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  box-shadow: none;
+  transition: border-color var(--ui-duration) var(--ui-ease-out);
 }
 
 /* Mode-aware "frosted glass" CTA secondary button (was always white/[0.05]) */
@@ -2977,31 +2567,19 @@
   transition: background var(--ui-duration) var(--ui-ease-out), border-color var(--ui-duration) var(--ui-ease-out), color var(--ui-duration) var(--ui-ease-out);
 }
 
-@media (prefers-color-scheme: light) {
-  .landing-cta-secondary {
-    border-color: color-mix(in oklab, var(--accent) 18%, var(--border-subtle));
-    background: color-mix(in oklab, var(--surface) 96%, white);
-    color: var(--text-primary);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.6) inset,
-      var(--shadow-1);
-  }
-  .landing-cta-secondary:hover {
-    background: color-mix(in oklab, var(--surface-contrast) 60%, white);
-    border-color: color-mix(in oklab, var(--accent) 32%, var(--border-subtle));
-  }
+/* v46: secondary CTA matches the global plated secondary — white surface,
+   ink-mixed border, 3px corners, both schemes from tokens. */
+.landing-cta-secondary {
+  border-radius: 3px;
+  border-color: color-mix(in oklab, var(--text-primary) 55%, var(--border-strong));
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  box-shadow: none;
+  backdrop-filter: none;
 }
-
-@media (prefers-color-scheme: dark) {
-  .landing-cta-secondary {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(8px);
-  }
-  .landing-cta-secondary:hover {
-    background: rgba(255, 255, 255, 0.10);
-  }
+.landing-cta-secondary:hover {
+  background: var(--surface-contrast);
+  border-color: color-mix(in oklab, var(--text-primary) 72%, var(--border-strong));
 }
 
 /* Mode-aware "white pill" hero CTA — uses ui-btn-primary in light mode (blue gradient),
@@ -3019,126 +2597,62 @@
   transition: transform var(--ui-duration) var(--ui-ease-out), box-shadow var(--ui-duration) var(--ui-ease-out), filter var(--ui-duration) var(--ui-ease-out);
 }
 
-@media (prefers-color-scheme: light) {
-  .landing-cta-primary {
-    background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 84%, white) 0%, var(--accent-strong) 100%);
-    color: var(--accent-fg);
-    border-color: color-mix(in oklab, var(--accent-strong) 80%, transparent);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.18) inset,
-      0 14px 40px -14px color-mix(in oklab, var(--accent-strong) 55%, transparent);
-  }
-  .landing-cta-primary:hover {
-    filter: brightness(1.03);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.20) inset,
-      0 18px 50px -14px color-mix(in oklab, var(--accent-strong) 65%, transparent);
-    transform: translateY(-1px);
-  }
+/* v46: primary CTA is the flat ink-press cobalt button in both schemes. */
+.landing-cta-primary {
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--accent-strong) 92%, black);
+  color: var(--accent-fg);
+  border-color: color-mix(in oklab, var(--accent-strong) 80%, black);
+  box-shadow: none;
+}
+.landing-cta-primary:hover {
+  background: var(--accent-strong);
+  filter: none;
+  box-shadow: none;
+  transform: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .landing-cta-primary {
-    background: white;
-    color: oklch(0.18 0.05 260);
-    border-color: rgba(255, 255, 255, 0.55);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.4) inset,
-      0 18px 60px -12px oklch(0.62 0.18 265 / 0.55);
-  }
-  .landing-cta-primary:hover {
-    filter: brightness(1.02);
-    transform: translateY(-1px);
-  }
-}
-
-/* Mode-aware "stats strip" surface */
+/* v46: the stats strip is a ruled ledger band — flat surface, hairline
+   frame; values render in plain ink (no gradient text). */
 .landing-stats-strip {
   position: relative;
-  border-radius: var(--radius-2xl);
+  border-radius: 4px;
   overflow: hidden;
-  backdrop-filter: blur(8px);
-  border: 1px solid;
+  backdrop-filter: none;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  box-shadow: none;
 }
-
-@media (prefers-color-scheme: light) {
-  .landing-stats-strip {
-    border-color: color-mix(in oklab, var(--accent) 16%, var(--border-subtle));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, white) 0%, color-mix(in oklab, var(--surface-muted) 30%, white) 100%);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.6) inset,
-      var(--shadow-1),
-      0 16px 40px -20px color-mix(in oklab, var(--accent) 38%, transparent);
-  }
-  .landing-stats-strip > dl {
-    --strip-divider: color-mix(in oklab, var(--border-subtle) 92%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-stats-strip {
-    border-color: rgba(255, 255, 255, 0.10);
-    background: rgba(255, 255, 255, 0.03);
-  }
-  .landing-stats-strip > dl {
-    --strip-divider: rgba(255, 255, 255, 0.10);
-  }
+.landing-stats-strip > dl {
+  --strip-divider: var(--border-subtle);
 }
 
 .landing-stats-value {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  background-image: none;
+  color: var(--text-primary);
 }
 
-@media (prefers-color-scheme: light) {
-  .landing-stats-value {
-    background-image: linear-gradient(180deg, var(--accent-strong) 0%, color-mix(in oklab, var(--accent-strong) 70%, oklch(0.45 0.15 280)) 100%);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-stats-value {
-    background-image: linear-gradient(180deg, oklch(0.96 0.02 240) 0%, oklch(0.74 0.13 260) 100%);
-  }
-}
-
-/* Mode-aware annotation flag — used above the product preview */
+/* v46: annotation flag is a flat plated chip. */
 .landing-annotation-flag {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.375rem 0.75rem;
-  font-size: 11px;
+  border-radius: 3px;
+  padding: 0.375rem 0.625rem;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  backdrop-filter: blur(10px);
-  border: 1px solid;
+  backdrop-filter: none;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  box-shadow: none;
 }
 
-@media (prefers-color-scheme: light) {
-  .landing-annotation-flag {
-    background: color-mix(in oklab, var(--surface) 94%, white);
-    border-color: color-mix(in oklab, var(--accent) 22%, var(--border-subtle));
-    color: var(--accent-strong);
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.65) inset,
-      var(--shadow-1),
-      0 10px 24px -12px color-mix(in oklab, var(--accent) 40%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-annotation-flag {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.85);
-    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.7);
-  }
-}
+/* (dark annotation-flag override retired — token surface covers both.) */
 
 /* Mode-aware connector line for annotation arrows */
 .landing-annotation-line {
@@ -3975,29 +3489,12 @@
   }
 }
 
-/* Section accent ring — a thin colored ring decoration that floats in a section corner.
-   Used as a quiet identity marker per section. */
+/* v46: corner-ring decor retired; section glows flattened — canvases are
+   flat in the editorial system. */
 .landing-corner-ring {
-  position: absolute;
-  pointer-events: none;
-  border-radius: 999px;
-  border: 1px dashed;
-  opacity: 0.35;
+  display: none;
 }
 
-@media (prefers-color-scheme: light) {
-  .landing-corner-ring {
-    border-color: color-mix(in oklab, var(--accent) 40%, transparent);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-corner-ring {
-    border-color: rgba(255, 255, 255, 0.18);
-  }
-}
-
-/* Section-specific glow variants (already have blue, violet, mint — adding amber + cyan) */
 .landing-glow-amber,
 .landing-glow-cyan,
 .landing-glow-rose {
@@ -4008,36 +3505,10 @@
 .landing-glow-amber::before,
 .landing-glow-cyan::before,
 .landing-glow-rose::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+  content: none;
 }
 
-.landing-glow-amber::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 0%, color-mix(in oklab, var(--warning-soft) 40%, transparent), transparent 72%);
-}
-.landing-glow-cyan::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 100%, oklch(0.92 0.06 200 / 0.30), transparent 72%);
-}
-.landing-glow-rose::before {
-  background: radial-gradient(ellipse 70% 45% at 50% 0%, oklch(0.92 0.06 20 / 0.28), transparent 72%);
-}
-
-@media (prefers-color-scheme: dark) {
-  .landing-glow-amber::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.55 0.16 80 / 0.18), transparent 72%);
-  }
-  .landing-glow-cyan::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 100%, oklch(0.55 0.14 200 / 0.20), transparent 72%);
-  }
-  .landing-glow-rose::before {
-    background: radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.55 0.16 20 / 0.18), transparent 72%);
-  }
-}
-
-/* Refined section eyebrow with subtle underline detail */
+/* Section eyebrow underline — one solid steel rule. */
 .landing-eyebrow-rule {
   display: inline-flex;
   flex-direction: column;
@@ -4049,12 +3520,7 @@
   display: block;
   height: 1px;
   width: 2rem;
-  background: linear-gradient(
-    90deg,
-    var(--accent-strong) 0%,
-    color-mix(in oklab, var(--accent) 50%, transparent) 60%,
-    transparent 100%
-  );
+  background: var(--border-contrast);
 }
 
 /* FAQ index counter */
@@ -4690,40 +4156,10 @@ textarea.ui-input-compact::-webkit-scrollbar-thumb:hover,
    Replaces the random per-section landing-luminous alternation with a
    single coherent ambient layer. Every marketing page sits on top of this.
    ───────────────────────────────────────────────────────────────────────── */
+/* v46: the ambient atmosphere layer is retired — marketing pages sit on the
+   flat porcelain canvas; bands and rules carry the structure. */
 .marketing-page-atmosphere {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 42% 32% at 12% 18%, oklch(0.55 0.18 285 / 0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 38% 28% at 88% 22%, oklch(0.60 0.16 200 / 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 48% 38% at 50% 52%, oklch(0.50 0.15 270 / 0.12) 0%, transparent 65%),
-    radial-gradient(ellipse 42% 32% at 18% 78%, oklch(0.55 0.18 260 / 0.16) 0%, transparent 60%),
-    radial-gradient(ellipse 38% 28% at 82% 82%, oklch(0.55 0.14 220 / 0.14) 0%, transparent 60%);
-}
-
-@media (prefers-color-scheme: light) {
-  .marketing-page-atmosphere {
-    background:
-      radial-gradient(ellipse 42% 32% at 12% 18%, oklch(0.85 0.07 285 / 0.30) 0%, transparent 60%),
-      radial-gradient(ellipse 38% 28% at 88% 22%, oklch(0.90 0.06 200 / 0.28) 0%, transparent 60%),
-      radial-gradient(ellipse 48% 38% at 50% 52%, oklch(0.85 0.05 270 / 0.16) 0%, transparent 65%),
-      radial-gradient(ellipse 42% 32% at 18% 78%, oklch(0.85 0.07 260 / 0.22) 0%, transparent 60%),
-      radial-gradient(ellipse 38% 28% at 82% 82%, oklch(0.85 0.05 220 / 0.18) 0%, transparent 60%);
-  }
-}
-
-@media (prefers-reduced-data: reduce), (prefers-contrast: more) {
-  .marketing-page-atmosphere {
-    display: none;
-  }
-}
-
-@media print {
-  .marketing-page-atmosphere {
-    display: none;
-  }
+  display: none;
 }
 
 /* Subtle gradient hairline divider between sections. Uses ::before so it
@@ -4838,64 +4274,26 @@ html {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   LP — warm editorial marketing system (homepage migration, v18)
+   LP — editorial marketing system (homepage) · v35 directive pass
 
-   Scope host: `.lp-root` on the homepage root only. It redeclares the core
-   token set with warm, paper-based, light-locked values so every token-driven
-   component inside it (marketing chrome, StatusBadge, ui-btn-*) re-skins
-   without code changes, and `color-scheme: light` + unconditional custom
-   properties pin the scope to light regardless of the OS scheme. Marketing
-   siblings (/product, legal, auth) keep `.landing-root` until their own
-   migration increments; delete the landing-luminous family only after the
-   last consumer moves.
+   v35 widens and hardens the v34 system per the 70-item design review:
+   - Width: text grid 77.5rem (1240px); artifact-dominant objects may outdent
+     to 85rem (1360px) through .lp-bleed* on wide viewports (directive 1).
+   - Palette: a scoped LP palette — warm paper canvas, ink-black primary,
+     higher-contrast slate secondary/tertiary, warm rule grays. Action blue,
+     source amber, confirmed green, and cannot-proceed red stay on the
+     established semantic tokens (directives 8, 9).
+   - Surfaces: 4px artifact radius, 3px control radius, firmer ink-mixed
+     artifact frames, structure from rules not elevation (directives 48, 49).
+   - Canvases: fewer, deeper section bands — warm paper narrative bands and
+     ONE cool operational band family (directive 46).
+   - Chrome: single darker header rule, ink-stamped brand seal, rectangular
+     status plates (directives 6, 7, 54).
+   - Motif: .lp-doc-margin — a ruled-paper sheet with an amber margin line
+     staged behind the hero artifact (directive 5).
+   `.lp-root` remains the system boundary; marketing siblings keep
+   `.landing-root`.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-.lp-root {
-  color-scheme: light;
-  --canvas: oklch(0.967 0.011 86);
-  --canvas-strong: oklch(0.947 0.015 84);
-  --canvas-deep: oklch(0.91 0.019 82);
-  --surface: oklch(0.984 0.007 88);
-  --surface-raised: oklch(0.992 0.005 90);
-  --surface-contrast: oklch(0.955 0.012 85);
-  --surface-muted: oklch(0.948 0.013 84);
-  --surface-inset: oklch(0.937 0.015 83);
-  --surface-tint: color-mix(in oklab, var(--surface) 92%, white);
-  --surface-tint-soft: color-mix(in oklab, var(--surface) 96%, white);
-  /* Retained disciplined blue accent, slightly inked + de-saturated against
-     the warm field so it reads as a working accent, not the identity. */
-  --accent: oklch(0.47 0.15 259);
-  --accent-strong: oklch(0.39 0.16 261);
-  --accent-soft: oklch(0.937 0.026 257);
-  --accent-fg: oklch(0.985 0.006 89);
-  --accent-warm: #96501d;
-  --text-primary: oklch(0.24 0.018 68);
-  --text-secondary: oklch(0.41 0.02 70);
-  --text-tertiary: oklch(0.5 0.018 73);
-  --text-inverse: oklch(0.97 0.008 88);
-  --border-subtle: oklch(0.884 0.015 80);
-  --border-strong: oklch(0.8 0.018 78);
-  --border-contrast: oklch(0.7 0.022 76);
-  --border-card: color-mix(in oklab, var(--border-subtle) 88%, transparent);
-  --success-soft: oklch(0.951 0.034 152);
-  --success-ink: oklch(0.4 0.094 152);
-  --warning-soft: oklch(0.957 0.04 84);
-  --warning-ink: oklch(0.465 0.102 80);
-  --danger-soft: oklch(0.947 0.038 27);
-  --danger-ink: oklch(0.44 0.135 27);
-  --info-soft: oklch(0.945 0.022 252);
-  --info-ink: oklch(0.43 0.062 252);
-  --focus-ring: color-mix(in oklab, var(--accent) 62%, var(--surface));
-  /* Warm-tinted, shallow shadow scale — separation only, never elevation
-     theater. Glow tokens are neutralized so legacy consumers go quiet. */
-  --shadow-1: 0 1px 2px rgba(64, 50, 25, 0.05), 0 8px 24px rgba(64, 50, 25, 0.05);
-  --shadow-2: 0 14px 34px rgba(64, 50, 25, 0.09), 0 2px 4px rgba(64, 50, 25, 0.04);
-  --shadow-3: 0 18px 44px rgba(64, 50, 25, 0.12), 0 4px 12px rgba(64, 50, 25, 0.06);
-  --shadow-floating: 0 18px 44px -24px rgba(64, 50, 25, 0.28), 0 6px 18px -10px rgba(64, 50, 25, 0.1);
-  --shadow-glow: 0 0 0 rgba(0, 0, 0, 0);
-  --canvas-glow: transparent;
-  --canvas-glow-secondary: transparent;
-}
 
 /* Display serif for headings. Falls back to the Georgia stack when the
    next/font variable is absent (tests, font-load failure). */
@@ -4905,140 +4303,219 @@ html {
   font-weight: 600;
 }
 
-/* Pale paper grain — multiply-blended fractal noise at very low opacity.
-   Texture must never reduce contrast below accessibility standards. */
+/* Paper grain — multiply-blended fractal noise at very low opacity. Editorial
+   fields only — never behind dense tables (markup controls placement). */
 .lp-grain {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E");
   background-size: 180px 180px;
-  opacity: 0.035;
+  opacity: 0.05;
   mix-blend-mode: multiply;
 }
-
-/* Alternate parchment band — section rhythm via surface change, not borders. */
-.lp-band {
-  background: var(--canvas-strong);
+@media (prefers-color-scheme: dark) {
+  /* Multiply goes muddy on dark canvas — flip to a faint screen speckle. */
+  .lp-grain {
+    opacity: 0.05;
+    mix-blend-mode: screen;
+  }
 }
 
-/* Quiet eyebrow with a leading document-margin rule. */
+/* ── LP palette ─────────────────────────────────────────────────────────────
+   v46: the palette moved to the GLOBAL :root tokens at the top of this file —
+   every surface shares it now. Only the light-mode specials remain here,
+   unscoped so any page staging previews or bands gets them. */
+@media (prefers-color-scheme: light) {
+  /* Product previews sit on TRUE white in light so they read as app
+     surfaces against the section fields. */
+  .lp-preview {
+    background: #fff;
+  }
+  /* Section canvas system: porcelain (the default --canvas), parchment for
+     document/trust ground, steel mist for operational bands. */
+  .lp-band-paper {
+    background: #f1e6d2;
+  }
+  .lp-band-workflow {
+    background: #e9eff3;
+  }
+  .lp-band-mist {
+    background: #e9eff3;
+  }
+}
+
+/* Dark-scheme band fallbacks: parchment/mist fields map onto the
+   established band tone so the alternation survives without light-only
+   hexes. */
+.lp-band-paper,
+.lp-band-mist {
+  background: var(--canvas-strong);
+}
+.lp-band-workflow {
+  background: var(--canvas-strong);
+}
+/* Canvas-change separator (v43 directive 16): every band opens on the same
+   ink hairline so section transitions read as ruled decisions, not abrupt
+   color blocks. Porcelain sections that follow a band carry the matching
+   utility rule in markup. */
+.lp-band-paper,
+.lp-band-workflow,
+.lp-band-mist {
+  border-top: 1px solid color-mix(in oklab, var(--text-primary) 16%, transparent);
+}
+
+/* ── Width system (directive 1) ─────────────────────────────────────────────
+   One text grid: 77.5rem (1240px). Artifact-dominant objects may outdent to
+   85rem (1360px) via the bleed utilities — wide viewports only, so the
+   outdent never causes horizontal overflow. */
+.lp-container {
+  width: 100%;
+  max-width: 77.5rem;
+  margin-inline: auto;
+}
+@media (min-width: 90rem) {
+  .lp-bleed {
+    margin-inline: -3.75rem;
+  }
+  .lp-bleed-r {
+    margin-right: -3.75rem;
+  }
+  /* Hero-tier outdent (v43 directive 1): the dominant artifact reaches
+     deeper into the right margin than the standard bleed. */
+  .lp-bleed-r-deep {
+    margin-right: -5.5rem;
+  }
+  .lp-bleed-l {
+    margin-left: -3.75rem;
+  }
+}
+
+/* Chapter eyebrow — mono chapter index + caps label behind a margin rule.
+   Reserved for true chapters (directive 10); supporting sections open with
+   their own object headers instead. */
 .lp-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
 .lp-eyebrow::before {
+  /* Border, not a 1px-high background — backgrounds can drop out at
+     fractional zoom/DPR rounding while borders round up reliably. */
   content: "";
   width: 1.75rem;
+  height: 0;
+  border-top: 1px solid var(--border-contrast);
+}
+/* Chapter numeral — oxblood record marker (directive 5), sized so it never
+   dominates the label (directive 20). */
+.lp-eyebrow-index {
+  font-family: var(--font-mono, ui-monospace), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--danger-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Doubled document rule — chapter and record openings. */
+.lp-frame-rule {
+  position: relative;
+  border-top: 1px solid color-mix(in oklab, var(--text-primary) 38%, var(--border-strong));
+}
+.lp-frame-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
   height: 1px;
-  background: var(--border-contrast);
+  background: color-mix(in oklab, var(--border-subtle) 85%, transparent);
 }
 
-/* CTA pair — ink primary, bordered paper secondary. Compact, decisive, no
-   glow, low radius. */
-.lp-btn-primary,
-.lp-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    background-color var(--ui-duration) var(--ui-ease-out),
-    border-color var(--ui-duration) var(--ui-ease-out);
+/* ── Controls ───────────────────────────────────────────────────────────────
+   v46: the flat 3px controls and the cobalt brand seal are the GLOBAL
+   .ui-btn-* / .ui-avatar-tile recipes now (see the components layer). */
+
+/* ── Header (directive 6) ───────────────────────────────────────────────────
+   Same paper family as the page; ONE thin dark bottom rule. v46: promoted
+   to every marketing header (the landing's chrome is the site's chrome). */
+header.ui-footer-shell {
+  background: color-mix(in oklab, var(--canvas) 58%, var(--surface-raised));
+  backdrop-filter: none;
+  border-bottom: 1px solid color-mix(in oklab, var(--text-primary) 32%, var(--border-strong));
 }
-.lp-btn-primary {
-  border: 1px solid var(--text-primary);
-  background: var(--text-primary);
-  color: var(--canvas);
+header.ui-footer-shell::before,
+header.ui-footer-shell::after {
+  display: none;
 }
-.lp-btn-primary:hover {
-  background: color-mix(in oklab, var(--text-primary) 86%, var(--canvas));
+/* Inline nav links speak rule language, not fill language: hairline
+   underline on hover, persistent underline + ink on the active route. The
+   mobile drawer (below md) keeps the tappable ghost rows. */
+@media (min-width: 768px) {
+  header.ui-footer-shell nav .ui-btn-ghost {
+    border-radius: 0;
+  }
+  header.ui-footer-shell nav .ui-btn-ghost:hover,
+  header.ui-footer-shell nav .ui-btn-ghost:focus-visible,
+  header.ui-footer-shell nav .ui-btn-ghost[data-active="true"] {
+    background: transparent;
+    box-shadow: none;
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 7px;
+    text-decoration-color: color-mix(in oklab, var(--text-primary) 60%, transparent);
+  }
+  header.ui-footer-shell nav .ui-btn-ghost:focus-visible {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 50%, var(--surface-raised)),
+      0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+  header.ui-footer-shell nav .ui-btn-ghost[data-active="true"] {
+    text-decoration-thickness: 2px;
+  }
 }
-.lp-btn-secondary {
-  border: 1px solid var(--border-contrast);
+
+/* ── Product artifacts (directives 3, 12, 48, 49) ───────────────────────────
+   Staged Oblixa app surfaces: 4px radius, firm ink-mixed frame (the page's
+   visual authority), one hairline separation shadow, internal structure from
+   rules. data-variant tints the chrome per artifact role. */
+/* One governed shell (directives 1, 13-15): a single product surface, one
+   firm outer border, lighter internal rules, no ornamental shadow. Warmer
+   document paper appears ONLY inside source-text panes, never as shell
+   chrome. */
+.lp-preview {
   background: var(--surface-raised);
-  color: var(--text-primary);
-}
-.lp-btn-secondary:hover {
-  border-color: var(--text-tertiary);
-}
-.lp-btn-primary:focus-visible,
-.lp-btn-secondary:focus-visible,
-.lp-btn-primary-inverse:focus-visible,
-.lp-btn-outline-inverse:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-/* Closing ink band — the page's single intentional high-contrast panel. */
-.lp-ink-band {
-  background: oklch(0.255 0.018 67);
-  color: oklch(0.93 0.012 84);
-}
-.lp-btn-primary-inverse,
-.lp-btn-outline-inverse {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    background-color var(--ui-duration) var(--ui-ease-out),
-    border-color var(--ui-duration) var(--ui-ease-out);
-}
-.lp-btn-primary-inverse {
-  border: 1px solid oklch(0.96 0.01 86);
-  background: oklch(0.96 0.01 86);
-  color: oklch(0.255 0.018 67);
-}
-.lp-btn-primary-inverse:hover {
-  background: oklch(0.9 0.014 84);
-}
-.lp-btn-outline-inverse {
-  border: 1px solid oklch(0.55 0.015 75);
-  background: transparent;
-  color: oklch(0.93 0.012 84);
-}
-.lp-btn-outline-inverse:hover {
-  border-color: oklch(0.78 0.015 80);
-}
-
-/* Product artifact container — warm surface, thin border, minimal shadow,
-   readable internal UI. The head is a quiet caption bar, not app chrome. */
-.lp-artifact {
-  background: var(--surface-raised);
-  border: 1px solid color-mix(in oklab, var(--border-strong) 55%, var(--border-subtle));
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-1);
+  /* One step lighter than v42 (v44 directive 12): the frame should not
+     outweigh the editorial rules around it. */
+  border: 1px solid color-mix(in oklab, var(--text-primary) 28%, var(--border-strong));
+  border-radius: 4px;
   overflow: hidden;
 }
+
+/* Record panel (non-app artifact): same frame language, quiet caption head. */
+.lp-artifact {
+  background: var(--surface-raised);
+  border: 1px solid color-mix(in oklab, var(--text-primary) 30%, var(--border-strong));
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* Commercial terms panel head (directive 30) — quiet caption, not app
+   chrome. */
 .lp-artifact-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.625rem 1rem;
-  border-bottom: 1px solid color-mix(in oklab, var(--border-subtle) 85%, transparent);
-  background: color-mix(in oklab, var(--surface-muted) 55%, transparent);
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border-strong);
+  background: transparent;
 }
 
 /* Ledger header band — caps column labels over fine row rules. */
@@ -5047,7 +4524,86 @@ html {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Hairline list row — editorial rule lists instead of boxed cards. */
-.lp-rule-item {
-  border-top: 1px solid color-mix(in oklab, var(--border-subtle) 85%, transparent);
+/* Status plates — v46: the flat 20px plate recipe (incl. the neutral
+   in-review state and its dark variant) is the GLOBAL .ui-status-badge
+   definition in the components layer now. */
+
+/* Hairline list row + preview chrome — in the components layer ON PURPOSE:
+   unlayered CSS would beat Tailwind's layered utilities, silently breaking
+   `first:border-t-0` and topbar utility overrides. */
+@layer components {
+  .lp-rule-item {
+    border-top: 1px solid var(--border-subtle);
+  }
+  /* Formal ledger variant (directive 35): stronger steel rules. Color-only
+     override so `first:border-t-0` (width: 0) still wins. */
+  .lp-rule-strong > .lp-rule-item {
+    border-top-color: var(--border-strong);
+  }
+
+  /* Preview chrome — compact in-app topbar (workspace breadcrumb) and tab
+     row. v35 scales the chrome up with the artifact type scale. */
+  .lp-preview-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 1.125rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: color-mix(in oklab, var(--surface-muted) 50%, transparent);
+  }
+  .lp-preview-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 0.375rem;
+    padding: 0 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .lp-preview-tab {
+    padding: 0.65rem 0.8rem 0.6rem;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--text-tertiary);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .lp-preview-tab[data-active="true"] {
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom-color: var(--text-primary);
+  }
+  /* Small screens: compress the tab chrome so artifact tab rows fit inside
+     the viewport-width figure instead of clipping tab labels (directive 60). */
+  @media (max-width: 40rem) {
+    .lp-preview-tabs {
+      gap: 0.125rem;
+      padding: 0 0.5rem;
+      overflow: hidden;
+    }
+    .lp-preview-tab {
+      font-size: 11.5px;
+      padding: 0.55rem 0.45rem 0.5rem;
+    }
+  }
+
+  /* Index seal — stamped square shared by the workflow rail and the
+     access-review record. v35 enlarges the node to a 2.5rem stage stamp. */
+}
+
+/* Footer — a deliberate light steel ending (directive 59): ink text, steel
+   rules, cobalt CTA. v46: promoted to every marketing footer; the base
+   ::before hairline is suppressed so the solid border-top is the single
+   separator. */
+footer.ui-footer-shell {
+  background: var(--canvas-strong);
+  border-top: 1px solid var(--border-strong);
+}
+footer.ui-footer-shell::before {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  footer.ui-footer-shell {
+    background: #e3eaee;
+    border-top-color: #aeb8c2;
+  }
 }

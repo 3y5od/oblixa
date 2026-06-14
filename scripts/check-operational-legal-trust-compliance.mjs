@@ -8,69 +8,18 @@ import { analyzePublicSeoSurface } from "./check-public-seo-surface.mjs";
 import { analyzeSubprocessorChangeSla } from "./check-subprocessor-change-sla.mjs";
 import { analyzeSubprocessorsDrift } from "./check-subprocessors-drift.mjs";
 import { analyzeSubprocessorsPrivacyAlignment } from "./check-subprocessors-privacy-alignment.mjs";
+import {
+  AS_OF_DATE,
+  REQUIRED_FRAMEWORKS,
+  REQUIRED_SUBPROCESSOR_DATA_CLASSES,
+  REQUIRED_TRUST_SURFACES,
+  SCRIPT_MARKERS,
+} from "./lib/operational-legal-trust-compliance-requirements.mjs";
 
 const ROOT = process.cwd();
 const CONFIG_REL = "config/operational-legal-trust-compliance.json";
 const ARTIFACT_REL = "artifacts/operational-legal-trust-compliance.json";
 const WRITE = process.argv.includes("--write");
-const AS_OF_DATE = "2026-05-28";
-
-const REQUIRED_TRUST_SURFACES = [
-  "terms",
-  "privacy",
-  "security",
-  "cookies",
-  "acceptable-use",
-  "accessibility",
-  "contact",
-  "security-txt",
-  "subprocessors",
-  "reviewed-access-security-boundary",
-];
-const REQUIRED_FRAMEWORKS = ["SOC 2", "ISO 27001", "OWASP ASVS", "privacy", "internal"];
-const REQUIRED_SUBPROCESSOR_DATA_CLASSES = [
-  "account_data",
-  "workspace_content",
-  "contract_content",
-  "billing_data",
-  "email_delivery",
-  "error_telemetry",
-  "ai_extraction",
-  "rate_limit_metadata",
-];
-
-const SCRIPT_MARKERS = {
-  "scripts/check-subprocessors-drift.mjs": [
-    "analyzeSubprocessorsDrift",
-    "subprocessor_required_field_missing",
-    "subprocessor_checksum_mismatch",
-    "artifacts/subprocessors-diff.json",
-  ],
-  "scripts/check-subprocessor-change-sla.mjs": [
-    "analyzeSubprocessorChangeSla",
-    "noticeLeadTimeDays",
-    "notificationSlaDays",
-    "insufficient_notice_lead_before_review_window",
-  ],
-  "scripts/check-subprocessors-privacy-alignment.mjs": [
-    "analyzeSubprocessorsPrivacyAlignment",
-    "privacyInventoryRefs",
-    "subprocessor_privacy_inventory_ref_missing",
-  ],
-  "src/lib/operational-legal-trust-compliance.ts": [
-    "evaluatePublicClaimText",
-    "evaluateSubprocessorIntegrity",
-    "evaluateConsentInventory",
-    "evaluateComplianceFrameworkMappings",
-    "certificationClaim",
-  ],
-  "src/lib/operational-legal-trust-compliance.test.ts": [
-    "allows negated prohibited claims",
-    "validates subprocessor checksums",
-    "requires tracking-like storage",
-    "does not allow compliance mappings to claim certification",
-  ],
-};
 
 function stableStringify(value) {
   return `${JSON.stringify(value, null, 2)}\n`;

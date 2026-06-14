@@ -64,3 +64,33 @@ test("marker rows require owners, validation commands, files, and required ids",
   assert.ok(badIssues.some((entry) => entry.issue === "section31_missing_marker"));
   assert.ok(badIssues.some((entry) => entry.issue === "section31_missing_required_id" && entry.id === "another-required"));
 });
+
+test("marker rows may satisfy markers from supplemental implementation sources", () => {
+  const root = makeRoot();
+  const scripts = { "check:example": "node example.mjs" };
+  write(root, "src/route.ts", "withCronRoute({ rateLimit: RATE_LIMITS.reportsSummariesCron });\n");
+  write(root, "src/route-helper.ts", "const DUE_SUBSCRIPTION_PAGE_SIZE = 100;\nfunction nextRunForFrequency() {}\n");
+  const issues = [];
+
+  const rows = validateMarkerRows(
+    root,
+    [
+      {
+        id: "scheduled-reports",
+        path: "src/route.ts",
+        supplementalPaths: ["src/route-helper.ts"],
+        markers: ["withCronRoute", "RATE_LIMITS.reportsSummariesCron", "DUE_SUBSCRIPTION_PAGE_SIZE", "nextRunForFrequency"],
+        owner: "@product-operations",
+        validationCommand: "check:example",
+      },
+    ],
+    new Set(["scheduled-reports"]),
+    "section31",
+    issues,
+    scripts
+  );
+
+  assert.equal(rows[0].ok, true);
+  assert.deepEqual(rows[0].supplementalPaths, ["src/route-helper.ts"]);
+  assert.equal(issues.length, 0);
+});

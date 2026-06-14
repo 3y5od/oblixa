@@ -1,16 +1,9 @@
 import { jsonOk, jsonProblem, jsonRateLimited, jsonUnsupportedMediaType } from "@/lib/http/problem";
 import { getExpectedStripeLivemodeFromEnv, getStripeClient } from "@/lib/stripe";
-import {
-  RATE_LIMITS,
-  getClientIpFromRequest,
-  rateLimitCheck,
-} from "@/lib/rate-limit";
+import { RATE_LIMITS, getClientIpFromRequest, rateLimitCheck } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/server";
 import type Stripe from "stripe";
-import {
-  captureServerException,
-  captureServerMessage,
-} from "@/lib/observability/sentry";
+import { captureServerException, captureServerMessage } from "@/lib/observability/sentry";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
 import { readTextBodyLimited } from "@/lib/security/read-json-body-limited";
 import { jsonContentTypeRejection } from "@/lib/security/json-content-type";
@@ -21,7 +14,6 @@ const STRIPE_WEBHOOK_BODY_MAX = 262_144;
 const STRIPE_WEBHOOK_TOLERANCE_SEC = 300;
 
 function stripeDependencyBlocked(input: {
-  route: string;
   diagnosticId: string;
   error: string;
   requiredEnv: string[];
@@ -30,7 +22,7 @@ function stripeDependencyBlocked(input: {
     error: input.error,
     code: "dependency_blocked",
     diagnostic_id: input.diagnosticId,
-    route: input.route,
+    route: ROUTE,
     details: {
       phase: "dependency_preflight",
       dependency: "stripe_provider",
@@ -61,13 +53,21 @@ function captureStripeWebhookFailure(
   return reason;
 }
 
+function stripeWebhookProcessingFailed() {
+  return jsonProblem(500, {
+    error: "Webhook processing failed",
+    code: "webhook_processing_failed",
+    diagnostic_id: "stripe_webhook_processing_failed",
+    route: ROUTE,
+  });
+}
+
 export async function POST(request: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     console.error("[stripe/webhook] STRIPE_WEBHOOK_SECRET is not set");
     captureServerMessage("STRIPE_WEBHOOK_SECRET is not set", { level: "error" });
     return stripeDependencyBlocked({
-      route: "/api/stripe/webhook",
       diagnosticId: "stripe_webhook_secret_missing",
       error: "Stripe webhook secret is not configured",
       requiredEnv: ["STRIPE_WEBHOOK_SECRET"],
@@ -78,7 +78,6 @@ export async function POST(request: Request) {
     const safeError = captureStripeWebhookFailure("provider_config", stripeClient.error);
     console.error("[stripe/webhook] config:", safeError);
     return stripeDependencyBlocked({
-      route: "/api/stripe/webhook",
       diagnosticId: "stripe_webhook_provider_missing",
       error: "Stripe provider is not configured",
       requiredEnv: ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ID"],
@@ -428,22 +427,12 @@ export async function POST(request: Request) {
       extra: { eventType: event.type, eventId: event.id },
     });
     await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
-    return jsonProblem(500, {
-      error: "Webhook processing failed",
-      code: "webhook_processing_failed",
-      diagnostic_id: "stripe_webhook_processing_failed",
-      route: ROUTE,
-    });
+    return stripeWebhookProcessingFailed();
   }
 
   if (processingFailed) {
     await supabase.from("stripe_webhook_events").delete().eq("id", event.id);
-    return jsonProblem(500, {
-      error: "Webhook processing failed",
-      code: "webhook_processing_failed",
-      diagnostic_id: "stripe_webhook_processing_failed",
-      route: ROUTE,
-    });
+    return stripeWebhookProcessingFailed();
   }
 
   const { error: completeErr } = await supabase

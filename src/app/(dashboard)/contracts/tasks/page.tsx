@@ -32,9 +32,7 @@ import { StatCell, type StatTone } from "@/components/ui/stat-cell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
 import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
-
 export const metadata = { title: "Tasks" };
-
 type TaskStatusFilter = "" | "open" | "in_progress" | "blocked" | "done";
 const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
   { value: "", label: "All" },
@@ -43,7 +41,6 @@ const STATUS_FILTERS: { value: TaskStatusFilter; label: string }[] = [
   { value: "blocked", label: "Needs input" },
   { value: "done", label: "Done" },
 ];
-
 function taskStatusTone(status: string): StatTone {
   if (status === "done") return "success";
   if (status === "blocked") return "danger";

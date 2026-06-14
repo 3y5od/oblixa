@@ -20,6 +20,11 @@ begin
 end;
 $$;
 
+revoke all on function public.ensure_evidence_submission_requirement_scope() from public;
+revoke all on function public.ensure_evidence_submission_requirement_scope() from anon;
+revoke all on function public.ensure_evidence_submission_requirement_scope() from authenticated;
+grant execute on function public.ensure_evidence_submission_requirement_scope() to service_role;
+
 drop trigger if exists trg_evidence_submission_requirement_scope on public.evidence_submissions;
 create trigger trg_evidence_submission_requirement_scope
   before insert or update of organization_id, requirement_id
@@ -43,3 +48,16 @@ create index if not exists idx_inbound_provider_events_org_received
 
 alter table public.inbound_provider_events enable row level security;
 alter table public.inbound_provider_events force row level security;
+
+revoke all on table public.inbound_provider_events from public;
+revoke all on table public.inbound_provider_events from anon;
+revoke all on table public.inbound_provider_events from authenticated;
+grant select, insert, update on table public.inbound_provider_events to service_role;
+
+drop policy if exists "No direct inbound provider event reads" on public.inbound_provider_events;
+drop policy if exists "No direct inbound provider event access" on public.inbound_provider_events;
+create policy "No direct inbound provider event access"
+  on public.inbound_provider_events
+  for all
+  using (false)
+  with check (false);

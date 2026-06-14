@@ -1,12 +1,4 @@
-import {
-  jsonConflict,
-  jsonMisconfigured,
-  jsonNotFound,
-  jsonOk,
-  jsonProblem,
-  jsonRateLimited,
-  jsonUnauthorized,
-} from "@/lib/http/problem";
+import { jsonConflict, jsonMisconfigured, jsonNotFound, jsonProblem, jsonRateLimited, jsonUnauthorized } from "@/lib/http/problem";
 import {
   BODY_LIMIT_STRICT_INBOUND,
   readJsonBodyLimited,
@@ -21,40 +13,18 @@ import { recordApiMutationAuditEvent } from "@/lib/security/api-mutation-audit";
 import { enforceIdempotency } from "@/lib/idempotency";
 import { verifyInboundCallbackHmac } from "@/lib/security/inbound-callback-signing";
 import { isProductionLikeInboundEnvironment } from "@/lib/security/inbound-production-env";
+import {
+  CALLBACK_ACTIONS,
+  handleIntegrationCallbackAction,
+  type IntegrationCallbackAction,
+  type IntegrationCallbackBody,
+  type ScopedStatusTable,
+  type ScopedStatusResult,
+} from "@/lib/integrations/actions-callback-handler";
 
 const ROUTE = "/api/integrations/actions/callback";
 
 export const maxDuration = 60;
-
-type IntegrationCallbackAction =
-  | "create_task"
-  | "create_exception"
-  | "ack_complete"
-  | "approve_evidence"
-  | "reject_evidence"
-  | "delegate_approval"
-  | "resolve_exception";
-
-type IntegrationCallbackBody = {
-  organizationId?: string;
-  action?: IntegrationCallbackAction;
-  title?: string;
-  details?: string;
-  contractId?: string;
-  id?: string;
-  delegateUserId?: string;
-  reason?: string;
-};
-
-const CALLBACK_ACTIONS = new Set<IntegrationCallbackAction>([
-  "create_task",
-  "create_exception",
-  "ack_complete",
-  "approve_evidence",
-  "reject_evidence",
-  "delegate_approval",
-  "resolve_exception",
-]);
 
 const CALLBACK_ALLOWED_FIELDS = new Set([
   "organizationId",
@@ -70,10 +40,6 @@ const CALLBACK_ALLOWED_FIELDS = new Set([
 const CALLBACK_TITLE_MAX = 240;
 const CALLBACK_DETAILS_MAX = 10_000;
 const CALLBACK_REASON_MAX = 2_000;
-
-const EVIDENCE_TERMINAL_STATUSES = new Set(["approved", "rejected"]);
-const APPROVAL_TERMINAL_STATUSES = new Set(["approved", "rejected"]);
-const EXCEPTION_TERMINAL_STATUSES = new Set(["resolved", "closed"]);
 
 function validationError(error: string, diagnosticId: string) {
   return jsonProblem(400, {
@@ -227,11 +193,11 @@ async function readCallbackBody(
 
 async function loadScopedStatus(
   admin: Awaited<ReturnType<typeof createAdminClient>>,
-  table: "evidence_submissions" | "contract_approvals" | "exceptions",
+  table: ScopedStatusTable,
   organizationId: string,
   id: string,
   diagnosticId: string
-): Promise<{ ok: true; status: string } | { ok: false; response: Response }> {
+): Promise<ScopedStatusResult> {
   const { data, error } = await admin
     .from(table)
     .select("id, status")
@@ -267,6 +233,10 @@ async function requireDelegateUserInOrganization(
 
 function terminalStateConflict(kind: string, status: string) {
   return jsonConflict(ROUTE, { reason: "terminal_state", resource: kind, status });
+}
+
+function callbackTargetNotFound() {
+  return jsonNotFound(ROUTE);
 }
 
 async function requireContractInOrganization(
@@ -334,217 +304,22 @@ export async function POST(request: Request) {
     method: "POST",
   }).catch(() => undefined);
 
-  if (body.action === "create_task") {
-    const contractId = String(body.contractId ?? "").trim();
-    if (contractId && !isUuid(contractId)) {
-      return validationError("contractId must be a valid UUID", "integration_callback_contract_id_invalid");
-    }
-    if (contractId) {
-      const contractBlocked = await requireContractInOrganization(admin, organizationId, contractId);
-      if (contractBlocked) return contractBlocked;
-    }
-    const { data, error } = await admin
-      .from("contract_tasks")
-      .insert({
-        organization_id: organizationId,
-        contract_id: contractId || null,
-        created_by: null,
-        assignee_id: null,
-        title: body.title?.trim() || "Inbound action task",
-        details: body.details?.trim() || null,
-        status: "open",
-        priority: "medium",
-        created_via: "integration",
-      })
-      .select("id")
-      .single();
-    if (error) return persistenceError("Unable to create task", "integration_callback_task_create_failed");
-    return jsonOk({ ok: true, taskId: data.id });
-  }
-
-  if (body.action === "create_exception") {
-    const contractId = String(body.contractId ?? "").trim();
-    if (contractId && !isUuid(contractId)) {
-      return validationError("contractId must be a valid UUID", "integration_callback_contract_id_invalid");
-    }
-    if (contractId) {
-      const contractBlocked = await requireContractInOrganization(admin, organizationId, contractId);
-      if (contractBlocked) return contractBlocked;
-    }
-    const { data, error } = await admin
-      .from("exceptions")
-      .insert({
-        organization_id: organizationId,
-        contract_id: contractId || null,
-        title: body.title?.trim() || "Inbound action exception",
-        details: body.details?.trim() || null,
-        exception_type: "inbound_action",
-        severity: "medium",
-        status: "open",
-      })
-      .select("id")
-      .single();
-    if (error) return persistenceError("Unable to create exception", "integration_callback_exception_create_failed");
-    return jsonOk({ ok: true, exceptionId: data.id });
-  }
-
-  if (body.action === "ack_complete") {
-    const contractId = String(body.contractId ?? "").trim();
-    if (!contractId) return validationError("contractId is required", "integration_callback_contract_id_required");
-    if (!isUuid(contractId)) {
-      return validationError("contractId must be a valid UUID", "integration_callback_contract_id_invalid");
-    }
-    const contractBlocked = await requireContractInOrganization(admin, organizationId, contractId);
-    if (contractBlocked) return contractBlocked;
-    await admin.from("operational_casefile_events").insert({
-      organization_id: organizationId,
-      contract_id: contractId,
-      event_type: "integration.action_acknowledged",
-      details_json: { title: body.title ?? null, details: body.details ?? null },
-      source: "integration",
-    });
-    return jsonOk({ ok: true });
-  }
-
-  if (body.action === "approve_evidence") {
-    const submissionId = String(body.id ?? "").trim();
-    if (!submissionId) return validationError("id is required", "integration_callback_id_required");
-    if (!isUuid(submissionId)) return validationError("id must be a valid UUID", "integration_callback_id_invalid");
-    const current = await loadScopedStatus(
-      admin,
-      "evidence_submissions",
-      organizationId,
-      submissionId,
-      "integration_callback_evidence_approve_lookup_failed"
-    );
-    if (!current.ok) return current.response;
-    if (current.status === "approved") return jsonOk({ ok: true, submissionId });
-    if (EVIDENCE_TERMINAL_STATUSES.has(current.status)) {
-      return terminalStateConflict("evidence_submission", current.status);
-    }
-    const { data: submission, error } = await admin
-      .from("evidence_submissions")
-      .update({ status: "approved", reviewed_at: new Date().toISOString() })
-      .eq("id", submissionId)
-      .eq("organization_id", organizationId)
-      .select("id")
-      .maybeSingle();
-    if (error) return persistenceError("Unable to approve evidence", "integration_callback_evidence_approve_failed");
-    if (!submission) {
-      return jsonNotFound(ROUTE);
-    }
-    return jsonOk({ ok: true, submissionId });
-  }
-
-  if (body.action === "reject_evidence") {
-    const submissionId = String(body.id ?? "").trim();
-    if (!submissionId) return validationError("id is required", "integration_callback_id_required");
-    if (!isUuid(submissionId)) return validationError("id must be a valid UUID", "integration_callback_id_invalid");
-    const current = await loadScopedStatus(
-      admin,
-      "evidence_submissions",
-      organizationId,
-      submissionId,
-      "integration_callback_evidence_reject_lookup_failed"
-    );
-    if (!current.ok) return current.response;
-    if (current.status === "rejected") return jsonOk({ ok: true, submissionId });
-    if (EVIDENCE_TERMINAL_STATUSES.has(current.status)) {
-      return terminalStateConflict("evidence_submission", current.status);
-    }
-    const { data: submission, error } = await admin
-      .from("evidence_submissions")
-      .update({
-        status: "rejected",
-        reviewed_at: new Date().toISOString(),
-        rejection_reason: String(body.reason ?? "").trim() || "Rejected via integration callback",
-      })
-      .eq("id", submissionId)
-      .eq("organization_id", organizationId)
-      .select("id")
-      .maybeSingle();
-    if (error) return persistenceError("Unable to reject evidence", "integration_callback_evidence_reject_failed");
-    if (!submission) {
-      return jsonNotFound(ROUTE);
-    }
-    return jsonOk({ ok: true, submissionId });
-  }
-
-  if (body.action === "delegate_approval") {
-    const approvalId = String(body.id ?? "").trim();
-    const delegateUserId = String(body.delegateUserId ?? "").trim();
-    if (!approvalId || !delegateUserId) {
-      return validationError("id and delegateUserId are required", "integration_callback_delegate_fields_required");
-    }
-    if (!isUuid(approvalId)) return validationError("id must be a valid UUID", "integration_callback_id_invalid");
-    if (!isUuid(delegateUserId)) {
-      return validationError("delegateUserId must be a valid UUID", "integration_callback_delegate_user_id_invalid");
-    }
-    const current = await loadScopedStatus(
-      admin,
-      "contract_approvals",
-      organizationId,
-      approvalId,
-      "integration_callback_approval_delegate_lookup_failed"
-    );
-    if (!current.ok) return current.response;
-    if (APPROVAL_TERMINAL_STATUSES.has(current.status)) {
-      return terminalStateConflict("contract_approval", current.status);
-    }
-    const delegateBlocked = await requireDelegateUserInOrganization(admin, organizationId, delegateUserId);
-    if (delegateBlocked) return delegateBlocked;
-    const { data: approval, error } = await admin
-      .from("contract_approvals")
-      .update({
-        approver_id: delegateUserId,
-        escalation_status: "none",
-        escalation_at: null,
-      })
-      .eq("id", approvalId)
-      .eq("organization_id", organizationId)
-      .select("id")
-      .maybeSingle();
-    if (error) return persistenceError("Unable to delegate approval", "integration_callback_approval_delegate_failed");
-    if (!approval) {
-      return jsonNotFound(ROUTE);
-    }
-    return jsonOk({ ok: true, approvalId, delegateUserId });
-  }
-
-  if (body.action === "resolve_exception") {
-    const exceptionId = String(body.id ?? "").trim();
-    if (!exceptionId) return validationError("id is required", "integration_callback_id_required");
-    if (!isUuid(exceptionId)) return validationError("id must be a valid UUID", "integration_callback_id_invalid");
-    const current = await loadScopedStatus(
-      admin,
-      "exceptions",
-      organizationId,
-      exceptionId,
-      "integration_callback_exception_resolve_lookup_failed"
-    );
-    if (!current.ok) return current.response;
-    if (current.status === "resolved") return jsonOk({ ok: true, exceptionId });
-    if (EXCEPTION_TERMINAL_STATUSES.has(current.status)) {
-      return terminalStateConflict("exception", current.status);
-    }
-    const { data: exception, error } = await admin
-      .from("exceptions")
-      .update({
-        status: "resolved",
-        resolution_action: "fixed",
-        resolution_note: String(body.reason ?? "").trim() || "Resolved via integration callback",
-        resolved_at: new Date().toISOString(),
-      })
-      .eq("id", exceptionId)
-      .eq("organization_id", organizationId)
-      .select("id")
-      .maybeSingle();
-    if (error) return persistenceError("Unable to resolve exception", "integration_callback_exception_resolve_failed");
-    if (!exception) {
-      return jsonNotFound(ROUTE);
-    }
-    return jsonOk({ ok: true, exceptionId });
-  }
+  const actionResponse = await handleIntegrationCallbackAction({
+    admin,
+    organizationId,
+    body,
+    validationError,
+    persistenceError,
+    notFound: callbackTargetNotFound,
+    terminalStateConflict,
+    requireContractInOrganization: (contractId) =>
+      requireContractInOrganization(admin, organizationId, contractId),
+    requireDelegateUserInOrganization: (delegateUserId) =>
+      requireDelegateUserInOrganization(admin, organizationId, delegateUserId),
+    loadScopedStatus: (table, id, diagnosticId) =>
+      loadScopedStatus(admin, table, organizationId, id, diagnosticId),
+  });
+  if (actionResponse) return actionResponse;
 
   return validationError("Unsupported action", "integration_callback_unsupported_action");
 }

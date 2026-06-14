@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import { SkipLink } from "@/components/layout/skip-link";
+import { lpSerif } from "@/components/landing/lp-fonts";
 import { getAppBaseUrlFromEnv } from "@/lib/app-url";
 import "./globals.css";
 
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f8fb" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f8f5" },
     { media: "(prefers-color-scheme: dark)", color: "#161a23" },
   ],
 };
@@ -72,7 +73,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakarta.variable} ${geistMono.variable} ${lpSerif.variable} h-full antialiased`}
     >
       <body className="relative flex min-h-full flex-col font-sans text-[var(--text-secondary)]">
         <SkipLink />

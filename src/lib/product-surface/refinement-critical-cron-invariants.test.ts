@@ -6,21 +6,21 @@ import { describe, expect, it } from "vitest";
  * product-surface policy §18.2–18.4 — scheduled send paths must respect org notification policy
  * or pass workspace mode into copy degradation (regression tripwire if a route is refactored away).
  */
-const ROOT = join(process.cwd(), "src", "app", "api");
+const ROOT = process.cwd();
 
 describe("refinement §18 cron / bulk send routes", () => {
   it("consult org settings JSON and/or notification policy on tier-sensitive crons", () => {
     const checks: { rel: string; mustInclude: string[] }[] = [
       {
-        rel: "reports/send-summaries/route.ts",
+        rel: "src/lib/reports/send-summaries-route.ts",
         mustInclude: ["getOrgSettingsJson", "isNotificationAllowed"],
       },
       {
-        rel: "cron/v4/report-packs-generate/route.ts",
+        rel: "src/lib/reports/report-pack-generation-route.ts",
         mustInclude: ["getOrgSettingsJson"],
       },
       {
-        rel: "reminders/send/route.ts",
+        rel: "src/app/api/reminders/send/route.ts",
         mustInclude: ["isNotificationAllowed"],
       },
     ];

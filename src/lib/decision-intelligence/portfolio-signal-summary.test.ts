@@ -78,7 +78,7 @@ describe("buildPortfolioSignalSummary", () => {
     expect(signalSummary).toHaveLength(13);
     expect(signalSummary[0]).toMatchObject({
       key: "overdue_operational_risk",
-      label: "Open exceptions",
+      label: "Open issues",
       value: 3,
       linked_object: "exceptions",
     });

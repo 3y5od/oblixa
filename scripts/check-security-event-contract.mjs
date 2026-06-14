@@ -16,6 +16,9 @@ const REQUIRED_CALLSITE_FILES = [
   "src/app/api/me/account/route.ts",
   "src/app/api/internal/debugging-sweep/route.ts",
 ];
+const REQUIRED_CALLSITE_ALIASES = {
+  "src/actions/auth.ts": ["src/lib/auth/auth-action-impl.ts"],
+};
 const REQUIRED_PACKAGE_SCRIPTS = ["check:security-event-contract"];
 const REQUIRED_CI_COMMANDS = ["npm run check:security-event-contract"];
 const REQUIRED_SECURITY_PIPELINE_STEPS = ['"check:security-event-contract"'];
@@ -135,7 +138,10 @@ export function analyzeSecurityEventContract(root = ROOT) {
     ),
   ].sort((a, b) => a.localeCompare(b));
   for (const rel of REQUIRED_CALLSITE_FILES) {
-    if (!importers.includes(rel)) issues.push({ issue: "missing_required_security_audit_callsite", rel });
+    const acceptedRels = [rel, ...(REQUIRED_CALLSITE_ALIASES[rel] ?? [])];
+    if (!acceptedRels.some((acceptedRel) => importers.includes(acceptedRel))) {
+      issues.push({ issue: "missing_required_security_audit_callsite", rel });
+    }
   }
   if (importers.length < REQUIRED_CALLSITE_FILES.length) {
     issues.push({ issue: "too_few_security_audit_importers", importCount: importers.length });

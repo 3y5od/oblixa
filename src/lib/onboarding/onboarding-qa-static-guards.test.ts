@@ -42,7 +42,7 @@ describe("onboarding QA static guards", () => {
   });
 
   it("auth signUp resolves the post-auth destination through the shared workspace gate", () => {
-    const raw = readFileSync(join(process.cwd(), "src/actions/auth.ts"), "utf8");
+    const raw = readFileSync(join(process.cwd(), "src/lib/auth/auth-action-impl.ts"), "utf8");
     const signUpChunk = raw.slice(raw.indexOf("export async function signUp"), raw.indexOf("export async function signIn"));
     expect(signUpChunk).toContain("resolvePostAuthRedirectForUser");
     expect(signUpChunk).toContain('postAuthPath ?? "/dashboard"');

@@ -10,15 +10,18 @@ export const heroEyebrow = "Contract tracking";
 
 export const heroTitle = "Track what signed contracts require next.";
 
-/* v18: aligned verbatim to the release-state primary subheadline
-   (docs/oblixa-release-state.md §Release Posture). The prior wording used
-   internal vocabulary (fields/obligations/exceptions/work) that the spec
-   translates for user-facing copy; the audit pin moved with it. */
+/* v45 public-language standard: input → what Oblixa identifies → who
+   confirms → what happens after, in concrete contract nouns. The internal
+   program phrasing stays verbatim in
+   src/lib/release-state/program-assets.ts (RELEASE_STATE_SUPPORTING_PROMISE);
+   the public page translates it for users. */
 export const heroSubcopy =
-  "Upload agreements or import your tracker, confirm suggested contract details, and turn dates, owners, requirements, evidence, and problems into accountable tasks and exportable reports.";
+  "Upload signed contracts or import your tracker. Oblixa identifies renewal dates, notice windows, owners, evidence needs, and required follow-up. Your team confirms each item before reminders, tasks, or reports use it.";
 
 export const ctaPrimaryLabel = "Request access";
-export const ctaSecondaryLabel = "View product tour";
+/* v23: spec §`/` secondary CTA revised from "View product tour" in the same
+   change (docs/oblixa-release-state.md) — label and contract move together. */
+export const ctaSecondaryLabel = "View product";
 export const navGetStartedLabel = "Request access";
 
 export const riskReducerLine =
@@ -27,36 +30,28 @@ export const riskReducerLine =
 export const antiGoalSummary =
   "Oblixa is not a full CLM, legal-advice tool, or autonomous agent. It tracks renewals, requirements, owners, evidence, and reports from agreements you have already signed.";
 
-export const objectionBullets = [
-  {
-    title: "Your contract spreadsheet drifts",
-    body: "Renewal dates, owners, and follow-up live in one workspace with review history instead of scattered files and inbox threads.",
-  },
-  {
-    title: "Heavy contract suites are too much to migrate",
-    body: "Start with a small contract set or your existing spreadsheet — no months-long implementation, no redlining workflow you do not need.",
-  },
-  {
-    title: "Suggested details need human review",
-    body: "Suggested contract details stay tied to source snippets until your team confirms what drives reminders, tasks, and reports.",
-  },
-] as const;
-
 /* FAQ — release-state spec §`/` > FAQ requires coverage of: CLM boundary,
    no legal advice, starting small, file types, AI review, AI-provider/file
    handling, export, deletion/contact recovery, and paid continuation.
-   v18 adds the two previously missing topics (provider handling, deletion/
-   contact recovery) and sweeps vocabulary. */
-export const faqItems = [
+   v20: `featured` items render as visible editorial rows in the merged
+   trust-and-boundaries section (the former objection bullets are absorbed);
+   the rest stay in the accordion. JSON-LD consumes all items either way. */
+export const faqItems: ReadonlyArray<{
+  question: string;
+  answer: string;
+  featured?: boolean;
+}> = [
   {
     question: "Is Oblixa a CLM?",
     answer:
       "No. Oblixa is a tracking workspace for agreements you have already signed. It does not replace drafting, redlining, or e-signature tools — it picks up where they leave off, tracking renewals, owners, requirements, evidence, and reports.",
+    featured: true,
   },
   {
     question: "Does Oblixa provide legal advice?",
     answer:
       "No. Oblixa is not a law firm and does not provide legal advice. Users are responsible for reviewing contract information and making business or legal decisions.",
+    featured: true,
   },
   {
     question: "Can I start without migrating every contract?",
@@ -76,17 +71,20 @@ export const faqItems = [
   {
     question: "How do AI suggestions work?",
     answer:
-      "Oblixa suggests contract details such as renewal, notice, and termination dates from uploaded agreements. Each suggestion stays tied to a source snippet from the document, and your team confirms the details you are willing to operate on before reminders and reports use them.",
+      "Oblixa suggests contract details such as renewal, notice, and termination dates from uploaded agreements. Each suggestion is shown with the contract clause it came from, and your team confirms each item before reminders, tasks, or reports use it.",
+    featured: true,
   },
   {
     question: "Are uploaded files shared with an AI provider?",
     answer:
-      "Uploaded files or extracted text may be sent to an AI provider to suggest contract details and locate source snippets. Files stay workspace-scoped, and suggestions are not trusted until someone on your team confirms them. The privacy page describes data handling in more detail.",
+      "Uploaded files or extracted text may be sent to an AI provider to suggest contract details and locate the clauses they come from. Files stay workspace-scoped, and suggestions are not used for reminders or reports until someone on your team confirms them. The privacy page describes data handling in more detail.",
+    featured: true,
   },
   {
     question: "Can I export my data?",
     answer:
       "Yes. Export operational reports and contract records as CSV at any time so you are never locked in.",
+    featured: true,
   },
   {
     question: "How do I delete my data or get help?",
@@ -114,33 +112,48 @@ export const problemBullets = [
   "Reports take hours to rebuild",
 ] as const;
 
-/* Each spec bullet pairs with one supporting sentence. v18: rendered as an
-   editorial rule list (no icon tiles, no tone coding) — title matches
-   `problemBullets` verbatim; the description restates the same problem. */
-export const problemItems: ReadonlyArray<{ title: string; description: string }> = [
+/* Display ledger — the v45 plain-language renderings of the spec bullets
+   (recognizable user problems, concrete contract nouns). The spec wording
+   itself stays verbatim in `problemBullets` above, which keeps its sr-only
+   render-path anchor. Five rows: the former email + evidence bullets merge
+   into one evidence-over-email failure. */
+export const problemItems: ReadonlyArray<{
+  title: string;
+  description: string;
+  /** Mono specimen rendered in the failure map, tagged by source kind so each
+   *  row reads as a distinct operational object. */
+  specimen: string;
+  tag: string;
+}> = [
   {
-    title: "Renewal and notice dates live in spreadsheets",
+    title: "Renewal dates are kept in spreadsheets.",
     description: "Spreadsheets don't remind anyone when dates approach.",
+    specimen: "renewals.xlsx · row 214 — “May renewal?? check w/ legal”",
+    tag: "XLSX",
   },
   {
-    title: "Contract requirements are buried in PDFs",
-    description: "Commitments stay where they were signed: inside the PDF.",
+    title: "Notice requirements are buried in signed PDFs.",
+    description: "The terms stay where they were signed: inside the PDF.",
+    specimen: "MSA §9.2, page 14 — “…sixty (60) days written notice…”",
+    tag: "PDF",
   },
   {
-    title: "Owners are unclear or outdated",
+    title: "Owners are unclear or out of date.",
     description: "Nobody knows whose contract this is until something breaks.",
+    specimen: "Owner: — · last updated 8 months ago",
+    tag: "OWNER",
   },
   {
-    title: "Follow-up happens over email",
-    description: "Threads scatter; outcomes are hard to reconstruct.",
+    title: "Evidence requests happen over email.",
+    description: "Requests scatter into threads, and the trail goes cold.",
+    specimen: "RE: RE: FW: Northwind renewal — 23 replies",
+    tag: "EMAIL",
   },
   {
-    title: "Evidence is hard to request and collect",
-    description: "Requests come in; teams hunt; the trail goes cold.",
-  },
-  {
-    title: "Reports take hours to rebuild",
-    description: "Re-built from scratch every quarter, by hand.",
+    title: "Reports are rebuilt by hand.",
+    description: "Every quarter, someone reassembles the same numbers from scratch.",
+    specimen: "Q2_report_FINAL.xlsx — rebuilt by hand",
+    tag: "REPORT",
   },
 ] as const;
 
@@ -167,8 +180,11 @@ export const bestFitItems = [
 /* Pricing CTA section — release-state spec §"Billing, Pricing, And
    Cancellation": the public Core offer is decided and published plainly
    ($249 per month per workspace, month-to-month, charged only after approval +
-   explicit checkout). Access review is a condition, not the headline. */
-export const pricingCtaMessage = "One Core plan. $249 per workspace, monthly.";
+   explicit checkout). Access review is a condition, not the headline.
+   v35: formal section title per directive 64 — the offer sheet's masthead
+   carries the price; the heading names the record. Pinned by
+   landing-page.ui.test.tsx (/core pricing/i). */
+export const pricingCtaMessage = "Core pricing";
 export const pricingCtaLead =
   "Billed month-to-month, with up to 500 active contracts and 10 users. You're charged only after access is approved and you explicitly check out — no free trial, no annual lock-in.";
 

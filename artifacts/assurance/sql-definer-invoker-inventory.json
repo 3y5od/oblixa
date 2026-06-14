@@ -2,7 +2,7 @@
   "version": 3,
   "generated_by": "scripts/check-sql-definer-invoker-inventory.mjs",
   "migration_dir": "supabase/migrations",
-  "active_security_definer_function_count": 27,
+  "active_security_definer_function_count": 28,
   "tenant_security_invoker_view_count": 36,
   "active_security_definer_functions": [
     {
@@ -375,6 +375,30 @@
       "line": 2,
       "language": "sql",
       "volatility": "stable",
+      "search_path": "public",
+      "execute": {
+        "revoked_from_public": true,
+        "granted_to": [
+          "service_role"
+        ]
+      },
+      "client_callable": false,
+      "client_roles": [],
+      "allowlist_rationale": null,
+      "anon_allowlist_rationale": null,
+      "safety_evidence": {
+        "auth_uid_check": false,
+        "membership_check": false,
+        "dynamic_sql": false
+      }
+    },
+    {
+      "function": "ensure_evidence_submission_requirement_scope",
+      "owner": "platform-security",
+      "file": "supabase/migrations/095_inbound_evidence_scope_guards.sql",
+      "line": 2,
+      "language": "plpgsql",
+      "volatility": "volatile",
       "search_path": "public",
       "execute": {
         "revoked_from_public": true,

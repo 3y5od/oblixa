@@ -39,32 +39,6 @@ function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
 }
 
-function walkRoutes(dir, acc = []) {
-  if (!fs.existsSync(dir)) return acc;
-  for (const name of fs.readdirSync(dir)) {
-    const p = path.join(dir, name);
-    const st = fs.statSync(p);
-    if (st.isDirectory()) walkRoutes(p, acc);
-    else if (name === "route.ts") acc.push(p);
-  }
-  return acc;
-}
-
-function toApiPath(apiRoot, abs) {
-  const rel = path.relative(apiRoot, abs).replace(/\\/g, "/");
-  const segs = rel.split("/").filter(Boolean);
-  segs.pop();
-  return `/${["api", ...segs].join("/")}`;
-}
-
-function methodsFromSource(source) {
-  return TARGET_METHODS.filter((method) => {
-    const functionExport = new RegExp(`export\\s+(?:async\\s+)?function\\s+${method}\\b`);
-    const constExport = new RegExp(`export\\s+const\\s+${method}\\s*=`);
-    return functionExport.test(source) || constExport.test(source);
-  });
-}
-
 function extractBracedBlock(text, openBraceIdx) {
   if (openBraceIdx < 0 || text[openBraceIdx] !== "{") return null;
   let depth = 0;

@@ -93,6 +93,24 @@ test("source hygiene detects CRLF, missing newline, Trojan Source controls, and 
   );
 });
 
+test("source hygiene ignores CRLF from a normalized Windows checkout", () => {
+  const root = makeRoot();
+  write(root, "src/a.ts", "const a = 1;\r\n");
+  write(root, "src/b.ts", "const b = 1;\r\nconst c = 2;\n");
+  const issues = [];
+
+  const report = analyzeSourceHygiene(root, baseConfig, issues, {
+    files: ["src/a.ts", "src/b.ts"],
+    eolRows: [
+      { path: "src/a.ts", indexEol: "lf", worktreeEol: "crlf" },
+      { path: "src/b.ts", indexEol: "lf", worktreeEol: "mixed" },
+    ],
+  });
+
+  assert.equal(report.crlfCount, 0);
+  assert.deepEqual(issues, []);
+});
+
 test("untracked operational artifacts must be registered in generated artifact hygiene", () => {
   const root = makeRoot();
   write(root, "package.json", JSON.stringify({ scripts: { "check:operational-demo": "node scripts/check-operational-demo.mjs" } }, null, 2));

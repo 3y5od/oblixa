@@ -14,7 +14,7 @@
     "retainedLegacyAliasCount": 79,
     "neutralOnlyAliasCount": 0,
     "legacyReferenceCount": 375,
-    "neutralReferenceCount": 1616,
+    "neutralReferenceCount": 1621,
     "issueCount": 0
   },
   "aliases": [
@@ -1113,12 +1113,6 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "legacyCount": 0,
-          "neutralCount": 2,
-          "referenceClass": "source_or_test"
-        },
-        {
           "path": "src/app/api/events/route.test.ts",
           "legacyCount": 0,
           "neutralCount": 3,
@@ -1176,12 +1170,6 @@
           "path": "src/app/api/reports/send-summaries/route.test.ts",
           "legacyCount": 0,
           "neutralCount": 1,
-          "referenceClass": "source_or_test"
-        },
-        {
-          "path": "src/app/api/reports/send-summaries/route.ts",
-          "legacyCount": 0,
-          "neutralCount": 2,
           "referenceClass": "source_or_test"
         },
         {
@@ -1317,6 +1305,18 @@
           "referenceClass": "source_or_test"
         },
         {
+          "path": "src/lib/reports/report-pack-generation-route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/lib/reports/send-summaries-route.ts",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
           "path": "src/lib/security/ai-tenant-gate.ts",
           "legacyCount": 0,
           "neutralCount": 2,
@@ -1435,8 +1435,8 @@
       "owner": "frontend-platform",
       "queueCovered": true,
       "legacyReferenceCount": 3,
-      "neutralReferenceCount": 45,
-      "referenceFileCount": 20,
+      "neutralReferenceCount": 46,
+      "referenceFileCount": 21,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
       "references": [
@@ -1491,7 +1491,13 @@
         {
           "path": "src/app/(dashboard)/work/page.tsx",
           "legacyCount": 0,
-          "neutralCount": 4,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/work/work-table.tsx",
+          "legacyCount": 0,
+          "neutralCount": 3,
           "referenceClass": "source_or_test"
         },
         {
@@ -1507,7 +1513,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/components/layout/command-palette.tsx",
+          "path": "src/components/layout/command-palette-dialog.tsx",
           "legacyCount": 0,
           "neutralCount": 3,
           "referenceClass": "source_or_test"
@@ -4729,7 +4735,7 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 4,
-      "neutralReferenceCount": 82,
+      "neutralReferenceCount": 84,
       "referenceFileCount": 29,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:current-product",
@@ -4755,7 +4761,7 @@
         {
           "path": "config/operational-platform-variant-coverage.json",
           "legacyCount": 0,
-          "neutralCount": 12,
+          "neutralCount": 14,
           "referenceClass": "repo_local"
         },
         {
@@ -4917,7 +4923,7 @@
       "owner": "platform-hardening",
       "queueCovered": true,
       "legacyReferenceCount": 2,
-      "neutralReferenceCount": 20,
+      "neutralReferenceCount": 22,
       "referenceFileCount": 7,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "npm run test:e2e:current-product:matrix",
@@ -4937,7 +4943,7 @@
         {
           "path": "config/operational-platform-variant-coverage.json",
           "legacyCount": 0,
-          "neutralCount": 12,
+          "neutralCount": 14,
           "referenceClass": "repo_local"
         },
         {

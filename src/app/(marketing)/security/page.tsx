@@ -29,25 +29,13 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
-// Published vulnerability-disclosure contact. Matches /.well-known/security.txt.
 const SECURITY_EMAIL = "security@oblixa.io";
 const SECURITY_MAILTO = `mailto:${SECURITY_EMAIL}?subject=Security%20question`;
 
-// Single-line constant so the audit-pinned phrase ("Security basics for
-// contract records, with") + "reviewed access" can't be split by reflow.
-// NOTE: "Security basics for contract records, with" is pinned by
-// audit-release-state-code-only AND is the release-doc /security H1, so it is
-// retained here rather than rephrased.
 const HERO_LEAD =
   "Security basics for contract records, with reviewed access — what's logged, who can see a workspace, and how data is exported, deleted, and reviewed.";
 
-const TRUST_FACTS = [
-  "Workspace access",
-  "Audit history",
-  "CSV exports",
-  "Deletion requests",
-  "Reviewed fields",
-] as const;
+const TRUST_FACTS = ["Workspace access", "Audit history", "CSV exports", "Deletion requests", "Reviewed fields"] as const;
 
 const FILE_FACTS: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Upload types", v: "PDF and DOCX" },
@@ -67,14 +55,11 @@ const PROCESSED: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Exports", v: "Reports and CSV files" },
 ];
 
-// Parallel non-claims. The "procurement readiness" line carries the
-// reviewed-access-security-boundary marker + voice-sweep assertion (repointed
-// off the old "formal enterprise security review" wording).
 const NON_CLAIMS = [
   "No public security attestation claimed",
   "No SLA or uptime guarantee",
   "No legal advice or autonomous decisions",
-  "No managed migration or procurement readiness",
+  "No formal enterprise security review, managed migration, or procurement readiness",
 ] as const;
 
 const ROLES = ["Owner", "Admin", "Member", "Viewer"] as const;
@@ -95,7 +80,6 @@ export default function SecurityPage() {
         <div aria-hidden className="product-top-hairline" />
 
         <div className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-4 sm:px-6 sm:pb-14 sm:pt-6">
-          {/* Hero */}
           <header className="mx-auto max-w-2xl text-center">
             <p className="ui-caps-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--accent-strong)]">
               <span className="landing-eyebrow-dot" aria-hidden />
@@ -132,7 +116,6 @@ export default function SecurityPage() {
               </Link>
             </div>
 
-            {/* Trust-facts — individual calm pills (not a segmented strip). */}
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-1.5">
               {TRUST_FACTS.map((fact) => (
                 <li
@@ -145,7 +128,6 @@ export default function SecurityPage() {
             </ul>
           </header>
 
-          {/* Focal data-handling panel — the single raised card on the page. */}
           <section className="mt-8">
             <article
               id="files"
@@ -169,7 +151,6 @@ export default function SecurityPage() {
                 {FILE_FACTS.map((fact) => (
                   <Fact key={fact.k} k={fact.k} v={fact.v} />
                 ))}
-                {/* Full-width review-state row so it doesn't orphan a column. */}
                 <div className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-t py-2 sm:col-span-2 ${HAIRLINE}`}>
                   <dt className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">Review state</dt>
                   <dd className="min-w-0 text-right text-[12.5px] leading-snug text-[var(--text-secondary)]">
@@ -189,7 +170,6 @@ export default function SecurityPage() {
             </article>
           </section>
 
-          {/* What we process — flat band, grouped by source. */}
           <section className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
             <ColumnHead icon={Database} eyebrow="What we process" title="Data categories" />
             <dl className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -199,7 +179,6 @@ export default function SecurityPage() {
             </dl>
           </section>
 
-          {/* Controls — three flat columns. */}
           <section className={`mt-7 grid gap-x-10 gap-y-6 border-t pt-5 sm:grid-cols-2 lg:grid-cols-3 lg:divide-x lg:divide-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)] ${HAIRLINE}`}>
             <div className="lg:pr-6">
               <ColumnHead icon={Users} eyebrow="Access and roles" title="Membership and admin controls" />
@@ -244,7 +223,6 @@ export default function SecurityPage() {
             </div>
           </section>
 
-          {/* Export / AI — two flat columns. */}
           <section className={`mt-7 grid gap-x-10 gap-y-6 border-t pt-5 md:grid-cols-2 md:divide-x md:divide-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)] ${HAIRLINE}`}>
             <div className="md:pr-8">
               <ColumnHead icon={Download} eyebrow="Data export and deletion" title="Export and deletion paths" />
@@ -267,7 +245,6 @@ export default function SecurityPage() {
             </div>
           </section>
 
-          {/* Boundaries — quiet, parallel non-claims. */}
           <section aria-labelledby="security-boundaries-h" className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
             <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Boundaries</p>
             <h2
@@ -286,7 +263,6 @@ export default function SecurityPage() {
             </ul>
           </section>
 
-          {/* Security contact — compact split; two equal-weight action pills. */}
           <section id="contact" className={`mt-7 border-t pt-5 ${HAIRLINE}`}>
             <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
               <div className="min-w-0">
@@ -317,7 +293,6 @@ export default function SecurityPage() {
             </div>
           </section>
 
-          {/* Legal boundary — quiet hairline note. */}
           <section id="legal" aria-labelledby="security-legal-h" className={`mt-7 flex gap-3 border-t pt-5 ${HAIRLINE}`}>
             <Scale className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
             <div className="min-w-0">
@@ -348,8 +323,6 @@ export default function SecurityPage() {
   );
 }
 
-/** Compact caps label + value row on a hairline. Small caps keep dense
- *  key-value sections from shouting. */
 function Fact({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)] py-1.5 first:border-t-0 first:pt-0">
@@ -359,8 +332,6 @@ function Fact({ k, v }: { k: string; v: ReactNode }) {
   );
 }
 
-/** Icon-led header for the flat (borderless) supporting sections. Neutral by
- *  default so accent stays reserved for the focal panel, links, and CTA. */
 function ColumnHead({ icon: Icon, eyebrow, title }: { icon: LucideIcon; eyebrow: string; title: string }) {
   return (
     <div className="mb-3">

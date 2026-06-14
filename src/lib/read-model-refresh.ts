@@ -47,9 +47,12 @@ import {
   workflowDestinationForHref,
   type WorkflowDestinationDef,
 } from "./product-surface/workflow-destinations";
+import { mapWithConcurrency } from "./extraction/concurrency";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 type Row = Record<string, unknown>;
+const READ_MODEL_SOURCE_QUERY_CONCURRENCY = 4;
+const READ_MODEL_REPLACE_CONCURRENCY = 3;
 export type V10ReadModelFreshnessState = "fresh" | "stale" | "partial" | "failed" | "missing";
 export type V10ReadModelKey = (typeof V10_REQUIRED_READ_MODEL_KEYS)[number];
 export type V10ReadModelRefreshScope = "full" | "full_org" | "incremental" | "repair" | "dry_run" | "one_org" | "one_contract" | "one_model";
@@ -1261,77 +1264,80 @@ export async function refreshV10ReadModelsForOrganization(
     "id,title,counterparty,contract_type,status,owner_id,annual_value,required_next_step,created_at,updated_at",
     1000
   );
+  const contractIds = contracts.map((row) => String(row.id));
+  const sourceQueries: Array<() => Promise<Row[]>> = [
+    () => q("extracted_fields", "id,contract_id,field_name,field_value,status,source,confidence,reviewed_by,reviewed_at,created_at,updated_at", 5000),
+    () => qByContractIds("reminders", "id,contract_id,field_id,reminder_type,reminder_date,sent_at,recipient_id,created_at", contractIds, 2000),
+    () => qByContractIds("contract_files", "id,contract_id,file_name,file_type,file_size,storage_path,uploaded_by,created_at", contractIds, 2000),
+    () => q("contract_tasks", "id,contract_id,title,status,priority,assignee_id,due_date,blocked_reason,created_at,updated_at", 2000),
+    () => q("contract_obligations", "id,contract_id,title,status,owner_id,due_date,evidence_notes,evidence_url,created_at,updated_at", 2000),
+    () => q("contract_approvals", "id,contract_id,approval_type,status,requested_by,approver_id,delegated_to_id,due_at,notes,resolved_at,created_at,updated_at", 2000),
+    () => q("exceptions", "id,contract_id,title,severity,status,owner_id,root_cause,due_date,linked_entity_type,linked_entity_id,resolution_action,resolution_note,resolved_at,created_at,updated_at", 2000),
+    () => q("evidence_requirements", "id,contract_id,work_item_id,title,status,reviewer_id,due_at,required,config_json,created_at,updated_at", 2000),
+    () => q("contract_renewal_checkpoints", "id,contract_id,task_key,label,status,due_date,renewal_state,workspace_json,created_at,updated_at", 2000),
+    () => q("evidence_submissions", "id,requirement_id,submitted_by,submitted_at,status,payload_json,reviewer_id,reviewed_at,rejection_reason,created_at", 2000),
+    () => q("notification_deliveries", "id,channel,notification_type,status,next_attempt_at,delivered_at,last_error,metadata,created_at,updated_at", 1000),
+    () => q("v10_audit_events", "audit_event_id,actor_user_id,actor_type,action,target_type,target_id,contract_id,outcome,safe_metadata,diagnostic_id,created_at", 2000),
+    () => q("account_workspaces", "id,account_key,display_name,owner_user_id,summary_json,health_signal_json,created_at,updated_at", 500),
+    () => q("counterparty_workspaces", "id,counterparty_key,display_name,owner_user_id,summary_json,health_signal_json,created_at,updated_at", 500),
+    () => q("decision_workspaces", "id,decision_type,status,title,linked_contract_ids,linked_account_key,linked_counterparty_key,owner_user_id,created_at,updated_at", 500),
+    () => q("portfolio_campaigns", "id,campaign_type,status,name,owner_user_id,progress_summary_json,rollback_safe,created_at,updated_at", 500),
+    () => q("contract_programs", "id,name,description,state,current_version_id,created_at,updated_at", 500),
+    () => q("assurance_findings", "id,finding_type,title,severity,status,scope_json,linked_entities_json,created_at,updated_at", 500),
+    () => q("control_policies", "id,name,status,enforcement_mode,severity_model_json,created_at,updated_at", 500),
+    () => q("adaptive_playbook_runs", "id,status,source_finding_id,run_by,created_at,updated_at", 500),
+    () => q("change_simulations", "id,name,simulation_type,status,owner_user_id,input_json,result_json,created_at,updated_at", 500),
+    () => q("assurance_scorecards", "id,name,status,owner_user_id,overall_score,created_at,updated_at", 500),
+    () => q("review_boards", "id,name,status,owner_user_id,created_at,updated_at", 500),
+    () => q("portfolio_health_graph_edges", "id,source_node_id,target_node_id,edge_type,created_at,updated_at", 500),
+    () => q("segment_definitions", "id,segment_type,key,name,active,created_at,updated_at", 500),
+    () => q("program_evolution_experiments", "id,status,hypothesis,program_id,target_segment_id,created_at,updated_at", 500),
+    () => q("contract_import_jobs", "id,status,total_rows,inserted_rows,error_rows,failure_reason,created_by,created_at,updated_at,completed_at", 500),
+    () => q("contract_extraction_jobs", "id,contract_id,status,attempt_count,last_error,started_at,completed_at,created_at,updated_at", 500),
+    () => q("contract_export_jobs", "id,status,selected_contract_count,exported_rows,truncated,error_message,created_by,started_at,completed_at,created_at,updated_at", 500),
+    () => q("report_runs", "id,report_mode,status,started_at,finished_at,triggered_by,subscription_id,metrics_json,error_summary,created_at", 500),
+    () => q("saved_views", "id,name,view_type,query_json,pinned,created_at,updated_at", 500),
+    () =>
+      q(
+        "v10_read_model_refresh_jobs",
+        "refresh_job_id,refresh_reason,refresh_scope,status,failure_count,failed_source_tables,stale_source_tables,drift_state,diagnostic_id,started_at,completed_at,created_at,updated_at",
+        500
+      ),
+  ];
   const [
-    fields,
-    reminders,
-    contractFiles,
-    tasks,
-    obligations,
-    approvals,
-    exceptions,
-    evidence,
-    renewalCheckpoints,
-    evidenceSubmissions,
-    notificationDeliveries,
-    auditEvents,
-    accountWorkspaces,
-    counterpartyWorkspaces,
-    decisions,
-    campaigns,
-    programs,
-    findings,
-    controls,
-    playbookRuns,
-    simulations,
-    scorecards,
-    reviewBoards,
-    healthGraphEdges,
-    segments,
-    programEvolutionExperiments,
-    importJobs,
-    extractionJobs,
-    exportJobs,
-    reportRuns,
-    savedViews,
-    refreshJobs,
-  ] = await Promise.all([
-    q("extracted_fields", "id,contract_id,field_name,field_value,status,source,confidence,reviewed_by,reviewed_at,created_at,updated_at", 5000),
-    qByContractIds("reminders", "id,contract_id,field_id,reminder_type,reminder_date,sent_at,recipient_id,created_at", contracts.map((row) => String(row.id)), 2000),
-    qByContractIds("contract_files", "id,contract_id,file_name,file_type,file_size,storage_path,uploaded_by,created_at", contracts.map((row) => String(row.id)), 2000),
-    q("contract_tasks", "id,contract_id,title,status,priority,assignee_id,due_date,blocked_reason,created_at,updated_at", 2000),
-    q("contract_obligations", "id,contract_id,title,status,owner_id,due_date,evidence_notes,evidence_url,created_at,updated_at", 2000),
-    q("contract_approvals", "id,contract_id,approval_type,status,requested_by,approver_id,delegated_to_id,due_at,notes,resolved_at,created_at,updated_at", 2000),
-    q("exceptions", "id,contract_id,title,severity,status,owner_id,root_cause,due_date,linked_entity_type,linked_entity_id,resolution_action,resolution_note,resolved_at,created_at,updated_at", 2000),
-    q("evidence_requirements", "id,contract_id,work_item_id,title,status,reviewer_id,due_at,required,config_json,created_at,updated_at", 2000),
-    q("contract_renewal_checkpoints", "id,contract_id,task_key,label,status,due_date,renewal_state,workspace_json,created_at,updated_at", 2000),
-    q("evidence_submissions", "id,requirement_id,submitted_by,submitted_at,status,payload_json,reviewer_id,reviewed_at,rejection_reason,created_at", 2000),
-    q("notification_deliveries", "id,channel,notification_type,status,next_attempt_at,delivered_at,last_error,metadata,created_at,updated_at", 1000),
-    q("v10_audit_events", "audit_event_id,actor_user_id,actor_type,action,target_type,target_id,contract_id,outcome,safe_metadata,diagnostic_id,created_at", 2000),
-    q("account_workspaces", "id,account_key,display_name,owner_user_id,summary_json,health_signal_json,created_at,updated_at", 500),
-    q("counterparty_workspaces", "id,counterparty_key,display_name,owner_user_id,summary_json,health_signal_json,created_at,updated_at", 500),
-    q("decision_workspaces", "id,decision_type,status,title,linked_contract_ids,linked_account_key,linked_counterparty_key,owner_user_id,created_at,updated_at", 500),
-    q("portfolio_campaigns", "id,campaign_type,status,name,owner_user_id,progress_summary_json,rollback_safe,created_at,updated_at", 500),
-    q("contract_programs", "id,name,description,state,current_version_id,created_at,updated_at", 500),
-    q("assurance_findings", "id,finding_type,title,severity,status,scope_json,linked_entities_json,created_at,updated_at", 500),
-    q("control_policies", "id,name,status,enforcement_mode,severity_model_json,created_at,updated_at", 500),
-    q("adaptive_playbook_runs", "id,status,source_finding_id,run_by,created_at,updated_at", 500),
-    q("change_simulations", "id,name,simulation_type,status,owner_user_id,input_json,result_json,created_at,updated_at", 500),
-    q("assurance_scorecards", "id,name,status,owner_user_id,overall_score,created_at,updated_at", 500),
-    q("review_boards", "id,name,status,owner_user_id,created_at,updated_at", 500),
-    q("portfolio_health_graph_edges", "id,source_node_id,target_node_id,edge_type,created_at,updated_at", 500),
-    q("segment_definitions", "id,segment_type,key,name,active,created_at,updated_at", 500),
-    q("program_evolution_experiments", "id,status,hypothesis,program_id,target_segment_id,created_at,updated_at", 500),
-    q("contract_import_jobs", "id,status,total_rows,inserted_rows,error_rows,failure_reason,created_by,created_at,updated_at,completed_at", 500),
-    q("contract_extraction_jobs", "id,contract_id,status,attempt_count,last_error,started_at,completed_at,created_at,updated_at", 500),
-    q("contract_export_jobs", "id,status,selected_contract_count,exported_rows,truncated,error_message,created_by,started_at,completed_at,created_at,updated_at", 500),
-    q("report_runs", "id,report_mode,status,started_at,finished_at,triggered_by,subscription_id,metrics_json,error_summary,created_at", 500),
-    q("saved_views", "id,name,view_type,query_json,pinned,created_at,updated_at", 500),
-    q(
-      "v10_read_model_refresh_jobs",
-      "refresh_job_id,refresh_reason,refresh_scope,status,failure_count,failed_source_tables,stale_source_tables,drift_state,diagnostic_id,started_at,completed_at,created_at,updated_at",
-      500
-    ),
-  ]);
+    fields = [],
+    reminders = [],
+    contractFiles = [],
+    tasks = [],
+    obligations = [],
+    approvals = [],
+    exceptions = [],
+    evidence = [],
+    renewalCheckpoints = [],
+    evidenceSubmissions = [],
+    notificationDeliveries = [],
+    auditEvents = [],
+    accountWorkspaces = [],
+    counterpartyWorkspaces = [],
+    decisions = [],
+    campaigns = [],
+    programs = [],
+    findings = [],
+    controls = [],
+    playbookRuns = [],
+    simulations = [],
+    scorecards = [],
+    reviewBoards = [],
+    healthGraphEdges = [],
+    segments = [],
+    programEvolutionExperiments = [],
+    importJobs = [],
+    extractionJobs = [],
+    exportJobs = [],
+    reportRuns = [],
+    savedViews = [],
+    refreshJobs = [],
+  ] = await mapWithConcurrency(sourceQueries, READ_MODEL_SOURCE_QUERY_CONCURRENCY, (query) => query());
 
   const sourceCounts: Record<string, number> = {
     contracts: contracts.length,
@@ -3793,13 +3799,15 @@ export async function refreshV10ReadModelsForOrganization(
   const writeResults =
     refreshScope === "dry_run" || sourceFailures.length > 0
       ? []
-      : await Promise.all(
-          replaceCandidateBatches.map(async (batch) => ({
+      : await mapWithConcurrency(
+          replaceCandidateBatches,
+          READ_MODEL_REPLACE_CONCURRENCY,
+          async (batch) => ({
             table: batch.table,
             ...(await replaceRows(admin, batch.table, organizationId, batch.rows, refreshedAt, {
               scopedContractId,
             })),
-          }))
+          })
         );
   const writeFailures = writeResults
     .map((result) => result.failure)

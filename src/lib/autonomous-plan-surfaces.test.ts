@@ -248,7 +248,7 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
 
   describe("Optimistic UI inventory (§21.3 proxy)", () => {
     it("lists known transition-wrapped mutation surfaces (rollback via router refresh / revalidate)", () => {
-      expect(read("src/components/contracts/field-review.tsx")).toContain("startTransition");
+      expect(read("src/components/contracts/field-review-row.tsx")).toContain("startTransition");
       expect(read("src/components/work/work-queue-inline-actions.tsx")).toContain("startTransition");
       expect(read("src/components/contracts/upload-form.tsx")).toContain("startTransition");
     });

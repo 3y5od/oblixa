@@ -28,7 +28,7 @@ describe("tasks vs contract requirements user language", () => {
     const spec = readFileSync(join(process.cwd(), "src/lib/work/spec-strings.ts"), "utf8");
     const nav = readFileSync(join(process.cwd(), "src/lib/navigation.ts"), "utf8");
     expect(spec).toContain('approvals: "Approvals"');
-    expect(spec).toContain('obligations: "Requirements"');
+    expect(spec).toContain('obligations: "Contract requirements"');
     expect(nav).toContain('name: "Tasks"');
     expect(nav).not.toMatch(/\{\s*name: "Tasks",\s*href: "\/contracts\/tasks"/);
   });

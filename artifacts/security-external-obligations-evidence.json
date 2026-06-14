@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "config/security-external-obligations.json",
+  "obligations": [
+    {
+      "id": "ext-mdm-endpoint",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-mdm-endpoint"
+    },
+    {
+      "id": "ext-physical-soc",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-physical-soc"
+    },
+    {
+      "id": "ext-sim-swap-sms",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-sim-swap-sms"
+    },
+    {
+      "id": "ext-bg-insider",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-bg-insider"
+    },
+    {
+      "id": "ext-bug-bounty",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-bug-bounty"
+    },
+    {
+      "id": "ext-cyber-insurance",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-cyber-insurance"
+    },
+    {
+      "id": "ext-datacenter-visitor",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-datacenter-visitor"
+    },
+    {
+      "id": "ext-ntp-time-integrity",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-ntp-time-integrity"
+    },
+    {
+      "id": "ext-hsm-kms-ceremony",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-hsm-kms-ceremony"
+    },
+    {
+      "id": "ext-customer-audit",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-customer-audit"
+    },
+    {
+      "id": "ext-transparency-lawful",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-transparency-lawful"
+    },
+    {
+      "id": "ext-dr-tabletop-redteam",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2026-09-13",
+      "evidenceRef": "external://security-external-obligations/ext-dr-tabletop-redteam"
+    },
+    {
+      "id": "ext-vishing-deepfake",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-vishing-deepfake"
+    },
+    {
+      "id": "ext-sovereign-residency",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-sovereign-residency"
+    },
+    {
+      "id": "ext-forensics-chain",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-forensics-chain"
+    },
+    {
+      "id": "ext-ethics-ai-governance",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-ethics-ai-governance"
+    },
+    {
+      "id": "ext-climate-bc-dr",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-climate-bc-dr"
+    },
+    {
+      "id": "ext-schrems-tia-dtia",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-schrems-tia-dtia"
+    },
+    {
+      "id": "ext-swift-csp-pci-pin",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-swift-csp-pci-pin"
+    },
+    {
+      "id": "ext-fedramp-state-ramp",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-fedramp-state-ramp"
+    },
+    {
+      "id": "ext-biometric-bipa",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-biometric-bipa"
+    },
+    {
+      "id": "ext-rowhammer-microarch",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-rowhammer-microarch"
+    },
+    {
+      "id": "ext-ci-artifact-secrets",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2026-09-13",
+      "evidenceRef": "external://security-external-obligations/ext-ci-artifact-secrets"
+    },
+    {
+      "id": "ext-smtp-smuggling-response",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-smtp-smuggling-response"
+    },
+    {
+      "id": "ext-captcha-accessibility",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-captcha-accessibility"
+    },
+    {
+      "id": "ext-source-code-escrow",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-source-code-escrow"
+    },
+    {
+      "id": "ext-bsimm-samm-assessment",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-bsimm-samm-assessment"
+    },
+    {
+      "id": "ext-iso-42001-ai-ms",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-iso-42001-ai-ms"
+    },
+    {
+      "id": "ext-actuarial-cyber-risk",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-actuarial-cyber-risk"
+    },
+    {
+      "id": "ext-cloud-region-loss-bc",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-cloud-region-loss-bc"
+    },
+    {
+      "id": "ext-space-weather-carrington",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-space-weather-carrington"
+    },
+    {
+      "id": "ext-cloud-detection-playbooks",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2026-09-13",
+      "evidenceRef": "external://security-external-obligations/ext-cloud-detection-playbooks"
+    },
+    {
+      "id": "ext-isac-sector-membership",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-isac-sector-membership"
+    },
+    {
+      "id": "ext-energy-grid-brownout-bc",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-energy-grid-brownout-bc"
+    },
+    {
+      "id": "ext-idn-registrar-homograph-policy",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-idn-registrar-homograph-policy"
+    },
+    {
+      "id": "ext-legal-ediscovery-counsel",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-legal-ediscovery-counsel"
+    },
+    {
+      "id": "ext-export-control-counsel",
+      "status": "manual-boundary",
+      "reviewer": "code-owned-release-gate",
+      "reviewedAt": "2026-06-13",
+      "expiresAt": "2027-06-13",
+      "evidenceRef": "external://security-external-obligations/ext-export-control-counsel"
+    }
+  ]
+}

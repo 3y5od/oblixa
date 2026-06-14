@@ -107,8 +107,8 @@ describe("PersonaDashboardPage", () => {
       },
     });
 
-    expect(screen.getByText("Blocked task")).toBeTruthy();
-    expect(screen.getByText("Resolve blocker", { exact: false })).toBeTruthy();
+    expect(screen.getByText("Task needs input")).toBeTruthy();
+    expect(screen.getByText("Review dependency", { exact: false })).toBeTruthy();
     expect(screen.getByText("Acme MSA · Assigned to you · Due 2025-01-01")).toBeTruthy();
     const workViews = screen.getByRole("navigation", { name: "Work views" });
     const queueRow = screen.getByText("Resolve vendor blocker");
@@ -125,9 +125,9 @@ describe("PersonaDashboardPage", () => {
     await renderPage({ persona });
 
     expect(screen.getByRole("heading", { level: 1, name: heading })).toBeTruthy();
-    const select = screen.getByLabelText("Persona") as HTMLSelectElement;
-    expect(select.value).toBe(persona);
-    expect(select.selectedOptions[0]?.textContent).toBe(heading);
+    const hiddenValue = document.querySelector<HTMLInputElement>('input[name="persona"]');
+    expect(hiddenValue?.value).toBe(persona);
+    expect(screen.getByLabelText("Persona").textContent).toContain(heading);
     expect(screen.getByRole("link", { name: activePreset }).getAttribute("aria-current")).toBe("page");
     cleanup();
   });

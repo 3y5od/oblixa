@@ -19,7 +19,7 @@ describe("V9 §11 review queue — throughput + save-next anchors", () => {
       join(process.cwd(), "src/components/contracts/field-review.ui.test.tsx"),
       "utf8"
     );
-    expect(t).toMatch(/key date coverage still needs review/i);
+    expect(t).toMatch(/date reminders need key dates/i);
   });
 
   it("contract detail keeps save-next telemetry link on review continuity strip", () => {

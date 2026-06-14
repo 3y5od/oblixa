@@ -1,5 +1,4 @@
 "use server";
-
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { mapDataSourceError } from "@/lib/errors/user-facing";
@@ -78,8 +77,6 @@ function revalidateSavedViewPaths(viewType?: string | null) {
 export async function createContractsSavedView(formData: FormData) {
   await createSavedView(formData, "contracts");
 }
-
-/** `useActionState` wrapper — returns structured feedback without silent failure (§21–22). */
 export type SavedViewCreateFeedbackState = { error?: string; ok?: boolean };
 
 export async function createContractsSavedViewWithFeedback(

@@ -150,7 +150,7 @@ const REQUIRED_MARKERS = {
     "calendar-feed-read:token-hash:${tokenKey}",
     "\"Cache-Control\": \"no-store\"",
   ],
-  "src/app/api/reports/send-summaries/route.ts": [
+  "src/lib/reports/send-summaries-route.ts": [
     "engagement_token: null",
     "engagement_token_hash: engagementToken ? publicTokenHash(engagementToken) : null",
     "engagement_token_prefix: engagementToken ? publicTokenPrefix(engagementToken) : null",
@@ -206,7 +206,7 @@ const FORBIDDEN_MARKERS = {
   ],
   "src/app/api/export/calendar/feed/[token]/route.ts": ["token.eq.${token}", "legacyMatch", "row.token &&"],
   "src/app/api/export/calendar/feed/route.ts": ["existing?.token", "select(\"id, token,"],
-  "src/app/api/reports/send-summaries/route.ts": ["engagement_token: recipientTokens.get(recipient)"],
+  "src/lib/reports/send-summaries-route.ts": ["engagement_token: recipientTokens.get(recipient)"],
   "src/app/api/reports/track/open/[token]/route.ts": [".eq(\"engagement_token\", token)"],
   "src/app/api/reports/track/click/[token]/route.ts": [".eq(\"engagement_token\", token)"],
 };

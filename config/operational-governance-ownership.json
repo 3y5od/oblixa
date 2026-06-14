@@ -76,7 +76,7 @@
       "id": "frontend",
       "label": "Frontend Platform",
       "codeowners": ["@YOUR_ORG/backend", "@YOUR_ORG/frontend-qa"],
-      "coveredOwnerAreas": ["frontend-platform", "document-pipeline", "product-marketing", "product-operations"],
+      "coveredOwnerAreas": ["frontend-platform", "document-pipeline", "product-marketing", "product-operations", "product-surface"],
       "routeOwners": ["assurance"],
       "validationCommands": ["check:operational-frontend-resilience", "check:operational-platform-variant-coverage"]
     },

@@ -131,7 +131,7 @@ describe("WorkReleaseActions", () => {
     fireEvent.click(screen.getAllByRole("button", { name: WORK_ACTION_LABELS.complete })[0]!);
     fireEvent.click(await screen.findByRole("button", { name: /undo/i }));
 
-    expect(mocks.updateContractTaskStatus).toHaveBeenCalledWith("task-1", "open");
+    await waitFor(() => expect(mocks.updateContractTaskStatus).toHaveBeenCalledWith("task-1", "open"));
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalled());
   });
 

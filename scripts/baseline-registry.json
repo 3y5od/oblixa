@@ -86,7 +86,7 @@
       "checkCommand": "npm run check:operational-static-architecture-code-health",
       "refreshCommand": "manual: update after reviewed dependency cycle cleanup",
       "sourceScanner": "scripts/check-operational-static-architecture-code-health.mjs",
-      "sourceScannerSha256": "64fe29aa4b8a868172dcb3175cd28995ed70bfcb3c05d4eac589def53bd48583",
+      "sourceScannerSha256": "49978370a36da735d95ec4fb97329ebfbf49d43d030d60b5024da4b957b8c6a0",
       "reviewTrigger": "Dependency cycle scanner changes or intentional cycle cleanup.",
       "temporaryPaths": ["none"]
     },
@@ -108,7 +108,7 @@
       "checkCommand": "npm run check:operational-static-architecture-code-health",
       "refreshCommand": "manual: update after reviewed route handler complexity cleanup",
       "sourceScanner": "scripts/check-operational-static-architecture-code-health.mjs",
-      "sourceScannerSha256": "64fe29aa4b8a868172dcb3175cd28995ed70bfcb3c05d4eac589def53bd48583",
+      "sourceScannerSha256": "49978370a36da735d95ec4fb97329ebfbf49d43d030d60b5024da4b957b8c6a0",
       "reviewTrigger": "Route handler complexity threshold changes or intentional cleanup.",
       "temporaryPaths": ["none"]
     },

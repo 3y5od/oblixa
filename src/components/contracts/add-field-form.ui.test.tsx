@@ -33,18 +33,18 @@ describe("AddFieldForm", () => {
         canEdit
       />
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /^add field$/i })[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: /^add detail$/i })[0]!);
     // Field is now a custom combobox (no native <select>): open the trigger
     // (accessible name comes from the "Field" label via aria-labelledby) and
     // click the option row.
-    fireEvent.click(screen.getByRole("button", { name: /^field$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^detail$/i }));
     fireEvent.click(
       screen.getByRole("option", {
         name: new RegExp(`^${pick.replace(/_/g, " ")}$`, "i"),
       }),
     );
     fireEvent.change(screen.getByPlaceholderText(/enter value/i), { target: { value: "  hello  " } });
-    fireEvent.click(screen.getAllByRole("button", { name: /^add field$/i })[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: /^add detail$/i })[0]!);
 
     await waitFor(() => expect(addManualField).toHaveBeenCalled());
     expect(addManualField).toHaveBeenCalledWith(

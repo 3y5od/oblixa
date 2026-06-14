@@ -1,7 +1,7 @@
 {
   "version": 2,
   "generated_by": "scripts/check-rls-sanity-tables.mjs",
-  "tenant_table_count": 152,
+  "tenant_table_count": 153,
   "service_role_bypass": "service_role bypass remains explicit and separate from user-facing authenticated RLS access.",
   "tables": [
     {
@@ -358,6 +358,11 @@
       "table": "field_templates",
       "scope": "organization_id",
       "source": "supabase/migrations/017_v2_operational_depth.sql"
+    },
+    {
+      "table": "inbound_provider_events",
+      "scope": "organization_id",
+      "source": "supabase/migrations/095_inbound_evidence_scope_guards.sql"
     },
     {
       "table": "integration_api_keys",

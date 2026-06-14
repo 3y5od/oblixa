@@ -1,9 +1,6 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import {
-  AlertTriangle,
-  DollarSign,
-} from "lucide-react";
+import { AlertTriangle, DollarSign } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/supabase/server";
 import { UiSelect } from "@/components/ui/ui-select";
@@ -419,7 +416,6 @@ export default async function PersonaDashboardPage(props: {
     return productSurface.mode !== "core" && atRisk > 0;
   });
 
-  /** Appendix N / §8.3 — Core keeps execution signals; portfolio/health rollups need Advanced+. */
   if (productSurface.mode === "core") {
     const intelligenceKeys = new Set(["exposure", "at-risk"]);
     personaMetrics = personaMetrics.filter((m) => !intelligenceKeys.has(m.key));

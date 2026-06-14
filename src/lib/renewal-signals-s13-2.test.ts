@@ -16,12 +16,12 @@ describe("Renewals release-state row signals", () => {
   const model = readFileSync(join(process.cwd(), "src/lib/renewals/model.ts"), "utf8");
 
   it("uses the exact release-state filters and row labels", () => {
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Review"]);
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Date status"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
       "Renewal date",
-      "Notice date",
+      "Notice deadline",
       "Owner",
       "Status",
       "Next action",

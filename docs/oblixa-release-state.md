@@ -3817,14 +3817,14 @@ Direct access behavior:
 
 - Publicly accessible.
 - Primary CTA goes to the request-access route.
-- Secondary CTA goes to the product tour.
+- Secondary CTA goes to the product page.
 
 Contains:
 
 - H1: "Track what signed contracts require next."
 - Subheadline matching the primary subheadline above.
 - Primary CTA: "Request access."
-- Secondary CTA: "View product tour."
+- Secondary CTA: "View product."
 - Risk reducer: access is reviewed for teams replacing manual contract
   follow-up; export anytime; no annual commitment unless billing actually
   requires one.
@@ -3857,7 +3857,7 @@ Acceptance:
 
 - A qualified visitor understands the product without reading another page.
 - The page feels like a focused product, not a beta invitation.
-- CTAs lead to the access request and product tour.
+- CTAs lead to the access request and the product page.
 
 ### `/product`
 

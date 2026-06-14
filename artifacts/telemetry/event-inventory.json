@@ -1394,8 +1394,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 168,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 169,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1415,8 +1415,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 301,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 304,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1436,8 +1436,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 137,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 138,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1457,8 +1457,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 239,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 240,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1479,7 +1479,7 @@
       "sources": [
         {
           "file": "src/lib/access-review.ts",
-          "line": 170,
+          "line": 192,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1500,7 +1500,7 @@
       "sources": [
         {
           "file": "src/lib/access-review.ts",
-          "line": 242,
+          "line": 267,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1520,8 +1520,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 208,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 209,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -1541,8 +1541,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/operator/access-requests/page.tsx",
-          "line": 270,
+          "file": "src/lib/operator/access-requests-actions.ts",
+          "line": 273,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -2289,7 +2289,7 @@
       "sources": [
         {
           "file": "src/app/api/stripe/webhook/route.ts",
-          "line": 257,
+          "line": 275,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -2324,7 +2324,8 @@
       "compatibilitySensitive": true,
       "compatibilityConsumers": [
         "audit_log",
-        "operations_alert"
+        "operations_alert",
+        "webhook_subscriber"
       ],
       "versioned": false,
       "pattern": false,
@@ -2332,7 +2333,7 @@
       "sources": [
         {
           "file": "src/app/api/stripe/webhook/route.ts",
-          "line": 391,
+          "line": 404,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -2796,19 +2797,19 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 433,
+          "line": 424,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 446,
+          "line": 437,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 456,
+          "line": 447,
           "eventClass": "action_event_reference",
           "property": "action"
         },
@@ -2849,13 +2850,13 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 693,
+          "line": 692,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 699,
+          "line": 698,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -2878,13 +2879,13 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 625,
+          "line": 624,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 636,
+          "line": 635,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -2938,19 +2939,19 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 335,
+          "line": 334,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 348,
+          "line": 347,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 363,
+          "line": 362,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -3016,13 +3017,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 824,
+          "line": 815,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 831,
+          "line": 822,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -3047,19 +3048,19 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 184,
+          "line": 183,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 199,
+          "line": 198,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 221,
+          "line": 220,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -3080,7 +3081,7 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 867,
+          "line": 866,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -3230,13 +3231,13 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 163,
+          "line": 157,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/obligations.ts",
-          "line": 304,
+          "line": 298,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -3248,25 +3249,25 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 173,
+          "line": 168,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1389,
+          "line": 1384,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/app/api/tasks/from-email/route.ts",
-          "line": 282,
+          "line": 308,
           "eventClass": "event_type_write",
           "property": "event_type"
         },
         {
           "file": "src/app/api/tasks/from-slack/route.ts",
-          "line": 223,
+          "line": 228,
           "eventClass": "event_type_write",
           "property": "event_type"
         },
@@ -3381,7 +3382,7 @@
         },
         {
           "file": "src/lib/dashboard/core-dashboard-model.ts",
-          "line": 1062,
+          "line": 1175,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -3444,7 +3445,7 @@
       "sources": [
         {
           "file": "src/app/api/decisions/[id]/close/route.ts",
-          "line": 127,
+          "line": 134,
           "eventClass": "event_type_write",
           "property": "event_type"
         }
@@ -3528,7 +3529,7 @@
       "sources": [
         {
           "file": "src/app/api/decisions/[id]/close/route.ts",
-          "line": 177,
+          "line": 184,
           "eventClass": "event_type_write",
           "property": "event_type"
         }
@@ -3671,7 +3672,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 2077,
+          "line": 2072,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -4789,7 +4790,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 660,
+          "line": 651,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -4810,7 +4811,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 1055,
+          "line": 1046,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5173,19 +5174,19 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 510,
+          "line": 509,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 515,
+          "line": 514,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 529,
+          "line": 528,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5205,8 +5206,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/api/integrations/actions/callback/route.ts",
-          "line": 179,
+          "file": "src/lib/integrations/actions-callback-handler.ts",
+          "line": 136,
           "eventClass": "event_type_write",
           "property": "event_type"
         }
@@ -5805,13 +5806,13 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 289,
+          "line": 283,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/obligations.ts",
-          "line": 315,
+          "line": 309,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5834,13 +5835,13 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 665,
+          "line": 659,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
         {
           "file": "src/actions/obligations.ts",
-          "line": 680,
+          "line": 674,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -5861,7 +5862,7 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 820,
+          "line": 814,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -5882,7 +5883,7 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 507,
+          "line": 501,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -6678,7 +6679,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 474,
+          "line": 465,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6949,7 +6950,7 @@
       "sources": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "line": 690,
+          "line": 463,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -6977,7 +6978,7 @@
       "sources": [
         {
           "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "line": 1623,
+          "line": 1414,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -7428,13 +7429,13 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 711,
+          "line": 702,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/contracts.ts",
-          "line": 756,
+          "line": 747,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -7748,34 +7749,34 @@
       "neutralAlias": "product.report_run_completed",
       "sources": [
         {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 492,
-          "eventClass": "product_telemetry_emit",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 538,
-          "eventClass": "product_telemetry_emit",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 669,
-          "eventClass": "product_telemetry_emit",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 714,
-          "eventClass": "product_telemetry_emit",
-          "property": "action"
-        },
-        {
           "file": "src/lib/product-telemetry.ts",
           "line": 35,
           "eventClass": "product_telemetry_definition",
           "property": "PRODUCT_TELEMETRY_ACTIONS"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 463,
+          "eventClass": "product_telemetry_emit",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 509,
+          "eventClass": "product_telemetry_emit",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 640,
+          "eventClass": "product_telemetry_emit",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 683,
+          "eventClass": "product_telemetry_emit",
+          "property": "action"
         }
       ]
     },
@@ -7816,7 +7817,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 773,
+          "line": 764,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -7922,13 +7923,13 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 615,
+          "line": 609,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1170,
+          "line": 1165,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -8570,7 +8571,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 503,
+          "line": 494,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -8604,7 +8605,7 @@
       "sources": [
         {
           "file": "src/actions/contracts-lifecycle.ts",
-          "line": 210,
+          "line": 209,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -8632,13 +8633,13 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 406,
+          "line": 401,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1420,
+          "line": 1415,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -9125,7 +9126,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 719,
+          "line": 710,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -9153,7 +9154,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 727,
+          "line": 718,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -9216,7 +9217,7 @@
       "sources": [
         {
           "file": "src/actions/contracts.ts",
-          "line": 704,
+          "line": 695,
           "eventClass": "product_telemetry_emit",
           "property": "action"
         },
@@ -9344,7 +9345,7 @@
       "sources": [
         {
           "file": "src/actions/policy-operations.ts",
-          "line": 189,
+          "line": 185,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -9532,13 +9533,13 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 748,
+          "line": 743,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 907,
+          "line": 902,
           "eventClass": "event_type_write",
           "property": "event_type"
         },
@@ -9671,7 +9672,7 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 572,
+          "line": 566,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -9983,7 +9984,7 @@
       "sources": [
         {
           "file": "src/actions/policy-operations.ts",
-          "line": 837,
+          "line": 833,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -10227,8 +10228,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "line": 425,
+          "file": "src/lib/reports/report-pack-generation-route.ts",
+          "line": 417,
           "eventClass": "outbound_event_type",
           "property": "eventType"
         }
@@ -10269,32 +10270,32 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "line": 170,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "line": 345,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "line": 391,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 705,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
           "file": "src/lib/final-gap-audit.ts",
           "line": 1346,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/report-pack-generation-route.ts",
+          "line": 162,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/report-pack-generation-route.ts",
+          "line": 337,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/report-pack-generation-route.ts",
+          "line": 383,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 674,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10316,12 +10317,6 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/app/api/cron/v4/report-packs-generate/route.ts",
-          "line": 303,
-          "eventClass": "action_event_reference",
-          "property": "action"
-        },
-        {
           "file": "src/app/api/report-packs/route.ts",
           "line": 169,
           "eventClass": "action_event_reference",
@@ -10331,12 +10326,6 @@
           "file": "src/app/api/report-packs/route.ts",
           "line": 208,
           "eventClass": "audit_action_reference",
-          "property": "action"
-        },
-        {
-          "file": "src/app/api/reports/send-summaries/route.ts",
-          "line": 472,
-          "eventClass": "action_event_reference",
           "property": "action"
         },
         {
@@ -10350,6 +10339,18 @@
           "line": 761,
           "eventClass": "action_event_reference",
           "property": "auditAction"
+        },
+        {
+          "file": "src/lib/reports/report-pack-generation-route.ts",
+          "line": 295,
+          "eventClass": "action_event_reference",
+          "property": "action"
+        },
+        {
+          "file": "src/lib/reports/send-summaries-route.ts",
+          "line": 443,
+          "eventClass": "action_event_reference",
+          "property": "action"
         }
       ]
     },
@@ -10598,7 +10599,7 @@
       "sources": [
         {
           "file": "src/actions/saved-views.ts",
-          "line": 314,
+          "line": 311,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10619,7 +10620,7 @@
       "sources": [
         {
           "file": "src/actions/saved-views.ts",
-          "line": 276,
+          "line": 273,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10640,7 +10641,7 @@
       "sources": [
         {
           "file": "src/actions/saved-views.ts",
-          "line": 491,
+          "line": 488,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10661,13 +10662,13 @@
       "sources": [
         {
           "file": "src/actions/saved-views.ts",
-          "line": 375,
+          "line": 372,
           "eventClass": "action_event_reference",
           "property": "action"
         },
         {
           "file": "src/actions/saved-views.ts",
-          "line": 437,
+          "line": 434,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10688,7 +10689,7 @@
       "sources": [
         {
           "file": "src/actions/saved-views.ts",
-          "line": 229,
+          "line": 226,
           "eventClass": "action_event_reference",
           "property": "action"
         }
@@ -10830,7 +10831,7 @@
       "sources": [
         {
           "file": "src/actions/email-verification.ts",
-          "line": 45,
+          "line": 53,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11141,8 +11142,8 @@
       "neutralAlias": null,
       "sources": [
         {
-          "file": "src/actions/auth.ts",
-          "line": 289,
+          "file": "src/lib/auth/auth-action-impl.ts",
+          "line": 701,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11287,55 +11288,55 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1157,
+          "line": 1152,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1297,
+          "line": 1292,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1344,
+          "line": 1339,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1646,
+          "line": 1641,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1686,
+          "line": 1681,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1720,
+          "line": 1715,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1769,
+          "line": 1764,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1841,
+          "line": 1836,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1880,
+          "line": 1875,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -11395,7 +11396,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 373,
+          "line": 368,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11445,7 +11446,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 2069,
+          "line": 2064,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11466,7 +11467,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 1277,
+          "line": 1272,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11488,7 +11489,7 @@
       "sources": [
         {
           "file": "src/actions/obligations.ts",
-          "line": 673,
+          "line": 667,
           "eventClass": "event_type_reference",
           "property": "eventType"
         },
@@ -11599,7 +11600,7 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 1530,
+          "line": 1525,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -11646,7 +11647,7 @@
         },
         {
           "file": "src/actions/tasks.ts",
-          "line": 869,
+          "line": 864,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -11675,7 +11676,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 1119,
+          "line": 1114,
           "eventClass": "audit_action_reference",
           "property": "action"
         },
@@ -11708,7 +11709,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 379,
+          "line": 374,
           "eventClass": "audit_action_reference",
           "property": "action"
         }
@@ -11731,7 +11732,7 @@
       "sources": [
         {
           "file": "src/actions/tasks.ts",
-          "line": 713,
+          "line": 708,
           "eventClass": "audit_action_reference",
           "property": "action"
         },

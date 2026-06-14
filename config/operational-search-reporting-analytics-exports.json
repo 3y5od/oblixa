@@ -65,6 +65,7 @@
     {
       "id": "empty-query",
       "path": "src/app/api/command-palette/contracts/route.ts",
+      "supplementalPaths": ["src/lib/command-palette/contracts-search.ts"],
       "markers": ["q.length < 2", "v10_command_search_short_query", "contracts: []"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"
@@ -109,6 +110,7 @@
     {
       "id": "report-generation",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": ["src/lib/reports/report-pack-generation-route.ts"],
       "markers": ["runSingleReportPackGeneration", "withCronRoute", "RATE_LIMITS.v4ReportPacksCron", "cronMatchesUtc", "extractPriorKpis", "duplicateSkipped"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"
@@ -116,6 +118,7 @@
     {
       "id": "scheduled-reports",
       "path": "src/app/api/reports/send-summaries/route.ts",
+      "supplementalPaths": ["src/lib/reports/send-summaries-route.ts"],
       "markers": ["withCronRoute", "RATE_LIMITS.reportsSummariesCron", "DUE_SUBSCRIPTION_PAGE_SIZE", "MAX_DUE_SUBSCRIPTION_OFFSET_EXCLUSIVE", "nextRunForFrequency"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"
@@ -123,6 +126,7 @@
     {
       "id": "report-subscriptions",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": ["src/lib/reports/report-pack-generation-route.ts"],
       "markers": ["report_pack_subscriptions", "recipient_emails", "isNotificationAllowed", "sendReportPackDigestEmail", "last_sent_at"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"
@@ -130,6 +134,7 @@
     {
       "id": "stale-report-data",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": ["src/lib/reports/report-pack-generation-route.ts"],
       "markers": ["extractPriorKpis", "prevRun", "report_pack_runs", "refreshV10ReadModelsForOrganization"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"
@@ -137,6 +142,7 @@
     {
       "id": "failed-generation",
       "path": "src/app/api/cron/v4/report-packs-generate/route.ts",
+      "supplementalPaths": ["src/lib/reports/report-pack-generation-route.ts"],
       "markers": ["status: \"failed\"", "failureDiagnosticId", "v10_report_pack_run_insert_failed", "safeErrorMessage"],
       "owner": "@product-operations",
       "validationCommand": "test:vitest:current-product"

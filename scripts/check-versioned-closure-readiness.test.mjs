@@ -5,30 +5,12 @@ import path from "node:path";
 import test from "node:test";
 
 import { PACKAGE_SCRIPT_ALIASES } from "./check-compatibility-removal-queue.mjs";
-import {
-  analyzeNeutralNamingRules,
-  buildNeutralNamingRules,
-} from "./check-neutral-naming-rules.mjs";
-import {
-  analyzeVersionedManualSurfaceClosure,
-  buildVersionedManualSurfaceClosure,
-} from "./check-versioned-manual-surface-closure.mjs";
-import {
-  analyzeVersionedCompatibilityEquivalence,
-  validateOrgSettingsRuntimeAlias,
-} from "./check-versioned-compatibility-equivalence.mjs";
-import {
-  analyzeVersionedLocalSurfaceRegression,
-  buildVersionedLocalSurfaceRegression,
-} from "./check-versioned-local-surface-regression.mjs";
-import {
-  analyzeVersionedOpenObjectiveClosure,
-  buildVersionedOpenObjectiveClosure,
-} from "./check-versioned-open-objective-closure.mjs";
-import {
-  analyzeVersionedPackageScriptReadiness,
-  buildVersionedPackageScriptReadiness,
-} from "./check-versioned-package-script-readiness.mjs";
+import { analyzeNeutralNamingRules, buildNeutralNamingRules } from "./check-neutral-naming-rules.mjs";
+import { analyzeVersionedManualSurfaceClosure, buildVersionedManualSurfaceClosure } from "./check-versioned-manual-surface-closure.mjs";
+import { analyzeVersionedCompatibilityEquivalence, validateOrgSettingsRuntimeAlias } from "./check-versioned-compatibility-equivalence.mjs";
+import { analyzeVersionedLocalSurfaceRegression, buildVersionedLocalSurfaceRegression } from "./check-versioned-local-surface-regression.mjs";
+import { analyzeVersionedOpenObjectiveClosure, buildVersionedOpenObjectiveClosure } from "./check-versioned-open-objective-closure.mjs";
+import { analyzeVersionedPackageScriptReadiness, buildVersionedPackageScriptReadiness } from "./check-versioned-package-script-readiness.mjs";
 
 function makeRoot() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "versioned-closure-readiness-"));
@@ -54,6 +36,53 @@ function packageScripts() {
 }
 
 const legacyOrgSettingsColumn = ["v", "6_org_settings_json"].join("");
+
+function writeOrgSettingsRuntimeFixture(root, pageMode) {
+  const readerExport =
+    pageMode === "neutral"
+      ? `
+export function readOrgSettingsJsonFromRow(row: OrgSettingsStorageRow | null | undefined) {
+  return getOrgSettingsRawFromRow(row);
+}
+`
+      : "";
+  write(root, "src/lib/assurance/org-settings.ts", `
+export type OrganizationSettingsCompatibilityViewRow = { org_settings_json?: unknown };
+export type OrgSettingsStorageRow = OrganizationSettingsCompatibilityViewRow & { ${legacyOrgSettingsColumn}?: unknown };
+function getOrgSettingsRawFromRow(row: OrgSettingsStorageRow | null | undefined): unknown {
+  if (!row) return undefined;
+  if (Object.prototype.hasOwnProperty.call(row, "org_settings_json")) {
+    return row.org_settings_json;
+  }
+  return row.${legacyOrgSettingsColumn};
+}${readerExport}`);
+  write(root, "src/components/assurance/org-settings-panel.tsx", `
+export function OrgSettingsPanel() {
+  return null;
+}
+export const OrgV6SettingsPanel = OrgSettingsPanel;
+`);
+  write(
+    root,
+    "src/app/(dashboard)/assurance/autopilot/page.tsx",
+    pageMode === "neutral"
+      ? `
+import { OrgSettingsPanel } from "@/components/assurance/org-settings-panel";
+import { readOrgSettingsJsonFromRow } from "@/lib/assurance/org-settings";
+export function Page({ orgRow }) {
+  const orgSettings = readOrgSettingsJsonFromRow(orgRow);
+  return <OrgSettingsPanel initialAutopilotAllowExecution={orgSettings?.autopilot_allow_execution ?? null} />;
+}
+`
+      : `
+import { OrgV6SettingsPanel } from "@/components/assurance/org-settings-panel";
+export function Page({ orgRow }) {
+  const orgSettings = orgRow?.${legacyOrgSettingsColumn} ?? {};
+  return <OrgV6SettingsPanel initialAutopilotAllowExecution={orgSettings.autopilot_allow_execution ?? null} />;
+}
+`
+  );
+}
 
 test("versioned package script readiness records blockers and drift", () => {
   const root = makeRoot();
@@ -169,15 +198,7 @@ test("repository package script readiness matches current local blocker inventor
 test("repository package metadata has no versioned module-resolution aliases", () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
   const versionedProductAliasPattern = /(?:^|[:/_-])v[0-9]+(?:$|[:/_-])/iu;
-  const metadata = {
-    bin: pkg.bin ?? {},
-    browser: pkg.browser ?? {},
-    exports: pkg.exports ?? {},
-    files: pkg.files ?? [],
-    imports: pkg.imports ?? {},
-    types: pkg.types ?? "",
-    typesVersions: pkg.typesVersions ?? {},
-  };
+  const metadata = { bin: pkg.bin ?? {}, browser: pkg.browser ?? {}, exports: pkg.exports ?? {}, files: pkg.files ?? [], imports: pkg.imports ?? {}, types: pkg.types ?? "", typesVersions: pkg.typesVersions ?? {} };
 
   const serialized = JSON.stringify(metadata);
   assert.equal(versionedProductAliasPattern.test(serialized), false);
@@ -185,34 +206,7 @@ test("repository package metadata has no versioned module-resolution aliases", (
 
 test("org settings runtime alias evidence requires neutral types, reader, and panel imports", () => {
   const root = makeRoot();
-  write(root, "src/lib/assurance/org-settings.ts", `
-export type OrganizationSettingsCompatibilityViewRow = { org_settings_json?: unknown };
-export type OrgSettingsStorageRow = OrganizationSettingsCompatibilityViewRow & { ${legacyOrgSettingsColumn}?: unknown };
-function getOrgSettingsRawFromRow(row: OrgSettingsStorageRow | null | undefined): unknown {
-  if (!row) return undefined;
-  if (Object.prototype.hasOwnProperty.call(row, "org_settings_json")) {
-    return row.org_settings_json;
-  }
-  return row.${legacyOrgSettingsColumn};
-}
-export function readOrgSettingsJsonFromRow(row: OrgSettingsStorageRow | null | undefined) {
-  return getOrgSettingsRawFromRow(row);
-}
-`);
-  write(root, "src/components/assurance/org-settings-panel.tsx", `
-export function OrgSettingsPanel() {
-  return null;
-}
-export const OrgV6SettingsPanel = OrgSettingsPanel;
-`);
-  write(root, "src/app/(dashboard)/assurance/autopilot/page.tsx", `
-import { OrgSettingsPanel } from "@/components/assurance/org-settings-panel";
-import { readOrgSettingsJsonFromRow } from "@/lib/assurance/org-settings";
-export function Page({ orgRow }) {
-  const orgSettings = readOrgSettingsJsonFromRow(orgRow);
-  return <OrgSettingsPanel initialAutopilotAllowExecution={orgSettings?.autopilot_allow_execution ?? null} />;
-}
-`);
+  writeOrgSettingsRuntimeFixture(root, "neutral");
 
   const report = validateOrgSettingsRuntimeAlias(root);
 
@@ -226,30 +220,7 @@ export function Page({ orgRow }) {
 
 test("org settings runtime alias evidence rejects direct page reads from the legacy column", () => {
   const root = makeRoot();
-  write(root, "src/lib/assurance/org-settings.ts", `
-export type OrganizationSettingsCompatibilityViewRow = { org_settings_json?: unknown };
-export type OrgSettingsStorageRow = OrganizationSettingsCompatibilityViewRow & { ${legacyOrgSettingsColumn}?: unknown };
-function getOrgSettingsRawFromRow(row: OrgSettingsStorageRow | null | undefined): unknown {
-  if (!row) return undefined;
-  if (Object.prototype.hasOwnProperty.call(row, "org_settings_json")) {
-    return row.org_settings_json;
-  }
-  return row.${legacyOrgSettingsColumn};
-}
-`);
-  write(root, "src/components/assurance/org-settings-panel.tsx", `
-export function OrgSettingsPanel() {
-  return null;
-}
-export const OrgV6SettingsPanel = OrgSettingsPanel;
-`);
-  write(root, "src/app/(dashboard)/assurance/autopilot/page.tsx", `
-import { OrgV6SettingsPanel } from "@/components/assurance/org-settings-panel";
-export function Page({ orgRow }) {
-  const orgSettings = orgRow?.${legacyOrgSettingsColumn} ?? {};
-  return <OrgV6SettingsPanel initialAutopilotAllowExecution={orgSettings.autopilot_allow_execution ?? null} />;
-}
-`);
+  writeOrgSettingsRuntimeFixture(root, "legacy");
 
   const report = validateOrgSettingsRuntimeAlias(root);
 

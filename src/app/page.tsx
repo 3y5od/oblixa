@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { LandingJsonLd } from "@/components/landing/landing-json-ld";
 import { LandingPage } from "@/components/landing/landing-page";
 import { lpSerif } from "@/components/landing/lp-fonts";
@@ -8,9 +8,9 @@ export const revalidate = 86400;
 
 const title = "Oblixa — Track what signed contracts require next";
 const description =
-  "Oblixa helps small teams turn reviewed contract dates, owners, requirements, evidence, and problems into accountable tasks and exportable reports.";
+  "Oblixa identifies renewal dates, notice windows, and owners in signed contracts. Your team confirms each item before reminders, tasks, or reports use it.";
 const ogDescription =
-  "Upload agreements or import your tracker, confirm suggested contract details, and turn signed-contract follow-up into accountable tasks.";
+  "Upload signed contracts or import your tracker. Oblixa identifies renewal dates, notice windows, and owners — your team confirms each item before it is used.";
 
 export const metadata: Metadata = {
   title,
@@ -38,12 +38,6 @@ export const metadata: Metadata = {
     description: ogDescription,
     images: ["/twitter-image"],
   },
-};
-
-/** Warm paper theme color for the migrated, light-locked homepage. The root
- *  layout keeps the app's cool light/dark pair for unmigrated routes. */
-export const viewport: Viewport = {
-  themeColor: "#f7f4ea",
 };
 
 export default function Home() {

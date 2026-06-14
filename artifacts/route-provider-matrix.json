@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-10T14:54:05.414Z",
+  "generatedAt": "2026-06-13T18:13:02.695Z",
   "rows": [
     {
       "route": "/",
@@ -418,7 +418,6 @@
       "route": "/api/command-palette/contracts",
       "sourcePath": "src/app/api/command-palette/contracts/route.ts",
       "providers": [
-        "openai",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -428,11 +427,9 @@
       "route": "/api/contact",
       "sourcePath": "src/app/api/contact/route.ts",
       "providers": [
-        "calendar",
         "resend",
         "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -698,11 +695,7 @@
       "route": "/api/cron/report-packs-generate",
       "sourcePath": "src/app/api/cron/report-packs-generate/route.ts",
       "providers": [
-        "openai",
-        "resend",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -859,11 +852,7 @@
       "route": "/api/cron/v4/report-packs-generate",
       "sourcePath": "src/app/api/cron/v4/report-packs-generate/route.ts",
       "providers": [
-        "openai",
-        "resend",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -1181,8 +1170,7 @@
       "route": "/api/exceptions/[id]/[action]",
       "sourcePath": "src/app/api/exceptions/[id]/[action]/route.ts",
       "providers": [
-        "supabase",
-        "webhook_outbox"
+        "supabase"
       ],
       "fallbackRequired": true
     },
@@ -1388,9 +1376,7 @@
       "sourcePath": "src/app/api/integrations/crm/sync/route.ts",
       "providers": [
         "crm",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -1743,10 +1729,7 @@
       "sourcePath": "src/app/api/reports/send-summaries/route.ts",
       "providers": [
         "resend",
-        "sentry",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -3034,7 +3017,8 @@
       "route": "/signup",
       "sourcePath": "src/app/(auth)/signup/page.tsx",
       "providers": [
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "fallbackRequired": true
     },
@@ -3058,7 +3042,6 @@
       "route": "/work",
       "sourcePath": "src/app/(dashboard)/work/page.tsx",
       "providers": [
-        "calendar",
         "supabase"
       ],
       "fallbackRequired": true
@@ -3922,11 +3905,8 @@
     {
       "route": "action:forgotPassword",
       "sourcePath": "src/actions/auth.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "action:generateRenewalDecisionPacketAction",
@@ -4145,11 +4125,8 @@
     {
       "route": "action:resetPassword",
       "sourcePath": "src/actions/auth.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "action:resetWorkspaceProductSurfaceDefaultsForm",
@@ -4352,29 +4329,20 @@
     {
       "route": "action:signIn",
       "sourcePath": "src/actions/auth.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "action:signOut",
       "sourcePath": "src/actions/auth.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "action:signUp",
       "sourcePath": "src/actions/auth.ts",
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
-      "fallbackRequired": true
+      "providers": [],
+      "fallbackRequired": false
     },
     {
       "route": "action:skipQuestionnaireExplicitMinimal",

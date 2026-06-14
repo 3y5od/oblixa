@@ -14,7 +14,7 @@ describe("buildFieldReviewStatusMessage (v9)", () => {
   // is now capitalized at sentence-start for proper grammar.
   it("reports the remaining backlog count after a generic save", () => {
     expect(buildFieldReviewStatusMessage({ pendingCount: 2 })).toBe(
-      "Saved. 2 fields remaining."
+      "Saved. 2 details remaining."
     );
   });
 
@@ -25,12 +25,12 @@ describe("buildFieldReviewStatusMessage (v9)", () => {
         action: "approved",
         fieldLabel: "renewal date",
       })
-    ).toBe("Renewal date approved. 1 field remaining.");
+    ).toBe("Renewal date confirmed. 1 detail remaining.");
   });
 
   it("switches to a clear-ready message once review is complete", () => {
     expect(buildFieldReviewStatusMessage({ pendingCount: 0 })).toBe(
-      "Saved. Review complete."
+      "Saved. Confirmation complete."
     );
   });
 });

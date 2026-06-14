@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "zero-exclusion-route-functionality",
-  "generatedAt": "2026-06-10T14:54:05.412Z",
+  "generatedAt": "2026-06-13T18:13:02.693Z",
   "counts": {
     "route_state": 52,
     "layout": 23,
@@ -1452,9 +1452,7 @@
       ],
       "dbDependencies": {
         "tables": [
-          "contract_approval_events",
-          "contract_approvals",
-          "organization_members"
+          "contract_approvals"
         ],
         "rpcs": []
       },
@@ -3769,7 +3767,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "openai",
         "supabase",
         "upstash_or_memory_rate_limit"
       ],
@@ -3837,11 +3834,9 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": false,
       "providers": [
-        "calendar",
         "resend",
         "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
         "tables": [],
@@ -5972,21 +5967,12 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
+      "orgScopeEvidence": false,
       "providers": [
-        "openai",
-        "resend",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [
-          "report_pack_runs",
-          "report_pack_subscriptions",
-          "report_packs",
-          "report_runs"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -7125,21 +7111,12 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
+      "orgScopeEvidence": false,
       "providers": [
-        "openai",
-        "resend",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [
-          "report_pack_runs",
-          "report_pack_subscriptions",
-          "report_packs",
-          "report_runs"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -9773,14 +9750,11 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "supabase",
-        "webhook_outbox"
+        "supabase"
       ],
       "dbDependencies": {
         "tables": [
-          "exception_events",
-          "exceptions",
-          "organization_members"
+          "exceptions"
         ],
         "rpcs": []
       },
@@ -10116,7 +10090,6 @@
       ],
       "dbDependencies": {
         "tables": [
-          "contract_export_jobs",
           "contracts",
           "organization_members"
         ],
@@ -11170,12 +11143,8 @@
       ],
       "dbDependencies": {
         "tables": [
-          "contract_approvals",
-          "contract_tasks",
           "contracts",
-          "evidence_submissions",
-          "exceptions",
-          "operational_casefile_events"
+          "organization_members"
         ],
         "rpcs": []
       },
@@ -11299,21 +11268,13 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
+      "orgScopeEvidence": false,
       "providers": [
         "crm",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [
-          "audit_events",
-          "contract_renewal_scenarios",
-          "contracts",
-          "exceptions",
-          "integration_connections"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -14180,26 +14141,13 @@
       "bodyPolicy": "no_body_expected",
       "rateLimitPolicy": "cron",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
+      "orgScopeEvidence": false,
       "providers": [
         "resend",
-        "sentry",
-        "supabase",
-        "upstash_or_memory_rate_limit",
-        "webhook_outbox"
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
-        "tables": [
-          "contract_intake_history",
-          "contract_obligations",
-          "contract_renewal_scenarios",
-          "contract_tasks",
-          "contracts",
-          "profiles",
-          "report_run_recipients",
-          "report_runs",
-          "report_subscriptions"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -20117,7 +20065,6 @@
           "contract_change_events",
           "contract_files",
           "contracts",
-          "maintenance_campaign_rows",
           "maintenance_campaigns",
           "organization_workflow_settings"
         ],
@@ -26099,11 +26046,12 @@
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "no_body_expected",
-      "rateLimitPolicy": "standard_or_not_applicable",
+      "rateLimitPolicy": "explicit",
       "orgScopeRequired": false,
       "orgScopeEvidence": false,
       "providers": [
-        "supabase"
+        "supabase",
+        "upstash_or_memory_rate_limit"
       ],
       "dbDependencies": {
         "tables": [],
@@ -26312,7 +26260,6 @@
       "orgScopeRequired": true,
       "orgScopeEvidence": true,
       "providers": [
-        "calendar",
         "supabase"
       ],
       "dbDependencies": {
@@ -32646,27 +32593,24 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "public_auth_action",
+      "authModel": "session_required_by_default",
       "rolePolicy": [
-        "public_auth_action"
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "bounded_or_form_body",
-      "rateLimitPolicy": "explicit",
+      "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "orgScopeEvidence": false,
+      "providers": [],
       "dbDependencies": {
-        "tables": [
-          "workspace_access_grants",
-          "workspace_access_requests"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -34245,27 +34189,24 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "public_auth_action",
+      "authModel": "session_required_by_default",
       "rolePolicy": [
-        "public_auth_action"
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "bounded_or_form_body",
-      "rateLimitPolicy": "explicit",
+      "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "orgScopeEvidence": false,
+      "providers": [],
       "dbDependencies": {
-        "tables": [
-          "workspace_access_grants",
-          "workspace_access_requests"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -35725,27 +35666,24 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "public_auth_action",
+      "authModel": "session_required_by_default",
       "rolePolicy": [
-        "public_auth_action"
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "bounded_or_form_body",
-      "rateLimitPolicy": "explicit",
+      "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "orgScopeEvidence": false,
+      "providers": [],
       "dbDependencies": {
-        "tables": [
-          "workspace_access_grants",
-          "workspace_access_requests"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -35785,27 +35723,24 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "public_auth_action",
+      "authModel": "session_required_by_default",
       "rolePolicy": [
-        "public_auth_action"
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "bounded_or_form_body",
-      "rateLimitPolicy": "explicit",
+      "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "orgScopeEvidence": false,
+      "providers": [],
       "dbDependencies": {
-        "tables": [
-          "workspace_access_grants",
-          "workspace_access_requests"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {
@@ -35845,27 +35780,24 @@
       ],
       "runtime": "server_action",
       "dynamicSegments": [],
-      "authModel": "public_auth_action",
+      "authModel": "session_required_by_default",
       "rolePolicy": [
-        "public_auth_action"
+        "viewer",
+        "editor",
+        "manager",
+        "admin"
       ],
       "workspaceModes": [
         "public_or_external"
       ],
       "cachePolicy": "private_no_store",
       "bodyPolicy": "bounded_or_form_body",
-      "rateLimitPolicy": "explicit",
+      "rateLimitPolicy": "mutation_required",
       "orgScopeRequired": true,
-      "orgScopeEvidence": true,
-      "providers": [
-        "supabase",
-        "upstash_or_memory_rate_limit"
-      ],
+      "orgScopeEvidence": false,
+      "providers": [],
       "dbDependencies": {
-        "tables": [
-          "workspace_access_grants",
-          "workspace_access_requests"
-        ],
+        "tables": [],
         "rpcs": []
       },
       "routeStates": {

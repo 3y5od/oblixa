@@ -42,9 +42,9 @@ describe("contracts page release-state surface", () => {
     expect(pageRaw).toContain("Owner");
     expect(pageRaw).toContain("Counterparty");
     expect(pageRaw).toContain("Contract type");
-    expect(pageRaw).toContain("Needs review");
+    expect(pageRaw).toContain("Details to review");
     expect(pageRaw).toContain("Missing dates");
-    expect(pageRaw).toContain("Open work");
+    expect(pageRaw).toContain("Open tasks");
     expect(listRaw).toContain("counterparty?: string");
     expect(listRaw).toContain("contractType?: string");
     expect(idFiltersRaw).toContain("getContractIdsWithOpenWork");
@@ -58,7 +58,7 @@ describe("contracts page release-state surface", () => {
       "Status",
       "Next important date",
       "Review state",
-      "Open work",
+      "Tasks",
       "Last updated",
     ]) {
       expect(tableRaw).toContain(label);
@@ -73,7 +73,7 @@ describe("contracts page release-state surface", () => {
       "Open contract",
       "Assign owner",
       "Add reminder",
-      "Create work",
+      "Create task",
     ]) {
       expect(tableRaw).toContain(label);
     }

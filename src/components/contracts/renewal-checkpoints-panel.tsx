@@ -238,9 +238,6 @@ export function RenewalCheckpointsPanel({
 }: {
   checkpoints: CheckpointRow[];
   canEdit: boolean;
-  /** When true, hide the structured renewal workspace editor + decision
-   *  packet generator. Used on Core overview where the Dates card should
-   *  surface only checkpoint list / status, not the Advanced workspace. */
   compact?: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
