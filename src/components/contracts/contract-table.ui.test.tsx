@@ -123,19 +123,19 @@ describe("ContractTable", () => {
       />
     );
 
-    // Review chip uses parallel "X/Y verb" format: pending shows
-    // `${pending}/${total} pending`, complete shows
-    // `${approved}/${total} reviewed`. The aria-label stays stable.
+    // Review chip uses "X of Y verb" format: incomplete shows
+    // `${pending} of ${total} to confirm`, complete shows
+    // `${approved} of ${total} confirmed`. The aria-label stays stable.
     expect(screen.getByRole("link", { name: /continue detail confirmation/i }).getAttribute("href")).toBe(
       "/contracts/contract-1#extracted-fields"
     );
     expect(
       screen.getByRole("link", { name: /continue detail confirmation/i }).textContent ?? ""
-    ).toMatch(/pending/i);
+    ).toMatch(/to confirm/i);
     // Two-line "Next important date" cell: primary line "Renewal Apr 19"
     // (urgency-coloured) + secondary "Due today" caption from nextHorizonDays === 0.
     expect(screen.getByText(/due today/i)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /2 issues/i }).getAttribute("href")).toContain("/contracts/exceptions");
+    expect(screen.getByRole("link", { name: /2 open problems/i }).getAttribute("href")).toContain("/contracts/exceptions");
     expect(screen.getByText(/1 evidence/i)).toBeTruthy();
   });
 

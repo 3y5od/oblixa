@@ -1,265 +1,348 @@
-import { BarChart3, Bell, Check, Download, FileText, ShieldCheck } from "lucide-react";
-import { MockShell } from "@/components/landing/product-mock-shell";
+import { Fragment } from "react";
+import { Download, FileText } from "lucide-react";
+import { StatusBadge, type SemanticStatus } from "@/components/ui/status-badge";
+import {
+  DottedLabel,
+  MockBtn,
+  mockDateClassName,
+  OwnerAvatar,
+  PreviewFoot,
+  PreviewShell,
+  rowRule,
+  SourceMark,
+  tdClass,
+  thClass,
+} from "@/components/landing/landing-preview-shared";
 
 export { DashboardOverviewPreview } from "@/components/landing/product-mocks-dashboard";
 
+/* ─── §3 Confirm details — source-to-record review ───────────────────────────
+   The trust-conversion artifact: a suggested value, the located source clause
+   it came from, and the confirm/edit decision. Amber marks the located source
+   text; the value is not trusted until confirmed (footer trust line). */
 export function ReviewFieldsPreview() {
   return (
-    <MockShell
-      caption="Field review"
-      tone="warm"
-      chromePath="oblixa.com/contracts/acme-msa/fields"
+    <PreviewShell
+      variant="source"
+      breadcrumb={["Northstar workspace", "Contracts", "Northstar Services MSA"]}
+      title="Renewal date"
+      footer={
+        <PreviewFoot
+          icon={FileText}
+          label="Suggested details are not used until confirmed"
+          meta="Northstar workspace"
+        />
+      }
     >
-      <div className="relative h-full rounded-xl border border-[color:color-mix(in_oklab,var(--accent-soft)_55%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
-            Renewal date
-          </p>
-          <span className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-subtle))] bg-[var(--surface-raised)] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tabular-nums text-[var(--accent-strong)]">
-            SOURCE LOCATED
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Suggested detail</p>
+          <span className="inline-flex items-center gap-1 rounded-[2px] border border-[color:color-mix(in_oklab,var(--warning-ink)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_45%,var(--surface-raised))] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--warning-ink)]">
+            Source found
           </span>
         </div>
-        <p className="mt-2 text-[16px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[20px]">
+        <p className="mt-2 text-[18px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[20px]">
           March 12, 2027
         </p>
-        <p className="mt-1 font-mono text-[10px] tabular-nums text-[var(--text-tertiary)]">
-          Initial term: Mar 12, 2024 + 3 yr
+        <p className="mt-1 font-mono text-[10.5px] tabular-nums text-[var(--text-tertiary)]">
+          Calculated from Mar 12, 2024 + 3-year initial term
         </p>
-        <div className="mt-2 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1.5 font-mono text-[11px] leading-relaxed text-[var(--text-secondary)]">
-          &ldquo;The Initial Term shall commence on{" "}
-          <span className="rounded-sm bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,transparent)] px-1 text-[var(--accent-strong)]">
-            March 12, 2024
-          </span>{" "}
-          and continue for three (3) years…&rdquo;
+        {/* Located source clause — warm document paper, amber underline on the
+            located text (release-state §Source-Backed Language). */}
+        <div className="mt-3 rounded-[3px] border border-[var(--border-subtle)] bg-[var(--surface-inset)] px-2.5 py-2 font-mono text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          &ldquo;The Initial Term shall commence on <SourceMark>March 12, 2024</SourceMark> and continue for three (3) years&hellip;&rdquo;
         </div>
+        <p className="mt-3 text-[11px] leading-snug text-[var(--text-tertiary)]">
+          <span className="font-semibold text-[var(--text-secondary)]">Where this is used:</span>{" "}
+          renewal reminders and the upcoming-renewals report.
+        </p>
         <div className="mt-3 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-md bg-[var(--accent-strong)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-fg)]">
-            <Check className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
-            Approve
-          </span>
-          <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text-secondary)]">
-            Edit
-          </span>
-          <span className="ml-auto font-mono text-[11px] text-[var(--text-tertiary)]">
-            Marco D.
-          </span>
+          <MockBtn kind="primary">Confirm detail</MockBtn>
+          <MockBtn kind="secondary">Edit</MockBtn>
+          <span className="ml-auto font-mono text-[11px] text-[var(--text-tertiary)]">Priya R.</span>
         </div>
       </div>
-    </MockShell>
+    </PreviewShell>
   );
 }
 
+/* ─── §4 Review dates — renewal and notice timeline with provenance ──────────
+   Every row carries its trust state (Confirmed / Calculated / Suggested) so
+   the reader can see which dates are operationally trusted. */
 export function UpcomingDatesPreview() {
-  const reminders = [
-    { name: "Acme renewal", days: "11d", owner: "SO", date: "Apr 12", tone: "accent" as const },
-    { name: "Hooli notice", days: "14d", owner: "TK", date: "Apr 15", tone: "green" as const },
-    { name: "Initech audit", days: "49d", owner: "MD", date: "May 20", tone: "amber" as const },
+  const rows: Array<{
+    name: string;
+    owner: string;
+    date: string;
+    status: SemanticStatus;
+    statusLabel: string;
+  }> = [
+    {
+      name: "Northstar Services MSA · Renewal",
+      owner: "Priya Raman · Finance",
+      date: "Jan 11",
+      status: "healthy",
+      statusLabel: "Confirmed",
+    },
+    {
+      name: "Summit Office Lease · Notice deadline",
+      owner: "Tomas Klein · Ops",
+      date: "Jan 15",
+      status: "warning",
+      statusLabel: "Calculated",
+    },
+    {
+      name: "Brightline Vendor Agreement · Renewal",
+      owner: "Marco Diaz · Legal",
+      date: "Feb 20",
+      status: "in_review",
+      statusLabel: "Suggested",
+    },
   ];
   return (
-    <MockShell
-      caption="Upcoming dates"
-      tone="warm"
-      chromePath="oblixa.com/dashboard/upcoming"
+    <PreviewShell
+      variant="queue"
+      breadcrumb={["Northstar workspace", "Renewals"]}
+      title="Renewal and notice dates"
+      titleAction={
+        <span className="text-[12px] font-medium tabular-nums text-[var(--text-tertiary)]">
+          6 dates in view
+        </span>
+      }
+      footer={
+        <PreviewFoot
+          icon={FileText}
+          label="Calculated dates show the inputs they came from"
+          meta="Northstar workspace"
+        />
+      }
     >
-      <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-          Upcoming reminders
-        </p>
-        <ul className="space-y-1.5">
-          {reminders.map((r) => {
-            const palette =
-              r.tone === "amber"
-                ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_72%,var(--surface-raised))] text-[var(--warning-ink)]"
-                : r.tone === "green"
-                  ? "bg-[color:color-mix(in_oklab,var(--success-soft)_72%,var(--surface-raised))] text-[var(--success-ink)]"
-                  : "bg-[color:color-mix(in_oklab,var(--accent-soft)_72%,var(--surface-raised))] text-[var(--accent-strong)]";
-            return (
-              <li
-                key={r.name}
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2"
-              >
-                <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${palette}`}>
-                  <Bell className="h-3 w-3" aria-hidden />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-                  {r.name} <span className="text-[var(--text-tertiary)]">in {r.days}</span>
-                </span>
-                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,var(--surface-raised))] font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
-                  {r.owner}
-                </span>
-                <span className="shrink-0 font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                  {r.date}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </MockShell>
-  );
-}
-
-export function WorkQueuePreview() {
-  const items = [
-    { title: "Send renewal notice — Acme", owner: "SO", due: "Apr 1", tone: "accent" as const },
-    { title: "Collect SOC 2 attestation — Initech", owner: "MD", due: "Apr 8", tone: "amber" as const },
-    { title: "Approve Hooli amendment", owner: "TK", due: "Apr 14", tone: "green" as const },
-  ];
-  return (
-    <MockShell
-      caption="Work queue"
-      tone="warm"
-      chromePath="oblixa.com/work?owner=me"
-    >
-      <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-          Open work — 3 of 14
-        </p>
-        <ul className="space-y-1.5">
-          {items.map((r) => {
-            const palette =
-              r.tone === "amber"
-                ? "bg-[color:color-mix(in_oklab,var(--warning-soft)_72%,var(--surface-raised))] text-[var(--warning-ink)]"
-                : r.tone === "green"
-                  ? "bg-[color:color-mix(in_oklab,var(--success-soft)_72%,var(--surface-raised))] text-[var(--success-ink)]"
-                  : "bg-[color:color-mix(in_oklab,var(--accent-soft)_72%,var(--surface-raised))] text-[var(--accent-strong)]";
-            return (
-              <li
-                key={r.title}
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2"
-              >
-                <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${palette}`}>
-                  <FileText className="h-3 w-3" aria-hidden />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-                  {r.title}
-                </span>
-                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,var(--surface-raised))] font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
-                  {r.owner}
-                </span>
-                <span className="shrink-0 font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                  {r.due}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </MockShell>
-  );
-}
-
-/**
- * Preview for §6 Collect evidence — request rows with status, owner, due date,
- * and the linked contract embedded in the label.
- */
-export function EvidenceRequestPreview() {
-  const rows = [
-    { label: "SOC 2 report — Initech", status: "Received", owner: "MD", due: "Apr 8", tone: "green" as const },
-    { label: "Insurance COI — Acme", status: "Requested", owner: "SO", due: "Apr 20", tone: "accent" as const },
-    { label: "Renewal confirmation — Hooli", status: "Overdue", owner: "TK", due: "Apr 2", tone: "amber" as const },
-  ];
-  return (
-    <MockShell
-      caption="Evidence requests"
-      tone="amber"
-      chromePath="oblixa.com/contracts/evidence"
-    >
-      <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-          Evidence requests — 3 open
-        </p>
-        <ul className="space-y-1.5">
-          {rows.map((r) => {
-            const statusPill =
-              r.tone === "amber"
-                ? "border-[color:color-mix(in_oklab,var(--warning-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_40%,var(--surface-raised))] text-[var(--warning-ink)]"
-                : r.tone === "green"
-                  ? "border-[color:color-mix(in_oklab,var(--success-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-soft)_40%,var(--surface-raised))] text-[var(--success-ink)]"
-                  : "border-[color:color-mix(in_oklab,var(--accent)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_42%,var(--surface-raised))] text-[var(--accent-strong)]";
-            return (
-              <li
-                key={r.label}
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2"
-              >
-                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_oklab,var(--warning-soft)_60%,var(--surface-raised))] text-[var(--warning-ink)]">
-                  <ShieldCheck className="h-3 w-3" aria-hidden />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-                  {r.label}
-                </span>
-                <span className={`hidden shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-[0.1em] sm:inline-flex ${statusPill}`}>
-                  {r.status}
-                </span>
-                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,var(--surface-raised))] font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
-                  {r.owner}
-                </span>
-                <span className="shrink-0 font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                  {r.due}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </MockShell>
-  );
-}
-
-/**
- * v6 T9.7 — New preview for §7 Report and export.
- * Shows a CSV-style table with a CSV export button.
- */
-export function ReportsExportPreview() {
-  const rows = [
-    { contract: "Acme — MSA", date: "Apr 12", owner: "SO" },
-    { contract: "Initech — DPA", date: "May 20", owner: "MD" },
-    { contract: "Hooli — SaaS", date: "Apr 15", owner: "TK" },
-    { contract: "Globex — Lease", date: "Jun 02", owner: "SO" },
-  ];
-  return (
-    <MockShell
-      caption="Reports export"
-      tone="success"
-      chromePath="oblixa.com/reports/upcoming-renewals"
-    >
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-            <span className="inline-flex items-center gap-1.5">
-              <BarChart3 className="h-3 w-3 text-[var(--success-ink)]" aria-hidden />
-              Upcoming renewals — 4 of 12
-            </span>
-          </p>
-          <span className="inline-flex items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--success-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-ink)_8%,var(--surface-raised))] px-2.5 py-1 text-[11px] font-semibold text-[var(--success-ink)]">
-            <Download className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
-            CSV
+      {rows.map((r) => (
+        <div
+          key={r.name}
+          className="flex items-center gap-3 border-t border-[var(--border-subtle)] px-4 py-3 first:border-t-0"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[14.5px] leading-tight">
+              <DottedLabel
+                value={r.name}
+                headClassName="font-semibold text-[var(--text-primary)]"
+                tailClassName="text-[var(--text-secondary)]"
+              />
+            </p>
+            <p className="mt-1 truncate text-[12px] leading-tight text-[var(--text-tertiary)]">
+              <DottedLabel value={r.owner} />
+            </p>
+          </div>
+          <span className="flex w-[10.5rem] shrink-0 items-center justify-end gap-3">
+            <StatusBadge status={r.status} className="shrink-0 text-[10.5px]">
+              {r.statusLabel}
+            </StatusBadge>
+            <span className={mockDateClassName}>{r.date}</span>
           </span>
         </div>
-        <ul className="space-y-1">
-          <li className="grid grid-cols-[1fr_auto_auto] gap-3 rounded-md bg-[color:color-mix(in_oklab,var(--success-soft)_28%,var(--surface-raised))] px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-            <span>Contract</span>
-            <span>Date</span>
-            <span>Owner</span>
-          </li>
-          {rows.map((r) => (
-            <li
-              key={r.contract}
-              className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-1.5"
-            >
-              <span className="truncate text-[12.5px] font-medium text-[var(--text-primary)]">
-                {r.contract}
+      ))}
+    </PreviewShell>
+  );
+}
+
+/* ─── §5 Create tasks — the follow-up queue ──────────────────────────────────
+   Tasks (not "work"); states use the release vocabulary: Due within 7 days,
+   Cannot proceed, Unassigned. */
+export function WorkQueuePreview() {
+  const rows: Array<{
+    title: string;
+    owner: string;
+    due: string;
+    status: SemanticStatus;
+    statusLabel: string;
+  }> = [
+    {
+      title: "Send renewal notice — Northstar Services",
+      owner: "PR",
+      due: "Jan 1",
+      status: "info",
+      statusLabel: "Due within 7 days",
+    },
+    {
+      title: "Collect insurance certificate — Brightline",
+      owner: "MD",
+      due: "Jan 8",
+      status: "blocked",
+      statusLabel: "Cannot proceed",
+    },
+    {
+      title: "Confirm Summit lease amendment",
+      owner: "—",
+      due: "Jan 14",
+      status: "warning",
+      statusLabel: "Unassigned",
+    },
+  ];
+  return (
+    <PreviewShell
+      variant="queue"
+      breadcrumb={["Northstar workspace", "Tasks"]}
+      title="Tasks"
+      titleAction={
+        <span className="text-[12px] font-medium tabular-nums text-[var(--text-tertiary)]">
+          Open tasks — 3 of 14
+        </span>
+      }
+      footer={
+        <PreviewFoot
+          icon={FileText}
+          label="Each task carries an owner, a due date, and a state"
+          meta="Northstar workspace"
+        />
+      }
+    >
+      {rows.map((r) => (
+        <div
+          key={r.title}
+          className="flex items-center gap-3 border-t border-[var(--border-subtle)] px-4 py-3 first:border-t-0"
+        >
+          <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-[var(--text-primary)]">
+            {r.title}
+          </span>
+          <span className="flex w-[10.5rem] shrink-0 items-center justify-end gap-2.5">
+            <StatusBadge status={r.status} className="shrink-0 text-[10.5px]">
+              {r.statusLabel}
+            </StatusBadge>
+            {r.owner === "—" ? (
+              <span className="w-[1.375rem] text-center font-mono text-[12px] text-[var(--text-tertiary)]">
+                —
               </span>
-              <span className="font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
-                {r.date}
-              </span>
-              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_82%,var(--surface-raised))] font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
-                {r.owner}
-              </span>
-            </li>
-          ))}
-        </ul>
+            ) : (
+              <OwnerAvatar initials={r.owner} />
+            )}
+            <span className={mockDateClassName}>{r.due}</span>
+          </span>
+        </div>
+      ))}
+    </PreviewShell>
+  );
+}
+
+/* ─── §6 Request evidence — proof collection ─────────────────────────────────
+   Neutral evidence examples (no implied security claims): a certificate, a
+   signed notice, a tax form. Received is distinct from accepted. */
+export function EvidenceRequestPreview() {
+  const rows: Array<{
+    label: string;
+    owner: string;
+    due: string;
+    status: SemanticStatus;
+    statusLabel: string;
+  }> = [
+    {
+      label: "Insurance certificate — Brightline",
+      owner: "MD",
+      due: "Jan 8",
+      status: "healthy",
+      statusLabel: "Received",
+    },
+    {
+      label: "Signed renewal notice — Northstar",
+      owner: "PR",
+      due: "Jan 20",
+      status: "info",
+      statusLabel: "Requested",
+    },
+    {
+      label: "Updated W-9 — Harbor Payroll",
+      owner: "SO",
+      due: "Jan 2",
+      status: "warning",
+      statusLabel: "Overdue",
+    },
+  ];
+  return (
+    <PreviewShell
+      variant="queue"
+      breadcrumb={["Northstar workspace", "Evidence"]}
+      title="Evidence requests"
+      titleAction={
+        <span className="text-[12px] font-medium tabular-nums text-[var(--text-tertiary)]">
+          3 open requests
+        </span>
+      }
+      footer={
+        <PreviewFoot
+          icon={FileText}
+          label="Received proof is reviewed before it is accepted"
+          meta="Northstar workspace"
+        />
+      }
+    >
+      {rows.map((r) => (
+        <div
+          key={r.label}
+          className="flex items-center gap-3 border-t border-[var(--border-subtle)] px-4 py-3 first:border-t-0"
+        >
+          <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-[var(--text-primary)]">
+            {r.label}
+          </span>
+          <span className="flex w-[10.5rem] shrink-0 items-center justify-end gap-2.5">
+            <StatusBadge status={r.status} className="shrink-0 text-[10.5px]">
+              {r.statusLabel}
+            </StatusBadge>
+            <OwnerAvatar initials={r.owner} />
+            <span className={mockDateClassName}>{r.due}</span>
+          </span>
+        </div>
+      ))}
+    </PreviewShell>
+  );
+}
+
+/* ─── §7 Export reports — operational report preview ─────────────────────────
+   The export ledger: the rows shown are the rows exported. The count names
+   its object type (contracts). */
+export function ReportsExportPreview() {
+  const rows: Array<{ contract: string; date: string; owner: string }> = [
+    { contract: "Northstar Services MSA", date: "Mar 12", owner: "PR" },
+    { contract: "Brightline Vendor Agreement", date: "May 20", owner: "MD" },
+    { contract: "Summit Office Lease", date: "Apr 15", owner: "TK" },
+    { contract: "Harbor Payroll Services", date: "Jun 02", owner: "SO" },
+  ];
+  return (
+    <PreviewShell
+      variant="ledger"
+      breadcrumb={["Northstar workspace", "Reports", "Upcoming renewals"]}
+      title="Upcoming renewals"
+      titleAction={
+        <span className="inline-flex items-center gap-1 rounded-[3px] border border-[color:color-mix(in_oklab,var(--success-ink)_28%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--success-ink)_8%,var(--surface-raised))] px-2 py-1 text-[11px] font-semibold text-[var(--success-ink)]">
+          <Download className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
+          Export CSV
+        </span>
+      }
+      footer={
+        <PreviewFoot
+          icon={FileText}
+          label="Exports the rows shown — 4 of 12 contracts"
+          meta="Northstar workspace"
+        />
+      }
+    >
+      <div className="grid grid-cols-[1.5fr_auto_auto]">
+        <span className={thClass}>Contract</span>
+        <span className={`${thClass} text-right`}>Renewal</span>
+        <span className={`${thClass} text-right`}>Owner</span>
+        {rows.map((r) => (
+          <Fragment key={r.contract}>
+            <span className={`${tdClass} ${rowRule} min-w-0 font-semibold text-[var(--text-primary)]`}>
+              <span className="truncate">{r.contract}</span>
+            </span>
+            <span className={`${tdClass} ${rowRule} justify-end font-mono text-[12.5px] tabular-nums text-[var(--text-tertiary)]`}>
+              {r.date}
+            </span>
+            <span className={`${tdClass} ${rowRule} justify-end`}>
+              <OwnerAvatar initials={r.owner} />
+            </span>
+          </Fragment>
+        ))}
       </div>
-    </MockShell>
+    </PreviewShell>
   );
 }

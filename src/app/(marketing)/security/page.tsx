@@ -35,11 +35,11 @@ const SECURITY_MAILTO = `mailto:${SECURITY_EMAIL}?subject=Security%20question`;
 const HERO_LEAD =
   "Security basics for contract records, with reviewed access — what's logged, who can see a workspace, and how data is exported, deleted, and reviewed.";
 
-const TRUST_FACTS = ["Workspace access", "Audit history", "CSV exports", "Deletion requests", "Reviewed fields"] as const;
+const TRUST_FACTS = ["Workspace access", "Audit history", "CSV exports", "Deletion requests", "Confirmed details"] as const;
 
 const FILE_FACTS: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Upload types", v: "PDF and DOCX" },
-  { k: "Stored data", v: "Files, extracted text, reviewed fields" },
+  { k: "Stored data", v: "Files, extracted text, confirmed details" },
   { k: "Access", v: "Workspace-scoped users, by role" },
   { k: "Isolation", v: "Cross-workspace access blocked" },
   { k: "In transit", v: "Encrypted over HTTPS" },
@@ -49,7 +49,7 @@ const FILE_FACTS: ReadonlyArray<{ k: string; v: string }> = [
 const PROCESSED: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Account", v: "Profile and sign-in" },
   { k: "Workspace", v: "Team and membership" },
-  { k: "Contracts", v: "Uploaded files, extracted text, reviewed fields" },
+  { k: "Contracts", v: "Uploaded files, extracted text, confirmed details" },
   { k: "Activity", v: "Audit and activity events" },
   { k: "Public requests", v: "Access requests and contact messages" },
   { k: "Exports", v: "Reports and CSV files" },
@@ -154,7 +154,7 @@ export default function SecurityPage() {
                 <div className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-t py-2 sm:col-span-2 ${HAIRLINE}`}>
                   <dt className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">Review state</dt>
                   <dd className="min-w-0 text-right text-[12.5px] leading-snug text-[var(--text-secondary)]">
-                    Suggested fields are not operational data until approved
+                    Suggested details are not operational data until confirmed
                   </dd>
                 </div>
               </dl>
@@ -206,7 +206,7 @@ export default function SecurityPage() {
             <div className="lg:px-6">
               <ColumnHead icon={History} eyebrow="Audit history" title="Key workspace actions" />
               <dl>
-                <Fact k="Logged" v="Uploads and field approvals" />
+                <Fact k="Logged" v="Uploads and detail confirmations" />
                 <Fact k="Also" v="Owner, evidence, and member changes" />
                 <Fact k="Per event" v="Actor and timestamp" />
               </dl>
@@ -236,9 +236,9 @@ export default function SecurityPage() {
             </div>
 
             <div className="md:pl-8">
-              <ColumnHead icon={Sparkles} eyebrow="AI and review" title="Suggested fields require human review" />
+              <ColumnHead icon={Sparkles} eyebrow="AI and review" title="Suggested details require human review" />
               <dl>
-                <Fact k="Review state" v="Not operational data until approved" />
+                <Fact k="Review state" v="Not operational data until confirmed" />
                 <Fact k="Source" v="Snippet tied to each suggestion" />
                 <Fact k="Verify" v="A source snippet backs each value" />
               </dl>

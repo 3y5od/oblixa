@@ -1,30 +1,23 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import {
-  Check,
-  Inbox,
-  Mail,
-  ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
 import { getAuthContext, createClient, createAdminClient } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { UiAlert } from "@/components/ui/ui-alert";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { ChipCapsule } from "@/components/ui/chip-capsule";
-import { ChipPair } from "@/components/ui/chip-pair";
-import { ActionChip } from "@/components/ui/action-chip";
 import {
-  SettingsSubpageShell,
-  IdentityChip,
-} from "@/components/settings/settings-subpage-shell";
+  SettingsWorkbench,
+  SettingsStateStrip,
+  type SettingsStateItem,
+} from "@/components/settings/settings-workbench";
 import { SecuritySettingsPanel } from "@/components/settings/security-settings-panel";
 import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
 import { readStepUpExpiry } from "@/lib/security/step-up-cookie";
 import { listMySessions } from "@/actions/sessions";
-import { formatDate, timeAttrs } from "@/lib/format/date";
+import { formatDate } from "@/lib/format/date";
 import { hasEmailConfirmationSignal } from "@/lib/auth/email-confirmation";
+import { AccountContext, ActivityStrip, LegalNote } from "./security-page-sections";
 
 // Security data must never be cached — fresh server render on every request.
 export const dynamic = "force-dynamic";
@@ -80,6 +73,10 @@ export default async function SecuritySettingsPage({
   let totpFactors: Array<{ id: string; status: string; friendly_name: string | null }> = [];
   let currentAal: string | null = null;
   let nextAal: string | null = null;
+  // Provider-availability signal: when the MFA metadata calls throw, the auth
+  // provider can't offer authenticator enrollment, so the panel shows an
+  // unavailable state instead of an enroll control it can't fulfil.
+  let mfaUnavailable = false;
   try {
     const [{ data: factorsData }, { data: aalData }] = await Promise.all([
       supabase.auth.mfa.listFactors(),
@@ -94,7 +91,9 @@ export default async function SecuritySettingsPage({
     currentAal = aalData?.currentLevel ?? null;
     nextAal = aalData?.nextLevel ?? null;
   } catch {
-    // MFA metadata calls can fail on transient provider errors; render a degraded panel.
+    // MFA metadata calls can fail on transient provider errors; render a
+    // degraded panel with an explicit unavailable state.
+    mfaUnavailable = true;
   }
 
   const jar = await cookies();
@@ -137,7 +136,7 @@ export default async function SecuritySettingsPage({
   );
   const signInMethodLabel =
     providers.length > 0
-      ? providers.map(humanizeProvider).join(" · ")
+      ? providers.map(humanizeProvider).join(" - ")
       : "Email";
 
   const emailConfirmedAt = ((ctx.user.email_confirmed_at ?? ctx.user.confirmed_at) ?? null) as string | null;
@@ -167,52 +166,64 @@ export default async function SecuritySettingsPage({
   const isDevEnv = process.env.NODE_ENV === "development";
   const showDevBanner = isDevEnv && !process.env.OBLIXA_STEP_UP_SECRET;
 
-  return (
-    <SettingsSubpageShell
-      icon={<ShieldCheck className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
-      eyebrow={SETTINGS_SECURITY_STRINGS.eyebrow}
-      title={SETTINGS_SECURITY_STRINGS.title}
-      lead={SETTINGS_SECURITY_STRINGS.lead}
-      skipLink={{ href: "#mfa-card", label: "Skip to security content" }}
-      identityLabel="Identity"
-      identity={
-        <>
-          <IdentityChip label="MFA">
-            {factorCount > 0 ? (
-              <StatusBadge status="healthy" className="gap-1">
-                <ShieldCheck className="h-3 w-3" strokeWidth={2} aria-hidden />
-                {SETTINGS_SECURITY_STRINGS.mfaTwoFactorLabel}
-              </StatusBadge>
-            ) : (
-              <StatusBadge status="warning" className="gap-1">
-                <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
-                {SETTINGS_SECURITY_STRINGS.mfaSingleLabel}
-              </StatusBadge>
-            )}
-          </IdentityChip>
-          {orgName ? (
-            <IdentityChip label={SETTINGS_SECURITY_STRINGS.workspaceLabelChip}>
+  const S = SETTINGS_SECURITY_STRINGS;
+
+  // Header state strip — precise condition phrases, not pills.
+  const stepUpStripValue = stepUp.active
+    ? stepUp.via === "aal2"
+      ? S.stepUpMfaSessionValue
+      : S.stepUpActiveValue
+    : S.stepUpRequiredValue;
+
+  const stateItems: SettingsStateItem[] = [
+    {
+      label: S.stateLabels.protection,
+      value: factorCount > 0 ? S.protectionEnrolledValue : S.mfaEmptyLabel,
+      tone: factorCount > 0 ? "healthy" : "warning",
+    },
+    ...(orgName
+      ? [
+          {
+            label: S.stateLabels.workspace,
+            value: (
               <Link
-                href="/settings/workspace"
-                className="ui-link block max-w-[12rem] truncate text-[13px] font-medium"
+                href="/settings#workspace-identity"
+                className="ui-link block max-w-[12rem] truncate"
                 title={orgName}
-                aria-label={orgName}
               >
                 {orgName}
               </Link>
-            </IdentityChip>
-          ) : null}
-          <IdentityChip label={SETTINGS_SECURITY_STRINGS.accountLabel}>
-            <Link
-              href="/settings/account"
-              className="ui-link block max-w-[16rem] truncate font-mono text-[12.5px]"
-              title={accountIdentity}
-            >
-              {accountIdentity}
-            </Link>
-          </IdentityChip>
-        </>
-      }
+            ),
+          } satisfies SettingsStateItem,
+        ]
+      : []),
+    {
+      label: S.stateLabels.account,
+      value: (
+        <Link
+          href="/settings#profile"
+          className="ui-link block max-w-[16rem] truncate font-mono text-[12px]"
+          title={accountIdentity}
+        >
+          {accountIdentity}
+        </Link>
+      ),
+    },
+    {
+      label: S.stateLabels.stepUp,
+      value: stepUpStripValue,
+      tone: stepUp.active ? "healthy" : "neutral",
+    },
+  ];
+
+  return (
+    <SettingsWorkbench
+      active="security"
+      eyebrow={S.eyebrow}
+      title={S.title}
+      lead={S.lead}
+      skipLink={{ href: "#account-protection-card", label: "Skip to security content" }}
+      stateStrip={<SettingsStateStrip items={stateItems} />}
     >
       {mfaBanner ? (
         <UiAlert tone={mfaBanner.tone}>{mfaBanner.copy}</UiAlert>
@@ -224,31 +235,35 @@ export default async function SecuritySettingsPage({
         </UiAlert>
       ) : null}
 
-      {/* Local-dev marker reads as a compact pill, not a full-width alert. */}
+      {/* Development marker — a titled inline amber note, not a bare pill. */}
       {showDevBanner ? (
-        <span
-          className="billing-no-print inline-flex max-w-max items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] leading-none"
+        <div
+          role="note"
+          className="billing-no-print rounded-lg border px-3.5 py-2.5"
           style={{
             borderColor: "color-mix(in oklab, var(--warning-soft) 55%, var(--border-subtle))",
-            background: "color-mix(in oklab, var(--warning-soft) 18%, var(--surface-raised))",
-            color: "var(--warning-ink)",
+            background: "color-mix(in oklab, var(--warning-soft) 16%, var(--surface-raised))",
           }}
         >
-          <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
-          {SETTINGS_SECURITY_STRINGS.devModeCopy}
-        </span>
+          <p className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--warning-ink)]">
+            <TriangleAlert className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+            {S.devStateTitle}
+          </p>
+          <p className="mt-0.5 text-[12px] leading-snug text-[var(--text-secondary)]">
+            {S.devModeCopy}
+          </p>
+        </div>
       ) : null}
 
       {showAtRiskBanner ? (
-        <div>
-          <ChipCapsule
-            leftValue="POLICY"
-            leftLabel="UNCOVERED"
-            rightVerb="ENABLE POLICY"
-            href="#org-mfa-card"
-            tone="warning"
-          />
-        </div>
+        <UiAlert tone="warning">
+          Your workspace requires MFA, but this account has no authenticator
+          enrolled.{" "}
+          <Link href="#account-protection-card" className="ui-link font-medium">
+            Enroll an authenticator
+          </Link>{" "}
+          to keep access.
+        </UiAlert>
       ) : null}
 
       <SecuritySettingsPanel
@@ -260,6 +275,7 @@ export default async function SecuritySettingsPage({
         nextAal={nextAal}
         stepUp={stepUp}
         sessions={sessionRows}
+        mfaAvailable={!mfaUnavailable}
       />
 
       <AccountContext
@@ -275,198 +291,6 @@ export default async function SecuritySettingsPage({
       <ActivityStrip />
 
       <LegalNote />
-    </SettingsSubpageShell>
-  );
-}
-
-// Account & workspace context — a flat grouped-list directory so it reads as
-// supporting context, not a second focal surface.
-function AccountContext({
-  ctxRole,
-  providerLabel,
-  emailVerified,
-  emailConfirmedAt,
-  memberSince,
-  memberSinceIso,
-  lastSignInIso,
-}: {
-  ctxRole: string;
-  providerLabel: string;
-  emailVerified: boolean;
-  emailConfirmedAt: string | null;
-  memberSince: string | null;
-  memberSinceIso: string | null;
-  lastSignInIso: string | null;
-}) {
-  const verifiedLabel = emailConfirmedAt ? formatDate(emailConfirmedAt, "date") : null;
-  // When the only provider is "email", the EMAIL STATUS row already conveys
-  // sign-in, so the SIGN-IN METHOD row is dropped.
-  const onlyEmailProvider = providerLabel.trim().toLowerCase() === "email";
-  const rowClass =
-    "flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 py-2.5";
-  const labelClass = "ui-caps-3 text-[var(--text-tertiary)]";
-  return (
-    <section aria-labelledby="security-context-title">
-      <p className="ui-caps-2 text-[var(--accent-strong)]">
-        {SETTINGS_SECURITY_STRINGS.eyebrows.resources}
-      </p>
-      <h2
-        id="security-context-title"
-        className="mt-0.5 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]"
-      >
-        {SETTINGS_SECURITY_STRINGS.sections.resources}
-      </h2>
-      <dl className="mt-3 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
-        <div className={rowClass}>
-          <dt className={labelClass}>
-            {SETTINGS_SECURITY_STRINGS.sections.teamRoles}
-          </dt>
-          <dd className="inline-flex flex-wrap items-center justify-end gap-2 text-[13px]">
-            <ChipPair primary={ctxRole.toUpperCase()} secondary="VIEW ONLY" />
-            <ActionChip verb="Manage" href="/settings#team-access" />
-          </dd>
-        </div>
-
-        {!onlyEmailProvider ? (
-          <div className={rowClass}>
-            <dt className={labelClass}>
-              {SETTINGS_SECURITY_STRINGS.resources.signInMethod}
-            </dt>
-            <dd className="inline-flex flex-wrap items-center justify-end gap-1.5 text-[13px]">
-              {providerLabel.split(" · ").map((p) => (
-                <span
-                  key={p}
-                  className="ui-caps-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[var(--text-secondary)]"
-                >
-                  {p.toUpperCase()}
-                </span>
-              ))}
-            </dd>
-          </div>
-        ) : null}
-
-        <div className={rowClass}>
-          <dt className={labelClass}>
-            {SETTINGS_SECURITY_STRINGS.resources.emailStatus}
-          </dt>
-          <dd className="inline-flex flex-wrap items-center justify-end gap-2 text-[13px]">
-            {emailVerified ? (
-              <StatusBadge status="healthy" className="gap-1">
-                <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden />
-                {SETTINGS_SECURITY_STRINGS.emailVerifiedLabel}
-              </StatusBadge>
-            ) : (
-              <StatusBadge status="warning" className="gap-1">
-                <TriangleAlert className="h-3 w-3" strokeWidth={2} aria-hidden />
-                {SETTINGS_SECURITY_STRINGS.emailUnverifiedLabel}
-              </StatusBadge>
-            )}
-            {verifiedLabel ? (
-              <time
-                className="tabular-nums text-[12px] text-[var(--text-tertiary)]"
-                {...timeAttrs(emailConfirmedAt)}
-              >
-                {verifiedLabel}
-              </time>
-            ) : null}
-            {!emailVerified ? (
-              <Link
-                href="/auth/resend-verification"
-                className="ui-link text-[12.5px]"
-              >
-                {SETTINGS_SECURITY_STRINGS.resendVerificationCta}
-              </Link>
-            ) : null}
-          </dd>
-        </div>
-
-        {memberSince ? (
-          <div className={rowClass}>
-            <dt className={labelClass}>
-              {SETTINGS_SECURITY_STRINGS.resources.memberSince}
-            </dt>
-            <dd className="text-[13px] text-[var(--text-primary)]">
-              <time className="tabular-nums" {...timeAttrs(memberSinceIso)}>
-                {memberSince}
-              </time>
-            </dd>
-          </div>
-        ) : null}
-
-        {lastSignInIso ? (
-          <div className={rowClass}>
-            <dt className={labelClass}>
-              {SETTINGS_SECURITY_STRINGS.lastSignInLabel}
-            </dt>
-            <dd className="text-[13px] text-[var(--text-primary)]">
-              <time className="tabular-nums" {...timeAttrs(lastSignInIso)}>
-                {formatDate(lastSignInIso, "dateTime")}
-              </time>
-            </dd>
-          </div>
-        ) : null}
-
-        <div className={rowClass}>
-          <dt className={labelClass}>
-            {SETTINGS_SECURITY_STRINGS.resources.auditHistory}
-          </dt>
-          <dd className="inline-flex justify-end text-[13px]">
-            <ActionChip verb="View audit history" href="/settings/security?filter=billing" />
-          </dd>
-        </div>
-
-        <div className={rowClass}>
-          <dt className={labelClass}>
-            {SETTINGS_SECURITY_STRINGS.resources.dpaContact}
-          </dt>
-          <dd className="inline-flex justify-end text-[13px]">
-            <ActionChip
-              verb={SETTINGS_SECURITY_STRINGS.contactCta}
-              href={`mailto:${SETTINGS_SECURITY_STRINGS.contactEmail}`}
-              icon={Mail}
-            />
-          </dd>
-        </div>
-      </dl>
-    </section>
-  );
-}
-
-// Recent security activity — a compact empty state in a reserved-height area.
-function ActivityStrip() {
-  return (
-    <section aria-labelledby="security-activity-title">
-      <h2
-        id="security-activity-title"
-        title="Events retained for 90 days"
-        className="ui-caps-2 text-[var(--accent-strong)]"
-      >
-        {SETTINGS_SECURITY_STRINGS.activityEyebrow}
-      </h2>
-      <div className="mt-3 flex min-h-[4rem] items-center">
-        <DashboardEmptyState
-          icon={Inbox}
-          label={SETTINGS_SECURITY_STRINGS.activityEmptyLabel}
-          compact
-        />
-      </div>
-    </section>
-  );
-}
-
-// Required legal disclaimer — a quiet footer row on a hairline, not a focal heading.
-function LegalNote() {
-  return (
-    <section
-      aria-label="Legal"
-      className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3"
-    >
-      <p className="ui-caps-3 text-[var(--text-tertiary)]">
-        {SETTINGS_SECURITY_STRINGS.eyebrows.legal}
-      </p>
-      <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-        {SETTINGS_SECURITY_STRINGS.legalNote}
-      </p>
-    </section>
+    </SettingsWorkbench>
   );
 }

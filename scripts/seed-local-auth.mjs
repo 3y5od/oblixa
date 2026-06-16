@@ -150,8 +150,15 @@ export async function seedLocalAuth() {
   if (orgError) throw orgError;
 
   const seeded = [];
+  let ownerUserId = null;
   for (const seedUser of seedUsers) {
     const user = await upsertLocalUser(supabase, seedUser);
+
+    // The workspace-seeding user is the workspace Owner so the roster never
+    // contradicts the owner-preservation invariant ("a workspace always keeps at
+    // least one Owner"); other seeded members are Admins.
+    const role = seedUser.seedWorkspace ? "owner" : "admin";
+    if (seedUser.seedWorkspace && !ownerUserId) ownerUserId = user.id;
 
     const { error: membershipError } = await supabase
       .from("organization_members")
@@ -159,7 +166,7 @@ export async function seedLocalAuth() {
         {
           organization_id: DEFAULT_ORG_ID,
           user_id: user.id,
-          role: "admin",
+          role,
         },
         { onConflict: "organization_id,user_id" }
       );
@@ -178,6 +185,16 @@ export async function seedLocalAuth() {
     }
 
     seeded.push({ email: seedUser.email, userId: user.id });
+  }
+
+  // Record the workspace owner on the organization so settings/security and the
+  // role model resolve a real Owner (the org row is upserted before users exist).
+  if (ownerUserId) {
+    const { error: ownerError } = await supabase
+      .from("organizations")
+      .update({ owner_user_id: ownerUserId })
+      .eq("id", DEFAULT_ORG_ID);
+    if (ownerError) throw ownerError;
   }
 
   return {

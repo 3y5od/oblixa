@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Clock, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { inviteOrgMember } from "@/actions/settings";
 import { UiSelect } from "@/components/ui/ui-select";
 
@@ -9,10 +9,13 @@ interface InviteMemberFormProps {
   organizationId: string;
 }
 
+// Canonical release roles (§19/§24). The stored value `editor` maps to the
+// presentation label "Member" — the DB/role model keeps `editor` for
+// compatibility while the UI never shows the internal term.
 const ROLES = [
-  { value: "editor", label: "Editor", description: "Edit contracts and operational data." },
-  { value: "viewer", label: "Viewer", description: "Read-only access to workspace content." },
+  { value: "editor", label: "Member", description: "Confirm details, manage tasks and evidence, edit operational data." },
   { value: "admin", label: "Admin", description: "Manage members, billing, and workspace settings." },
+  { value: "viewer", label: "Viewer", description: "Read-only access to workspace data." },
 ] as const;
 
 type RoleValue = (typeof ROLES)[number]["value"];
@@ -33,15 +36,9 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
 
   return (
     <div className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-5">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <h3 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
-          Invite teammate
-        </h3>
-        <span className="ui-caps-3 inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2 py-0.5 text-[10px] text-[var(--text-tertiary)]">
-          <Clock className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-          Expires in 7 days
-        </span>
-      </div>
+      <h3 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
+        Invite a member
+      </h3>
       {/* Compact composer: labels above each control, the three controls share
           one min-h-11 baseline via `items-end` so they read as one row. */}
       <form
@@ -66,7 +63,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
       >
         <div className="min-w-0">
           <label htmlFor="invite-email" className={FIELD_LABEL}>
-            Email
+            Work email
           </label>
           <div className="relative min-w-0">
             <span
@@ -92,7 +89,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
         </div>
         <div className="min-w-0">
           <span className={FIELD_LABEL} aria-hidden>
-            Role
+            Workspace role
           </span>
           {/* Shared role picker uses the restored UiSelect option contract. */}
           <UiSelect
@@ -100,7 +97,7 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
             variant="pill"
             value={role}
             onChange={(next) => setRole(next as RoleValue)}
-            ariaLabel="Role"
+            ariaLabel="Workspace role"
             options={ROLES.map((r) => ({
               value: r.value,
               label: r.label,
@@ -123,9 +120,13 @@ export function InviteMemberForm({ organizationId }: InviteMemberFormProps) {
               : "ui-btn-secondary cursor-not-allowed text-[var(--text-tertiary)]"
           }`}
         >
-          {isPending ? "Sending…" : "Send invite"}
+          {isPending ? "Inviting…" : "Invite member"}
         </button>
       </form>
+      {/* §18 — workspace-scope + expiry trust note at the point of risk. */}
+      <p className="mt-2 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+        Invites give access to this workspace only and expire after 14 days.
+      </p>
       {/* Reserved status slot — invalid hint + server message share one
           fixed-height region so neither shifts the composer. */}
       <div

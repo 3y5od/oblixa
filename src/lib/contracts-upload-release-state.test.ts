@@ -7,7 +7,13 @@ function read(rel: string): string {
 }
 
 const pageRaw = read("src/app/(dashboard)/contracts/new/page.tsx");
-const formRaw = read("src/components/contracts/upload-form.tsx");
+const formRaw = [
+  "src/components/contracts/upload-form.tsx",
+  "src/components/contracts/upload-source-section.tsx",
+  "src/components/contracts/upload-details-section.tsx",
+  "src/components/contracts/upload-form-notices.tsx",
+  "src/components/contracts/upload-form-action-bar.tsx",
+].map(read).join("\n");
 const railRaw = read("src/components/contracts/contract-upload-rail.tsx");
 
 describe("contract upload release-state surface", () => {
@@ -19,7 +25,7 @@ describe("contract upload release-state surface", () => {
     // migration center (release-state §/contracts/new + §/contracts/bulk). It now
     // lives in the context rail beside the editor.
     expect(railRaw).toContain("Import contracts");
-    expect(railRaw).toContain("Import existing tracker");
+    expect(railRaw).toContain("Import tracker rows");
     // No Advanced/Assurance/pre-signature framing leaks into any intake surface.
     for (const raw of [pageRaw, formRaw, railRaw]) {
       expect(raw).not.toContain("Advanced");
@@ -30,20 +36,21 @@ describe("contract upload release-state surface", () => {
   });
 
   it("keeps metadata, source documents, and review path visible in the form", () => {
-    // Required identity (title/counterparty/owner/type) sits above the fold
-    // under "Contract details"; region/value/source/reference/tags move into
-    // the optional "Add more details" disclosure but every spec-mandated
-    // field label still renders in the DOM.
+    // Required identity (name/counterparty/owner/type) sits above the fold
+    // under "Contract details"; region/value/source/reference move into the
+    // optional "Optional contract details" disclosure but every spec-mandated
+    // field label still renders in the DOM. (The Tags editor was removed from
+    // this form in the intake redesign, so it is no longer asserted here.)
     for (const label of [
-      "Known contract details",
-      "Contract title",
+      "Contract details",
+      "Contract name",
       "Counterparty",
       "Contract type",
       "Region",
-      "Annual value",
+      "Contract value",
       "Source system",
       "External reference",
-      "Source documents",
+      "Source document",
       "Upload contract",
     ]) {
       expect(formRaw).toContain(label);

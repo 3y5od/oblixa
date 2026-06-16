@@ -6,8 +6,26 @@ function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
 }
 
-const pageRaw = read("src/app/(dashboard)/contracts/page.tsx");
-const tableRaw = read("src/components/contracts/contract-table.tsx");
+const pageRaw = [
+  "src/app/(dashboard)/contracts/page.tsx",
+  "src/app/(dashboard)/contracts/contracts-page-model.ts",
+  "src/app/(dashboard)/contracts/contracts-page-header.tsx",
+  "src/app/(dashboard)/contracts/contracts-filters-section.tsx",
+  "src/app/(dashboard)/contracts/contracts-active-filter-chips.tsx",
+  "src/app/(dashboard)/contracts/contracts-shortcut-strip.tsx",
+  "src/app/(dashboard)/contracts/contracts-table-section.tsx",
+]
+  .map(read)
+  .join("\n");
+const tableRaw = [
+  "src/components/contracts/contract-table.tsx",
+  "src/components/contracts/contract-table-bulk-bar.tsx",
+  "src/components/contracts/contract-table-desktop.tsx",
+  "src/components/contracts/contract-table-mobile.tsx",
+  "src/components/contracts/contract-table-chips.tsx",
+]
+  .map(read)
+  .join("\n");
 // Search + date + sort live in a dedicated client form (dirty-aware Apply,
 // custom comboboxes); the page composes it. Assertions about those axes read
 // the form source.

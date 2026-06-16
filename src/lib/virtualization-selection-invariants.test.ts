@@ -15,8 +15,14 @@ describe("V9 contract table selection invariants", () => {
   });
 
   it("contracts index passes filter fingerprint into ContractTable for cross-filter selection honesty", () => {
-    const src = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/page.tsx"), "utf8");
+    const src = [
+      "src/app/(dashboard)/contracts/page.tsx",
+      "src/app/(dashboard)/contracts/contracts-table-section.tsx",
+      "src/app/(dashboard)/contracts/contracts-page-model.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(src).toContain("ContractTable");
-    expect(src).toContain("filterFingerprint={filterFingerprint}");
+    expect(src).toContain("filterFingerprint={model.filterFingerprint}");
   });
 });

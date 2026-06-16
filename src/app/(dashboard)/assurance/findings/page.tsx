@@ -6,11 +6,8 @@ import { ApiJsonLink } from "@/components/ui/api-json-link";
 import { OperationalMetricChip, OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { getAuthContext } from "@/lib/supabase/server";
 import { assertV6PageFeature } from "@/lib/assurance/feature-guards";
-
 const SEVERITIES = ["low", "medium", "high", "critical"] as const;
-
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function firstLinkedContractId(linked: unknown): string | null {
   if (!Array.isArray(linked)) return null;
   for (const e of linked) {
@@ -23,7 +20,6 @@ function firstLinkedContractId(linked: unknown): string | null {
 const STATUSES = ["open", "in_review", "resolved", "dismissed"] as const;
 const FILTER_IDLE_CLASS = "ui-filter-pill";
 const FILTER_ACTIVE_CLASS = "ui-filter-pill ui-filter-pill-active";
-
 export default async function AssuranceFindingsPage(props: {
   searchParams: Promise<{ severity?: string; status?: string; findingType?: string; segmentId?: string }>;
 }) {

@@ -31,7 +31,11 @@ import {
   clampCalibrationWizardStep,
 } from "@/lib/onboarding/calibration-wizard-step";
 import { replaceAppHref } from "@/lib/navigation/client-navigation";
-import { FormSelect } from "@/components/ui/form-select";
+import {
+  CalibrationOptionalStep,
+  CalibrationProgressNav,
+  CalibrationStepNavigation,
+} from "@/components/onboarding/calibration-wizard-parts";
 
 const REQUIRED_FIELDS = CALIBRATION_REQUIRED_FIELD_ORDER;
 const LAST_STEP_INDEX = CALIBRATION_LAST_STEP_INDEX;
@@ -39,7 +43,7 @@ const LAST_STEP_INDEX = CALIBRATION_LAST_STEP_INDEX;
 export function CalibrationWizard(props: {
   initialRequired: Partial<CalibrationAnswersRequired>;
   initialOptional: CalibrationAnswersOptional;
-  /** onboarding spec §24.17 — from `?step=`; clamped on server. */
+  /** onboarding spec section 24.17; from `?step=`; clamped on server. */
   initialStep?: number;
 }) {
   const router = useRouter();
@@ -160,27 +164,7 @@ export function CalibrationWizard(props: {
 
   return (
     <div className="ui-page-stack motion-reduce:transition-none mx-auto max-w-2xl">
-      <nav aria-label="Questionnaire progress">
-        <p className="ui-eyebrow text-[var(--accent-strong)]">
-          Step {step + 1} of {LAST_STEP_INDEX + 1}
-        </p>
-        <ol className="mt-3 flex flex-wrap gap-2">
-          {Array.from({ length: LAST_STEP_INDEX + 1 }, (_, i) => (
-            <li key={i}>
-              <span
-                className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] px-2 text-xs ${
-                  i === step
-                    ? "bg-[var(--accent-strong)] font-semibold text-[var(--accent-fg)]"
-                    : "text-[var(--text-secondary)]"
-                }`}
-                aria-current={i === step ? "step" : undefined}
-              >
-                {i + 1}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <CalibrationProgressNav step={step} lastStepIndex={LAST_STEP_INDEX} />
       <div aria-live="polite" className="sr-only">
         {actionError ?? previewError ?? ""}
       </div>
@@ -233,52 +217,7 @@ export function CalibrationWizard(props: {
           </ul>
         )}
 
-        {step === 7 && (
-          <div className="mt-6 space-y-5">
-            <FormSelect
-              label="Industry emphasis (optional)"
-              value={opt.industry_emphasis ?? "unspecified"}
-              onChange={(v) =>
-                setOpt((o) => ({
-                  ...o,
-                  industry_emphasis: v as CalibrationAnswersOptional["industry_emphasis"],
-                }))
-              }
-              options={options.industry_emphasis.map((o) => ({
-                value: o.id,
-                label: o.label,
-              }))}
-            />
-            <FormSelect
-              label="Import volume (optional)"
-              value={opt.import_volume ?? "unknown"}
-              onChange={(v) =>
-                setOpt((o) => ({
-                  ...o,
-                  import_volume: v as CalibrationAnswersOptional["import_volume"],
-                }))
-              }
-              options={options.import_volume.map((o) => ({
-                value: o.id,
-                label: o.label,
-              }))}
-            />
-            <FormSelect
-              label="Your role (optional)"
-              value={opt.org_role ?? "unspecified"}
-              onChange={(v) =>
-                setOpt((o) => ({
-                  ...o,
-                  org_role: v as CalibrationAnswersOptional["org_role"],
-                }))
-              }
-              options={options.org_role.map((o) => ({
-                value: o.id,
-                label: o.label,
-              }))}
-            />
-          </div>
-        )}
+        {step === 7 && <CalibrationOptionalStep opt={opt} setOpt={setOpt} />}
 
         {step === LAST_STEP_INDEX && (
           <div className="mt-6 space-y-4 text-sm text-[var(--text-secondary)]">
@@ -368,23 +307,13 @@ export function CalibrationWizard(props: {
           </div>
         )}
 
-        {step < LAST_STEP_INDEX && (
-          <div className="mt-8 flex flex-wrap gap-3">
-            {step > 0 && (
-              <button type="button" className="ui-btn-secondary min-h-9 px-4 py-2" onClick={goBack}>
-                Back
-              </button>
-            )}
-            <button
-              type="button"
-              className="ui-btn-primary min-h-9 px-4 py-2"
-              disabled={!canAdvanceFromCurrent()}
-              onClick={goNext}
-            >
-              {step === 7 ? "Continue to review" : "Next"}
-            </button>
-          </div>
-        )}
+        <CalibrationStepNavigation
+          step={step}
+          lastStepIndex={LAST_STEP_INDEX}
+          canAdvance={canAdvanceFromCurrent()}
+          onBack={goBack}
+          onNext={goNext}
+        />
       </section>
     </div>
   );

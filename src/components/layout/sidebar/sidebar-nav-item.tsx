@@ -89,8 +89,8 @@ export function SidebarNavItem({
         // a parent header) so glyph and label never drift apart; the selected
         // leaf is the one place the icon takes the accent.
         <Icon
-          size={18}
-          strokeWidth={1.85}
+          size={16}
+          strokeWidth={1.75}
           className="shrink-0"
           style={{
             color: selected

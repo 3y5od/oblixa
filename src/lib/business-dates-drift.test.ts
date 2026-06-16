@@ -8,7 +8,7 @@ import { DUE_SOON_DAYS } from "./business-dates";
  */
 describe("business dates single source", () => {
   it("dashboard-upper due-soon copy derives from DUE_SOON_DAYS", () => {
-    const upper = readFileSync(join(process.cwd(), "src/components/dashboard/dashboard-upper.tsx"), "utf8");
+    const upper = readFileSync(join(process.cwd(), "src/components/dashboard/dashboard-upper-focus-cards.ts"), "utf8");
     expect(upper).toContain("DUE_SOON_DAYS");
     expect(upper).toContain("`Items in the next ${DUE_SOON_DAYS} days");
     expect(DUE_SOON_DAYS).toBe(14);

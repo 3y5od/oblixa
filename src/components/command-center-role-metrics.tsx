@@ -4,9 +4,6 @@ import { createAdminClient } from "@/lib/supabase/server";
 import type { WorkspaceRole } from "@/lib/navigation";
 import type { OperationalTone } from "@/lib/ui/operational-surface";
 import { Sparkline } from "@/components/ui/sparkline";
-
-// Derive a 7-point trend for a metric. Surfaces visual motion without a
-// time-series store; the last value is always the current count.
 function syntheticTrend(seed: string, current: number): number[] {
   const trend: number[] = [];
   for (let i = 0; i < 7; i++) {
@@ -17,16 +14,13 @@ function syntheticTrend(seed: string, current: number): number[] {
   trend[trend.length - 1] = current;
   return trend;
 }
-
 function sparklineTone(tone: OperationalTone): "neutral" | "success" | "warning" | "danger" {
   if (tone === "risk") return "danger";
   if (tone === "attention") return "warning";
   if (tone === "healthy") return "success";
   return "neutral";
 }
-
 type QuickFilter = "all" | "approvals" | "deadlines" | "data_gaps";
-
 const QUICK_FILTER_LABELS: Record<QuickFilter, string> = {
   all: "All",
   approvals: "Approvals",
@@ -151,8 +145,6 @@ export async function CommandCenterRoleMetrics(props: {
   ];
   const filterIsActive = quickFilter !== "all";
 
-  // Mark cells that fall outside the active filter scope, so they read as
-  // de-emphasized when a non-`all` filter is selected.
   function isInScope(cellKey: string): boolean {
     if (!filterIsActive) return true;
     if (quickFilter === "approvals") return cellKey === "approvals" || cellKey === "past_due";
@@ -215,8 +207,6 @@ export async function CommandCenterRoleMetrics(props: {
             >
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-center gap-1.5">
-                  {/* Tone dot — active cells get the tone-tinted dot with halo;
-                     0-value cells get a muted success dot to communicate "all clear". */}
                   <span
                     aria-hidden
                     className="relative inline-flex h-2 w-2 min-w-[0.625rem] shrink-0 items-center justify-center"
@@ -303,7 +293,6 @@ export async function CommandCenterRoleMetrics(props: {
                 strokeWidth={1.85}
                 aria-hidden
               />
-              {/* Hover popover with extended sparkline. CSS-only — no client state. */}
               <span
                 role="tooltip"
                 aria-hidden
@@ -343,8 +332,6 @@ export async function CommandCenterRoleMetrics(props: {
 }
 
 function numberColor(tone: OperationalTone, isZero: boolean): string {
-  // 0-value cells imply a healthy / clear state — render in muted success
-  // so the number visually pairs with the green Check medallion next to it.
   if (isZero) return "color-mix(in oklab, var(--success-ink) 55%, var(--text-tertiary))";
   if (tone === "risk") return "var(--danger-ink)";
   if (tone === "attention") return "var(--warning-ink)";

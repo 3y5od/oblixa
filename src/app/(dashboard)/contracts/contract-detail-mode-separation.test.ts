@@ -1,11 +1,34 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const CONTRACT_DETAIL = join(process.cwd(), "src/app/(dashboard)/contracts/[id]/page.tsx");
+const CONTRACT_DETAIL_MODEL = join(
+  process.cwd(),
+  "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts"
+);
 
 function readDetailPage() {
   return readFileSync(CONTRACT_DETAIL, "utf8");
+}
+
+function readDetailSurface() {
+  const detailDir = join(process.cwd(), "src/app/(dashboard)/contracts/[id]");
+  const extracted = readdirSync(detailDir)
+    .filter((file) => /^contract-detail.*\.(ts|tsx)$/.test(file))
+    .sort()
+    .map((file) => readFileSync(join(detailDir, file), "utf8"))
+    .join("\n");
+  return `${readDetailPage()}\n${readFileSync(CONTRACT_DETAIL_MODEL, "utf8")}\n${extracted}`;
+}
+
+function readCoreDetailRender() {
+  const detailDir = join(process.cwd(), "src/app/(dashboard)/contracts/[id]");
+  return readdirSync(detailDir)
+    .filter((file) => file.startsWith("contract-detail-core"))
+    .sort()
+    .map((file) => readFileSync(join(detailDir, file), "utf8"))
+    .join("\n");
 }
 
 function between(raw: string, start: string, end: string) {
@@ -18,7 +41,7 @@ function between(raw: string, start: string, end: string) {
 
 describe("contract detail mode separation", () => {
   it("uses named mode guards for contract detail panels", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     for (const guard of [
       "showContractWorkflowOps",
       "showContractRenewalWorkspace",
@@ -34,8 +57,7 @@ describe("contract detail mode separation", () => {
   });
 
   it("renders a Core-specific detail path before Advanced and Assurance surfaces", () => {
-    const raw = readDetailPage();
-    const corePath = between(raw, "if (isCoreContractDetail)", '<div className="space-y-7 md:space-y-8">');
+    const corePath = readCoreDetailRender();
     for (const label of [
       "Contract record",
       "Contract action summary",
@@ -56,8 +78,8 @@ describe("contract detail mode separation", () => {
     expect(corePath).toContain("DashboardPageHeader");
     expect(corePath).toContain("OwnerAssignmentForm");
     expect(corePath).toContain("shouldPrioritizeSourceDocuments");
-    expect(corePath).toContain("renderCoreSourceDocumentsSection");
-    const coreBranchInputs = between(raw, "const primaryAction =", "if (isCoreContractDetail)");
+    expect(corePath).toContain("ContractDetailCoreSourceDocuments");
+    const coreBranchInputs = between(readDetailSurface(), "const primaryAction =", "const coreDateSignal =");
     // v23 aesthetic pass: the `coreActionQueue` compute block was
     // dropped per §10.4 (eliminate redundancy) + §10.14 (subtraction
     // is a design move) — the per-signal action links + the right-
@@ -66,7 +88,6 @@ describe("contract detail mode separation", () => {
     // for the per-signal computed state.
     for (const label of [
       "Attach source file",
-      "Source documents",
       "coreReviewSignal",
     ]) {
       expect(coreBranchInputs).toContain(label);
@@ -95,28 +116,28 @@ describe("contract detail mode separation", () => {
   });
 
   it("loads and summarizes evidence gaps for Core without exposing the Assurance evidence pack", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     expect(raw).toContain("isCoreContractDetail || showContractEvidenceOps");
     expect(raw).toContain("Pending requests");
     expect(raw).toContain("Request evidence");
     expect(raw).toContain("activeV10EvidenceCount");
     expect(raw).toContain('activeTab === "evidence"');
-    const coreEvidenceSummary = between(raw, 'id="contract-evidence"', "{showContractWorkflowOps");
-    expect(coreEvidenceSummary).toContain('id="contract-evidence"');
-    expect(coreEvidenceSummary).toContain("/evidence?contract=");
-    expect(coreEvidenceSummary).not.toContain("Download evidence pack (JSON)");
+    const coreRender = readCoreDetailRender();
+    expect(coreRender).toContain('id="contract-evidence"');
+    expect(coreRender).toContain("/evidence?contract=");
+    expect(coreRender).not.toContain("Download evidence pack (JSON)");
   });
 
   it("links Core approval and work sections to Core-safe queues", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     expect(raw).toContain("/contracts/approvals?contract=");
-    expect(raw).toContain("Open approval queue");
+    expect(raw).toContain("Review approval queue");
     expect(raw).toContain("/work?contract=");
     expect(raw).toContain("Create task");
   });
 
   it("keeps Core tabs fixed to the release-state detail surface", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     const tabConfig = between(raw, "const coreTabLinks", "const advancedTabLinks");
     for (const label of [
       "Overview",
@@ -140,7 +161,7 @@ describe("contract detail mode separation", () => {
   });
 
   it("preserves Advanced workflow, renewal, routing, ownership, and collaboration surfaces", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     for (const label of [
       "Operational lifecycle",
       "Execution graph",
@@ -158,7 +179,7 @@ describe("contract detail mode separation", () => {
   });
 
   it("preserves Assurance evidence, audit, delivery history, approvals, and record controls", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     for (const label of [
       "Operational evidence pack",
       "Download evidence pack (JSON)",
@@ -176,7 +197,7 @@ describe("contract detail mode separation", () => {
   });
 
   it("keeps destructive record controls available outside assurance while gating deletion by role", () => {
-    const raw = readDetailPage();
+    const raw = readDetailSurface();
     expect(raw).toContain("const showContractRecordControls = true");
     expect(raw).toContain("{showContractRecordControls && (");
     expect(raw).toContain("const canDelete = canDeleteContracts(role as OrgRole)");

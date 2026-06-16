@@ -1,21 +1,24 @@
 import Link from "next/link";
-import { CountChip } from "@/components/ui/count-chip";
-import { REPORT_RAIL_GROUPS } from "@/components/reports/report-display";
+import {
+  REPORT_CATALOG_BLURB,
+  REPORT_RAIL_GROUPS,
+  reportCountLabel,
+} from "@/components/reports/report-display";
 import type { ReportNavigationItem } from "@/lib/reports/types";
 
 /**
- * Report selector for the Core exports surface.
- *
- * A grouped vertical rail, not a horizontal tab strip — the strip overflowed
- * and clipped labels ("Evidence rec…") because ten equal-weight tabs never fit
- * the available width. Titled groups give the list hierarchy; the active report
- * is a filled accent row with a left marker. Counts render as one uniform
- * CountChip vocabulary (a nav count is informational, not a status alarm), shown
- * only when non-zero so there is no row of "0" bubbles.
+ * Report catalog for the Core exports surface, composed as a legal index rather
+ * than a sidebar menu: titled sections separated by hairline rules, each report
+ * an index entry with a short definition and a right-aligned ledger count (a
+ * plain tabular number, like a page reference, not a status bubble). The
+ * selected report is marked by a left accent rule and a paper tint that reads as
+ * a chosen record, distinct from the faint hover wash. Counts carry an
+ * object-typed accessible label ("2 renewal rows", "4 contracts") so the number
+ * never has to be inferred.
  */
 export function ReportRail({
   items,
-  ariaLabel = "Reports",
+  ariaLabel = "Report catalog",
   className,
 }: {
   items: ReportNavigationItem[];
@@ -25,7 +28,7 @@ export function ReportRail({
   const byKey = new Map(items.map((item) => [item.key, item]));
 
   return (
-    <nav aria-label={ariaLabel} className={`flex flex-col gap-4 ${className ?? ""}`.trim()}>
+    <nav aria-label={ariaLabel} className={`flex flex-col gap-5 ${className ?? ""}`.trim()}>
       {REPORT_RAIL_GROUPS.map((group) => {
         const groupItems = group.keys
           .map((key) => byKey.get(key))
@@ -33,42 +36,73 @@ export function ReportRail({
         if (groupItems.length === 0) return null;
 
         return (
-          <div key={group.label} className="flex flex-col gap-0.5">
-            <p className="ui-caps-3 px-2.5 pb-1 text-[var(--text-tertiary)]">{group.label}</p>
-            {groupItems.map((item) => {
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  aria-current={item.active ? "page" : undefined}
-                  title={
-                    item.count > 0
-                      ? `${item.label} — ${item.count} matching ${item.count === 1 ? "record" : "records"}`
-                      : item.label
-                  }
-                  className={`ui-chip-focus relative flex min-h-9 items-center justify-between gap-2 rounded-lg py-2 pl-3.5 pr-2.5 text-[13px] leading-tight transition-colors ${
-                    item.active
-                      ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] font-semibold text-[var(--accent-strong)]"
-                      : "text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,transparent)] hover:text-[var(--text-primary)]"
-                  }`}
-                >
-                  {/* Active rail — a full-height accent marker pinned to the left
-                      edge so the selected report reads at a glance. */}
-                  {item.active ? (
-                    <span
-                      aria-hidden
-                      className="absolute left-0 inset-y-1 w-[3px] rounded-full bg-[var(--accent)]"
-                    />
-                  ) : null}
-                  <span className="min-w-0 truncate">{item.label}</span>
-                  {/* One uniform count vocabulary across every report — the
-                      active row's chip is emphasized, the rest stay subtle. */}
-                  {item.count > 0 ? (
-                    <CountChip value={item.count} emphasis={item.active ? "strong" : "subtle"} />
-                  ) : null}
-                </Link>
-              );
-            })}
+          <div key={group.label} className="flex flex-col">
+            <p className="ui-caps-3 flex items-center gap-2 px-2 pb-2 text-[10px] text-[var(--text-tertiary)]">
+              <span>{group.label}</span>
+              <span
+                aria-hidden
+                className="h-px flex-1 bg-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]"
+              />
+            </p>
+            <ul className="flex flex-col">
+              {groupItems.map((item) => {
+                const countLabel = reportCountLabel(item.key, item.count);
+                const blurb = REPORT_CATALOG_BLURB[item.key];
+                return (
+                  <li key={item.key}>
+                    <Link
+                      href={item.href}
+                      aria-current={item.active ? "page" : undefined}
+                      className={`ui-chip-focus group relative flex items-start gap-3 rounded-md py-2 pl-3 pr-2.5 transition-colors ${
+                        item.active
+                          ? "bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))]"
+                          : "hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,transparent)]"
+                      }`}
+                    >
+                      {/* Left accent rule marks the chosen record — a full-height
+                          bar pinned to the edge, present only on the active row. */}
+                      <span
+                        aria-hidden
+                        className={`absolute inset-y-1.5 left-0 w-[2.5px] rounded-full ${
+                          item.active ? "bg-[var(--accent)]" : "bg-transparent"
+                        }`}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span
+                          className={`block truncate text-[13px] leading-tight ${
+                            item.active
+                              ? "font-semibold text-[var(--accent-strong)]"
+                              : "font-medium text-[var(--text-primary)]"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11px] leading-tight text-[var(--text-tertiary)]">
+                          {blurb}
+                        </span>
+                      </span>
+                      {/* Ledger count: a right-aligned tabular number in a fixed
+                          column so the figures line up like page references.
+                          Zero recedes (a report exists but is currently empty);
+                          the accessible label names the object type. */}
+                      <span
+                        aria-hidden
+                        className={`mt-px w-9 shrink-0 text-right text-[12.5px] tabular-nums ${
+                          item.count === 0
+                            ? "text-[var(--text-tertiary)]"
+                            : item.active
+                              ? "font-semibold text-[var(--accent-strong)]"
+                              : "font-medium text-[var(--text-secondary)]"
+                        }`}
+                      >
+                        {item.count}
+                      </span>
+                      <span className="sr-only">{countLabel}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         );
       })}

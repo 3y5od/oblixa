@@ -22,3 +22,13 @@ export function formatBusinessDateAtNoon(raw: string | null | undefined, fallbac
   const parsed = parseBusinessDateAtNoon(raw);
   return parsed ? format(parsed, "MMM d, yyyy") : fallback;
 }
+
+/**
+ * Short "MMM d" rendering (e.g. "Aug 25") of a date-only value, parsed at local noon so the
+ * displayed day never drifts behind the stored value in negative-UTC-offset timezones.
+ * Use the full {@link formatBusinessDateAtNoon} for tooltips/accessible names.
+ */
+export function formatBusinessDateShort(raw: string | null | undefined, fallback = "—"): string {
+  const parsed = parseBusinessDateAtNoon(raw);
+  return parsed ? format(parsed, "MMM d") : fallback;
+}

@@ -3,9 +3,14 @@
  * the client-side ProductAnchorNav (scroll-spy + chip strip).
  *
  * Per ui-design-principles §10.18, per-section identity is a restrained tone
- * cue on the eyebrow + medallion only. The card rail, background, bullets, and
- * metric chip stay neutral so the tone reads as quiet wayfinding, not
+ * cue on the eyebrow + chapter index only. The record stage, rules, bullets,
+ * and metric stay neutral so the tone reads as quiet wayfinding, not
  * decorative color-coding.
+ *
+ * Vocabulary contract (release-state §Surface Vocabulary): user-facing copy
+ * says contract details (not fields), suggested/confirmed details (not
+ * approve/approved fields), contract requirements (not obligations), problems
+ * (not exceptions), tasks (not work), confirmations (not approvals).
  */
 
 export type SectionTone = "cool" | "warm" | "amber" | "success";
@@ -50,9 +55,8 @@ export type SectionIconName =
   | "BarChart3";
 
 /**
- * Structured metric chip — a caps label + tabular value, rendered as a
- * `<KeyValueChip>`. Replaces the older prose `microStat` mini-sentence so the
- * inline fact reads as a bounded chip rather than a floating sentence.
+ * Structured metric — a caps label + tabular value, rendered as a quiet ruled
+ * ledger tag beside the message (not a rounded pill).
  */
 export type SectionMetric = {
   label: string;
@@ -80,14 +84,14 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     number: "1",
     iconName: "FileSpreadsheet",
     eyebrow: "Replace the spreadsheet",
-    title: "Move your tracker into one live workspace",
+    title: "Move signed-contract tracking into one workspace",
     message:
-      "Reviewed terms, dates, and owners stay connected — no more re-typing the same fields across rows, tabs, and shared documents.",
+      "Confirmed terms, dates, and owners stay connected — no more re-typing the same contract details across rows, tabs, and shared documents.",
     bullets: [
       "Start with a spreadsheet import or a small contract set",
       "Keep contract records and files together",
-      "See missing owners, dates, and key fields",
-      "Turn reviewed fields into reminders, work, and reports",
+      "See missing owners, dates, and key details",
+      "Turn confirmed details into reminders, tasks, and reports",
     ],
     bulletVariant: "dot",
     tone: "cool",
@@ -99,11 +103,11 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     number: "2",
     iconName: "Database",
     eyebrow: "Upload and import",
-    title: "Add signed contracts from PDF, DOCX, or CSV",
+    title: "Upload signed contracts or import tracker rows",
     message:
-      "Bring in agreements one at a time or by CSV. Keep the original files alongside the structured fields your team will actually use.",
+      "Bring in agreements one at a time or by CSV. Keep the original files alongside the contract details your team will actually use.",
     bullets: [
-      "Upload individual agreements",
+      "Upload individual agreements as PDF or DOCX",
       "Import contract records by CSV",
       "Track files and metadata together",
       "Start with a small contract set",
@@ -117,76 +121,76 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     id: "review",
     number: "3",
     iconName: "FileText",
-    eyebrow: "Review suggested fields",
-    title: "Confirm suggested fields before you trust them",
+    eyebrow: "Confirm details",
+    title: "Confirm suggested details before they appear in reminders, tasks, and reports",
     message:
-      "Suggested fields come back source-backed and awaiting review — each tied to the snippet it was pulled from, and confirmed by a reviewer before it drives a reminder, work item, or report.",
+      "Suggested details come back source-backed and awaiting review — each tied to the contract clause it was pulled from, and confirmed by a reviewer before it drives a reminder, task, or report.",
     bullets: [
-      "Suggested fields",
-      "Source snippets from the original document",
-      "Human approval before fields become trusted data",
-      "Confidence shown as a hint, not a verdict",
+      "Suggested details",
+      "Source text from the original document",
+      "Human confirmation before details become trusted data",
+      "Model confidence shown as extraction metadata, not a trust state",
       "Manual correction at any time",
     ],
     bulletVariant: "check",
     tone: "warm",
     phaseId: "day-to-day",
-    metric: { label: "Per contract", value: "4–6 fields" },
+    metric: { label: "Per contract", value: "4–6 details" },
   },
   {
     id: "dates",
     number: "4",
     iconName: "CalendarClock",
-    eyebrow: "Track dates",
-    title: "Keep renewal and notice dates visible",
+    eyebrow: "Review dates",
+    title: "Track confirmed, calculated, suggested, and missing renewal dates",
     message:
-      "Renewal, notice, termination, and effective dates surface on a single timeline — with the owner and the relevant clause one click away.",
+      "Renewal, notice, termination, and effective dates surface on a single timeline — each with its owner, its provenance, and the relevant clause one click away.",
     bullets: [
-      "Upcoming deadlines",
+      "Renewal and notice deadlines",
       "Notice windows",
       "Owner assignment per date",
-      "Email reminder support",
-      "Renewal status",
+      "Email reminders to the owner",
+      "Confirmed, calculated, suggested, and missing states",
     ],
     bulletVariant: "check",
     tone: "warm",
     phaseId: "day-to-day",
-    metric: { label: "Reminders", value: "30 / 60 / 90 days" },
+    metric: { label: "Reminders", value: "90 / 30 / 7 days" },
   },
   {
     id: "work",
     number: "5",
     iconName: "ListChecks",
-    eyebrow: "Assign work",
-    title: "Turn obligations and follow-up into owned work",
+    eyebrow: "Create tasks",
+    title: "Turn contract requirements and follow-up into owned tasks",
     message:
-      "Convert clause-level obligations into tasks, approvals, and exceptions with named owners and due dates. Follow-up stops living in inboxes.",
+      "Convert clause-level contract requirements into tasks, confirmations, and problems with named owners and due dates. Follow-up stops living in inboxes.",
     bullets: [
       "Tasks",
-      "Approvals",
-      "Obligations",
-      "Exceptions",
+      "Confirmations",
+      "Contract requirements",
+      "Problems",
       "Due dates",
       "Owners",
     ],
     bulletVariant: "check",
     tone: "warm",
     phaseId: "day-to-day",
-    metric: { label: "Work types", value: "4" },
+    metric: { label: "Task types", value: "4" },
   },
   {
     id: "evidence",
     number: "6",
     iconName: "ShieldCheck",
-    eyebrow: "Collect evidence",
-    title: "Request and track proof of follow-up",
+    eyebrow: "Request evidence",
+    title: "Request evidence for contract requirements and tasks",
     message:
-      "When an obligation needs proof — a certificate, a renewal confirmation, a vendor attestation — request it inside the contract record and track status until it arrives.",
+      "When a contract requirement needs proof — an insurance certificate, a signed renewal notice, a vendor confirmation — request it inside the contract record and track status until it arrives.",
     bullets: [
       "Evidence requests",
       "Due dates",
       "Status tracking",
-      "Linked contracts and obligations",
+      "Linked contracts and requirements",
     ],
     bulletVariant: "check",
     tone: "amber",
@@ -197,18 +201,18 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
     id: "reports",
     number: "7",
     iconName: "BarChart3",
-    eyebrow: "Report and export",
-    title: "Produce reports without rebuilding spreadsheets",
+    eyebrow: "Export reports",
+    title: "Export contract follow-up reports without rebuilding a tracker",
     message:
       "Operational reports answer the questions your team asks every quarter: what is renewing, what is missing, what is overdue. Export anything to CSV in one click.",
     bullets: [
       "Upcoming renewals",
       "Notice deadlines",
       "Missing owners",
-      "Missing key fields",
-      "Open obligations",
-      "Overdue work",
-      "Exceptions by owner",
+      "Missing key details",
+      "Open requirements",
+      "Overdue tasks",
+      "Problems by owner",
       "Evidence requests",
       "Contract inventory",
       "Review completeness",
@@ -225,6 +229,6 @@ export const PRODUCT_SECTIONS: readonly ProductSection[] = [
  */
 export const PHASE_DESCRIPTIONS: Record<Phase["id"], string> = {
   setup: "Bring your contracts in and see what's missing.",
-  "day-to-day": "Confirm fields, watch deadlines, assign accountable work.",
+  "day-to-day": "Confirm contract details, watch deadlines, assign accountable tasks.",
   output: "Collect proof and export the reports your team needs.",
 } as const;

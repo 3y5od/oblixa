@@ -6,7 +6,7 @@ export const WORK_PRIMARY_CTA = "Create task";
 export const WORK_EMPTY_STATE = "Create a task for a contract date, requirement, approval, problem, or evidence request.";
 export const WORK_PARTIAL_DATA_TITLE = "Task data is partially unavailable";
 export const WORK_PARTIAL_DATA_REASON =
-  "Some task data returned partial results. Visible rows remain available while freshness is restored.";
+  "Task counts may be incomplete while imports or contract detail review are still processing. Visible rows remain available while freshness is restored.";
 
 export const WORK_TAB_LABELS = {
   all: "All active",
@@ -52,16 +52,16 @@ export const WORK_ACTION_LABELS = {
 } as const;
 
 // Status/type-aware verb for the single primary row action. Distinct from
-// WORK_ACTION_LABELS (the fixed overflow-menu vocabulary) so the primary
-// control can read "Approve"/"Resolve"/"Attach" without disturbing the
-// pinned menu action set.
+// WORK_ACTION_LABELS (the fixed overflow-menu vocabulary). Each label names the
+// object it acts on so the action target is unmistakable on its own (§18.6) —
+// not a bare "Review"/"Approve"/"Resolve" that leans on the column header.
 export const WORK_PRIMARY_ACTION_LABELS = {
-  complete: "Complete",
-  resolve: "Resolve",
-  review: "Review",
-  approve: "Approve",
-  attach: "Attach",
-  assign: "Assign",
+  complete: "Mark complete",
+  resolve: "Resolve problem",
+  review: "Review details",
+  approve: "Review approval request",
+  attach: "Upload evidence",
+  assign: "Assign owner",
 } as const;
 
 export const WORK_TYPE_LABELS = {
@@ -75,7 +75,7 @@ export const WORK_TYPE_LABELS = {
 } as const;
 
 export const WORK_STATUS_LABELS = {
-  open: "Open",
+  open: "Open task",
   in_progress: "In progress",
   blocked: "Cannot proceed",
   waiting: "Cannot proceed",

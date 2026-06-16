@@ -7,6 +7,7 @@ describe("Work release-state surface", () => {
   it("renders the release-state Work page structure", () => {
     const page = [
       "src/app/(dashboard)/work/page.tsx",
+      "src/app/(dashboard)/work/work-queue-surface.tsx",
       "src/app/(dashboard)/work/work-table.tsx",
     ]
       .map((file) => readFileSync(join(process.cwd(), file), "utf8"))

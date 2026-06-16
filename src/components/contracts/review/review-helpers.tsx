@@ -4,13 +4,23 @@ import type { FieldReviewQueueItem, ReviewQueueFilter } from "@/lib/field-review
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(?:T[\d:.Z+\-]+)?$/;
 
+/** Anchor id for the citation block in the evidence rail. The decision pane links
+ *  the suggested value to it (and the citation carries a matching source marker)
+ *  so a reviewer can move value → source text in one step. */
+export const SOURCE_CITATION_ANCHOR = "review-source-citation";
+
 export function isDateField(fieldName: string): boolean {
   return /(date|deadline|window|term|expiry|expiration|renewal)/.test(fieldName.toLowerCase());
 }
 
-/** Renders a stored value for display: ISO dates become "Jun 15, 2024"; empty
- *  values render the literal "Unknown". */
-export function formatSuggestedValue(value: string | null): string {
+/** Renders a stored value for display: ISO dates become "June 15, 2024" (long
+ *  month for the focal value) or "Jun 15, 2024" (compact); empty values render
+ *  the literal "Unknown". The raw ISO string is kept separately as source
+ *  metadata, so the readable form never hides the underlying value. */
+export function formatSuggestedValue(
+  value: string | null,
+  opts: { month?: "short" | "long" } = {}
+): string {
   if (!value || value.trim().length === 0) return "Unknown";
   const trimmed = value.trim();
   if (ISO_DATE_RE.test(trimmed)) {
@@ -18,7 +28,7 @@ export function formatSuggestedValue(value: string | null): string {
     if (!Number.isNaN(parsed.getTime())) {
       return parsed.toLocaleDateString("en-US", {
         year: "numeric",
-        month: "short",
+        month: opts.month ?? "short",
         day: "numeric",
         timeZone: "UTC",
       });
@@ -134,14 +144,24 @@ export function FieldTypeMedallion({ fieldName, className }: { fieldName: string
   );
 }
 
-/** Highlights the located source snippet inside a document excerpt, with
- *  screen-reader markers around the matched span. */
-export function renderExcerptWithHighlight(excerpt: string, snippet: string | null): ReactNode {
-  if (!snippet) return excerpt;
+/** Highlights the supporting span inside a document excerpt, with screen-reader
+ *  markers around the matched span. Prefers the located *value* (so the
+ *  highlight actually covers the value being confirmed); falls back to the
+ *  source snippet clause for context when the value is not located. */
+export function renderExcerptWithHighlight(
+  excerpt: string,
+  snippet: string | null,
+  valueText?: string | null,
+): ReactNode {
+  // Prefer the value span; only fall back to the snippet clause when no value
+  // was located, so a "Source found" highlight always points at the value when
+  // one exists.
+  const target = valueText && valueText.trim().length > 0 ? valueText : snippet;
+  if (!target) return excerpt;
   // Normalize whitespace the same way buildDocumentPreview does, so the visual
-  // highlight and the model's snippetLocated caption are computed from identical
+  // highlight and the model's located caption are computed from identical
   // inputs (PDF-extracted snippets often carry irregular internal whitespace).
-  const needle = snippet.replace(/\s+/g, " ").trim().slice(0, 80).toLowerCase();
+  const needle = target.replace(/\s+/g, " ").trim().slice(0, 80).toLowerCase();
   if (needle.length === 0) return excerpt;
   const lower = excerpt.toLowerCase();
   const idx = lower.indexOf(needle);
@@ -152,7 +172,7 @@ export function renderExcerptWithHighlight(excerpt: string, snippet: string | nu
       <span className="sr-only">snippet match start </span>
       <mark
         aria-hidden
-        className="rounded-[3px] bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,transparent)] px-0.5 font-medium text-[var(--text-primary)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_30%,transparent)]"
+        className="ui-source-mark-reveal rounded-[3px] bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,transparent)] px-0.5 font-medium text-[var(--text-primary)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_30%,transparent)]"
       >
         {excerpt.slice(idx, idx + needle.length)}
       </mark>

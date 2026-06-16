@@ -6,9 +6,28 @@ function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
 }
 
+function readContractTableSurface(): string {
+  return [
+    "src/components/contracts/contract-table.tsx",
+    "src/components/contracts/contract-table-bulk-bar.tsx",
+    "src/components/contracts/contract-table-empty-state.tsx",
+  ]
+    .map(read)
+    .join("\n");
+}
+
+function readContractsPageSurface(): string {
+  return [
+    "src/app/(dashboard)/contracts/page.tsx",
+    "src/app/(dashboard)/contracts/contracts-page-model.ts",
+  ]
+    .map(read)
+    .join("\n");
+}
+
 describe("V9 §9 contract list — URL filters + selection stability anchors", () => {
   it("keeps contracts page wired to shared sort + intersect id resolution", () => {
-    const page = read("src/app/(dashboard)/contracts/page.tsx");
+    const page = readContractsPageSurface();
     expect(page).toContain("parseContractListSort");
     expect(page).toContain("combineContractListIntersectIds");
     expect(page).toContain("resolveAuxiliaryContractListIntersectIds");
@@ -16,7 +35,7 @@ describe("V9 §9 contract list — URL filters + selection stability anchors", (
   });
 
   it("persists bulk selection across filters/pages with visible off-page counts", () => {
-    const table = read("src/components/contracts/contract-table.tsx");
+    const table = readContractTableSurface();
     const storage = read("src/lib/security/client-storage.ts");
     expect(storage).toContain("oblixa.contract-table.selection:");
     expect(table).toContain("writeContractTableSelection");
@@ -25,7 +44,7 @@ describe("V9 §9 contract list — URL filters + selection stability anchors", (
   });
 
   it("keeps the contracts list empty state actionable with shared EmptyState + upload CTA", () => {
-    const table = read("src/components/contracts/contract-table.tsx");
+    const table = readContractTableSurface();
     expect(table).toMatch(/EmptyState|RecoverableState/);
     expect(table).toContain('title="No contracts yet"');
     expect(table).toContain('href="/contracts/new"');

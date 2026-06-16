@@ -9,21 +9,30 @@ import {
 } from "@/lib/renewals/spec-strings";
 
 describe("Renewals release-state row signals", () => {
-  const page = readFileSync(
-    join(process.cwd(), "src/app/(dashboard)/contracts/renewals/page.tsx"),
-    "utf8"
-  );
+  const page = [
+    "src/app/(dashboard)/contracts/renewals/page.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-ledger.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-ledger-constants.ts",
+    "src/app/(dashboard)/contracts/renewals/renewal-row-cells.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewal-row-detail.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewal-action-cluster.tsx",
+  ]
+    .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+    .join("\n");
   const model = readFileSync(join(process.cwd(), "src/lib/renewals/model.ts"), "utf8");
 
   it("uses the exact release-state filters and row labels", () => {
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Date status"]);
+    // §51 — the status dimension is named for its object ("Renewal status"), not
+    // an ambiguous "Status".
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Renewal status", "Date status"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
       "Renewal date",
       "Notice deadline",
       "Owner",
-      "Status",
+      "Renewal status",
       "Next action",
     ]);
     // Filter labels are wired into <RenewalFilterBar labels={RENEWAL_FILTER_LABELS}>;

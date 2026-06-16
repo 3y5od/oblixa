@@ -43,7 +43,7 @@ describe("Core consistency (vocabulary, status, filter URL contract)", () => {
   });
 
   it("contracts list keeps canonical filter keys wired for URL round-trip", () => {
-    const page = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/contracts-page-model.ts"), "utf8");
     for (const key of [
       "exceptions",
       "review",

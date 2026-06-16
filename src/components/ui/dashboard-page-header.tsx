@@ -10,6 +10,10 @@ export interface DashboardPageHeaderProps {
   /** Optional supporting copy. Omit (or pass empty string) to render header alone.
    *  Accepts a ReactNode so callers can embed inline links. */
   lead?: ReactNode;
+  /** Optional block rendered in the LEFT title column, beneath the lead — e.g. a
+   *  left-aligned counts strip that should anchor with the page identity rather
+   *  than cluster with the right-hand actions. Additive; omit for prior layout. */
+  belowLead?: ReactNode;
   actions?: ReactNode;
   /** Optional 2-letter monogram derived from the workspace name. */
   monogram?: string;
@@ -31,6 +35,11 @@ export interface DashboardPageHeaderProps {
    *  title block. "start" (default) keeps it top-aligned; "center" anchors it to
    *  the title's vertical center so actions read as attached on tall headers. */
   actionsAlign?: "start" | "center";
+  /** Display font for the h1. "sans" (default) is unchanged app chrome; "serif"
+   *  switches the h1 to the Source Serif 4 display face for intake orientation
+   *  headings only (§5 serif for orientation moments). Other props are untouched
+   *  so every existing route renders identically. */
+  titleFont?: "sans" | "serif";
 }
 
 function monogramColors(seed: string): { bg: string; fg: string } {
@@ -56,6 +65,7 @@ export function DashboardPageHeader({
   suppressEyebrow,
   title,
   lead,
+  belowLead,
   actions,
   monogram,
   liveTick,
@@ -64,6 +74,7 @@ export function DashboardPageHeader({
   density = "default",
   titleSuffix,
   actionsAlign = "start",
+  titleFont = "sans",
 }: DashboardPageHeaderProps) {
   const monoColors = monogram ? monogramColors(monogram) : null;
   const isCompact = density === "compact";
@@ -73,7 +84,7 @@ export function DashboardPageHeader({
   // soft/circular against the accent-tinted bg + soft border.
   const tileRadius = isCompact ? "rounded-md" : "rounded-md";
   const titleScale = isCompact
-    ? "text-[1.25rem] sm:text-[1.375rem]"
+    ? "text-[1.375rem] sm:text-[1.5rem]"
     : "text-[1.75rem] sm:text-[2rem]";
   // When the title column is *only* an h1 (no eyebrow, no lead, no
   // metaStrip line above), `items-start` leaves the 40px medallion
@@ -94,7 +105,7 @@ export function DashboardPageHeader({
         {monogram && monoColors ? (
           <span
             aria-hidden
-            className={`relative inline-flex ${tileSize} shrink-0 items-center justify-center ${tileRadius} ${isCompact ? "text-[12.5px]" : "text-[14px]"} font-semibold tracking-tight shadow-[var(--shadow-1)]`}
+            className={`relative inline-flex ${tileSize} shrink-0 items-center justify-center ${tileRadius} ${isCompact ? "text-[12.5px]" : "text-[14px]"} font-semibold tracking-tight`}
             style={{ background: monoColors.bg, color: monoColors.fg }}
           >
             {monogram}
@@ -102,7 +113,7 @@ export function DashboardPageHeader({
         ) : (
           <span
             aria-hidden
-            className={`inline-flex ${tileSize} shrink-0 items-center justify-center ${tileRadius} border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]`}
+            className={`inline-flex ${tileSize} shrink-0 items-center justify-center ${tileRadius} border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]`}
           >
             {icon}
           </span>
@@ -124,7 +135,7 @@ export function DashboardPageHeader({
                     className="relative inline-flex h-2 w-2 items-center justify-center"
                   >
                     <span
-                      className="absolute inset-0 animate-pulse rounded-full"
+                      className="absolute inset-0 animate-pulse rounded-full motion-reduce:animate-none"
                       style={{
                         background:
                           "color-mix(in oklab, var(--success-ink) 28%, transparent)",
@@ -144,7 +155,7 @@ export function DashboardPageHeader({
               the eyebrow row is suppressed so the h1 sits at its
               natural baseline. */}
           <h1
-            className={`${titleScale} font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] ${showEyebrowRow ? "mt-1" : ""}`}
+            className={`${titleScale} font-semibold leading-[1.1] text-[var(--text-primary)] ${titleFont === "serif" ? "font-serif tracking-[-0.01em]" : "tracking-tight"} ${showEyebrowRow ? "mt-1" : ""}`}
           >
             <span className="inline-flex flex-wrap items-baseline gap-x-2">
               <span>{title}</span>
@@ -160,6 +171,7 @@ export function DashboardPageHeader({
               {lead}
             </p>
           ) : null}
+          {belowLead ? <div className="mt-3">{belowLead}</div> : null}
         </div>
       </div>
       {/* §5.1 right-aligned dl meta strip + action cluster. */}

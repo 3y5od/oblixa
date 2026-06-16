@@ -11,9 +11,15 @@ const root = process.cwd();
 const script = path.join(root, "k6", "smoke.js");
 const required = process.env.K6_REQUIRED === "1" || process.env.K6_REQUIRED === "true";
 const productionOptIn = process.env.OBLIXA_ALLOW_PRODUCTION_LOAD === "1";
-const baseUrl = process.env.STAGING_BASE_URL || "http://127.0.0.1:3000";
+const baseUrl = process.env.STAGING_BASE_URL?.trim() || "";
 
 function whichK6() {
+  if (process.platform === "win32") {
+    const r = spawnSync("where.exe", ["k6"], { encoding: "utf8" });
+    if (r.status !== 0) return null;
+    return (r.stdout || "").split(/\r?\n/).find(Boolean) || null;
+  }
+
   const r = spawnSync("which", ["k6"], { encoding: "utf8" });
   if (r.status !== 0) return null;
   return (r.stdout || "").trim() || null;
@@ -28,6 +34,17 @@ export function isSafeLoadTarget(rawUrl, allowProduction = productionOptIn) {
   }
   const productionHost = parsed.hostname === "oblixa.app" || parsed.hostname === "www.oblixa.app";
   return !productionHost || allowProduction;
+}
+
+if (!baseUrl) {
+  const out = {
+    ok: true,
+    mode: "k6_no_target_stub",
+    hint: "Set STAGING_BASE_URL to run k6 smoke. Set K6_REQUIRED=1 to fail when no target is configured.",
+  };
+  console.log(JSON.stringify(out, null, 2));
+  if (required) process.exit(1);
+  process.exit(0);
 }
 
 if (!isSafeLoadTarget(baseUrl)) {

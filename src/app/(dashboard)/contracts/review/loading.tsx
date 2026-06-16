@@ -6,20 +6,14 @@ export default function ReviewQueueLoading() {
       </div>
       <div className="ui-page-stack-dense mx-auto w-full max-w-7xl" aria-hidden aria-busy="true">
         <div className="flex flex-col gap-2">
-          <div className="ui-skeleton h-7 w-36 rounded-full" />
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex min-w-0 items-start gap-3.5">
-              <div className="ui-skeleton h-10 w-10 rounded-xl" />
-              <div className="min-w-0 space-y-2">
-                <div className="ui-skeleton h-3 w-28 rounded" />
-                <div className="ui-skeleton h-8 w-52 rounded" />
-                <div className="ui-skeleton h-3 w-80 max-w-full rounded" />
-              </div>
+          <div className="ui-skeleton h-4 w-32 rounded" />
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+            <div className="min-w-0 space-y-2">
+              <div className="ui-skeleton h-3 w-24 rounded" />
+              <div className="ui-skeleton h-8 w-52 rounded" />
+              <div className="ui-skeleton h-3 w-80 max-w-full rounded" />
             </div>
-            <div className="hidden gap-2 sm:flex">
-              <div className="ui-skeleton h-5 w-28 rounded-full" />
-              <div className="ui-skeleton h-5 w-20 rounded-full" />
-            </div>
+            <div className="ui-skeleton hidden h-12 w-60 rounded-xl sm:block" />
           </div>
         </div>
 

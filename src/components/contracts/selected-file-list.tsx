@@ -19,7 +19,7 @@ function fileTypeLabel(type: string): string {
 export function SelectedFileList({ files, onRemove, disabled }: SelectedFileListProps) {
   if (files.length === 0) return null;
   return (
-    <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] overflow-hidden rounded-xl border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--surface-raised))]">
+    <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--surface-raised))]">
       {files.map((file, i) => (
         <li
           key={`${file.name}-${i}`}

@@ -637,7 +637,12 @@ for (const symbol of [
   if (!operationalContracts.includes(symbol)) failures.push(`missing-operational-contract-symbol:${symbol}`);
 }
 
-const settingsHealthPage = readFileSync(join(root, "src/app/(dashboard)/settings/health/page.tsx"), "utf8");
+const settingsHealthPage = [
+  "src/app/(dashboard)/settings/health/page.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-support-disclosure.tsx",
+]
+  .map((file) => readFileSync(join(root, file), "utf8"))
+  .join("\n");
 for (const anchor of ["v10-runtime", "mutations", "artifacts", "providers", "canary", "support", "rollback"]) {
   if (!settingsHealthPage.includes(`id={anchor}`) && !settingsHealthPage.includes(`id="${anchor}"`)) {
     failures.push(`missing-settings-health-anchor:${anchor}`);

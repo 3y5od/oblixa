@@ -11,10 +11,13 @@ describe("settings product calibration UI markers", () => {
     expect(raw).toContain("settingsCalibrationMarkers.historyDetails");
     expect(raw).toContain("settingsCalibrationMarkers.lastAppliedDetails");
     expect(raw).toContain("settingsCalibrationMarkers.lastRecommendationDetails");
-    const page = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/settings/product/page.tsx"),
-      "utf8"
-    );
+    const page = [
+      readFileSync(join(process.cwd(), "src/app/(dashboard)/settings/product/page.tsx"), "utf8"),
+      readFileSync(
+        join(process.cwd(), "src/app/(dashboard)/settings/product/settings-product-page-sections.tsx"),
+        "utf8"
+      ),
+    ].join("\n");
     expect(page).toContain("SettingsProductCalibrationSummary");
     expect(page).toContain("data-settings-calibration-summary");
   });

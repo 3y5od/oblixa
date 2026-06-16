@@ -1,4 +1,8 @@
-import { SETTINGS_DESTINATION_STRINGS, SETTINGS_GROUP_STRINGS } from "@/lib/settings/spec-strings";
+import {
+  SETTINGS_DESTINATION_STRINGS,
+  SETTINGS_GROUP_STRINGS,
+  SETTINGS_OPERATIONS_TRUST_NOTE,
+} from "@/lib/settings/spec-strings";
 import type { OrgRole } from "@/lib/types";
 import {
   canInviteWorkspaceMembers,
@@ -67,7 +71,29 @@ export type WorkspaceSettingsViewModel = {
   statusSummary: SettingsStatusSummary;
   canInviteMembers: boolean;
   canEditWorkspaceIdentity: boolean;
+  billingLabel: string;
+  billingTone: SettingsStatusTone;
 };
+
+// Maps the page's raw plan label into a canonical access/billing state phrase
+// (release-state Billing And Access State Matrix). A workspace with no active
+// subscription is in "Approved access", not a pricing tier or a pending review.
+// Trialing is provider-recovery only and never surfaced as a trial.
+export function billingAccessLabel(planLabel?: string | null): {
+  label: string;
+  tone: SettingsStatusTone;
+} {
+  const raw = (planLabel ?? "").trim().toLowerCase();
+  if (!raw || raw === "no plan") return { label: "Approved access", tone: "neutral" };
+  if (raw === "trialing") return { label: "Approved access", tone: "neutral" };
+  if (raw === "active" || raw === "active paid") return { label: "Active paid", tone: "neutral" };
+  if (raw === "past due" || raw === "past_due") return { label: "Past due", tone: "attention" };
+  if (raw === "canceled" || raw === "cancelled") return { label: "Canceled", tone: "attention" };
+  if (raw === "unpaid") return { label: "Unpaid", tone: "attention" };
+  if (raw === "provider unavailable") return { label: "Provider unavailable", tone: "attention" };
+  // Humanize any other provider status (already underscore-stripped upstream).
+  return { label: raw.replace(/\b\w/g, (c) => c.toUpperCase()), tone: "neutral" };
+}
 
 export const WORKSPACE_SETTINGS_ROLE_LABELS: Record<string, string> = {
   owner: "Owner",
@@ -92,14 +118,24 @@ const GROUP_META: Array<Omit<SettingsDestinationGroup, "destinations">> = [
   // header below makes that split clear, so no per-group explainer prose is
   // needed here (it previously read as loose text under the row).
   { key: "workspace", title: SETTINGS_GROUP_STRINGS.workspace, description: "" },
-  { key: "operations", title: SETTINGS_GROUP_STRINGS.operations, description: "" },
+  // Export scope is disclosed at the point of risk (design §20).
+  { key: "operations", title: SETTINGS_GROUP_STRINGS.operations, description: SETTINGS_OPERATIONS_TRUST_NOTE },
 ];
 
-// IA: the directory lists only settings that open their own page. Profile,
-// Workspace, and Team are edited inline in their own cards on /settings, so
-// they are intentionally NOT directory rows — that removes the "row + inline
-// card" duplication that made the page read as two competing surfaces.
+// IA: the directory is the full index of settings areas. Account-and-profile,
+// Workspace identity, and Team access are edited inline in their own panels on
+// /settings, so their rows are anchor jump-links into those panels; the
+// remaining rows open dedicated pages. Each row carries a current-state value so
+// the index reads as an administrative overview, not a bare link list.
 const BASE_DESTINATIONS: BaseDestination[] = [
+  {
+    key: "profile",
+    group: "account",
+    title: SETTINGS_DESTINATION_STRINGS.profile.title,
+    description: SETTINGS_DESTINATION_STRINGS.profile.description,
+    href: "#profile",
+    actionLabel: SETTINGS_DESTINATION_STRINGS.profile.actionLabel,
+  },
   {
     key: "security",
     group: "account",
@@ -108,6 +144,22 @@ const BASE_DESTINATIONS: BaseDestination[] = [
     href: "/settings/security",
     actionLabel: SETTINGS_DESTINATION_STRINGS.security.actionLabel,
     currentStateLabel: SETTINGS_DESTINATION_STRINGS.security.currentStateLabel,
+  },
+  {
+    key: "workspace",
+    group: "workspace",
+    title: SETTINGS_DESTINATION_STRINGS.workspace.title,
+    description: SETTINGS_DESTINATION_STRINGS.workspace.description,
+    href: "#workspace-identity",
+    actionLabel: SETTINGS_DESTINATION_STRINGS.workspace.actionLabel,
+  },
+  {
+    key: "team",
+    group: "workspace",
+    title: SETTINGS_DESTINATION_STRINGS.team.title,
+    description: SETTINGS_DESTINATION_STRINGS.team.description,
+    href: "#team-access",
+    actionLabel: SETTINGS_DESTINATION_STRINGS.team.actionLabel,
   },
   {
     key: "billing",
@@ -186,8 +238,9 @@ function destinationCurrentStateLabel(
   }
   if (dest.key === "billing") {
     // Access-status framing, not a pricing tier: a workspace with no Stripe
-    // subscription is in access review, not on a "Free" plan.
-    return input.planLabel && input.planLabel !== "No plan" ? input.planLabel : "Access review";
+    // subscription is in approved access, not on a "Free" plan or pending
+    // review. Provider statuses are mapped to canonical billing-state phrases.
+    return billingAccessLabel(input.planLabel).label;
   }
   return dest.currentStateLabel;
 }
@@ -211,6 +264,7 @@ function buildDestination(
         ? "Ask a workspace admin to change notification defaults."
         : "Only admins can change this setting."
       : undefined;
+  const billingTone = dest.key === "billing" ? billingAccessLabel(input.planLabel).tone : undefined;
   return {
     ...dest,
     state,
@@ -218,7 +272,12 @@ function buildDestination(
     currentStateLabel: destinationCurrentStateLabel(dest, input),
     noteLabel: unavailableReason,
     statusLabel: dest.key === "team" && input.pendingInviteCount > 0 ? `${input.pendingInviteCount} pending` : undefined,
-    statusTone: dest.key === "team" && input.pendingInviteCount > 0 ? "attention" : undefined,
+    statusTone:
+      dest.key === "team" && input.pendingInviteCount > 0
+        ? "attention"
+        : billingTone && billingTone !== "neutral"
+          ? billingTone
+          : undefined,
     unavailableReason,
   };
 }
@@ -272,11 +331,14 @@ export function buildWorkspaceSettingsViewModel(input: {
     destinations: destinations.filter((dest) => dest.group === group.key),
   })).filter((group) => group.destinations.length > 0);
 
+  const billing = billingAccessLabel(input.planLabel);
   return {
     roleLabel: canonicalRoleLabel(input.role, { isWorkspaceOwner: input.isWorkspaceOwner }),
     groups,
     statusSummary: { items: attentionItems(input) },
     canInviteMembers: canInviteWorkspaceMembers(input.role, input),
     canEditWorkspaceIdentity: canManageWorkspaceSettings(input.role, input),
+    billingLabel: billing.label,
+    billingTone: billing.tone,
   };
 }

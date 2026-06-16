@@ -155,9 +155,20 @@ function badgeLabel(badgeKey: NonNullable<NavItem["badgeKey"]>, value: number): 
     return `${value} pending ${value === 1 ? "approval" : "approvals"} ${value === 1 ? "needs" : "need"} action`;
   }
   if (badgeKey === "obligations") {
-    return `${value} ${value === 1 ? "obligation" : "obligations"} ${value === 1 ? "needs" : "need"} attention`;
+    return `${value} contract ${value === 1 ? "requirement needs" : "requirements need"} attention`;
   }
   return `${value} watchlist ${value === 1 ? "item" : "items"} ${value === 1 ? "needs" : "need"} attention`;
+}
+
+/* Concise count meaning for the collapsed-rail tooltip + accessible name, so a
+   collapsed icon still announces its object type and condition ("Contracts — 1
+   to review") instead of a bare route name. */
+function collapsedBadgeMeaning(badge: SidebarBadgeModel): string {
+  const n = badge.value;
+  if (badge.tone === "reviewQueue") return `${n} to review`;
+  if (badge.tone === "approvals") return `${n} ${n === 1 ? "approval" : "approvals"} to act on`;
+  if (badge.tone === "obligations") return `${n} contract ${n === 1 ? "requirement" : "requirements"}`;
+  return `${n} ${n === 1 ? "alert" : "alerts"}`;
 }
 
 function badgeForKey(
@@ -258,6 +269,7 @@ function toSidebarItem(
   // roll any child queue count up onto the parent so the pending count stays
   // discoverable as a single chip instead of an always-on subnav row.
   const rollupBadge = ownBadge ?? aggregateChildBadges(item, childBadges);
+  const resolvedBadge = input.forcedCollapsed || !active ? rollupBadge : ownBadge;
   return {
     name: item.name,
     href: item.href,
@@ -266,9 +278,9 @@ function toSidebarItem(
     children,
     exactActive,
     active,
-    badge: input.forcedCollapsed || !active ? rollupBadge : ownBadge,
+    badge: resolvedBadge,
     prefetch: sidebarPrefetch(item.href),
-    collapsedLabel: item.name,
+    collapsedLabel: resolvedBadge ? `${item.name}, ${collapsedBadgeMeaning(resolvedBadge)}` : item.name,
   };
 }
 

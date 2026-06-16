@@ -25,17 +25,17 @@ describe("UploadForm", () => {
   it("renders richer identity fields and first-value guidance", () => {
     renderWithProviders(<UploadForm organizationId="00000000-0000-0000-0000-000000000000" />);
 
-    expect(screen.getByLabelText(/contract title/i)).toBeTruthy();
+    expect(screen.getByLabelText(/contract name/i)).toBeTruthy();
     expect(screen.getByLabelText(/region/i)).toBeTruthy();
-    expect(screen.getByLabelText(/annual value/i)).toBeTruthy();
+    expect(screen.getByLabelText(/contract value/i)).toBeTruthy();
     expect(screen.getByLabelText(/source system/i)).toBeTruthy();
     expect(screen.getByLabelText(/external reference/i)).toBeTruthy();
-    expect(screen.getByText(/^known contract details$/i)).toBeTruthy();
-    expect(screen.getByText(/source documents/i)).toBeTruthy();
-    expect(screen.getByText(/file optional/i)).toBeTruthy();
+    expect(screen.getByText(/^contract details$/i)).toBeTruthy();
+    expect(screen.getByText(/^source document$/i)).toBeTruthy();
+    expect(screen.getByText(/file can be added later/i)).toBeTruthy();
     expect(screen.getByText(/uploaded files are stored for this workspace/i)).toBeTruthy();
     expect(screen.getByText(/not used in reminders or reports until someone reviews them/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^create record$/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^create contract record$/i })).toBeTruthy();
   });
 
   it("summarizes accepted, unsupported, oversized, and duplicate files", async () => {
@@ -80,9 +80,9 @@ describe("UploadForm", () => {
 
     renderWithProviders(<UploadForm organizationId="00000000-0000-0000-0000-000000000000" />);
 
-    const title = screen.getByLabelText(/contract title/i);
+    const title = screen.getByLabelText(/contract name/i);
     await user.type(title, "Hold my title");
-    await user.click(screen.getByRole("button", { name: /^create record$/i }));
+    await user.click(screen.getByRole("button", { name: /^create contract record$/i }));
 
     await waitFor(() => expect(createContractMock).toHaveBeenCalled());
     expect((screen.getByRole("alert").textContent ?? "").toLowerCase()).toMatch(/session/);
@@ -98,7 +98,7 @@ describe("UploadForm", () => {
     renderWithProviders(<UploadForm organizationId="00000000-0000-0000-0000-000000000000" />);
 
     expect(await screen.findByText(/saved in this browser/i)).toBeTruthy();
-    expect(screen.getByLabelText(/contract title/i)).toHaveProperty("value", "Resumed title");
+    expect(screen.getByLabelText(/contract name/i)).toHaveProperty("value", "Resumed title");
     expect(screen.getByLabelText(/counterparty/i)).toHaveProperty("value", "Acme");
   });
 
@@ -121,7 +121,7 @@ describe("UploadForm", () => {
       <UploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    await user.type(screen.getByLabelText(/contract title/i), "Acme Corp MSA 2025");
+    await user.type(screen.getByLabelText(/contract name/i), "Acme Corp MSA 2025");
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement | null;
     if (!fileInput) throw new Error("expected hidden file input");

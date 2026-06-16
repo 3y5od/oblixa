@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FileSpreadsheet, Search, UploadCloud } from "lucide-react";
+import { FileSpreadsheet, UploadCloud } from "lucide-react";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 import {
   DASHBOARD_PRIMARY_CTA,
@@ -99,7 +99,7 @@ export function DashboardStickyToolbar({
           <span className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">
             Contract tracking
           </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface)] px-2 py-0.5">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface)] px-2 py-0.5">
             <span className="font-mono text-[11.5px] font-semibold tabular-nums text-[var(--text-primary)]">
               {totalContracts}
             </span>
@@ -110,7 +110,8 @@ export function DashboardStickyToolbar({
           {needsReview > 0 ? (
             <Link
               href="/contracts/review"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 transition-colors hover:brightness-110"
+              aria-label={`${needsReview} ${needsReview === 1 ? "contract" : "contracts"} needing review`}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] border px-2 py-0.5 transition-colors hover:brightness-110"
               style={{
                 borderColor:
                   "color-mix(in oklab, var(--accent) 30%, var(--border-card))",
@@ -122,26 +123,21 @@ export function DashboardStickyToolbar({
                 {needsReview}
               </span>
               <span className="ui-caps-2 text-[9.5px] text-[var(--accent-strong)]">
-                To review
+                Needing review
               </span>
             </Link>
           ) : null}
         </div>
 
-        {/* Right: the same intake actions as the header, condensed. Search lands
-            on the Core /search surface. */}
+        {/* Right: the intake actions that scroll out of reach with the page
+            header (Import / Upload). Search is intentionally NOT repeated here —
+            the global topbar search is sticky and always present, so a second
+            search affordance would be redundant chrome. */}
         <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href="/search"
-            className="ui-btn-ghost inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
-          >
-            <Search className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            <span className="hidden md:inline">Search</span>
-          </Link>
           <Link
             href="/contracts/bulk"
             prefetch={false}
-            className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
+            className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-[6px] px-3 py-1.5 text-[12px] font-semibold"
           >
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             <span className="hidden md:inline">{DASHBOARD_SECONDARY_CTA}</span>
@@ -149,7 +145,7 @@ export function DashboardStickyToolbar({
           </Link>
           <Link
             href="/contracts/new"
-            className="ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
+            className="ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-[6px] px-3 py-1.5 text-[12px] font-semibold"
           >
             <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             <span className="hidden md:inline">{DASHBOARD_PRIMARY_CTA}</span>

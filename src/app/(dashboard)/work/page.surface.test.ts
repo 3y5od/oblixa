@@ -3,10 +3,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/work/page.tsx");
+const WORK_QUEUE_SURFACE = join(process.cwd(), "src/app/(dashboard)/work/work-queue-surface.tsx");
 const WORK_TABLE = join(process.cwd(), "src/app/(dashboard)/work/work-table.tsx");
 
 function readWorkSurfaceSource() {
-  return [PAGE, WORK_TABLE].map((file) => readFileSync(file, "utf8")).join("\n");
+  return [PAGE, WORK_QUEUE_SURFACE, WORK_TABLE].map((file) => readFileSync(file, "utf8")).join("\n");
 }
 
 describe("work page surface", () => {

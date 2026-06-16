@@ -15,10 +15,17 @@ const CORE_PAGES = [
 // (b) the page imports a known wrapper component that owns the class.
 const LAYOUT_WRAPPER_COMPONENTS: Record<string, string> = {
   CoreDashboard: "src/components/dashboard/core-dashboard.tsx",
+  ContractsPageView: "src/app/(dashboard)/contracts/contracts-page-view.tsx",
 };
 
 function hasTokenizedLayout(raw: string): boolean {
-  if (raw.includes("ui-page-stack") || raw.includes("ui-panel") || raw.includes("ui-card")) {
+  if (
+    raw.includes("ui-page-stack") ||
+    raw.includes("ui-panel") ||
+    raw.includes("ui-card") ||
+    raw.includes("DataSurfaceShell") ||
+    raw.includes("DataSurfaceCard")
+  ) {
     return true;
   }
   for (const [componentName, relPath] of Object.entries(LAYOUT_WRAPPER_COMPONENTS)) {
@@ -28,7 +35,9 @@ function hasTokenizedLayout(raw: string): boolean {
         if (
           wrapperRaw.includes("ui-page-stack") ||
           wrapperRaw.includes("ui-panel") ||
-          wrapperRaw.includes("ui-card")
+          wrapperRaw.includes("ui-card") ||
+          wrapperRaw.includes("DataSurfaceShell") ||
+          wrapperRaw.includes("DataSurfaceCard")
         ) {
           return true;
         }

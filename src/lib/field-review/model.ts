@@ -46,10 +46,10 @@ export interface FieldReviewQueueItem {
 
 /** Queue rail filters. Bounded enum — the page validates `?qf` against these. */
 export const REVIEW_QUEUE_FILTERS = [
-  { key: "all", label: "All" },
-  { key: "mine", label: "Mine" },
+  { key: "all", label: "All contracts" },
+  { key: "mine", label: "Assigned to me" },
   { key: "key", label: "Important" },
-  { key: "no-source", label: "No preview" },
+  { key: "no-source", label: "No source preview" },
   { key: "needs-citation", label: "Source needed" },
 ] as const;
 
@@ -95,7 +95,8 @@ export function filterReviewQueueItems(
     if (needle.length === 0) return true;
     return (
       item.title.toLowerCase().includes(needle) ||
-      (item.counterparty ?? "").toLowerCase().includes(needle)
+      (item.counterparty ?? "").toLowerCase().includes(needle) ||
+      item.ownerLabel.toLowerCase().includes(needle)
     );
   });
 }
@@ -178,6 +179,12 @@ export interface FieldReviewDocumentPreview {
   /** True when the active field's source snippet was located inside the
    *  document text (so the excerpt actually shows supporting evidence). */
   snippetLocated: boolean;
+  /** True when the active field's *value* (not just the surrounding clause) is
+   *  locatable in the document. Source-backed trust requires this — a snippet
+   *  that is found but does not contain the value does not support it. */
+  valueLocated: boolean;
+  /** The value text to highlight when {@link valueLocated}; null otherwise. */
+  valueText: string | null;
   sourceFileNames: string[];
 }
 
@@ -342,28 +349,41 @@ function buildDocumentPreview(
           ? "No searchable document text is available yet. Use the source snippet and attached file list while confirming this detail."
           : "No source file or searchable document text is attached to this contract.",
       snippetLocated: false,
+      valueLocated: false,
+      valueText: null,
       sourceFileNames,
     };
   }
 
   const snippet = activeField?.source_snippet ? normalizeWhitespace(activeField.source_snippet) : "";
+  const value = activeField?.field_value ? normalizeWhitespace(activeField.field_value) : "";
   const lowerDocument = document.toLowerCase();
   const lowerSnippet = snippet.toLowerCase();
+  const lowerValue = value.toLowerCase();
   const snippetIndex = lowerSnippet ? lowerDocument.indexOf(lowerSnippet.slice(0, 80)) : -1;
+  // Source-backed trust requires the *value* itself to be locatable in the
+  // document, not just the surrounding clause. Short values (< 4 chars) are too
+  // ambiguous to locate reliably and are treated as not-located.
+  const valueIndex = lowerValue.length >= 4 ? lowerDocument.indexOf(lowerValue) : -1;
+  const valueLocated = valueIndex > -1;
+  // Anchor the excerpt (and therefore the highlight) on the value when it is
+  // located, so the highlighted span actually contains the value being
+  // confirmed; otherwise fall back to the snippet clause for context.
+  const anchor = valueLocated ? valueIndex : snippetIndex;
   const start =
-    snippetIndex > -1
-      ? Math.max(0, snippetIndex - Math.floor(PREVIEW_EXCERPT_CHARS / 3))
-      : 0;
+    anchor > -1 ? Math.max(0, anchor - Math.floor(PREVIEW_EXCERPT_CHARS / 3)) : 0;
   const excerpt = document.slice(start, start + PREVIEW_EXCERPT_CHARS);
 
   return {
     status: "available",
-    title: snippetIndex > -1 ? "Source preview near match" : "Source preview",
+    title: valueLocated || snippetIndex > -1 ? "Source preview near match" : "Source preview",
     excerpt:
       start > 0 || start + PREVIEW_EXCERPT_CHARS < document.length
         ? `${start > 0 ? "... " : ""}${excerpt}${start + PREVIEW_EXCERPT_CHARS < document.length ? " ..." : ""}`
         : excerpt,
     snippetLocated: snippetIndex > -1,
+    valueLocated,
+    valueText: valueLocated ? value : null,
     sourceFileNames,
   };
 }
@@ -389,14 +409,17 @@ function approvedValueConflicts(approved: string | null, suggested: string | nul
 }
 
 /** Classifies a field's source support — `manual` (human-entered), `located`
- *  (AI snippet found in the document), `preview-unavailable` (AI but no document
- *  to verify against), or `snippet-missing` (AI snippet absent or not located). */
+ *  (AI value located in the document), `preview-unavailable` (AI but no document
+ *  to verify against), or `snippet-missing` (AI value not locatable, even if a
+ *  surrounding clause was found). Source-backed status keys off the *value*
+ *  being present, never just the snippet clause — a located clause that does not
+ *  contain the value does not support it (release-state Data Confidence States). */
 function deriveSourceQuality(
   field: ExtractedField,
   preview: FieldReviewDocumentPreview
 ): FieldSourceQuality {
   if (field.source !== "ai") return "manual";
-  if (preview.snippetLocated) return "located";
+  if (preview.valueLocated) return "located";
   if (preview.status !== "available") return "preview-unavailable";
   return "snippet-missing";
 }

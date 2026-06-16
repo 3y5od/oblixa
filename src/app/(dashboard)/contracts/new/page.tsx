@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowLeft, Building2, FilePlus2, UploadCloud } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
 import { UploadForm } from "@/components/contracts/upload-form";
 import {
   ContractUploadRail,
@@ -10,7 +9,6 @@ import {
 } from "@/components/contracts/contract-upload-rail";
 import type { RecentFileRow } from "@/components/contracts/recent-uploads";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
-import { CONTRACT_FILE_MAX_MB_LABEL } from "@/lib/constants/upload-limits";
 import { canEditContracts } from "@/lib/permissions";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
@@ -42,10 +40,10 @@ export default async function NewContractPage() {
               sign back in to continue.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              <Link href="/request-access" className="ui-btn-primary rounded-full px-4 py-2 text-[13px]">
+              <Link href="/request-access" className="ui-btn-primary px-4 py-2 text-[13px]">
                 Request access
               </Link>
-              <Link href="/login" className="ui-btn-ghost rounded-full px-4 py-2 text-[13px]">
+              <Link href="/login" className="ui-btn-ghost px-4 py-2 text-[13px]">
                 Back to sign in
               </Link>
             </div>
@@ -115,7 +113,7 @@ export default async function NewContractPage() {
       <div className="flex flex-col gap-4">
         <Link
           href="/contracts"
-          className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
+          className="inline-flex max-w-max items-center gap-1.5 text-[12px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
           Back to contracts
@@ -124,18 +122,12 @@ export default async function NewContractPage() {
           icon={<FilePlus2 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
           eyebrow="New contract"
           title="Upload contract"
-          lead="Upload a signed agreement, add known fields, then review source-backed suggestions."
-          metaStrip={
-            <div className="flex flex-wrap items-center gap-1.5">
-              <KeyValueChip label="Accepts" value="PDF, DOCX" />
-              <KeyValueChip label="Max" value={CONTRACT_FILE_MAX_MB_LABEL} />
-              <KeyValueChip label="Review" value="required" />
-            </div>
-          }
+          titleFont="serif"
+          lead="Upload a signed agreement so Oblixa can suggest dates, owners, and requirements for review."
           actions={
             <Link
               href="/contracts/bulk"
-              className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
+              className="ui-btn-secondary inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px] font-semibold"
             >
               <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
               Import contracts

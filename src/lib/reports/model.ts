@@ -50,14 +50,15 @@ export const REPORT_DEFINITIONS: Record<ReportKey, ReportDefinition> = {
   upcoming_renewals: {
     key: "upcoming_renewals",
     label: REPORT_LABELS.upcoming_renewals,
-    description: "Contracts with approved renewal dates inside the selected window.",
-    columns: ["Contract", "Counterparty", "Renewal date", "Owner", "Status", "Next action"],
+    description: "Contracts with a confirmed renewal date inside the selected window. Each row shows its date state.",
+    columns: ["Contract", "Counterparty", "Renewal date", "Date state", "Owner", "Status", "Next action"],
   },
   notice_deadlines: {
     key: "notice_deadlines",
     label: REPORT_LABELS.notice_deadlines,
-    description: "Notice deadlines that need attention before renewal decisions.",
-    columns: ["Contract", "Counterparty", "Notice date", "Renewal date", "Owner", "Status"],
+    description:
+      "Notice deadlines inside the selected window. Calculated deadlines are derived from the renewal date and notice window.",
+    columns: ["Contract", "Counterparty", "Notice date", "Date state", "Renewal date", "Owner", "Status"],
   },
   missing_owners: {
     key: "missing_owners",
@@ -86,8 +87,8 @@ export const REPORT_DEFINITIONS: Record<ReportKey, ReportDefinition> = {
   exceptions_by_owner: {
     key: "exceptions_by_owner",
     label: REPORT_LABELS.exceptions_by_owner,
-    description: "Open issues grouped by assigned owner.",
-    columns: ["Owner", "Open issues", "High severity", "Next due date", "Contracts"],
+    description: "Open problems grouped by assigned owner.",
+    columns: ["Owner", "Open problems", "High severity", "Next due date", "Contracts"],
   },
   evidence_requests: {
     key: "evidence_requests",
@@ -281,6 +282,7 @@ export type ReportExportJobRow = {
   exported_rows?: number | null;
   export_format?: string | null;
   filter_json?: Record<string, unknown> | null;
+  created_by?: string | null;
 };
 
 export type BuildReportsPageModelInput = ReportsModelLoadInput & {
@@ -414,7 +416,7 @@ export function buildReportsPageModel(input: BuildReportsPageModelInput): Report
     // — the previous "Never generated" duplicated the word in the rendered
     // pair ("Last generated · Never generated").
     lastGeneratedLabel: lastGeneratedAt ? formatDateTimeLabel(lastGeneratedAt) : "Never",
-    recentExports: buildRecentExports(input.exportJobs),
+    recentExports: buildRecentExports(input.exportJobs, ownerLabelById),
     filterOptions: {
       windows: REPORT_WINDOW_ORDER.map((value) => ({ value, label: REPORT_WINDOW_LABELS[value] })),
       owners: toOwnerOptions(input.members),
@@ -525,7 +527,7 @@ export async function loadReportsPageModel(
     "contract_export_jobs",
     admin
       .from("contract_export_jobs")
-      .select("status, completed_at, created_at, exported_rows, export_format, filter_json")
+      .select("status, completed_at, created_at, exported_rows, export_format, filter_json, created_by")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false })
       .limit(100)
@@ -538,6 +540,7 @@ export async function loadReportsPageModel(
       ...obligations.map((row) => row.owner_id).filter(Boolean),
       ...exceptions.map((row) => row.owner_id).filter(Boolean),
       ...evidenceRequirements.map((row) => row.reviewer_id).filter(Boolean),
+      ...exportJobs.map((row) => row.created_by).filter(Boolean),
     ] as string[]),
   ];
   const members = await loadOrgMemberProfileRows(admin, orgId, {
@@ -617,11 +620,14 @@ function buildUpcomingRenewalsRows(context: ReportBuildContext) {
       if (!renewalDate || renewalDate < context.today || renewalDate > windowEnd) return null;
       return contractRow(contract, context, {
         "Renewal date": formatDateLabel(renewalDate),
-        // These rows already have an approved renewal date, so the step is to
-        // open the renewal — not "review"/"monitor" it (which implied either
-        // unreviewed data or ongoing decision-intelligence). Missing-notice rows
-        // still need the date added first.
-        "Next action": approvedDate(fields, NOTICE_DATE_FIELDS) || computedNoticeDate(fields) ? "Open renewal" : "Add notice date",
+        // Only approved renewal dates reach this report, so the date is trusted
+        // operational data — surface that provenance explicitly rather than
+        // letting the reader assume it.
+        "Date state": "Confirmed",
+        // The action opens the contract detail (where the renewal is acted on),
+        // so it names that destination. Rows still missing a notice date keep a
+        // specific "add the date" step.
+        "Next action": approvedDate(fields, NOTICE_DATE_FIELDS) || computedNoticeDate(fields) ? "Open contract" : "Add notice date",
       });
     })
     .filter(isPresent)
@@ -635,10 +641,14 @@ function buildNoticeDeadlineRows(context: ReportBuildContext) {
     .map((contract) => {
       const fields = context.fieldsByContract.get(contract.id) ?? [];
       const renewalDate = approvedDate(fields, RENEWAL_DATE_FIELDS);
-      const noticeDate = approvedDate(fields, NOTICE_DATE_FIELDS) ?? computedNoticeDate(fields);
+      const approvedNotice = approvedDate(fields, NOTICE_DATE_FIELDS);
+      const noticeDate = approvedNotice ?? computedNoticeDate(fields);
       if (!noticeDate || noticeDate < context.today || noticeDate > windowEnd) return null;
       return contractRow(contract, context, {
         "Notice date": formatDateLabel(noticeDate),
+        // A confirmed notice date is trusted; a derived one is labeled Calculated
+        // so a reader never mistakes the basis for confirmed input.
+        "Date state": approvedNotice ? "Confirmed" : "Calculated",
         "Renewal date": renewalDate ? formatDateLabel(renewalDate) : "Missing",
       });
     })
@@ -742,7 +752,7 @@ function buildExceptionsByOwnerRows(context: ReportBuildContext) {
         href: "/contracts/exceptions",
         cells: {
           Owner: ownerLabel(context, ownerId),
-          "Open issues": String(exceptions.length),
+          "Open problems": String(exceptions.length),
           "High severity": String(exceptions.filter((exception) => normalizeToken(exception.severity) === "high").length),
           "Next due date": formatDateLabel(nextDue),
           Contracts: String(contracts.size),
@@ -753,7 +763,7 @@ function buildExceptionsByOwnerRows(context: ReportBuildContext) {
       };
     })
     .filter((row) => matchesRowFilters(row, context.filters))
-    .sort((a, b) => Number(b.cells["Open issues"]) - Number(a.cells["Open issues"]));
+    .sort((a, b) => Number(b.cells["Open problems"]) - Number(a.cells["Open problems"]));
 }
 
 function buildEvidenceRequestRows(context: ReportBuildContext) {
@@ -957,7 +967,11 @@ function getLastGeneratedAt(jobs: ReportExportJobRow[], report: ReportKey) {
  * contract/renewal/calendar exports sharing the table are excluded), and each
  * run is given a re-export link rebuilt from its stored report + filters.
  */
-function buildRecentExports(jobs: ReportExportJobRow[], limit = 5): ReportExportRun[] {
+function buildRecentExports(
+  jobs: ReportExportJobRow[],
+  ownerLabelById: Map<string, string>,
+  limit = 5
+): ReportExportRun[] {
   const runs: ReportExportRun[] = [];
   for (const job of jobs) {
     const fj = (job.filter_json ?? {}) as Record<string, unknown>;
@@ -990,6 +1004,7 @@ function buildRecentExports(jobs: ReportExportJobRow[], limit = 5): ReportExport
       atLabel: at ? formatExportRunTime(at) : "",
       rows: typeof job.exported_rows === "number" ? job.exported_rows : null,
       format: typeof job.export_format === "string" ? job.export_format : null,
+      exportedBy: job.created_by ? ownerLabelById.get(job.created_by) ?? "Member" : "",
       href: buildReportsExportHref({ report: reportKey, filters }),
     });
     if (runs.length >= limit) break;

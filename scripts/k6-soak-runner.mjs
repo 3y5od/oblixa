@@ -9,6 +9,18 @@ const enabled = process.env.RUN_K6_SOAK === "1" || process.env.RUN_K6_SOAK === "
 const baseUrl = process.env.STAGING_BASE_URL || "http://127.0.0.1:3000";
 const productionOptIn = process.env.OBLIXA_ALLOW_PRODUCTION_LOAD === "1";
 
+function whichK6() {
+  if (process.platform === "win32") {
+    const r = spawnSync("where.exe", ["k6"], { encoding: "utf8" });
+    if (r.status !== 0) return null;
+    return (r.stdout || "").split(/\r?\n/).find(Boolean) || null;
+  }
+
+  const r = spawnSync("which", ["k6"], { encoding: "utf8" });
+  if (r.status !== 0) return null;
+  return (r.stdout || "").trim() || null;
+}
+
 export function isSafeLoadTarget(rawUrl, allowProduction = productionOptIn) {
   let parsed;
   try {
@@ -41,12 +53,11 @@ if (!isSafeLoadTarget(baseUrl)) {
   process.exit(1);
 }
 
-const r = spawnSync("which", ["k6"], { encoding: "utf8" });
-if (r.status !== 0) {
+const k6 = whichK6();
+if (!k6) {
   console.error(JSON.stringify({ ok: false, error: "k6_required_for_soak" }, null, 2));
   process.exit(1);
 }
-const k6 = (r.stdout || "").trim();
 if (!fs.existsSync(script)) process.exit(1);
 const run = spawnSync(k6, ["run", script], { stdio: "inherit", env: { ...process.env }, cwd: root });
 process.exit(run.status ?? 1);

@@ -20,6 +20,8 @@ export interface DashboardPanelHeaderProps {
   titleId?: string;
   /** Section total. Rendered as a count chip attached to the title (omit / 0 → none). */
   count?: number;
+  /** Optional object-class noun (plural) for the count chip ("6 tasks"). */
+  countUnit?: string;
   /** Optional sentence-case panel action (e.g. "Review fields"). */
   action?: DashboardPanelAction;
   className?: string;
@@ -37,6 +39,7 @@ export function DashboardPanelHeader({
   description,
   titleId,
   count,
+  countUnit,
   action,
   className,
 }: DashboardPanelHeaderProps) {
@@ -44,25 +47,27 @@ export function DashboardPanelHeader({
     <div
       className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-4 py-3 ${className ?? ""}`.trim()}
     >
-      <div className="flex min-w-0 items-start gap-2.5">
-        <span
+      <div className="flex min-w-0 items-start gap-2">
+        {/* Bare quiet glyph — the title carries panel identity; a boxed icon tile
+            per panel reads as repeated component noise (§Navigation: identity
+            through title/content, not icon tiles). */}
+        <Icon
           aria-hidden
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface-raised))] text-[var(--text-tertiary)]"
-        >
-          <Icon className="h-3.5 w-3.5" strokeWidth={1.85} />
-        </span>
+          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
+          strokeWidth={1.85}
+        />
         <div className="min-w-0">
           <h2
             id={titleId}
-            className="ui-caps-2 inline-flex min-w-0 items-center gap-1.5 text-[11px] text-[var(--text-secondary)]"
+            className="inline-flex min-w-0 items-center gap-2 text-[13.5px] font-semibold tracking-tight text-[var(--text-primary)]"
           >
             <span className="min-w-0 truncate">{title}</span>
             {typeof count === "number" && count > 0 ? (
-              <CountChip value={count} emphasis="strong" className="shrink-0" />
+              <CountChip value={count} unit={countUnit} emphasis="strong" className="shrink-0" />
             ) : null}
           </h2>
           {description ? (
-            <p className="mt-1 max-w-2xl text-[12px] font-medium leading-snug tracking-normal text-[var(--text-tertiary)]">
+            <p className="mt-1 max-w-2xl text-[12px] font-medium leading-snug tracking-normal text-[var(--text-secondary)]">
               {description}
             </p>
           ) : null}
@@ -82,6 +87,7 @@ export interface DashboardPanelProps {
   title: string;
   description?: string;
   count?: number;
+  countUnit?: string;
   action?: DashboardPanelAction;
   /** Optional footer node (e.g. "Showing 6 of 104"). */
   footer?: ReactNode;
@@ -104,6 +110,7 @@ export function DashboardPanel({
   title,
   description,
   count,
+  countUnit,
   action,
   footer,
   children,
@@ -121,6 +128,7 @@ export function DashboardPanel({
         description={description}
         titleId={titleId}
         count={count}
+        countUnit={countUnit}
         action={action}
       />
       <div className={bodyClassName ?? "p-2"}>{children}</div>

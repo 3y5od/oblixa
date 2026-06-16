@@ -16,6 +16,7 @@ import {
 import { buildSidebarModel, type SidebarNavBadges } from "./sidebar-model";
 import { COLLAPSED_PREF_EVENT, DESKTOP_SIDEBAR_BODY_ID } from "./sidebar/constants";
 import { SidebarBrand } from "./sidebar/sidebar-brand";
+import { SidebarFooter } from "./sidebar/sidebar-footer";
 import { SidebarSection } from "./sidebar/sidebar-section";
 import { SidebarMobileAccount } from "./sidebar/sidebar-account";
 import { MobileDrawer, MobileNavigationTrigger } from "./sidebar/mobile-drawer";
@@ -231,8 +232,6 @@ export function Sidebar(props: {
         <SidebarBrand
           mobile={mobile}
           collapsed={bodyCollapsed}
-          isOnboarding={isOnboardingShell}
-          onToggleCollapsed={toggleCollapsed}
           onCloseMobile={closeMobileDrawer}
           closeButtonRef={mobileCloseButtonRef}
         />
@@ -252,8 +251,18 @@ export function Sidebar(props: {
           </div>
         </div>
         {/* Desktop sign-out lives in the topbar account menu (single source);
-            the mobile drawer keeps its own account section. */}
-        {mobile ? <SidebarMobileAccount /> : null}
+            the mobile drawer keeps its own account section. The desktop rail
+            gets a stable footer with the collapse control + quiet role state. */}
+        {mobile ? (
+          <SidebarMobileAccount />
+        ) : (
+          <SidebarFooter
+            collapsed={bodyCollapsed}
+            isOnboarding={isOnboardingShell}
+            role={role}
+            onToggleCollapsed={toggleCollapsed}
+          />
+        )}
       </>
     );
   };

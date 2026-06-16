@@ -1,6 +1,10 @@
 export interface CreationPipelineStep {
   label: string;
-  /** Optional qualifier chip under the step label (vertical layout only). */
+  /** Optional sentence explaining what the step does (vertical layout only). */
+  help?: string;
+  /** Optional state label shown as a chip under the step (vertical layout only).
+   *  Use a real condition ("Not started", "Owner required"), never a decorative
+   *  category tag. */
   chip?: string;
   /** Optional medallion tone. Defaults to the quiet accent medallion so steps
    *  never imply completion; pass a status tone only for genuine live state. */
@@ -8,7 +12,8 @@ export interface CreationPipelineStep {
 }
 
 export interface CreationPipelineProps {
-  /** Caps eyebrow above the steps (e.g. "After upload", "What happens next"). */
+  /** Quiet sentence-case label above the steps (e.g. "After upload", "What
+   *  happens next"). Rendered as a quiet group label, not a caps eyebrow. */
   heading?: string;
   steps: ReadonlyArray<CreationPipelineStep>;
   /** "vertical" (default) is the connected-medallion rail. "compact" flows the
@@ -59,7 +64,9 @@ export function CreationPipeline({
   return (
     <div className={className}>
       {heading ? (
-        <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">{heading}</p>
+        <p className="text-[11.5px] font-medium leading-none text-[var(--text-secondary)]">
+          {heading}
+        </p>
       ) : null}
       {layout === "compact" ? (
         <ol
@@ -95,11 +102,16 @@ export function CreationPipeline({
                   {index + 1}
                 </span>
                 <div className="min-w-0 pt-0.5">
-                  <p className="text-[12.5px] leading-snug text-[var(--text-secondary)]">
+                  <p className="text-[12.5px] font-medium leading-snug text-[var(--text-primary)]">
                     {step.label}
                   </p>
+                  {step.help ? (
+                    <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+                      {step.help}
+                    </p>
+                  ) : null}
                   {step.chip ? (
-                    <span className="ui-caps-3 mt-1 inline-flex rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[9.5px] leading-none text-[var(--text-tertiary)]">
+                    <span className="mt-1.5 inline-flex rounded-[3px] border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10.5px] leading-none text-[var(--text-tertiary)]">
                       {step.chip}
                     </span>
                   ) : null}

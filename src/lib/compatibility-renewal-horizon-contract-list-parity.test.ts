@@ -10,10 +10,12 @@ import { RENEWAL_WINDOW_LABELS } from "@/lib/renewals/spec-strings";
 
 describe("renewals legacy horizon compatibility", () => {
   it("keeps old contracts-list deadline presets accepted as aliases, without rendering horizon controls", () => {
-    const contracts = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/contracts/page.tsx"),
-      "utf8"
-    );
+    const contracts = [
+      "src/app/(dashboard)/contracts/page.tsx",
+      "src/app/(dashboard)/contracts/contracts-page-model.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     const renewals = readFileSync(
       join(process.cwd(), "src/app/(dashboard)/contracts/renewals/page.tsx"),
       "utf8"

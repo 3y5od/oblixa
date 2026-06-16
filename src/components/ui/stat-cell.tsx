@@ -63,12 +63,7 @@ export function StatCell({
 }) {
   const srTone = statToneSrLabel(tone);
   return (
-    <div
-      className="rounded-2xl border border-[var(--border-card)] bg-[var(--surface-raised)] px-4 py-3"
-      style={{
-        boxShadow: "inset 0 1px 0 0 color-mix(in oklab, white 6%, transparent)",
-      }}
-    >
+    <div className="rounded-[4px] border border-[var(--border-card)] bg-[var(--surface-raised)] px-4 py-3">
       <p className="text-[9.5px] font-medium uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
         {label}
         {srTone ? <span className="sr-only"> — {srTone}</span> : null}

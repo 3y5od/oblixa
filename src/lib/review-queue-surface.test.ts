@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -23,10 +23,12 @@ describe("V9 §11 review queue — throughput + save-next anchors", () => {
   });
 
   it("contract detail keeps save-next telemetry link on review continuity strip", () => {
-    const raw = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/contracts/[id]/page.tsx"),
-      "utf8"
-    );
+    const detailDir = join(process.cwd(), "src/app/(dashboard)/contracts/[id]");
+    const raw = readdirSync(detailDir)
+      .filter((file) => file === "page.tsx" || /^contract-detail.*\.(ts|tsx)$/.test(file))
+      .sort()
+      .map((file) => readFileSync(join(detailDir, file), "utf8"))
+      .join("\n");
     expect(raw).toContain("ReviewSaveNextTelemetryLink");
     expect(raw).toContain("fetchReviewQueueContinuity");
   });

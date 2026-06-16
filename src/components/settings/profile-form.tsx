@@ -72,11 +72,16 @@ export function ProfileForm({ fullName, email }: ProfileFormProps) {
               id="profile-email-readonly"
               title={email}
               aria-readonly="true"
+              aria-describedby="profile-email-help"
               className="ui-input flex min-h-11 w-full min-w-0 cursor-default items-center border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] pl-9 font-mono text-[12.5px] text-[var(--text-tertiary)]"
             >
               <span className="truncate">{email}</span>
             </div>
           </div>
+          {/* §28 — explain why the field is read-only and where to recover. */}
+          <p id="profile-email-help" className="mt-1.5 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+            Contact support to change the email for this account.
+          </p>
         </div>
       </div>
       <SaveFooter

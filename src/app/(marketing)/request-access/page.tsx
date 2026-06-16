@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 const fitChecklist = [
   "Signed contracts already exist and need operational follow-up",
   "A spreadsheet, folder, inbox, calendar, or memory is the current tracker",
-  "Renewals, owners, obligations, evidence, or reports are becoming unreliable",
+  "Renewals, owners, contract requirements, evidence, or reports are becoming unreliable",
   "The first workspace can start with a bounded contract set",
 ] as const;
 
@@ -77,7 +77,7 @@ export default function RequestAccessPage() {
               Track what signed contracts <GradientPhrase>require next</GradientPhrase>.
             </h1>
             <p className="mt-4 max-w-xl text-[14.5px] leading-[1.6] text-[var(--text-secondary)] sm:text-[15.5px]">
-              Oblixa tracks renewals, owners, obligations, evidence, and reports after signature.
+              Oblixa tracks renewals, owners, contract requirements, evidence, and reports after signature.
               Reviewed workspace access keeps the first workspace bounded — clear owner, data
               boundary, and a paid Core plan.
             </p>

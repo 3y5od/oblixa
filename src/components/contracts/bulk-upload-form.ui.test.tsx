@@ -37,13 +37,16 @@ describe("BulkUploadForm", () => {
     );
 
     // The tablist keeps its "Import source" aria-label; the two tabs are
-    // named by source ("Tracker spreadsheet" / "Signed contracts"). The
-    // requirements section is "Spreadsheet columns" and renders each
-    // importable column as a chip with its human label + snake_case
-    // authoring header.
+    // named by source ("Tracker CSV" / "Signed contract files"). The
+    // requirements section is now the ImportSchemaTable titled "Tracker CSV
+    // requirements" and renders each importable column as a table row with its
+    // human label + snake_case authoring header. The human label for the title
+    // column is now "Contract name" (the CSV header token stays `title`).
     expect(screen.getByRole("tablist", { name: /import source/i })).toBeTruthy();
-    expect(screen.getByText(/spreadsheet columns/i)).toBeTruthy();
-    expect(screen.getByText("Contract title")).toBeTruthy();
+    // "Tracker CSV requirements" renders twice — the visible header band <p>
+    // and the ImportSchemaTable's sr-only <caption> — so match all instances.
+    expect(screen.getAllByText(/tracker csv requirements/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("Contract name")).toBeTruthy();
     expect(screen.getByText("external_reference_id")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText(/csv file/i), {
@@ -82,10 +85,10 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /signed contracts/i }));
-    // The signed-contracts tab is anchored by the field label + dropzone
-    // + format hint; the file input keeps its "Signed PDF or DOCX files"
-    // accessible name.
+    fireEvent.click(screen.getByRole("tab", { name: /signed contract files/i }));
+    // The signed-contract-files tab is anchored by the field label +
+    // dropzone + format hint; the file input keeps its "Signed PDF or DOCX
+    // files" accessible name.
     expect(screen.getByLabelText(/signed pdf or docx files/i)).toBeTruthy();
     expect(screen.getByText(/uploaded files are stored for this workspace/i)).toBeTruthy();
     expect(screen.getByText(/not used in reminders or reports until someone reviews them/i)).toBeTruthy();
@@ -115,7 +118,7 @@ describe("BulkUploadForm", () => {
       <BulkUploadForm organizationId="00000000-0000-0000-0000-000000000000" />
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /signed contracts/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /signed contract files/i }));
     const input = screen.getByLabelText(/signed pdf or docx files/i) as HTMLInputElement | null;
     if (!input) throw new Error("expected signed file input");
     fireEvent.change(input, {

@@ -54,6 +54,7 @@ function build(input: {
   counterparty?: string;
   status?: string;
   review?: string;
+  sort?: string;
   window?: string;
   horizon?: string;
   warnings?: string[];
@@ -68,6 +69,7 @@ function build(input: {
     counterparty: input.counterparty,
     status: input.status,
     review: input.review,
+    sort: input.sort,
     contracts: input.contracts ?? [],
     fields: input.fields ?? [],
     checkpoints: input.checkpoints ?? [],
@@ -252,5 +254,64 @@ describe("renewals page model", () => {
     });
     expect(model.warnings).toEqual(["work_items"]);
     expect(model.rows).toHaveLength(1);
+  });
+
+  it("exposes the notice-window basis and an urgency-banded computed row", () => {
+    const model = build({
+      contracts: [contract()],
+      fields: [field("c1", "renewal_date", "2026-06-20"), field("c1", "notice_window", "30 days")],
+      window: "90",
+    });
+    const row = model.rows[0];
+    expect(row?.noticeWindowDays).toBe(30);
+    expect(row?.noticeDateIsComputed).toBe(true);
+    expect(row?.reportIncluded).toBe(true);
+    // Owner assigned, both dates present, notice deadline 3 days out → notice_30 band.
+    expect(row?.group).toBe("notice_30");
+    expect(row?.consequence.label).toContain("No action needed before");
+    expect(row?.consequence.tone).toBe("neutral");
+  });
+
+  it("derives a confirm-first consequence for unconfirmed rows", () => {
+    const model = build({
+      contracts: [contract()],
+      fields: [field("c1", "renewal_date", "2026-07-01", "pending")],
+      status: "needs_review",
+    });
+    const row = model.rows[0];
+    expect(row?.status).toBe("needs_review");
+    expect(row?.group).toBe("unconfirmed");
+    expect(row?.consequence.tone).toBe("warning");
+    expect(row?.consequence.label).toContain("Confirm the renewal and notice dates");
+  });
+
+  it("sorts by soonest notice vs soonest renewal independently", () => {
+    const fixtures = {
+      contracts: [
+        contract({ id: "c1", title: "C1", counterparty: "C1" }),
+        contract({ id: "c2", title: "C2", counterparty: "C2" }),
+      ],
+      fields: [
+        // c1: notice 2026-06-15 (later notice), renewal 2026-06-20 (sooner renewal).
+        field("c1", "renewal_date", "2026-06-20"),
+        field("c1", "notice_date", "2026-06-15"),
+        // c2: notice 2026-06-10 (sooner notice), renewal 2026-09-01 (later renewal).
+        field("c2", "renewal_date", "2026-09-01"),
+        field("c2", "notice_date", "2026-06-10"),
+      ],
+      window: "90",
+    };
+    expect(build({ ...fixtures, sort: "notice" }).rows.map((r) => r.id)).toEqual(["c2", "c1"]);
+    expect(build({ ...fixtures, sort: "renewal" }).rows.map((r) => r.id)).toEqual(["c1", "c2"]);
+    // The default urgent sort turns on grouping; an explicit sort flattens it.
+    expect(build({ ...fixtures }).grouped).toBe(true);
+    expect(build({ ...fixtures, sort: "notice" }).grouped).toBe(false);
+  });
+
+  it("counts contracts with no date at all as missing-date contracts", () => {
+    const model = build({ contracts: [contract({ id: "c1" })], fields: [] });
+    expect(model.rows).toHaveLength(0); // no date → never enters a window
+    expect(model.summary.hasAnyContracts).toBe(true);
+    expect(model.summary.missingDates).toBe(1);
   });
 });

@@ -4,10 +4,13 @@ import { describe, expect, it } from "vitest";
 
 describe("V9 §14 exceptions — page + priority + mutation panels", () => {
   it("exceptions page composes mutation panels and server actions", () => {
-    const page = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/contracts/exceptions/page.tsx"),
-      "utf8"
-    );
+    const page = [
+      "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      "src/app/(dashboard)/contracts/exceptions/exceptions-page-view.tsx",
+      "src/app/(dashboard)/contracts/exceptions/exception-ledger-row.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(page).toContain("ExceptionMutationPanels");
     expect(page).toContain("WorkspaceRequiredState");
     expect(page).toContain("PermissionEligibilityHint");

@@ -8,9 +8,9 @@ import {
   CalendarClock,
   ChevronRight,
   FileCheck2,
-  Files,
+  FileText,
   LayoutDashboard,
-  ListTodo,
+  ListChecks,
   Search as SearchIcon,
   Settings as SettingsIcon,
   Wrench,
@@ -34,8 +34,8 @@ const SETTINGS: Crumb = { label: "Settings", href: "/settings" };
  *  orientation cue, not a status signal. Only the known Core areas get one. */
 const AREA_ICON: Record<string, LucideIcon> = {
   Dashboard: LayoutDashboard,
-  Contracts: Files,
-  Tasks: ListTodo,
+  Contracts: FileText,
+  Tasks: ListChecks,
   Renewals: CalendarClock,
   Evidence: FileCheck2,
   Reports: BarChart3,

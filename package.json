@@ -2,6 +2,7 @@
   "name": "oblixa",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.13.0",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -17,7 +18,7 @@
     "test": "npm run test:logic && npm run test:ui",
     "test:scripts": "npm run test:scripts:unit && npm run test:scripts:checks",
     "test:scripts:unit": "node scripts/run-script-tests.mjs",
-    "test:scripts:checks": "node scripts/check-outbound-fetch.mjs && node scripts/check-security-enforcement-matrix.mjs --strict && node scripts/check-subprocessors-drift.mjs && node scripts/check-next-public-surface.mjs && node scripts/check-unsafe-deserialization.mjs && node scripts/check-server-action-auth-contract.mjs && node scripts/check-deterministic-org-resolution.mjs && node scripts/check-server-action-negative-tests.mjs && node scripts/check-persistence-redaction.mjs && node scripts/check-sentry-tag-banlist.mjs && node scripts/check-p6-na-register.mjs && node scripts/check-migration-security-patterns.mjs --strict && node scripts/check-dangerously-set-inner-html.mjs && node scripts/check-sbom-diff.mjs && node scripts/check-public-seo-surface.mjs && node scripts/check-upload-banlist.mjs && node scripts/check-codeowners-security-paths.mjs && node scripts/check-docker-hardening.mjs && node scripts/check-npm-lifecycle.mjs && node scripts/check-certificate-transparency.mjs && node scripts/run-with-env.mjs CT_STRICT=1 -- node scripts/check-certificate-transparency.mjs && node scripts/check-no-executable-notebooks.mjs && node scripts/check-supply-chain-waivers.mjs && node scripts/check-postmessage-origins.mjs && node scripts/check-next-script-integrity.mjs && node scripts/run-with-env.mjs OBLIXA_STRICT_BODY_LIMITS=1 BODY_LIMIT_MIN_ROUTES=64 -- node scripts/check-json-body-limited-adoption.mjs && node scripts/check-github-scheduled-workflows-secrets.mjs && node scripts/check-api-runtime-smoke-registry.mjs && npm run check:maximal-assurance-scaffolding",
+    "test:scripts:checks": "node scripts/check-outbound-fetch.mjs && node scripts/check-security-enforcement-matrix.mjs --strict && node scripts/check-subprocessors-drift.mjs && node scripts/check-next-public-surface.mjs && node scripts/check-unsafe-deserialization.mjs && node scripts/check-server-action-auth-contract.mjs && node scripts/check-deterministic-org-resolution.mjs && node scripts/check-server-action-negative-tests.mjs && node scripts/check-persistence-redaction.mjs && node scripts/check-sentry-tag-banlist.mjs && node scripts/check-p6-na-register.mjs && node scripts/check-migration-security-patterns.mjs --strict && node scripts/check-dangerously-set-inner-html.mjs && node scripts/check-sbom-diff.mjs && node scripts/check-public-seo-surface.mjs && node scripts/check-upload-banlist.mjs && node scripts/check-codeowners-security-paths.mjs && node scripts/check-docker-hardening.mjs && node scripts/check-npm-lifecycle.mjs && node scripts/check-package-manager.mjs && node scripts/check-certificate-transparency.mjs && node scripts/run-with-env.mjs CT_STRICT=1 -- node scripts/check-certificate-transparency.mjs && node scripts/check-no-executable-notebooks.mjs && node scripts/check-supply-chain-waivers.mjs && node scripts/check-postmessage-origins.mjs && node scripts/check-next-script-integrity.mjs && node scripts/run-with-env.mjs OBLIXA_STRICT_BODY_LIMITS=1 BODY_LIMIT_MIN_ROUTES=64 -- node scripts/check-json-body-limited-adoption.mjs && node scripts/check-github-scheduled-workflows-secrets.mjs && node scripts/check-api-runtime-smoke-registry.mjs && npm run check:maximal-assurance-scaffolding",
     "test:logic": "vitest run",
     "test:logic:coverage": "vitest run --coverage",
     "test:coverage": "npm run test:logic:coverage && npm run test:ui:coverage",
@@ -422,6 +423,7 @@
     "report:security-lib-admin": "node scripts/report-server-lib-admin-usage.mjs",
     "report:security-docs": "npm run report:security-api-coverage && npm run report:security-api-auth-heuristics && npm run report:security-server-actions && npm run report:security-lib-admin",
     "report:dependency-risk": "node scripts/report-dependency-risk.mjs",
+    "check:package-manager": "node scripts/check-package-manager.mjs",
     "check:next-min-version": "node scripts/check-next-min-version.mjs",
     "report:hardening-debt": "node scripts/report-hardening-debt.mjs",
     "report:governance-owners": "node scripts/report-governance-owners.mjs",

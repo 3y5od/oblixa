@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, History, Layers, Mail, Package } from "lucide-react";
+import { History } from "lucide-react";
 import { ExternalLink } from "@/components/ui/external-link";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
+import { DigestRunsSection, ReportsHistoryDisabledState, ReportsHistorySummaryCards } from "./reports-history-sections";
 import { getAuthContext } from "@/lib/supabase/server";
 import { UiSelect } from "@/components/ui/ui-select";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { WorkspaceRole } from "@/lib/navigation";
 import {
@@ -23,17 +23,7 @@ export default async function ReportsHistoryPage(props: {
   searchParams: Promise<{ runId?: string }>;
 }) {
   if (!isFeatureEnabled("v3ReportingHistory")) {
-    return (
-      <div className="ui-card px-6 py-8">
-        <p className="ui-eyebrow">Feature flag</p>
-        <h1 className="ui-display-title mt-2">Reports history is disabled</h1>
-        <p className="mt-3 max-w-xl text-sm text-[var(--text-tertiary)]">
-          This surface is off because the server has disabled it (set{" "}
-          <code className="text-xs">ENABLE_REPORTING_HISTORY</code> to false, 0, no, or off). Remove or unset that variable
-          to turn reporting history back on.
-        </p>
-      </div>
-    );
+    return <ReportsHistoryDisabledState />;
   }
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
@@ -127,56 +117,17 @@ export default async function ReportsHistoryPage(props: {
         title="Digest run history"
         lead="Review report runs and recipient delivery/open/click engagement."
       />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <OperationalSummaryCard
-          eyebrow="Digest"
-          headline="Email digest runs"
-          tone={failedDigestRuns > 0 ? "attention" : "healthy"}
-          icon={Activity}
-          primaryValue={runRows.length}
-          breakdown={[
-            { label: "Failed", value: String(failedDigestRuns) },
-            { label: "Selected", value: selectedRunId ? "Yes" : "—" },
-          ]}
-          action={{ href: "#digest-runs", label: "Review digest runs" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Catalog"
-          headline="Report packs"
-          tone={visibleReportPacks.length > 0 ? "neutral" : "attention"}
-          icon={Package}
-          primaryValue={visibleReportPacks.length}
-          breakdown={[{ label: "Active", value: String(visibleReportPacks.filter((p) => p.active).length) }]}
-          action={{ href: "#report-packs", label: "Manage packs" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Delivery"
-          headline="Subscriptions"
-          tone={reportPackSubscriptions.length > 0 ? "healthy" : "neutral"}
-          icon={Mail}
-          primaryValue={reportPackSubscriptions.length}
-          breakdown={[
-            {
-              label: "Active",
-              value: String(reportPackSubscriptions.filter((s) => s.active).length),
-            },
-          ]}
-          action={{ href: "#subscriptions", label: "Review subscriptions" }}
-          variant="compact"
-        />
-        <OperationalSummaryCard
-          eyebrow="Automation"
-          headline="Pack run history"
-          tone={failedPackRuns > 0 ? "attention" : "healthy"}
-          icon={Layers}
-          primaryValue={packRunRows.length}
-          breakdown={[{ label: "Failed", value: String(failedPackRuns) }]}
-          action={{ href: "#pack-runs", label: "Review pack runs" }}
-          variant="compact"
-        />
-      </div>
+      <ReportsHistorySummaryCards
+        failedDigestRuns={failedDigestRuns}
+        runCount={runRows.length}
+        selectedRunId={selectedRunId}
+        reportPackCount={visibleReportPacks.length}
+        activeReportPackCount={visibleReportPacks.filter((p) => p.active).length}
+        subscriptionCount={reportPackSubscriptions.length}
+        activeSubscriptionCount={reportPackSubscriptions.filter((s) => s.active).length}
+        failedPackRuns={failedPackRuns}
+        packRunCount={packRunRows.length}
+      />
       <div className="grid gap-6 lg:grid-cols-2">
         <section id="report-packs" className="ui-page-shell scroll-mt-8 overflow-hidden lg:col-span-2">
           <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
@@ -343,33 +294,7 @@ export default async function ReportsHistoryPage(props: {
             </ul>
           )}
         </section>
-        <section id="digest-runs" className="ui-card scroll-mt-8 overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
-            <p className="ui-eyebrow">Timeline</p>
-            <h2 className="ui-section-title mt-1 text-base">Digest runs</h2>
-          </div>
-          <ul className="divide-y divide-[var(--border-subtle)]">
-            {(runs ?? []).map((run) => (
-              <li key={run.id} className="px-5 py-3 text-sm">
-                <Link
-                  href={`/contracts/reports?runId=${run.id}`}
-                  className={`block rounded-lg border px-3 py-2 ${
-                    selectedRunId === run.id
-                      ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-white"
-                      : "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,var(--canvas))]"
-                  }`}
-                >
-                  <p className="font-semibold">
-                    {run.report_mode} · {run.status}
-                  </p>
-                  <p className={`text-xs ${selectedRunId === run.id ? "text-[var(--text-tertiary)]" : "text-[var(--text-tertiary)]"}`}>
-                    {new Date(run.started_at).toLocaleString()}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <DigestRunsSection runs={runRows} selectedRunId={selectedRunId} />
         <section className="ui-card overflow-hidden">
           <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-5 py-3">
             <p className="ui-eyebrow">Engagement</p>

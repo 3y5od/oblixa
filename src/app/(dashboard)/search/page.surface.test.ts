@@ -4,6 +4,9 @@ import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/search/page.tsx");
 const VIEW = join(process.cwd(), "src/app/(dashboard)/search/search-view.tsx");
+const VIEW_STATE = join(process.cwd(), "src/app/(dashboard)/search/search-view-state.ts");
+const VIEW_FILTERS = join(process.cwd(), "src/app/(dashboard)/search/search-filter-chips.tsx");
+const VIEW_RESULTS = join(process.cwd(), "src/app/(dashboard)/search/search-results-card.tsx");
 const VIEW_BANDS = join(process.cwd(), "src/app/(dashboard)/search/search-result-bands.tsx");
 const VIEW_RAIL = join(process.cwd(), "src/app/(dashboard)/search/search-detail-rail.tsx");
 const LOADING = join(process.cwd(), "src/app/(dashboard)/search/loading.tsx");
@@ -14,7 +17,9 @@ const HELPERS = join(process.cwd(), "src/components/layout/command-palette-helpe
 const NAV = join(process.cwd(), "src/lib/navigation.ts");
 
 const pageSrc = readFileSync(PAGE, "utf8");
-const viewSrc = [VIEW, VIEW_BANDS, VIEW_RAIL].map((file) => readFileSync(file, "utf8")).join("\n");
+const viewSrc = [VIEW, VIEW_STATE, VIEW_FILTERS, VIEW_RESULTS, VIEW_BANDS, VIEW_RAIL]
+  .map((file) => readFileSync(file, "utf8"))
+  .join("\n");
 const loadingSrc = readFileSync(LOADING, "utf8");
 const errorSrc = readFileSync(ERROR, "utf8");
 const rowSrc = readFileSync(RESULT_ROW, "utf8");
@@ -415,7 +420,7 @@ describe("Search V2 — T1+T10 IA + URL state", () => {
 
 describe("Search V2 — T11 state coherence", () => {
   it("V2 T11.1 activeIndex clamps when filteredMatched narrows", () => {
-    expect(viewSrc).toMatch(/setActiveIndex\(\(idx\) => Math\.min\(idx,/);
+    expect(viewSrc).toMatch(/const activeIndex = Math\.min\(rawActiveIndex,/);
   });
 
   it("V2 T11.2 activeIndex resets to 0 on query/filter change", () => {

@@ -3,20 +3,68 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/page.tsx");
+const PAGE_VIEW = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx");
+const LEDGER = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewals-ledger.tsx");
+const LEDGER_CONSTANTS = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewals-ledger-constants.ts");
+const ROW_CELLS = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewal-row-cells.tsx");
+const ROW_DETAIL = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewal-row-detail.tsx");
+const ACTION_CLUSTER = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewal-action-cluster.tsx");
+const PAGE_SECTIONS = join(process.cwd(), "src/app/(dashboard)/contracts/renewals/renewals-page-sections.tsx");
 const FILTER_BAR = join(process.cwd(), "src/components/renewals/renewal-filter-bar.tsx");
 const SHARED_FILTER_BAR = join(process.cwd(), "src/components/ui/filter-bar.tsx");
 
-describe("contracts renewals page surface", () => {
-  it("constrains renewal row surfaces on narrow viewports", () => {
-    const raw = readFileSync(PAGE, "utf8");
+function readRenewalsSurface(): string {
+  return [
+    PAGE,
+    PAGE_VIEW,
+    LEDGER,
+    LEDGER_CONSTANTS,
+    ROW_CELLS,
+    ROW_DETAIL,
+    ACTION_CLUSTER,
+    PAGE_SECTIONS,
+  ]
+    .map((file) => readFileSync(file, "utf8"))
+    .join("\n");
+}
 
-    expect(raw).toContain('className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl"');
-    expect(raw).toContain('className="ui-card min-w-0 max-w-full overflow-hidden"');
-    expect(raw).toContain("Dates in view:");
-    expect(raw).toContain("renewal or notice date is missing, suggested, or calculated and still needs confirmation");
+describe("contracts renewals page surface", () => {
+  it("rides the shared data-surface shell + card so it shares the Core ledger recipe", () => {
+    const raw = readRenewalsSurface();
+
+    // The page no longer hand-rolls its page-stack width / card chrome; it uses
+    // the shared DataSurfaceShell (medium → max-w-7xl) + DataSurfaceCard so it
+    // shares one width, radius, border, and clipping recipe with the other dense
+    // Core ledgers (Contracts, Work, Evidence, Reports).
+    expect(raw).toContain("DataSurfaceShell");
+    expect(raw).toContain('width="medium"');
+    expect(raw).toContain("DataSurfaceCard");
+  });
+
+  it("constrains renewal row surfaces on narrow viewports and keeps the band vocabulary", () => {
+    const raw = readRenewalsSurface();
+
+    // The bounded, horizontally-scrollable rows region is the narrow-viewport
+    // guard: long ledger rows scroll within the card rather than forcing the
+    // whole page wide.
     expect(raw).toContain(
       'className="max-h-[60vh] max-w-full overflow-x-auto overflow-y-auto [scrollbar-gutter:stable]"'
     );
+    // The summary band keeps its labeled-definition vocabulary.
+    expect(raw).toContain("Dates in view:");
+    expect(raw).toMatch(/renewal or notice date\s+is missing, suggested, or calculated and still needs confirmation/);
+  });
+
+  it("renders the expandable ledger row with an operational consequence line", () => {
+    const raw = readRenewalsSurface();
+
+    // Rows are expandable disclosures (§31) and carry the plain-language
+    // operational consequence (§14) plus the shared provenance badge (§17/§62).
+    expect(raw).toContain("RenewalRowDisclosure");
+    expect(raw).toContain("row.consequence.label");
+    expect(raw).toContain("DateProvenanceBadge");
+    // Counts state their object type via the shared OperationalCount (§19/§64).
+    expect(raw).toContain("OperationalCount");
   });
 
   it("renders the due-window + attribute filters as one shared custom combobox toolbar", () => {

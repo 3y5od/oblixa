@@ -25,14 +25,14 @@ export function AuthProductFacts({ className }: { className: string }) {
 export function AuthProductPanel() {
   const { icon, eyebrow, heading, support } = PRODUCT_COPY;
   return (
-    <section className="hidden min-w-0 lg:block" aria-label="What Oblixa does">
+    <section className="min-w-0" aria-label="What Oblixa does">
       <div className="flex items-start gap-3.5">
         <AuthIconTile icon={icon} size="sm" />
         <div className="min-w-0">
           <p>
             <span className="landing-eyebrow-dot ui-caps-1 text-[10.5px] text-[var(--accent-strong)]">{eyebrow}</span>
           </p>
-          <h2 className="mt-1 text-balance text-[1.4rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
+          <h2 className="lp-serif mt-1.5 text-balance text-[1.45rem] leading-[1.15] text-[var(--text-primary)]">
             {heading}
           </h2>
           <p className="mt-1.5 max-w-md text-[12.5px] leading-[1.5] text-[var(--text-secondary)]">{support}</p>
@@ -45,7 +45,7 @@ export function AuthProductPanel() {
         </div>
       </div>
 
-      <AuthProductFacts className="mt-5 grid grid-cols-4 gap-x-2 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] py-2.5" />
+      <AuthProductFacts className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2.5 border-y border-[color:color-mix(in_oklab,var(--border-subtle)_50%,transparent)] py-2.5 min-[420px]:grid-cols-4 min-[420px]:gap-x-2 min-[420px]:gap-y-0" />
 
       <div className="mt-5">
         <AuthProductPreview />

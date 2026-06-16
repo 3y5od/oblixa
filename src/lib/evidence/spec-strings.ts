@@ -1,6 +1,6 @@
 export const EVIDENCE_EYEBROW = "Evidence";
 export const EVIDENCE_PAGE_TITLE = "Evidence";
-export const EVIDENCE_PAGE_LEAD = "Track proof files and confirmations tied to contract requirements and tasks.";
+export const EVIDENCE_PAGE_LEAD = "Request, receive, and review proof tied to contract requirements and follow-up tasks.";
 export const EVIDENCE_PRIMARY_CTA = "Request evidence";
 export const EVIDENCE_EMPTY_STATE = "Request evidence when a contract requirement or follow-up task needs proof.";
 export const EVIDENCE_PARTIAL_DATA_TITLE = "Evidence data is partially unavailable";

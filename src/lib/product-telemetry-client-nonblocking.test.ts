@@ -19,7 +19,12 @@ describe("client telemetry is fire-and-forget (V9 §28)", () => {
   });
 
   it("CmdK surfaces void palette and result telemetry", () => {
-    const src = readFileSync(join(process.cwd(), "src/components/layout/command-palette.tsx"), "utf8");
+    const src = [
+      "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-state.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(src).toMatch(/void emitCmdkPaletteOpenedTelemetry/);
     expect(src).toMatch(/void emitCmdkZeroResultsTelemetry/);
     expect(src).toMatch(/void emitCmdkResultSelectedTelemetry/);

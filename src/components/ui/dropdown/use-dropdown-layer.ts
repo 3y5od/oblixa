@@ -167,14 +167,24 @@ export function useDropdownLayer(
         close(inside);
       }
     }
+    function onScroll(e: Event) {
+      // Capture-phase scroll fires for EVERY scroll in the document, including
+      // the surface's own overflow-auto region. A scroll inside the surface is
+      // not a viewport change — only the page (or an ancestor) scrolling the
+      // trigger away is. Without this guard, scrolling a tall menu to reach its
+      // last item closes the menu before the pointer ever gets there.
+      const target = e.target;
+      if (target instanceof Node && surfaceRef.current?.contains(target)) return;
+      onViewport();
+    }
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
-    window.addEventListener("scroll", onViewport, true);
+    window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onViewport);
     return () => {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("scroll", onViewport, true);
+      window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onViewport);
     };
   }, [open, onViewportChange, computePosition, close]);

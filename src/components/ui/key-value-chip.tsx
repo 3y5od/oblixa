@@ -26,7 +26,7 @@ export function KeyValueChip({ label, value, tone, hideLabel, className }: KeyVa
   const ink = toneInk(tone);
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none ${className ?? ""}`.trim()}
+      className={`inline-flex items-center gap-1.5 rounded-[4px] border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none ${className ?? ""}`.trim()}
       style={{
         borderColor: tone
           ? `color-mix(in oklab, ${ink} 32%, var(--border-card))`

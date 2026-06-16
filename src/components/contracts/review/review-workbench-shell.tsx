@@ -38,9 +38,10 @@ export function ReviewWorkbenchShell({
   actions,
 }: ReviewWorkbenchShellProps) {
   const totalFieldsForContract = model.progress.activeContractTotalFields;
-  const pendingForContract = model.progress.activeContractPendingFields;
-  // "Confirmed" in the contract context = decided (anything not still pending).
-  const completedForContract = Math.max(0, totalFieldsForContract - pendingForContract);
+  // "Confirmed" = reviewed (approved/edited) only. Details marked unknown are
+  // decided but not trusted, so they are excluded from the confirmed count to
+  // match the per-detail "Confirmed detail" state and the reports surface.
+  const completedForContract = model.progress.activeContractSegments.reviewed;
 
   return (
     <section
@@ -49,6 +50,7 @@ export function ReviewWorkbenchShell({
     >
       <ReviewControlBar
         contractTitle={activeContract.title}
+        counterparty={activeContract.counterparty}
         segments={model.progress.activeContractSegments}
         activeContractPosition={model.progress.activeContractPosition}
         contractsWaiting={model.progress.contractsWaiting}
@@ -64,8 +66,10 @@ export function ReviewWorkbenchShell({
           and clips the evidence rail until ~1680px. minmax(0,1fr) never overflows
           and the decision is comfortable at 1280px+. */}
       <div className="grid md:grid-cols-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[20rem_minmax(0,1fr)_22rem]">
-        {/* DECISION — the focal surface */}
-        <div className="px-5 py-5 sm:px-6 sm:py-6 md:col-start-1 md:row-start-1 lg:col-start-2 lg:min-h-0 lg:overflow-y-auto lg:pb-0">
+        {/* DECISION — the focal surface, on the cool inspection register (§13) so
+            the place where evidence is weighed and decided reads distinct from the
+            warm queue index (left) and the warm evidence/source rail (right). */}
+        <div className="ui-surface-inspection px-5 py-5 sm:px-6 sm:py-6 md:col-start-1 md:row-start-1 lg:col-start-2 lg:min-h-0 lg:overflow-y-auto lg:pb-0">
           <ReviewDecisionPane activeField={activeField} fieldQueue={model.activeFieldQueue} actions={actions} />
         </div>
 

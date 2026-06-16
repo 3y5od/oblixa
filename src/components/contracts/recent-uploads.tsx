@@ -21,12 +21,15 @@ export function RecentUploads({ files }: { files: RecentFileRow[] }) {
   if (files.length === 0) {
     return (
       <section>
-        <p className="ui-eyebrow">Recent uploads</p>
+        <p className="text-[12px] font-medium leading-none text-[var(--text-primary)]">
+          Upload status
+        </p>
         <div className="mt-2">
           <DashboardEmptyState
             icon={FileText}
-            label="No uploads yet"
-            hint="Files appear here after upload"
+            label="No source documents uploaded"
+            hint="Uploaded files appear here while Oblixa prepares suggested details for review."
+            uppercase={false}
           />
         </div>
       </section>
@@ -39,7 +42,9 @@ export function RecentUploads({ files }: { files: RecentFileRow[] }) {
   return (
     <section>
       <div className="flex items-center gap-1.5">
-        <p className="ui-eyebrow">Recent uploads</p>
+        <p className="text-[12px] font-medium leading-none text-[var(--text-primary)]">
+          Upload status
+        </p>
         {/* Only assert a count when it's the true total; when the capped query
             overflows, the "View all" affordance signals there are more. */}
         {!hasMore ? <CountChip value={files.length} /> : null}

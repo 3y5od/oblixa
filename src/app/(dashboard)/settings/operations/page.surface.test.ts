@@ -9,7 +9,13 @@ import { SETTINGS_NOTIFICATIONS_STRINGS } from "@/lib/settings/spec-strings";
 
 const DIR = "src/app/(dashboard)/settings/operations";
 const pageSrc = readFileSync(join(process.cwd(), DIR, "page.tsx"), "utf8");
-const viewSrc = readFileSync(join(process.cwd(), DIR, "operations-settings-view.tsx"), "utf8");
+const viewSrc = [
+  "operations-settings-view.tsx",
+  "notifications-email-form.tsx",
+  "notifications-policy.ts",
+]
+  .map((file) => readFileSync(join(process.cwd(), DIR, file), "utf8"))
+  .join("\n");
 const readOnlySrc = readFileSync(join(process.cwd(), DIR, "notifications-readonly.tsx"), "utf8");
 const summarySrc = readFileSync(join(process.cwd(), DIR, "notifications-summary.tsx"), "utf8");
 const shellSrc = readFileSync(join(process.cwd(), "src/components/settings/settings-subpage-shell.tsx"), "utf8");

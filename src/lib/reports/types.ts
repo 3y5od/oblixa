@@ -66,6 +66,9 @@ export type ReportExportRun = {
   rows: number | null;
   /** Export format, e.g. "csv", when recorded. */
   format: string | null;
+  /** Display name of the member who ran the export, or "" when the actor is not
+   *  recorded/resolvable. */
+  exportedBy: string;
   /** Re-export link rebuilt from the run's report + filters. */
   href: string;
 };

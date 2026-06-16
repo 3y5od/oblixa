@@ -10,23 +10,26 @@ import type {
 } from "@/lib/field-review/model";
 import { ReviewCitation } from "./review-citation";
 import { ReviewFileSwitcher } from "./review-file-switcher";
-import { formatStatusLabel, renderExcerptWithHighlight } from "./review-helpers";
+import { SOURCE_CITATION_ANCHOR, formatStatusLabel, renderExcerptWithHighlight } from "./review-helpers";
 
 const PREVIEW_ANCHOR = "review-source-preview";
 
 /** Stacked evidence object (Citation / Preview / Contract) with a consistent caps
- *  header row that can carry a trailing status badge. */
+ *  header row that can carry a trailing status badge. An optional `id` makes the
+ *  section a jump target (the decision pane links the value to the citation). */
 function ReviewPaneSection({
   title,
   badge,
+  id,
   children,
 }: {
   title: string;
   badge?: ReactNode;
+  id?: string;
   children: ReactNode;
 }) {
   return (
-    <section aria-label={title}>
+    <section id={id} aria-label={title} className={id ? "scroll-mt-4" : undefined}>
       <div className="flex items-center justify-between gap-2">
         <p className="ui-caps-2 text-[10px] leading-none text-[var(--text-tertiary)]">{title}</p>
         {badge ?? null}
@@ -44,11 +47,15 @@ function ContractMetaRow({
   value,
   emptyLabel = "Not set",
   tone = "default",
+  showEmptyLabel = false,
 }: {
   label: string;
   value: string | null;
   emptyLabel?: string;
   tone?: "default" | "warning";
+  /** When true, a missing value renders the empty label as visible muted text
+   *  (e.g. "Not attached") rather than an em-dash, so the gap reads in print. */
+  showEmptyLabel?: boolean;
 }) {
   const color = tone === "warning" ? "text-[var(--warning-ink)]" : "text-[var(--text-secondary)]";
   return (
@@ -56,9 +63,11 @@ function ContractMetaRow({
       <dt className="ui-caps-3 self-baseline whitespace-nowrap text-[10px] leading-none text-[var(--text-tertiary)]">
         {label}
       </dt>
-      <dd className={`min-w-0 truncate text-[12.5px] font-medium ${color}`}>
+      <dd className={`min-w-0 truncate text-[12.5px] font-medium ${value ? color : "text-[var(--text-tertiary)]"}`}>
         {value ? (
           value
+        ) : showEmptyLabel ? (
+          emptyLabel
         ) : (
           <>
             <span aria-hidden>&mdash;</span>
@@ -94,7 +103,7 @@ export function ReviewEvidenceRail({
 
   return (
     <div className="space-y-6">
-      <ReviewPaneSection title="Where Oblixa found it">
+      <ReviewPaneSection title="Where Oblixa found this suggested detail" id={SOURCE_CITATION_ANCHOR}>
         <ReviewCitation
           sourceSnippet={activeField.sourceSnippet}
           snippetLocated={!!documentPreview?.snippetLocated}
@@ -106,9 +115,9 @@ export function ReviewEvidenceRail({
         title="Source preview"
         badge={
           noSources ? (
-            <StatusBadge status="warning" className="gap-1">
+            <StatusBadge status={previewAvailable ? "info" : "warning"} className="gap-1">
               <FileText className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
-              No file
+              {previewAvailable ? "Searchable text only" : "No source file"}
             </StatusBadge>
           ) : null
         }
@@ -117,17 +126,17 @@ export function ReviewEvidenceRail({
           <ReviewFileSwitcher files={files} />
           {previewAvailable ? (
             <>
-              <div className="overflow-hidden rounded-lg border border-[var(--border-card)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface))] shadow-[inset_0_1px_2px_color-mix(in_oklab,var(--text-primary)_6%,transparent)]">
+              <div className="ui-surface-source overflow-hidden rounded-lg border border-[var(--border-card)] shadow-[inset_0_1px_2px_color-mix(in_oklab,var(--text-primary)_6%,transparent)]">
                 <div
                   id={PREVIEW_ANCHOR}
                   className="max-h-[26rem] overflow-y-auto px-4 py-3 text-[13px] leading-relaxed text-[var(--text-primary)] lg:max-h-[32rem]"
                 >
-                  {renderExcerptWithHighlight(documentPreview?.excerpt ?? "", activeField.sourceSnippet)}
+                  {renderExcerptWithHighlight(documentPreview?.excerpt ?? "", activeField.sourceSnippet, documentPreview?.valueText)}
                 </div>
               </div>
               {noSources ? (
                 <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-                  Showing searchable text — the original file is not attached.
+                  The original file is not attached. This preview shows searchable text available for review.
                 </p>
               ) : null}
             </>
@@ -139,16 +148,17 @@ export function ReviewEvidenceRail({
               section="source-preview"
               title="Source preview unavailable"
               reason={
-                documentPreview?.excerpt ?? "No searchable source text is available for this contract yet."
+                documentPreview?.excerpt ??
+                "No searchable source text is available for this contract yet. You can still edit this detail or mark it unknown using the decision actions."
               }
               accessibleName="Source preview unavailable"
-              nextActionLabel="Open contract"
+              nextActionLabel="Open contract record"
               nextAction={
                 <Link
                   href={activeContract.href}
                   className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px]"
                 >
-                  Open contract
+                  Open contract record
                 </Link>
               }
             />
@@ -156,8 +166,13 @@ export function ReviewEvidenceRail({
         </div>
       </ReviewPaneSection>
 
-      <ReviewPaneSection title="Contract context">
-        <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-4 gap-y-2 border-t border-[var(--border-card)] pt-2.5">
+      <ReviewPaneSection title="Contract context for this detail">
+        {/* Label column sizes to the widest label ("Confirmed details") rather
+            than a fixed 6.5rem — the caps label is `whitespace-nowrap`, so a fixed
+            track too narrow for the longest label let it overflow and collide with
+            the value ("…DETAILS0 of 2"). max-content + the gap-x-4 keeps a clean
+            gutter for every row. */}
+        <dl className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-2 border-t border-[var(--border-card)] pt-2.5">
           <ContractMetaRow label="Counterparty" value={activeContract.counterparty} emptyLabel="No counterparty" />
           {activeContract.contractType ? <ContractMetaRow label="Type" value={activeContract.contractType} /> : null}
           <ContractMetaRow
@@ -167,20 +182,21 @@ export function ReviewEvidenceRail({
           />
           <ContractMetaRow label="Status" value={formatStatusLabel(activeContract.status)} />
           <ContractMetaRow
-            label="Files"
+            label="Source file"
             value={files.length > 0 ? `${files.length} ${files.length === 1 ? "file" : "files"}` : null}
-            emptyLabel="No files"
+            emptyLabel="Not attached"
+            showEmptyLabel
           />
           <ContractMetaRow
-            label="Confirmed"
-            value={`${completedForContract} of ${totalFieldsForContract} details`}
+            label="Confirmed details"
+            value={`${completedForContract} of ${totalFieldsForContract}`}
           />
         </dl>
         <Link
           href={activeContract.href}
           className="ui-chip-focus group mt-3 flex items-center justify-between gap-2 rounded-lg border border-[var(--border-card)] bg-[var(--surface-raised)] px-3 py-2 text-[12.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,var(--surface-raised))]"
         >
-          Open contract
+          Open contract record
           <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2} aria-hidden />
         </Link>
       </ReviewPaneSection>

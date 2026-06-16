@@ -4,11 +4,11 @@ export const FIELD_REVIEW_EMPTY_STATE = "No details need confirmation.";
 
 export const FIELD_REVIEW_REQUIRED_CONTENT = [
   "Detail to review",
-  "Suggested value",
+  "Suggested detail",
   "Where this is used",
-  "Where Oblixa found it",
+  "Where Oblixa found this suggested detail",
   "Source preview",
-  "Current confirmed value",
+  "Confirmed detail",
   "Contract context",
 ] as const;
 

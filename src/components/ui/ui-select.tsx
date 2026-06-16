@@ -36,6 +36,10 @@ export interface UiSelectProps {
   label?: string;
   menuWidth?: "trigger" | "fit";
   variant?: "compact" | "pill";
+  /** When true, the trigger shows only the caps `label` (no selected-value text).
+   *  Used by filter pills at rest so they read "Status" rather than the truncated
+   *  "Status Any status". Has no effect unless `label` is set. */
+  triggerLabelOnly?: boolean;
   portal?: boolean;
   search?: boolean;
   searchThreshold?: number;
@@ -62,6 +66,7 @@ export function UiSelect({
   label,
   menuWidth = "trigger",
   variant = "compact",
+  triggerLabelOnly = false,
   portal = false,
   search,
   searchThreshold,
@@ -275,7 +280,7 @@ export function UiSelect({
         style={buttonStyle}
         className={`${
           variant === "pill"
-            ? "inline-flex min-h-9 w-full items-center justify-between gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3.5 py-1.5 text-[12.5px] text-left transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            ? "inline-flex min-h-9 w-full items-center justify-between gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3.5 py-1.5 text-[12.5px] text-left transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             : "ui-input-compact inline-flex w-full items-center justify-between gap-2 text-left"
         } disabled:cursor-not-allowed disabled:opacity-50 ${buttonClassName ?? ""}`}
       >
@@ -284,12 +289,14 @@ export function UiSelect({
             <span className="ui-caps-2 shrink-0 text-[9.5px] text-[var(--text-tertiary)]">
               {label}
             </span>
-            <span
-              title={selected?.label ?? placeholder}
-              className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
-            >
-              {selected?.label ?? placeholder}
-            </span>
+            {triggerLabelOnly ? null : (
+              <span
+                title={selected?.label ?? placeholder}
+                className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
+              >
+                {selected?.label ?? placeholder}
+              </span>
+            )}
           </span>
         ) : (
           <span

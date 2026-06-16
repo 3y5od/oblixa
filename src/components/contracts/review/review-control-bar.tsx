@@ -29,6 +29,7 @@ function FieldNavButton({ href, direction }: { href: string | null; direction: "
 
 interface ReviewControlBarProps {
   contractTitle: string;
+  counterparty: string | null;
   segments: FieldReviewSegmentedProgress;
   activeContractPosition: number;
   contractsWaiting: number;
@@ -38,11 +39,13 @@ interface ReviewControlBarProps {
   nextHref: string | null;
 }
 
-/** Persistent top bar: this-contract progress (left) + contract/detail position
- *  with a stepper (right). Workspace-scope counts live in the page header so this
- *  bar stays about the current contract. */
+/** Persistent contract rail: the contract being reviewed (name · counterparty) and
+ *  its review progress on the left, contract/detail position with a prev/next
+ *  stepper on the right. Workspace-scope counts live in the page header so this
+ *  bar stays scoped to the current contract. */
 export function ReviewControlBar({
   contractTitle,
+  counterparty,
   segments,
   activeContractPosition,
   contractsWaiting,
@@ -51,15 +54,19 @@ export function ReviewControlBar({
   prevHref,
   nextHref,
 }: ReviewControlBarProps) {
+  const titleWithParty = counterparty ? `${contractTitle} · ${counterparty}` : contractTitle;
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] px-5 py-3 sm:px-6 lg:shrink-0">
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="ui-caps-2 shrink-0 text-[10px] leading-none text-[var(--text-tertiary)]">
-            This contract
+      <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="ui-caps-3 shrink-0 text-[9px] leading-none text-[var(--text-tertiary)]">
+            Contract being reviewed
           </span>
-          <span className="min-w-0 max-w-[16rem] truncate text-[12.5px] font-semibold text-[var(--text-primary)]">
-            {contractTitle}
+          <span className="min-w-0 max-w-[20rem] truncate text-[12.5px] leading-tight" title={titleWithParty}>
+            <span className="font-semibold text-[var(--text-primary)]">{contractTitle}</span>
+            {counterparty ? (
+              <span className="font-normal text-[var(--text-tertiary)]"> · {counterparty}</span>
+            ) : null}
           </span>
         </div>
         <ReviewSegmentedProgress segments={segments} />
@@ -70,7 +77,7 @@ export function ReviewControlBar({
         </span>
         <div
           className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] p-0.5"
-          aria-label="Contract detail navigation"
+          aria-label="Move between details to review"
         >
           <FieldNavButton href={prevHref} direction="prev" />
           <span className="ui-caps-3 px-1.5 text-[10px] leading-none tabular-nums text-[var(--text-tertiary)]">

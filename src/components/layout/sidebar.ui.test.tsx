@@ -113,17 +113,17 @@ describe("Sidebar", () => {
     expect(screen.getByTitle("7 detail confirmation items need action").getAttribute("aria-label")).toBe("7 detail confirmation items need action");
   });
 
-  it("keeps badge counts titled but hidden from collapsed link accessible names", async () => {
+  it("carries the count meaning in the collapsed link accessible name", async () => {
     window.localStorage.setItem("oblixa.sidebar.collapsed", "1");
     setMockPathname("/contracts/review");
     renderSidebar({ navBadges: { reviewQueue: 101 } });
 
-    await waitFor(() => expect(screen.getByRole("link", { name: /^contracts$/i })).toBeTruthy());
-    expect(screen.getByTitle("101 detail confirmation items need action").getAttribute("aria-hidden")).toBe("true");
     // The visible count badge is decorative (aria-hidden); the collapsed link's
-    // accessible name stays terse via aria-label even though the badge now shows
-    // the number for sighted users.
-    expect(screen.getByRole("link", { name: /^contracts$/i }).getAttribute("aria-label")).toBe("Contracts");
+    // accessible name now carries the count meaning so screen-reader users are
+    // not told less than sighted users see in the rail badge/tooltip.
+    const link = await screen.findByRole("link", { name: "Contracts, 101 to review" });
+    expect(link.getAttribute("aria-label")).toBe("Contracts, 101 to review");
+    expect(screen.getByTitle("101 detail confirmation items need action").getAttribute("aria-hidden")).toBe("true");
   });
 
   it("exposes unique nav landmark names and collapse button state", () => {

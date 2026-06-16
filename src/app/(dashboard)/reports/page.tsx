@@ -1,11 +1,7 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { AlertTriangle, BarChart3, Download, X } from "lucide-react";
+import { AlertTriangle, Download, FileText, X } from "lucide-react";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { CountChip } from "@/components/ui/count-chip";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
-import { RatioChip } from "@/components/ui/ratio-chip";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { TimeChip } from "@/components/ui/time-chip";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { ReportRail } from "@/components/reports/report-rail";
 import { ReportPreviewTable } from "@/components/reports/report-preview-table";
@@ -14,6 +10,7 @@ import { ReportsFilterBar } from "@/components/reports/reports-filter-bar";
 import { ReportsRefreshButton } from "@/components/reports/reports-refresh-button";
 import { REPORT_WINDOWED } from "@/components/reports/report-display";
 import { getAuthContext } from "@/lib/supabase/server";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 import type { WorkspaceRole } from "@/lib/navigation";
 import { loadProductSurfaceContext } from "@/lib/product-surface";
 import {
@@ -26,6 +23,7 @@ import {
   REPORT_WINDOW_LABELS,
   REPORTS_EMPTY_STATE,
   REPORTS_PAGE_TITLE,
+  REPORTS_PARTIAL_DATA_REASON,
   REPORTS_PARTIAL_DATA_TITLE,
 } from "@/lib/reports/spec-strings";
 import type { ReportsPageModel } from "@/lib/reports/types";
@@ -66,115 +64,64 @@ export default async function ReportsPage(props: {
   });
 
   const isPartial = model.warnings.length > 0;
-
   const windowLabel = REPORT_WINDOW_LABELS[model.filters.window];
-  const exportScopeWindow = REPORT_WINDOWED.has(model.activeReport) ? windowLabel : undefined;
+  const exportScopeWindow = REPORT_WINDOWED.has(model.activeReport);
+  // release-state Action Permission Matrix: report/inventory export is Owner/Admin
+  // by default; Member/Viewer are denied unless explicitly entitled.
+  const canExport = isWorkspaceAdminRole(ctx.role);
   const hasExportableRows = model.totalPreviewRows > 0;
-  const exportTitle = `Export ${model.activeDefinition.label}${
-    exportScopeWindow ? ` · ${windowLabel} window` : ""
-  }${isPartial ? " · data may be partial" : ""}`;
+  const lastExportValue = model.lastGeneratedAt ? model.lastGeneratedLabel : "none";
+  const exportAria = `${model.exportCtaLabel}${
+    exportScopeWindow ? ` for the ${windowLabel} window` : ""
+  }${isPartial ? " (data may be partial)" : ""}`;
 
   return (
     <div className="ui-page-stack mx-auto max-w-7xl">
       <DashboardPageHeader
-        icon={<BarChart3 className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+        icon={<FileText className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.7} />}
         density="compact"
         eyebrow={model.eyebrow}
         title={REPORTS_PAGE_TITLE}
         lead={model.lead}
-        actions={
-          hasExportableRows ? (
-            <Link
-              href={model.exportHref}
-              prefetch={false}
-              title={exportTitle}
-              aria-label={`${model.exportCtaLabel}${
-                exportScopeWindow ? ` for the ${windowLabel} window` : ""
-              }${isPartial ? " (data may be partial)" : ""}`}
-              className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2"
-            >
-              <Download className="h-4 w-4" aria-hidden />
-              {model.exportCtaLabel}
-            </Link>
-          ) : (
-            <span
-              aria-disabled="true"
-              title={`No rows to export for ${model.activeDefinition.label} yet.`}
-              className="ui-btn-primary pointer-events-none inline-flex items-center gap-2 px-4 py-2 opacity-50"
-            >
-              <Download className="h-4 w-4" aria-hidden />
-              {model.exportCtaLabel}
-            </span>
-          )
-        }
       />
 
-      <section className="ui-card p-0" aria-labelledby="reports-surface-title">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[var(--border-subtle)] px-5 py-3">
-          <p className="ui-caps-2 text-[11px] text-[var(--text-tertiary)]">Report catalog</p>
-          <CountChip value={model.reports.length} emphasis="subtle" />
-          <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-            Catalog counts are matching rows available in each report.
+      <section
+        className="overflow-hidden rounded-[5px] border border-[var(--border-subtle)] bg-[var(--surface-raised)]"
+        aria-labelledby="reports-surface-title"
+      >
+        {/* Catalog header strip — names the index and states how many reports it
+            holds, with help that defines what the counts mean. */}
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,var(--surface-raised))] px-5 py-3">
+          <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Report catalog</p>
+          <p className="text-[12.5px] font-semibold tabular-nums text-[var(--text-primary)]">
+            {model.reports.length} reports
+          </p>
+          <span aria-hidden className="hidden h-3 w-px bg-[var(--border-subtle)] sm:inline-block" />
+          <p className="text-[12px] leading-snug text-[var(--text-tertiary)]">
+            Catalog counts show matching rows available for each report.
           </p>
         </div>
 
         <div className="flex flex-col lg:flex-row">
-          <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-3 py-4 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-            <ReportRail ariaLabel="Reports" items={model.reports} />
+          {/* Left index — the report catalog as a legal table of contents. */}
+          <div className="border-b border-[var(--border-subtle)] px-3 py-4 lg:w-72 lg:shrink-0 lg:border-b-0 lg:border-r">
+            <ReportRail ariaLabel="Report catalog" items={model.reports} />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b border-[var(--border-subtle)] px-5 py-4">
-              <div className="min-w-0">
-                <h2
-                  id="reports-surface-title"
-                  className="text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]"
-                >
-                  {model.activeDefinition.label}
-                </h2>
-                <p className="mt-1 max-w-2xl text-[13.5px] leading-snug text-[var(--text-secondary)]">
-                  {model.activeDefinition.description}
-                </p>
-                <p className="mt-1.5 max-w-2xl text-[11px] leading-snug text-[var(--text-tertiary)]">
-                  <span className="font-medium text-[var(--text-secondary)]">Window:</span> selected reporting period.{" "}
-                  <span className="font-medium text-[var(--text-secondary)]">Rows:</span> previewed rows over matching rows.{" "}
-                  <span className="font-medium text-[var(--text-secondary)]">Last export:</span> most recent export for this report.
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                {exportScopeWindow ? <KeyValueChip label="Window" value={windowLabel} /> : null}
-                {hasExportableRows ? (
-                  model.totalPreviewRows > model.previewRows.length ? (
-                    <span
-                      title={`Showing ${model.previewRows.length} of ${model.totalPreviewRows} matching rows — export for the full set`}
-                    >
-                      <RatioChip
-                        numerator={model.previewRows.length}
-                        denominator={model.totalPreviewRows}
-                        suffix="rows"
-                      />
-                    </span>
-                  ) : (
-                    <KeyValueChip label="Rows" value={model.totalPreviewRows} />
-                  )
-                ) : null}
-                {model.lastGeneratedAt ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1">
-                    <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">Last export</span>
-                    <TimeChip
-                      date={model.lastGeneratedAt}
-                      format="relative"
-                      className="text-[var(--text-secondary)]"
-                    />
-                  </span>
-                ) : (
-                  <StatusBadge status="empty">Not exported yet</StatusBadge>
-                )}
-              </div>
-            </div>
 
-            {isPartial ? (
-              <ReportsPartialNotice scopeLabel={model.activeDefinition.label} />
-            ) : null}
+          {/* Right inspection — the selected report, its scope, limitations,
+              filters, preview, and run history. */}
+          <div className="min-w-0 flex-1">
+            <InspectionHeader
+              model={model}
+              windowLabel={windowLabel}
+              exportScopeWindow={exportScopeWindow}
+              canExport={canExport}
+              hasExportableRows={hasExportableRows}
+              lastExportValue={lastExportValue}
+              exportAria={exportAria}
+            />
+
+            {isPartial ? <ReportsPartialNotice scopeLabel={model.activeDefinition.label} /> : null}
 
             <ReportsFilters model={model} />
 
@@ -192,6 +139,108 @@ export default async function ReportsPage(props: {
   );
 }
 
+function InspectionHeader({
+  model,
+  windowLabel,
+  exportScopeWindow,
+  canExport,
+  hasExportableRows,
+  lastExportValue,
+  exportAria,
+}: {
+  model: ReportsPageModel;
+  windowLabel: string;
+  exportScopeWindow: boolean;
+  canExport: boolean;
+  hasExportableRows: boolean;
+  lastExportValue: string;
+  exportAria: string;
+}) {
+  const exportReasonId = "reports-export-disabled-reason";
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-3 border-b border-[var(--border-subtle)] px-5 py-4">
+      <div className="min-w-0">
+        <h2
+          id="reports-surface-title"
+          className="text-[1.1rem] font-semibold leading-tight tracking-tight text-[var(--text-primary)]"
+        >
+          {model.activeDefinition.label}
+        </h2>
+        <p className="mt-1 max-w-2xl text-[13px] leading-snug text-[var(--text-secondary)]">
+          {model.activeDefinition.description}
+        </p>
+        <dl className="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[12px]">
+          {exportScopeWindow ? <MetaPair label="Window">{windowLabel}</MetaPair> : null}
+          <MetaPair label="Rows">
+            {hasExportableRows
+              ? `${model.previewRows.length} previewed of ${model.totalPreviewRows} matching`
+              : `${model.totalPreviewRows} matching`}
+          </MetaPair>
+          <MetaPair label="Last export">{lastExportValue}</MetaPair>
+        </dl>
+      </div>
+
+      {/* Report-scoped primary action: it exports the active report, so it lives
+          with the report rather than as generic page chrome. */}
+      <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
+        {!canExport ? (
+          // Role-denied: a real disabled button (focusable for AT) + reason.
+          <>
+            <button
+              type="button"
+              disabled
+              aria-describedby={exportReasonId}
+              className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2 opacity-50"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              {model.exportCtaLabel}
+            </button>
+            <span id={exportReasonId} className="max-w-[16rem] text-[11px] leading-snug text-[var(--text-tertiary)] sm:text-right">
+              Exporting reports requires Owner or Admin access in this workspace.
+            </span>
+          </>
+        ) : hasExportableRows ? (
+          <Link
+            href={model.exportHref}
+            prefetch={false}
+            aria-label={exportAria}
+            className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2"
+          >
+            <Download className="h-4 w-4" aria-hidden />
+            {model.exportCtaLabel}
+          </Link>
+        ) : (
+          <>
+            <button
+              type="button"
+              disabled
+              aria-describedby={exportReasonId}
+              className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2 opacity-50"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              {model.exportCtaLabel}
+            </button>
+            <span id={exportReasonId} className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+              No rows to export yet.
+            </span>
+          </>
+        )}
+        {/* Partial-data disclosure lives once, in the page-level amber banner
+            (which also carries the Refresh action) — not duplicated here. */}
+      </div>
+    </div>
+  );
+}
+
+function MetaPair({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <dt className="text-[var(--text-tertiary)]">{label}:</dt>
+      <dd className="font-medium tabular-nums text-[var(--text-secondary)]">{children}</dd>
+    </div>
+  );
+}
+
 function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
   return (
     <section
@@ -200,15 +249,15 @@ function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
       aria-label="Reports partial data state"
       data-state="partial"
       data-v10-state="partial"
-      className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-5 py-2.5"
+      className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-5 py-3"
       style={{
         borderBottomColor: "color-mix(in oklab, var(--warning-soft) 50%, var(--border-subtle))",
-        background: "color-mix(in oklab, var(--warning-soft) 16%, var(--surface-raised))",
+        background: "color-mix(in oklab, var(--warning-soft) 18%, var(--surface-raised))",
       }}
     >
       <span
         aria-hidden
-        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
         style={{
           borderWidth: 1,
           borderStyle: "solid",
@@ -221,7 +270,7 @@ function ReportsPartialNotice({ scopeLabel }: { scopeLabel: string }) {
       </span>
       <p className="min-w-0 flex-1 text-[12.5px] leading-snug text-[var(--text-secondary)]">
         <span className="font-semibold text-[var(--text-primary)]">{REPORTS_PARTIAL_DATA_TITLE}.</span>{" "}
-        {scopeLabel} preview may be incomplete until data freshness is restored.
+        {REPORTS_PARTIAL_DATA_REASON} The {scopeLabel} preview may be incomplete.
       </p>
       <div className="shrink-0">
         <ReportsRefreshButton />
@@ -259,7 +308,7 @@ function ReportActiveFilters({ model }: { model: ReportsPageModel }) {
           key={chip.key}
           href={chip.removeHref}
           aria-label={`Remove ${chip.label.toLowerCase()} filter: ${chip.value}`}
-          className="ui-chip-focus inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] py-0.5 pl-2.5 pr-1.5 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+          className="ui-chip-focus inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] py-0.5 pl-2.5 pr-1.5 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
         >
           <span className="ui-caps-3 text-[9.5px] text-[var(--text-tertiary)]">{chip.label}</span>
           <span className="max-w-[11rem] truncate font-medium text-[var(--text-primary)]">

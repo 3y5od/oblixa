@@ -77,6 +77,34 @@ export function canInviteWorkspaceMembers(
   return isWorkspaceAdminRole(role, options);
 }
 
+/** Who may change a non-owner member's role: Owner or Admin (release-state
+ *  Roles And Workspace Administration; Action Permission Matrix "Change member
+ *  roles"). Changing the owner's role is never allowed here — that is a transfer. */
+export function canManageTeamRoles(
+  role: WorkspaceRoleInput,
+  options: { isWorkspaceOwner?: boolean } = {}
+): boolean {
+  return isWorkspaceAdminRole(role, options);
+}
+
+/** Who may transfer workspace ownership: Owner only (release-state: "Only Owner
+ *  can transfer ownership"; matrix "Transfer ownership | Owner: Yes | Admin: No"). */
+export function canTransferOwnership(
+  role: WorkspaceRoleInput,
+  options: { isWorkspaceOwner?: boolean } = {}
+): boolean {
+  return isWorkspaceOwnerRole(role, options);
+}
+
+/** Who may remove or downgrade another Owner: Owner only (release-state: "Only
+ *  Owner can … remove or downgrade another Owner"). Admins manage non-owners. */
+export function canRemoveOrDowngradeOwner(
+  role: WorkspaceRoleInput,
+  options: { isWorkspaceOwner?: boolean } = {}
+): boolean {
+  return isWorkspaceOwnerRole(role, options);
+}
+
 export function canMutateCoreWorkspaceRecords(role: WorkspaceRoleInput): boolean {
   const canonical = normalizeWorkspaceRoleAlias(role);
   return canonical === "owner" || canonical === "admin" || canonical === "member";

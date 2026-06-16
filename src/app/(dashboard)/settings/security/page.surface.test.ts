@@ -4,12 +4,25 @@ import { describe, expect, it } from "vitest";
 import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
 
 // Surface pins for the security settings page. These assert against the raw
-// source of the page + panel so the design contract (structure, copy,
-// primitives, required content) can't drift silently.
+// source of the page + panel + shared workbench so the design contract
+// (structure, copy, primitives, required content) can't drift silently.
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/settings/security/page.tsx");
-const PANEL = join(process.cwd(), "src/components/settings/security-settings-panel.tsx");
-const SHELL = join(process.cwd(), "src/components/settings/settings-subpage-shell.tsx");
+const SECTIONS = join(process.cwd(), "src/app/(dashboard)/settings/security/security-page-sections.tsx");
+const PANEL_FILES = [
+  "src/components/settings/security-settings-panel.tsx",
+  "src/components/settings/security-settings-panel-controller.ts",
+  "src/components/settings/security-settings-panel-types.ts",
+  "src/components/settings/security-settings-panel-constants.ts",
+  "src/components/settings/security-settings-account-protection-card.tsx",
+  "src/components/settings/security-settings-mfa-column.tsx",
+  "src/components/settings/security-settings-step-up-column.tsx",
+  "src/components/settings/security-settings-sessions-section.tsx",
+  "src/components/settings/security-settings-workspace-mfa-section.tsx",
+  "src/components/settings/security-settings-dialogs.tsx",
+];
+const WORKBENCH = join(process.cwd(), "src/components/settings/settings-workbench.tsx");
+const RAIL = join(process.cwd(), "src/components/settings/settings-rail.tsx");
 const CARD = join(process.cwd(), "src/components/settings/settings-card.tsx");
 const MEDALLION = join(process.cwd(), "src/components/ui/card-medallion.tsx");
 const LOADING = join(process.cwd(), "src/app/(dashboard)/settings/security/loading.tsx");
@@ -17,9 +30,10 @@ const ERROR_BOUNDARY = join(process.cwd(), "src/app/(dashboard)/settings/securit
 const STEP_UP_COOKIE = join(process.cwd(), "src/lib/security/step-up-cookie.ts");
 const MFA_ACTIONS = join(process.cwd(), "src/actions/mfa.ts");
 
-const pageSrc = readFileSync(PAGE, "utf8");
-const panelSrc = readFileSync(PANEL, "utf8");
-const shellSrc = readFileSync(SHELL, "utf8");
+const pageSrc = [readFileSync(PAGE, "utf8"), readFileSync(SECTIONS, "utf8")].join("\n");
+const panelSrc = PANEL_FILES.map((file) => readFileSync(join(process.cwd(), file), "utf8")).join("\n");
+const workbenchSrc = readFileSync(WORKBENCH, "utf8");
+const railSrc = readFileSync(RAIL, "utf8");
 const cardSrc = readFileSync(CARD, "utf8");
 const medallionSrc = readFileSync(MEDALLION, "utf8");
 const loadingSrc = readFileSync(LOADING, "utf8");
@@ -33,6 +47,9 @@ describe("Security page — voice + release-state compliance", () => {
       "Oblixa helps organize contract information, but it does not provide legal advice."
     );
     expect(pageSrc).toContain("legalNote");
+    // The note is framed as a deliberate boundary statement, not a heading.
+    expect(SETTINGS_SECURITY_STRINGS.legalBoundaryLabel).toBe("Legal boundary");
+    expect(pageSrc).toContain("legalBoundaryLabel");
   });
 
   it("no internal 'public Core' tier vocabulary leaks", () => {
@@ -53,26 +70,49 @@ describe("Security page — voice + release-state compliance", () => {
   });
 
   it("no V1/V2/V3/V4 or Issue # changelog comments remain in touched files", () => {
-    for (const src of [pageSrc, panelSrc]) {
+    for (const src of [pageSrc, panelSrc, workbenchSrc, railSrc]) {
       expect(src).not.toMatch(/\bV[1-4]\s*§/);
       expect(src).not.toMatch(/Issue #\d/);
     }
   });
 });
 
-describe("Security page — shared shell + structure", () => {
-  it("uses the shared SettingsSubpageShell frame", () => {
-    expect(pageSrc).toContain('from "@/components/settings/settings-subpage-shell"');
-    expect(pageSrc).toContain("<SettingsSubpageShell");
+describe("Security page — shared workbench + rail", () => {
+  it("uses the shared SettingsWorkbench frame, not the old centered shell", () => {
+    expect(pageSrc).toContain('from "@/components/settings/settings-workbench"');
+    expect(pageSrc).toContain("<SettingsWorkbench");
+    expect(pageSrc).toContain('active="security"');
+    expect(pageSrc).not.toContain("SettingsSubpageShell");
   });
 
-  it("shell standardizes max-w-5xl + back pill", () => {
-    expect(shellSrc).toContain("max-w-5xl");
-    expect(shellSrc).toContain("Back to settings");
+  it("workbench is a wider rail+main field, capped and centered", () => {
+    expect(workbenchSrc).toContain("max-w-[1200px]");
+    expect(workbenchSrc).toContain("<SettingsRail");
+    expect(workbenchSrc).toMatch(/lg:grid-cols-\[/);
+    // No floating icon tile beside the page title.
+    expect(workbenchSrc).not.toContain("CardMedallion");
+    expect(workbenchSrc).not.toContain("DashboardPageHeader");
   });
 
-  it("skip link targets the first interactive surface", () => {
-    expect(pageSrc).toContain('"#mfa-card"');
+  it("rail marks the active section with a left rule, not a large card", () => {
+    expect(railSrc).toContain("usePathname");
+    expect(railSrc).toContain('aria-current');
+    expect(railSrc).toContain("border-l-[var(--accent-strong)]");
+    expect(railSrc).toContain("billing-no-print");
+    // Customer-only destinations; operator surfaces never appear.
+    expect(railSrc).toContain('"/settings/security"');
+    expect(railSrc).toContain('"/settings/billing"');
+    expect(railSrc).toContain("Notifications");
+    expect(railSrc).toContain("Imports and exports");
+    expect(railSrc).not.toContain("/settings/health");
+    expect(railSrc).not.toContain("/settings/policy");
+    expect(railSrc).not.toContain("/settings/product");
+    // "Settings" overview link is the quiet back affordance.
+    expect(railSrc).toContain('href="/settings"');
+  });
+
+  it("skip link targets the first focal record", () => {
+    expect(pageSrc).toContain('"#account-protection-card"');
     expect(pageSrc).toContain("Skip to security content");
   });
 
@@ -92,37 +132,35 @@ describe("Security page — shared shell + structure", () => {
     expect(pageSrc).not.toMatch(/actions=\{/);
   });
 
-  it("billing-no-print applied to ephemeral controls", () => {
-    expect(panelSrc).toContain("billing-no-print");
-    expect(shellSrc).toContain("billing-no-print");
+  it("lead names the three records", () => {
+    expect(SETTINGS_SECURITY_STRINGS.lead).toBe(
+      "Manage account protection, active sessions, and security-sensitive workspace actions."
+    );
   });
 });
 
-describe("Security page — identity strip", () => {
-  it("MFA / WORKSPACE / ACCOUNT render as compact key/value chips", () => {
-    expect(pageSrc).toContain('identityLabel="Identity"');
-    expect(pageSrc).toContain('<IdentityChip label="MFA"');
-    expect(pageSrc).toContain("workspaceLabelChip");
-    expect(pageSrc).toContain("accountLabel");
+describe("Security page — header state strip", () => {
+  it("replaces the identity pill row with a ledger-style state strip", () => {
+    expect(pageSrc).toContain("<SettingsStateStrip");
+    expect(pageSrc).not.toContain("IdentityChip");
+    expect(pageSrc).not.toContain("<ChipPair");
+    expect(workbenchSrc).toContain("SettingsStateStrip");
   });
 
-  it("MFA posture uses a StatusBadge + glyph (not color-only text)", () => {
-    expect(pageSrc).toMatch(/factorCount > 0[\s\S]{0,400}StatusBadge status="healthy"/);
-    expect(pageSrc).toContain("mfaTwoFactorLabel");
-    expect(pageSrc).toContain("mfaSingleLabel");
-    expect(pageSrc).toMatch(/<TriangleAlert/);
+  it("strip states protection / workspace / account / step-up with precise values", () => {
+    expect(SETTINGS_SECURITY_STRINGS.stateLabels.protection).toBe("Account protection");
+    expect(SETTINGS_SECURITY_STRINGS.stateLabels.stepUp).toBe("Step-up");
+    expect(SETTINGS_SECURITY_STRINGS.stepUpRequiredValue).toBe(
+      "Password required for sensitive actions"
+    );
+    expect(SETTINGS_SECURITY_STRINGS.protectionEnrolledValue).toBe("Two-factor enabled");
+    expect(pageSrc).toContain("stepUpRequiredValue");
+    expect(pageSrc).toContain("stateItems");
   });
 
-  it("IdentityChip keeps user values non-uppercased", () => {
-    // The chip renders the label caps and the value plain — verify the
-    // primitive doesn't force-uppercase its children.
-    expect(shellSrc).toContain("ui-caps-3");
-    expect(shellSrc).not.toMatch(/children[\s\S]{0,40}toUpperCase/);
-  });
-
-  it("workspace + account values are links with truncation, no masking", () => {
-    expect(pageSrc).toMatch(/href="\/settings\/workspace"[\s\S]{0,260}\{orgName\}/);
-    expect(pageSrc).toMatch(/href="\/settings\/account"[\s\S]{0,260}\{accountIdentity\}/);
+  it("workspace + account values are real same-page anchors, no masking", () => {
+    expect(pageSrc).toContain('href="/settings#workspace-identity"');
+    expect(pageSrc).toContain('href="/settings#profile"');
     expect(pageSrc).toMatch(/truncate font-mono/);
     expect(pageSrc).not.toContain("···");
     expect(pageSrc).toContain("accountEmail");
@@ -168,13 +206,23 @@ describe("Security page — focal Account protection card", () => {
 });
 
 describe("Security page — authenticator enrollment", () => {
-  it("empty state is a structured StatusBadge + one-line state (no duplicate medallion)", () => {
-    expect(SETTINGS_SECURITY_STRINGS.mfaEmptyLabel).toBe("NO AUTHENTICATORS");
-    expect(panelSrc).toMatch(/StatusBadge[\s\S]{0,400}mfaEmptyLabel/);
+  it("empty state is a sentence-case condition (not a caps stamp)", () => {
+    expect(SETTINGS_SECURITY_STRINGS.mfaEmptyLabel).toBe("No authenticator enrolled");
+    expect(panelSrc).toMatch(/StatusBadge[\s\S]{0,700}mfaEmptyLabel/);
     expect(panelSrc).toContain("showDangerEmptyState");
     expect(SETTINGS_SECURITY_STRINGS.mfaEmptyBodyRequired).toContain("workspace requires MFA");
-    // The empty state carries a warning/danger tone signal.
     expect(panelSrc).toContain("warning-soft");
+  });
+
+  it("provider-unavailable state replaces the enroll control", () => {
+    expect(SETTINGS_SECURITY_STRINGS.mfaUnavailableLabel).toBe(
+      "Authenticator setup unavailable"
+    );
+    expect(panelSrc).toContain("mfaAvailable");
+    expect(panelSrc).toContain("mfaUnavailableLabel");
+    expect(panelSrc).toContain("mfaUnavailableBody");
+    expect(pageSrc).toContain("mfaUnavailable");
+    expect(pageSrc).toMatch(/mfaAvailable=\{!mfaUnavailable\}/);
   });
 
   it("Enroll authenticator is primary when empty", () => {
@@ -198,8 +246,10 @@ describe("Security page — authenticator enrollment", () => {
     expect(panelSrc).toMatch(/getElementById\(\s*ADD_AUTH_BTN_ID/);
   });
 
-  it("What is two-factor sign-in? disclosure beneath the empty state", () => {
-    expect(SETTINGS_SECURITY_STRINGS.mfaExplainerSummary).toContain("two-factor");
+  it("authenticator explainer disclosure beneath the empty state", () => {
+    expect(SETTINGS_SECURITY_STRINGS.mfaExplainerSummary).toBe(
+      "How authenticator sign-in protects this account"
+    );
     expect(panelSrc).toContain("mfaExplainerSummary");
     expect(panelSrc).toContain("mfaExplainerBody");
   });
@@ -210,9 +260,16 @@ describe("Security page — authenticator enrollment", () => {
 });
 
 describe("Security page — sensitive actions column", () => {
-  it("step-up CTA is 'Confirm password' (not 'Confirm step-up')", () => {
-    expect(SETTINGS_SECURITY_STRINGS.stepUpFormCta).toBe("Confirm password");
+  it("step-up CTA names the object ('Confirm account password')", () => {
+    expect(SETTINGS_SECURITY_STRINGS.stepUpFormCta).toBe("Confirm account password");
     expect(panelSrc).not.toContain("Confirm step-up");
+  });
+
+  it("a visible 'why' line states which actions password confirmation guards", () => {
+    expect(SETTINGS_SECURITY_STRINGS.sensitiveActionsWhy).toBe(
+      "Confirm your password before changing security settings, billing settings, or workspace access."
+    );
+    expect(panelSrc).toContain("sensitiveActionsWhy");
   });
 
   it("step-up state reads server-side via readStepUpExpiry", () => {
@@ -226,10 +283,11 @@ describe("Security page — sensitive actions column", () => {
     expect(SETTINGS_SECURITY_STRINGS.stepUpFormHelp.length).toBeLessThanOrEqual(80);
   });
 
-  it("Change password + Forgot password live in this column (not Sessions)", () => {
+  it("Change password + Forgot password live in this column under an account-recovery label", () => {
     expect(panelSrc).toContain("/settings/account?action=change-password");
     expect(panelSrc).toContain("forgotPasswordCta");
     expect(panelSrc).toContain('href="/auth/forgot-password"');
+    expect(panelSrc).toContain("Account recovery");
     expect(SETTINGS_SECURITY_STRINGS.forgotPasswordCta).toBe("Forgot password?");
   });
 
@@ -240,11 +298,19 @@ describe("Security page — sensitive actions column", () => {
   });
 });
 
-describe("Security page — sessions row group", () => {
-  it("sessions render as a flat row group, not a full card", () => {
+describe("Security page — sessions and devices", () => {
+  it("sessions render as a flat row group titled 'Sessions and devices'", () => {
     expect(panelSrc).toContain('aria-labelledby="sessions-title"');
-    expect(SETTINGS_SECURITY_STRINGS.sections.sessions).toBe("Devices");
-    expect(SETTINGS_SECURITY_STRINGS.eyebrows.sessions).toBe("SESSIONS");
+    expect(SETTINGS_SECURITY_STRINGS.sections.sessions).toBe("Sessions and devices");
+  });
+
+  it("a consequence line precedes the destructive sign-out controls", () => {
+    // States the exact scope (no vague "selected sessions"); the destructive
+    // control + this line only render when other sessions exist.
+    expect(SETTINGS_SECURITY_STRINGS.sessionsConsequence).toMatch(/every other signed-in session/i);
+    expect(SETTINGS_SECURITY_STRINGS.sessionsConsequence).not.toContain("selected sessions");
+    expect(panelSrc).toContain("sessionsConsequence");
+    expect(panelSrc).toContain("sessionsOnlyCurrentNote");
   });
 
   it("THIS DEVICE StatusBadge + sentence-case Expires (no pipe)", () => {
@@ -253,54 +319,65 @@ describe("Security page — sessions row group", () => {
     expect(panelSrc).toMatch(/<time[\s\S]{0,300}timeAttrs/);
   });
 
-  it("Sign out other devices is a danger secondary pill; Sign out this device a ghost", () => {
-    expect(panelSrc).toMatch(/ui-btn-secondary[\s\S]{0,120}danger-ink/);
-    expect(SETTINGS_SECURITY_STRINGS.signOutSelfCta).toBe("Sign out this device");
+  it("sign-out actions name their exact scope", () => {
+    expect(SETTINGS_SECURITY_STRINGS.signOutOthersCta).toBe("Sign out all other devices");
+    expect(SETTINGS_SECURITY_STRINGS.signOutSelfCta).toBe("Sign out of this device");
+    expect(panelSrc).toMatch(/ui-btn-secondary[\s\S]{0,160}danger-ink/);
+    expect(panelSrc).toContain("signOutOthersCta");
   });
 
-  it("device count only renders for multi-device states", () => {
+  it("device count names its object type for multi-device states", () => {
     expect(panelSrc).toMatch(/sessions\.length > 1/);
-    expect(panelSrc).toMatch(/\{sessions\.length\}\s*DEVICES/);
+    expect(panelSrc).toMatch(/\{sessions\.length\}\s*signed-in devices/);
     expect(panelSrc).not.toMatch(/\{sessions\.length\}\s*ACTIVE/);
   });
 });
 
-describe("Security page — workspace MFA policy", () => {
+describe("Security page — workspace MFA enforcement", () => {
   it("policy is a secondary card with a state-specific badge", () => {
     expect(panelSrc).toContain('id="org-mfa-card"');
     expect(panelSrc).toContain("REQUIRED");
-    expect(panelSrc).toContain("ENROLL FIRST");
+    expect(panelSrc).toContain("NOT ENABLED");
     expect(panelSrc).toContain("OPTIONAL");
     expect(panelSrc).not.toContain("SETUP REQUIRED");
     expect(panelSrc).not.toContain("AT RISK");
     expect(SETTINGS_SECURITY_STRINGS.sections.workspaceMfa).toBe("MFA enforcement");
   });
 
-  it("UiToggle drives enforcement + self-lockout guard", () => {
+  it("UiToggle drives enforcement + self-lockout guard with a full reason", () => {
     expect(panelSrc).toContain('from "@/components/ui/ui-toggle"');
     expect(panelSrc).toContain("<UiToggle");
     expect(panelSrc).toContain("cannotEnableOrgMfa");
     expect(SETTINGS_SECURITY_STRINGS.orgMfaSelfLockoutHint).toContain("Enroll your own");
   });
 
-  it("What changes for members? disclosure beneath the toggle", () => {
+  it("members-impact disclosure beneath the toggle", () => {
     expect(panelSrc).toContain("policyExplainerSummary");
     expect(panelSrc).toContain("policyExplainerBody");
+    expect(SETTINGS_SECURITY_STRINGS.policyExplainerSummary).toBe(
+      "How MFA enforcement affects workspace members"
+    );
     expect(SETTINGS_SECURITY_STRINGS.orgMfaConsequence.length).toBeLessThanOrEqual(80);
   });
 });
 
-describe("Security page — account & workspace context", () => {
-  it("renders a grouped divide-y directory with ui-caps-3 labels", () => {
-    expect(SETTINGS_SECURITY_STRINGS.sections.resources).toBe("Account & workspace context");
+describe("Security page — workspace security context ledger", () => {
+  it("renders a grouped divide-y ledger with ui-caps-3 labels", () => {
+    expect(SETTINGS_SECURITY_STRINGS.sections.resources).toBe("Workspace security context");
     expect(pageSrc).toMatch(/divide-y divide-\[/);
     expect(pageSrc).toContain("ui-caps-3");
   });
 
-  it("Team roles uses ChipPair (ADMIN + VIEW ONLY) + Manage action", () => {
-    expect(pageSrc).toContain("<ChipPair");
-    expect(pageSrc).toContain("VIEW ONLY");
+  it("Team roles shows the role, a visibility note, and an explicit action", () => {
     expect(SETTINGS_SECURITY_STRINGS.sections.teamRoles).toBe("Team roles");
+    expect(SETTINGS_SECURITY_STRINGS.manageTeamRolesCta).toBe("Manage team roles");
+    expect(SETTINGS_SECURITY_STRINGS.teamRolesVisibilityNote).toBe(
+      "Team roles are visible to admins."
+    );
+    expect(pageSrc).toContain("manageTeamRolesCta");
+    expect(pageSrc).toContain("teamRolesVisibilityNote");
+    expect(pageSrc).toContain("roleLabel");
+    expect(pageSrc).not.toContain("VIEW ONLY");
   });
 
   it("email status, member since, last sign-in use tabular time", () => {
@@ -311,8 +388,10 @@ describe("Security page — account & workspace context", () => {
     expect(pageSrc).toContain("formatDate");
   });
 
-  it("audit history + data-handling contact rows present", () => {
-    expect(pageSrc).toContain("View audit history");
+  it("audit history + data-handling contact rows use explicit action labels", () => {
+    expect(SETTINGS_SECURITY_STRINGS.auditHistoryCta).toBe("View security audit history");
+    expect(SETTINGS_SECURITY_STRINGS.contactCta).toBe("Contact security support");
+    expect(pageSrc).toContain("auditHistoryCta");
     expect(pageSrc).toContain('"/settings/security?filter=billing"');
     expect(pageSrc).toContain("contactCta");
     expect(pageSrc).toMatch(/mailto:\$\{[^}]*contactEmail\}/);
@@ -326,16 +405,21 @@ describe("Security page — account & workspace context", () => {
 });
 
 describe("Security page — activity + legal", () => {
-  it("activity is a compact DashboardEmptyState with retention in a title attr", () => {
-    expect(SETTINGS_SECURITY_STRINGS.activityEmptyLabel).toBe("0 events in the last 90 days");
-    expect(pageSrc).toMatch(/<DashboardEmptyState[\s\S]{0,200}activityEmptyLabel/);
+  it("activity is an empty record that explains absence and what appears", () => {
+    expect(SETTINGS_SECURITY_STRINGS.activityEmptyLabel).toBe(
+      "0 security events in the last 90 days"
+    );
+    expect(SETTINGS_SECURITY_STRINGS.activityEmptyBody).toBe(
+      "Security-sensitive account and workspace changes will appear here."
+    );
+    expect(pageSrc).toContain("activityEmptyLabel");
+    expect(pageSrc).toContain("activityEmptyBody");
     expect(pageSrc).toMatch(/title="Events retained for 90 days"/);
   });
 
-  it("legal note renders as a quiet footer (tertiary, not accent heading)", () => {
-    expect(pageSrc).toMatch(
-      /ui-caps-3 text-\[var\(--text-tertiary\)\]">\s*\{SETTINGS_SECURITY_STRINGS\.eyebrows\.legal\}/
-    );
+  it("legal note renders as a final boundary row with the pinned text", () => {
+    expect(pageSrc).toContain("legalBoundaryLabel");
+    expect(pageSrc).toContain("legalNote");
   });
 });
 
@@ -372,11 +456,18 @@ describe("Security page — primitives + accessibility", () => {
     expect(SETTINGS_SECURITY_STRINGS.offlineCopy).toContain("offline");
   });
 
-  it("dev environment marker conditional + 'is mocked' copy", () => {
+  it("dev environment marker is a titled inline note", () => {
     expect(pageSrc).toContain("showDevBanner");
+    expect(SETTINGS_SECURITY_STRINGS.devStateTitle).toBe("Development security state");
+    expect(pageSrc).toContain("devStateTitle");
     expect(SETTINGS_SECURITY_STRINGS.devModeCopy).toBe(
       "Development environment — step-up cookie validation is mocked."
     );
+  });
+
+  it("ephemeral controls carry billing-no-print", () => {
+    expect(panelSrc).toContain("billing-no-print");
+    expect(railSrc).toContain("billing-no-print");
   });
 });
 

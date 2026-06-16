@@ -39,7 +39,7 @@ const MENU_ICONS: Partial<Record<WorkActionKey, ReactNode>> = {
 // `min-w-[5.5rem]` hold the fixed 32px height + shared column edge so verbs of
 // differing length never shift the reserved Actions slot (§10.9).
 const PRIMARY_CLASS =
-  "group inline-flex h-8 min-w-[5.5rem] items-center justify-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-transparent px-3 text-[11.5px] font-medium leading-none text-[var(--text-secondary)] transition-[color,background-color,border-color,transform] hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_8%,var(--surface-raised))] hover:text-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_60%,transparent)] active:translate-y-px disabled:opacity-60";
+  "group inline-flex h-8 min-w-[5.5rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[var(--border-subtle)] bg-transparent px-3 text-[11.5px] font-medium leading-none text-[var(--text-secondary)] transition-[color,background-color,border-color,transform] hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_8%,var(--surface-raised))] hover:text-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_60%,transparent)] active:translate-y-px disabled:opacity-60";
 
 export function WorkReleaseActions({
   row,
@@ -130,7 +130,7 @@ export function WorkReleaseActions({
           type="button"
           onClick={handleUndo}
           disabled={isPending}
-          className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[var(--surface-raised)] px-2.5 text-[11.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-subtle))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_60%,transparent)] disabled:opacity-60"
+          className="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] bg-[var(--surface-raised)] px-2.5 text-[11.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-subtle))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_60%,transparent)] disabled:opacity-60"
         >
           <Undo2 className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
           Undo

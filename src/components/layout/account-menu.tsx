@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, LogOut, Settings, ShieldCheck } from "lucide-react";
+import { ChevronDown, CreditCard, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { signOut } from "@/actions/auth";
 import { DropdownMenu } from "@/components/ui/dropdown";
 
@@ -35,7 +35,13 @@ export function AccountMenu({
    *  member's role, NOT the workspace mode — chrome must never surface mode (§10.3). */
   role?: string | null;
 }) {
-  const roleLabel = role?.trim() ? role.trim() : null;
+  // Sentence-case the role (Admin, not ADMIN) — chrome should not shout (§18.13).
+  const normalizedRole = role?.trim().toLowerCase() ?? "";
+  const roleLabel = normalizedRole
+    ? normalizedRole.charAt(0).toUpperCase() + normalizedRole.slice(1)
+    : null;
+  // Billing/access is an Owner/Admin surface; non-admins never see the entry.
+  const canManageBilling = normalizedRole === "owner" || normalizedRole === "admin";
   // Avoid "Account menu for Account" when there is no real profile name.
   const ariaLabel = displayName && displayName !== "Account" ? `Account menu for ${displayName}` : "Account menu";
   return (
@@ -58,7 +64,7 @@ export function AccountMenu({
           >
             {initial}
           </span>
-          <span className="hidden min-w-0 max-w-[8.5rem] truncate text-[12.5px] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:block">
+          <span className="hidden min-w-0 max-w-[8.5rem] truncate text-[12.5px] font-semibold leading-tight tracking-tight text-[var(--text-primary)] sm:block">
             {displayName}
           </span>
           <ChevronDown
@@ -78,10 +84,15 @@ export function AccountMenu({
             {displayName}
           </p>
           {email ? (
-            <p className="ui-entity-text font-mono text-[11px] leading-snug tracking-[0.02em] text-[var(--text-tertiary)]">{email}</p>
+            <p
+              className="ui-nowrap-safe font-mono text-[11px] leading-snug tracking-[0.02em] text-[var(--text-tertiary)]"
+              title={email}
+            >
+              {email}
+            </p>
           ) : null}
           {roleLabel ? (
-            <span className="mt-1.5 inline-flex max-w-max items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
+            <span className="mt-1.5 inline-flex max-w-max items-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-1.5 py-0.5 text-[10.5px] font-semibold leading-none tracking-[0.01em] text-[var(--text-secondary)]">
               {roleLabel}
             </span>
           ) : null}
@@ -94,12 +105,18 @@ export function AccountMenu({
       <p className="ui-caps-2 px-2.5 pb-0.5 pt-1 text-[10px] text-[var(--text-tertiary)]">Account</p>
       <Link href="/settings" role="menuitem" prefetch={false} className={itemClass}>
         <Settings className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-        Settings
+        Workspace settings
       </Link>
       <Link href="/settings/security" role="menuitem" prefetch={false} className={itemClass}>
         <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
         Account security
       </Link>
+      {canManageBilling ? (
+        <Link href="/settings/billing" role="menuitem" prefetch={false} className={itemClass}>
+          <CreditCard className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
+          Billing and access
+        </Link>
+      ) : null}
       <span
         aria-hidden
         className="mx-1 my-1 block h-px bg-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)]"

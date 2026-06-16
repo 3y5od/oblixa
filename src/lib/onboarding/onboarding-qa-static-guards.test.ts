@@ -90,10 +90,12 @@ describe("onboarding QA static guards", () => {
   });
 
   it("calibration-wizard retains a11y / motion-reduce markers", () => {
-    const raw = readFileSync(
-      join(process.cwd(), "src/components/onboarding/calibration-wizard.tsx"),
-      "utf8"
-    );
+    const raw = [
+      "src/components/onboarding/calibration-wizard.tsx",
+      "src/components/onboarding/calibration-wizard-parts.tsx",
+    ]
+      .map((rel) => readFileSync(join(process.cwd(), rel), "utf8"))
+      .join("\n");
     expect(raw).toContain('aria-live="polite"');
     expect(raw).toContain('aria-label="Questionnaire progress"');
     expect(raw).toContain("motion-reduce:transition-none");

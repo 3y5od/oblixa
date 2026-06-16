@@ -3,10 +3,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/contracts/maintenance/page.tsx");
+const SECTIONS = join(process.cwd(), "src/app/(dashboard)/contracts/maintenance/maintenance-page-sections.tsx");
 
 describe("contracts maintenance page accessibility", () => {
   it("keeps native maintenance form controls named", () => {
-    const raw = readFileSync(PAGE, "utf8");
+    const raw = [readFileSync(PAGE, "utf8"), readFileSync(SECTIONS, "utf8")].join("\n");
 
     // Native text inputs/textareas keep their HTML aria-label.
     for (const label of ["Seed contract IDs", "Change summary"]) {

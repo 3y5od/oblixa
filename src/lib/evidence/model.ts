@@ -44,6 +44,22 @@ export const EVIDENCE_PAGE_SIZE = 25;
 // "Unassigned" option can round-trip through the URL like any other owner.
 const UNASSIGNED_OWNER_VALUE = "unassigned";
 
+// requirement_type values that ask for a non-file response rather than an
+// uploaded file. Everything else (document, and any unrecognized/absent type)
+// is treated as file-required, so a missing requirement_type stays conservative
+// and keeps the "missing file" nudge active rather than silently hiding a gap.
+const RESPONSE_REQUIREMENT_TYPES = new Set([
+  "structured_form",
+  "comment",
+  "external_reference",
+  "manager_approval",
+  "attestation",
+]);
+
+function requirementRequiresFile(requirementType: string | null | undefined): boolean {
+  return !RESPONSE_REQUIREMENT_TYPES.has(normalizeToken(requirementType).toLowerCase());
+}
+
 type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
 export const EVIDENCE_SECTION_ORDER = [
@@ -57,6 +73,7 @@ export type EvidenceRequirementSourceRow = {
   id: string;
   title: string | null;
   status: string | null;
+  requirement_type?: string | null;
   due_at?: string | null;
   review_due_at?: string | null;
   contract_id?: string | null;
@@ -224,10 +241,14 @@ export function buildEvidencePageModel(input: BuildEvidencePageModelInput): Evid
     filterOptions: buildEvidenceFilterOptions(shapedRows),
     summary: {
       dueSoon: filteredRows.filter((row) => row.dueState === "due_soon").length,
-      // "Missing file" is only actionable while a request is still awaiting
-      // upload, so terminal (accepted) rows don't inflate the count.
+      // "Missing file" is only actionable while a file-required request is still
+      // awaiting upload, so terminal (accepted) rows and response-only requests
+      // (which never expect a file) don't inflate the count.
       missingFile: filteredRows.filter(
-        (row) => row.attachedFilesCount === 0 && (row.status === "requested" || row.status === "overdue")
+        (row) =>
+          row.requiresFile &&
+          row.attachedFilesCount === 0 &&
+          (row.status === "requested" || row.status === "overdue")
       ).length,
     },
     sections,
@@ -254,7 +275,7 @@ export async function loadEvidencePageModel(
 
   const { data: requirementRows, error: requirementsError } = await admin
     .from("evidence_requirements")
-    .select("id, title, status, due_at, review_due_at, contract_id, work_item_type, work_item_id, reviewer_id, updated_at, created_at")
+    .select("id, title, status, requirement_type, due_at, review_due_at, contract_id, work_item_type, work_item_id, reviewer_id, updated_at, created_at")
     .eq("organization_id", orgId)
     .neq("status", "waived")
     .order("due_at", { ascending: true, nullsFirst: false })
@@ -399,6 +420,7 @@ function shapeEvidenceRow(
   const attachedFilesCount = Math.max(externalFiles, payloadFiles);
   const dueInDays = calcDueInDays(row.due_at ?? null, input.now);
   const dueState = deriveDueState(status, dueInDays);
+  const requiresFile = requirementRequiresFile(row.requirement_type);
   // "Last activity" = the most recent signal across the requirement record and
   // its latest submission, so the Updated column reflects real movement.
   const lastUpdateAt = latestTimestamp(
@@ -434,6 +456,8 @@ function shapeEvidenceRow(
     dueInDays,
     dueState,
     lastUpdateAt,
+    requiresFile,
+    responseModeLabel: requiresFile ? "File required" : "Response required",
     status,
     statusLabel: EVIDENCE_STATUS_LABELS[status],
     statusTone: statusTone(status),
@@ -572,7 +596,10 @@ function matchesFilters(row: EvidenceRow, filters: EvidenceFilterState): boolean
   if (filters.file) {
     const hasFile = row.attachedFilesCount > 0;
     if (filters.file === "has_file" && !hasFile) return false;
-    if (filters.file === "missing_file" && hasFile) return false;
+    // "Missing file" only applies to file-required requests — a response-only
+    // request with no file isn't missing anything, so it stays out of the
+    // filtered view to match the attention count's wording (§19).
+    if (filters.file === "missing_file" && (hasFile || !row.requiresFile)) return false;
   }
   return true;
 }
@@ -612,7 +639,7 @@ function buildEvidenceFilterOptions(rows: EvidenceRow[]): EvidencePageModel["fil
       })),
     ],
     contracts: [{ value: "", label: "Any contract" }, ...mapToSortedOptions(contracts)],
-    obligations: [{ value: "", label: "Any obligation" }, ...mapToSortedOptions(obligations)],
+    obligations: [{ value: "", label: "Any requirement" }, ...mapToSortedOptions(obligations)],
   };
 }
 
@@ -705,7 +732,7 @@ function toObligationOptions(
     .map((obligation) => {
       const contract = contractById.get(obligation.contract_id);
       const prefix = contract?.title ? `${contract.title}: ` : "";
-      return { value: obligation.id, label: `${prefix}${obligation.title || "Untitled obligation"}` };
+      return { value: obligation.id, label: `${prefix}${obligation.title || "Untitled requirement"}` };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 }

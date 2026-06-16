@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   canDeleteCoreWorkspaceRecords,
   canInviteWorkspaceMembers,
+  canManageTeamRoles,
   canManageWorkspaceBilling,
   canMutateCoreWorkspaceRecords,
+  canRemoveOrDowngradeOwner,
+  canTransferOwnership,
   normalizeWorkspaceRoleAlias,
 } from "@/lib/roles";
 
@@ -35,5 +38,24 @@ describe("canonical workspace roles", () => {
     expect(canMutateCoreWorkspaceRecords("viewer")).toBe(false);
     expect(canDeleteCoreWorkspaceRecords("viewer")).toBe(false);
     expect(canInviteWorkspaceMembers("viewer")).toBe(false);
+  });
+
+  it("lets Owner or Admin change non-owner team roles, but not Member/Viewer", () => {
+    expect(canManageTeamRoles("admin")).toBe(true);
+    expect(canManageTeamRoles("editor", { isWorkspaceOwner: true })).toBe(true);
+    expect(canManageTeamRoles("editor")).toBe(false);
+    expect(canManageTeamRoles("viewer")).toBe(false);
+  });
+
+  it("restricts ownership transfer and owner removal/downgrade to the Owner", () => {
+    // Admin (not the workspace owner) cannot transfer or remove/downgrade an owner.
+    expect(canTransferOwnership("admin", { isWorkspaceOwner: false })).toBe(false);
+    expect(canRemoveOrDowngradeOwner("admin", { isWorkspaceOwner: false })).toBe(false);
+    // The workspace owner can.
+    expect(canTransferOwnership("admin", { isWorkspaceOwner: true })).toBe(true);
+    expect(canRemoveOrDowngradeOwner("owner")).toBe(true);
+    // Members/viewers never can.
+    expect(canTransferOwnership("editor")).toBe(false);
+    expect(canRemoveOrDowngradeOwner("viewer")).toBe(false);
   });
 });

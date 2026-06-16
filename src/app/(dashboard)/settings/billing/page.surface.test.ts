@@ -3,11 +3,24 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SETTINGS_BILLING_STRINGS } from "@/lib/settings/spec-strings";
 
-const PAGE = join(process.cwd(), "src/app/(dashboard)/settings/billing/page.tsx");
+const BILLING_SURFACE_FILES = [
+  "src/app/(dashboard)/settings/billing/page.tsx",
+  "src/app/(dashboard)/settings/billing/billing-page-model.ts",
+  "src/app/(dashboard)/settings/billing/billing-page-view.tsx",
+  "src/app/(dashboard)/settings/billing/billing-page-header.tsx",
+  "src/app/(dashboard)/settings/billing/billing-action-slot.tsx",
+  "src/app/(dashboard)/settings/billing/billing-alerts.tsx",
+  "src/app/(dashboard)/settings/billing/billing-empty-state-card.tsx",
+  "src/app/(dashboard)/settings/billing/billing-plan-section.tsx",
+  "src/app/(dashboard)/settings/billing/billing-plan-rows.tsx",
+  "src/app/(dashboard)/settings/billing/billing-page-primitives.tsx",
+  "src/app/(dashboard)/settings/billing/billing-faq-section.tsx",
+  "src/app/(dashboard)/settings/billing/billing-admin-utility.tsx",
+];
 const CHECKOUT = join(process.cwd(), "src/app/api/stripe/checkout/route.ts");
 const SPEC_STRINGS = join(process.cwd(), "src/lib/settings/spec-strings.ts");
 
-const pageSrc = readFileSync(PAGE, "utf8");
+const pageSrc = BILLING_SURFACE_FILES.map((file) => readFileSync(join(process.cwd(), file), "utf8")).join("\n");
 const checkoutSrc = readFileSync(CHECKOUT, "utf8");
 const specSrc = readFileSync(SPEC_STRINGS, "utf8");
 

@@ -8,9 +8,9 @@ import { PRODUCT_SECTIONS } from "@/components/landing/product-sections-data";
 const NAV_LABELS: Record<string, string> = {
   replace: "Spreadsheet",
   upload: "Upload",
-  review: "Review",
+  review: "Confirm",
   dates: "Dates",
-  work: "Work",
+  work: "Tasks",
   evidence: "Evidence",
   reports: "Reports",
 };
@@ -146,11 +146,11 @@ export function ProductAnchorNav() {
       className="sticky top-[72px] z-10 -mx-2 mt-6 px-2"
       style={{ paddingTop: "max(0px, env(safe-area-inset-top))" }}
     >
-      <div className="product-anchor-nav-surface rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_88%,transparent)] backdrop-blur-md">
+      <div className="product-anchor-nav-surface rounded-[4px] border border-[color:color-mix(in_oklab,var(--text-primary)_18%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--surface-raised)_92%,transparent)] backdrop-blur-md">
         {/* T6.1 — Segmented progress bar (7 segments) */}
         <div
           aria-hidden
-          className="flex h-[2px] w-full gap-px overflow-hidden rounded-t-2xl bg-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)]"
+          className="flex h-[2px] w-full gap-px overflow-hidden rounded-t-[4px] bg-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)]"
         >
           {PRODUCT_SECTIONS.map((s, idx) => (
             <span
@@ -191,7 +191,7 @@ export function ProductAnchorNav() {
                     data-anchor-chip
                     aria-current={isActive ? "true" : undefined}
                     className={
-                      "product-anchor-chip ui-chip-focus inline-flex min-w-[2.5rem] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors motion-reduce:transition-none " +
+                      "product-anchor-chip ui-chip-focus inline-flex min-w-[2.5rem] items-center gap-1.5 whitespace-nowrap rounded-[3px] border px-3 py-1.5 text-[12px] font-semibold transition-colors motion-reduce:transition-none " +
                       (isActive
                         ? "border-[color:color-mix(in_oklab,var(--accent-strong)_38%,var(--border-strong))] bg-[color:color-mix(in_oklab,var(--accent-soft)_20%,var(--surface-raised))] text-[var(--accent-strong)]"
                         : "border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_30%,var(--border-strong))] hover:text-[var(--text-primary)]")

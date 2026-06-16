@@ -103,10 +103,10 @@ export const MODE_CONFIG: Record<AuthMode, AuthModeConfig> = {
 export const PRODUCT_COPY = {
   icon: FileText,
   eyebrow: "Contract tracking",
-  // Returning-user line — not the public landing promise (§10.15) and not a
-  // restatement of the auth H1; it names the surface the user is coming back to.
-  heading: "Return to signed-contract follow-up.",
-  support: "Confirmed details become owners, dates, tasks, evidence, and reports.",
+  // Names the product thesis (the artifact alongside proves it) — not the public
+  // landing promise (§10.15) and not a restatement of the auth H1.
+  heading: "Confirmed contract details become accountable follow-up.",
+  support: "Confirm each detail against its source text, and it drives owners, dates, tasks, evidence, and reports.",
 };
 
 export interface ProductFact {

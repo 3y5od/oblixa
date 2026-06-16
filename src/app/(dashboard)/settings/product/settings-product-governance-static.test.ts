@@ -6,6 +6,10 @@ describe("settings product governance UI markers", () => {
   it("renders downgrade confirmation and canonical notification controls", () => {
     const raw = [
       readFileSync(join(process.cwd(), "src/app/(dashboard)/settings/product/page.tsx"), "utf8"),
+      readFileSync(
+        join(process.cwd(), "src/app/(dashboard)/settings/product/settings-product-surface-form-parts.tsx"),
+        "utf8"
+      ),
       readFileSync(join(process.cwd(), "src/app/(dashboard)/settings/product/settings-product-email-section.tsx"), "utf8"),
     ].join("\n");
     expect(raw).toContain("confirm_scheduled_report_downgrade");

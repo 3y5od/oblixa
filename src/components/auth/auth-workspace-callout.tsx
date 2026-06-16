@@ -33,7 +33,7 @@ export function AuthWorkspaceCallout({ callout }: { callout: AuthCallout }) {
           {callout.showPrice ? <KeyValueChip label="Core" value={CORE_PRICE_LABEL} /> : null}
           <Link
             href={callout.link}
-            className="ui-btn-secondary group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold"
+            className="ui-btn-ghost group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--accent-strong)]"
           >
             {callout.linkText}
             <ArrowRight className="h-3.5 w-3.5 transition-transform motion-safe:group-hover:translate-x-0.5" strokeWidth={1.85} aria-hidden />

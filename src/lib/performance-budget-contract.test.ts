@@ -47,7 +47,12 @@ describe("V10 performance budget contract", () => {
     const k6Runner = readFileSync(join(process.cwd(), "scripts/k6-smoke-runner.mjs"), "utf8");
     const coreGating = readFileSync(join(process.cwd(), "src/app/(dashboard)/dashboard/dashboard-core-data-gating.test.ts"), "utf8");
     const advancedGating = readFileSync(join(process.cwd(), "src/app/(dashboard)/dashboard/dashboard-advanced-data-gating.test.ts"), "utf8");
-    const commandPalette = readFileSync(join(process.cwd(), "src/components/layout/command-palette.tsx"), "utf8");
+    const commandPalette = [
+      "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-state.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
 
     expect(k6Smoke).toContain("K6_PATHS");
     expect(k6Smoke).toContain("STAGING_BASE_URL");

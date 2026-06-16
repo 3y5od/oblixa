@@ -18,7 +18,7 @@ import { AlertTriangle, Check, RefreshCw } from "lucide-react";
  *               synchronously (defensive; `router.refresh()` is otherwise
  *               fire-and-forget).
  */
-export function ReportsRefreshButton({ label = "Refresh report data" }: { label?: string }) {
+export function ReportsRefreshButton({ label = "Refresh report" }: { label?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [phase, setPhase] = useState<"idle" | "done" | "error">("idle");

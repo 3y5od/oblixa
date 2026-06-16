@@ -46,14 +46,14 @@ export function ChipPair({
       }}
     >
       <span
-        className="font-bold tracking-[0.14em]"
+        className="font-bold tracking-[0.08em]"
         style={{ color: ink }}
       >
         {primary.toUpperCase()}
       </span>
       {secondary ? (
         <span
-          className="font-medium tracking-[0.12em]"
+          className="font-medium tracking-[0.07em]"
           style={{ color: tone ? `color-mix(in oklab, ${ink} 70%, var(--text-secondary))` : "var(--text-secondary)" }}
         >
           {secondary.toUpperCase()}

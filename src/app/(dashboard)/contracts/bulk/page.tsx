@@ -1,7 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, ChevronRight, History, Inbox, Plus, UploadCloud } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronRight,
+  ClipboardCheck,
+  FileSpreadsheet,
+  History,
+  Inbox,
+  Layers,
+  Plus,
+  UploadCloud,
+} from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { BulkUploadForm } from "@/components/contracts/bulk-upload-form";
+import { TransformationRail } from "@/components/contracts/transformation-rail";
 import { ActionChip } from "@/components/ui/action-chip";
 import { ChipCapsule } from "@/components/ui/chip-capsule";
 import { CountChip } from "@/components/ui/count-chip";
@@ -11,14 +22,13 @@ import { RatioChip } from "@/components/ui/ratio-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TimeChip } from "@/components/ui/time-chip";
 import { ImportJobRetryButton } from "@/components/contracts/import-job-retry-button";
-import { CONTRACT_FILE_MAX_MB_LABEL } from "@/lib/constants/upload-limits";
 import { canEditContracts } from "@/lib/permissions";
 import { getImportJobHeadline, importJobCanRetry } from "@/lib/import-job-visibility";
 import { importJobBadge, type ImportJobBadge } from "@/lib/import-job-badge";
 import { isPlanEnforcementEnabled, orgHasActivePlan } from "@/lib/plan";
 import type { OrgRole } from "@/lib/types";
 
-export const metadata = { title: "Import contracts" };
+export const metadata = { title: "Import tracker rows" };
 
 export default async function BulkImportPage(props: {
   searchParams: Promise<{ tab?: string | string[] }>;
@@ -114,7 +124,7 @@ export default async function BulkImportPage(props: {
                 aria-hidden
                 className="h-3 w-px shrink-0 bg-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)]"
               />
-              <span className="ui-caps-3 truncate text-[10px] text-[var(--text-tertiary)]">
+              <span className="truncate text-[11px] text-[var(--text-tertiary)]">
                 {job.source === "files" ? "Signed files" : "CSV"}
               </span>
             </span>
@@ -129,7 +139,7 @@ export default async function BulkImportPage(props: {
                 <RatioChip
                   numerator={inserted}
                   denominator={total}
-                  suffix="created"
+                  suffix="contracts created"
                   tone={errors > 0 ? "warning" : inserted > 0 ? "success" : undefined}
                 />
               ) : null}
@@ -139,7 +149,7 @@ export default async function BulkImportPage(props: {
             </span>
             <span
               aria-hidden
-              className="ui-caps-3 inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10px] text-[var(--accent-strong)] opacity-40 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+              className="inline-flex shrink-0 items-center gap-0.5 rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--accent-strong)] opacity-40 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
             >
               Open
               <ChevronRight className="h-2.5 w-2.5" strokeWidth={2} />
@@ -148,7 +158,7 @@ export default async function BulkImportPage(props: {
         </Link>
         {canRetry ? (
           <div className="mt-1.5 flex justify-end transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
-            <ImportJobRetryButton jobId={job.id} className="rounded-full px-2.5 py-0.5" />
+            <ImportJobRetryButton jobId={job.id} className="rounded-md px-2.5 py-0.5" />
           </div>
         ) : null}
       </li>
@@ -160,7 +170,7 @@ export default async function BulkImportPage(props: {
       <div className="flex flex-col gap-4">
         <Link
           href="/contracts"
-          className="ui-btn-ghost inline-flex max-w-max items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px]"
+          className="inline-flex max-w-max items-center gap-1.5 text-[12px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
           Back to contracts
@@ -169,28 +179,22 @@ export default async function BulkImportPage(props: {
         <DashboardPageHeader
           icon={<UploadCloud className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
           eyebrow="Contract import"
-          title="Import contracts"
-          lead="Import a tracker CSV or signed agreements, then review the records."
+          title="Import tracker rows"
+          titleFont="serif"
+          lead="Bring signed-contract tracker rows into Oblixa, then confirm the suggested details before they appear in reminders, tasks, and reports."
           density="default"
-          metaStrip={
-            <div className="flex flex-wrap items-center gap-1.5">
-              <KeyValueChip label="CSV" value="2 MB" />
-              <KeyValueChip label="Files" value={CONTRACT_FILE_MAX_MB_LABEL} />
-              <KeyValueChip label="Review" value="required" />
-            </div>
-          }
           actions={
             <>
               <Link
                 href="/contracts/new"
-                className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
+                className="ui-btn-secondary inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px] font-semibold"
               >
                 <Plus className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                Upload single contract
+                Upload contract
               </Link>
               <Link
                 href="/contracts"
-                className="ui-btn-ghost inline-flex items-center rounded-full px-3 py-1.5 text-[12.5px]"
+                className="ui-btn-ghost inline-flex items-center px-3 py-1.5 text-[12.5px]"
               >
                 View contracts
               </Link>
@@ -198,6 +202,30 @@ export default async function BulkImportPage(props: {
           }
         />
       </div>
+
+      {/* Source-to-record transformation (§9): a tracker CSV becomes contract
+          records, which then enter Contract Details Review. The shared rail
+          frames the whole page; the per-source step path lives inside the form. */}
+      <TransformationRail
+        className="mt-4"
+        nodes={[
+          {
+            icon: <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />,
+            label: "Tracker CSV",
+            caption: "Rows exported from a contract tracker",
+          },
+          {
+            icon: <Layers className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />,
+            label: "Contract records",
+            caption: "One record per row, with suggested details",
+          },
+          {
+            icon: <ClipboardCheck className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />,
+            label: "Contract Details Review",
+            caption: "Confirm details before they drive reminders and tasks",
+          },
+        ]}
+      />
 
       {/* Import cockpit: the form is the one focal surface in the main column;
           import status is a calmer companion rail (sticky on wide viewports). */}
@@ -222,31 +250,31 @@ export default async function BulkImportPage(props: {
         <aside className="min-w-0 lg:sticky lg:top-[calc(var(--shell-topbar-h)+1rem)] lg:self-start">
           <section
             id="recent-imports"
-            className="ui-card-quiet rounded-2xl p-4"
-            aria-label="Import status"
+            className="ui-card-quiet rounded-lg p-4"
+            aria-label="Import jobs"
           >
             <header className="flex flex-wrap items-center gap-2">
               <span
                 aria-hidden
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] text-[var(--accent-strong)]"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
               >
-                <History className="h-4 w-4" strokeWidth={1.85} />
+                <History className="h-3.5 w-3.5" strokeWidth={1.85} />
               </span>
-              <p className="ui-caps-2 text-[11px] text-[var(--text-secondary)]">Import status</p>
+              <p className="text-[13px] font-semibold text-[var(--text-primary)]">Import jobs</p>
               {recentCount > 0 ? <CountChip value={recentCount} /> : null}
             </header>
 
             {recentCount === 0 ? (
-              <div className="mt-4 flex flex-col items-center gap-2 rounded-xl border border-dashed border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-8 text-center">
+              <div className="mt-4 flex flex-col items-center gap-2 rounded-lg border border-dashed border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-8 text-center">
                 <span
                   aria-hidden
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
                 >
                   <Inbox className="h-4 w-4" strokeWidth={1.85} />
                 </span>
-                <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">No import jobs yet</p>
-                <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-                  Imports you run will appear here
+                <p className="text-[12.5px] font-medium text-[var(--text-primary)]">No import jobs yet</p>
+                <p className="text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+                  Import results and row corrections appear here.
                 </p>
               </div>
             ) : (
@@ -267,7 +295,7 @@ export default async function BulkImportPage(props: {
                 <div className="mt-2 max-h-[26rem] space-y-3 overflow-y-auto">
                   {activeJobs.length > 0 ? (
                     <div>
-                      <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">In progress</p>
+                      <p className="text-[11px] font-medium text-[var(--text-tertiary)]">In progress</p>
                       <ul className="mt-1.5 space-y-1">
                         {activeJobs.map((entry) => renderJobRow(entry, true))}
                       </ul>
@@ -277,7 +305,7 @@ export default async function BulkImportPage(props: {
                   {completedJobs.length > 0 ? (
                     <div>
                       {activeJobs.length > 0 ? (
-                        <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Recent imports</p>
+                        <p className="text-[11px] font-medium text-[var(--text-tertiary)]">Recent imports</p>
                       ) : null}
                       <ul className={`space-y-1 ${activeJobs.length > 0 ? "mt-1.5" : ""}`}>
                         {completedJobs.map((entry) => renderJobRow(entry))}
@@ -287,7 +315,7 @@ export default async function BulkImportPage(props: {
                 </div>
 
                 <div className="mt-4 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3.5">
-                  <p className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Review imported records</p>
+                  <p className="text-[11px] font-medium text-[var(--text-tertiary)]">Review imported records</p>
                   <div className="mt-2">
                     {totalImported > 0 ? (
                       <ChipCapsule

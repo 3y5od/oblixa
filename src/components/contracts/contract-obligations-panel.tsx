@@ -2,34 +2,23 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { ExternalLink } from "@/components/ui/external-link";
 import {
-  applyObligationTemplatesToContractForm,
   createContractObligation,
   deleteContractObligation,
   updateContractObligation,
 } from "@/actions/obligations";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
-import { UiSelect } from "@/components/ui/ui-select";
-import { formatBusinessDateAtNoon } from "@/lib/business-dates";
-import type { ContractObligation, ContractObligationStatus } from "@/lib/types";
-import { graphLinksForEntity, type ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
-import { ESCALATION_OPTIONS, RECURRENCE_OPTIONS, STATUS_OPTIONS, statusTone } from "@/components/contracts/contract-obligations-panel-options";
+import type { ContractObligationStatus } from "@/lib/types";
+import { ContractObligationCreateTools } from "@/components/contracts/contract-obligations-create-form";
+import { ContractObligationListItem } from "@/components/contracts/contract-obligations-row";
+import type {
+  MemberOption,
+  ObligationEvent,
+  ObligationRow,
+} from "@/components/contracts/contract-obligations-panel-types";
+import type { ExecutionGraphEdgeRow } from "@/lib/contract-operations/graph-edge-labels";
 
-type MemberOption = { userId: string; label: string };
-type ObligationRow = Pick<
-  ContractObligation,
-  | "id" | "title" | "details" | "obligation_type" | "cadence"
-  | "recurrence_type" | "recurrence_interval_days" | "next_due_date" | "escalation_due_at"
-  | "escalation_status"
-  | "due_date"
-  | "status"
-  | "owner_id"
-  | "evidence_notes"
-  | "evidence_url"
-  | "completed_at"
->;
+type RecurrenceType = "none" | "daily" | "weekly" | "monthly" | "quarterly" | "yearly" | "custom_days";
 
 export function ContractObligationsPanel({
   contractId,
@@ -44,13 +33,7 @@ export function ContractObligationsPanel({
   members: MemberOption[];
   canEdit: boolean;
   executionGraphEdges?: ExecutionGraphEdgeRow[];
-  obligationEvents: Array<{
-    id: string;
-    obligation_id: string;
-    event_type: string;
-    details: Record<string, unknown> | null;
-    created_at: string;
-  }>;
+  obligationEvents: ObligationEvent[];
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -70,15 +53,7 @@ export function ContractObligationsPanel({
         details: String(formData.get("details") ?? ""),
         obligationType: String(formData.get("obligationType") ?? ""),
         cadence: String(formData.get("cadence") ?? ""),
-        recurrenceType:
-          (String(formData.get("recurrenceType") ?? "none") as
-            | "none"
-            | "daily"
-            | "weekly"
-            | "monthly"
-            | "quarterly"
-            | "yearly"
-            | "custom_days"),
+        recurrenceType: String(formData.get("recurrenceType") ?? "none") as RecurrenceType,
         recurrenceIntervalDays: Number(
           String(formData.get("recurrenceIntervalDays") ?? "").trim() || "0"
         ),
@@ -142,9 +117,7 @@ export function ContractObligationsPanel({
     setError(null);
     startTransition(async () => {
       const recurrenceType = String(formData.get("recurrenceType") ?? "").trim();
-      const recurrenceIntervalDaysRaw = String(
-        formData.get("recurrenceIntervalDays") ?? ""
-      ).trim();
+      const recurrenceIntervalDaysRaw = String(formData.get("recurrenceIntervalDays") ?? "").trim();
       const escalationDueAt = String(formData.get("escalationDueAt") ?? "").trim();
       const escalationStatus = String(formData.get("escalationStatus") ?? "").trim();
       const evidenceUrl = String(formData.get("evidenceUrl") ?? "").trim();
@@ -154,15 +127,7 @@ export function ContractObligationsPanel({
         : null;
       const res = await updateContractObligation({
         obligationId: id,
-        recurrenceType:
-          (recurrenceType as
-            | "none"
-            | "daily"
-            | "weekly"
-            | "monthly"
-            | "quarterly"
-            | "yearly"
-            | "custom_days") || undefined,
+        recurrenceType: (recurrenceType as RecurrenceType) || undefined,
         recurrenceIntervalDays:
           recurrenceIntervalDays != null && Number.isFinite(recurrenceIntervalDays)
             ? recurrenceIntervalDays
@@ -183,332 +148,38 @@ export function ContractObligationsPanel({
 
   return (
     <div className="space-y-4">
-      {canEdit && (
-        <form action={onCreate} className="grid gap-3 rounded-xl border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_45%,var(--canvas))] p-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="ui-label-caps">Requirement</label>
-              <input aria-label="Deliver quarterly compliance report" name="title"
-                required
-                maxLength={240}
-                placeholder="Deliver quarterly compliance report"
-                className="ui-input w-full"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Type</label>
-              <input aria-label="reporting" name="obligationType"
-                maxLength={80}
-                placeholder="reporting"
-                className="ui-input w-full"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Cadence</label>
-              <input aria-label="monthly / quarterly / annual" name="cadence"
-                maxLength={120}
-                placeholder="monthly / quarterly / annual"
-                className="ui-input w-full"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Recurrence</label>
-              <UiSelect
-                name="recurrenceType"
-                defaultValue="none"
-                ariaLabel="Recurrence"
-                options={RECURRENCE_OPTIONS}
-                variant="compact"
-                portal
-                className="w-full"
-                buttonClassName="w-full !min-h-11"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Recurrence interval days</label>
-              <input aria-label="e.g. 30" name="recurrenceIntervalDays"
-                type="number"
-                min={1}
-                max={3650}
-                placeholder="e.g. 30"
-                className="ui-input w-full"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Owner</label>
-              <UiSelect
-                name="ownerId"
-                defaultValue=""
-                ariaLabel="Owner"
-                options={[
-                  { value: "", label: "Unassigned" },
-                  ...members.map((m) => ({ value: m.userId, label: m.label })),
-                ]}
-                variant="compact"
-                portal
-                searchThreshold={8}
-                className="w-full"
-                buttonClassName="w-full !min-h-11"
-              />
-            </div>
-            <div>
-              <label className="ui-label-caps">Due date</label>
-              <input aria-label="Due date" name="dueDate" type="date" className="ui-input w-full" />
-            </div>
-            <div>
-              <label className="ui-label-caps">Escalation due at</label>
-              <input aria-label="Escalation due at" name="escalationDueAt" type="datetime-local" className="ui-input w-full" />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="ui-label-caps">Details (optional)</label>
-              <textarea
-                name="details"
-                rows={2}
-                maxLength={4000}
-                placeholder="Capture criteria, source clause, and evidence expectations."
-                className="ui-input w-full resize-y"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="ui-label-caps">Evidence URL (optional)</label>
-              <input aria-label="https://..." name="evidenceUrl"
-                type="url"
-                placeholder="https://..."
-                className="ui-input w-full"
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-[var(--text-tertiary)]">Requirements track non-date commitments tied to this contract.</p>
-            <button type="submit" disabled={isPending} className="ui-btn-primary px-4 py-2 text-[12.5px]">
-              {isPending ? "Saving..." : "Add requirement"}
-            </button>
-          </div>
-        </form>
-      )}
-      {canEdit && (
-        <form action={applyObligationTemplatesToContractForm.bind(null, contractId) as never}>
-          <button type="submit" disabled={isPending} className="ui-btn-secondary px-4 py-2 text-[12.5px]">
-            Apply templates for this contract type
-          </button>
-        </form>
-      )}
-
-      {error && (
+      {canEdit ? (
+        <ContractObligationCreateTools
+          contractId={contractId}
+          members={members}
+          isPending={isPending}
+          onCreate={onCreate}
+        />
+      ) : null}
+      {error ? (
         <p className="ui-alert-error text-sm" role="alert">
           {error}
         </p>
-      )}
-
+      ) : null}
       {obligations.length === 0 ? (
         <p className="text-sm text-[var(--text-tertiary)]">No requirements recorded yet.</p>
       ) : (
         <ul className="space-y-3">
           {obligations.map((ob) => (
-            <li key={ob.id} className="rounded-xl border border-[var(--border-subtle)] bg-surface p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[var(--text-primary)]">{ob.title}</p>
-                  {ob.details && (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--text-secondary)]">{ob.details}</p>
-                  )}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                    <span className={`rounded-full border px-2 py-0.5 font-medium ${statusTone(ob.status)}`}>
-                      {ob.status.replace("_", " ")}
-                    </span>
-                    <span className="rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_58%,var(--canvas))] px-2 py-0.5 text-[var(--text-secondary)]">
-                      {ob.obligation_type}
-                    </span>
-                    {ob.cadence && <span className="text-[var(--text-tertiary)]">Cadence: {ob.cadence}</span>}
-                    {ob.recurrence_type && ob.recurrence_type !== "none" && (
-                      <span className="text-[var(--text-tertiary)]">
-                        Recurs: {ob.recurrence_type}
-                        {ob.recurrence_type === "custom_days" && ob.recurrence_interval_days
-                          ? ` (${ob.recurrence_interval_days}d)`
-                          : ""}
-                      </span>
-                    )}
-                    {ob.owner_id && (
-                      <span className="text-[var(--text-tertiary)]">
-                        Owner: {labelByUserId.get(ob.owner_id) ?? "Member"}
-                      </span>
-                    )}
-                    {ob.due_date && (
-                      <span className="text-[var(--text-tertiary)]">
-                        Due {formatBusinessDateAtNoon(ob.due_date)}
-                      </span>
-                    )}
-                    {ob.completed_at && (
-                      <span className="text-[var(--success-ink)]">
-                        Completed {format(new Date(ob.completed_at), "MMM d, yyyy")}
-                      </span>
-                    )}
-                    {ob.next_due_date && (
-                      <span className="text-[var(--text-tertiary)]">
-                        Next due {formatBusinessDateAtNoon(ob.next_due_date)}
-                      </span>
-                    )}
-                    {ob.escalation_due_at && (
-                      <span className="font-medium text-[var(--danger)]">
-                        Escalates {format(new Date(ob.escalation_due_at), "MMM d, yyyy")}
-                      </span>
-                    )}
-                  </div>
-                  {ob.evidence_notes && (
-                    <p className="mt-2 text-xs text-[var(--text-tertiary)]">Evidence: {ob.evidence_notes}</p>
-                  )}
-                  {ob.evidence_url && (
-                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-                      Evidence link:{" "}
-                      <ExternalLink
-                        href={ob.evidence_url}
-                        className="ui-link"
-                      >
-                        open
-                      </ExternalLink>
-                    </p>
-                  )}
-                  {(() => {
-                    const { blockedBy, unblocks } = graphLinksForEntity(
-                      executionGraphEdges,
-                      "obligation",
-                      ob.id
-                    );
-                    if (blockedBy.length === 0 && unblocks.length === 0) return null;
-                    return (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {blockedBy.map((label) => (
-                          <span
-                            key={`b-${ob.id}-${label}`}
-                            className="rounded border border-[color:color-mix(in_oklab,var(--warning)_42%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning)_12%,var(--surface))] px-2 py-0.5 text-[11px] text-[var(--warning-ink)]"
-                          >
-                            Input needed: {label}
-                          </span>
-                        ))}
-                        {unblocks.map((label) => (
-                          <span
-                            key={`u-${ob.id}-${label}`}
-                            className="rounded border border-sky-200 bg-sky-50/80 px-2 py-0.5 text-[11px] text-sky-900"
-                          >
-                            {label}
-                          </span>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                  {obligationEvents.filter((event) => event.obligation_id === ob.id).length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {obligationEvents
-                        .filter((event) => event.obligation_id === ob.id)
-                        .slice(0, 4)
-                        .map((event) => (
-                          <li key={event.id} className="text-[11px] text-[var(--text-tertiary)]">
-                            {event.event_type.replace(/_/g, " ")} ·{" "}
-                            {format(new Date(event.created_at), "MMM d, h:mm a")}
-                          </li>
-                        ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  {canEdit && (
-                    <>
-                      <UiSelect
-                        value={ob.status}
-                        onChange={(v) =>
-                          onStatusChange(ob.id, v as ContractObligationStatus)
-                        }
-                        disabled={isPending}
-                        ariaLabel="Requirement status"
-                        options={STATUS_OPTIONS}
-                        variant="compact"
-                        portal
-                        className="min-w-[8.5rem]"
-                        buttonClassName="w-full !min-h-11 text-xs"
-                      />
-                      <UiSelect
-                        value={ob.owner_id ?? ""}
-                        onChange={(v) => onOwnerChange(ob.id, v)}
-                        disabled={isPending}
-                        ariaLabel="Requirement owner"
-                        options={[
-                          { value: "", label: "Unassigned" },
-                          ...members.map((m) => ({ value: m.userId, label: m.label })),
-                        ]}
-                        variant="compact"
-                        portal
-                        searchThreshold={8}
-                        className="min-w-[9rem]"
-                        buttonClassName="w-full !min-h-11 text-xs"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => onDelete(ob.id)}
-                        disabled={isPending}
-                        className="ui-btn-secondary px-3 py-1.5 text-xs"
-                      >
-                        Remove
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-              {canEdit && (
-                <form action={onOperationalUpdate.bind(null, ob.id)} className="mt-3 grid gap-2 sm:grid-cols-5">
-                  <UiSelect
-                    name="recurrenceType"
-                    defaultValue={ob.recurrence_type ?? "none"}
-                    ariaLabel="Recurrence"
-                    options={RECURRENCE_OPTIONS}
-                    variant="compact"
-                    portal
-                    className="w-full"
-                    buttonClassName="w-full !min-h-11 text-xs"
-                  />
-                  <input aria-label="interval" name="recurrenceIntervalDays"
-                    type="number"
-                    min={1}
-                    max={3650}
-                    defaultValue={ob.recurrence_interval_days ?? ""}
-                    placeholder="interval"
-                    className="ui-input py-1.5 text-xs"
-                  />
-                  <UiSelect
-                    name="escalationStatus"
-                    defaultValue={ob.escalation_status ?? "none"}
-                    ariaLabel="Escalation status"
-                    options={ESCALATION_OPTIONS}
-                    variant="compact"
-                    portal
-                    className="w-full"
-                    buttonClassName="w-full !min-h-11 text-xs"
-                  />
-                  <input aria-label="Escalation due at" name="escalationDueAt"
-                    type="datetime-local"
-                    defaultValue={
-                      ob.escalation_due_at
-                        ? new Date(ob.escalation_due_at).toISOString().slice(0, 16)
-                        : ""
-                    }
-                    className="ui-input py-1.5 text-xs"
-                  />
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    Save ops fields
-                  </button>
-                  <input aria-label="Evidence URL" name="evidenceUrl"
-                    type="url"
-                    defaultValue={ob.evidence_url ?? ""}
-                    placeholder="Evidence URL"
-                    className="ui-input py-1.5 text-xs sm:col-span-2"
-                  />
-                  <input aria-label="Evidence notes" name="evidenceNotes"
-                    defaultValue={ob.evidence_notes ?? ""}
-                    placeholder="Evidence notes"
-                    className="ui-input py-1.5 text-xs sm:col-span-3"
-                  />
-                </form>
-              )}
-            </li>
+            <ContractObligationListItem
+              key={ob.id}
+              obligation={ob}
+              members={members}
+              canEdit={canEdit}
+              isPending={isPending}
+              labelByUserId={labelByUserId}
+              obligationEvents={obligationEvents}
+              executionGraphEdges={executionGraphEdges}
+              onDelete={onDelete}
+              onOwnerChange={onOwnerChange}
+              onOperationalUpdate={onOperationalUpdate}
+              onStatusChange={onStatusChange}
+            />
           ))}
         </ul>
       )}

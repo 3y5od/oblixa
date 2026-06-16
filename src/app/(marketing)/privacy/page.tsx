@@ -55,8 +55,8 @@ const PROCESSED: ReadonlyArray<{ term: string; detail: string }> = [
   { term: "Billing data", detail: "Subscription and payment status (card data is held by our billing provider)." },
   { term: "Workspace and team", detail: "Membership, roles, and workspace identity." },
   { term: "Uploaded contract files", detail: "Signed agreements you upload (PDF, DOCX)." },
-  { term: "Extracted text and reviewed fields", detail: "Document text and the fields your team reviews." },
-  { term: "Operational records", detail: "Tasks, approvals, obligations, reminders, and evidence." },
+  { term: "Extracted text and confirmed details", detail: "Document text and the details your team reviews." },
+  { term: "Operational records", detail: "Tasks, approvals, contract requirements, reminders, and evidence." },
   { term: "Activity and audit events", detail: "Who did what, with actor and timestamp." },
   { term: "Exports and reports", detail: "CSV exports and operational reports you generate." },
   { term: "Access requests and contact messages", detail: "What you send through public forms." },
@@ -165,11 +165,11 @@ export default function PrivacyPage() {
               </p>
             </PolicyCard>
 
-            <PolicyCard id="ai" eyebrow="AI and review" title="AI-assisted extraction" icon={Sparkles}>
+            <PolicyCard id="ai" eyebrow="AI and review" title="AI-assisted suggestions" icon={Sparkles}>
               <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
                 Where you use extraction, uploaded files or extracted text may be sent to an AI provider only to
-                suggest operational fields. A source snippet backs each suggestion where available, and values are
-                not trusted until your team reviews and approves them. Oblixa does not provide legal advice.
+                suggest operational details. A source snippet backs each suggestion where available, and values are
+                not trusted until your team reviews and confirms them. Oblixa does not provide legal advice.
               </p>
               <p className="mt-2.5 text-[12px] leading-snug text-[var(--text-tertiary)]">
                 You remain responsible for only uploading data your organization is authorized to process.

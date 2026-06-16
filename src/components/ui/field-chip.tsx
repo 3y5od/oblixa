@@ -46,15 +46,20 @@ export function FieldChip({
       : size === "md"
         ? "px-2 py-1 text-[11px]"
         : "px-1.5 py-0.5 text-[10px]";
+  // Line-height lives here, per transform: uppercase labels have no descenders,
+  // so they stay compact at `leading-none`; preserve (mixed-case) labels — e.g. a
+  // contract title — need `leading-tight` so the inner `truncate` (overflow:hidden)
+  // doesn't clip g/p/y descenders. (Keeping `leading-none` in the base class too
+  // would collide with this — two line-height utilities, undefined winner.)
   const transformClass =
     transform === "preserve"
-      ? "normal-case tracking-normal"
-      : "uppercase tracking-[0.08em]";
+      ? "normal-case tracking-normal leading-tight"
+      : "uppercase tracking-[0.08em] leading-none";
   return (
     <span
       title={title ?? label}
       aria-label={ariaLabel}
-      className={`inline-flex max-w-full items-center rounded-md border font-medium leading-none ${sizeClass} ${transformClass} ${
+      className={`inline-flex max-w-full items-center rounded-md border font-medium ${sizeClass} ${transformClass} ${
         variant === "dashed" ? "border-dashed" : ""
       } ${className ?? ""}`.trim()}
       style={{

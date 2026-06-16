@@ -41,7 +41,7 @@ const planFacts = [
 // Included Core capabilities, grouped by workflow stage.
 const capabilities = [
   { group: "Add", detail: "Upload signed PDFs and DOCX, or import a spreadsheet tracker" },
-  { group: "Review", detail: "Approve source-backed suggested fields" },
+  { group: "Review", detail: "Confirm source-backed suggested details" },
   { group: "Track", detail: "Owners, renewals, notice dates, and work" },
   { group: "Collect", detail: "Request and review evidence" },
   { group: "Report", detail: "Operational reports and CSV export" },
@@ -81,7 +81,7 @@ const faq = [
   {
     question: "What happens after access is approved?",
     answer:
-      "You create your workspace, upload or import a small set of signed contracts, and review the first source-backed fields. Paid Core continues monthly once you complete checkout.",
+      "You create your workspace, upload or import a small set of signed contracts, and review the first source-backed details. Paid Core continues monthly once you complete checkout.",
   },
   {
     question: "Do we need to migrate every contract?",
@@ -91,7 +91,7 @@ const faq = [
   {
     question: "Does Oblixa replace contract drafting or e-signature tools?",
     answer:
-      "No. Oblixa starts after contracts are signed and focuses on tracking dates, owners, obligations, evidence, and reports. It does not draft, redline, or e-sign, and it does not provide legal advice.",
+      "No. Oblixa starts after contracts are signed and focuses on tracking dates, owners, contract requirements, evidence, and reports. It does not draft, redline, or e-sign, and it does not provide legal advice.",
   },
   {
     question: "Can we cancel or export our data?",

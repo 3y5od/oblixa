@@ -39,7 +39,9 @@ export function TopbarSearch() {
         name="q"
         testId={shellTestIds.headerSearch}
         ariaLabel="Search workspace"
-        placeholder="Search workspace"
+        // Product-specific hint so the field names what it searches; the short
+        // fallback keeps it from clipping once the field is tight.
+        placeholder={tight ? "Search" : "Search contracts, tasks, reports"}
         // Drop the ⌘K badge when the field is tight so it never clips against the
         // value/placeholder; ⌘K still works (bound globally) and is announced via
         // aria-keyshortcuts.

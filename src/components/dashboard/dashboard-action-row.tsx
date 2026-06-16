@@ -66,7 +66,7 @@ export function DashboardActionRow({
     <Link
       href={href}
       aria-label={ariaLabel}
-      className={`group relative flex items-center gap-3 rounded-xl px-3 ${
+      className={`group relative flex items-center gap-3 rounded-[6px] px-3 ${
         paddingClassName ?? "py-3"
       } ${minHeightClassName ?? "min-h-[3rem]"} transition-colors duration-200 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none ${
         ink ? "" : ACCENT_HOVER_RAIL

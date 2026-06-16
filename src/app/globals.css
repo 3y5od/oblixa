@@ -3,6 +3,9 @@
 @theme inline {
   --font-sans: var(--font-sans-display), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Display serif (Source Serif 4) — wired so `font-serif` utilities resolve.
+     Used for editorial/legal/auth orientation headings, never dense UI. */
+  --font-serif: var(--font-serif-display), Georgia, "Times New Roman", serif;
   /* v46 editorial geometry — the LP system's low radii become the global
      scale: 3px controls, 4px artifacts, nothing balloon-shaped. */
   --radius-sm: 0.1875rem;
@@ -18,6 +21,8 @@
   --color-surface-contrast: var(--surface-contrast);
   --color-surface-muted: var(--surface-muted);
   --color-surface-inset: var(--surface-inset);
+  --color-surface-cool: var(--surface-cool);
+  --color-surface-cool-strong: var(--surface-cool-strong);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
@@ -36,6 +41,8 @@
   --color-danger-ink: var(--danger-ink);
   --color-info-soft: var(--info-soft);
   --color-info-ink: var(--info-ink);
+  --color-calculated-soft: var(--calculated-soft);
+  --color-calculated-ink: var(--calculated-ink);
   --color-sidebar: var(--sidebar);
   --color-sidebar-border: var(--sidebar-border);
 }
@@ -47,14 +54,26 @@
      green confirmed, neutral steel waiting states. Promoted verbatim from
      the former .lp-root scope so every public page and app route shares
      one system. */
-  --canvas: #f7f8f5; /* porcelain — neutral editorial/proof ground */
-  --canvas-strong: #f1e6d2; /* parchment — document/trust ground */
-  --canvas-deep: #e9eff3; /* steel mist — operational band */
-  --surface: #fafbf9;
-  --surface-raised: #ffffff;
-  --surface-contrast: #edf0ef;
-  --surface-muted: #eef1f1; /* cool chrome bands */
-  --surface-inset: #f4ecdb; /* parchment source paper — document zones only */
+  /* v50 — restored the warm legal-paper ground (the product direction: a warm
+     off-white document register, never pale-blue) with the established cobalt
+     action accent. Supersedes the brief v49 neutral pass. Surfaces are warm
+     paper; cards stay near-white sheets; slate text is unchanged for contrast. */
+  /* v51 — middle-ground neutral pass: the general canvas + large section
+     grounds cool a notch toward greige (less beige real estate), while the
+     source/document paper (--surface-inset) and trust insets stay warm. A
+     dedicated cool-gray inspection register is added for decision/inspection
+     panes so source (warm) and inspection (cool) read as distinct zones. */
+  --canvas: #f4f3ee; /* cooler ivory paper — editorial/proof ground */
+  --canvas-strong: #eeeae0; /* greige section ground — less beige than parchment */
+  --canvas-deep: #e8e6dd; /* cool greige — operational band */
+  --surface: #f9f8f4;
+  --surface-raised: #fffefb; /* near-white record sheet */
+  --surface-contrast: #eae7df;
+  --surface-muted: #edeae3; /* warm chrome bands */
+  --surface-inset: #f4ecdb; /* parchment source paper — document zones only (kept warm) */
+  --surface-cool: #eceef1; /* cool-gray inspection/decision pane */
+  --surface-cool-strong: #e2e6ea; /* cool-gray pane header/zebra */
+  --border-cool: #d3d9de; /* cool-gray pane rule */
   --accent: #2257d6;
   --accent-strong: #0b49c8; /* cobalt — actions and selection only */
   --accent-soft: #dce7fa;
@@ -65,32 +84,43 @@
   --text-primary: #11140f; /* ink */
   --text-secondary: #374151; /* slate body */
   --text-tertiary: #6b7280; /* steel */
-  --text-inverse: #f7f8f5;
-  --border-subtle: #d3dade;
-  --border-strong: #aeb8c2; /* directive rule gray */
-  --border-contrast: #939ea9;
+  --text-inverse: #f6f3ec;
+  --border-subtle: #ddd7c9; /* warm paper rule */
+  --border-strong: #b7af9d; /* directive rule gray (warm) */
+  --border-contrast: #9b927f;
   /* Sidebar — LIGHT chrome in light mode (the staged app previews have no
-     dark rail); the dark-scheme block below keeps the dark rail there. */
-  --sidebar: #eef1f0;
-  --sidebar-surface: #f7f8f5;
-  --sidebar-border: #d3dade;
-  --sidebar-muted: #5b6470;
-  --sidebar-fg: #11140f;
-  --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
+     dark rail); the dark-scheme block below keeps the dark rail there.
+     v47 — warm porcelain margin: a quiet paper-like rail one step deeper than
+     the page canvas so it reads as a document margin rather than a cool-gray
+     SaaS rail. Ink + steel text shift to the warm legal-paper register; active
+     rows lift toward white with the reserved accent rail. Shell-scoped: the
+     global product/public palette is unchanged. */
+  --sidebar: #e7e8e4; /* deeper paper margin — one clear step below the page canvas so the rail reads as a document margin, not a floating panel */
+  --sidebar-surface: #edeeea;
+  --sidebar-border: #cfd0ca; /* firmer architectural rule between rail and content */
+  --sidebar-muted: #4d4f48; /* deeper neutral so idle route labels read clearly, not faintly */
+  --sidebar-fg: #1a1b17;
+  --sidebar-raised: #ffffff;
+  --sidebar-brand-shadow: 0 1px 2px color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
+  --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 56%, transparent);
   --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 14%, transparent);
-  --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 7%, transparent);
+  --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 9%, transparent);
   --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 66%, var(--accent));
-  --sidebar-warn-ink: #b76a12;
-  --sidebar-danger-ink: #8c1d2c;
+  --sidebar-warn-ink: #8a5a00;
+  --sidebar-danger-ink: #8b2f2f;
   --success-soft: #dceee4;
   --success-ink: #1f7a4d; /* confirmed green */
   --warning-soft: #f4e6c9;
   --warning-ink: #b76a12; /* source amber */
   --danger-soft: #f3dadd;
   --danger-ink: #8c1d2c; /* oxblood */
-  /* Neutral waiting states — no pale-blue pill default. */
-  --info-soft: #e8ecef;
-  --info-ink: #3f4954;
+  /* Neutral waiting states — warm parchment-grey, no pale-blue pill default. */
+  --info-soft: #ece6da;
+  --info-ink: #4a4438;
+  /* Calculated/derived values — cool steel, deliberately distinct from confirmed
+     green and the warm source amber so a calculated date never reads as confirmed. */
+  --calculated-soft: #e3e7ee;
+  --calculated-ink: #41506b;
   --focus-ring: color-mix(in oklab, var(--accent) 62%, var(--surface));
   --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px rgba(15, 23, 42, 0.04);
   --shadow-2: 0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.04);
@@ -123,14 +153,20 @@
   --z-sidebar: 40;
   --z-modal: 50;
   --z-toast: 60;
-  --shell-topbar-h: 3.5rem;
-  --shell-sidebar-w: 18.5rem;
-  --shell-sidebar-collapsed-w: 4.75rem;
+  --shell-topbar-h: 4rem;
+  --shell-sidebar-w: 16rem;
+  --shell-sidebar-collapsed-w: 4rem;
   --shell-collapsed-slot: 2.75rem;
   --shell-content-max: 1440px;
   --shell-avatar-size: 2rem;
-  --shell-account-menu-w: 18rem;
-  --sidebar-icon-idle: color-mix(in oklab, var(--sidebar-muted) 88%, transparent);
+  --shell-account-menu-w: min(19.5rem, calc(100vw - 1.5rem)); /* never let the account panel clip off a narrow viewport edge */
+  --shell-tooltip-w: 17rem;
+  /* Mobile drawer width + trigger hit-target were referenced by the mobile nav
+     but never defined; define them so the drawer has a real width and the
+     trigger a real tap target. */
+  --shell-drawer-w: min(20rem, 86vw);
+  --shell-mobile-trigger: 2.5rem;
+  --sidebar-icon-idle: color-mix(in oklab, var(--sidebar-muted) 92%, transparent);
   color-scheme: light;
 }
 
@@ -138,31 +174,38 @@
   :root {
     /* Dark-mode surface elevation steps tuned for clearer layered depth.
        Lightness deltas: canvas-deep 0.11 → surface 0.19 → raised 0.245 → contrast 0.29 → popover 0.32 */
-    --canvas: oklch(0.13 0.02 258);
-    --canvas-strong: oklch(0.17 0.02 258);
-    --canvas-deep: oklch(0.10 0.02 258);
-    --surface: oklch(0.19 0.018 258);
-    --surface-raised: oklch(0.245 0.02 258);
-    --surface-contrast: oklch(0.29 0.018 258);
-    --surface-muted: oklch(0.215 0.015 258);
-    --surface-inset: oklch(0.165 0.015 258);
+    /* v50 — warm charcoal paper (hue ~78, low chroma), lightness preserved so
+       contrast matches the prior steps. Restores the warm direction with the
+       established cobalt accent (supersedes the v49 neutral pass). */
+    --canvas: oklch(0.13 0.012 78);
+    --canvas-strong: oklch(0.17 0.014 78);
+    --canvas-deep: oklch(0.10 0.012 78);
+    --surface: oklch(0.19 0.012 78);
+    --surface-raised: oklch(0.245 0.013 78);
+    --surface-contrast: oklch(0.29 0.012 78);
+    --surface-muted: oklch(0.215 0.011 78);
+    --surface-inset: oklch(0.165 0.013 72);
+    --surface-cool: oklch(0.225 0.012 248); /* cool-gray inspection pane (dark) */
+    --surface-cool-strong: oklch(0.27 0.013 248);
+    --border-cool: oklch(0.4 0.016 248);
     --accent: oklch(0.72 0.19 264);
     --accent-strong: oklch(0.8 0.17 266);
     --accent-soft: oklch(0.3 0.07 262);
     --accent-fg: oklch(0.15 0.02 258);
     --accent-warm: oklch(0.82 0.12 65);
-    --text-primary: oklch(0.96 0.006 250);
-    --text-secondary: oklch(0.84 0.014 252);
-    --text-tertiary: oklch(0.64 0.012 253);
-    --text-inverse: oklch(0.15 0.02 258);
-    --border-subtle: oklch(0.36 0.018 258);
-    --border-strong: oklch(0.46 0.022 258);
-    --border-contrast: oklch(0.56 0.03 258);
-    --sidebar: oklch(0.12 0.02 258);
-    --sidebar-surface: oklch(0.17 0.022 258);
-    --sidebar-border: oklch(0.27 0.02 258);
-    --sidebar-muted: oklch(0.71 0.018 254);
-    --sidebar-fg: oklch(0.96 0.006 252);
+    --text-primary: oklch(0.96 0.005 80);
+    --text-secondary: oklch(0.84 0.012 80);
+    --text-tertiary: oklch(0.64 0.011 80);
+    --text-inverse: oklch(0.15 0.012 78);
+    --border-subtle: oklch(0.36 0.013 78);
+    --border-strong: oklch(0.46 0.016 78);
+    --border-contrast: oklch(0.56 0.02 78);
+    --sidebar: oklch(0.12 0.012 78);
+    --sidebar-surface: oklch(0.17 0.014 78);
+    --sidebar-raised: oklch(0.225 0.014 78);
+    --sidebar-border: oklch(0.27 0.013 78);
+    --sidebar-muted: oklch(0.71 0.014 80);
+    --sidebar-fg: oklch(0.96 0.005 80);
     --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
     --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 11%, transparent);
     --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
@@ -175,8 +218,10 @@
     --warning-ink: oklch(0.9 0.09 86);
     --danger-soft: oklch(0.27 0.07 24);
     --danger-ink: oklch(0.88 0.12 24);
-    --info-soft: oklch(0.28 0.05 250);
-    --info-ink: oklch(0.88 0.08 250);
+    --info-soft: oklch(0.28 0.035 78);
+    --info-ink: oklch(0.88 0.05 80);
+    --calculated-soft: oklch(0.3 0.03 260);
+    --calculated-ink: oklch(0.82 0.05 255);
     --focus-ring: color-mix(in oklab, var(--accent) 58%, transparent);
     --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24), 0 10px 28px rgba(0, 0, 0, 0.16);
     --shadow-2: 0 20px 48px rgba(0, 0, 0, 0.3), 0 6px 14px rgba(0, 0, 0, 0.14);
@@ -291,6 +336,35 @@
 @media (prefers-reduced-motion: no-preference) {
   details[open] > .ui-details-reveal {
     animation: ui-details-reveal var(--ui-duration-slow) var(--ui-ease-out) both;
+  }
+}
+
+/* §3.E source-evidence reveal: when a review field loads, the located value's
+   highlight pulses in once — a brief accent emphasis that draws the eye to the
+   source span, no glow or motion theatre (document-grade; mirrors the existing
+   product-target-flash idiom). Deliberately a resting → emphasis → resting pulse:
+   the 0%/100% frames equal the mark's resting Tailwind values (accent-soft 60% /
+   accent 30%), so if the animation never runs or is paused at either end the mark
+   shows its RESTING state, never a stuck over-emphasis. No fill-mode for the same
+   reason. Gated to no-preference, so reduced-motion users get the resting
+   highlight only (§21). */
+@keyframes ui-source-mark-reveal {
+  0% {
+    background-color: color-mix(in oklab, var(--accent-soft) 60%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+  30% {
+    background-color: color-mix(in oklab, var(--accent-soft) 92%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 55%, transparent);
+  }
+  100% {
+    background-color: color-mix(in oklab, var(--accent-soft) 60%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ui-source-mark-reveal {
+    animation: ui-source-mark-reveal 720ms var(--ui-ease-out);
   }
 }
 
@@ -488,6 +562,24 @@
     border-color: color-mix(in oklab, var(--border-subtle) 90%, transparent);
     background: var(--surface-raised);
     box-shadow: none;
+  }
+
+  /* §13 surface-role registers. The page's chrome and ledgers are warm
+     (--surface-raised / --surface-muted). These two classes give the other two
+     documented working registers a single, reusable token-backed background so
+     a surface signals what it *is* rather than reading as one more generic card:
+       • source     — parchment paper for source/document text wells (kept warm).
+       • inspection — cool-gray for the analysis/decision pane, so the place where
+                      you read evidence and decide is visibly distinct from the
+                      warm chrome that frames it. Warm "paper" artifacts (value
+                      wells, source excerpts) sit on top of it as the focal layer.
+     Background only, so they compose with existing border/radius/shadow
+     utilities. Both tokens are defined for light and dark, so no per-mode work. */
+  .ui-surface-source {
+    background: var(--surface-inset);
+  }
+  .ui-surface-inspection {
+    background: var(--surface-cool);
   }
 
   .ui-page-shell {
@@ -1531,9 +1623,9 @@
 
   @media (min-width: 1024px) {
     .ui-sidebar-link {
-      min-height: 2.375rem;
-      padding-top: 0.375rem;
-      padding-bottom: 0.375rem;
+      min-height: 2.5rem;
+      padding-top: 0.4375rem;
+      padding-bottom: 0.4375rem;
     }
   }
 
@@ -1550,29 +1642,32 @@
     color: var(--sidebar-fg);
   }
 
-  /* Refined selected state: a soft accent wash that fades to the right plus a
-     crisp left rail — no inset ring, so the row reads as "selected", not as a
-     pressed button. Text brightens to sidebar-fg; the rail carries the accent.
-     A solid token-anchored accent tint sits under the gradient so the row keeps
-     its accent identity even if the gradient layer is dropped. */
+  /* Refined selected state: the row lifts to a near-white surface — a "record"
+     pulled out of the porcelain margin — with a faint accent wash from the left
+     and a crisp accent rail. A quiet drop shadow separates it (separation, not
+     elevation theater); no inset ring, so the row reads as "selected", not as a
+     pressed button. Text brightens to sidebar-fg; the rail carries the accent. */
   .ui-sidebar-link-active {
     position: relative;
     color: var(--sidebar-fg);
-    background-color: color-mix(in oklab, var(--accent) 6%, transparent);
+    background-color: var(--sidebar-raised);
     background-image:
-      linear-gradient(90deg, color-mix(in oklab, var(--accent) 13%, transparent) 0%, color-mix(in oklab, var(--accent) 4%, transparent) 52%, transparent 86%);
+      linear-gradient(90deg, color-mix(in oklab, var(--accent) 14%, transparent) 0%, color-mix(in oklab, var(--accent) 5%, transparent) 58%, transparent 90%);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--sidebar-fg) 8%, transparent),
+      0 1px 3px color-mix(in oklab, var(--sidebar-fg) 13%, transparent);
   }
 
   .ui-sidebar-link-active::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 22%;
-    bottom: 22%;
-    width: 2px;
+    top: 16%;
+    bottom: 16%;
+    width: 3px;
     border-radius: 0 3px 3px 0;
     background: var(--accent-strong);
-    box-shadow: 0 0 8px -1px color-mix(in oklab, var(--accent) 50%, transparent);
+    box-shadow: 0 0 8px -1px color-mix(in oklab, var(--accent) 55%, transparent);
     pointer-events: none;
   }
 
@@ -1582,7 +1677,8 @@
      rather than a heavy full-width pill. */
   .ui-sidebar-link-active-rail {
     @apply relative;
-    background: color-mix(in oklab, var(--accent) 7%, transparent);
+    background: color-mix(in oklab, var(--sidebar-raised) 86%, var(--accent));
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--sidebar-fg) 8%, transparent);
   }
 
   .ui-sidebar-link-active-rail::before {
@@ -1616,7 +1712,7 @@
   }
 
   .ui-sidebar-sublink-indent {
-    padding-left: calc(0.75rem + 18px + 0.75rem);
+    padding-left: calc(0.75rem + 16px + 0.75rem);
   }
 
   .ui-source-quote {
@@ -1632,18 +1728,19 @@
     box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.08);
   }
 
+  /* v47: empty states join the flat record language — 4px corners, no
+     shadow, a quiet parchment field. Dashed border still signals the
+     "nothing here yet" affordance without the floating-card lift. */
   .ui-empty-state {
-    @apply border border-dashed px-8 py-14 text-center shadow-[var(--shadow-1)];
-    border-radius: var(--radius-4xl);
+    @apply border border-dashed px-8 py-14 text-center;
+    border-radius: 4px;
     border-color: color-mix(in oklab, var(--border-strong) 50%, transparent);
-    background:
-      radial-gradient(circle at top center, color-mix(in oklab, var(--accent) 10%, transparent), transparent 30%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, white) 0%, var(--surface-inset) 100%);
+    background: var(--surface-inset);
   }
 
   .ui-empty-state-compact {
     @apply px-5 py-8;
-    border-radius: var(--radius-2xl);
+    border-radius: 4px;
   }
 
   .ui-empty-state-title {
@@ -1665,35 +1762,32 @@
     @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-3;
   }
 
+  /* v47: operational/summary cards flatten to records — 4px corners, flat
+     surface, no radial accent, no shadow, no hover lift. Depth comes from
+     the border darkening on hover, not from elevation. */
   .ui-summary-card {
-    @apply border p-4 shadow-[var(--shadow-1)];
-    border-radius: var(--radius-2xl);
+    @apply border p-4;
+    border-radius: 4px;
     border-color: var(--border-subtle);
-    background:
-      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 5%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
+    background: var(--surface-raised);
   }
 
   .ui-operational-card {
-    @apply border p-4 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)];
-    border-radius: var(--radius-2xl);
+    @apply border p-4 hover:border-[var(--border-strong)];
+    border-radius: 4px;
     border-color: var(--border-subtle);
-    background:
-      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 7%, transparent), transparent 54%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
-    transition-property: background-color, color, border-color, box-shadow, transform;
+    background: var(--surface-raised);
+    transition-property: background-color, color, border-color, box-shadow;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
 
   .ui-operational-card-compact {
-    @apply border p-3.5 shadow-[var(--shadow-1)] hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)];
-    border-radius: calc(var(--radius-2xl) - 0.15rem);
+    @apply border p-3.5 hover:border-[var(--border-strong)];
+    border-radius: 4px;
     border-color: var(--border-subtle);
-    background:
-      radial-gradient(circle at top, color-mix(in oklab, var(--accent) 5%, transparent), transparent 56%),
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, white) 0%, var(--surface-raised) 100%);
-    transition-property: background-color, color, border-color, box-shadow, transform;
+    background: var(--surface-raised);
+    transition-property: background-color, color, border-color, box-shadow;
     transition-duration: var(--ui-duration-slow);
     transition-timing-function: var(--ui-ease-out);
   }
@@ -1708,16 +1802,14 @@
   }
 
   .ui-question-card {
-    @apply rounded-[1.5rem] border p-4 shadow-[var(--shadow-1)];
+    @apply rounded-[4px] border p-4;
     border-color: color-mix(in oklab, var(--border-subtle) 92%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, white) 0%, var(--surface-inset) 100%);
-    transition: border-color var(--ui-duration-slow) var(--ui-ease-out), box-shadow var(--ui-duration-slow) var(--ui-ease-out);
+    background: var(--surface-inset);
+    transition: border-color var(--ui-duration-slow) var(--ui-ease-out);
   }
 
   .ui-question-card:hover {
     border-color: color-mix(in oklab, var(--border-strong) 86%, transparent);
-    box-shadow: var(--shadow-2);
   }
 
   .ui-summary-title {
@@ -2104,6 +2196,20 @@
     background: var(--surface-raised);
     border-color: var(--border-strong);
     box-shadow: var(--shadow-1);
+  }
+
+  /* §13 surface-role registers must win over the dark .ui-card / .ui-card-raised
+     background overrides above when a register is composed onto a card (e.g. the
+     dashboard Review panel = `ui-card ui-surface-inspection`). These selectors are
+     equal-specificity to `.ui-card` but declared later in this same unlayered
+     block, so they take the cascade; the tokens are already dark-aware. Without
+     this, dark mode would silently fall back to warm chrome (light mode works via
+     the @layer ordering alone). */
+  .ui-surface-source {
+    background: var(--surface-inset);
+  }
+  .ui-surface-inspection {
+    background: var(--surface-cool);
   }
 
   .ui-table-shell {
@@ -4335,13 +4441,13 @@ html {
   /* Section canvas system: porcelain (the default --canvas), parchment for
      document/trust ground, steel mist for operational bands. */
   .lp-band-paper {
-    background: #f1e6d2;
+    background: #eeeae0;
   }
   .lp-band-workflow {
-    background: #e9eff3;
+    background: #e8e6dd;
   }
   .lp-band-mist {
-    background: #e9eff3;
+    background: #e8e6dd;
   }
 }
 
@@ -4436,6 +4542,30 @@ html {
   top: 3px;
   height: 1px;
   background: color-mix(in oklab, var(--border-subtle) 85%, transparent);
+}
+
+/* Document-margin motif — defined in v48; referenced since v35 directive 5.
+   A quiet amber margin rule down the left of an editorial paper field: the
+   legal-pad gutter. Decorative only — the consuming layout pads its content
+   clear of the gutter so text never crosses the rule. Pair with .lp-grain for
+   paper tooth. */
+.lp-doc-margin {
+  position: relative;
+  --lp-doc-gutter: 2.75rem;
+}
+.lp-doc-margin::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: var(--lp-doc-gutter);
+  width: 1px;
+  background: color-mix(in oklab, var(--accent-warm) 40%, transparent);
+  pointer-events: none;
+}
+@media (max-width: 40rem) {
+  .lp-doc-margin {
+    --lp-doc-gutter: 1.25rem;
+  }
 }
 
 /* ── Controls ───────────────────────────────────────────────────────────────
@@ -4603,7 +4733,7 @@ footer.ui-footer-shell::before {
 }
 @media (prefers-color-scheme: light) {
   footer.ui-footer-shell {
-    background: #e3eaee;
-    border-top-color: #aeb8c2;
+    background: #e7e1d4;
+    border-top-color: #b7af9d;
   }
 }

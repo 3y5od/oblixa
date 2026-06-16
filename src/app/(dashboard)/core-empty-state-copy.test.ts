@@ -6,6 +6,8 @@ import { AUTHENTICATED_A11Y_AND_VIEWPORT_PATHS } from "../../../e2e/authenticate
 const EXTRA_CORE_COPY_FILES = [
   "src/app/(dashboard)/reports/page.tsx",
   "src/app/(dashboard)/contracts/renewals/page.tsx",
+  "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx",
+  "src/app/(dashboard)/contracts/renewals/renewals-page-sections.tsx",
 ] as const;
 
 const BANNED_CORE_UPSELL_SNIPPETS = [

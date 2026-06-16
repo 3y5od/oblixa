@@ -5,7 +5,7 @@ export const GENERATED_PUBLIC_ROUTES = [
     "fixtureId": null,
     "routeFamily": "marketing",
     "shellFamily": "marketing",
-    "expectedHeading": "See how Oblixa fits together.",
+    "expectedHeading": "From signed contract to accountable follow-up.",
     "coverage": [
       "smoke",
       "a11y",

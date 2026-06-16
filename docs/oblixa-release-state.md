@@ -771,8 +771,8 @@ These are intended release defaults:
 | Import file type | UTF-8 CSV |
 | Contract file size | 25 MB per file |
 | Evidence file size | 25 MB per file |
-| Import CSV size | 10 MB |
-| Upload batch size | 50 files |
+| Import CSV size | 2 MB |
+| Upload batch size | 12 files |
 | Import row count | 5,000 rows |
 | Import column count | 50 columns |
 | Import cell length | 10,000 characters |
@@ -793,6 +793,11 @@ These are intended release defaults:
   reviewed workspaces with entitlement approval.
 - Limits can be made stricter by code-owned configuration for safety, but not
   broader without updating this section.
+- Import CSV size (2 MB) and upload batch size (12 files) are intentional
+  stricter ceilings recorded here to match the enforced code-owned constants
+  (`MAX_CSV_BYTES`/`MAX_IMPORT_BODY_CHARS` and `MAX_FILES`). Raising them to the
+  prior 10 MB / 50 file targets is a separate capacity/abuse-budget decision and
+  must update the code constants and this row together.
 - Public forms are rate-limited by IP and email. Intended defaults are 5 access
   or contact submissions per IP per hour, 3 access requests per email per day,
   10 login attempts per IP per 10 minutes, and 5 password-recovery attempts per

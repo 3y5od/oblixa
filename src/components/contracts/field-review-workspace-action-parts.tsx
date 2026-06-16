@@ -22,29 +22,6 @@ export function ActionAlert({ tone, children }: { tone: "warning" | "danger"; ch
   );
 }
 
-export function KeyLegend() {
-  const keys: Array<[string, string]> = [
-    ["A", "Confirm"],
-    ["E", "Edit"],
-    ["U", "Mark unknown"],
-    ["S", "Skip"],
-  ];
-  return (
-    <span className="ml-auto hidden items-center gap-1.5 self-center sm:inline-flex" aria-hidden>
-      <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">Keys</span>
-      {keys.map(([k, label]) => (
-        <kbd
-          key={k}
-          title={label}
-          className="rounded border border-[var(--border-card)] bg-[var(--surface)] px-1 font-mono text-[9px] font-normal not-italic leading-[1.5] text-[var(--text-tertiary)]"
-        >
-          {k}
-        </kbd>
-      ))}
-    </span>
-  );
-}
-
 export function isoDateSeed(value: string | null): string | null {
   if (!value) return null;
   const m = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim());

@@ -90,4 +90,50 @@ describe("settings actions", () => {
     expect(createClient).not.toHaveBeenCalled();
     expect(from).not.toHaveBeenCalled();
   });
+
+  it("updateOrgMemberRole rejects an invalid member id before auth or lookup", async () => {
+    const { updateOrgMemberRole } = await import("@/actions/settings");
+    const fd = new FormData();
+    fd.set("organizationId", "550e8400-e29b-41d4-a716-446655440000");
+    fd.set("targetUserId", "not-a-uuid");
+    fd.set("role", "admin");
+    const res = await updateOrgMemberRole(fd);
+    expect(res).toEqual({ error: "Invalid member" });
+    expect(createClient).not.toHaveBeenCalled();
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("updateOrgMemberRole refuses to assign Owner via the role field", async () => {
+    const { updateOrgMemberRole } = await import("@/actions/settings");
+    const fd = new FormData();
+    fd.set("organizationId", "550e8400-e29b-41d4-a716-446655440000");
+    fd.set("targetUserId", "550e8400-e29b-41d4-a716-446655440001");
+    fd.set("role", "owner");
+    const res = await updateOrgMemberRole(fd);
+    expect(res).toEqual({ error: "Invalid role" });
+    expect(createClient).not.toHaveBeenCalled();
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("removeOrgMember rejects an invalid member id before auth or lookup", async () => {
+    const { removeOrgMember } = await import("@/actions/settings");
+    const fd = new FormData();
+    fd.set("organizationId", "550e8400-e29b-41d4-a716-446655440000");
+    fd.set("targetUserId", "not-a-uuid");
+    const res = await removeOrgMember(fd);
+    expect(res).toEqual({ error: "Invalid member" });
+    expect(createClient).not.toHaveBeenCalled();
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("transferOrgOwnership rejects an invalid new-owner id before auth or lookup", async () => {
+    const { transferOrgOwnership } = await import("@/actions/settings");
+    const fd = new FormData();
+    fd.set("organizationId", "550e8400-e29b-41d4-a716-446655440000");
+    fd.set("newOwnerUserId", "not-a-uuid");
+    const res = await transferOrgOwnership(fd);
+    expect(res).toEqual({ error: "Invalid member" });
+    expect(createClient).not.toHaveBeenCalled();
+    expect(from).not.toHaveBeenCalled();
+  });
 });

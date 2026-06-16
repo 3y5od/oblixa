@@ -15,9 +15,13 @@ export interface PendingInviteRow {
   created_at: string;
 }
 
+// Canonical release roles (§24) — the stored `editor` value presents as
+// "Member"; the internal term is never shown.
 const roleLabels: Record<string, string> = {
+  owner: "Owner",
   admin: "Admin",
-  editor: "Editor",
+  editor: "Member",
+  member: "Member",
   viewer: "Viewer",
 };
 
@@ -124,7 +128,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                       onClick={() => run(() => resendOrgInvite(inv.id))}
                       className={GHOST_CHIP}
                     >
-                      Resend
+                      Resend invite
                     </button>
                     <button
                       type="button"
@@ -135,7 +139,7 @@ export function PendingInvitesList({ invites }: { invites: PendingInviteRow[] })
                       }}
                       className={DANGER_OUTLINE_CHIP}
                     >
-                      Revoke
+                      Revoke invite
                     </button>
                   </>
                 )}

@@ -1,41 +1,11 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import {
-  ArrowUpRight,
-  BadgeCheck,
-  BarChart3,
-  BellRing,
-  Boxes,
-  CalendarClock,
-  CreditCard,
-  FileCheck2,
-  Files,
-  Gavel,
-  GitBranch,
-  Grid2x2,
-  HeartPulse,
-  LayoutDashboard,
-  LayoutGrid,
-  ListChecks,
-  ListTodo,
-  Megaphone,
-  Search,
-  SearchCheck,
-  Settings,
-  Shield,
-  ShieldCheck,
-  Sparkles,
-  Stamp,
-  TrendingUp,
-  Wrench,
-} from "lucide-react";
+import { ArrowUpRight, LayoutGrid, Search } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { UiSelect } from "@/components/ui/ui-select";
 import {
   NAV_ITEMS,
   WORKFLOW_AREA_LABELS,
   getWorkflowAreaForNavItem,
-  type NavItem,
   type WorkflowArea,
   type WorkspaceRole,
 } from "@/lib/navigation";
@@ -56,63 +26,9 @@ import {
   resolveMorePageChrome,
   resolveWorkflowDestination,
   workflowDestinationForHref,
-  type WorkflowDestinationKey,
 } from "@/lib/product-surface/workflow-destinations";
 import { surfaceTestIds } from "@/lib/qa/test-ids";
-
-const JUMP_LINK_ICONS: Partial<Record<WorkflowDestinationKey, LucideIcon>> = {
-  programs: LayoutGrid,
-  relationships: GitBranch,
-  advanced_analytics: BarChart3,
-  maintenance: Wrench,
-  system_health: HeartPulse,
-  assurance: Shield,
-  program_evolution: Sparkles,
-  control_policies: ShieldCheck,
-  outcome_intelligence: TrendingUp,
-  assurance_analytics: BarChart3,
-};
-
-const NAV_ICON_BY_KEY: Record<string, LucideIcon> = {
-  dashboard: LayoutDashboard,
-  review: SearchCheck,
-  contracts: Files,
-  tasks: ListTodo,
-  renewals: CalendarClock,
-  exceptions: BellRing,
-  evidence: FileCheck2,
-  reports: BarChart3,
-  decisions: BadgeCheck,
-  campaigns: Megaphone,
-  assurance: Shield,
-  relationships: GitBranch,
-  programs: Boxes,
-  settings: Settings,
-  billing: CreditCard,
-  more: Grid2x2,
-};
-
-const NAV_ICON_BY_HREF: Record<string, LucideIcon> = {
-  "/work": ListTodo,
-  "/contracts/approvals": Stamp,
-  "/contracts/obligations": ListChecks,
-  "/contracts/tasks": ListTodo,
-  "/renewals": CalendarClock,
-  "/contracts/renewals": CalendarClock,
-  "/contracts/exceptions": BellRing,
-  "/evidence": FileCheck2,
-  "/contracts/evidence-studio": FileCheck2,
-  "/settings/health": HeartPulse,
-  "/settings/policy": Gavel,
-  "/settings/security": ShieldCheck,
-};
-
-function iconForNavItem(item: NavItem): LucideIcon {
-  const byHref = NAV_ICON_BY_HREF[item.href];
-  if (byHref) return byHref;
-  if (item.icon && NAV_ICON_BY_KEY[item.icon]) return NAV_ICON_BY_KEY[item.icon];
-  return Boxes;
-}
+import { iconForJumpLink, iconForNavItem } from "./more-page-icons";
 
 export default async function MoreToolsPage(props: {
   searchParams: Promise<{ q?: string; section?: string }>;
@@ -292,7 +208,7 @@ export default async function MoreToolsPage(props: {
                 eyebrow="Shortcut"
                 title={item.copy.label}
                 hint={item.copy.description}
-                icon={JUMP_LINK_ICONS[item.key] ?? Settings}
+                icon={iconForJumpLink(item.key)}
                 tone="neutral"
                 variant={jumpLinks.length === 1 ? "hero" : "default"}
               />

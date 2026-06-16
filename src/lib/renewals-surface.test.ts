@@ -17,10 +17,18 @@ import {
 } from "@/lib/renewals/spec-strings";
 
 describe("Renewals release-state surface", () => {
-  const page = readFileSync(
-    join(process.cwd(), "src/app/(dashboard)/contracts/renewals/page.tsx"),
-    "utf8"
-  );
+  const surfaceFiles = [
+    "src/app/(dashboard)/contracts/renewals/page.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-ledger.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-ledger-constants.ts",
+    "src/app/(dashboard)/contracts/renewals/renewal-row-cells.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewal-row-detail.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewal-action-cluster.tsx",
+    "src/app/(dashboard)/contracts/renewals/renewals-page-sections.tsx",
+  ];
+  const page = surfaceFiles.map((file) => readFileSync(join(process.cwd(), file), "utf8")).join("\n");
+  const surface = page;
   const loading = readFileSync(
     join(process.cwd(), "src/app/(dashboard)/contracts/renewals/loading.tsx"),
     "utf8"
@@ -31,21 +39,24 @@ describe("Renewals release-state surface", () => {
     expect(page).toContain("loadRenewalsPageModel");
     expect(page).toContain("model.exportHref");
     expect(RENEWALS_PAGE_TITLE).toBe("Renewals");
-    expect(RENEWALS_PAGE_LEAD).toBe("Track renewal dates and notice deadlines before they require action.");
+    expect(RENEWALS_PAGE_LEAD).toBe(
+      "Track upcoming renewal and notice requirements with confirmed, calculated, suggested, and missing date states."
+    );
     expect(RENEWALS_PRIMARY_CTA).toBe("Create renewal task");
     expect(page).toContain("model.primaryCta");
   });
 
   it("keeps the exact filters, columns, statuses, actions, and empty state in spec strings", () => {
     expect(Object.values(RENEWAL_WINDOW_LABELS)).toEqual(["30 days", "60 days", "90 days", "180 days"]);
-    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Status", "Date status"]);
+    // §51 — status dimension named for its object.
+    expect(Object.values(RENEWAL_FILTER_LABELS)).toEqual(["Owner", "Counterparty", "Renewal status", "Date status"]);
     expect(Object.values(RENEWAL_ROW_LABELS)).toEqual([
       "Contract",
       "Counterparty",
       "Renewal date",
       "Notice deadline",
       "Owner",
-      "Status",
+      "Renewal status",
       "Next action",
     ]);
     expect(Object.values(RENEWAL_STATUS_LABELS)).toEqual([
@@ -56,29 +67,36 @@ describe("Renewals release-state surface", () => {
       "Completed",
       "No action needed",
     ]);
+    // §22 — the model's row actions name the object they close; secondary
+    // page-level actions live in RENEWAL_SECONDARY_ACTION_LABELS, keeping this
+    // set exactly the five capabilities the model derives.
     expect(Object.values(RENEWAL_ACTION_LABELS)).toEqual([
       "Mark confirmed",
       "Create task",
-      "Complete task",
-      "Reopen",
+      "Complete renewal task",
+      "Reopen renewal task",
       "Export renewal report",
     ]);
     expect(RENEWALS_EMPTY_STATE).toBe("Add renewal and notice dates to track upcoming deadlines.");
   });
 
-  it("uses a responsive list row structure that prevents status and action overlap", () => {
-    expect(page).toContain("RenewalRowsHeader");
-    expect(page).toContain("RenewalRowFactGrid");
-    expect(page).toContain("RenewalRowStateGrid");
-    expect(page).toContain("xl:grid-cols-[minmax(13rem,1.15fr)_minmax(7rem,0.65fr)_minmax(6.75rem,0.6fr)_minmax(6.75rem,0.6fr)_minmax(9rem,0.85fr)_minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)]");
-    // The status column is widened (and the action column tightened) so the
-    // longest actionable label ("Notice window open") fits on one line at the
-    // canonical pill scale — no font shrink required.
-    expect(page).toContain("xl:contents");
+  it("uses a six-column ledger row structure that prevents status and action overlap", () => {
+    // The row collapsed counterparty under the contract name (§13), leaving six
+    // shared columns whose template is reused by the header and every row so the
+    // labels sit above their values (§39).
+    expect(page).toContain("RenewalLedgerHeader");
+    expect(page).toContain("RenewalLedgerRow");
+    expect(page).toContain("RenewalContractCell");
+    expect(page).toContain("RenewalDateCell");
+    expect(page).toContain("RenewalNextActionCell");
+    expect(page).toContain(
+      "xl:grid-cols-[minmax(15rem,1.45fr)_minmax(7.25rem,0.7fr)_minmax(7.25rem,0.7fr)_minmax(8.5rem,0.78fr)_minmax(7.5rem,0.66fr)_minmax(11rem,0.92fr)]"
+    );
     expect(page).toContain("RenewalStatusBadge");
     expect(page).toContain("whitespace-nowrap");
     expect(page).toContain("xl:sr-only");
-    expect(page).not.toContain("grid-cols-[minmax(12rem,1.15fr)_minmax(9rem,0.8fr)");
+    // The old seven-column template (counterparty as its own column) is gone.
+    expect(page).not.toContain("minmax(13.25rem,1fr)_minmax(10.5rem,0.8fr)");
   });
 
   it("reinforces status with a glyph and reserves coloured pills for actionable states", () => {
@@ -119,21 +137,22 @@ describe("Renewals release-state surface", () => {
 
   it("keeps the section identity in renewal vocabulary, not the private decisions product", () => {
     expect(RENEWALS_SECTION_EYEBROW).toBe("Renewal and notice dates");
-    expect(page).toContain("RENEWALS_SECTION_EYEBROW");
+    expect(surface).toContain("RENEWALS_SECTION_EYEBROW");
     // /decisions is Hide-for-release for Core users; the section eyebrow must
     // not reintroduce "Upcoming decisions" framing.
     expect(page).not.toContain("Upcoming decisions");
   });
 
-  it("bounds the long renewal list with a scroll region and sticky header + footer bands", () => {
+  it("bounds the long renewal list with a scroll region, sticky column header, and ledger footer", () => {
     // At the 90/180-day horizons the list runs 20-40 rows; the body scrolls within
-    // a capped region between two opaque sticky bands — the column header pinned at
-    // the top and the count footer pinned at the bottom (both inside the scroll
-    // region) — so columns stay aligned and the count stays visible.
+    // a capped region under a pinned column header, with §54 urgency-band headers
+    // pinned just beneath it. The scoped count lives in the card-level ledger
+    // footer (§61), outside the scroll region so it stays visible.
     expect(page).toContain("overflow-y-auto");
     expect(page).toContain("sticky top-0");
-    expect(page).toContain("sticky bottom-0");
-    expect(page).toContain("in view");
+    expect(page).toContain("RenewalGroupHeader");
+    expect(page).toContain("RenewalLedgerFooter");
+    expect(surface).toContain("in view");
   });
 
   it("surfaces per-date review/source state and a filtered-empty escape", () => {
@@ -143,8 +162,9 @@ describe("Renewals release-state surface", () => {
       "Calculated",
       "Missing",
     ]);
-    expect(RENEWALS_FILTERED_EMPTY_STATE).toBe("No renewals match the current filters.");
-    expect(page).toContain("RenewalReviewChip");
+    expect(RENEWALS_FILTERED_EMPTY_STATE).toBe("No renewal or notice dates match these filters.");
+    // §62 — per-date provenance now rides the shared DateProvenanceBadge.
+    expect(page).toContain("DateProvenanceBadge");
     expect(page).toContain("RenewalsEmptyState");
   });
 });

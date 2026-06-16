@@ -1,5 +1,4 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { renderWithProviders } from "@/test-utils/render-with-providers";
 import { LegalFooter } from "./legal-footer";
@@ -11,11 +10,11 @@ describe("LegalFooter", () => {
     expect(screen.getByRole("link", { name: "Security" })).toBeTruthy();
   });
 
-  it("toggles the notice on small-screen trigger", async () => {
-    const user = userEvent.setup();
+  it("states the no-legal-advice boundary inline without a disclosure toggle", () => {
     renderWithProviders(<LegalFooter />);
-    const toggle = screen.getByRole("button", { name: /view/i });
-    await user.click(toggle);
-    expect(screen.getByText(/not legal advice/i)).toBeTruthy();
+    // The boundary is always visible (quiet one-liner); the full text lives
+    // behind the Terms link, so there is no vague "View" toggle.
+    expect(screen.getByText(/does not provide legal advice/i)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /view/i })).toBeNull();
   });
 });

@@ -35,7 +35,9 @@ describe("ReviewDecisionPane", () => {
     expect(screen.getByText("Where this is used")).toBeTruthy();
     expect(screen.getByText("Sets the date used for renewal reminders, renewal lists, and reports.")).toBeTruthy();
     expect(screen.getByText("Source value")).toBeTruthy();
-    expect(screen.getByText("AI suggestion")).toBeTruthy();
+    expect(screen.getByText("Suggestion metadata")).toBeTruthy();
     expect(screen.getByText(/model confidence/i)).toBeTruthy();
+    // The suggested value is explicitly untrusted until confirmed.
+    expect(screen.getByText("Suggested detail, not confirmed")).toBeTruthy();
   });
 });

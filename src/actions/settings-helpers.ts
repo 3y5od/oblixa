@@ -5,10 +5,18 @@ import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-err
 export const MAX_PROFILE_NAME_LEN = 200;
 export const MAX_ORG_NAME_LEN = 200;
 export const MAX_INVITE_EMAIL_LEN = 254;
-export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Workspace-invite grants expire after 14 days (release-state: Access Review
+// And Grants — email-bound, single-use, revocable, expires after 14 days).
+export const INVITE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 export const VALID_INVITE_ROLES: OrgRole[] = ["admin", "editor", "viewer"];
 
-export type SettingsActionResult = { error?: string; success?: true };
+export type SettingsActionResult = {
+  error?: string;
+  success?: true;
+  /** Set when a sensitive action (e.g. ownership transfer) needs fresh step-up
+   *  proof; the client routes the user through re-auth and retries. */
+  needStepUp?: true;
+};
 
 type PendingInviteSeatRow = {
   id: string;

@@ -2,15 +2,22 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const PAGE = join(process.cwd(), "src/app/(dashboard)/settings/health/page.tsx");
-const DIAGNOSTICS = join(
-  process.cwd(),
-  "src/app/(dashboard)/settings/health/settings-health-diagnostics-sections.tsx"
-);
+const HEALTH_SOURCE_FILES = [
+  "src/app/(dashboard)/settings/health/page.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-page-model.ts",
+  "src/app/(dashboard)/settings/health/settings-health-status-utils.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-hero.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-recovery-actions.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-workflow-issues.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-healthy-checks.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-support-disclosure.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-diagnostics-sections.tsx",
+  "src/app/(dashboard)/settings/health/settings-health-diagnostics-cells.tsx",
+];
 
 describe("settings health visible impact and report posture (V9)", () => {
   it("surfaces impact-first health rows and no-sample reliability copy", () => {
-    const raw = [readFileSync(PAGE, "utf8"), readFileSync(DIAGNOSTICS, "utf8")].join("\n");
+    const raw = HEALTH_SOURCE_FILES.map((file) => readFileSync(join(process.cwd(), file), "utf8")).join("\n");
     expect(raw).toContain("Workspace status");
     expect(raw).toContain("Recovery setup needed");
     expect(raw).toContain("Setup needed");

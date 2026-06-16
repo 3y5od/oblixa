@@ -21,7 +21,13 @@ function read(rel: string): string {
 }
 
 const pageRaw = read("src/app/(dashboard)/dashboard/page.tsx");
-const componentRaw = read("src/components/dashboard/core-dashboard.tsx");
+const componentRaw = [
+  "src/components/dashboard/core-dashboard.tsx",
+  "src/components/dashboard/core-dashboard-primitives.tsx",
+  "src/components/dashboard/core-dashboard-shell.tsx",
+]
+  .map(read)
+  .join("\n");
 const modelRaw = read("src/lib/dashboard/core-dashboard-model.ts");
 const loadingRaw = read("src/app/(dashboard)/dashboard/loading.tsx");
 const headerRaw = read("src/components/layout/header.tsx");

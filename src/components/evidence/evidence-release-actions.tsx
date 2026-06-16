@@ -25,8 +25,6 @@ export function EvidenceReleaseActions({
   const [note, setNote] = useState("");
   const [fileTypes, setFileTypes] = useState("");
   const [rejectReason, setRejectReason] = useState("");
-  // Reminders and accept/close are consequential, so they confirm inline before
-  // firing instead of mutating on the first click.
   const [confirm, setConfirm] = useState<null | "accept" | "send_reminder">(null);
 
   if (!mutationsEnabled) {
@@ -69,9 +67,6 @@ export function EvidenceReleaseActions({
   }
 
   const primaryAction = pickPrimaryAction(row.actions, row.status);
-  // The overflow lists the remaining evidence verbs (Accept / Reject / Send
-  // reminder / Request evidence) without repeating the contextual primary —
-  // so #13's "required actions" are named, not hidden behind a generic label.
   const menuActions = primaryAction
     ? row.actions.filter((action) => action.key !== primaryAction.key)
     : row.actions;
@@ -90,8 +85,6 @@ export function EvidenceReleaseActions({
       return;
     }
     if (action.mutation === "accept" || action.mutation === "send_reminder") {
-      // Toggle an inline confirm step before the consequential mutation fires.
-      // Capture the narrowed value so it stays typed inside the setState closure.
       const pending = action.mutation;
       setConfirm((value) => (value === pending ? null : pending));
       setUploadOpen(false);
@@ -103,11 +96,6 @@ export function EvidenceReleaseActions({
 
   return (
     <div className="flex min-w-0 flex-col items-start gap-1.5">
-      {/* The contextual primary action and the overflow read as one coherent
-          pill group on a single line. Secondary actions live in the shared
-          portaled RowActionMenu (no clip-prone native <details>), and the
-          upload / reject / confirm forms open in a portaled dialog rather than
-          growing the table cell — so rows stay one line tall. */}
       <div className="inline-flex flex-nowrap items-center gap-1.5">
         {primaryAction ? (
           <PrimaryActionControl
@@ -115,8 +103,6 @@ export function EvidenceReleaseActions({
             rowHref={row.href}
             disabled={isPending}
             onMutate={() => handleAction(primaryAction)}
-            // Status-aware verb: the chosen action already reflects the row's
-            // state (Upload while requested/overdue, Accept once received, …).
             label={primaryVerb(primaryAction)}
             icon={ICON_BY_KEY[primaryAction.key]}
           />
@@ -262,9 +248,6 @@ export function EvidenceReleaseActions({
   );
 }
 
-// Short, action-accurate verbs + a reserved icon slot per action. The verb
-// matches what the action actually does (Accept approves in place, Upload opens
-// the submission form) — we don't promise a "Close" the API can't perform.
 const ICON_BY_KEY: Record<string, LucideIcon> = {
   upload_evidence: UploadCloud,
   send_reminder: Bell,
@@ -274,7 +257,7 @@ const ICON_BY_KEY: Record<string, LucideIcon> = {
 };
 
 const PRIMARY_VERB_BY_KEY: Record<string, string> = {
-  upload_evidence: "Upload file",
+  upload_evidence: "Upload evidence",
   accept: "Accept",
   reject: "Reject",
   send_reminder: "Remind",
@@ -285,9 +268,6 @@ function primaryVerb(action: EvidenceActionCapability): string {
   return PRIMARY_VERB_BY_KEY[action.key] ?? action.label;
 }
 
-// The contextual primary maps to the row's state: upload while a request is
-// open, remind once it's overdue, accept once evidence has arrived. Accepted
-// rows are done, so they expose no primary — everything lives in the menu.
 function pickPrimaryAction(
   actions: EvidenceActionCapability[],
   status: EvidenceRow["status"]
@@ -315,9 +295,6 @@ function splitTokens(value: string) {
     .filter(Boolean);
 }
 
-// The row's contextual primary action — a compact bordered icon+verb chip that
-// stays transparent at rest and only washes in on hover/focus, so a column of
-// repeated actions stays calm on the right edge without ever hiding the control.
 function PrimaryActionControl({
   action,
   rowHref,
@@ -334,7 +311,7 @@ function PrimaryActionControl({
   icon?: LucideIcon;
 }) {
   const className =
-    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border-subtle)] bg-transparent px-2.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)] focus-visible:border-[var(--border-strong)] focus-visible:bg-[var(--surface-raised)] focus-visible:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-60";
+    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-[var(--border-subtle)] bg-transparent px-2.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)] focus-visible:border-[var(--border-strong)] focus-visible:bg-[var(--surface-raised)] focus-visible:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-60";
   const text = label ?? action.label;
   const content = (
     <>

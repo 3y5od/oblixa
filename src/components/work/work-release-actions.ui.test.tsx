@@ -37,6 +37,7 @@ function baseRow(overrides: Partial<WorkItemRow> = {}): WorkItemRow {
     statusTone: "in_review",
     contractId: "contract-1",
     contractTitle: "Acme Corp MSA 2025",
+    counterparty: "Acme Corp",
     contractHref: "/contracts/contract-1",
     ownerUserId: "user-1",
     ownerLabel: "You",
@@ -44,9 +45,13 @@ function baseRow(overrides: Partial<WorkItemRow> = {}): WorkItemRow {
     dueLabel: "May 20, 2026",
     dueState: "due_soon",
     dueInDays: 3,
+    duePrimaryLabel: "May 20, 2026",
+    dueRelativeLabel: "Due in 3 days",
     blocker: "—",
+    nextActionNote: null,
     lastUpdateAt: "2026-05-17T10:00:00.000Z",
     lastUpdateLabel: "2 days ago",
+    lastUpdateReadable: "Updated 2 days ago",
     href: "/contracts/contract-1?tab=overview#work",
     display: {
       identity: {

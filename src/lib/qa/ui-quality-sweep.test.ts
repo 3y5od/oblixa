@@ -60,7 +60,7 @@ describe("app-wide UI quality sweep", () => {
 
   it("avoids generic default Open CTAs in operational cards", () => {
     const raw = readFileSync(
-      join(process.cwd(), "src/components/ui/operational-summary-card.tsx"),
+      join(process.cwd(), "src/components/ui/operational-summary-card-cards.tsx"),
       "utf8"
     );
 
@@ -81,6 +81,7 @@ describe("app-wide UI quality sweep", () => {
     // dashboard-upper.tsx specifically.
     const SPEC_EXEMPT_FILES = new Set([
       "src/components/dashboard/dashboard-upper.tsx",
+      "src/components/dashboard/dashboard-upper-focus-cards.ts",
     ]);
     const offenders = appUiSources().flatMap((path) => {
       const relPath = relative(process.cwd(), path).replace(/\\/g, "/");
@@ -117,7 +118,11 @@ describe("app-wide UI quality sweep", () => {
       // is the canonical row action named in oblixa-release-state.md
       // (Contracts > Row actions). It is the primary noun of the page,
       // not generic JSON/diagnostic Open-prefixed copy.
-      if (path.endsWith(join("contracts", "contract-table.tsx"))) return [];
+      if (
+        path.endsWith(join("contracts", "contract-table.tsx")) ||
+        path.endsWith(join("contracts", "contract-table-chips.tsx")) ||
+        path.endsWith(join("contracts", "contract-table-mobile.tsx"))
+      ) return [];
       const raw = readFileSync(path, "utf8");
       return />\s*Open\s+[A-Za-z][^<]*(JSON|diagnostic|source|queue|workspace|contract|page)/.test(raw) ||
         /aria-label=\{?`?Open\s/.test(raw)

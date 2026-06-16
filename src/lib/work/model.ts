@@ -208,6 +208,9 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
   const tabRows = filteredWithoutTab
     .filter((row) => matchesTab(row, activeTab, input.userId))
     .sort(workComparator(sortKey));
+  const visibleContractCount = new Set(
+    tabRows.map((row) => row.contractId).filter((id): id is string => Boolean(id))
+  ).size;
 
   // Paginate the active tab so the page never renders hundreds of rows in one
   // scroll. Tab counts above stay full (computed over filteredWithoutTab).
@@ -253,6 +256,7 @@ export function buildWorkPageModel(input: BuildWorkPageModelInput): WorkPageMode
     tabs,
     rows,
     totalVisibleRows: filteredWithoutTab.length,
+    visibleContractCount,
     pagination: { page, pageSize: WORK_PAGE_SIZE, total, totalPages },
     sort: sortKey,
     sortOptions: SORT_OPTIONS,
@@ -347,12 +351,20 @@ function normalizeToken(value: string | null | undefined) {
   return (value ?? "").trim();
 }
 
+// Presentation-only vocabulary translation for task titles (§Surface
+// Vocabulary). Internal/extraction wording is rewritten to the user-facing
+// product terms before display; the underlying record is untouched.
 function presentWorkTitle(value: string): string {
   return value
     .replace(/^(Approve|Review)\s+extracted\s+fields\s+for\b/i, "Review contract details for")
     .replace(/\bblocked\s+evidence\b/gi, "evidence request")
     .replace(/\bhold\s+blocker\b/gi, "hold")
     .replace(/\bblocker\b/gi, "hold")
+    // "extraction" → "details" ("renewal extraction" → "renewal details") and
+    // "exception" → "problem" (internal `exception` renders as Problem).
+    .replace(/\bextraction\b/gi, "details")
+    .replace(/\bexceptions\b/gi, "problems")
+    .replace(/\bexception\b/gi, "problem")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -421,8 +433,13 @@ function shapeWorkRow(
   const lastUpdateAt = row.last_state_change_at ?? row.updated_at ?? null;
   const title = presentWorkTitle(normalizeToken(row.title) || WORK_TYPE_LABELS[type]);
   const contractTitle = contract?.title || (contractId ? "Untitled contract" : "—");
+  const counterparty = normalizeToken(contract?.counterparty) || null;
   const dueLabel = formatDateLabel(dueAt);
+  const duePrimaryLabel = dueAt ? dueLabel : null;
+  const dueRelativeLabel = formatDueRelative(dueInDays);
   const lastUpdateLabel = formatRelativeLabel(lastUpdateAt);
+  const lastUpdateReadable = formatUpdatedReadable(lastUpdateAt);
+  const nextActionNote = deriveNextActionNote({ blocker, ownerUserId, dueState, type });
   const statusLabel = formatStatusLabel(status);
   const typeLabel = WORK_TYPE_LABELS[type];
   return {
@@ -438,6 +455,7 @@ function shapeWorkRow(
     statusTone: statusTone(status, dueState, normalizeToken(row.severity)),
     contractId,
     contractTitle,
+    counterparty,
     contractHref,
     ownerUserId,
     ownerLabel,
@@ -445,9 +463,13 @@ function shapeWorkRow(
     dueLabel,
     dueState,
     dueInDays,
+    duePrimaryLabel,
+    dueRelativeLabel,
     blocker,
+    nextActionNote,
     lastUpdateAt,
     lastUpdateLabel,
+    lastUpdateReadable,
     href,
     display: {
       identity: {
@@ -713,4 +735,51 @@ function formatRelativeLabel(value: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
   return formatDistanceToNowStrict(date, { addSuffix: true });
+}
+
+// Readable "Updated 2 days ago" for the ledger column — replaces the terse
+// "2D" so the recency is legible without decoding (§18.13 relative time as
+// supporting context).
+function formatUpdatedReadable(value: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return `Updated ${formatDistanceToNowStrict(date, { addSuffix: true })}`;
+}
+
+// Plain-language relative due descriptor. Absolute date carries the primary
+// value; this is the supporting "Due in 2 days" / "Past due by 3 days" line so
+// the ledger never leans on a compressed decorative pill (§18.13).
+function formatDueRelative(dueInDays: number | null): string | null {
+  if (dueInDays == null) return null;
+  if (dueInDays < 0) {
+    const n = Math.abs(dueInDays);
+    return `Past due by ${n} ${n === 1 ? "day" : "days"}`;
+  }
+  if (dueInDays === 0) return "Due today";
+  if (dueInDays === 1) return "Due tomorrow";
+  return `Due in ${dueInDays} days`;
+}
+
+// The one second-line note under a task title. Derived strictly from real row
+// signals — never filler. The dependency reason is the most useful when a task
+// cannot proceed; otherwise a missing owner or a passed due date is the next
+// step. When the title already says everything, return null (§6 anti-noise).
+function deriveNextActionNote(input: {
+  blocker: string;
+  ownerUserId: string | null;
+  dueState: string;
+  type: WorkTypeKey;
+}): string | null {
+  if (input.blocker && input.blocker !== "—") return input.blocker;
+  if (!input.ownerUserId && input.type !== "unassigned_work") {
+    return "Assign an owner so reminders and follow-up can route.";
+  }
+  // Renewal review tasks turn a suggested/calculated date into trusted data —
+  // name that consequence so the user knows why confirmation matters (§18.8).
+  if (input.type === "renewal_checkpoint") {
+    return "Confirm the date before reminders and reports rely on it.";
+  }
+  if (input.dueState === "overdue") return "Past due — resolve before it slips further.";
+  return null;
 }

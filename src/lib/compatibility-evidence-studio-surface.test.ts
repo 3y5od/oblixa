@@ -13,10 +13,13 @@ import {
 
 describe("Evidence release-state surface", () => {
   it("renders the Core Evidence workspace instead of the legacy studio", () => {
-    const raw = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/contracts/evidence-studio/page.tsx"),
-      "utf8"
-    );
+    const raw = [
+      "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
+      "src/app/(dashboard)/contracts/evidence-studio/evidence-table.tsx",
+      "src/app/(dashboard)/contracts/evidence-studio/evidence-table-row.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(raw.length).toBeGreaterThan(200);
     expect(raw).toContain("loadEvidencePageModel");
     expect(raw).toContain("EvidenceReleaseActions");
@@ -55,7 +58,7 @@ describe("Evidence release-state surface", () => {
 
   it("keeps release-state Evidence strings in the local spec module", () => {
     expect(EVIDENCE_PAGE_TITLE).toBe("Evidence");
-    expect(EVIDENCE_PAGE_LEAD).toBe("Track proof files and confirmations tied to contract requirements and tasks.");
+    expect(EVIDENCE_PAGE_LEAD).toBe("Request, receive, and review proof tied to contract requirements and follow-up tasks.");
     expect(EVIDENCE_EMPTY_STATE).toBe(
       "Request evidence when a contract requirement or follow-up task needs proof."
     );

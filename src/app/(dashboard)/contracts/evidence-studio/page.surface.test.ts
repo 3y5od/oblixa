@@ -3,11 +3,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PAGE = join(process.cwd(), "src/app/(dashboard)/contracts/evidence-studio/page.tsx");
+const TABLE = join(process.cwd(), "src/app/(dashboard)/contracts/evidence-studio/evidence-table.tsx");
 const FILTER_BAR = join(process.cwd(), "src/components/evidence/evidence-filter-bar.tsx");
 
 describe("contracts evidence studio surface", () => {
   it("constrains evidence filters and mobile cards on narrow viewports", () => {
-    const page = readFileSync(PAGE, "utf8");
+    const page = [PAGE, TABLE].map((file) => readFileSync(file, "utf8")).join("\n");
     const filterBar = readFileSync(FILTER_BAR, "utf8");
 
     expect(page).toContain('className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl"');

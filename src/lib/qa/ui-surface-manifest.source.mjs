@@ -191,7 +191,7 @@ const publicRoutes = [
     mode: "public",
     workspaceModeTier: "public",
     shellFamily: "marketing",
-    expectedHeading: "See how Oblixa fits together.",
+    expectedHeading: "From signed contract to accountable follow-up.",
     visitPath: "/product",
     coverage: ["smoke", "a11y", "visual"],
   }),

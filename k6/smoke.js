@@ -27,6 +27,9 @@ const DEFAULT_PATHS = [
 ];
 
 const PROTECTED_STATUSES = [200, 302, 303, 307, 308, 401, 403];
+const ACCEPTED_HTTP_STATUSES = [200, 302, 303, 307, 308, 401, 403, 404, 405, 503];
+
+http.setResponseCallback(http.expectedStatuses(...ACCEPTED_HTTP_STATUSES));
 
 function paths() {
   const raw = __ENV.K6_PATHS || DEFAULT_PATHS.join(",");

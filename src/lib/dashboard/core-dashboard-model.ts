@@ -3,6 +3,7 @@ import { parseNoticeDays } from "@/lib/contract-filters";
 import {
   getReviewStatsForContractIds,
   getPendingFieldNamesForContractIds,
+  getLeadDetailExcerptForContractIds,
   fetchReviewQueuePage,
 } from "@/lib/contract-review-stats";
 import { attachOwnerProfiles } from "@/lib/contracts";
@@ -54,7 +55,7 @@ export type CoreDashboardTopCard = {
   count: number;
   href: string;
   actionLabel: string;
-  tone: "success" | "warning" | "danger" | "accent" | "neutral";
+  tone: "success" | "warning" | "danger" | "accent" | "info" | "neutral";
 };
 
 export type CoreDashboardReviewRow = {
@@ -70,6 +71,11 @@ export type CoreDashboardReviewRow = {
   /** Humanized names of the suggested fields awaiting review (e.g. "Renewal
    *  date"), capped — so the row can name what needs review, not just count it. */
   pendingFieldNames: string[];
+  /** One locatable source excerpt for a suggested detail on this contract, so
+   *  the dashboard can stage a single source-backed review example (the contract
+   *  thesis: suggested detail → cited source text → confirmed record). Null when
+   *  no pending field carries a source snippet. */
+  sourceExcerpt: { label: string; snippet: string } | null;
   status: string;
 };
 
@@ -87,6 +93,11 @@ export type CoreDashboardDeadlineRow = {
    *  notice deadline = renewal date − notice window). Both are source-backed;
    *  the distinction surfaces as a screen-reader label on the deadline row. */
   source: "reviewed" | "derived";
+  /** For a derived (calculated) deadline, the plain-language basis it was
+   *  computed from (e.g. "Calculated from the renewal date and a 90-day notice
+   *  window"), so a calculated date discloses its source inputs inline rather
+   *  than appearing as a bare, human-confirmed value. Null for reviewed rows. */
+  basis: string | null;
 };
 
 export type CoreDashboardWorkRow = {
@@ -397,11 +408,14 @@ function isPlaceholderExceptionTitle(value: string | null | undefined): boolean 
 }
 
 function topCardTone(key: DashboardTopCardKey, count: number): CoreDashboardTopCard["tone"] {
+  // Cobalt is reserved for action/selection, so the snapshot uses the legal-ops
+  // semantic palette only: controlled green for all-clear, oxblood for problems
+  // (cannot-proceed work and open problems), amber for needs-attention/suggested
+  // states (review, time-pressure dates, missing owners), and calm steel for the
+  // evidence backlog awaiting review (§Palette: color reinforces state).
   if (count <= 0) return "success";
   if (key === "blocked_work" || key === "open_exceptions") return "danger";
-  // Accent for the two interactive queues the user works straight through;
-  // warning for time-pressure / actionable data gaps (deadlines, missing owners).
-  if (key === "needs_review" || key === "evidence_requested") return "accent";
+  if (key === "evidence_requested") return "info";
   return "warning";
 }
 
@@ -468,7 +482,8 @@ export function buildUpcomingDeadlineRows(
     key: string,
     label: string,
     raw: string | null | undefined,
-    idSuffix: string
+    idSuffix: string,
+    basis: string | null = null
   ) => {
     if (!raw?.trim()) return;
     const date = parseBusinessDateAtNoon(raw);
@@ -486,6 +501,7 @@ export function buildUpcomingDeadlineRows(
       ownerLabel,
       href: `/contracts/${contract.id}`,
       source: idSuffix === "computed" ? "derived" : "reviewed",
+      basis,
     });
   };
 
@@ -504,7 +520,14 @@ export function buildUpcomingDeadlineRows(
     const noticeDays = parseNoticeDays(noticeWindow ?? null);
     if (renewalDate && noticeDays && isValid(renewalDate)) {
       const noticeDeadline = subDays(renewalDate, noticeDays);
-      pushDate(contract, "computed_notice_deadline", "Notice deadline", noticeDeadline.toISOString(), "computed");
+      pushDate(
+        contract,
+        "computed_notice_deadline",
+        "Notice deadline",
+        noticeDeadline.toISOString(),
+        "computed",
+        `Calculated from the renewal date and a ${noticeDays}-day notice window`
+      );
     }
   }
 
@@ -738,7 +761,9 @@ function auditActivitySummary(action: string): string {
       return "Extraction completed";
     case "field.approved":
     case "contract_field.approved":
-      return "Field approved";
+      // Detail review is a confirmation, not an approval (release vocabulary);
+      // "approval" is reserved for approval-task workflows.
+      return "Detail confirmed";
     case "contract.owner_changed":
       return "Owner changed";
     case "work_item.completed":
@@ -1064,10 +1089,13 @@ export async function loadCoreDashboardModel(input: {
 
   const reviewContracts = await attachOwnerProfiles(admin, orgId, reviewQueue.contracts);
   const reviewContractIds = reviewContracts.map((contract) => contract.id);
-  const [reviewStats, pendingFieldNamesByContract] = await Promise.all([
+  const [reviewStats, pendingFieldNamesByContract, leadExcerptByContract] = await Promise.all([
     getReviewStatsForContractIds(admin, reviewContractIds),
     // Only the first 6 contracts render rows; name their suggested fields.
     getPendingFieldNamesForContractIds(admin, reviewContractIds.slice(0, 6)),
+    // One source excerpt per leading review contract powers the dashboard's
+    // single source-backed review artifact; bounded to the rows that show first.
+    getLeadDetailExcerptForContractIds(admin, reviewContractIds.slice(0, 3)),
   ]);
 
   const ownerIds = new Set<string>();
@@ -1213,6 +1241,7 @@ export async function loadCoreDashboardModel(input: {
             totalFields: stats.total,
             pendingFields: stats.pending,
             pendingFieldNames: (pendingFieldNamesByContract[contract.id] ?? []).map(toSentenceLabel),
+            sourceExcerpt: leadExcerptByContract[contract.id] ?? null,
             status: contract.status,
           };
         }),

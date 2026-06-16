@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export const title = "Terms of use — Oblixa";
 export const description =
   "How Oblixa's terms of use work: reviewed access, the paid Core plan, workspace responsibilities, customer content, AI-assisted suggestions, and the no-legal-advice boundary.";
@@ -5,12 +7,12 @@ export const description =
 export const LAST_REVIEWED_ISO = "2026-05-28";
 export const LAST_REVIEWED_DISPLAY = "May 28, 2026";
 
-export const SUMMARY_FACTS = [
-  "Reviewed access",
-  "Paid Core plan",
-  "Workspace responsibility",
-  "No legal advice",
-] as const;
+/** Editorial metadata blocks for the document header — label/value, not chips. */
+export const HEADER_FACTS: ReadonlyArray<{ label: string; value: string }> = [
+  { label: "Scope", value: "Approved workspace use and paid Core access" },
+  { label: "Core plan", value: "$249/month per workspace, month-to-month" },
+  { label: "Boundary", value: "A summary, not legal advice or a contract" },
+];
 
 export const ANCHORS = [
   { id: "using", label: "Using Oblixa" },
@@ -20,8 +22,8 @@ export const ANCHORS = [
   { id: "content", label: "Customer content" },
   { id: "ai", label: "AI suggestions" },
   { id: "exports", label: "Exports & deletion" },
-  { id: "disclaimers", label: "Disclaimers" },
   { id: "changes", label: "Changes" },
+  { id: "disclaimers", label: "Disclaimers" },
   { id: "governing", label: "Governing terms" },
   { id: "contact", label: "Contact" },
 ] as const;
@@ -43,7 +45,7 @@ export const FOOTER_LINKS = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
-export const ACCOUNT_FACTS: ReadonlyArray<{ k: string; v: string }> = [
+export const ACCOUNT_FACTS: ReadonlyArray<{ k: string; v: ReactNode }> = [
   { k: "Access", v: "By approved request or workspace invite" },
   { k: "Account creation", v: "Gated by a valid grant or invite" },
   { k: "Credentials", v: "You safeguard your own sign-in" },
@@ -51,7 +53,7 @@ export const ACCOUNT_FACTS: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Suspected misuse", v: "Notify your admin and Oblixa" },
 ];
 
-export const BILLING_FACTS: ReadonlyArray<{ k: string; v: string }> = [
+export const BILLING_FACTS: ReadonlyArray<{ k: string; v: ReactNode }> = [
   { k: "Core plan", v: "$249/month per workspace" },
   { k: "Term", v: "Month-to-month" },
   { k: "When charged", v: "After access approval and explicit checkout" },
@@ -60,7 +62,7 @@ export const BILLING_FACTS: ReadonlyArray<{ k: string; v: string }> = [
   { k: "Refunds", v: "No prorated refunds by default" },
 ];
 
-export const EXPORT_FACTS: ReadonlyArray<{ k: string; v: string }> = [
+export const EXPORT_FACTS: ReadonlyArray<{ k: string; v: ReactNode }> = [
   { k: "Export", v: "Contract records and reports as CSV" },
   { k: "Deletion", v: "Workspace data deletion on request" },
   { k: "Report files", v: "Download links expire after 7 days" },

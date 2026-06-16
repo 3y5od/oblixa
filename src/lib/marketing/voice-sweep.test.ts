@@ -65,7 +65,11 @@ describe("public marketing release-state voice sweep", () => {
 
   it("pins the homepage promise and request-access CTA", () => {
     const content = read("src/components/landing/landing-content.ts");
-    const page = read("src/components/landing/landing-page.tsx");
+    const page = [
+      "src/components/landing/landing-page.tsx",
+      "src/components/landing/landing-hero-problem.tsx",
+      "src/components/landing/landing-pricing-closing.tsx",
+    ].map(read).join("\n");
 
     expect(content).toContain('heroTitle = "Track what signed contracts require next."');
     expect(content).toContain("Request access");

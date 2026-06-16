@@ -12,7 +12,6 @@ import {
 import { WorkReleaseActions } from "@/components/work/work-release-actions";
 import { DataFooter } from "@/components/ui/data-footer";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TimeChip } from "@/components/ui/time-chip";
 import { RecoverableState } from "@/components/ui/recoverable-state";
 import { WORK_EMPTY_STATE, WORK_ROW_LABELS } from "@/lib/work/spec-strings";
 import type { WorkItemRow, WorkPageModel, WorkTypeKey } from "@/lib/work/types";
@@ -32,10 +31,10 @@ function WorkTypeIcon({ type, label }: { type: WorkTypeKey; label: string }) {
   return (
     <span
       title={label}
-      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_55%,transparent)] text-[var(--text-tertiary)]"
+      aria-hidden
+      className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-contrast)_55%,transparent)] text-[var(--text-tertiary)]"
     >
       <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-      <span className="sr-only">{label}</span>
     </span>
   );
 }
@@ -43,7 +42,6 @@ function WorkTypeIcon({ type, label }: { type: WorkTypeKey; label: string }) {
 function WorkStatusBadge({ row }: { row: WorkItemRow }) {
   return (
     <StatusBadge status={row.statusTone} className="gap-1.5 self-start">
-
       <span
         aria-hidden
         className="inline-block h-1.5 w-1.5 rounded-full bg-current"
@@ -53,46 +51,61 @@ function WorkStatusBadge({ row }: { row: WorkItemRow }) {
     </StatusBadge>
   );
 }
-function BlockerNote({ reason }: { reason: string }) {
+
+function WorkNextActionNote({ note }: { note: string }) {
   return (
-    <span
-      title={reason}
-      className="inline-flex max-w-[11rem] items-center rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_40%,transparent)] px-1.5 py-0.5 text-[10.5px] text-[var(--text-tertiary)]"
-    >
-      <span className="truncate">{reason}</span>
-    </span>
+    <p className="mt-1 max-w-[36rem] text-[11.5px] leading-snug text-[var(--text-secondary)]">
+      {note}
+    </p>
   );
 }
 
 function WorkDue({ row }: { row: WorkItemRow }) {
-  if (!row.dueAt) {
-    return (
-      <span className="flex flex-col items-start gap-0.5">
-        <span className="text-[13px] text-[var(--text-tertiary)]">—</span>
-        <span aria-hidden className="ui-caps-3 text-[10px] text-transparent">
-          &nbsp;
-        </span>
-      </span>
-    );
+  if (!row.dueAt || !row.duePrimaryLabel) {
+    return <span className="text-[12px] text-[var(--text-tertiary)]">No due date</span>;
   }
-  const descriptor = dueDescriptor(row.dueInDays);
+  const relTone =
+    row.dueState === "overdue"
+      ? "var(--danger-ink)"
+      : row.dueState === "due_today" || row.dueState === "due_soon"
+        ? "var(--warning-ink)"
+        : "var(--text-tertiary)";
   return (
     <span className="flex flex-col items-start gap-0.5 tabular-nums">
-      <TimeChip
-        date={row.dueAt}
-        format="calendar"
-        tone={
-          row.dueState === "overdue"
-            ? "danger"
-            : row.dueState === "due_today" || row.dueState === "due_soon"
-              ? "warning"
-              : undefined
-        }
-        className="min-w-[3.5rem]"
-      />
-      <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-        {descriptor ?? " "}
+      <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
+        {row.duePrimaryLabel}
       </span>
+      {row.dueRelativeLabel ? (
+        <span className="text-[11px] font-medium" style={{ color: relTone }}>
+          {row.dueRelativeLabel}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+function WorkContractCell({ row, max }: { row: WorkItemRow; max: string }) {
+  const contract = row.display.identity.linkedContract;
+  return (
+    <span className="block min-w-0">
+      {contract.href ? (
+        <Link
+          href={contract.href}
+          title={contract.value}
+          className={`block ${max} truncate text-[12.5px] text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]`}
+        >
+          {contract.value}
+        </Link>
+      ) : (
+        <span className={`block ${max} truncate text-[12.5px] text-[var(--text-tertiary)]`}>
+          {contract.value}
+        </span>
+      )}
+      {row.counterparty ? (
+        <span className={`block ${max} truncate text-[11px] text-[var(--text-tertiary)]`} title={row.counterparty}>
+          {row.counterparty}
+        </span>
+      ) : null}
     </span>
   );
 }
@@ -146,75 +159,63 @@ export function WorkTable({
 
   return (
     <>
-
       <div className="hidden max-h-[calc(100dvh-20rem)] min-w-0 max-w-full overflow-x-auto overflow-y-auto [contain:inline-size] md:block">
         <table className="min-w-full text-sm" aria-label="Tasks in this workspace">
-
           <thead className="ui-table-header sticky top-0 z-20 [&_th]:bg-[var(--surface-muted)] [&_th]:shadow-[0_3px_6px_-3px_color-mix(in_oklab,var(--border-strong)_55%,transparent)]">
             <tr className="border-b border-[color:color-mix(in_oklab,var(--border-strong)_45%,var(--border-subtle))] [&_th]:ui-caps-2 [&_th]:text-[11px] [&_th]:text-[var(--text-secondary)]">
-
-            <th className="px-5 py-3">Task</th>
-            <th className="hidden w-[13rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.linkedContract}</th>
-            <th className="hidden w-[9rem] px-4 py-3 md:table-cell">{WORK_ROW_LABELS.owner}</th>
-            <th className="w-[8.5rem] px-4 py-3">{WORK_ROW_LABELS.dueDate}</th>
-            <th className="w-[13rem] px-4 py-3">{WORK_ROW_LABELS.status}</th>
-            <th className="hidden w-[4.75rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.lastUpdate}</th>
-            <th className="w-[7.5rem] px-4 py-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
+              <th className="px-5 py-3">Task and next action</th>
+              <th className="hidden w-[13rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.linkedContract}</th>
+              <th className="hidden w-[9rem] px-4 py-3 md:table-cell">{WORK_ROW_LABELS.owner}</th>
+              <th className="w-[9.5rem] px-4 py-3">{WORK_ROW_LABELS.dueDate}</th>
+              <th className="w-[12rem] px-4 py-3">{WORK_ROW_LABELS.status}</th>
+              <th className="hidden w-[6.5rem] px-4 py-3 lg:table-cell">{WORK_ROW_LABELS.lastUpdate}</th>
+              <th className="w-[10.5rem] px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
               const titleHref = row.display.identity.title.href ?? row.href;
               const contract = row.display.identity.linkedContract;
-              const showBlocker = row.blocker !== "—";
               return (
                 <tr key={row.key} className="ui-table-row group">
-                  <td className="px-5 py-2 align-middle">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2.5">
-
-                        <WorkTypeIcon type={row.type} label={row.typeLabel} />
-
+                  <td className="px-5 py-2.5 align-top">
+                    <div className="flex items-start gap-2.5">
+                      <WorkTypeIcon type={row.type} label={row.typeLabel} />
+                      <div className="min-w-0">
+                        <span className="ui-caps-3 block text-[9.5px] leading-none text-[var(--text-tertiary)]">
+                          {row.typeLabel}
+                        </span>
                         <Link
                           href={titleHref}
                           title={row.title}
-                          className="block max-w-[28rem] truncate font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)]"
+                          className="mt-1 block max-w-[30rem] truncate font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-strong)]"
                         >
                           {row.display.identity.title.value}
                         </Link>
-                      </div>
-
-                      <div className="mt-0.5 lg:hidden">
-                        {contract.href ? (
-                          <Link
-                            href={contract.href}
-                            title={contract.value}
-                            className="block max-w-[22rem] truncate text-[11.5px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)]"
-                          >
-                            {contract.value}
-                          </Link>
-                        ) : (
-                          <span className="block text-[11.5px] text-[var(--text-tertiary)]">{contract.value}</span>
-                        )}
+                        {row.nextActionNote ? <WorkNextActionNote note={row.nextActionNote} /> : null}
+                        <div className="mt-1 lg:hidden">
+                          {contract.href ? (
+                            <Link
+                              href={contract.href}
+                              title={contract.value}
+                              className="block max-w-[24rem] truncate text-[11.5px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)]"
+                            >
+                              {contract.value}
+                              {row.counterparty ? ` · ${row.counterparty}` : ""}
+                            </Link>
+                          ) : (
+                            <span className="block text-[11.5px] text-[var(--text-tertiary)]">
+                              {contract.value}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="hidden w-[13rem] px-4 py-2 align-middle lg:table-cell">
-                    {contract.href ? (
-                      <Link
-                        href={contract.href}
-                        title={contract.value}
-                        className="block max-w-[12rem] truncate text-[12.5px] text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
-                      >
-                        {contract.value}
-                      </Link>
-                    ) : (
-                      <span className="block max-w-[12rem] truncate text-[12.5px] text-[var(--text-tertiary)]">
-                        {contract.value}
-                      </span>
-                    )}
+                  <td className="hidden w-[13rem] px-4 py-2.5 align-top lg:table-cell">
+                    <WorkContractCell row={row} max="max-w-[12rem]" />
                   </td>
-                  <td className="hidden w-[9rem] whitespace-nowrap px-4 py-2 align-middle md:table-cell">
+                  <td className="hidden w-[9rem] whitespace-nowrap px-4 py-2.5 align-top md:table-cell">
                     <span
                       title={row.ownerLabel}
                       className={
@@ -226,49 +227,45 @@ export function WorkTable({
                       {row.ownerLabel}
                     </span>
                   </td>
-                  <td className="w-[8.5rem] px-4 py-2 align-middle">
+                  <td className="w-[9.5rem] px-4 py-2.5 align-top">
                     <WorkDue row={row} />
                   </td>
-                  <td className="w-[13rem] px-4 py-2 align-middle">
-                    <div className="flex flex-col gap-1">
-                      <WorkStatusBadge row={row} />
-
-                      {showBlocker ? <BlockerNote reason={row.blocker} /> : null}
-                    </div>
+                  <td className="w-[12rem] px-4 py-2.5 align-top">
+                    <WorkStatusBadge row={row} />
                   </td>
                   <td
-                    className="hidden w-[4.75rem] whitespace-nowrap px-4 py-2 align-middle tabular-nums lg:table-cell"
+                    className="hidden w-[6.5rem] whitespace-nowrap px-4 py-2.5 align-top text-[12px] text-[var(--text-tertiary)] lg:table-cell"
                     suppressHydrationWarning
                   >
                     {row.lastUpdateAt ? (
-                      <TimeChip date={row.lastUpdateAt} />
+                      <span title={row.lastUpdateReadable} aria-label={row.lastUpdateReadable}>
+                        {row.lastUpdateLabel}
+                      </span>
                     ) : (
-                      <span className="text-[var(--text-tertiary)]">—</span>
+                      <span className="text-[var(--text-tertiary)]">No updates</span>
                     )}
                   </td>
-
-                  <td className="w-[7.5rem] px-4 py-2 text-right align-middle">
+                  <td className="w-[10.5rem] px-4 py-2.5 text-right align-top">
                     <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
                   </td>
                 </tr>
               );
             })}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
       </div>
 
       <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_84%,transparent)] md:hidden">
         {rows.map((row) => {
           const titleHref = row.display.identity.title.href ?? row.href;
           const contract = row.display.identity.linkedContract;
-          const showBlocker = row.blocker !== "—";
           return (
-            <li key={row.key} className="space-y-1.5 px-4 py-3 sm:px-5">
+            <li key={row.key} className="space-y-2 px-4 py-3.5 sm:px-5">
               <div className="flex items-center gap-2">
                 <WorkTypeIcon type={row.type} label={row.typeLabel} />
-                <WorkStatusBadge row={row} />
+                <span className="ui-caps-3 text-[9.5px] text-[var(--text-tertiary)]">{row.typeLabel}</span>
                 <span className="ml-auto shrink-0">
-                  <WorkDue row={row} />
+                  <WorkStatusBadge row={row} />
                 </span>
               </div>
               <Link
@@ -278,27 +275,47 @@ export function WorkTable({
               >
                 {row.display.identity.title.value}
               </Link>
-              <div className="flex flex-wrap items-center gap-y-0.5 text-[11.5px] text-[var(--text-tertiary)]">
-                {contract.href ? (
-                  <Link
-                    href={contract.href}
-                    title={contract.value}
-                    className="max-w-[15rem] truncate text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
-                  >
-                    {contract.value}
-                  </Link>
-                ) : (
-                  <span className="max-w-[15rem] truncate">{contract.value}</span>
-                )}
-                <span className="ui-dot-sep" aria-hidden>
-                  ·
-                </span>
-                <span className={row.ownerLabel === "Unassigned" ? "" : "text-[var(--text-secondary)]"}>
-                  {row.ownerLabel}
-                </span>
-              </div>
-              {showBlocker ? <BlockerNote reason={row.blocker} /> : null}
-              <div className="flex items-center justify-end">
+              {row.nextActionNote ? <WorkNextActionNote note={row.nextActionNote} /> : null}
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-0.5 text-[11.5px]">
+                <div className="min-w-0">
+                  <dt className="ui-caps-3 text-[9px] text-[var(--text-tertiary)]">{WORK_ROW_LABELS.linkedContract}</dt>
+                  <dd className="mt-0.5 min-w-0">
+                    {contract.href ? (
+                      <Link
+                        href={contract.href}
+                        title={contract.value}
+                        className="block truncate text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)]"
+                      >
+                        {contract.value}
+                      </Link>
+                    ) : (
+                      <span className="block truncate text-[var(--text-tertiary)]">{contract.value}</span>
+                    )}
+                    {row.counterparty ? (
+                      <span className="block truncate text-[10.5px] text-[var(--text-tertiary)]">{row.counterparty}</span>
+                    ) : null}
+                  </dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="ui-caps-3 text-[9px] text-[var(--text-tertiary)]">{WORK_ROW_LABELS.owner}</dt>
+                  <dd className={`mt-0.5 truncate ${row.ownerLabel === "Unassigned" ? "text-[var(--text-tertiary)]" : "text-[var(--text-primary)]"}`}>
+                    {row.ownerLabel}
+                  </dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="ui-caps-3 text-[9px] text-[var(--text-tertiary)]">{WORK_ROW_LABELS.dueDate}</dt>
+                  <dd className="mt-0.5">
+                    <WorkDue row={row} />
+                  </dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="ui-caps-3 text-[9px] text-[var(--text-tertiary)]">{WORK_ROW_LABELS.lastUpdate}</dt>
+                  <dd className="mt-0.5 text-[var(--text-tertiary)]" suppressHydrationWarning>
+                    {row.lastUpdateAt ? row.lastUpdateLabel : "No updates"}
+                  </dd>
+                </div>
+              </dl>
+              <div className="flex items-center justify-end pt-0.5">
                 <WorkReleaseActions row={row} mutationsEnabled={mutationsEnabled} />
               </div>
             </li>
@@ -310,6 +327,7 @@ export function WorkTable({
         <DataFooter
           shown={rows.length}
           total={pagination.total}
+          sectionLabel="tasks"
           pagination={{
             page: pagination.page,
             totalPages: pagination.totalPages,
@@ -319,12 +337,4 @@ export function WorkTable({
       ) : null}
     </>
   );
-}
-
-function dueDescriptor(dueInDays: number | null): string | null {
-  if (dueInDays == null) return null;
-  if (dueInDays < 0) return `Past due ${Math.abs(dueInDays)}d`;
-  if (dueInDays === 0) return "Due today";
-  if (dueInDays === 1) return "Due tomorrow";
-  return `In ${dueInDays}d`;
 }

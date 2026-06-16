@@ -9,7 +9,12 @@ import { STATUS_LABELS } from "./contracts";
  */
 describe("V9 cross-surface contract status labels", () => {
   it("contract table resolves chip text through STATUS_LABELS (single map)", () => {
-    const table = readFileSync(join(process.cwd(), "src/components/contracts/contract-table.tsx"), "utf8");
+    const table = [
+      "src/components/contracts/contract-table-desktop.tsx",
+      "src/components/contracts/contract-table-mobile.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(table).toContain("STATUS_LABELS[contract.status]");
     expect(Object.keys(STATUS_LABELS).length).toBeGreaterThanOrEqual(4);
   });
@@ -24,7 +29,7 @@ describe("V9 cross-surface contract status labels", () => {
       join(process.cwd(), "src/app/(dashboard)/contracts/watchlists/page.tsx"),
       "utf8"
     );
-    const contractsPage = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/page.tsx"), "utf8");
+    const contractsPage = readFileSync(join(process.cwd(), "src/app/(dashboard)/contracts/contracts-page-model.ts"), "utf8");
     expect(watchlists).toContain("STATUS_LABELS");
     expect(contractsPage).toContain("STATUS_LABELS");
   });

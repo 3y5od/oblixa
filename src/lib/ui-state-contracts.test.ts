@@ -99,6 +99,7 @@ describe("V10 UI state, accessibility, and performance contracts", () => {
     const recoverableState = readFileSync(join(process.cwd(), "src/components/ui/recoverable-state.tsx"), "utf8");
     const commandPalette = [
       "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-state.ts",
       "src/components/layout/command-palette-dialog.tsx",
     ]
       .map((file) => readFileSync(join(process.cwd(), file), "utf8"))

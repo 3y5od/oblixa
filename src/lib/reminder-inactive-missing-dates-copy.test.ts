@@ -12,12 +12,14 @@ describe("§27.2 reminder inactive (missing approved dates) copy", () => {
 
   it("is anchored on contract detail operations strip", () => {
     const helper = readFileSync(join(process.cwd(), "src/lib/contract-detail-summary.ts"), "utf8");
-    const page = readFileSync(
-      join(process.cwd(), "src/app/(dashboard)/contracts/[id]/page.tsx"),
-      "utf8"
-    );
+    const detailSurface = [
+      "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+    ]
+      .map((rel) => readFileSync(join(process.cwd(), rel), "utf8"))
+      .join("\n");
     expect(helper).toContain("REMINDER_INACTIVE_MISSING_APPROVED_DATES_COPY");
     expect(helper).toContain("/settings/health");
-    expect(page).toContain("buildContractOperationsStrip");
+    expect(detailSurface).toContain("buildContractOperationsStrip");
   });
 });

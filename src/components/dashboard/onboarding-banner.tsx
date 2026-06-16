@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition } from "react";
 import { completeProductOnboarding } from "@/actions/settings";
+import {
+  OnboardingBannerActions,
+  OnboardingChecklist,
+  type OnboardingBannerRow,
+  type OnboardingRowKey,
+} from "@/components/dashboard/onboarding-banner-parts";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
 import { formatSetupChecklistSummary } from "@/lib/onboarding/calibration-copy";
 import { checklistRowOrderFromSetupChecklist } from "@/lib/onboarding/onboarding-banner-checklist-order";
 import Link from "next/link";
-import { ArrowRight, Check, Circle } from "lucide-react";
 
 export interface OnboardingActivationStats {
   setupConfigured: boolean;
@@ -18,31 +23,13 @@ export interface OnboardingActivationStats {
   visibleWorkItems: number;
   renewalAttention: number;
   dashboardReady: boolean;
-  /** True when latest org import job is still `processing` (§7.2 + §17.2 intake progress). */
+  /** True when latest org import job is still `processing` (sections 7.2 and 17.2 intake progress). */
   importJobProcessing?: boolean;
-  /** True when a completed import inserted ≥1 row (server-backed upload step before list metrics refresh). */
+  /** True when a completed import inserted at least one row (server-backed upload step before list metrics refresh). */
   importJobCompletedInserts?: boolean;
   recoverableImportIssue?: string | null;
   failedExtractionIssue?: string | null;
   failedExtractionContractId?: string | null;
-}
-
-function StepIcon({ done }: { done: boolean }) {
-  return done ? (
-    <Check
-      size={16}
-      className="mt-0.5 shrink-0 text-[var(--success-ink)]"
-      strokeWidth={1.85}
-      aria-hidden
-    />
-  ) : (
-    <Circle
-      size={16}
-      className="mt-0.5 shrink-0 text-[var(--text-tertiary)]"
-      strokeWidth={1.5}
-      aria-hidden
-    />
-  );
 }
 
 export function OnboardingBanner({
@@ -98,19 +85,8 @@ export function OnboardingBanner({
     });
   }
 
-  type OnboardingRowKey =
-    | "setup"
-    | "upload"
-    | "review"
-    | "owner"
-    | "approve"
-    | "work"
-    | "dashboard";
   const rowOrder = checklistRowOrderFromSetupChecklist(setupChecklist);
-  const rows: Record<
-    OnboardingRowKey,
-    { done: boolean; href: string; actionLabel: string; detail: string; el: ReactNode }
-  > = {
+  const rows: Record<OnboardingRowKey, OnboardingBannerRow> = {
     setup: {
       done: stepSetup,
       href: "/onboarding/calibration",
@@ -347,17 +323,7 @@ export function OnboardingBanner({
               <p className="mt-1">{recoveryRow.detail}</p>
             </div>
           ) : null}
-          <ul className="mt-4 space-y-3 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-            {orderedKeys.map((key) => (
-              <li key={key} className="flex gap-3">
-                <StepIcon done={rows[key].done} />
-                <div>
-                  {rows[key].el}
-                  <p className="mt-1 text-[12.5px] text-[var(--text-tertiary)]">{rows[key].detail}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <OnboardingChecklist orderedKeys={orderedKeys} rows={rows} />
           {stepWork ? (
             <p className="mt-3 text-[12.5px] text-[var(--text-secondary)]">
               Execution is now live in the{" "}
@@ -369,23 +335,12 @@ export function OnboardingBanner({
           ) : null}
           {error && <p className="mt-3 text-xs font-medium text-[var(--danger-ink)]">{error}</p>}
         </div>
-        <div className="flex shrink-0 flex-col gap-2 sm:items-end">
-          <Link
-            href={recoveryRow?.href ?? nextRow.href}
-            className="ui-btn-primary inline-flex min-h-9 items-center gap-2 px-5 py-2.5"
-          >
-            {recoveryRow?.actionLabel ?? nextRow.actionLabel}
-            <ArrowRight size={14} aria-hidden />
-          </Link>
-          <button
-            type="button"
-            onClick={dismiss}
-            disabled={isPending}
-            className="ui-btn-secondary min-h-9 px-5 py-2.5"
-          >
-            {isPending ? "Saving…" : "Hide for now"}
-          </button>
-        </div>
+        <OnboardingBannerActions
+          href={recoveryRow?.href ?? nextRow.href}
+          actionLabel={recoveryRow?.actionLabel ?? nextRow.actionLabel}
+          isPending={isPending}
+          onDismiss={dismiss}
+        />
       </div>
     </div>
   );

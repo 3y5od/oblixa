@@ -7,6 +7,7 @@ import { displayOrUnknown } from "@/lib/sparse-records";
 import { applyV10ReadModelVisibility } from "@/lib/visibility";
 import {
   RENEWAL_ACTION_LABELS,
+  RENEWAL_CONSEQUENCE,
   RENEWAL_STATUS_LABELS,
   RENEWAL_WINDOW_LABELS,
   RENEWALS_EYEBROW,
@@ -15,10 +16,13 @@ import {
   RENEWALS_PRIMARY_CTA,
 } from "./spec-strings";
 import type {
+  RenewalConsequenceTone,
   RenewalDateReviewState,
   RenewalFilterState,
+  RenewalGroupKey,
   RenewalOption,
   RenewalRow,
+  RenewalSortKey,
   RenewalStatus,
   RenewalWindowKey,
   RenewalsModelLoadInput,
@@ -132,9 +136,19 @@ export function normalizeRenewalFilters(input: RenewalsModelSearchInput): Renewa
   };
 }
 
+// §53 — the sort key. The default ("urgent") preserves the historical
+// status-weighted order and turns on §54 section grouping; every other key
+// flattens the list into a single run sorted on that field.
+export function normalizeRenewalSort(value: string | null | undefined): RenewalSortKey {
+  const v = normalizeToken(value);
+  if (v === "notice" || v === "renewal" || v === "owner" || v === "needs_confirmation") return v;
+  return "urgent";
+}
+
 export function buildRenewalsHref(input: {
   window?: RenewalWindowKey;
   filters?: RenewalFilterState;
+  sort?: RenewalSortKey;
   create?: boolean;
   contract?: string | null;
 }) {
@@ -147,6 +161,8 @@ export function buildRenewalsHref(input: {
     if (filters.status) params.set("status", filters.status);
     if (filters.review) params.set("review", filters.review);
   }
+  // "urgent" is the default sort, so it stays out of the URL.
+  if (input.sort && input.sort !== "urgent") params.set("sort", input.sort);
   if (input.create) params.set("create", "1");
   if (input.contract) params.set("contract", input.contract);
   const qs = params.toString();
@@ -166,6 +182,7 @@ export function buildRenewalsExportHref(input: { window: RenewalWindowKey; filte
 export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): RenewalsPageModel {
   const activeWindow = normalizeRenewalWindow(input);
   const filters = normalizeRenewalFilters(input);
+  const activeSort = normalizeRenewalSort(input.sort);
   const today = startOfDay(input.now ?? new Date());
   const ownerLabelById = new Map(input.members.map((member) => [member.user_id, orgMemberProfileLabel(member.profiles)]));
   const fieldsByContract = groupBy(input.fields, (field) => field.contract_id);
@@ -196,7 +213,7 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
       if (filters.status || filters.review) return true;
       return rowsInWindow.some((candidate) => candidate.id === row.id);
     })
-    .sort(compareRenewalRows);
+    .sort(renewalComparator(activeSort));
 
   const windowBaseFilters: RenewalFilterState = { ...filters, status: "", review: "" };
   const windows = RENEWAL_WINDOW_ORDER.map((key) => ({
@@ -217,6 +234,8 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
     lead: RENEWALS_PAGE_LEAD,
     primaryCta: RENEWALS_PRIMARY_CTA,
     activeWindow,
+    activeSort,
+    grouped: activeSort === "urgent",
     filters,
     windows,
     rows: filteredRows,
@@ -227,6 +246,10 @@ export function buildRenewalsPageModel(input: BuildRenewalsPageModelInput): Rene
       needsReview: filteredRows.filter((row) => row.status === "needs_review").length,
       noticeWindowOpen: filteredRows.filter((row) => row.status === "notice_window_open").length,
       inProgress: filteredRows.filter((row) => row.status === "in_progress").length,
+      hasAnyContracts: input.contracts.length > 0,
+      // §45 — contracts carrying neither a renewal nor a notice date never match
+      // any window, so they would be invisible without the dedicated affordance.
+      missingDates: allRows.filter((row) => !row.renewalDate && !row.noticeDate).length,
     },
     filterOptions: {
       owners: [{ value: "", label: "Any owner" }, { value: "unassigned", label: "Unassigned" }, ...ownerOptions],
@@ -407,6 +430,14 @@ function shapeRenewalRow(
     filters: input.filters,
   });
 
+  // Hoist the values the consequence line, grouping band, and report-inclusion
+  // flag all read from, so they stay consistent with the displayed cells.
+  const renewalDateLabel = dateLabel(renewalDateRaw);
+  const noticeDateLabel = dateLabel(noticeDateRaw);
+  const daysUntilRenewal = renewalDate?.date ? differenceInCalendarDays(renewalDate.date, input.today) : null;
+  const daysUntilNotice = noticeDate?.date ? differenceInCalendarDays(noticeDate.date, input.today) : null;
+  const inWindow = dateInWindow(renewalDate?.date ?? null, noticeDate?.date ?? null, input.activeWindow, input.today);
+
   return {
     id: contract.id,
     title: contract.title?.trim() || "Untitled contract",
@@ -416,17 +447,21 @@ function shapeRenewalRow(
     ownerLabel: input.ownerLabel,
     contractStatus: normalizeToken(contract.status) || "unknown",
     renewalDate: renewalDateRaw,
-    renewalDateLabel: dateLabel(renewalDateRaw),
+    renewalDateLabel,
     renewalDateReview,
     noticeDate: noticeDateRaw,
-    noticeDateLabel: dateLabel(noticeDateRaw),
+    noticeDateLabel,
     noticeDateReview,
     noticeDateIsComputed,
-    daysUntilRenewal: renewalDate?.date ? differenceInCalendarDays(renewalDate.date, input.today) : null,
-    daysUntilNotice: noticeDate?.date ? differenceInCalendarDays(noticeDate.date, input.today) : null,
+    noticeWindowDays: noticeDays,
+    daysUntilRenewal,
+    daysUntilNotice,
     status,
     statusLabel: RENEWAL_STATUS_LABELS[status],
     statusTone: statusTone(status),
+    consequence: buildRenewalConsequence({ status, renewalDateLabel, noticeDateLabel }),
+    group: deriveRenewalGroup({ status, daysUntilNotice, inWindow }),
+    reportIncluded: inWindow,
     nextActionLabel: RENEWAL_ACTION_LABELS[nextActionKey],
     nextActionHref: actionHref(nextActionKey, contract.id, input.activeWindow, input.filters),
     checkpointId: latestCheckpoint?.id ?? null,
@@ -434,6 +469,49 @@ function shapeRenewalRow(
     lastUpdateAt: contract.updated_at ?? latestCheckpoint?.updated_at ?? null,
     actions,
   };
+}
+
+// §14/§20/§21 — the plain-language operational consequence shown beneath the
+// contract name. Driven purely by the model's derived status (which already
+// folds in owner/date/checkpoint/notice-window state), so the line never
+// contradicts the status badge.
+function buildRenewalConsequence(input: {
+  status: RenewalStatus;
+  renewalDateLabel: string;
+  noticeDateLabel: string;
+}): { label: string; tone: RenewalConsequenceTone } {
+  switch (input.status) {
+    case "needs_owner":
+      return { label: RENEWAL_CONSEQUENCE.needs_owner(), tone: "warning" };
+    case "needs_review":
+      return { label: RENEWAL_CONSEQUENCE.needs_review(), tone: "warning" };
+    case "notice_window_open":
+      return { label: RENEWAL_CONSEQUENCE.notice_open(input.renewalDateLabel), tone: "warning" };
+    case "in_progress":
+      return { label: RENEWAL_CONSEQUENCE.in_progress(), tone: "neutral" };
+    case "completed":
+      return { label: RENEWAL_CONSEQUENCE.completed(), tone: "success" };
+    case "no_renewal_action_needed": {
+      const nearest = input.noticeDateLabel !== "—" ? input.noticeDateLabel : input.renewalDateLabel;
+      return { label: RENEWAL_CONSEQUENCE.no_action(nearest), tone: "neutral" };
+    }
+  }
+}
+
+// §54 — urgency band for the default-sort section headers. needs_review rows are
+// the "missing or unconfirmed dates" band; an open notice window or a notice
+// deadline within 30 days is the most-urgent band; remaining in-window rows are
+// the renewal-window band; anything surfaced only by a filter bypass is "later".
+function deriveRenewalGroup(input: {
+  status: RenewalStatus;
+  daysUntilNotice: number | null;
+  inWindow: boolean;
+}): RenewalGroupKey {
+  if (input.status === "needs_review") return "unconfirmed";
+  if (input.status === "notice_window_open") return "notice_30";
+  if (input.daysUntilNotice != null && input.daysUntilNotice >= 0 && input.daysUntilNotice <= 30) return "notice_30";
+  if (input.inWindow) return "renewal_window";
+  return "later";
 }
 
 function deriveRenewalStatus(input: {
@@ -528,14 +606,19 @@ function actionHref(
   return `/contracts/${contractId}?tab=renewals`;
 }
 
-function matchesWindow(row: RenewalRow, window: RenewalWindowKey, today: Date) {
+// Whether a renewal/notice date pair falls inside the window. Shared by the row
+// filter (matchesWindow) and the per-row report-inclusion flag so the two can
+// never disagree about what "in this window" means.
+function dateInWindow(renewalDate: Date | null, noticeDate: Date | null, window: RenewalWindowKey, today: Date) {
   const end = addDays(today, Number(window));
-  const renewalDate = parseDateOnly(row.renewalDate);
-  const noticeDate = parseDateOnly(row.noticeDate);
   if (renewalDate && renewalDate >= today && renewalDate <= end) return true;
   if (noticeDate && noticeDate >= today && noticeDate <= end) return true;
   if (noticeDate && renewalDate && noticeDate < today && renewalDate >= today && renewalDate <= end) return true;
   return false;
+}
+
+function matchesWindow(row: RenewalRow, window: RenewalWindowKey, today: Date) {
+  return dateInWindow(parseDateOnly(row.renewalDate), parseDateOnly(row.noticeDate), window, today);
 }
 
 function matchesFilters(row: RenewalRow, filters: RenewalFilterState) {
@@ -572,6 +655,44 @@ function compareRenewalRows(a: RenewalRow, b: RenewalRow) {
   const bDays = Math.min(b.daysUntilNotice ?? Number.POSITIVE_INFINITY, b.daysUntilRenewal ?? Number.POSITIVE_INFINITY);
   if (aDays !== bDays) return aDays - bDays;
   return a.title.localeCompare(b.title);
+}
+
+// §53 — comparator for the active sort. "urgent" keeps the historical
+// status-weighted order; every explicit key sorts on a single dimension and
+// falls back to the urgent order (or title) for stable, deterministic ties.
+function renewalComparator(sort: RenewalSortKey): (a: RenewalRow, b: RenewalRow) => number {
+  if (sort === "notice") {
+    return (a, b) => bySoonest(a.daysUntilNotice, b.daysUntilNotice) || a.title.localeCompare(b.title);
+  }
+  if (sort === "renewal") {
+    return (a, b) => bySoonest(a.daysUntilRenewal, b.daysUntilRenewal) || a.title.localeCompare(b.title);
+  }
+  if (sort === "owner") {
+    return (a, b) => byOwner(a, b) || compareRenewalRows(a, b);
+  }
+  if (sort === "needs_confirmation") {
+    return (a, b) => byNeedsConfirmation(a, b) || compareRenewalRows(a, b);
+  }
+  return compareRenewalRows;
+}
+
+// Soonest-first; rows with no date in this dimension sort last (Infinity).
+function bySoonest(a: number | null, b: number | null) {
+  return (a ?? Number.POSITIVE_INFINITY) - (b ?? Number.POSITIVE_INFINITY);
+}
+
+// Assigned owners first, alphabetically by label; unassigned rows sort last.
+function byOwner(a: RenewalRow, b: RenewalRow) {
+  const aRank = a.ownerUserId ? 0 : 1;
+  const bRank = b.ownerUserId ? 0 : 1;
+  if (aRank !== bRank) return aRank - bRank;
+  return a.ownerLabel.localeCompare(b.ownerLabel);
+}
+
+// Rows that still need confirmation or an owner sort first.
+function byNeedsConfirmation(a: RenewalRow, b: RenewalRow) {
+  const rank = (row: RenewalRow) => (row.status === "needs_review" || row.status === "needs_owner" ? 0 : 1);
+  return rank(a) - rank(b);
 }
 
 function pickApprovedDate(fields: RenewalFieldRow[], names: readonly string[]) {

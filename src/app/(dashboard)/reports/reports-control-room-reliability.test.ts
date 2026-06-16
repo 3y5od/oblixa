@@ -13,8 +13,9 @@ describe("reports release-state compliance", () => {
     expect(raw).toContain("REPORTS_PAGE_TITLE");
     expect(raw).toContain("REPORTS_EMPTY_STATE");
     expect(raw).toContain("REPORT_CONTENT_LABELS");
-    expect(raw).toContain("Catalog counts are matching rows available in each report.");
-    expect(raw).toContain("Rows:</span> previewed rows over matching rows.");
+    expect(raw).toContain("Catalog counts show matching rows available for each report.");
+    // The inspection header states the previewed-vs-matching row scope inline.
+    expect(raw).toContain("previewed of");
     for (const label of [
       "Upcoming renewals",
       "Notice deadlines",
@@ -22,7 +23,7 @@ describe("reports release-state compliance", () => {
       "Missing key details",
       "Open requirements",
       "Overdue tasks",
-      "Issues by owner",
+      "Problems by owner",
       "Evidence requests",
       "Contract inventory",
       "Confirmation completeness",
@@ -31,7 +32,7 @@ describe("reports release-state compliance", () => {
     }
     // The Core Reports surface must not route users into the admin-only
     // /settings/health (internal-settings) page — partial-data recovery stays
-    // inside Reports (the in-context "Refresh report data" action).
+    // inside Reports (the in-context "Refresh report" action).
     for (const forbidden of [
       "/settings/health",
       "Operational reports",

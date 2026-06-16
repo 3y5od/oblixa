@@ -15,7 +15,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { buildDecisionExecutionContext } from "@/lib/decision-intelligence/decision-context";
 import { isDecisionPacketServerPdfEnabled } from "@/lib/decision-intelligence/decision-packet-export";
 import { isValidPacketType } from "@/lib/decision-intelligence/packet-types";
-
+import { workflowFieldsFromScope } from "./decision-detail-helpers";
 export default async function DecisionDetailPage({
   params,
   searchParams,
@@ -30,13 +30,11 @@ export default async function DecisionDetailPage({
   const ctx = await getAuthContext();
   if (!ctx) return <WorkspaceRequiredState />;
   assertV5PageFeature("v5DecisionFoundation");
-
   const { admin, orgId } = ctx;
   const showRelationshipLinks = isFeatureEnabled("v5RelationshipLayer");
   const showExternal = isFeatureEnabled("v5ExternalCollaboration");
   const serverPacketPdf = isDecisionPacketServerPdfEnabled();
   const appOrigin = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-
   const { data: decision } = await admin
     .from("decision_workspaces")
     .select(
@@ -46,7 +44,6 @@ export default async function DecisionDetailPage({
     .eq("id", id)
     .maybeSingle();
   if (!decision) notFound();
-
   const [
     { data: events },
     { data: stakeholders },
@@ -94,26 +91,6 @@ export default async function DecisionDetailPage({
   ]);
 
   const externalLinksForDecision = showExternal ? (externalLinkRows ?? []) : [];
-
-  function workflowFieldsFromScope(scope: unknown) {
-    const s = scope as Record<string, unknown> | null | undefined;
-    if (!s) {
-      return {
-        workflowStepCount: 0,
-        workflowDeadlineIso: null as string | null,
-        lastWorkflowStepType: null as string | null,
-        correctionMessage: null as string | null,
-      };
-    }
-    const chain = Array.isArray(s.workflow_chain) ? s.workflow_chain : [];
-    const last = chain.length > 0 ? (chain[chain.length - 1] as Record<string, unknown>) : null;
-    return {
-      workflowStepCount: chain.length,
-      workflowDeadlineIso: typeof s.workflow_deadline_iso === "string" ? s.workflow_deadline_iso : null,
-      lastWorkflowStepType: last && typeof last.type === "string" ? last.type : null,
-      correctionMessage: typeof s.correction_message === "string" ? s.correction_message : null,
-    };
-  }
 
   const executionContext = await buildDecisionExecutionContext(
     admin,

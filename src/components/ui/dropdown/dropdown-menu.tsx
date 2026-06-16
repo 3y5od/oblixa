@@ -92,6 +92,7 @@ export function DropdownMenu({
         surfaceRef={surfaceRef}
         zIndexClassName={zIndexClassName}
         widthClassName={widthClassName}
+        bottomFade
       >
         <div
           role="menu"

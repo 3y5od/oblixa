@@ -109,10 +109,10 @@ export function Dropzone({
     return (
       <label
         {...dragProps}
-        className={`flex items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-2.5 text-[12.5px] font-medium outline-none transition-[border-color,background-color] duration-[var(--ui-duration)] ease-[var(--ui-ease-out)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${
+        className={`flex items-center justify-center gap-2 rounded-md border px-4 py-2.5 text-[12.5px] font-medium outline-none transition-[border-color,background-color] duration-[var(--ui-duration)] ease-[var(--ui-ease-out)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${
           disabled
             ? "cursor-not-allowed border-[var(--border-subtle)] text-[var(--text-tertiary)] opacity-60"
-            : "cursor-pointer border-[color:color-mix(in_oklab,var(--border-strong)_42%,var(--border-subtle))] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-strong))] hover:text-[var(--accent-strong)]"
+            : "cursor-pointer border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-strong))] hover:text-[var(--accent-strong)]"
         } ${className ?? ""}`.trim()}
       >
         {input}
@@ -122,27 +122,51 @@ export function Dropzone({
     );
   }
 
-  const stateCls = disabled
-    ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_50%,transparent)] opacity-60"
+  // The full variant is a "source-document well": source-paper ground, a thin
+  // SOLID frame (not the heavy generic border-2 dashed), and a subtle inner
+  // dashed hairline that retains the drop affordance. A quiet document-margin
+  // rule near the left edge reads it as a document zone (§7 document-margin
+  // motif). Drag-over swaps the frame to accent + a faint accent-soft wash.
+  const wellCls = disabled
+    ? "cursor-not-allowed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-inset)_60%,var(--surface-raised))] opacity-60"
     : isOver
-      ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_44%,transparent)] shadow-[var(--shadow-glow)] ring-2 ring-[color:color-mix(in_oklab,var(--accent)_28%,transparent)]"
-      : "cursor-pointer border-[color:color-mix(in_oklab,var(--border-subtle)_90%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,var(--surface-raised))] hover:border-[color:color-mix(in_oklab,var(--accent)_42%,var(--border-strong))] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_16%,var(--surface-raised))]";
+      ? "cursor-pointer border-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-inset))]"
+      : "ui-surface-source cursor-pointer border-[var(--border-subtle)] hover:border-[color:color-mix(in_oklab,var(--accent)_38%,var(--border-strong))]";
+  // Inner dashed hairline frame — inset from the solid frame so the affordance
+  // reads without the generic full-border dashed look.
+  const innerCls = disabled
+    ? "border-[var(--border-subtle)]"
+    : isOver
+      ? "border-[color:color-mix(in_oklab,var(--accent)_50%,var(--border-subtle))]"
+      : "border-[color:color-mix(in_oklab,var(--border-strong)_30%,var(--border-subtle))]";
   const padCls = size === "sm" ? "px-5 py-5" : "px-5 py-6 sm:py-7";
   const gapCls = size === "sm" ? "gap-2.5" : "gap-3";
 
   return (
     <label
       {...dragProps}
-      className={`group flex flex-col items-center justify-center rounded-xl border-2 border-dashed text-center outline-none transition-[border-color,background-color,box-shadow] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${padCls} ${gapCls} ${stateCls} ${className ?? ""}`.trim()}
+      className={`group relative flex flex-col items-center justify-center overflow-hidden rounded-lg border text-center outline-none transition-[border-color,background-color] duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)] ${padCls} ${gapCls} ${wellCls} ${className ?? ""}`.trim()}
     >
       {input}
+      {/* Document-margin rule near the left edge — reads as a document zone. */}
       <span
         aria-hidden
-        className={`inline-flex shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)] transition-transform duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] group-hover:scale-[1.04] ${size === "sm" ? "h-10 w-10" : "h-11 w-11"}`}
+        className="pointer-events-none absolute inset-y-3 left-3.5 w-px bg-[color:color-mix(in_oklab,var(--border-strong)_55%,transparent)]"
+      />
+      {/* Inner dashed hairline retains the drop affordance without a heavy border. */}
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute inset-2 rounded-md border border-dashed transition-colors duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] ${innerCls}`}
+      />
+      <span
+        aria-hidden
+        className={`relative inline-flex shrink-0 items-center justify-center text-[var(--text-tertiary)] transition-colors duration-[var(--ui-duration-slow)] ease-[var(--ui-ease-out)] ${
+          isOver && !disabled ? "text-[var(--accent-strong)]" : "group-hover:text-[var(--text-secondary)]"
+        }`}
       >
-        <UploadCloud className={size === "sm" ? "h-[1.125rem] w-[1.125rem]" : "h-5 w-5"} strokeWidth={1.85} />
+        <UploadCloud className={size === "sm" ? "h-7 w-7" : "h-8 w-8"} strokeWidth={1.5} />
       </span>
-      <div>
+      <div className="relative">
         {primaryText ? (
           <p
             className={`font-semibold text-[var(--text-primary)] ${size === "sm" ? "text-[13px]" : "text-[14px]"}`}
@@ -154,14 +178,14 @@ export function Dropzone({
           <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
             {formats?.map((f) => <MetaChip key={f}>{f}</MetaChip>)}
             {hint ? (
-              <span className="ui-caps-3 text-[10px] tabular-nums text-[var(--text-tertiary)]">
+              <span className="text-[11px] tabular-nums text-[var(--text-tertiary)]">
                 {hint}
               </span>
             ) : null}
           </div>
         ) : null}
         {note ? (
-          <p className="ui-caps-3 mt-1.5 text-[9.5px] leading-none text-[var(--text-tertiary)]">
+          <p className="mt-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
             {note}
           </p>
         ) : null}

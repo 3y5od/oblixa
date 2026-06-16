@@ -2,63 +2,68 @@
 export const SETTINGS_PAGE_STRINGS = {
   eyebrow: "Settings",
   title: "Settings",
-  lead: "Manage workspace identity, team access, billing, security, notifications, and exports.",
-  directoryTitle: "Directory",
-  directoryLead: "Open settings that need their own page.",
+  lead: "Manage workspace identity, team access, billing, security, notifications, imports, and exports.",
+  directoryTitle: "Settings areas",
+  directoryLead: "Open a workspace or account setting.",
 } as const;
 
 export const SETTINGS_GROUP_STRINGS = {
   account: "Account",
   workspace: "Workspace",
-  operations: "Operations",
+  operations: "Operational settings",
 } as const;
+
+// Trust note shown beneath the operational settings group — export scope is
+// disclosed at the point of risk (design §20). Phrased conservatively: exports
+// are workspace-scoped and bounded by the viewer's role.
+export const SETTINGS_OPERATIONS_TRUST_NOTE =
+  "Exports include workspace-scoped contract records available to your role.";
 
 export const SETTINGS_DESTINATION_STRINGS = {
   profile: {
-    title: "Profile",
-    description: "Update your name and account identity.",
+    title: "Account and profile",
+    description: "Update your name and how your account appears across workspace activity.",
     actionLabel: "Edit profile",
-    currentStateLabel: "Name and email",
   },
   security: {
     title: "Security",
     description: "Manage password and account security settings.",
-    actionLabel: "Open security",
+    actionLabel: "Open security settings",
     currentStateLabel: "Account security",
   },
   workspace: {
-    title: "Workspace",
+    title: "Workspace identity",
     description: "Rename the workspace shown in navigation, invites, exports, and billing.",
-    actionLabel: "Rename",
+    actionLabel: "Edit workspace identity",
     currentStateLabel: "Editable",
     readOnlyLabel: "Read-only",
   },
   team: {
-    title: "Team",
+    title: "Team access",
     description: "Review members, roles, invitations, and pending access.",
-    actionLabel: "Invite member",
+    actionLabel: "Manage team access",
   },
   billing: {
-    title: "Billing",
-    description: "Review subscription status, plan posture, and billing portal access.",
+    title: "Billing and access",
+    description: "Review the Core plan, billing state, and approved access.",
     actionLabel: "Open billing",
   },
   notifications: {
     title: "Notifications",
-    description: "Renewal, deadline, work, evidence, and digest emails.",
-    actionLabel: "Edit notifications",
+    description: "Renewal, deadline, task, evidence, and digest emails.",
+    actionLabel: "Edit notification defaults",
     currentStateLabel: "Reminder defaults",
   },
   imports_exports: {
     title: "Imports and exports",
-    description: "Import contracts and review operational export tools.",
-    actionLabel: "Open imports",
+    description: "Import contracts from CSV and review export tools.",
+    actionLabel: "Open imports and exports",
     currentStateLabel: "Contracts and files",
   },
   data_export: {
-    title: "Data export",
+    title: "Contract data export",
     description: "Export reviewed contract data and operational reports.",
-    actionLabel: "Export data",
+    actionLabel: "Export contract data",
     currentStateLabel: "Contract inventory",
   },
 } as const;
@@ -221,6 +226,10 @@ export const SETTINGS_NOTIFICATIONS_STRINGS = {
       // V3 §13.2 — tightened from "Weekly summary of contract
       // activity." (36) → "Weekly contract activity summary." (32).
       description: "Weekly contract activity summary.",
+      // release-state Notifications: the weekly digest is OFF by default
+      // unless the user opts in. Opt-in categories stay unchecked until a
+      // workspace has explicitly configured its notification policy.
+      defaultOff: true,
     },
   ],
 } as const;
@@ -394,10 +403,10 @@ export const SETTINGS_BILLING_STRINGS = {
 export const SETTINGS_SECURITY_STRINGS = {
   eyebrow: "Settings",
   title: "Security",
-  // V3 §1.8 — "Manage" reads more directly than "Confirm" per
-  // release-state §1685 ("Let admins manage access and reduce risk").
-  // 52 chars, well under §10.7 80-char limit.
-  lead: "Manage authenticators, devices, and access policy.",
+  // Lead names the three records on the page so the surface is self-explanatory
+  // without a walkthrough: account protection, sessions, and the sensitive
+  // workspace actions guarded by password confirmation.
+  lead: "Manage account protection, active sessions, and security-sensitive workspace actions.",
   backLabel: "Back to settings",
   // §4.3 release-state §1700-1702 exact phrasing (NOT marketing §757).
   legalNote: "Oblixa helps organize contract information, but it does not provide legal advice.",
@@ -408,10 +417,10 @@ export const SETTINGS_SECURITY_STRINGS = {
     //   POLICY   + MFA policy     → POLICY   + MFA enforcement
     //   RESOURCES + Resources     → RESOURCES + Account & workspace context (V2)
     mfa: "Authenticators",
-    sessions: "Devices",
+    sessions: "Sessions and devices",
     stepUp: "Password confirmation",
     teamRoles: "Team roles",
-    resources: "Account & workspace context",
+    resources: "Workspace security context",
     workspaceMfa: "MFA enforcement",
     // Focal "Account protection" card + its two column sub-headers.
     protection: "Account protection",
@@ -450,10 +459,16 @@ export const SETTINGS_SECURITY_STRINGS = {
     // V2 §1.36 email verification status
     emailStatus: "Email status",
   },
-  // §1.5 + §1.7 MFA copy
-  mfaEmptyLabel: "NO AUTHENTICATORS",
+  // §1.5 + §1.7 MFA copy. Empty-state label reads as a precise sentence-case
+  // condition (not a caps stamp) so it states exactly what is true.
+  mfaEmptyLabel: "No authenticator enrolled",
   mfaSingleLabel: "SINGLE-FACTOR",
   mfaTwoFactorLabel: "TWO-FACTOR",
+  // Provider-availability state — shown when the auth provider cannot offer
+  // authenticator enrollment, replacing the enroll control with a safe reason.
+  mfaUnavailableLabel: "Authenticator setup unavailable",
+  mfaUnavailableBody:
+    "Authenticator enrollment is not available right now. Try again later or contact security support.",
   // §1.6 empty-state body — branched on org policy per V2 §1.19.
   mfaEmptyBody: "Enroll a TOTP authenticator to enable two-factor sign-in.",
   mfaEmptyBodyRequired:
@@ -476,11 +491,18 @@ export const SETTINGS_SECURITY_STRINGS = {
   // V2 §4.6 Sessions positive-action body shortened.
   sessionsBody: "Sign out other devices.",
   sessionsCurrentLabel: "THIS DEVICE",
-  // Sign-out / change-password render as ghost pills in the Devices
-  // card action cluster, so the trailing arrow glyph is dropped — the
-  // pill shape carries the affordance and keeps all three actions in
-  // one consistent vocabulary.
-  signOutSelfCta: "Sign out this device",
+  // Sessions render as a ledger. The consequence line states what sign-out does
+  // before the destructive control; it names the exact scope (no "selected"
+  // wording, since there is no selection UI). Only shown when other sessions
+  // exist — the provider must actually be able to enumerate/revoke them.
+  sessionsConsequence:
+    "Ends every other signed-in session immediately. Those devices must sign in again; this device stays signed in.",
+  // Shown when the provider reports no other active sessions: status, not a
+  // placeholder "sign out all other devices" control that can target nothing.
+  sessionsOnlyCurrentNote:
+    "This is the only active session for your account.",
+  signOutSelfCta: "Sign out of this device",
+  signOutOthersCta: "Sign out all other devices",
   // V3 §4.6 shortened from 104 chars (2 sentences) → 52 chars
   // (1 sentence). Existing-sessions footnote dropped.
   orgMfaConsequence:
@@ -512,7 +534,7 @@ export const SETTINGS_SECURITY_STRINGS = {
   // "Request DPA" overpromised a formal Data Processing Agreement flow
   // that doesn't exist at release (release-state: no procurement-readiness
   // implication). Reframed as a plain contact path to the security team.
-  contactCta: "Email security team",
+  contactCta: "Contact security support",
   // §3.4 password change — ghost pill in the Devices action cluster.
   passwordChangeCta: "Change password",
   // §1.39 banner state machine
@@ -523,15 +545,21 @@ export const SETTINGS_SECURITY_STRINGS = {
   // §1.44 account identity chip
   accountLabel: "ACCOUNT",
   workspaceLabelChip: "WORKSPACE",
-  // §3.1 activity-feed empty — V2 §4.5 + §4.10 reframed.
+  // §3.1 activity-feed empty — the count names its object type + scope, and a
+  // body line explains what will appear so the empty state teaches, not blanks.
   activityEyebrow: "ACTIVITY",
-  activityEmptyLabel: "0 events in the last 90 days",
+  activityEmptyLabel: "0 security events in the last 90 days",
+  activityEmptyBody:
+    "Security-sensitive account and workspace changes will appear here.",
   activityViewAllCta: "OPEN AUDIT LOG",
   activityRetentionNote: "EVENTS RETAINED FOR 90 DAYS",
-  // Step-up form CTA + helper — V2 §1.4 sentence-case the helper.
-  stepUpFormCta: "Confirm password",
+  // Step-up form CTA + helper. The CTA names the object ("account password");
+  // the visible "why" line states which actions password confirmation guards.
+  stepUpFormCta: "Confirm account password",
   stepUpFormHelp:
     "Confirm your password to unlock sensitive changes.",
+  sensitiveActionsWhy:
+    "Confirm your password before changing security settings, billing settings, or workspace access.",
   // §1.20 / §1.16 — Cancel-enrollment button label
   enrollmentCancelCta: "Cancel enrollment",
   // V2 §1.51 — recovery hint when enrollment fails on max-factors.
@@ -562,10 +590,32 @@ export const SETTINGS_SECURITY_STRINGS = {
   // Disclosure triggers render as sentence-case accent links with a
   // chevron (not caps eyebrows) so they read as a secondary "learn
   // more" affordance rather than a section heading.
-  mfaExplainerSummary: "What is two-factor sign-in?",
+  mfaExplainerSummary: "How authenticator sign-in protects this account",
   mfaExplainerBody:
     "Adds a 6-digit code from your authenticator app at sign-in. Works with 1Password, Authy, Google Authenticator, Microsoft Authenticator.",
-  policyExplainerSummary: "What changes for members?",
+  policyExplainerSummary: "How MFA enforcement affects workspace members",
   policyExplainerBody:
     "Members signing in for the first time after enabling are prompted to enroll an authenticator. Existing sessions stay valid until natural expiry.",
+  // Header state strip — ledger metadata that replaces the old identity pill
+  // row. Labels are quiet caps; values are precise condition phrases.
+  stateLabels: {
+    protection: "Account protection",
+    workspace: "Workspace",
+    account: "Account",
+    stepUp: "Step-up",
+  },
+  protectionEnrolledValue: "Two-factor enabled",
+  stepUpRequiredValue: "Password required for sensitive actions",
+  stepUpActiveValue: "Active for sensitive actions",
+  stepUpMfaSessionValue: "Active via MFA session",
+  // Development environment marker, presented as a titled inline alert.
+  devStateTitle: "Development security state",
+  // Workspace security context ledger — explicit action labels (no bare
+  // "Manage"/"View") and a visibility note for the team-roles row.
+  teamRolesVisibilityNote: "Team roles are visible to admins.",
+  manageTeamRolesCta: "Manage team roles",
+  auditHistoryCta: "View security audit history",
+  // Legal note keeps its release-state-pinned text; the boundary label frames it
+  // as a deliberate scope statement rather than a heading.
+  legalBoundaryLabel: "Legal boundary",
 } as const;

@@ -18,10 +18,15 @@ describe("Core route metadata + heading anchors", () => {
       pagePath: "src/app/(dashboard)/dashboard/page.tsx",
       title: "Contract tracking",
       h1: "Contract tracking",
-      h1Path: "src/components/dashboard/dashboard-upper.tsx",
+      h1Path: "src/components/dashboard/dashboard-upper-header.tsx",
       titleViaConst: true,
     },
-    { pagePath: "src/app/(dashboard)/contracts/page.tsx", title: "Contracts", h1: "Contracts" },
+    {
+      pagePath: "src/app/(dashboard)/contracts/page.tsx",
+      title: "Contracts",
+      h1: "Contracts",
+      h1Path: "src/app/(dashboard)/contracts/contracts-page-header.tsx",
+    },
     { pagePath: "src/app/(dashboard)/work/page.tsx", title: "Tasks", h1: "Tasks", titleViaConst: true },
     {
       pagePath: "src/app/(dashboard)/contracts/review/page.tsx",
@@ -29,8 +34,19 @@ describe("Core route metadata + heading anchors", () => {
       h1: "Contract Review Queue",
       titleViaConst: true,
     },
-    { pagePath: "src/app/(dashboard)/contracts/renewals/page.tsx", title: "Renewals", h1: "Renewals", titleViaConst: true },
-    { pagePath: "src/app/(dashboard)/contracts/exceptions/page.tsx", title: "Issues", h1: "Contract issues" },
+    {
+      pagePath: "src/app/(dashboard)/contracts/renewals/page.tsx",
+      title: "Renewals",
+      h1: "Renewals",
+      h1Path: "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx",
+      titleViaConst: true,
+    },
+    {
+      pagePath: "src/app/(dashboard)/contracts/exceptions/page.tsx",
+      title: "Issues",
+      h1: "Contract issues",
+      h1Path: "src/app/(dashboard)/contracts/exceptions/exceptions-page-view.tsx",
+    },
     {
       pagePath: "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
       title: "Evidence",
@@ -48,6 +64,7 @@ describe("Core route metadata + heading anchors", () => {
       pagePath: "src/app/(dashboard)/settings/billing/page.tsx",
       title: "Billing",
       h1: "Billing",
+      h1Path: "src/app/(dashboard)/settings/billing/billing-page-header.tsx",
       titleViaConst: true,
     },
     {

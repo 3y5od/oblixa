@@ -12,6 +12,7 @@ import { recordApiRouteAuditEvent } from "@/lib/security/api-mutation-audit";
 import { contentDispositionAttachment, sanitizeExportFileName } from "@/lib/security/export-filename";
 import { isKillImportExport, killSwitchJsonResponse } from "@/lib/security/kill-switches";
 import { parseFixedEnumParam } from "@/lib/security/validation";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 import { createAdminClient, createClient, getDeterministicMembership } from "@/lib/supabase/server";
 
 const ROUTE = "/api/export/reports";
@@ -65,6 +66,17 @@ export async function GET(request: Request) {
     apiPath: ROUTE,
   });
   if (modeGate) return modeGate;
+  // Role gate (release-state Action Permission Matrix): report/inventory export
+  // is Owner/Admin by default. Member/Viewer export is denied unless a workspace
+  // owner enables a specific export entitlement (not yet implemented).
+  if (!isWorkspaceAdminRole(membership.role)) {
+    return jsonProblem(403, {
+      error: "Exporting reports requires Owner or Admin access in this workspace.",
+      code: "export_role_denied",
+      diagnostic_id: "reports_export_role_denied",
+      route: ROUTE,
+    });
+  }
   if (isKillImportExport()) return killSwitchJsonResponse("import_export");
 
   const url = new URL(request.url);

@@ -100,9 +100,11 @@ export function AuthShell({
         </div>
 
         {wide ? (
+          // Mobile reads form-first, then the product artifact below it; on
+          // desktop the artifact returns to the left column via lg:order.
           <div className="grid gap-x-8 gap-y-10 lg:grid-cols-[minmax(0,1fr)_29rem] lg:items-start">
-            {productPanel}
-            {children}
+            <div className="order-2 min-w-0 lg:order-1">{productPanel}</div>
+            <div className="order-1 lg:order-2">{children}</div>
           </div>
         ) : (
           children

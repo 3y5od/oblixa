@@ -1,61 +1,57 @@
-import { Download, RotateCcw } from "lucide-react";
+import { Download, FileText, RotateCcw } from "lucide-react";
 import { ActionChip } from "@/components/ui/action-chip";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { STATUS_ICON, statusToSemantic } from "@/components/reports/report-display";
 import type { ReportExportRun } from "@/lib/reports/types";
 
-const COLUMNS = ["Report", "Status", "Rows", "Exported", ""] as const;
-const GRID_TEMPLATE = "minmax(0,1fr) 8rem 3.5rem 7rem auto";
+const COLUMNS = ["Report", "Rows", "Exported by", "Exported at", "Status", ""] as const;
+const GRID_TEMPLATE = "minmax(0,1.25fr) 3rem minmax(0,7rem) 6.5rem 6.5rem auto";
 
 /**
  * "Recent exports" run history for the Core exports card.
  *
- * A labeled mini-grid (report + scope/format · status · rows · time · action)
- * so report-run history reads as structured columns, not a repetitive list.
- * Lives directly under the preview in the right pane so it stays attached to the
+ * A labeled mini-grid (report + scope/format · rows · who · when · status ·
+ * re-export) so report-run history reads as a structured ledger, not a
+ * repetitive list. Lives directly under the preview so it stays attached to the
  * report it summarizes. Each run re-exports with its original report + filters —
- * a completed run offers "Export", a failed run offers "Retry".
+ * a completed run offers "Download", a failed run offers "Retry".
  */
 export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
-  // Collapse repeated exports of the same report + scope + format into one row,
-  // so a burst of identical re-runs reads as a single grouped entry (the latest
-  // run, prominent, with a run count) instead of a wall of duplicate lines.
   const groups = groupRuns(runs);
   return (
     <div className="border-t border-[var(--border-subtle)] px-5 py-4">
-      <div className="mb-2.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-        <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Recent exports</p>
-        <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-          Rows are the records included in that export run.
+      <div className="mb-3 flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <h3 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
+          Recent exports
+        </h3>
+        <p className="text-[12px] leading-snug text-[var(--text-tertiary)]">
+          Rows are the records included in each export run.
         </p>
       </div>
 
       {groups.length === 0 ? (
-        <div className="flex items-center gap-3 py-1">
+        <div className="flex items-center gap-3 rounded-md border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,var(--surface-raised))] px-4 py-5">
           <span
             aria-hidden
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
           >
-            <Download className="h-4 w-4" strokeWidth={1.85} />
+            <FileText className="h-4 w-4" strokeWidth={1.6} />
           </span>
           <div className="min-w-0">
-            <p className="ui-caps-2 text-[10.5px] text-[var(--text-secondary)]">No exports yet</p>
-            <p className="ui-caps-3 mt-0.5 text-[9.5px] text-[var(--text-tertiary)]">
-              Exported reports appear here
+            <p className="text-[13px] font-medium text-[var(--text-primary)]">No exports yet</p>
+            <p className="mt-0.5 text-[12px] leading-snug text-[var(--text-secondary)]">
+              Export this report to create a downloadable CSV.
             </p>
           </div>
         </div>
       ) : (
         <div>
           <div
-            className="hidden gap-x-4 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_82%,transparent)] pb-2 lg:grid"
+            className="ui-table-header hidden gap-x-4 px-1 pb-2 text-[10px] lg:grid"
             style={{ gridTemplateColumns: GRID_TEMPLATE }}
           >
             {COLUMNS.map((column, index) => (
-              <span
-                key={column || `col-${index}`}
-                className="ui-caps-2 min-w-0 truncate text-[10px] text-[var(--text-tertiary)]"
-              >
+              <span key={column || `col-${index}`} className="min-w-0 truncate">
                 {column}
               </span>
             ))}
@@ -68,16 +64,14 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
               const Icon = STATUS_ICON[semantic];
               const phase = classifyRunPhase(run.status);
               // Only show a format token that differs from the CSV default, so a
-              // column of identical "· CSV" markers doesn't manufacture repetition
-              // (exports are CSV-only today). Window scope still distinguishes
-              // windowed runs.
+              // column of identical "· CSV" markers doesn't manufacture repetition.
               const formatToken =
                 run.format && run.format.toLowerCase() !== "csv" ? run.format.toUpperCase() : "";
               const metaTokens = [...run.scope, formatToken].filter(Boolean);
               return (
                 <div
                   key={`${run.reportKey}-${run.at ?? index}`}
-                  className="flex flex-col gap-2 py-2.5 lg:grid lg:items-center lg:gap-x-4"
+                  className="flex flex-col gap-2 px-1 py-2.5 lg:grid lg:items-center lg:gap-x-4"
                   style={{ gridTemplateColumns: GRID_TEMPLATE }}
                 >
                   <div className="min-w-0">
@@ -88,7 +82,7 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
                       <span className="truncate">{run.reportLabel}</span>
                       {group.count > 1 ? (
                         <span
-                          className="ui-caps-3 inline-flex shrink-0 items-center rounded-full border border-[var(--border-subtle)] px-1.5 py-0.5 text-[9px] tabular-nums text-[var(--text-tertiary)]"
+                          className="inline-flex shrink-0 items-center rounded-[4px] border border-[var(--border-subtle)] px-1.5 py-0.5 text-[9.5px] font-semibold tabular-nums text-[var(--text-tertiary)]"
                           title={`${group.count} exports of this report and scope`}
                         >
                           ×{group.count}
@@ -96,7 +90,7 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
                       ) : null}
                     </p>
                     {metaTokens.length > 0 ? (
-                      <p className="ui-caps-3 mt-0.5 text-[9.5px] text-[var(--text-tertiary)] tabular-nums">
+                      <p className="mt-0.5 text-[11px] text-[var(--text-tertiary)] tabular-nums">
                         {metaTokens.map((token, tokenIndex) => (
                           <span key={token}>
                             {tokenIndex > 0 ? (
@@ -112,33 +106,43 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Status</p>
-                    <StatusBadge status={semantic} className="gap-1">
-                      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.2} aria-hidden />
-                      {labelizeStatus(run.status)}
-                    </StatusBadge>
-                  </div>
-
-                  <div className="min-w-0">
                     <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Rows</p>
-                    <span className="font-mono text-[12px] tabular-nums text-[var(--text-secondary)]">
+                    <span className="font-mono text-[12.5px] tabular-nums text-[var(--text-secondary)]">
                       {run.rows != null ? run.rows : "—"}
                     </span>
                   </div>
 
                   <div className="min-w-0">
-                    <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Exported</p>
+                    <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Exported by</p>
+                    <span
+                      className="block truncate text-[12.5px] text-[var(--text-secondary)]"
+                      title={run.exportedBy || undefined}
+                    >
+                      {run.exportedBy || "—"}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Exported at</p>
                     {run.atLabel ? (
                       <time
                         dateTime={run.at ?? undefined}
                         title={run.at ?? undefined}
-                        className="block truncate font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]"
+                        className="block truncate font-mono text-[11.5px] tabular-nums text-[var(--text-tertiary)]"
                       >
                         {run.atLabel}
                       </time>
                     ) : (
                       <span className="text-[12px] text-[var(--text-tertiary)]">—</span>
                     )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="ui-caps-3 mb-1 text-[var(--text-tertiary)] lg:hidden">Status</p>
+                    <StatusBadge status={semantic} className="gap-1">
+                      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.2} aria-hidden />
+                      {labelizeStatus(run.status)}
+                    </StatusBadge>
                   </div>
 
                   <div className="lg:justify-self-end">

@@ -79,6 +79,9 @@ export interface DataFooterProps {
   };
   lastUpdate?: Date | string | null;
   variant?: "default" | "sticky";
+  /** Separator between shown and total in the count chip; defaults to "/". Pass
+   *  "of" for a more readable "4 of 4" where the surface prefers prose. */
+  countSeparator?: string;
   className?: string;
 }
 
@@ -91,6 +94,7 @@ export function DataFooter({
   pagination,
   lastUpdate,
   variant = "default",
+  countSeparator = "/",
   className,
 }: DataFooterProps) {
   const base =
@@ -109,7 +113,7 @@ export function DataFooter({
       }
     >
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        <KeyValueChip label={countLabel} value={`${shown} / ${total}`} />
+        <KeyValueChip label={countLabel} value={`${shown} ${countSeparator} ${total}`} />
         {sectionLabel ? <span className="ui-caps-3 text-[var(--text-tertiary)]">{sectionLabel}</span> : null}
         {filtered ? (
           <span className="inline-flex items-center">

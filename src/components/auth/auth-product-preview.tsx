@@ -1,31 +1,9 @@
 import type { ReactNode } from "react";
-import { CalendarClock, ClipboardCheck, FileText, Users, type LucideIcon } from "lucide-react";
+import { Check, ClipboardCheck, FileText, Users, type LucideIcon } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ChipPair } from "@/components/ui/chip-pair";
-import { QuietFactChip } from "./auth-ui";
 
-/** Static time marker styled to match the shared TimeChip bordered-neutral
- *  recipe exactly. The mock is static + aria-hidden, so we mirror the chip's
- *  classes rather than compute a relative date from "now". */
-function TimeMarker({ children }: { children: string }) {
-  return (
-    <span className="inline-flex items-center whitespace-nowrap rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] font-medium uppercase leading-none tracking-[0.12em] tabular-nums text-[var(--text-secondary)]">
-      {children}
-    </span>
-  );
-}
-
-/** Preserved-case meta-value chip (dates etc. — never shouting, §10.12). */
-function MetaChip({ children }: { children: string }) {
-  return (
-    <span className="inline-flex items-center whitespace-nowrap rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-medium leading-none tabular-nums text-[var(--text-secondary)]">
-      {children}
-    </span>
-  );
-}
-
-/** One signal row with a reserved status column so chips right-align to a clean
- *  vertical edge. */
+/** One downstream signal row with a reserved status column so badges right-align
+ *  to a clean vertical edge. */
 function SignalRow({
   icon: Icon,
   label,
@@ -47,51 +25,75 @@ function SignalRow({
 }
 
 /**
- * Decorative content-led "workspace slice" — a compact contract-work object, not
- * a generic card. Fully `aria-hidden`: a review item with structured date/notice
- * chips, a cited-source line, and owner/evidence/report signals aligned to one
- * right-hand status edge.
+ * Decorative contract-review artifact — a staged Oblixa review surface, fully
+ * `aria-hidden`. It tells the product thesis at a glance: a SUGGESTED detail,
+ * its cited source text on a paper inset, the confirm step, and the CONFIRMED
+ * owner / evidence / report records that follow. The trust vocabulary
+ * (Suggested → Confirmed, Source text, warning/info downstream states) mirrors
+ * the real app's StatusBadge recipes rather than inventing new ones.
  */
 export function AuthProductPreview() {
   return (
     <div
       aria-hidden
-      className="rounded-2xl border border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_50%,var(--surface))] p-4"
+      className="overflow-hidden rounded-[5px] border border-[color:color-mix(in_oklab,var(--text-primary)_22%,var(--border-strong))] bg-[var(--surface-raised)] shadow-[var(--shadow-1)]"
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="landing-eyebrow-dot ui-caps-2 text-[9.5px] text-[var(--text-tertiary)]">Review queue</span>
-        <ChipPair primary="Contract" secondary="Master agreement" />
-      </div>
-
-      {/* Review item */}
-      <div className="mt-3 flex items-start gap-2.5">
-        <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[var(--surface)] text-[var(--text-tertiary)]">
-          <CalendarClock className="h-[1.05rem] w-[1.05rem]" strokeWidth={1.85} />
+      {/* Contract identity bar */}
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,transparent)] px-3.5 py-2">
+        <span className="inline-flex min-w-0 items-center gap-2">
+          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[3px] border border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[var(--surface-raised)] text-[var(--text-tertiary)]">
+            <FileText className="h-3 w-3" strokeWidth={1.9} />
+          </span>
+          <span className="truncate text-[12px] font-semibold tracking-tight text-[var(--text-primary)]">
+            Northwind — Master Services Agreement
+          </span>
         </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[13.5px] font-semibold tracking-tight text-[var(--text-primary)]">Notice deadline</p>
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <MetaChip>Aug 14, 2026</MetaChip>
-            <QuietFactChip>60-day notice</QuietFactChip>
-          </div>
-        </div>
-        <StatusBadge status="in_review" className="shrink-0">
-          Suggested
+        <StatusBadge status="healthy" className="shrink-0">
+          Active
         </StatusBadge>
       </div>
 
-      {/* Cited source — reads as a quote, not an editable field */}
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="ui-caps-3 shrink-0 text-[9px] text-[var(--text-tertiary)]">Source</span>
-        <span className="truncate font-mono text-[11px] italic text-[var(--text-secondary)]">
-          “…sixty (60) days written notice…”
-        </span>
+      {/* The suggested detail under review */}
+      <div className="px-4 pb-3.5 pt-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="ui-caps-3 text-[var(--text-tertiary)]">Detail to confirm</p>
+            <p className="mt-1 text-[14px] font-semibold tracking-tight text-[var(--text-primary)]">
+              Notice deadline
+            </p>
+            <p className="mt-0.5 text-[12px] tabular-nums text-[var(--text-secondary)]">
+              Aug 14, 2026 · 60-day notice
+            </p>
+          </div>
+          <StatusBadge status="in_review" className="shrink-0">
+            Suggested
+          </StatusBadge>
+        </div>
+
+        {/* Cited source text on a parchment paper inset */}
+        <div className="mt-3 rounded-[4px] border border-[color:color-mix(in_oklab,var(--accent-warm)_24%,var(--border-subtle))] bg-[var(--surface-inset)] px-3 py-2">
+          <p className="ui-caps-3 mb-1 text-[var(--accent-warm)]">Source text</p>
+          <p className="font-mono text-[11px] italic leading-relaxed text-[var(--text-secondary)]">
+            “…either party may terminate on sixty (60) days written notice…”
+          </p>
+        </div>
+
+        {/* Confirm affordance + its operational consequence */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span className="inline-flex items-center gap-1.5 rounded-[3px] bg-[var(--accent-strong)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-fg)]">
+            <Check className="h-3 w-3" strokeWidth={2.5} />
+            Confirm detail
+          </span>
+          <span className="text-[11px] leading-snug text-[var(--text-tertiary)]">
+            before it drives reminders, tasks, and reports
+          </span>
+        </div>
       </div>
 
-      {/* Signals — owner, evidence, report on a fixed right edge */}
-      <div className="mt-3 space-y-2 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] pt-3">
+      {/* Downstream records once confirmed */}
+      <div className="space-y-2 border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] px-4 py-2.5">
+        <p className="ui-caps-3 text-[var(--text-tertiary)]">Then it becomes accountable</p>
         <SignalRow icon={Users} label="Owner assigned">
-          <TimeMarker>2d</TimeMarker>
           <StatusBadge status="healthy">Confirmed</StatusBadge>
         </SignalRow>
         <SignalRow icon={ClipboardCheck} label="Evidence request">

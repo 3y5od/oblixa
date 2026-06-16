@@ -7,7 +7,12 @@ import { describe, expect, it } from "vitest";
  */
 describe("V9 migration 050 import/export job fields in product paths", () => {
   it("health diagnostics selects import job recovery + completion columns", () => {
-    const src = readFileSync(join(process.cwd(), "src/app/(dashboard)/settings/health/page.tsx"), "utf8");
+    const src = [
+      "src/app/(dashboard)/settings/health/page.tsx",
+      "src/app/(dashboard)/settings/health/settings-health-page-model.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(src).toContain('.from("contract_import_jobs")');
     expect(src).toContain("failure_reason");
     expect(src).toContain("completed_at");

@@ -83,6 +83,12 @@ export type EvidenceRow = {
   /** Derived bucket used for risk tone + the due-state filter. */
   dueState: EvidenceDueFilterKey;
   lastUpdateAt: string | null;
+  /** Whether this request expects an uploaded file (requirement_type `document`)
+   *  rather than a non-file response. Drives the file-vs-response indicator and
+   *  keeps "missing file" semantics off response-only requests. */
+  requiresFile: boolean;
+  /** User-facing mode label: "File required" or "Response required". */
+  responseModeLabel: string;
   status: EvidenceStatusKey;
   statusLabel: string;
   statusTone: "healthy" | "info" | "in_review" | "warning" | "blocked" | "overdue" | "critical" | "empty" | "disabled";

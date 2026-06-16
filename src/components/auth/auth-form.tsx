@@ -6,39 +6,28 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
-  Ban,
   CircleCheck,
-  Clock,
-  EyeOff,
-  KeyRound,
   Loader2,
-  Lock,
   MailCheck,
-  RefreshCw,
-  RotateCcw,
   ShieldCheck,
   TriangleAlert,
-  XCircle,
-  type LucideIcon,
 } from "lucide-react";
 import { forgotPassword, resetPassword, signIn, signUp } from "@/actions/auth";
 import { assignNavigableHref } from "@/lib/navigation/client-navigation";
 import { MODE_CONFIG, type AuthMode } from "./auth-config";
 import { AuthShell, AuthCard, type AuthCardTone } from "./auth-shell";
-import { AuthProductPanel, AuthProductFacts } from "./auth-product-panel";
+import { AuthProductPanel } from "./auth-product-panel";
 import { AuthFields } from "./auth-fields";
-import { AuthStateCard, type AuthStateTone } from "./auth-state-card";
+import { AuthStateCard } from "./auth-state-card";
+import {
+  SIGNUP_RECOVERY,
+  SignupRecoveryCard,
+  type RecoveryInfo,
+  type SignupGrantState,
+} from "./auth-recovery";
 import { AuthWorkspaceCallout } from "./auth-workspace-callout";
+import { AuthTrustProof } from "./auth-trust-proof";
 import { AuthIconTile } from "./auth-ui";
-
-type SignupGrantState =
-  | "valid_workspace_creation"
-  | "missing"
-  | "invalid"
-  | "expired"
-  | "used"
-  | "revoked"
-  | "unavailable";
 
 interface AuthFormProps {
   mode: AuthMode;
@@ -76,91 +65,6 @@ interface FieldErrors {
   confirm?: string;
 }
 
-type RecoveryAction = "request-access" | "sign-in" | "contact";
-type RecoveryInfo = {
-  chip: string;
-  heading: string;
-  body: string;
-  tone: AuthStateTone;
-  icon: LucideIcon;
-  primary: RecoveryAction;
-  secondary: RecoveryAction;
-};
-
-const RECOVERY: Record<Exclude<SignupGrantState, "valid_workspace_creation">, RecoveryInfo> = {
-  missing: {
-    chip: "No link",
-    heading: "Access link required",
-    body: "Signup opens after workspace access is approved or an invite is issued.",
-    tone: "neutral",
-    icon: KeyRound,
-    primary: "request-access",
-    secondary: "sign-in",
-  },
-  invalid: {
-    chip: "Invalid",
-    heading: "Access link not recognized",
-    body: "This link can't be used to create a workspace account. Request access to continue.",
-    tone: "warning",
-    icon: XCircle,
-    primary: "request-access",
-    secondary: "sign-in",
-  },
-  expired: {
-    chip: "Expired",
-    heading: "Access link expired",
-    body: "Request a new access link to create your workspace account.",
-    tone: "warning",
-    icon: Clock,
-    primary: "request-access",
-    secondary: "contact",
-  },
-  revoked: {
-    chip: "Revoked",
-    heading: "Access link no longer active",
-    body: "This link was revoked. Request access again or ask for a new invite.",
-    tone: "warning",
-    icon: Ban,
-    primary: "request-access",
-    secondary: "contact",
-  },
-  used: {
-    chip: "Used",
-    heading: "Access link already used",
-    body: "This link already created an account. Sign in, or request a new invite.",
-    tone: "neutral",
-    icon: RotateCcw,
-    primary: "sign-in",
-    secondary: "request-access",
-  },
-  unavailable: {
-    chip: "Unavailable",
-    heading: "Access check unavailable",
-    body: "We couldn't verify this link right now. Try again shortly or request a fresh link.",
-    tone: "warning",
-    icon: RefreshCw,
-    primary: "request-access",
-    secondary: "contact",
-  },
-};
-
-const RECOVERY_ACTION: Record<RecoveryAction, { href: string; label: string }> = {
-  "request-access": { href: "/request-access", label: "Request access" },
-  "sign-in": { href: "/login", label: "Sign in" },
-  contact: { href: "/contact", label: "Contact support" },
-};
-
-/** Quiet trust chip under the submit button — a small icon + sentence-case
- *  reassurance, replacing the dot-separated proof prose (§10.7). */
-function ProofChip({ icon: Icon, children }: { icon: LucideIcon; children: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-card)] bg-[color:color-mix(in_oklab,var(--surface-raised)_55%,transparent)] px-2.5 py-1 text-[10.5px] font-medium text-[var(--text-tertiary)]">
-      <Icon className="h-3 w-3 shrink-0" strokeWidth={1.85} aria-hidden />
-      {children}
-    </span>
-  );
-}
-
 export function AuthForm({
   mode,
   urlBanner,
@@ -189,7 +93,7 @@ export function AuthForm({
     mode === "signup" ? signupGrantState ?? (accessCode ? "valid_workspace_creation" : "missing") : undefined;
   const blocksSignupForm = mode === "signup" && effectiveSignupGrantState !== "valid_workspace_creation";
   const recoveryInfo: RecoveryInfo | null = blocksSignupForm
-    ? RECOVERY[effectiveSignupGrantState as keyof typeof RECOVERY]
+    ? SIGNUP_RECOVERY[effectiveSignupGrantState as keyof typeof SIGNUP_RECOVERY]
     : null;
   const denied = mode === "signup" && Boolean(state?.error?.includes("approved workspace access"));
 
@@ -324,19 +228,7 @@ export function AuthForm({
           )}
         </button>
 
-        {showProof ? (
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            <ProofChip icon={ShieldCheck}>Encrypted in transit</ProofChip>
-            <ProofChip icon={Lock}>Workspace-scoped</ProofChip>
-            <ProofChip icon={EyeOff}>No data on public pages</ProofChip>
-            <Link
-              href="/security"
-              className="inline-flex items-center rounded-full px-2.5 py-1 text-[10.5px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-            >
-              Security
-            </Link>
-          </div>
-        ) : null}
+        {showProof ? <AuthTrustProof /> : null}
       </div>
     </form>
   );
@@ -385,22 +277,7 @@ export function AuthForm({
     </AuthStateCard>
   );
 
-  const signupRecoveryContent = recoveryInfo ? (
-    <AuthStateCard
-      tone={recoveryInfo.tone}
-      icon={recoveryInfo.icon}
-      chip={recoveryInfo.chip}
-      heading={recoveryInfo.heading}
-      body={recoveryInfo.body}
-    >
-      <Link href={RECOVERY_ACTION[recoveryInfo.primary].href} className="ui-btn-primary">
-        {RECOVERY_ACTION[recoveryInfo.primary].label}
-      </Link>
-      <Link href={RECOVERY_ACTION[recoveryInfo.secondary].href} className="ui-btn-ghost">
-        {RECOVERY_ACTION[recoveryInfo.secondary].label}
-      </Link>
-    </AuthStateCard>
-  ) : null;
+  const signupRecoveryContent = recoveryInfo ? <SignupRecoveryCard recoveryInfo={recoveryInfo} /> : null;
 
   const cardBody = isInvalidLink
     ? invalidLinkContent
@@ -434,16 +311,12 @@ export function AuthForm({
               </span>
             ) : null}
           </p>
-          <h1 className="mt-1 text-balance text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">
+          <h1 className="lp-serif mt-1 text-balance text-[1.75rem] leading-[1.1] text-[var(--text-primary)] sm:text-[2rem]">
             {c.title}
           </h1>
           <p className="mt-1.5 max-w-[42ch] text-pretty text-[13px] leading-[1.5] text-[var(--text-secondary)]">{c.intro}</p>
         </div>
       </div>
-
-      {showProof ? (
-        <AuthProductFacts className="mb-5 grid grid-cols-1 gap-x-6 gap-y-2.5 min-[420px]:grid-cols-2 lg:hidden" />
-      ) : null}
 
       <AuthCard tone={cardTone}>{cardBody}</AuthCard>
 

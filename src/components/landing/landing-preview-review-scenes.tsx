@@ -58,7 +58,7 @@ export function HeroPreview() {
         </div>
 
         {/* Detail pane — the one suggested detail this clause produces. */}
-        <div className="flex min-w-0 flex-col bg-[color:color-mix(in_oklab,var(--surface-muted)_38%,var(--surface-raised))]">
+        <div className="flex min-w-0 flex-col bg-[color:color-mix(in_oklab,var(--surface-cool)_60%,var(--surface-raised))]">
           <div className="flex items-center justify-between gap-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-4 py-2">
             <span className="text-[12.5px] font-semibold text-[var(--text-secondary)]">
               Suggested detail
@@ -144,7 +144,7 @@ export function DetailsReviewPreview() {
             </p>
           </div>
         </div>
-        <div className="flex min-w-0 flex-col">
+        <div className="flex min-w-0 flex-col bg-[color:color-mix(in_oklab,var(--surface-cool)_48%,var(--surface-raised))]">
           <div className="px-4 py-3.5">
             <div className="flex items-baseline justify-between gap-3">
               <div>
@@ -256,7 +256,7 @@ export function InspectionPreview() {
         </div>
 
         {/* Record pane — the detail ledger and where it is used. */}
-        <div className="flex min-w-0 flex-col">
+        <div className="flex min-w-0 flex-col bg-[color:color-mix(in_oklab,var(--surface-cool)_42%,var(--surface-raised))]">
           <div className="grid grid-cols-[1fr_1fr_0.9fr] md:grid-cols-[0.85fr_1fr_0.75fr_0.95fr]">
             <span className={thClass}>Detail</span>
             <span className={thClass}>Suggested value</span>

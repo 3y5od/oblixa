@@ -123,7 +123,7 @@ export const GENERATED_VISUAL_ROUTES = [
     "routeFamily": "marketing",
     "shellFamily": "marketing",
     "mode": "public",
-    "expectedHeading": "See how Oblixa fits together."
+    "expectedHeading": "From signed contract to accountable follow-up."
   },
   {
     "route": "/pricing",

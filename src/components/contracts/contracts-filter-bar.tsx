@@ -52,19 +52,11 @@ export interface ContractsFilterBarProps {
 }
 
 const SORT_OPTIONS: UiSelectOption[] = [
-  { value: "activity", label: "Last activity" },
+  { value: "activity", label: "Last updated" },
   { value: "created", label: "Last created" },
 ];
 
 const FILTER_PILL_HEIGHT = "h-[42px]";
-
-const REGION_OPTIONS: UiSelectOption[] = [
-  { value: "", label: "Any region" },
-  { value: "NA", label: "NA" },
-  { value: "EMEA", label: "EMEA" },
-  { value: "APAC", label: "APAC" },
-  { value: "LATAM", label: "LATAM" },
-];
 
 // Prepend a leading "Any …" clear option (value ""). The "Any …" label lets the
 // FilterSelect dedup it at rest (pill reads "OWNER", not "OWNER Any owner") while
@@ -133,9 +125,9 @@ export function ContractsFilterBar({
           onChange={(value) => navigate({ sort: value })}
           options={SORT_OPTIONS}
           ariaLabel={`Sort: ${
-            SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Last activity"
+            SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Last updated"
           }`}
-          className="w-[9.5rem]"
+          className="w-[10.5rem]"
           buttonClassName={`${FILTER_PILL_HEIGHT} justify-between`}
         />
       }
@@ -163,7 +155,7 @@ export function ContractsFilterBar({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             // Enter applies — no separate Apply button (immediate-apply recipe).
-            className={`ui-input-compact ${FILTER_PILL_HEIGHT} w-full rounded-full pl-9 text-[12.5px]`}
+            className={`ui-input-compact ${FILTER_PILL_HEIGHT} w-full rounded-md pl-9 text-[12.5px]`}
             autoComplete="off"
           />
         </form>
@@ -173,14 +165,16 @@ export function ContractsFilterBar({
         value={values.status}
         options={withClearOption("Status", statusOptions)}
         onChange={(value) => navigate({ status: value })}
-        className="w-[8rem]"
+        className="w-[7.5rem]"
+        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Owner"
         value={values.owner}
         options={withClearOption("Owner", ownerOptions)}
         onChange={(value) => navigate({ owner: value })}
-        className="w-[8rem]"
+        className="w-[8.5rem]"
+        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Counterparty"
@@ -188,6 +182,7 @@ export function ContractsFilterBar({
         options={withClearOption("Counterparty", counterpartyOptions)}
         onChange={(value) => navigate({ counterparty: value })}
         className="w-[11rem]"
+        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Type"
@@ -195,13 +190,7 @@ export function ContractsFilterBar({
         options={withClearOption("Type", contractTypeOptions)}
         onChange={(value) => navigate({ contract_type: value })}
         className="w-[7rem]"
-      />
-      <FilterSelect
-        label="Region"
-        value={values.region}
-        options={REGION_OPTIONS}
-        onChange={(value) => navigate({ region: value })}
-        className="w-[7.25rem]"
+        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Date"
@@ -209,6 +198,7 @@ export function ContractsFilterBar({
         options={withClearOption("Date", deadlineOptions)}
         onChange={(value) => navigate({ deadline: value })}
         className="w-[7rem]"
+        labelOnlyWhenInactive
       />
     </FilterBar>
   );

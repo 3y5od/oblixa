@@ -14,7 +14,12 @@ describe("V9 settings health/product/operations (§3 + §27 anchors)", () => {
   });
 
   it("health control room still samples import/export job tables for §27 diagnostics", () => {
-    const health = readFileSync(join(process.cwd(), "src/app/(dashboard)/settings/health/page.tsx"), "utf8");
+    const health = [
+      "src/app/(dashboard)/settings/health/page.tsx",
+      "src/app/(dashboard)/settings/health/settings-health-page-model.ts",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
     expect(health.length).toBeGreaterThan(2000);
     expect(health).toContain('.from("contract_import_jobs")');
     expect(health).toContain('.from("contract_export_jobs")');

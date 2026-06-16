@@ -24,11 +24,12 @@ export function LegalLinks({
   "aria-label"?: string;
 }) {
   const items = variant === "compact" ? LINKS.slice(0, 3) : LINKS;
-  // Compact (dashboard footer) reads at a quieter caps tracking so a short row
-  // like "Security Privacy Terms" doesn't look like spaced-out noise; the full
-  // marketing variant keeps its wider eyebrow tracking.
+  // Compact (authenticated-shell footer) reads as quiet title-case links —
+  // formal, not shouted caps (§18.13). The full marketing variant keeps its
+  // wider uppercase eyebrow tracking.
+  const caseClass = variant === "compact" ? "" : "uppercase";
   const sizeTracking =
-    variant === "compact" ? "text-[11px] tracking-[0.06em]" : "text-[10.5px] tracking-[0.14em]";
+    variant === "compact" ? "text-[11px] tracking-[0.01em]" : "text-[10.5px] tracking-[0.14em]";
 
   return (
     <nav className={`ui-legal-links ${className}`.trim()} aria-label={ariaLabel}>
@@ -37,7 +38,7 @@ export function LegalLinks({
           key={link.href}
           href={link.href}
           prefetch={false}
-          className={`ui-nowrap-safe rounded-sm font-semibold uppercase leading-none text-[var(--text-tertiary)] no-underline transition-colors duration-[var(--ui-duration)] hover:text-[var(--accent-strong)] hover:underline hover:decoration-from-font hover:underline-offset-[3px] focus-visible:text-[var(--accent-strong)] focus-visible:underline focus-visible:decoration-from-font focus-visible:underline-offset-[3px] ${sizeTracking}`}
+          className={`ui-nowrap-safe rounded-sm font-semibold leading-tight text-[var(--text-tertiary)] no-underline transition-colors duration-[var(--ui-duration)] hover:text-[var(--accent-strong)] hover:underline hover:decoration-from-font hover:underline-offset-[3px] focus-visible:text-[var(--accent-strong)] focus-visible:underline focus-visible:decoration-from-font focus-visible:underline-offset-[3px] ${caseClass} ${sizeTracking}`}
         >
           {link.label}
         </Link>

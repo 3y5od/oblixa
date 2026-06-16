@@ -6,6 +6,7 @@ describe("dashboard Core density", () => {
   it("Core dashboard composes the shared page header without persona presets", () => {
     const raw = [
       "src/components/dashboard/core-dashboard.tsx",
+      "src/components/dashboard/core-dashboard-shell.tsx",
       "src/components/dashboard/core-dashboard-sections.tsx",
     ]
       .map((file) => readFileSync(join(process.cwd(), file), "utf8"))

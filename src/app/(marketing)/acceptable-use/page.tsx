@@ -23,7 +23,7 @@ import { ActionChip } from "@/components/ui/action-chip";
 
 const title = "Acceptable use — Oblixa";
 const description =
-  "Acceptable use rules for Oblixa, the signed-contract follow-up workspace: what you can upload, fair-use AI extraction, account responsibility, prohibited conduct, and grounds for suspension.";
+  "Acceptable use rules for Oblixa, the signed-contract follow-up workspace: what you can upload, fair-use AI-assisted suggestions, account responsibility, prohibited conduct, and grounds for suspension.";
 
 const LAST_REVIEWED_ISO = "2026-05-28", LAST_REVIEWED_LABEL = "May 28, 2026";
 
@@ -46,7 +46,7 @@ type SummaryItem = { icon: LucideIcon; label: string; body: string; href: string
 const SUMMARY: readonly SummaryItem[] = [
   { icon: Check, label: "Allowed use", body: "Track signed agreements you have a right to operate on.", href: "#may-upload" },
   { icon: ShieldAlert, label: "Upload boundaries", body: "No illegal, malicious, or unauthorized regulated data.", href: "#may-not-upload" },
-  { icon: Sparkles, label: "AI extraction", body: "Suggestions are source-backed and need human review.", href: "#ai-extraction" },
+  { icon: Sparkles, label: "AI suggestions", body: "Suggestions are source-backed and need human review.", href: "#ai-extraction" },
   { icon: Ban, label: "Prohibited conduct", body: "No access abuse, scraping, spam, or impersonation.", href: "#prohibited" },
   { icon: Flag, label: "Report concerns", body: "Flag misuse through the security channel.", href: "#reporting" },
 ];
@@ -174,7 +174,7 @@ export default function AcceptableUsePage() {
           <Section id="what-oblixa-is-for" icon={FileText} title="What Oblixa is for">
             <p>
               Oblixa is a signed-contract follow-up workspace for agreements you have already signed. Teams
-              use it to review key fields, assign owners, track renewal and notice dates, manage obligations,
+              use it to review key details, assign owners, track renewal and notice dates, manage contract requirements,
               request evidence, and produce reports.
             </p>
             <p className="text-[13px] text-[var(--text-tertiary)]">
@@ -214,15 +214,15 @@ export default function AcceptableUsePage() {
             </ul>
           </Section>
 
-          <Section id="ai-extraction" icon={Sparkles} title="AI extraction and fair use">
+          <Section id="ai-extraction" icon={Sparkles} title="AI-assisted suggestions and fair use">
             <p>
-              Suggested extraction is included with Core, subject to fair use. We may temporarily throttle
+              AI-assisted suggestions are included with Core, subject to fair use. We may temporarily throttle
               extraction if one workspace runs an unusually high volume of pages relative to typical
               contract-tracking use, and we will reach out before any sustained throttling.
             </p>
             <p>
-              AI suggestions are starting points: each field stays tied to its source snippet until a person
-              approves it, and you remain responsible for verifying any field that drives reminders, work, or
+              AI suggestions are starting points: each detail stays tied to its source snippet until a person
+              confirms it, and you remain responsible for verifying any detail that drives reminders, work, or
               reports.
             </p>
           </Section>

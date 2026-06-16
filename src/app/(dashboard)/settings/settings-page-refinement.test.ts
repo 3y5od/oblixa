@@ -10,6 +10,9 @@ const SETTINGS_DIRECTORY_SECTIONS = join(
 );
 const SETTINGS_ANCHOR_LINK = join(process.cwd(), "src/app/(dashboard)/settings/settings-anchor-link.tsx");
 const SETTINGS_BILLING = join(process.cwd(), "src/app/(dashboard)/settings/billing/page.tsx");
+const SETTINGS_BILLING_VIEW = join(process.cwd(), "src/app/(dashboard)/settings/billing/billing-page-view.tsx");
+const SETTINGS_BILLING_HEADER = join(process.cwd(), "src/app/(dashboard)/settings/billing/billing-page-header.tsx");
+const SETTINGS_BILLING_EMPTY = join(process.cwd(), "src/app/(dashboard)/settings/billing/billing-empty-state-card.tsx");
 const SETTINGS_SECURITY = join(process.cwd(), "src/app/(dashboard)/settings/security/page.tsx");
 const SETTINGS_OPERATIONS = join(process.cwd(), "src/app/(dashboard)/settings/operations/page.tsx");
 const SETTINGS_OPERATIONS_VIEW = join(process.cwd(), "src/app/(dashboard)/settings/operations/operations-settings-view.tsx");
@@ -22,6 +25,9 @@ function readPublicSettingsSource() {
     SETTINGS_SECTIONS,
     SETTINGS_DIRECTORY_SECTIONS,
     SETTINGS_BILLING,
+    SETTINGS_BILLING_VIEW,
+    SETTINGS_BILLING_HEADER,
+    SETTINGS_BILLING_EMPTY,
     SETTINGS_SECURITY,
     SETTINGS_OPERATIONS,
     SETTINGS_OPERATIONS_VIEW,
@@ -52,15 +58,15 @@ describe("settings page release-state compliance", () => {
     const raw = readFileSync(SETTINGS_STRINGS, "utf8");
     for (const phrase of [
       "Settings",
-      "Manage workspace identity, team access, billing, security, notifications, and exports.",
-      "Profile",
-      "Workspace",
-      "Team",
-      "Billing",
+      "Manage workspace identity, team access, billing, security, notifications, imports, and exports.",
+      "Account and profile",
+      "Workspace identity",
+      "Team access",
+      "Billing and access",
       "Notifications",
       "Security",
       "Imports and exports",
-      "Data export",
+      "Contract data export",
     ]) {
       expect(raw).toContain(phrase);
     }

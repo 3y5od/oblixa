@@ -79,6 +79,9 @@ export type WorkItemRow = {
   statusTone: "healthy" | "info" | "in_review" | "warning" | "blocked" | "overdue" | "critical" | "empty" | "disabled";
   contractId: string | null;
   contractTitle: string;
+  /** The other party on the linked contract, surfaced as quiet metadata so two
+   *  similarly-named contracts stay distinguishable in the ledger. */
+  counterparty: string | null;
   contractHref: string | null;
   ownerUserId: string | null;
   ownerLabel: string;
@@ -87,9 +90,20 @@ export type WorkItemRow = {
   dueState: string;
   /** Calendar days from now to due_at; negative = overdue, 0 = today, null = no due date. */
   dueInDays: number | null;
+  /** Absolute due date for the ledger ("Jun 15, 2026"); null when no due date. */
+  duePrimaryLabel: string | null;
+  /** Relative due descriptor ("Due in 2 days" / "Past due by 3 days" / "Due
+   *  today"); null when no due date. */
+  dueRelativeLabel: string | null;
   blocker: string;
+  /** The single second-line note under the task title: the dependency reason
+   *  when the task cannot proceed, otherwise a state-derived next step (assign
+   *  owner / past due). Null when the title is self-sufficient — never filler. */
+  nextActionNote: string | null;
   lastUpdateAt: string | null;
   lastUpdateLabel: string;
+  /** Readable "Updated 2 days ago" form for the ledger column. */
+  lastUpdateReadable: string;
   href: string;
   display: WorkRowDisplayGroups;
   primaryAction: WorkPrimaryAction;
@@ -129,6 +143,9 @@ export type WorkPageModel = {
   /** The current page slice of the active tab's rows (already sorted). */
   rows: WorkItemRow[];
   totalVisibleRows: number;
+  /** Distinct contracts represented across the active tab's full row set —
+   *  drives the "Showing N tasks across M contracts" summary above the table. */
+  visibleContractCount: number;
   /** Pagination for the active tab. `total` is the full tab row count; `rows`
    *  holds only the current page. */
   pagination: {

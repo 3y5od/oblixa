@@ -6,6 +6,7 @@ describe("V9 §16 CmdK + search jumps", () => {
   it("command palette stays a keyboard-first client surface with CmdK jump wiring", () => {
     const raw = [
       "src/components/layout/command-palette.tsx",
+      "src/components/layout/command-palette-state.ts",
       "src/components/layout/command-palette-dialog.tsx",
     ]
       .map((file) => readFileSync(join(process.cwd(), file), "utf8"))

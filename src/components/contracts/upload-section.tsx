@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export interface UploadSectionProps {
-  /** Quiet tabular step prefix folded into the caps title (§11.26 — no separate
-   *  numeral medallion). Omit for unnumbered sections. */
+  /** Quiet tabular step prefix shown before the sentence-case title (no caps,
+   *  no separate numeral medallion). Omit for unnumbered sections. */
   step?: number;
   icon: LucideIcon;
   title: string;
@@ -16,9 +16,10 @@ export interface UploadSectionProps {
 }
 
 /**
- * One titled block inside the upload editor card — icon medallion + caps title
- * (with optional step prefix) + optional lead + right-aligned aside, then the
- * section body. Sections are separated by hairlines, never nested cards (§10.5).
+ * One titled block inside the upload editor card — a quiet line icon + a
+ * sentence-case title (with optional quiet step index) + optional lead +
+ * right-aligned aside, then the section body. Sections are separated by
+ * hairlines, never nested cards (§13).
  */
 export function UploadSection({
   step,
@@ -37,21 +38,20 @@ export function UploadSection({
           : "border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]"
       }`}
     >
-      <div className="flex items-start gap-3">
-        <span
+      <div className="flex items-start gap-2.5">
+        <Icon
           aria-hidden
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)] shadow-[var(--shadow-1)]"
-        >
-          <Icon className="h-4 w-4" strokeWidth={1.85} />
-        </span>
+          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]"
+          strokeWidth={1.75}
+        />
         <div className="min-w-0 flex-1">
-          <p className="flex flex-wrap items-center gap-1.5 leading-none">
+          <p className="flex flex-wrap items-baseline gap-1.5">
             {step != null ? (
-              <span className="ui-caps-1 text-[11px] leading-none tabular-nums text-[var(--text-tertiary)]">
-                {step}
+              <span className="text-[12px] font-semibold leading-none tabular-nums text-[var(--text-tertiary)]">
+                {step}.
               </span>
             ) : null}
-            <span className="ui-caps-2 text-[11px] leading-none text-[var(--text-primary)]">
+            <span className="text-[13.5px] font-semibold leading-none text-[var(--text-primary)]">
               {title}
             </span>
           </p>

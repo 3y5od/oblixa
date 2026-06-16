@@ -688,7 +688,7 @@ async function seedLocalWorkspaceData(supabase, { userId, email }) {
         source_id: FIXTURE_IDS.approvals.ridgewayCommercial,
         type: "approval",
         status: "open",
-        title: "Approve Ridgeway commercial exception",
+        title: "Approve Ridgeway commercial terms",
         contract_id: contractIds.ridgewayRenewal,
         source_type: "approval",
         owner_user_id: userId,

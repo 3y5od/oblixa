@@ -1,27 +1,39 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
  * product-surface policy §14 — tripwire: contextual entry surfaces keep cross-links described in refinement-trace.
  */
-const CONTRACT_DETAIL = "src/app/(dashboard)/contracts/[id]/page.tsx";
 const PROGRAMS = "src/app/(dashboard)/contracts/programs/page.tsx";
 const CAMPAIGN_DETAIL = "src/app/(dashboard)/campaigns/[id]/page.tsx";
 const RENEWALS = "src/app/(dashboard)/contracts/renewals/page.tsx";
 const EXCEPTIONS = "src/app/(dashboard)/contracts/exceptions/page.tsx";
+const EXCEPTIONS_ROW = "src/app/(dashboard)/contracts/exceptions/exception-ledger-row.tsx";
 const WORK = "src/app/(dashboard)/work/page.tsx";
 
 describe("refinement §14 contextual entry anchors", () => {
   it("renewals and exceptions pages import ContractContinuityLinks", () => {
-    for (const rel of [RENEWALS, EXCEPTIONS] as const) {
-      const raw = readFileSync(join(process.cwd(), rel), "utf8");
-      expect(raw.includes("ContractContinuityLinks"), rel).toBe(true);
-    }
+    const renewals = [
+      RENEWALS,
+      "src/app/(dashboard)/contracts/renewals/renewal-row-cells.tsx",
+    ]
+      .map((rel) => readFileSync(join(process.cwd(), rel), "utf8"))
+      .join("\n");
+    const exceptions = [EXCEPTIONS, EXCEPTIONS_ROW]
+      .map((rel) => readFileSync(join(process.cwd(), rel), "utf8"))
+      .join("\n");
+    expect(renewals.includes("ContractContinuityLinks"), RENEWALS).toBe(true);
+    expect(exceptions.includes("ContractContinuityLinks"), EXCEPTIONS).toBe(true);
   });
 
   it("contract detail links account and counterparty relationship routes when keys exist", () => {
-    const raw = readFileSync(join(process.cwd(), CONTRACT_DETAIL), "utf8");
+    const detailDir = join(process.cwd(), "src/app/(dashboard)/contracts/[id]");
+    const raw = readdirSync(detailDir)
+      .filter((file) => file === "page.tsx" || /^contract-detail.*\.(ts|tsx)$/.test(file))
+      .sort()
+      .map((file) => readFileSync(join(detailDir, file), "utf8"))
+      .join("\n");
     expect(raw).toContain("/accounts/");
     expect(raw).toContain("/counterparties/");
   });

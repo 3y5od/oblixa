@@ -9,12 +9,14 @@ import { FIELD_REVIEW_IMPORTANT_FIELD_ALIASES } from "./spec-strings";
  * (which imports `contract-review-stats.ts` — that would be a cycle).
  */
 
-/** Humanizes a raw extracted-field name (`renewal_date` → "Renewal date"). */
+/** Humanizes a raw extracted-field name into sentence case (`renewal_date` →
+ *  "Renewal date"). Only the first word is capitalized — detail names are object
+ *  labels, not formal titles, so they follow the sentence-case house style. */
 export function formatReviewFieldLabel(fieldName: string): string {
-  return fieldName
-    .split("_")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+  const words = fieldName.split("_").filter(Boolean);
+  if (words.length === 0) return fieldName;
+  return words
+    .map((part, index) => (index === 0 ? part.charAt(0).toUpperCase() + part.slice(1) : part))
     .join(" ");
 }
 

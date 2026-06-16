@@ -4,10 +4,14 @@ import { describe, expect, it } from "vitest";
 
 describe("contract inventory uses a real table with release-state columns", () => {
   it("renders a semantic <table> with the spec-prescribed column headers and hover-revealed row actions", () => {
-    const src = readFileSync(
-      join(process.cwd(), "src/components/contracts/contract-table.tsx"),
-      "utf8"
-    );
+    const src = [
+      "src/components/contracts/contract-table.tsx",
+      "src/components/contracts/contract-table-desktop.tsx",
+      "src/components/contracts/contract-table-mobile.tsx",
+      "src/components/contracts/contract-table-chips.tsx",
+    ]
+      .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
+      .join("\n");
 
     // Real table semantics — release-state spec calls for table columns.
     expect(src).toContain("<table");
@@ -58,10 +62,7 @@ describe("contract inventory uses a real table with release-state columns", () =
   });
 
   it("avoids row virtualization libraries so render order matches `contracts.map`", () => {
-    const src = readFileSync(
-      join(process.cwd(), "src/components/contracts/contract-table.tsx"),
-      "utf8"
-    );
+    const src = readFileSync(join(process.cwd(), "src/components/contracts/contract-table.tsx"), "utf8");
     expect(src).toContain("contracts.map(");
     expect(src).not.toMatch(
       /@tanstack\/react-virtual|react-window|virtua|useVirtual/i

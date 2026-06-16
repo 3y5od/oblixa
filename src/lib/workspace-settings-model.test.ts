@@ -16,20 +16,24 @@ describe("workspace settings model", () => {
     expect(adminSettings().groups.map((group) => group.title)).toEqual([
       "Account",
       "Workspace",
-      "Operations",
+      "Operational settings",
     ]);
   });
 
   it("emits only public Core settings destinations", () => {
     const titles = adminSettings().groups.flatMap((group) => group.destinations.map((dest) => dest.title));
-    // Profile, Workspace, and Team are edited inline (own cards), not directory
-    // rows — the directory lists only settings that open their own page.
+    // The directory is the full index of settings areas: Account-and-profile,
+    // Workspace identity, and Team access are anchor jump-links into their inline
+    // panels; the rest open dedicated pages.
     expect(titles).toEqual([
+      "Account and profile",
       "Security",
-      "Billing",
+      "Workspace identity",
+      "Team access",
+      "Billing and access",
       "Notifications",
       "Imports and exports",
-      "Data export",
+      "Contract data export",
     ]);
     for (const forbidden of [
       "Product experience",
@@ -52,24 +56,26 @@ describe("workspace settings model", () => {
     const destinations = adminSettings().groups.flatMap((group) => group.destinations);
     expect(destinations.find((dest) => dest.key === "security")).toMatchObject({
       href: "/settings/security",
-      actionLabel: "Open security",
+      actionLabel: "Open security settings",
     });
     expect(destinations.find((dest) => dest.key === "billing")).toMatchObject({
       href: "/settings/billing",
       actionLabel: "Open billing",
-      currentStateLabel: "Access review",
+      // Access-state phrase, not a pending "review" (§43). No subscription =
+      // approved access, not yet paid.
+      currentStateLabel: "Approved access",
     });
     expect(destinations.find((dest) => dest.key === "notifications")).toMatchObject({
       href: "/settings/operations#notifications",
-      actionLabel: "Edit notifications",
+      actionLabel: "Edit notification defaults",
     });
     expect(destinations.find((dest) => dest.key === "imports_exports")).toMatchObject({
       href: "/contracts/bulk",
-      actionLabel: "Open imports",
+      actionLabel: "Open imports and exports",
     });
     expect(destinations.find((dest) => dest.key === "data_export")).toMatchObject({
       href: "/reports?report=contract_inventory",
-      actionLabel: "Export data",
+      actionLabel: "Export contract data",
     });
   });
 

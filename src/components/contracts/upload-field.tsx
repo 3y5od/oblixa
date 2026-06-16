@@ -6,11 +6,15 @@ export interface UploadFieldProps {
    *  screen readers resolve the control's accessible name. */
   id: string;
   label: string;
-  /** Renders the accent "Required" chip inline with the label. */
+  /** Renders a quiet sentence-case "Required" marker inline with the label. */
   required?: boolean;
-  /** Inline caps hint folded into the label (§7.4) — e.g. "Enter to add",
-   *  "Read-only". Never a paragraph between label and control (§11.15). */
+  /** Inline sentence-case hint folded into the label — e.g. "Enter to add",
+   *  "Read-only". Never a paragraph between label and control (§17). */
   hint?: string;
+  /** Sentence-level helper rendered quietly *below* the control (§11.15 keeps
+   *  paragraphs out of the label→control gap). Use for constraint, consequence,
+   *  or recovery copy — e.g. what a value drives once confirmed. */
+  help?: ReactNode;
   /** Recoverable field error rendered in a reserved slot below the control. */
   error?: string;
   /** Leading glyph rendered inside the control gutter. The caller's input must
@@ -31,6 +35,7 @@ export function UploadField({
   label,
   required,
   hint,
+  help,
   error,
   icon: Icon,
   children,
@@ -45,12 +50,12 @@ export function UploadField({
       >
         <span>{label}</span>
         {required ? (
-          <span className="ui-caps-3 text-[9px] leading-none text-[var(--accent-strong)]">
+          <span className="text-[11px] font-normal leading-none text-[var(--text-tertiary)]">
             Required
           </span>
         ) : null}
         {hint ? (
-          <span className="ui-caps-3 text-[9.5px] leading-none text-[var(--text-tertiary)]">
+          <span className="text-[11px] font-normal leading-none text-[var(--text-tertiary)]">
             {hint}
           </span>
         ) : null}
@@ -66,10 +71,15 @@ export function UploadField({
         ) : null}
         {children}
       </div>
+      {help && !error ? (
+        <p className="mt-1.5 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+          {help}
+        </p>
+      ) : null}
       {error ? (
         <p
           id={errorId}
-          className="ui-caps-3 mt-1.5 text-[10px] leading-none text-[var(--danger-ink)]"
+          className="mt-1.5 text-[11.5px] leading-snug text-[var(--danger-ink)]"
           role="alert"
         >
           {error}

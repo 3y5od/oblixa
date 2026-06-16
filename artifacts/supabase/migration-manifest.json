@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-migration-manifest.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 95,
+  "migrationCount": 96,
   "firstVersion": "001",
-  "latestVersion": "095",
+  "latestVersion": "096",
   "gaps": [],
   "migrations": [
     {
@@ -1143,6 +1143,18 @@
       "purpose": "Inbound Evidence Scope Guards",
       "domain": "security",
       "changeType": "policy-changing",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true
+    },
+    {
+      "version": "096",
+      "file": "096_service_role_public_table_dml.sql",
+      "sha256": "946795e16a7d76ecd6b90857192e55ef36d74dbaf809ab4f69078320d2eb04ff",
+      "slug": "service_role_public_table_dml",
+      "purpose": "Service Role Public Table Dml",
+      "domain": "security",
+      "changeType": "schema-only",
       "riskLevel": "medium",
       "deployWindowSafe": true,
       "requiresFollowUpVerification": true

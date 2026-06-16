@@ -10,7 +10,9 @@ export function ReviewFieldMiniQueue({ items }: { items: FieldReviewMiniQueueIte
   if (items.length <= 1) return null;
   return (
     <div>
-      <p className="ui-caps-2 mb-1.5 text-[10px] leading-none text-[var(--text-tertiary)]">Pending in this contract</p>
+      <p className="ui-caps-2 mb-1.5 text-[10px] leading-none text-[var(--text-tertiary)]">
+        Other details needing review in this contract
+      </p>
       <div className="-mx-0.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) =>
           item.isCurrent ? (

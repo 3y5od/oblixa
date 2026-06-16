@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Copy, FileQuestion, Timer, UserRoundX, Users, Wrench } from "lucide-react";
-import { ApiJsonLink } from "@/components/ui/api-json-link";
+import { Wrench } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { UiSelect } from "@/components/ui/ui-select";
-import { OperationalSummaryCard } from "@/components/ui/operational-summary-card";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { CampaignRollbackButton } from "@/components/campaign-maintenance-actions";
 import {
   archiveContractAsDuplicateForm,
   deleteOrphanFileRecordForm,
@@ -14,10 +11,14 @@ import {
   processContractChangeEventsForm,
   runCorrectionCampaignForm,
   runDateBackfillCampaignForm,
-  reassignOwnerForm,
 } from "@/actions/maintenance";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
-import { createCampaignAction, runCampaignAction } from "./maintenance-campaign-actions";
+import {
+  MaintenanceCampaignsSection,
+  MaintenanceHygieneBacklog,
+  OwnerlessContractsSection,
+  StaleContractsSection,
+} from "./maintenance-page-sections";
 
 export default async function MaintenancePage() {
   const ctx = await getAuthContext();
@@ -129,191 +130,20 @@ export default async function MaintenancePage() {
         lead="Detect stale records, ownerless contracts, duplicate candidates, and orphaned files."
       />
 
-      <section className="space-y-3">
-        <div>
-          <p className="ui-eyebrow">Signals</p>
-          <h2 className="ui-page-title mt-2 text-[1.8rem]">Hygiene backlog</h2>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-          <OperationalSummaryCard
-            eyebrow="Freshness"
-            headline="Stale records"
-            tone={staleContracts.length > 0 ? "attention" : "healthy"}
-            icon={Timer}
-            primaryValue={staleContracts.length}
-            primaryUnit={`>${staleContractDays}d idle`}
-            action={{ href: "/contracts/maintenance", label: "Review list" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Ownership"
-            headline="Ownerless"
-            tone={missingOwner.length > 0 ? "risk" : "healthy"}
-            icon={UserRoundX}
-            primaryValue={missingOwner.length}
-            primaryUnit="no owner_id"
-            action={{ href: "/contracts/maintenance", label: "Assign owners" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Ownership"
-            headline="Stale assignment"
-            tone={staleOwnership.length > 0 ? "attention" : "healthy"}
-            icon={Users}
-            primaryValue={staleOwnership.length}
-            primaryUnit={`>${staleOwnershipDays}d on owner`}
-            action={{ href: "/contracts/maintenance", label: "Refresh owners" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Deduping"
-            headline="Duplicate groups"
-            tone={duplicates.length > 0 ? "attention" : "healthy"}
-            icon={Copy}
-            primaryValue={duplicates.length}
-            primaryUnit="title + counterparty"
-            action={{ href: "/contracts/maintenance", label: "Resolve duplicates" }}
-            variant="compact"
-          />
-          <OperationalSummaryCard
-            eyebrow="Files"
-            headline="Orphaned files"
-            tone={orphaned.length > 0 ? "attention" : "healthy"}
-            icon={FileQuestion}
-            primaryValue={orphaned.length}
-            primaryUnit="missing valid link"
-            action={{ href: "/contracts/maintenance", label: "Clean files" }}
-            variant="compact"
-          />
-        </div>
-      </section>
+      <MaintenanceHygieneBacklog
+        staleContractsCount={staleContracts.length}
+        staleContractDays={staleContractDays}
+        missingOwnerCount={missingOwner.length}
+        staleOwnershipCount={staleOwnership.length}
+        staleOwnershipDays={staleOwnershipDays}
+        duplicateGroupCount={duplicates.length}
+        orphanedCount={orphaned.length}
+      />
 
-      <section className="ui-page-shell overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
-          <h2 className="ui-section-title text-base">Maintenance campaigns</h2>
-          <p className="ui-support-copy mt-1">Create and run remediation batches from the same surface used to inspect stale records and correction demand.</p>
-        </div>
-        <div className="grid gap-4 p-6 md:grid-cols-2">
-          <form action={createCampaignAction} className="ui-card-quiet space-y-2 p-4">
-            <p className="ui-label-caps">Create campaign</p>
-            <input aria-label="Q2 owner backfill" name="name" className="ui-input w-full" placeholder="Q2 owner backfill" required />
-            <UiSelect
-              name="campaignType"
-              defaultValue="data_remediation"
-              ariaLabel="Campaign type"
-              options={[
-                { value: "data_remediation", label: "data remediation" },
-                { value: "owner_reassignment", label: "owner reassignment" },
-                { value: "policy_backfill", label: "policy backfill" },
-              ]}
-              variant="compact"
-              portal
-              className="w-full"
-              buttonClassName="w-full !min-h-11"
-            />
-            <textarea aria-label="Seed contract IDs" name="seedContractIds" className="ui-input min-h-[72px] w-full" placeholder="Optional contract IDs (comma/newline separated)" />
-            <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-              Create draft campaign
-            </button>
-          </form>
-          <div className="ui-card-quiet p-4">
-            <p className="ui-label-caps">Campaign history</p>
-            <ul className="mt-2 space-y-2">
-              {campaigns.length === 0 ? (
-                <li className="text-sm text-[var(--text-tertiary)]">No campaigns created yet.</li>
-              ) : (
-                campaigns.map((campaign) => (
-                  <li key={campaign.id} className="rounded border border-[var(--border-subtle)] px-3 py-2 text-sm">
-                    <p className="font-medium text-[var(--text-primary)]">{campaign.name}</p>
-                    <p className="text-xs text-[var(--text-tertiary)]">
-                      {campaign.campaign_type} · {campaign.status}
-                      {campaign.rolled_back_at ? " · rolled back" : ""}
-                    </p>
-                    {campaign.last_preview_at ? (
-                      <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
-                        Last preview: {new Date(campaign.last_preview_at).toLocaleString()}
-                      </p>
-                    ) : null}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <ApiJsonLink
-                        href={`/api/maintenance/campaigns/${campaign.id}/preview`}
-                        className="ui-btn-secondary inline-block px-3 py-1.5 text-xs"
-                      >
-                        Preview row counts
-                      </ApiJsonLink>
-                      <CampaignRollbackButton campaignId={campaign.id} />
-                    </div>
-                    {campaign.status !== "completed" ? (
-                      <form action={runCampaignAction} className="mt-2">
-                        <input type="hidden" name="campaignId" value={campaign.id} />
-                        <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                          Run campaign
-                        </button>
-                      </form>
-                    ) : null}
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
-        </div>
-      </section>
+      <MaintenanceCampaignsSection campaigns={campaigns} />
 
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
-          <h2 className="ui-section-title text-base">Stale active/review records</h2>
-        </div>
-        <ul className="divide-y divide-[var(--border-subtle)]">
-          {staleContracts.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No stale records.</li>
-          ) : (
-            staleContracts.map((row) => (
-              <li key={row.id} className="px-6 py-3">
-                <Link href={`/contracts/${row.id}`} className="ui-link text-sm">
-                  {row.title}
-                </Link>
-                <p className="text-xs text-[var(--text-tertiary)]">{new Date(row.updated_at).toISOString().slice(0, 10)}</p>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
-
-      <section className="ui-card overflow-hidden">
-        <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">
-          <h2 className="ui-section-title text-base">Ownerless contracts (reassign)</h2>
-        </div>
-        <ul className="divide-y divide-[var(--border-subtle)]">
-          {missingOwner.length === 0 ? (
-            <li className="px-6 py-4 text-sm text-[var(--text-tertiary)]">No ownerless records.</li>
-          ) : (
-            missingOwner.slice(0, 20).map((row) => (
-              <li key={row.id} className="flex items-center justify-between gap-3 px-6 py-3">
-                <Link href={`/contracts/${row.id}`} className="ui-link text-sm">
-                  {row.title}
-                </Link>
-                <form action={reassignOwnerForm} className="flex items-center gap-2">
-                  <input type="hidden" name="contractId" value={row.id} />
-                  <UiSelect
-                    name="ownerId"
-                    defaultValue={members[0]?.id ?? ""}
-                    ariaLabel={`Owner for ${row.title}`}
-                    options={members.map((m) => ({ value: m.id, label: m.label }))}
-                    variant="compact"
-                    portal
-                    searchThreshold={8}
-                    className="min-w-[12rem]"
-                    buttonClassName="w-full !min-h-11 text-xs"
-                  />
-                  <button type="submit" className="ui-btn-secondary px-3 py-1.5 text-xs">
-                    Assign
-                  </button>
-                </form>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      <StaleContractsSection rows={staleContracts} />
+      <OwnerlessContractsSection rows={missingOwner} members={members} />
 
       <section className="ui-card overflow-hidden">
         <div className="border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--canvas))] px-6 py-4">

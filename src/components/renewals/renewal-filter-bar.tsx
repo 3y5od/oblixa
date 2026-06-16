@@ -5,6 +5,7 @@ import { CountChip } from "@/components/ui/count-chip";
 import { FilterBar, FilterSelect } from "@/components/ui/filter-bar";
 import { type UiSelectOption } from "@/components/ui/ui-select";
 import type { DropdownStatusTone } from "@/components/ui/dropdown";
+import { RENEWAL_SORT_DIMENSION_LABEL } from "@/lib/renewals/spec-strings";
 
 type FilterOption = { value: string; label: string };
 
@@ -40,6 +41,9 @@ export interface RenewalFilterBarProps {
   counterpartyOptions: FilterOption[];
   statusOptions: FilterOption[];
   reviewOptions: FilterOption[];
+  /** §53 — current sort key and the selectable sort options. */
+  activeSort: string;
+  sortOptions: FilterOption[];
   /** Preserve the create-task panel across a filter navigation. */
   keepCreateOpen: boolean;
   /** Rows matching the current filters — shown as compact confirmation feedback. */
@@ -63,6 +67,8 @@ export function RenewalFilterBar({
   counterpartyOptions,
   statusOptions,
   reviewOptions,
+  activeSort,
+  sortOptions,
   keepCreateOpen,
   matchCount,
 }: RenewalFilterBarProps) {
@@ -85,23 +91,33 @@ export function RenewalFilterBar({
   );
 
   function navigate(
-    next: Partial<{ window: string; owner: string; counterparty: string; status: string; review: string }>
+    next: Partial<{
+      window: string;
+      owner: string;
+      counterparty: string;
+      status: string;
+      review: string;
+      sort: string;
+    }>
   ) {
     const window = next.window ?? activeWindow;
     const owner = next.owner ?? filters.owner;
     const counterparty = next.counterparty ?? filters.counterparty;
     const status = next.status ?? filters.status;
     const review = next.review ?? filters.review;
-    router.push(buildHref({ window, owner, counterparty, status, review }));
+    const sort = next.sort ?? activeSort;
+    router.push(buildHref({ window, owner, counterparty, status, review, sort }));
   }
 
-  // Mirror buildRenewalsHref: 90 is the default horizon, so it stays out of the URL.
+  // Mirror buildRenewalsHref: 90 is the default horizon and "urgent" the default
+  // sort, so both stay out of the URL.
   function buildHref(state: {
     window: string;
     owner: string;
     counterparty: string;
     status: string;
     review: string;
+    sort: string;
   }) {
     const params = new URLSearchParams();
     if (state.window && state.window !== "90") params.set("window", state.window);
@@ -109,18 +125,20 @@ export function RenewalFilterBar({
     if (state.counterparty) params.set("counterparty", state.counterparty);
     if (state.status) params.set("status", state.status);
     if (state.review) params.set("review", state.review);
+    if (state.sort && state.sort !== "urgent") params.set("sort", state.sort);
     if (keepCreateOpen) params.set("create", "1");
     const qs = params.toString();
     return qs ? `/renewals?${qs}` : "/renewals";
   }
 
-  // Clear resets the attribute filters but keeps the selected horizon.
+  // Clear resets the attribute filters but keeps the selected horizon and sort.
   const clearFiltersHref = buildHref({
     window: activeWindow,
     owner: "",
     counterparty: "",
     status: "",
     review: "",
+    sort: activeSort,
   });
 
   return (
@@ -128,6 +146,18 @@ export function RenewalFilterBar({
       className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-3"
       activeFilterCount={activeFilterCount}
       clearFiltersHref={clearFiltersHref}
+      sortSlot={
+        // §53 — sort the ledger. "Most urgent" (default) keeps the urgency-band
+        // grouping; any other key flattens to a single sorted run.
+        <FilterSelect
+          label={RENEWAL_SORT_DIMENSION_LABEL}
+          value={activeSort}
+          options={sortOptions}
+          onChange={(value) => navigate({ sort: value })}
+          active={activeSort !== "urgent"}
+          className="max-w-[16rem]"
+        />
+      }
       rightExtra={
         hasFilters ? (
           <span className="inline-flex items-center gap-1.5">

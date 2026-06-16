@@ -40,7 +40,7 @@ export function ActionChip({
   return (
     <Link
       href={href}
-      className={`group inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] font-semibold leading-none transition-colors hover:brightness-110 ${className ?? ""}`.trim()}
+      className={`ui-chip-focus group inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1 text-[12.5px] font-semibold leading-none transition-colors hover:brightness-110 ${className ?? ""}`.trim()}
       style={{
         borderColor: `color-mix(in oklab, ${ink} 32%, var(--border-card))`,
         background: `color-mix(in oklab, ${ink} 8%, var(--surface-raised))`,
@@ -50,7 +50,7 @@ export function ActionChip({
       {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden /> : null}
       <span>{verb}</span>
       <ArrowRight
-        className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+        className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         strokeWidth={2}
         aria-hidden
       />

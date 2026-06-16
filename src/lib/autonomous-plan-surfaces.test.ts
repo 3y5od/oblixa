@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { WORK_TAB_ORDER } from "./work/model";
@@ -7,6 +7,15 @@ import { V9_ACTIVATION_PATH, V9_NOTIFICATION_CLASSES } from "./compatibility-rel
 
 function read(rel: string): string {
   return readFileSync(join(process.cwd(), rel), "utf8");
+}
+
+function readContractDetailSurface(): string {
+  const detailDir = join(process.cwd(), "src/app/(dashboard)/contracts/[id]");
+  return readdirSync(detailDir)
+    .filter((file) => file === "page.tsx" || /^contract-detail.*\.(ts|tsx)$/.test(file))
+    .sort()
+    .map((file) => readFileSync(join(detailDir, file), "utf8"))
+    .join("\n");
 }
 
 describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () => {
@@ -25,7 +34,7 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
 
   describe("§8.2 dashboard — eight home card ids + deep links", () => {
     it("defines eight operational focus cards with filtered destinations", () => {
-      const upper = read("src/components/dashboard/dashboard-upper.tsx");
+      const upper = read("src/components/dashboard/dashboard-upper-focus-cards.ts");
       const ids = [
         "assigned-work",
         "due-soon",
@@ -59,9 +68,9 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
 
   describe("§10 contract detail", () => {
     it("anchors above-fold summary on detail page", () => {
-      const page = read("src/app/(dashboard)/contracts/[id]/page.tsx");
-      expect(page).toMatch(/owner|Owner/i);
-      expect(page).toMatch(/status|Status/i);
+      const detailSurface = readContractDetailSurface();
+      expect(detailSurface).toMatch(/owner|Owner/i);
+      expect(detailSurface).toMatch(/status|Status/i);
     });
   });
 
@@ -240,7 +249,7 @@ describe("V9 autonomous plan — surface proxies (§7–§27 + matrices)", () =>
 
   describe("Filter crosswalk (partial equivalence)", () => {
     it("contracts list shares owner/status vocabulary with other Core lists", () => {
-      const c = read("src/app/(dashboard)/contracts/page.tsx");
+      const c = `${read("src/app/(dashboard)/contracts/page.tsx")}\n${read("src/app/(dashboard)/contracts/contracts-page-model.ts")}`;
       expect(c).toContain("owner");
       expect(c).toContain("status");
     });

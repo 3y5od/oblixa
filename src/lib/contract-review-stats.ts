@@ -1,7 +1,11 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { Contract } from "@/lib/types";
 import { CONTRACT_LIST_ROW_COLUMNS, CONTRACTS_PAGE_SIZE } from "@/lib/contract-list";
-import { comparePendingFieldRows, getImportantFieldLabel } from "@/lib/field-review/field-ordering";
+import {
+  comparePendingFieldRows,
+  formatReviewFieldLabel,
+  getImportantFieldLabel,
+} from "@/lib/field-review/field-ordering";
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>;
 
@@ -86,6 +90,77 @@ export async function getPendingFieldNamesForContractIds(
   }
 
   return map;
+}
+
+export interface LeadDetailExcerpt {
+  /** Humanized suggested-detail name (e.g. "Renewal date"). */
+  label: string;
+  /** The cited source text that supports the suggested value. */
+  snippet: string;
+}
+
+/**
+ * One representative source-backed suggested detail per contract, for the
+ * dashboard's source-backed review artifact: the canonical "next" pending field
+ * that actually carries a locatable source snippet. Returns nothing for
+ * contracts whose pending fields have no cited source text (those are suggested
+ * values awaiting review, but not source-backed, so they must not be staged as a
+ * source excerpt). Caller bounds the contract set; the snippet is truncated for
+ * display by the caller.
+ */
+export async function getLeadDetailExcerptForContractIds(
+  admin: Admin,
+  contractIds: string[]
+): Promise<Record<string, LeadDetailExcerpt>> {
+  const result: Record<string, LeadDetailExcerpt> = {};
+  if (contractIds.length === 0) return result;
+
+  const { data, error } = await admin
+    .from("extracted_fields")
+    .select("id, contract_id, field_name, source_snippet, created_at")
+    .in("contract_id", contractIds)
+    .eq("status", "pending")
+    .not("source_snippet", "is", null)
+    .neq("source_snippet", "");
+
+  if (error) {
+    console.error("getLeadDetailExcerptForContractIds", error);
+    return result;
+  }
+
+  const byContract = new Map<
+    string,
+    Array<{ id: string; field_name: string; created_at: string; snippet: string }>
+  >();
+  for (const row of data ?? []) {
+    const contractId = row.contract_id as string;
+    const snippet = (row.source_snippet as string | null)?.trim();
+    const fieldName = (row.field_name as string | null)?.trim();
+    if (!contractId || !snippet || !fieldName) continue;
+    const bucket = byContract.get(contractId) ?? [];
+    bucket.push({
+      id: row.id as string,
+      field_name: fieldName,
+      created_at: (row.created_at as string | null) ?? "",
+      snippet,
+    });
+    byContract.set(contractId, bucket);
+  }
+
+  for (const [contractId, rows] of byContract) {
+    // Canonical review order ("what's next") so the staged excerpt matches the
+    // detail a reviewer would land on first.
+    rows.sort(comparePendingFieldRows);
+    const lead = rows[0];
+    if (lead) {
+      result[contractId] = {
+        label: formatReviewFieldLabel(lead.field_name),
+        snippet: lead.snippet,
+      };
+    }
+  }
+
+  return result;
 }
 
 export interface ReviewQueuePageResult {

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const OVERVIEW = join(process.cwd(), "src/app/(dashboard)/settings/policy/page.tsx");
+const OVERVIEW_SECTIONS = join(process.cwd(), "src/app/(dashboard)/settings/policy/policy-page-sections.tsx");
 const REGISTRY = join(process.cwd(), "src/app/(dashboard)/settings/policy/registry/page.tsx");
 const REGISTRY_FORM = join(
   process.cwd(),
@@ -13,7 +14,7 @@ const SIMULATION_PANEL = join(process.cwd(), "src/components/policy-simulation-p
 
 describe("settings policy refinement", () => {
   it("keeps the default policy page user-facing", () => {
-    const raw = readFileSync(OVERVIEW, "utf8");
+    const raw = [readFileSync(OVERVIEW, "utf8"), readFileSync(OVERVIEW_SECTIONS, "utf8")].join("\n");
     expect(raw).toContain("Workflow policies");
     expect(raw).toContain("Internal settings");
     expect(raw).toContain("Private policy controls for approvals, reminders, evidence, and review workflow compatibility.");

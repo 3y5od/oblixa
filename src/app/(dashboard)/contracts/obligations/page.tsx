@@ -1,61 +1,24 @@
 import Link from "next/link";
-import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
-import { format } from "date-fns";
-import {
-  AlertTriangle,
-  ArrowRight,
-  ChevronRight,
-  Compass,
-  Inbox,
-  ListChecks,
-  Pin,
-  Save,
-  SlidersHorizontal,
-  UserRound,
-} from "lucide-react";
+import { ChevronRight, ListChecks, SlidersHorizontal, UserRound } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
-import {
-  createSavedView,
-  deleteSavedView,
-  setSavedViewPinned,
-  setSavedViewWeeklySummary,
-} from "@/actions/saved-views";
-import { createObligationClarificationTaskForm } from "@/actions/tasks";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
-import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { SamplePreviewCard } from "@/components/ui/sample-preview-card";
 import { SectionHeader } from "@/components/ui/section-header";
-import { StatCell, type StatTone } from "@/components/ui/stat-cell";
-import { StatusPill } from "@/components/ui/status-pill";
+import { StatCell } from "@/components/ui/stat-cell";
 import { UiRadioGroup } from "@/components/ui/ui-radio-group";
 import { UiToggle } from "@/components/ui/ui-toggle";
 import { loadOrgMemberProfileRows, orgMemberProfileLabel } from "@/lib/org-member-profiles";
-import { formatBusinessDateAtNoon, parseBusinessDateAtNoon } from "@/lib/business-dates";
+import { parseBusinessDateAtNoon } from "@/lib/business-dates";
+import { STATUS_FILTERS } from "@/app/(dashboard)/contracts/obligations/obligations-page-config";
+import { ObligationsLedger } from "@/app/(dashboard)/contracts/obligations/obligations-ledger";
+import { SavedObligationQueues } from "@/app/(dashboard)/contracts/obligations/obligations-saved-queues";
+import type {
+  ObligationStatusFilter,
+  ObligationViewRow,
+  SavedObligationView,
+} from "@/app/(dashboard)/contracts/obligations/obligations-page-types";
+
 export const metadata = { title: "Requirements" };
-type ObligationStatusFilter = "" | "open" | "in_progress" | "done" | "waived";
-const STATUS_FILTERS: { value: ObligationStatusFilter; label: string }[] = [
-  { value: "", label: "All" },
-  { value: "open", label: "Open" },
-  { value: "in_progress", label: "In progress" },
-  { value: "done", label: "Done" },
-  { value: "waived", label: "Waived" },
-];
-
-function statusToneFor(status: string): StatTone {
-  if (status === "done") return "success";
-  if (status === "waived") return "neutral";
-  if (status === "in_progress") return "neutral";
-  return "warning";
-}
-
-function statusLabelFor(status: string): string {
-  if (status === "in_progress") return "In progress";
-  if (status === "done") return "Done";
-  if (status === "waived") return "Waived";
-  if (status === "open") return "Open";
-  return status.replace("_", " ");
-}
 
 function currentTimeMs(): number {
   return Date.now();
@@ -65,8 +28,7 @@ export default async function ContractObligationsPage(props: {
   searchParams: Promise<{ status?: string; mine?: string }>;
 }) {
   const { status: rawStatus, mine } = await props.searchParams;
-  const status = (STATUS_FILTERS.find((f) => f.value === rawStatus)?.value ??
-    "") as ObligationStatusFilter;
+  const status = (STATUS_FILTERS.find((f) => f.value === rawStatus)?.value ?? "") as ObligationStatusFilter;
   const onlyMine = mine === "1";
   const hasFilters = Boolean(status) || onlyMine;
 
@@ -114,11 +76,9 @@ export default async function ContractObligationsPage(props: {
     ownerById.set(row.user_id, orgMemberProfileLabel(row.profiles));
   }
 
-  const obligations = (rows ?? []).flatMap((row) => {
+  const obligations: ObligationViewRow[] = (rows ?? []).flatMap((row) => {
     const rel = row.contracts as unknown;
-    const contract = (
-      Array.isArray(rel) ? rel[0] : rel
-    ) as { id?: string; title?: string } | null;
+    const contract = (Array.isArray(rel) ? rel[0] : rel) as { id?: string; title?: string } | null;
     if (!contract?.id || !contract?.title) return [];
     return [
       {
@@ -140,7 +100,7 @@ export default async function ContractObligationsPage(props: {
       },
     ];
   });
-  const savedViews = (savedViewsData ?? [])
+  const savedViews: SavedObligationView[] = (savedViewsData ?? [])
     .map((v) => {
       const q = (v.query_json ?? {}) as Record<string, unknown>;
       const params = new URLSearchParams();
@@ -163,10 +123,7 @@ export default async function ContractObligationsPage(props: {
     if (!ob.dueDate) return false;
     const due = parseBusinessDateAtNoon(ob.dueDate);
     if (!due) return false;
-    return (
-      due.getTime() < nowMs &&
-      (ob.status === "open" || ob.status === "in_progress")
-    );
+    return due.getTime() < nowMs && (ob.status === "open" || ob.status === "in_progress");
   }).length;
   const completedObligations = obligations.filter((ob) => ob.status === "done").length;
 
@@ -178,10 +135,7 @@ export default async function ContractObligationsPage(props: {
         title="Requirements queue"
         lead="Contract requirements, owners, due dates, and follow-up state."
         actions={
-          <Link
-            href="/contracts"
-            className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
-          >
+          <Link href="/contracts" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]">
             Contract index
             <ChevronRight className="h-3 w-3 opacity-60" aria-hidden />
           </Link>
@@ -225,10 +179,7 @@ export default async function ContractObligationsPage(props: {
             eyebrow="Filters"
             trailing={
               hasFilters ? (
-                <Link
-                  href="/contracts/obligations"
-                  className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
-                >
+                <Link href="/contracts/obligations" className="ui-btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-[12.5px]">
                   <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
                   Clear filters
                 </Link>
@@ -265,312 +216,21 @@ export default async function ContractObligationsPage(props: {
               </div>
             </div>
             <div className="mt-4 flex items-center justify-end border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-3">
-              <button
-                type="submit"
-                className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px]"
-              >
+              <button type="submit" className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px]">
                 <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
                 Apply filters
               </button>
             </div>
           </form>
         </div>
-
-        <div className="ui-card min-w-0 overflow-hidden p-0">
-          <SectionHeader
-            eyebrow="Saved queues"
-            trailing={
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                <Save className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-                {savedViews.length} saved
-              </span>
-            }
-          />
-          <div className="space-y-4 px-5 py-4">
-            <form action={createSavedView as never} className="space-y-2">
-              <input type="hidden" name="organizationId" value={orgId} />
-              <input type="hidden" name="viewType" value="obligations" />
-              <input type="hidden" name="status" value={status} />
-              <input type="hidden" name="mine" value={onlyMine ? "1" : ""} />
-              <label
-                htmlFor="obligation-view-name"
-                className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]"
-              >
-                Queue name
-              </label>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                <input aria-label="My open requirements" id="obligation-view-name"
-                  name="name"
-                  required
-                  placeholder="My open requirements"
-                  className="ui-input min-w-0 flex-1"
-                />
-                <button
-                  type="submit"
-                  className="ui-btn-secondary inline-flex shrink-0 items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
-                >
-                  <Save className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-                  Save queue
-                </button>
-              </div>
-            </form>
-            {savedViews.length > 0 ? (
-              <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] border-y border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]" aria-label="Saved requirement queues">
-                {savedViews.map((view) => (
-                  <li key={view.id} className="space-y-2 py-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <Link href={view.href} className="ui-link text-[12.5px] font-semibold">
-                        {view.name}
-                      </Link>
-                      <div className="flex flex-wrap gap-1.5">
-                        {view.pinned ? <StatusPill tone="success">Pinned</StatusPill> : null}
-                        <StatusPill tone={view.weeklyActive ? "success" : "neutral"}>
-                          {view.weeklyActive ? "Weekly on" : "Weekly off"}
-                        </StatusPill>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <form action={setSavedViewPinned.bind(null, view.id, !view.pinned) as never}>
-                        <button
-                          type="submit"
-                          className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
-                          aria-label={`${view.pinned ? "Unpin" : "Pin"} saved requirement queue ${view.name}`}
-                        >
-                          <Pin className="h-3 w-3" aria-hidden />
-                          {view.pinned ? "Unpin" : "Pin"}
-                        </button>
-                      </form>
-                      <form action={setSavedViewWeeklySummary.bind(null, view.id, !view.weeklyActive) as never}>
-                        <button
-                          type="submit"
-                          className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
-                          aria-label={`${view.weeklyActive ? "Disable" : "Enable"} weekly summary for ${view.name}`}
-                        >
-                          {view.weeklyActive ? "Disable weekly" : "Enable weekly"}
-                        </button>
-                      </form>
-                      <form action={deleteSavedView.bind(null, view.id) as never}>
-                        <button
-                          type="submit"
-                          className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-[var(--danger-ink)]"
-                          aria-label={`Delete saved requirement queue ${view.name}`}
-                        >
-                          Delete
-                        </button>
-                      </form>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex items-start gap-3 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,transparent)] px-4 py-3">
-                <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
-                <div className="min-w-0">
-                  <p className="text-[12.5px] font-semibold tracking-tight text-[var(--text-primary)]">
-                    No saved queues yet
-                  </p>
-                  <p className="mt-0.5 text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                    Bookmark the current filter set when it becomes a recurring view.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <SavedObligationQueues
+          onlyMine={onlyMine}
+          orgId={orgId}
+          savedViews={savedViews}
+          status={status}
+        />
       </section>
-
-      {obligations.length === 0 ? (
-        <section className="ui-card-raised relative overflow-hidden rounded-2xl border p-5 sm:p-6 lg:p-7">
-          <div
-            aria-hidden
-            className="landing-corner-ring"
-            style={{ top: "-2.25rem", right: "-2.25rem", width: "7rem", height: "7rem" }}
-          />
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-8">
-            <EmptyState
-              eyebrow="Queue status"
-              title="No requirements match this queue"
-              copy="Adjust the filters above, clear the current queue, or review tasks for other action types."
-              icon={<Compass className="h-7 w-7 text-[var(--accent-strong)]" strokeWidth={1.65} aria-hidden />}
-              className="lg:items-start lg:text-left"
-              action={
-                <>
-                  <Link
-                    href="/work"
-                    className="ui-btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
-                  >
-                    <ArrowRight className="h-4 w-4" strokeWidth={1.85} aria-hidden />
-                    Review tasks
-                  </Link>
-                  <Link
-                    href="/contracts/obligations"
-                    className="ui-btn-secondary inline-flex items-center gap-1.5 px-4 py-2.5 text-[12.5px]"
-                  >
-                    Clear filters
-                  </Link>
-                </>
-              }
-            />
-
-            <SamplePreviewCard
-              eyebrow="Sample requirement"
-              title="Renew certificate of insurance"
-              meta={["Insurance renewal", "Annual cadence"]}
-              status={<StatusPill tone="warning">Open</StatusPill>}
-              rows={[
-                { label: "Contract", value: "Acme Corp MSA 2025" },
-                { label: "Owner", value: "Sarah K." },
-                { label: "Due", value: "Mar 15, 2026" },
-                { label: "Escalation", value: "Apr 01 · pending" },
-              ]}
-              footerValue="Confirm renewal with broker"
-            />
-          </div>
-        </section>
-      ) : (
-        <section className="ui-card min-w-0 max-w-full overflow-hidden p-0">
-          <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-                Rows
-              </p>
-              <h2 className="mt-1 text-[1.05rem] font-semibold tracking-tight text-[var(--text-primary)]">
-                Requirements ledger
-              </h2>
-              <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-                Due state, escalation timing, and the next clarification step — visible without losing contract context.
-              </p>
-            </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_44%,transparent)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-              <ListChecks className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-              {obligations.length} {obligations.length === 1 ? "row" : "rows"}
-            </span>
-          </header>
-          <div className="max-w-full overflow-x-auto [contain:inline-size]">
-            <table aria-label="Requirements in this queue" className="min-w-full divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] text-sm">
-              <thead>
-                <tr className="text-left">
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Requirement
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Contract
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Owner
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Status
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Due
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Next due
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Escalation
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Updated
-                  </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
-                {obligations.map((ob) => {
-                  const isOverdue =
-                    Boolean(ob.dueDate) &&
-                    (ob.status === "open" || ob.status === "in_progress") &&
-                    (parseBusinessDateAtNoon(ob.dueDate)?.getTime() ?? Number.POSITIVE_INFINITY) < nowMs;
-                  return (
-                    <tr key={ob.id} className="align-top">
-                      <td className="px-5 py-4">
-                        <p className="font-semibold text-[var(--text-primary)]">{ob.title}</p>
-                        <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.04em] text-[var(--text-tertiary)]">
-                          {ob.obligationType}
-                          {ob.cadence ? ` · ${ob.cadence}` : ""}
-                          {ob.recurrenceType && ob.recurrenceType !== "none"
-                            ? ` · ${ob.recurrenceType}${
-                                ob.recurrenceType === "custom_days" && ob.recurrenceIntervalDays
-                                  ? ` (${ob.recurrenceIntervalDays}d)`
-                                  : ""
-                              }`
-                            : ""}
-                        </p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <Link href={`/contracts/${ob.contractId}`} className="ui-link text-[12.5px] font-semibold">
-                          {ob.contractTitle}
-                        </Link>
-                        <ContractContinuityLinks
-                          contractId={ob.contractId}
-                          omit={["obligations"]}
-                          className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-[var(--text-tertiary)]"
-                        />
-                      </td>
-                      <td className="px-5 py-4 text-[12.5px]">
-                        {ob.ownerId ? (
-                          <span className="text-[var(--text-secondary)]">{ownerById.get(ob.ownerId) ?? "Member"}</span>
-                        ) : (
-                          <span className="font-medium text-[var(--warning-ink)]">Unassigned</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusPill tone={statusToneFor(ob.status)}>{statusLabelFor(ob.status)}</StatusPill>
-                      </td>
-                      <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums">
-                        {ob.dueDate ? (
-                          <span className={isOverdue ? "text-[var(--danger-ink)]" : "text-[var(--text-secondary)]"}>
-                            {formatBusinessDateAtNoon(ob.dueDate)}
-                          </span>
-                        ) : (
-                          <span className="text-[var(--text-tertiary)]">—</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums text-[var(--text-secondary)]">
-                        {ob.nextDueDate
-                          ? formatBusinessDateAtNoon(ob.nextDueDate)
-                          : "—"}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-[12.5px] tabular-nums text-[var(--text-secondary)]">
-                        {ob.escalationDueAt
-                          ? `${format(new Date(ob.escalationDueAt), "MMM d, yyyy")} · ${ob.escalationStatus ?? "pending"}`
-                          : "—"}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-[11px] text-[var(--text-tertiary)]">
-                        {format(new Date(ob.updatedAt), "MMM d")}
-                      </td>
-                      <td className="px-5 py-4">
-                        <form
-                          action={createObligationClarificationTaskForm as never}
-                          className="flex flex-col gap-1.5"
-                        >
-                          <input type="hidden" name="contractId" value={ob.contractId} />
-                          <input type="hidden" name="obligationId" value={ob.id} />
-                          <input aria-label="Clarification note" name="requesterNote"
-                            placeholder="Clarification note"
-                            className="ui-input h-7 text-[11px]"
-                          />
-                          <button
-                            type="submit"
-                            className="ui-btn-ghost inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
-                          >
-                            <AlertTriangle className="h-3 w-3" strokeWidth={1.85} aria-hidden />
-                            Clarification task
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      <ObligationsLedger obligations={obligations} ownerById={ownerById} nowMs={nowMs} />
     </div>
   );
 }

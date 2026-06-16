@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { join, relative } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 function collectDashboardLoadingFiles(dir: string, out: string[]): void {
@@ -11,6 +11,16 @@ function collectDashboardLoadingFiles(dir: string, out: string[]): void {
       out.push(p);
     }
   }
+}
+
+function readLoadingSource(abs: string, seen = new Set<string>()): string {
+  if (seen.has(abs)) return "";
+  seen.add(abs);
+  const src = readFileSync(abs, "utf8");
+  const reexport = src.match(/export\s+\{\s*default\s*\}\s+from\s+"([^"]+)"/);
+  if (!reexport) return src;
+  const target = join(dirname(abs), `${reexport[1]}.tsx`);
+  return `${src}\n${readLoadingSource(target, seen)}`;
 }
 
 describe("dashboard loading and error consistency (V9)", () => {
@@ -74,7 +84,7 @@ describe("dashboard loading and error consistency (V9)", () => {
     expect(absPaths.length).toBeGreaterThanOrEqual(15);
     for (const abs of absPaths.sort()) {
       const rel = relative(process.cwd(), abs).replace(/\\/g, "/");
-      const src = readFileSync(abs, "utf8");
+      const src = readLoadingSource(abs);
       expect(src, rel).toContain('role="status"');
       expect(src, rel).toContain('aria-live="polite"');
       expect(src, rel).toContain('aria-busy="true"');
@@ -94,12 +104,14 @@ describe("dashboard loading and error consistency (V9)", () => {
 
     expect(workLoading).toContain("ui-page-header");
     expect(workLoading).toContain("ui-page-stack");
-    expect(workLoading).toContain("md:grid-cols-5");
+    expect(workLoading).toContain("ui-table-shell");
+    expect(workLoading).toContain("Array.from({ length: 7 })");
+    expect(workLoading).toContain("Array.from({ length: 5 })");
 
     // Review loading mirrors the three-pane field review workspace shell
     // (queue rail | decision | evidence) on the quieter `ui-card` tier.
     expect(reviewLoading).toContain("ui-card");
-    expect(reviewLoading).toContain("ui-skeleton h-10 w-10 rounded-xl");
+    expect(reviewLoading).toContain("ui-skeleton hidden h-12 w-60 rounded-xl");
     expect(reviewLoading).toContain("lg:grid-cols-[20rem_minmax(0,1fr)_22rem]");
     expect(reviewLoading).toContain("sm:grid-cols-2");
     expect(reviewLoading).not.toContain("ui-page-header flex flex-col gap-6");

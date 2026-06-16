@@ -6,7 +6,9 @@ import type { FieldReviewSegmentedProgress } from "@/lib/field-review/model";
  *  just how much. Confirmed turns green only when nothing is pending. */
 export function ReviewSegmentedProgress({ segments }: { segments: FieldReviewSegmentedProgress }) {
   const { reviewed, pending, unknown, blockedNoSource, total } = segments;
-  const decided = reviewed + unknown;
+  // "Confirmed" counts only reviewed (approved/edited) details. Marked-unknown
+  // details are decided but explicitly NOT trusted, so they are excluded from the
+  // confirmed headline (they remain visible as their own segment + aria breakdown).
   const openPending = Math.max(0, pending - blockedNoSource);
   const reviewedColor = pending === 0 ? "var(--success-ink)" : "var(--accent)";
   const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
@@ -20,16 +22,16 @@ export function ReviewSegmentedProgress({ segments }: { segments: FieldReviewSeg
   return (
     <div className="flex items-center gap-2">
       <span className="inline-flex items-baseline gap-1 leading-none tabular-nums">
-        <span className="text-[12px] font-semibold text-[var(--text-primary)]">{decided}</span>
+        <span className="text-[12px] font-semibold text-[var(--text-primary)]">{reviewed}</span>
         <span className="text-[10px] text-[var(--text-tertiary)]">of</span>
         <span className="text-[12px] font-semibold text-[var(--text-secondary)]">{total}</span>
-        <span className="ui-caps-3 ml-0.5 text-[10px] text-[var(--text-tertiary)]">confirmed</span>
+        <span className="ui-caps-3 ml-0.5 text-[10px] text-[var(--text-tertiary)]">details confirmed</span>
       </span>
       <span
         className="flex h-1.5 w-24 overflow-hidden rounded-full sm:w-32"
         style={{ background: "color-mix(in oklab, var(--border-strong) 32%, transparent)" }}
         role="progressbar"
-        aria-valuenow={decided}
+        aria-valuenow={reviewed}
         aria-valuemin={0}
         aria-valuemax={Math.max(total, 1)}
         aria-label={`${reviewed} confirmed, ${unknown} marked unknown, ${blockedNoSource} waiting for source, ${openPending} pending of ${total} details`}

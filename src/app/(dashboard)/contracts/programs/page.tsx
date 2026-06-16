@@ -17,25 +17,13 @@ import {
 import { ProgramImpactPreviewButton } from "@/components/program-impact-preview-button";
 import { collectSupabaseRangePages } from "@/lib/supabase/range-pagination";
 import { formatUnknownForServerLog } from "@/lib/observability/log-redaction";
-
-const PROGRAM_DEFINITION_PLACEHOLDER = `{
-  "taskBundles": [
-    { "title": "Kickoff checklist", "dueOffsetDays": 3, "priority": "medium", "teamKey": "ops" }
-  ],
-  "obligationBundles": [
-    { "title": "Quarterly compliance attestation", "cadence": "quarterly", "dueOffsetDays": 14 }
-  ],
-  "approvalSequences": [
-    { "approvalType": "renewal_decision", "dueHours": 72, "notes": "Legal sign-off" }
-  ],
-  "renewalCheckpoints": [
-    { "label": "90d renewal prep", "dueOffsetDays": 90 }
-  ],
-  "slas": [
-    { "approvalType": "renewal_decision", "slaHours": 48 }
-  ],
-  "evidenceTemplateIds": []
-}`;
+import {
+  PROGRAM_DEFINITION_PLACEHOLDER,
+  indexLatestProgramVersions,
+  summarizeProgramApplyEvents,
+  summarizeProgramAssignments,
+  type ProgramApplyEventRow,
+} from "./programs-page-helpers";
 
 export default async function ContractProgramsPage() {
   const ctx = await getAuthContext();
@@ -51,7 +39,6 @@ export default async function ContractProgramsPage() {
     productSurface.seesAssuranceNav &&
     !isAssuranceModuleHidden(productSurface, "program_evolution");
 
-  // Wall clock for rolling apply windows; acceptable in async server component request scope.
   const now = new Date();
   const cutoff30Iso = new Date(now.getTime() - 30 * 86400000).toISOString();
   const cutoff90Iso = new Date(now.getTime() - 90 * 86400000).toISOString();
@@ -85,7 +72,6 @@ export default async function ContractProgramsPage() {
       .eq("organization_id", ctx.orgId),
   ]);
 
-  type ProgramApplyEventRow = { entity_id: string | null; occurred_at: string | null };
   const { rows: programApplyEvents, truncated: programApplyEventsTruncated } =
     await collectSupabaseRangePages<ProgramApplyEventRow>(
       (from, to) =>
@@ -100,53 +86,10 @@ export default async function ContractProgramsPage() {
       { pageSize: 1000, maxRows: 150_000 }
     );
 
-  type ApplyStats = { d30: number; d90: number; all: number };
-  const applyStatsByProgram = new Map<string, ApplyStats>();
-  let orgApplies30 = 0;
-  let orgApplies90 = 0;
-  let orgAppliesAll = 0;
-  for (const row of programApplyEvents ?? []) {
-    const pid = String(row.entity_id ?? "");
-    if (!pid) continue;
-    const at = String(row.occurred_at ?? "");
-    orgAppliesAll++;
-    if (at >= cutoff30Iso) orgApplies30++;
-    if (at >= cutoff90Iso) orgApplies90++;
-    const cur = applyStatsByProgram.get(pid) ?? { d30: 0, d90: 0, all: 0 };
-    cur.all++;
-    if (at >= cutoff30Iso) cur.d30++;
-    if (at >= cutoff90Iso) cur.d90++;
-    applyStatsByProgram.set(pid, cur);
-  }
-
-  const usageByProgram = new Map<string, number>();
-  const contractsWithAnyProgram = new Set<string>();
-  for (const row of assignments ?? []) {
-    if (row.status !== "active") continue;
-    usageByProgram.set(row.program_id, (usageByProgram.get(row.program_id) ?? 0) + 1);
-    if (row.contract_id) contractsWithAnyProgram.add(String(row.contract_id));
-  }
-
-  const latestVersionByProgram = new Map<
-    string,
-    {
-      version_number: number;
-      definition_json: unknown;
-      state: string;
-      published_at: string | null;
-    }
-  >();
-  for (const v of versions ?? []) {
-    const cur = latestVersionByProgram.get(v.program_id);
-    if (!cur || v.version_number > cur.version_number) {
-      latestVersionByProgram.set(v.program_id, {
-        version_number: v.version_number,
-        definition_json: v.definition_json,
-        state: v.state,
-        published_at: v.published_at,
-      });
-    }
-  }
+  const { applyStatsByProgram, orgApplies30, orgApplies90, orgAppliesAll } =
+    summarizeProgramApplyEvents(programApplyEvents, cutoff30Iso, cutoff90Iso);
+  const { usageByProgram, contractsWithAnyProgram } = summarizeProgramAssignments(assignments);
+  const latestVersionByProgram = indexLatestProgramVersions(versions);
 
   async function createProgramFormAction(formData: FormData) {
     "use server";

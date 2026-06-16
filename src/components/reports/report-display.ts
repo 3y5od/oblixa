@@ -9,6 +9,7 @@ import {
   XCircle,
   type LucideIcon,
 } from "lucide-react";
+import { PROVENANCE, provenanceInk } from "@/components/ui/date-provenance-badge";
 import type { StatTone } from "@/components/ui/stat-cell";
 import type { SemanticStatus } from "@/components/ui/status-badge";
 import type { ReportKey } from "@/lib/reports/types";
@@ -60,12 +61,55 @@ export function reportToneFor(key: ReportKey): StatTone {
 export const REPORT_RAIL_GROUPS: ReadonlyArray<{ label: string; keys: ReportKey[] }> = [
   { label: "Deadlines", keys: ["upcoming_renewals", "notice_deadlines"] },
   {
-    label: "Tasks & issues",
+    label: "Tasks and problems",
     keys: ["overdue_work", "exceptions_by_owner", "open_obligations", "evidence_requests"],
   },
   { label: "Data gaps", keys: ["missing_owners", "missing_key_fields"] },
   { label: "Reference", keys: ["contract_inventory", "review_completeness"] },
 ];
+
+/**
+ * The object type each report's catalog count refers to, so the count never
+ * forces the user to infer whether "2" means contracts, tasks, dates, or
+ * requests. Used to compose an accessible label ("2 renewal rows", "4
+ * contracts") beside the visible number.
+ */
+export const REPORT_COUNT_NOUN: Record<ReportKey, { singular: string; plural: string }> = {
+  upcoming_renewals: { singular: "renewal row", plural: "renewal rows" },
+  notice_deadlines: { singular: "notice deadline", plural: "notice deadlines" },
+  missing_owners: { singular: "contract", plural: "contracts" },
+  missing_key_fields: { singular: "contract", plural: "contracts" },
+  open_obligations: { singular: "requirement", plural: "requirements" },
+  overdue_work: { singular: "task", plural: "tasks" },
+  exceptions_by_owner: { singular: "owner", plural: "owners" },
+  evidence_requests: { singular: "evidence request", plural: "evidence requests" },
+  contract_inventory: { singular: "contract", plural: "contracts" },
+  review_completeness: { singular: "contract", plural: "contracts" },
+};
+
+export function reportCountLabel(key: ReportKey, count: number): string {
+  const noun = REPORT_COUNT_NOUN[key];
+  return `${count} ${count === 1 ? noun.singular : noun.plural}`;
+}
+
+/**
+ * Concise index annotations for the report catalog. Distinct from the full
+ * report description (shown in the inspection header) so the catalog reads like
+ * a legal index — each entry carries a short, scannable definition rather than
+ * only a name and count.
+ */
+export const REPORT_CATALOG_BLURB: Record<ReportKey, string> = {
+  upcoming_renewals: "Renewals inside the selected window",
+  notice_deadlines: "Last day to send notice",
+  missing_owners: "Contracts with no named owner",
+  missing_key_fields: "Contracts missing confirmed details",
+  open_obligations: "Contract requirements still open",
+  overdue_work: "Tasks past their due date",
+  exceptions_by_owner: "Open problems per owner",
+  evidence_requests: "Proof still to submit or review",
+  contract_inventory: "Every contract record",
+  review_completeness: "Confirmation progress by contract",
+};
 
 /**
  * Reports whose row set is actually filtered by the date window. The export
@@ -87,7 +131,7 @@ export const DATE_COLUMNS = new Set<string>([
 
 /** Columns rendered as a tabular mono count. */
 export const NUMERIC_COLUMNS = new Set<string>([
-  "Open issues",
+  "Open problems",
   "High severity",
   "Contracts",
   "Confirmed details",
@@ -97,6 +141,46 @@ export const NUMERIC_COLUMNS = new Set<string>([
 
 /** Columns rendered as a structured status badge with non-color reinforcement (§7.7). */
 export const STATUS_COLUMNS = new Set<string>(["Status", "Confirmation state"]);
+
+/** Columns rendered as a date-provenance chip so a date's trust state (confirmed,
+ *  calculated, suggested, missing) is never inferred — a core trust-clarity
+ *  requirement before a date drives reminders, tasks, or an exported report. */
+export const DATE_STATE_COLUMNS = new Set<string>(["Date state"]);
+
+/** Reports that carry a date-provenance column and the accompanying trust
+ *  disclosure beneath the preview. */
+export const REPORT_DATE_STATE = new Set<ReportKey>(["upcoming_renewals", "notice_deadlines"]);
+
+export type DateStateKey = "confirmed" | "calculated" | "suggested" | "missing";
+
+/**
+ * Date-provenance treatment for the report preview's "Date state" column.
+ * Derived from the canonical `PROVENANCE` map (date-provenance-badge) so a
+ * Confirmed / Calculated / Suggested / Missing date renders the SAME icon and
+ * trust tone here as it does on Renewals and contract detail — they can no
+ * longer drift apart. Kept quieter than the loud `.ui-status-badge`: the
+ * sentence-case label carries the meaning and the per-state glyph keeps it
+ * legible without relying on color (§7.7), with only confirmed earning green.
+ */
+export const DATE_STATE_META: Record<DateStateKey, { label: string; icon: LucideIcon; ink: string }> = {
+  confirmed: { label: PROVENANCE.confirmed.label, icon: PROVENANCE.confirmed.icon, ink: provenanceInk(PROVENANCE.confirmed.tone) },
+  calculated: { label: PROVENANCE.calculated.label, icon: PROVENANCE.calculated.icon, ink: provenanceInk(PROVENANCE.calculated.tone) },
+  suggested: { label: PROVENANCE.suggested.label, icon: PROVENANCE.suggested.icon, ink: provenanceInk(PROVENANCE.suggested.tone) },
+  missing: { label: PROVENANCE.missing.label, icon: PROVENANCE.missing.icon, ink: provenanceInk(PROVENANCE.missing.tone) },
+};
+
+export function dateStateKey(value: string): DateStateKey {
+  switch (value.trim().toLowerCase()) {
+    case "confirmed":
+      return "confirmed";
+    case "calculated":
+      return "calculated";
+    case "suggested":
+      return "suggested";
+    default:
+      return "missing";
+  }
+}
 
 /** Columns whose value is a recommended next step — a report value, not a link (§ issue 20). */
 export const NEXT_ACTION_COLUMNS = new Set<string>(["Next action"]);

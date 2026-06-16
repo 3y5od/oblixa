@@ -160,7 +160,7 @@ describe("Work release-state model", () => {
     expect(display?.ownership.owner).toMatchObject({ label: WORK_ROW_LABELS.owner, value: "You" });
     expect(display?.ownership.dueDate.label).toBe(WORK_ROW_LABELS.dueDate);
     expect(display?.ownership.lastUpdate.label).toBe(WORK_ROW_LABELS.lastUpdate);
-    expect(display?.state.status).toMatchObject({ label: WORK_ROW_LABELS.status, value: "Open" });
+    expect(display?.state.status).toMatchObject({ label: WORK_ROW_LABELS.status, value: "Open task" });
     expect(display?.state.type).toMatchObject({ label: WORK_ROW_LABELS.type, value: "Task" });
     expect(display?.state.blocker).toMatchObject({
       label: WORK_ROW_LABELS.blocker,

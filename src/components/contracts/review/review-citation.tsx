@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, ArrowDownRight, Check, Copy } from "lucide-react";
+import { AlertTriangle, ArrowDownRight, Check, Copy, Quote } from "lucide-react";
 
 const SNIPPET_COLLAPSE_AT = 240;
 
@@ -53,7 +53,10 @@ export function ReviewCitation({
     <div className="space-y-1.5">
       <div className="flex items-center justify-between gap-2">
         {snippetLocated ? (
-          <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">In source</span>
+          <span className="ui-caps-3 inline-flex items-center gap-1.5 text-[10px] leading-none text-[var(--text-tertiary)]">
+            <Quote className="h-3 w-3 text-[var(--accent-strong)]" strokeWidth={2} aria-hidden />
+            Source text
+          </span>
         ) : (
           <span className="ui-caps-3 inline-flex items-center gap-1.5 text-[10px] leading-none text-[var(--warning-ink)]">
             <AlertTriangle className="h-3 w-3" strokeWidth={2} aria-hidden />
@@ -64,14 +67,14 @@ export function ReviewCitation({
           type="button"
           onClick={copy}
           className="ui-chip-focus inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10.5px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
-          aria-label="Copy source snippet"
+          aria-label="Copy source text"
         >
           {copied ? (
             <Check className="h-3 w-3 text-[var(--success-ink)]" strokeWidth={2} aria-hidden />
           ) : (
             <Copy className="h-3 w-3" strokeWidth={2} aria-hidden />
           )}
-          {copied ? "Copied" : "Copy"}
+          {copied ? "Copied" : "Copy source text"}
         </button>
       </div>
 
@@ -101,7 +104,7 @@ export function ReviewCitation({
             className="ui-chip-focus inline-flex items-center gap-1 rounded text-[11px] font-medium text-[var(--accent-strong)]"
           >
             <ArrowDownRight className="h-3 w-3" strokeWidth={2} aria-hidden />
-            Jump to highlight
+            Show source highlight
           </a>
         ) : (
           <span className="text-[11px] leading-snug text-[var(--text-tertiary)]">

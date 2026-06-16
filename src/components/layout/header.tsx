@@ -46,10 +46,15 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
       className="ui-topbar sticky top-0 z-30 shrink-0 px-4 md:px-6 xl:px-8"
     >
       <div className="mx-auto flex h-[var(--shell-topbar-h)] w-full max-w-[var(--shell-content-max)] items-center gap-3 pl-12 md:gap-4 lg:pl-0">
-        <TopbarBreadcrumb />
+        <div className="flex min-w-0 shrink items-center">
+          <TopbarBreadcrumb />
+        </div>
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+        <div className="flex min-w-0 flex-1 items-center justify-center px-1">
           <TopbarSearch />
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end gap-3">
           {showTools ? (
             <Link
               href="/more"

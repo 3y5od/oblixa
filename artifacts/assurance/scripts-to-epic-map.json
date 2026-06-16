@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-06-13T21:40:23.416Z",
+  "generatedAt": "2026-06-14T20:53:21.949Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -1281,6 +1281,14 @@
     },
     {
       "path": "scripts/check-p6-na-register.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-package-manager.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/check-package-manager.test.mjs",
       "primaryEpicNumber": null
     },
     {

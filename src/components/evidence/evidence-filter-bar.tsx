@@ -110,12 +110,13 @@ export function EvidenceFilterBar({
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {showQuick ? (
             <>
-              <span className="ui-caps-2 text-[var(--text-tertiary)]">Attention</span>
+              <span className="ui-caps-2 text-[var(--text-tertiary)]">Needs attention</span>
               {showDueSoon ? (
                 <QuickChip
                   label={EVIDENCE_DUE_FILTER_LABELS.due_soon}
                   count={summary.dueSoon}
                   active={dueSoonActive}
+                  accessibleLabel={`${summary.dueSoon} evidence ${summary.dueSoon === 1 ? "request" : "requests"} due within 7 days`}
                   href={buildEvidenceHref({
                     section: activeSection,
                     filters: { ...filters, due: dueSoonActive ? "" : "due_soon" },
@@ -127,6 +128,7 @@ export function EvidenceFilterBar({
                   label={EVIDENCE_FILE_FILTER_LABELS.missing_file}
                   count={summary.missingFile}
                   active={missingActive}
+                  accessibleLabel={`${summary.missingFile} evidence ${summary.missingFile === 1 ? "request" : "requests"} missing a file`}
                   href={buildEvidenceHref({
                     section: activeSection,
                     filters: { ...filters, file: missingActive ? "" : "missing_file" },
@@ -147,7 +149,7 @@ export function EvidenceFilterBar({
                   key={chip.key}
                   href={chip.href}
                   aria-label={`Remove ${chip.label} filter`}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="group inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-2.5 py-1 transition-colors hover:border-[var(--border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <span className="ui-caps-3 text-[var(--text-tertiary)]">{chip.label}</span>
                   <span className="text-[11px] font-medium text-[var(--text-primary)]">{chip.value}</span>
@@ -164,8 +166,8 @@ export function EvidenceFilterBar({
       ) : null}
       {showQuick ? (
         <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-          <span className="font-medium text-[var(--text-secondary)]">Attention filters:</span>{" "}
-          Due soon means the request is due within 7 days. Missing file means no evidence file is attached.
+          <span className="font-medium text-[var(--text-secondary)]">Needs attention:</span>{" "}
+          Due soon means the request is due within 7 days. Missing file means no evidence file is attached, so the request cannot be accepted yet.
         </p>
       ) : null}
     </div>
@@ -179,11 +181,15 @@ function QuickChip({
   count,
   active,
   href,
+  accessibleLabel,
 }: {
   label: string;
   count: number;
   active: boolean;
   href: string;
+  /** Full object-typed name for assistive tech, so the compact visible chip
+   *  ("Missing file 1") still announces what is counted (§19). */
+  accessibleLabel?: string;
 }) {
   // Quick filters carry the warning semantics of the state they surface
   // (due soon / missing file), so they're toned consistently — a muted warning
@@ -196,7 +202,14 @@ function QuickChip({
     <Link
       href={href}
       title={active ? `Clear ${label} filter` : `Filter to ${label.toLowerCase()}`}
-      className="group inline-flex max-w-full items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      aria-label={
+        accessibleLabel
+          ? active
+            ? `Clear filter: ${accessibleLabel}`
+            : `Filter to ${accessibleLabel}`
+          : undefined
+      }
+      className="group inline-flex max-w-full items-center gap-1.5 rounded-[4px] border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       style={
         active
           ? {

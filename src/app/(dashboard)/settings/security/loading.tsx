@@ -1,105 +1,66 @@
-import { ShieldCheck } from "lucide-react";
-import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
-import { SETTINGS_SECURITY_STRINGS } from "@/lib/settings/spec-strings";
-
-// SPEC: docs/security-page-maximal-pass.md §5.4 — loading boundary
-// matching the post-pass page shape: page-header skeleton + 5 card
-// skeletons (resources, MFA, sessions, step-up, org-MFA policy).
+// Loading boundary matching the post-redesign workbench shape: a left rail
+// skeleton + a header skeleton (no icon tile) + record skeletons for Account
+// protection, Sessions and devices, and the security-context ledger.
 export default function SecurityLoading() {
   return (
-    <div className="ui-page-stack mx-auto max-w-4xl gap-4" aria-busy="true">
+    <div className="mx-auto w-full max-w-[1200px]" aria-busy="true">
       <div className="sr-only" role="status" aria-live="polite">
         Loading security settings.
       </div>
-      <span aria-hidden className="ui-skeleton h-7 w-32 rounded-full" />
-      <DashboardPageHeader
-        icon={
-          <ShieldCheck
-            className="h-[1.125rem] w-[1.125rem]"
-            strokeWidth={1.85}
-          />
-        }
-        eyebrow={SETTINGS_SECURITY_STRINGS.eyebrow}
-        title={SETTINGS_SECURITY_STRINGS.title}
-        lead={SETTINGS_SECURITY_STRINGS.lead}
-        metaStrip={
-          <>
-            <span aria-hidden className="ui-skeleton h-4 w-20 rounded" />
-            <span aria-hidden className="ui-skeleton h-4 w-24 rounded" />
-          </>
-        }
-      />
-
-      {/* Resources card skeleton */}
-      <section className="ui-card ui-loading-panel p-0">
-        <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-          <span aria-hidden className="ui-skeleton block h-3 w-20 rounded" />
-          <span aria-hidden className="ui-skeleton mt-2 block h-6 w-32 rounded" />
-        </div>
-        <div className="grid gap-2 px-5 py-4 sm:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <span
-              key={i}
-              aria-hidden
-              className="ui-skeleton h-7 w-full rounded-full"
-            />
+      <div className="grid gap-x-8 gap-y-4 lg:grid-cols-[13.5rem_minmax(0,1fr)] xl:grid-cols-[14.5rem_minmax(0,1fr)]">
+        {/* Rail skeleton */}
+        <aside aria-hidden className="hidden flex-col gap-1.5 lg:flex">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <span key={i} className="ui-skeleton h-8 w-full rounded-md" />
           ))}
-        </div>
-      </section>
+        </aside>
 
-      {/* MFA + step-up 2-col skeleton */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <section key={i} className="ui-card ui-loading-panel p-0">
-            <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-              <span aria-hidden className="ui-skeleton block h-3 w-12 rounded" />
-              <span aria-hidden className="ui-skeleton mt-2 block h-5 w-36 rounded" />
+        <div className="ui-page-stack min-w-0 gap-5">
+          {/* Header skeleton */}
+          <div className="flex flex-col gap-3">
+            <span aria-hidden className="ui-skeleton h-3 w-16 rounded" />
+            <span aria-hidden className="ui-skeleton h-7 w-40 rounded" />
+            <span aria-hidden className="ui-skeleton h-4 w-80 max-w-full rounded" />
+            <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--border-subtle)] pt-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span key={i} aria-hidden className="ui-skeleton h-4 w-28 rounded" />
+              ))}
             </div>
-            <div className="space-y-3 px-5 py-4">
-              <span aria-hidden className="ui-skeleton h-4 w-full rounded" />
-              <span aria-hidden className="ui-skeleton h-9 w-32 rounded-full" />
+          </div>
+
+          {/* Account protection card skeleton */}
+          <section className="ui-card-raised ui-loading-panel p-0">
+            <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-4">
+              <span aria-hidden className="ui-skeleton block h-3 w-16 rounded" />
+              <span aria-hidden className="ui-skeleton mt-2 block h-5 w-44 rounded" />
+            </div>
+            <div className="grid gap-4 px-5 py-5 lg:grid-cols-2">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <span aria-hidden className="ui-skeleton h-4 w-32 rounded" />
+                  <span aria-hidden className="ui-skeleton h-16 w-full rounded-lg" />
+                  <span aria-hidden className="ui-skeleton h-9 w-40 rounded-full" />
+                </div>
+              ))}
             </div>
           </section>
-        ))}
+
+          {/* Sessions row-group skeleton */}
+          <section className="ui-loading-panel space-y-3">
+            <span aria-hidden className="ui-skeleton block h-5 w-44 rounded" />
+            <span aria-hidden className="ui-skeleton block h-4 w-3/4 rounded" />
+            <span aria-hidden className="ui-skeleton block h-9 w-56 rounded-full" />
+          </section>
+
+          {/* Workspace security context ledger skeleton */}
+          <section className="ui-loading-panel space-y-2.5">
+            <span aria-hidden className="ui-skeleton block h-5 w-48 rounded" />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} aria-hidden className="ui-skeleton block h-7 w-full rounded" />
+            ))}
+          </section>
+        </div>
       </div>
-
-      {/* Sessions card skeleton */}
-      <section className="ui-card ui-loading-panel p-0">
-        <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-          <span aria-hidden className="ui-skeleton block h-3 w-16 rounded" />
-          <span aria-hidden className="ui-skeleton mt-2 block h-5 w-32 rounded" />
-        </div>
-        <div className="space-y-3 px-5 py-4">
-          <span aria-hidden className="ui-skeleton h-4 w-3/4 rounded" />
-          <span aria-hidden className="ui-skeleton h-9 w-48 rounded-full" />
-        </div>
-      </section>
-
-      {/* Workspace policy card skeleton */}
-      <section className="ui-card ui-loading-panel p-0">
-        <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] px-5 py-5">
-          <span aria-hidden className="ui-skeleton block h-3 w-16 rounded" />
-          <span aria-hidden className="ui-skeleton mt-2 block h-5 w-32 rounded" />
-        </div>
-        <div className="space-y-3 px-5 py-4">
-          <span aria-hidden className="ui-skeleton h-4 w-3/4 rounded" />
-          <span aria-hidden className="ui-skeleton h-5 w-40 rounded-full" />
-        </div>
-      </section>
-
-      {/* V2 §1.43 — activity-strip skeleton matches rendered layout
-          (eyebrow + icon + caps + button cluster) to avoid CLS. */}
-      <section
-        aria-hidden
-        className="ui-loading-panel flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-2.5"
-      >
-        <span className="ui-skeleton h-3 w-16 rounded" />
-        <span className="ui-skeleton h-3 w-px" />
-        <span className="ui-skeleton h-4 w-48 rounded" />
-        <span className="ui-skeleton h-3 w-px" />
-        <span className="ui-skeleton h-3 w-32 rounded" />
-        <span className="ml-auto ui-skeleton h-5 w-24 rounded-full" />
-      </section>
     </div>
   );
 }

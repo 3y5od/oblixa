@@ -6,7 +6,13 @@ const PAGE = join(process.cwd(), "src/app/(dashboard)/contracts/obligations/page
 
 describe("contracts obligations page surface", () => {
   it("constrains the page stack and ledger scroller on narrow viewports", () => {
-    const raw = readFileSync(PAGE, "utf8");
+    const raw = [
+      readFileSync(PAGE, "utf8"),
+      readFileSync(
+        join(process.cwd(), "src/app/(dashboard)/contracts/obligations/obligations-ledger.tsx"),
+        "utf8"
+      ),
+    ].join("\n");
 
     expect(raw).toContain('className="ui-page-stack mx-auto w-full min-w-0 max-w-7xl"');
     expect(raw).toContain('className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"');

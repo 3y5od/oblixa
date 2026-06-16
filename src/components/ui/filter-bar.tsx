@@ -41,6 +41,10 @@ export interface FilterSelectProps {
   /** Override the active heuristic — needed for window filters whose default is
    *  not the first option (e.g. "90"). */
   active?: boolean;
+  /** When true, the trigger shows only the dimension label at rest (e.g. "Status")
+   *  and adds the selected value only once the dimension is narrowed. Stops the
+   *  pill from reading the truncated "Status Any status" at a fixed width. */
+  labelOnlyWhenInactive?: boolean;
 }
 
 export function FilterSelect({
@@ -52,6 +56,7 @@ export function FilterSelect({
   className,
   menuWidth = "fit",
   active,
+  labelOnlyWhenInactive,
 }: FilterSelectProps) {
   const firstValue = options[0]?.value ?? "";
   const fallback = placeholder ?? options[0]?.label ?? `Any ${label.toLowerCase()}`;
@@ -67,6 +72,7 @@ export function FilterSelect({
       onChange={onChange}
       options={options}
       placeholder={fallback}
+      triggerLabelOnly={Boolean(labelOnlyWhenInactive) && !isActive}
       // Pair the dimension with its current value, so a screen-reader user hears
       // "Owner: Any owner" rather than a bare "Owner" that hides the selection.
       ariaLabel={`${label}: ${selectedLabel}`}
@@ -127,7 +133,7 @@ export function FilterBar({
           {showClear ? (
             <Link
               href={clearFiltersHref as string}
-              className="ui-btn-ghost inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[12.5px]"
+              className="ui-btn-ghost inline-flex h-10 items-center gap-1.5 rounded-md px-3 text-[12.5px]"
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
               Clear filters
