@@ -55,7 +55,7 @@ jobs:
           QA_MAXIMAL_DISCOVER_CHECK_UNION: ${{ github.event.inputs.discover_union == true && '1' || '0' }}
           QA_MAXIMAL_DISCOVER_BATCH_TOTAL: ${{ github.event.inputs.discover_batch_total || '4' }}
           QA_MAXIMAL_DISCOVER_BATCH_INDEX: ${{ github.event.inputs.discover_batch_index || '1' }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         if: always()
         with:
           name: qa-maximal-static-${{ github.run_id }}
@@ -126,7 +126,7 @@ jobs:
           PLAYWRIGHT_BLOB_REPORT: "1"
           PLAYWRIGHT_JUNIT_OUTPUT: test-results/junit-${{ matrix.shard }}.xml
           PLAYWRIGHT_JSON_REPORT: test-results/playwright-${{ matrix.shard }}.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         if: always()
         with:
           name: qa-maximal-playwright-${{ matrix.shard }}
