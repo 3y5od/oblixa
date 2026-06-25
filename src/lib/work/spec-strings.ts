@@ -75,7 +75,11 @@ export const WORK_TYPE_LABELS = {
 } as const;
 
 export const WORK_STATUS_LABELS = {
-  open: "Open task",
+  // "Open" rather than "Open task": the work feed mixes task types (approval,
+  // requirement, problem, evidence), so a status that asserts "task" reads as a
+  // contradiction next to a non-task type label. Status is type-agnostic; the
+  // type is carried by its own label.
+  open: "Open",
   in_progress: "In progress",
   blocked: "Cannot proceed",
   waiting: "Cannot proceed",

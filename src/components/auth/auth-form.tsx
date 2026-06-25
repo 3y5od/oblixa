@@ -16,7 +16,7 @@ import { forgotPassword, resetPassword, signIn, signUp } from "@/actions/auth";
 import { assignNavigableHref } from "@/lib/navigation/client-navigation";
 import { MODE_CONFIG, type AuthMode } from "./auth-config";
 import { AuthShell, AuthCard, type AuthCardTone } from "./auth-shell";
-import { AuthProductPanel } from "./auth-product-panel";
+import { AuthAccessPanel } from "./auth-access-panel";
 import { AuthFields } from "./auth-fields";
 import { AuthStateCard } from "./auth-state-card";
 import {
@@ -26,8 +26,6 @@ import {
   type SignupGrantState,
 } from "./auth-recovery";
 import { AuthWorkspaceCallout } from "./auth-workspace-callout";
-import { AuthTrustProof } from "./auth-trust-proof";
-import { AuthIconTile } from "./auth-ui";
 
 interface AuthFormProps {
   mode: AuthMode;
@@ -85,7 +83,8 @@ export function AuthForm({
 
   const c = MODE_CONFIG[mode];
   const formErrorId = "auth-form-error";
-  const showProof = mode === "login" || mode === "signup";
+  // The operational access-paths panel fills the second column on login only.
+  const showAccessPanel = mode === "login";
   const isInvalidLink = mode === "reset-password" && linkInvalid;
   const isResetComplete = mode === "reset-password" && Boolean(state?.redirectTo) && !isInvalidLink;
   const isSuccess = Boolean(state?.success) && !isInvalidLink && !isResetComplete;
@@ -204,12 +203,12 @@ export function AuthForm({
         confirmError={fieldErrors.confirm}
       />
 
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 pt-1.5">
         <button
           type="submit"
           disabled={pending}
           aria-busy={pending}
-          className="ui-btn-primary group h-11 w-full text-[14px]"
+          className="ui-btn-primary group h-11 w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-80"
         >
           {pending ? (
             <>
@@ -227,8 +226,6 @@ export function AuthForm({
             </>
           )}
         </button>
-
-        {showProof ? <AuthTrustProof /> : null}
       </div>
     </form>
   );
@@ -299,30 +296,28 @@ export function AuthForm({
     Boolean(c.callout) && !isSuccess && !isInvalidLink && !isResetComplete && !signupRecoveryContent;
 
   const authColumn = (
-    <div className={showProof ? "min-w-0" : "w-full"}>
-      <div className="mb-4 flex items-start gap-3.5">
-        <AuthIconTile icon={c.icon} />
-        <div className="min-w-0">
-          <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="landing-eyebrow-dot ui-caps-1 text-[10.5px] text-[var(--accent-strong)]">{c.eyebrow}</span>
-            {c.headerChip ? (
+    <div className="w-full">
+      <AuthCard tone={cardTone}>
+        <div>
+          {c.headerChip ? (
+            <p className="mb-2.5">
               <span className="ui-caps-3 inline-flex items-center rounded-full border border-[color:color-mix(in_oklab,var(--accent)_18%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,var(--surface-raised))] px-2 py-0.5 text-[9px] text-[var(--text-secondary)]">
                 {c.headerChip}
               </span>
-            ) : null}
-          </p>
-          <h1 className="lp-serif mt-1 text-balance text-[1.75rem] leading-[1.1] text-[var(--text-primary)] sm:text-[2rem]">
+            </p>
+          ) : null}
+          <h1 className="lp-serif text-balance text-[1.6rem] leading-[1.12] text-[var(--text-primary)]">
             {c.title}
           </h1>
-          <p className="mt-1.5 max-w-[42ch] text-pretty text-[13px] leading-[1.5] text-[var(--text-secondary)]">{c.intro}</p>
+          <p className="mt-2 text-pretty text-[13px] leading-[1.5] text-[var(--text-secondary)]">{c.intro}</p>
         </div>
-      </div>
 
-      <AuthCard tone={cardTone}>{cardBody}</AuthCard>
+        <div className="mt-6">{cardBody}</div>
+      </AuthCard>
 
       {showCallout && c.callout ? <AuthWorkspaceCallout callout={c.callout} /> : null}
     </div>
   );
 
-  return <AuthShell productPanel={showProof ? <AuthProductPanel /> : undefined}>{authColumn}</AuthShell>;
+  return <AuthShell accessPanel={showAccessPanel ? <AuthAccessPanel /> : undefined}>{authColumn}</AuthShell>;
 }

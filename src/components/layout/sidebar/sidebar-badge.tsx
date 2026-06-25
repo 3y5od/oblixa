@@ -67,10 +67,11 @@ export function SidebarBadge({ badge, collapsed }: { badge?: SidebarBadgeModel; 
       </span>
     );
   }
-  // Expanded: a labeled chip ("1 review") so the count states its object type.
+  // Expanded: a labeled status chip ("1 review") so the count states its object
+  // type. Sharp 4px edge to match the app's status-label language (§14).
   return (
     <span
-      className="ml-auto inline-flex h-5 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[11px] font-semibold leading-none"
+      className="ml-auto inline-flex h-[1.15rem] shrink-0 items-center gap-1 rounded-[4px] border px-1.5 text-[10.5px] font-semibold leading-none"
       style={toneStyle}
       aria-label={badge.label}
       title={badge.label}

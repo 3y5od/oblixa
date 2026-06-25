@@ -10,7 +10,6 @@ import {
 import { CoreDashboardPlanBanner } from "@/components/dashboard/core-dashboard-plan-banner";
 import { TopSignal } from "@/components/dashboard/core-dashboard-primitives";
 import {
-  DashboardSectionGroup,
   DashboardSectionView,
   getSection,
 } from "@/components/dashboard/core-dashboard-section-view";
@@ -30,22 +29,6 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
   const visiblePartialErrors = getCoreDashboardVisiblePartialErrors(model.partialErrors);
   const needsReviewCount =
     model.topCards.find((card) => card.key === "needs_review")?.count ?? 0;
-  const upcomingDeadlinesCount =
-    model.topCards.find((card) => card.key === "upcoming_deadlines")?.count ?? 0;
-  const headerStateItems = [
-    {
-      value: String(model.totalContracts),
-      label: model.totalContracts === 1 ? "contract" : "contracts",
-    },
-    { value: String(needsReviewCount), label: "needing review" },
-    {
-      value: String(upcomingDeadlinesCount),
-      label:
-        upcomingDeadlinesCount === 1
-          ? "renewal or notice date in view"
-          : "renewal and notice dates in view",
-    },
-  ];
   const orderedSections: CoreDashboardSection[] = [
     getSection(model, "review_queue"),
     getSection(model, "work_needing_action"),
@@ -56,72 +39,75 @@ export function CoreDashboard({ model }: { model: CoreDashboardModel }) {
   const sectionByKey = new Map<DashboardSectionKey, CoreDashboardSection>(
     orderedSections.map((section) => [section.key, section])
   );
+  // Triage information architecture (Now → Next/Blocked, then Coverage + Activity).
+  // The dominant work column carries the next action (Now: review hero) and the
+  // active work queue (Next/Blocked). The right rail carries supporting context:
+  // date pressure + coverage gaps + activity. Section-group names are retained as
+  // the placement buckets the dashboard contract expects.
   const prioritySections: DashboardSectionKey[] = ["review_queue", "work_needing_action"];
-  const monitoringSections: DashboardSectionKey[] = ["upcoming_deadlines", "recent_activity"];
+  const monitoringSections: DashboardSectionKey[] = ["upcoming_deadlines"];
   const cleanupSections: DashboardSectionKey[] = ["data_gaps"];
+  const activitySection = sectionByKey.get("recent_activity");
 
   return (
-    <div className="ui-page-stack mx-auto w-full max-w-[1440px] gap-4 pb-10">
-      <CoreDashboardHeader
-        title={DASHBOARD_TITLE}
-        lead="Review suggested contract details, track renewal and notice dates, assign follow-up, collect evidence, and export reports."
-        stateItems={headerStateItems}
-        actions={
-          <CoreDashboardIntakeActions
-            className="flex flex-wrap items-center gap-2"
-            buttonClassName="rounded-[4px] px-3.5 py-2 text-[12.5px] font-semibold"
-          />
-        }
-      />
+    <div className="ui-page-stack w-full min-w-0 gap-4 pb-10">
+      {/* Compact command zone: workspace identity + intake actions, then the
+          snapshot cards. Kept tight so the signature review surface rises. */}
+      <div className="flex flex-col gap-2.5">
+        <CoreDashboardHeader
+          title={DASHBOARD_TITLE}
+          actions={
+            <CoreDashboardIntakeActions
+              className="flex flex-wrap items-center gap-2"
+              buttonClassName="rounded-[4px] px-3.5 py-2 text-[12.5px] font-semibold"
+            />
+          }
+        />
+        <MetricStrip>
+          {model.topCards.map((card) => (
+            <TopSignal key={card.key} card={card} />
+          ))}
+        </MetricStrip>
+      </div>
 
       <DashboardStickyToolbar totalContracts={model.totalContracts} needsReview={needsReviewCount} />
       <ImportStatusNotice status={model.importStatus} />
       <PartialDataNotice count={visiblePartialErrors.length} />
       {model.showPlanBanner ? <CoreDashboardPlanBanner /> : null}
 
-      <div className="flex min-w-0 flex-col gap-6">
-        <MetricStrip>
-          {model.topCards.map((card) => (
-            <TopSignal key={card.key} card={card} />
-          ))}
-        </MetricStrip>
+      {/* Command center: dominant work column (Now → queue) + a single cohesive,
+          subordinate context rail (date pressure · coverage · activity). */}
+      <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_23.5rem]">
+        <div className="flex min-w-0 flex-col gap-4">
+          {prioritySections.map((key) => {
+            const section = sectionByKey.get(key);
+            return section ? (
+              <DashboardSectionView key={key} section={section} variant="main" />
+            ) : null;
+          })}
+        </div>
 
-        <DashboardSectionGroup
-          id="dashboard-priority-work"
-          eyebrow="Priority work"
-          note="Work that changes what Oblixa trusts for reminders, reports, and ownership."
+        <aside
+          aria-label="Dates, missing details, and recent activity"
+          className="min-w-0 divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] overflow-hidden rounded-[8px] border border-[var(--border-subtle)] shadow-[0_1px_2px_rgba(15,23,42,0.04)] xl:sticky xl:top-4"
+          style={{ background: "color-mix(in oklab, var(--surface-muted) 70%, var(--surface-raised))" }}
         >
-          <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(22rem,5fr)]">
-            {prioritySections.map((key) => {
-              const section = sectionByKey.get(key);
-              return section ? <DashboardSectionView key={key} section={section} /> : null;
-            })}
-          </div>
-        </DashboardSectionGroup>
-
-        <DashboardSectionGroup
-          id="dashboard-monitoring"
-          eyebrow="Monitoring"
-          note="Dates entering the next 90 days and recent confirmed changes across the workspace."
-        >
-          <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(22rem,4fr)]">
-            {monitoringSections.map((key) => {
-              const section = sectionByKey.get(key);
-              return section ? <DashboardSectionView key={key} section={section} /> : null;
-            })}
-          </div>
-        </DashboardSectionGroup>
-
-        <DashboardSectionGroup
-          id="dashboard-cleanup"
-          eyebrow="Data completeness"
-          note="Owners, dates, and counterparties a contract needs before routing and reports are reliable."
-        >
+          {monitoringSections.map((key) => {
+            const section = sectionByKey.get(key);
+            return section ? (
+              <DashboardSectionView key={key} section={section} variant="rail" />
+            ) : null;
+          })}
           {cleanupSections.map((key) => {
             const section = sectionByKey.get(key);
-            return section ? <DashboardSectionView key={key} section={section} /> : null;
+            return section ? (
+              <DashboardSectionView key={key} section={section} variant="rail" />
+            ) : null;
           })}
-        </DashboardSectionGroup>
+          {activitySection ? (
+            <DashboardSectionView section={activitySection} variant="rail" />
+          ) : null}
+        </aside>
       </div>
     </div>
   );

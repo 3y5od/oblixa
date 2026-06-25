@@ -17,64 +17,60 @@ const WORK_QUICK_FILTER_EMPTY: WorkFilterState = {
 };
 
 export function WorkQueueOverview({ model }: { model: WorkModel }) {
+  // Compressed queue header: the count statement and the condition filters ride
+  // one quiet muted band so the panel reads as subordinate chrome and the queue
+  // becomes the first important object (top-panel compression). The count anchors
+  // the left; condition chips sit on a ruled subregion to its right.
   return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-            <h2 id="work-surface-title" className="ui-caps-2 text-[var(--text-secondary)]">
-              Active tasks
-            </h2>
-            <span
-              className="inline-flex items-baseline gap-1.5 text-[12.5px] text-[var(--text-secondary)]"
-              aria-label={`${model.totalVisibleRows} active ${model.totalVisibleRows === 1 ? "task" : "tasks"}`}
-            >
-              <span className="text-[15px] font-semibold tabular-nums text-[var(--text-primary)]">
-                {model.totalVisibleRows}
-              </span>
-              <span>active {model.totalVisibleRows === 1 ? "task" : "tasks"}</span>
-            </span>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Condition filters</span>
-            <WorkQuickFilters model={model} />
-          </div>
-          <p className="mt-1.5 max-w-[52rem] text-[12.5px] leading-5 text-[var(--text-secondary)]">
-            Active tasks are open follow-up items linked to signed contracts. Condition filters show matching task
-            counts and narrow the table when selected.
-          </p>
-          <p
-            className="mt-1 max-w-[62rem] text-[12px] leading-5 text-[var(--text-tertiary)]"
-            aria-label="Condition filter definitions"
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-strong)_30%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] px-5 py-2">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div className="flex shrink-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+          <h2 id="work-surface-title" className="ui-caps-2 text-[11px] text-[var(--text-secondary)]">
+            Active tasks
+          </h2>
+          {/* Operational-statement count: the number is embedded in the object
+              + condition sentence rather than a bare KPI figure (§19). */}
+          <span
+            className="inline-flex items-baseline gap-1.5 text-[13px] text-[var(--text-secondary)]"
+            aria-label={`${model.totalVisibleRows} active ${model.totalVisibleRows === 1 ? "task" : "tasks"}`}
           >
-            <span className="font-semibold text-[var(--text-secondary)]">Cannot proceed:</span> answer,
-            approval, file, or owner is missing.{" "}
-            <span className="font-semibold text-[var(--text-secondary)]">Past due:</span> due date has
-            passed.{" "}
-            <span className="font-semibold text-[var(--text-secondary)]">Due within 7 days:</span> due
-            today or this week.{" "}
-            <span className="font-semibold text-[var(--text-secondary)]">Unassigned:</span> no owner is
-            assigned.
-          </p>
+            <span className="text-[18px] font-semibold tabular-nums text-[var(--text-primary)]">
+              {model.totalVisibleRows}
+            </span>
+            <span>active {model.totalVisibleRows === 1 ? "task" : "tasks"}</span>
+          </span>
         </div>
-        <Link
-          href="/contracts"
-          className="ui-btn-secondary inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-[12.5px]"
-        >
-          Open contracts
-          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-        </Link>
+        <span aria-hidden className="hidden h-5 w-px shrink-0 bg-[color:color-mix(in_oklab,var(--border-strong)_55%,transparent)] sm:block" />
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
+          {/* Definitions live on each chip's hover/focus tooltip + aria-label
+              (WorkQuickFilterChip), matching the Contracts condition strip — no
+              separate prose definition wall. */}
+          <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.04em] text-[var(--text-tertiary)]">
+            Condition filters
+          </span>
+          <WorkQuickFilters model={model} />
+        </div>
       </div>
+      <Link
+        href="/contracts"
+        className="ui-btn-ghost inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1 text-[12px]"
+      >
+        Open contracts
+        <ChevronRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+      </Link>
     </div>
   );
 }
 
 export function WorkViewTabs({ model }: { model: WorkModel }) {
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-5 pt-3">
-        <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">Views</span>
-        <span className="text-[12px] text-[var(--text-tertiary)]">
+    <div className="pt-1">
+      {/* Label + helper ride one compact inline row so the tab strip starts
+          higher and the queue gains vertical room (top-panel compression). The
+          helper is quiet supporting copy, subordinate to the tab strip below. */}
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-5">
+        <span className="ui-caps-3 text-[9.5px] text-[var(--text-tertiary)]">Views</span>
+        <span className="text-[11px] text-[var(--text-tertiary)]">
           Choose the row category shown below. Counts reflect the active filters.
         </span>
       </div>
@@ -122,7 +118,10 @@ function WorkQuickFilters({ model }: { model: WorkModel }) {
       text: `${summary.overdue} ${plural(summary.overdue)} past due`,
       description: "Due date has passed.",
       value: summary.overdue,
-      tone: "danger",
+      // Amber, not oxblood: past due is serious but a tier below cannot-proceed,
+      // so the strip reserves danger ink for the one genuinely-blocked condition
+      // (red-rebalance — keeps the count strip from reading all-red).
+      tone: "warning",
       active: activeTab === "overdue",
       href: buildWorkHref({ tab: activeTab === "overdue" ? "all" : "overdue", sort }),
     },

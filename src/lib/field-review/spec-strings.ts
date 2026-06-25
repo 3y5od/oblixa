@@ -5,17 +5,22 @@ export const FIELD_REVIEW_EMPTY_STATE = "No details need confirmation.";
 export const FIELD_REVIEW_REQUIRED_CONTENT = [
   "Detail to review",
   "Suggested detail",
-  "Where this is used",
-  "Where Oblixa found this suggested detail",
+  "Where this confirmed detail is used",
+  "Where Oblixa found it",
   "Source preview",
   "Confirmed detail",
   "Contract context",
 ] as const;
 
+// Stable, literal fragments of the object-aware decision actions as they appear
+// in source (e.g. "Confirm effective date", "Mark date unknown", "Skip this
+// detail"). The visible labels are templated per field, so the surface check
+// verifies the action verbs/objects rather than fixed full strings.
 export const FIELD_REVIEW_ACTIONS = [
   "Confirm",
   "Edit",
-  "Mark unknown",
+  "Mark",
+  "unknown",
   "Skip",
 ] as const;
 

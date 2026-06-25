@@ -14,7 +14,7 @@
     "retainedLegacyAliasCount": 79,
     "neutralOnlyAliasCount": 0,
     "legacyReferenceCount": 375,
-    "neutralReferenceCount": 1621,
+    "neutralReferenceCount": 1623,
     "issueCount": 0
   },
   "aliases": [
@@ -165,7 +165,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "src/app/(dashboard)/dashboard/persona/page.tsx",
+          "path": "src/app/(dashboard)/dashboard/persona/persona-dashboard-view.tsx",
           "legacyCount": 0,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
@@ -241,7 +241,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/app/(dashboard)/contracts/reports/page.tsx",
+          "path": "src/app/(dashboard)/contracts/reports/reports-history-sections.tsx",
           "legacyCount": 0,
           "neutralCount": 1,
           "referenceClass": "source_or_test"
@@ -1023,8 +1023,8 @@
       "owner": "product-surface",
       "queueCovered": true,
       "legacyReferenceCount": 4,
-      "neutralReferenceCount": 179,
-      "referenceFileCount": 49,
+      "neutralReferenceCount": 181,
+      "referenceFileCount": 50,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/lib/assurance/org-settings.test.ts",
       "references": [
@@ -1084,6 +1084,12 @@
         },
         {
           "path": "src/app/(dashboard)/settings/health/page.tsx",
+          "legacyCount": 0,
+          "neutralCount": 2,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/settings/health/settings-health-page-model.ts",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"
@@ -1436,7 +1442,7 @@
       "queueCovered": true,
       "legacyReferenceCount": 3,
       "neutralReferenceCount": 46,
-      "referenceFileCount": 21,
+      "referenceFileCount": 22,
       "retainedLegacyStatus": "retained_compatibility_alias",
       "validationCommand": "vitest run src/components/ui/recoverable-state.test.tsx",
       "references": [
@@ -1459,7 +1465,19 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+          "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/[id]/contract-detail-view-deps.ts",
+          "legacyCount": 0,
+          "neutralCount": 1,
+          "referenceClass": "source_or_test"
+        },
+        {
+          "path": "src/app/(dashboard)/contracts/contracts-table-section.tsx",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"
@@ -1471,13 +1489,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/app/(dashboard)/contracts/page.tsx",
-          "legacyCount": 0,
-          "neutralCount": 2,
-          "referenceClass": "source_or_test"
-        },
-        {
-          "path": "src/app/(dashboard)/contracts/renewals/page.tsx",
+          "path": "src/app/(dashboard)/contracts/renewals/renewals-page-view.tsx",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"
@@ -1501,7 +1513,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/components/contracts/contract-table.tsx",
+          "path": "src/components/contracts/contract-table-empty-state.tsx",
           "legacyCount": 0,
           "neutralCount": 3,
           "referenceClass": "source_or_test"
@@ -1593,7 +1605,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/components/reports/reports-control-room-more.tsx",
+          "path": "src/components/reports/reports-signal-quality-section.tsx",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"
@@ -2177,7 +2189,7 @@
           "referenceClass": "source_or_test"
         },
         {
-          "path": "src/components/dashboard/dashboard-upper.tsx",
+          "path": "src/components/dashboard/dashboard-upper-focus-cards.ts",
           "legacyCount": 0,
           "neutralCount": 2,
           "referenceClass": "source_or_test"
@@ -2257,7 +2269,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
           "referenceClass": "tooling_or_governance"
@@ -2349,7 +2361,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 4,
           "referenceClass": "tooling_or_governance"
@@ -2435,7 +2447,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 3,
           "referenceClass": "tooling_or_governance"
@@ -2625,15 +2637,15 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
-          "legacyCount": 0,
-          "neutralCount": 6,
-          "referenceClass": "tooling_or_governance"
-        },
-        {
           "path": "scripts/check-release-suite-current.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
+          "legacyCount": 0,
+          "neutralCount": 6,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -2889,12 +2901,6 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
-          "legacyCount": 0,
-          "neutralCount": 2,
-          "referenceClass": "tooling_or_governance"
-        },
-        {
           "path": "scripts/check-release-suite-current.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
@@ -2904,6 +2910,12 @@
           "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
+          "legacyCount": 0,
+          "neutralCount": 2,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -3175,12 +3187,6 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
-          "legacyCount": 0,
-          "neutralCount": 6,
-          "referenceClass": "tooling_or_governance"
-        },
-        {
           "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
@@ -3208,6 +3214,12 @@
           "path": "scripts/check-versioned-remaining-surface-coverage.test.mjs",
           "legacyCount": 0,
           "neutralCount": 1,
+          "referenceClass": "tooling_or_governance"
+        },
+        {
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
+          "legacyCount": 0,
+          "neutralCount": 6,
           "referenceClass": "tooling_or_governance"
         },
         {
@@ -3417,7 +3429,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 4,
           "referenceClass": "tooling_or_governance"
@@ -4677,7 +4689,7 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 3,
           "referenceClass": "tooling_or_governance"
@@ -4789,13 +4801,13 @@
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-release-evidence.mjs",
+          "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
           "legacyCount": 0,
           "neutralCount": 4,
           "referenceClass": "tooling_or_governance"
         },
         {
-          "path": "scripts/check-supply-chain-static-enforcement.test.mjs",
+          "path": "scripts/lib/check-release-evidence-implementation.mjs",
           "legacyCount": 0,
           "neutralCount": 4,
           "referenceClass": "tooling_or_governance"

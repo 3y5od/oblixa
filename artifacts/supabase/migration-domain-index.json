@@ -3,8 +3,8 @@
   "generatedBy": "scripts/check-migration-organization.mjs --write",
   "sourceManifest": "artifacts/supabase/migration-manifest.json",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 95,
-  "latestVersion": "095",
+  "migrationCount": 96,
+  "latestVersion": "096",
   "groups": [
     {
       "label": "Auth And Identity",
@@ -134,9 +134,10 @@
         "092_workspace_owner_relation.sql",
         "093_access_review_deny_all_policies.sql",
         "094_force_rls_current_public_tables.sql",
-        "095_inbound_evidence_scope_guards.sql"
+        "095_inbound_evidence_scope_guards.sql",
+        "096_service_role_public_table_dml.sql"
       ],
-      "count": 50
+      "count": 51
     },
     {
       "label": "Storage",
@@ -3254,6 +3255,24 @@
       "verificationQueries": [
         "select schemaname, tablename, policyname from pg_policies where schemaname = 'public' and tablename = 'inbound_provider_events' order by policyname;"
       ]
+    },
+    {
+      "version": "096",
+      "file": "096_service_role_public_table_dml.sql",
+      "domain": "security",
+      "domainLabel": "RLS And Security",
+      "changeType": "schema-only",
+      "riskLevel": "medium",
+      "deployWindowSafe": true,
+      "requiresFollowUpVerification": true,
+      "cleanupMarked": false,
+      "requiresAffectedTables": false,
+      "affectedTables": [],
+      "lineCount": 31,
+      "byteCount": 905,
+      "large": false,
+      "descriptiveSlug": true,
+      "verificationQueries": []
     }
   ]
 }

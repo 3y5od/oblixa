@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Menu, ShieldCheck, X } from "lucide-react";
 import { trustChipBadges } from "@/components/landing/landing-content";
+import { BRAND_TILE_CLASS } from "@/components/ui/brand-tile";
 
 type MarketingSiteHeaderProps = {
   secondaryNav?: ReactNode;
@@ -104,7 +105,7 @@ export function MarketingSiteHeader({ secondaryNav }: MarketingSiteHeaderProps) 
             href="/"
             className="group flex items-center gap-2.5 rounded-[4px] no-underline outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)]"
           >
-            <span className="ui-avatar-tile lp-serif h-8 w-8 pb-px text-[17px]" aria-hidden>
+            <span className={`${BRAND_TILE_CLASS} lp-serif h-8 w-8 pb-px text-[17px]`} aria-hidden>
               O
             </span>
             <span className="text-[18px] font-bold leading-none tracking-[-0.02em] text-[var(--text-primary)] transition-opacity group-hover:opacity-85">
@@ -253,7 +254,7 @@ export function MarketingSiteFooter() {
               href="/"
               className="group inline-flex items-center gap-2.5 rounded-[4px] no-underline outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--canvas)]"
             >
-              <span className="ui-avatar-tile lp-serif h-8 w-8 pb-px text-[17px]" aria-hidden>
+              <span className={`${BRAND_TILE_CLASS} lp-serif h-8 w-8 pb-px text-[17px]`} aria-hidden>
                 O
               </span>
               <span className="text-[19px] font-bold leading-none tracking-[-0.02em] text-[var(--text-primary)] transition-opacity group-hover:opacity-85">

@@ -108,11 +108,17 @@ describe("dashboard loading and error consistency (V9)", () => {
     expect(workLoading).toContain("Array.from({ length: 7 })");
     expect(workLoading).toContain("Array.from({ length: 5 })");
 
-    // Review loading mirrors the three-pane field review workspace shell
-    // (queue rail | decision | evidence) on the quieter `ui-card` tier.
+    // Review loading mirrors the full-height review-unit shell (queue rail |
+    // detail + source proof | decision footer spanning the unit) on the quieter
+    // `ui-card` tier — two grid rows at xl (panes row + auto decision row), the
+    // source column widened so the excerpt reads as a page, and the left-aligned
+    // workspace-scope meta line.
     expect(reviewLoading).toContain("ui-card");
-    expect(reviewLoading).toContain("ui-skeleton hidden h-12 w-60 rounded-xl");
-    expect(reviewLoading).toContain("lg:grid-cols-[20rem_minmax(0,1fr)_22rem]");
+    expect(reviewLoading).toContain("ui-skeleton h-4 w-72 max-w-full rounded");
+    expect(reviewLoading).toContain("xl:h-[calc(100dvh-156px)]");
+    expect(reviewLoading).toContain("xl:grid-rows-[minmax(0,1fr)_auto]");
+    expect(reviewLoading).toContain("lg:grid-cols-[minmax(20rem,26rem)_minmax(0,1fr)]");
+    expect(reviewLoading).toContain("xl:grid-cols-[minmax(13rem,16rem)_minmax(23rem,33rem)_minmax(26rem,1fr)]");
     expect(reviewLoading).toContain("sm:grid-cols-2");
     expect(reviewLoading).not.toContain("ui-page-header flex flex-col gap-6");
     expect(reviewLoading).not.toContain("ui-card-hero");

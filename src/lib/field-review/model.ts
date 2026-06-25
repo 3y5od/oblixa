@@ -50,7 +50,7 @@ export const REVIEW_QUEUE_FILTERS = [
   { key: "mine", label: "Assigned to me" },
   { key: "key", label: "Important" },
   { key: "no-source", label: "No source preview" },
-  { key: "needs-citation", label: "Source needed" },
+  { key: "needs-citation", label: "Needs source text" },
 ] as const;
 
 export type ReviewQueueFilter = (typeof REVIEW_QUEUE_FILTERS)[number]["key"];

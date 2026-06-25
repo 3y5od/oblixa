@@ -924,7 +924,7 @@
     ]
   },
   "fileSafety": {
-    "scannedFileCount": 4069,
+    "scannedFileCount": 4297,
     "largeFileCount": 4,
     "binaryFileCount": 140,
     "unexpectedBinaryCount": 0,
@@ -932,7 +932,7 @@
     "executableMasquerade": {
       "ok": true,
       "issueCount": 0,
-      "scannedFileCount": 4070
+      "scannedFileCount": 4311
     },
     "binaryMetadataStripping": {
       "ok": true,
@@ -941,7 +941,7 @@
     "rows": [
       {
         "path": "artifacts/compatibility/removal-queue.json",
-        "bytes": 5120353,
+        "bytes": 5128146,
         "binary": false,
         "magic": null,
         "text": true,
@@ -950,7 +950,7 @@
       },
       {
         "path": "artifacts/compatibility/versioned-content-contract-inventory.json",
-        "bytes": 2736314,
+        "bytes": 2739093,
         "binary": false,
         "magic": null,
         "text": true,
@@ -1842,9 +1842,9 @@
     ]
   },
   "sourceHygiene": {
-    "scannedTextFileCount": 3907,
+    "scannedTextFileCount": 4135,
     "crlfCount": 0,
-    "missingFinalNewlineCount": 90,
+    "missingFinalNewlineCount": 95,
     "controlCharacterCount": 0,
     "trojanSourceControlCount": 0,
     "asciiPolicyViolationCount": 0,
@@ -1852,6 +1852,72 @@
       {
         "path": ".augment/rules/documentation.md",
         "bytes": 109,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/1-tokens.md",
+        "bytes": 34343,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/2-sidebar.md",
+        "bytes": 26960,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/3-topbar.md",
+        "bytes": 26309,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/4-nav.md",
+        "bytes": 35018,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/5-tests.md",
+        "bytes": 35437,
+        "crlf": false,
+        "normalizedCheckoutCrlf": false,
+        "missingFinalNewline": true,
+        "controlCharacter": false,
+        "trojanSourceControl": false,
+        "asciiRequired": false,
+        "nonAsciiPolicyViolation": false
+      },
+      {
+        "path": ".shellmap/6-run.md",
+        "bytes": 26817,
         "crlf": false,
         "normalizedCheckoutCrlf": false,
         "missingFinalNewline": true,
@@ -2270,17 +2336,6 @@
       {
         "path": "src/app/(dashboard)/settings/product/settings-product-email-section.tsx",
         "bytes": 3722,
-        "crlf": false,
-        "normalizedCheckoutCrlf": false,
-        "missingFinalNewline": true,
-        "controlCharacter": false,
-        "trojanSourceControl": false,
-        "asciiRequired": false,
-        "nonAsciiPolicyViolation": false
-      },
-      {
-        "path": "src/app/(dashboard)/settings/product/settings-product-governance-static.test.ts",
-        "bytes": 803,
         "crlf": false,
         "normalizedCheckoutCrlf": false,
         "missingFinalNewline": true,
@@ -2842,7 +2897,7 @@
     ]
   },
   "workspaceCleanliness": {
-    "untrackedFileCount": 57,
+    "untrackedFileCount": 10,
     "requiredUntrackedFileCount": 0,
     "unregisteredRequiredUntrackedFileCount": 0,
     "requiredRows": [],
@@ -2857,7 +2912,7 @@
     "executableMasquerade": {
       "ok": true,
       "issueCount": 0,
-      "scannedFileCount": 4070
+      "scannedFileCount": 4311
     },
     "binaryMetadataStripping": {
       "ok": true,

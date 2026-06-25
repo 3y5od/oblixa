@@ -3,10 +3,10 @@
   "schemaVersion": 1,
   "source": "code-owned-operational-package-pipeline-governance",
   "generatedFrom": "config/operational-package-pipelines.json",
-  "packageScriptCount": 916,
-  "operationalScriptCount": 872,
+  "packageScriptCount": 917,
+  "operationalScriptCount": 873,
   "packageGraph": {
-    "nodeCount": 916,
+    "nodeCount": 917,
     "edgeCount": 91,
     "cycleCount": 0,
     "aliasOnlyCount": 45,
@@ -76,9 +76,9 @@
     }
   ],
   "tierCoverage": {
-    "checkScripts": 540,
+    "checkScripts": 541,
     "manifestScripts": 108,
-    "allowlist": 482,
+    "allowlist": 483,
     "uncovered": 0,
     "orphanAllowlist": 0
   },

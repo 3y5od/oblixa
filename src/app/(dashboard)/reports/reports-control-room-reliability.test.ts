@@ -13,7 +13,7 @@ describe("reports release-state compliance", () => {
     expect(raw).toContain("REPORTS_PAGE_TITLE");
     expect(raw).toContain("REPORTS_EMPTY_STATE");
     expect(raw).toContain("REPORT_CONTENT_LABELS");
-    expect(raw).toContain("Catalog counts show matching rows available for each report.");
+    expect(raw).toContain("Report catalog");
     // The inspection header states the previewed-vs-matching row scope inline.
     expect(raw).toContain("previewed of");
     for (const label of [

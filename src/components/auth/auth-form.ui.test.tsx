@@ -41,31 +41,50 @@ describe("AuthForm", () => {
     authMocks.signUp.mockResolvedValue({ redirectTo: "/dashboard" });
   });
 
-  it("renders login content and forgot-password path", () => {
+  it("renders login content with a password-recovery path", () => {
     renderWithProviders(<AuthForm mode="login" />);
     expect(screen.getByRole("heading", { name: /sign in to your workspace/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /forgot password/i })).toBeTruthy();
+    // The inline "Forgot password?" link is gone; recovery lives in the access panel.
+    expect(screen.queryByRole("link", { name: /forgot password/i })).toBeNull();
+    expect(screen.getByRole("link", { name: /reset password/i }).getAttribute("href")).toBe("/forgot-password");
   });
 
-  it("presents AI extraction as a source-backed suggestion, not an authority", () => {
+  it("pairs the sign-in form with an operational access panel, not product proof", () => {
     renderWithProviders(<AuthForm mode="login" />);
-    // Release-state AI boundary: no confidence-score / authority framing.
-    expect(screen.queryByText(/AI\s*·\s*94%/)).toBeNull();
-    expect(screen.getByText(/suggested/i)).toBeTruthy();
+    // Operational access help fills the second column…
+    expect(screen.getByTestId("auth-access-panel")).toBeTruthy();
+    expect(screen.getByRole("link", { name: /request access/i }).getAttribute("href")).toBe("/request-access");
+    expect(screen.getByRole("link", { name: /reset password/i }).getAttribute("href")).toBe("/forgot-password");
+    // …with no staged product artifact or fake contract data.
+    expect(screen.queryByTestId("auth-source-artifact")).toBeNull();
+    expect(screen.queryByText(/master services agreement/i)).toBeNull();
+    expect(screen.queryByText(/clause 12\.3/i)).toBeNull();
   });
 
-  it("frames the product panel without repeating the public landing promise", () => {
+  it("keeps the sign-in surface free of sales qualification and pricing", () => {
     renderWithProviders(<AuthForm mode="login" />);
-    // Product proof uses a quiet eyebrow + support copy (§10.15) — it must NOT
-    // restate the public landing H1 inside the auth surface.
-    expect(screen.getByText(/contract tracking/i)).toBeTruthy();
-    expect(screen.queryByText(/track what signed contracts require next/i)).toBeNull();
+    // Access help is operational, never sales: no pricing, no "need a workspace"
+    // sales card, no marketing taglines or feature grid.
+    expect(screen.queryByText(/\$\d/)).toBeNull();
+    expect(screen.queryByText(/need a workspace/i)).toBeNull();
+    expect(screen.queryByText(/core \$|per month|\/month/i)).toBeNull();
+    expect(screen.queryByText(/contract tracking/i)).toBeNull();
+    expect(screen.queryByText(/confirmed contract details become/i)).toBeNull();
+    expect(screen.queryByText(/track tasks|collect evidence|export reports/i)).toBeNull();
+    expect(screen.queryByText(/continue to contracts/i)).toBeNull();
   });
 
-  it("surfaces the policy links row under the auth columns", () => {
+  it("surfaces only legally necessary policy links under the form", () => {
     renderWithProviders(<AuthForm mode="login" />);
-    expect(screen.getByRole("navigation", { name: /legal and policies/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Contact" })).toBeTruthy();
+    const nav = screen.getByRole("navigation", { name: /legal and policies/i });
+    expect(nav).toBeTruthy();
+    // Legal-min set is present…
+    expect(screen.getByRole("link", { name: "Privacy" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Terms" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Accessibility" })).toBeTruthy();
+    // …while broad marketing/navigation links are dropped.
+    expect(screen.queryByRole("link", { name: "Contact" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Security" })).toBeNull();
   });
 
   it("toggles password visibility with an accessible control", () => {

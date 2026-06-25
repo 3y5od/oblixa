@@ -10,12 +10,7 @@ import {
   Eye,
   type LucideIcon,
 } from "lucide-react";
-import { ContractContinuityLinks } from "@/components/ui/contract-continuity-links";
-import { DateProvenanceBadge } from "@/components/ui/date-provenance-badge";
-import { StatusBadge } from "@/components/ui/status-badge";
 import {
-  RENEWAL_DATE_REVIEW_HINTS,
-  RENEWAL_DATE_REVIEW_LABELS,
   RENEWAL_OWNER_MISSING_HELP,
   RENEWAL_ROW_LABELS,
   RENEWAL_SECONDARY_ACTION_LABELS,
@@ -23,15 +18,25 @@ import {
 } from "@/lib/renewals/spec-strings";
 import type {
   RenewalConsequenceTone,
-  RenewalDateReviewState,
   RenewalRow,
   RenewalStatus,
 } from "@/lib/renewals/types";
 import { RenewalActionCluster } from "./renewal-action-cluster";
-import { REVIEW_TO_PROVENANCE } from "./renewals-ledger-constants";
 import type { RenewalFormAction } from "./renewals-page-types";
 
+export { RenewalDateCell } from "./renewal-date-cell";
+
 export function RenewalContractCell({ row, titleId }: { row: RenewalRow; titleId: string }) {
+  const tone = row.consequence.tone;
+  // The record cell carries the row's weight: a strong contract name set in
+  // record-sheet ink, the counterparty named inline beneath it, and the
+  // operational consequence set off by a toned rule so a reader sees what is true
+  // and what is at stake before scanning the date chain. Risk tones
+  // (danger/warning) wear the rule; calm states read as quiet secondary text.
+  // Routine cross-object links are demoted into the row disclosure so the record
+  // block stays a clean name + consequence, not a chip cluster.
+  const consequenceColor = consequenceInk(tone);
+  const ruled = tone === "danger" || tone === "warning";
   return (
     <div className="min-w-0">
       <p className="ui-caps-3 mb-1.5 block text-[10.5px] text-[var(--text-tertiary)] xl:sr-only">
@@ -41,27 +46,23 @@ export function RenewalContractCell({ row, titleId }: { row: RenewalRow; titleId
         href={row.href}
         id={titleId}
         title={row.title}
-        className="ui-chip-focus line-clamp-2 break-words text-[14px] font-semibold leading-snug text-[var(--text-primary)] underline-offset-[3px] decoration-from-font transition-colors hover:text-[var(--accent-strong)] hover:underline"
+        className="ui-chip-focus line-clamp-2 break-words text-[15.5px] font-semibold leading-[1.22] tracking-[-0.01em] text-[var(--text-primary)] underline-offset-[3px] decoration-from-font transition-colors hover:text-[var(--accent-strong)] hover:underline"
       >
         {row.title}
       </Link>
-      <p className="mt-0.5 truncate text-[12px] leading-snug text-[var(--text-tertiary)]" title={row.counterparty}>
-        <span className="sr-only">{RENEWAL_ROW_LABELS.counterparty}: </span>
+      <p className="mt-1 truncate text-[12.5px] leading-snug text-[var(--text-secondary)]" title={row.counterparty}>
+        <span className="text-[var(--text-tertiary)]">{RENEWAL_ROW_LABELS.counterparty}: </span>
         {row.counterparty}
       </p>
       <p
-        className="mt-1.5 text-[12px] font-medium leading-snug"
-        style={{ color: consequenceInk(row.consequence.tone) }}
+        className={`mt-2 text-[12px] font-medium leading-snug ${ruled ? "border-l-2 pl-2.5" : ""}`}
+        style={{
+          color: consequenceColor,
+          borderColor: ruled ? `color-mix(in oklab, ${consequenceColor} 60%, transparent)` : undefined,
+        }}
       >
         {row.consequence.label}
       </p>
-      <ContractContinuityLinks
-        contractId={row.id}
-        omit={["contract", "renewals"]}
-        label="Related"
-        maxVisible={1}
-        className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1 text-[11px] text-[var(--text-tertiary)]"
-      />
     </div>
   );
 }
@@ -71,70 +72,6 @@ function consequenceInk(tone: RenewalConsequenceTone): string {
   if (tone === "warning") return "var(--warning-ink)";
   if (tone === "success") return "var(--success-ink)";
   return "var(--text-secondary)";
-}
-
-export function RenewalDateCell({
-  label,
-  dateLabel,
-  days,
-  review,
-  basis,
-}: {
-  label: string;
-  dateLabel: string;
-  days: number | null;
-  review: RenewalDateReviewState;
-  basis: string | null;
-}) {
-  const empty = review === "missing";
-  return (
-    <div className="min-w-0">
-      <p className="ui-caps-3 mb-1.5 block text-[10.5px] text-[var(--text-tertiary)] xl:sr-only">{label}</p>
-      <p
-        className={`text-[13px] leading-snug tabular-nums ${
-          empty ? "text-[var(--text-tertiary)]" : "text-[var(--text-primary)]"
-        }`}
-      >
-        {dateLabel}
-      </p>
-      <div className="mt-1 flex flex-wrap items-center gap-y-1">
-        {days != null ? (
-          <>
-            <RenewalDueChip days={days} />
-            <span className="ui-rule-vert" aria-hidden />
-          </>
-        ) : null}
-        <DateProvenanceBadge
-          state={REVIEW_TO_PROVENANCE[review]}
-          label={RENEWAL_DATE_REVIEW_LABELS[review]}
-          hint={RENEWAL_DATE_REVIEW_HINTS[review]}
-          srPrefix={label}
-        />
-      </div>
-      {basis ? (
-        <p className="mt-1 max-w-[16rem] text-[10px] leading-snug text-[var(--text-tertiary)]">{basis}</p>
-      ) : null}
-    </div>
-  );
-}
-
-function RenewalDueChip({ days }: { days: number | null }) {
-  if (days == null) return null;
-  const overdue = days < 0;
-  const near = days >= 0 && days <= 14;
-  const ink = overdue ? "var(--danger-ink)" : near ? "var(--warning-ink)" : "var(--text-tertiary)";
-  const label = overdue ? `${Math.abs(days)}d overdue` : days === 0 ? "Today" : `${days}d`;
-  const description = overdue ? `${Math.abs(days)} days overdue` : days === 0 ? "Due today" : `In ${days} days`;
-  return (
-    <span
-      aria-label={description}
-      title={description}
-      className="ui-caps-3 inline-flex items-center text-[10.5px] leading-none tabular-nums"
-      style={{ color: ink }}
-    >
-      {label}
-    </span>
-  );
 }
 
 export function RenewalOwnerCell({ row }: { row: RenewalRow }) {
@@ -190,6 +127,18 @@ const RENEWAL_STATUS_ICON: Record<RenewalStatus, LucideIcon> = {
   no_renewal_action_needed: CircleDashed,
 };
 
+// Renewal status reads as a compact icon + label that WRAPS within the narrow
+// status column \u2014 never a fixed-height nowrap badge that overflows into the next
+// action (the "Renewal task active" overlap), and quieter than a filled chip so
+// the urgent date and next action carry the row (\u00a716 status, \u00a7critique reduce
+// badge noise). Tone ink still separates risk states from calm ones.
+function renewalStatusInk(status: RenewalStatus): string {
+  if (status === "completed") return "var(--success-ink)";
+  if (status === "no_renewal_action_needed") return "var(--text-tertiary)";
+  if (status === "in_progress") return "var(--text-secondary)";
+  return "var(--warning-ink)"; // needs_review, notice_window_open
+}
+
 export function RenewalStatusBadge({ row }: { row: RenewalRow }) {
   const Icon = RENEWAL_STATUS_ICON[row.status];
   if (row.status === "needs_owner") {
@@ -200,21 +149,17 @@ export function RenewalStatusBadge({ row }: { row: RenewalRow }) {
       </span>
     );
   }
-  const quiet = row.status === "completed" || row.status === "no_renewal_action_needed";
-  if (quiet) {
-    const ink = row.status === "completed" ? "var(--success-ink)" : "var(--text-tertiary)";
-    return (
-      <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase leading-tight text-[var(--text-tertiary)]">
-        <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} style={{ color: ink }} aria-hidden />
-        <span>{row.statusLabel}</span>
-      </span>
-    );
-  }
+  // Sentence-case value (not a column header): the status reads as plain
+  // legible operational text with a glyph + tone ink, so it never competes with
+  // the uppercase register labels above it (§16 — fewer shouting micro-pills).
   return (
-    <StatusBadge status={row.statusTone} className="gap-1.5 whitespace-nowrap">
-      <Icon className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
-      {row.statusLabel}
-    </StatusBadge>
+    <span
+      className="inline-flex flex-wrap items-center gap-1.5 text-[12.5px] font-semibold leading-tight"
+      style={{ color: renewalStatusInk(row.status) }}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.85} aria-hidden />
+      <span>{row.statusLabel}</span>
+    </span>
   );
 }
 
@@ -229,8 +174,12 @@ export function RenewalNextActionCell({
   returnTo: string;
   updateRenewalAction: RenewalFormAction;
 }) {
+  // The closing end of the disposition band (see RenewalFact): same cool
+  // inspection wash + hairline, rounded on the right so the owner → status →
+  // action trio reads as one ruled register subregion. The action chip stays
+  // cobalt (actions only); the wash never tints it.
   return (
-    <div className="min-w-0 xl:text-right">
+    <div className="min-w-0 xl:-my-1.5 xl:flex xl:flex-col xl:items-end xl:justify-center xl:self-stretch xl:rounded-r-[5px] xl:border-y xl:border-r xl:border-[color:color-mix(in_oklab,var(--calculated-ink)_24%,var(--border-subtle))] xl:bg-[color:color-mix(in_oklab,var(--surface-cool)_46%,var(--surface-raised))] xl:px-2.5 xl:py-1.5 xl:text-right">
       <p className="ui-caps-3 mb-1.5 block text-[10.5px] text-[var(--text-tertiary)] xl:sr-only">
         {RENEWAL_ROW_LABELS.nextAction}
       </p>
@@ -257,9 +206,42 @@ export function RenewalNextActionCell({
   );
 }
 
-export function RenewalFact({ label, children }: { label: string; children: ReactNode }) {
+// The owner / renewal-status / next-action columns form the row's DISPOSITION
+// cluster — who holds it, where it stands, and what to do next. On wide
+// viewports they sit on a shared cool inspection wash (`--surface-cool`) with a
+// hairline top/bottom rule, so the right of the row reads as one ruled register
+// subregion rather than three floating text columns. `edge` rounds the open
+// (owner) and close (action) ends so the three cells read as a single band even
+// across the grid gap. Below xl the wash drops away and each fact stacks with
+// its own label, as before.
+// `xl:self-stretch` pulls each pane cell to the row's full height (set by the
+// taller record/date cells), so the three blocks share a flush top and bottom
+// and read as one continuous band rather than three ragged tiles.
+const DISPOSITION_PANE =
+  "xl:self-stretch xl:bg-[color:color-mix(in_oklab,var(--surface-cool)_46%,var(--surface-raised))] xl:border-y xl:border-[color:color-mix(in_oklab,var(--calculated-ink)_24%,var(--border-subtle))] xl:px-2.5 xl:py-1.5 xl:-my-1.5";
+
+export function RenewalFact({
+  label,
+  children,
+  pane,
+  edge,
+}: {
+  label: string;
+  children: ReactNode;
+  /** Render on the shared disposition wash at xl. */
+  pane?: boolean;
+  /** Round the open ("start") or close ("end") end of the disposition band. */
+  edge?: "start" | "end";
+}) {
+  const edgeClass =
+    edge === "start"
+      ? "xl:rounded-l-[5px] xl:border-l xl:border-l-[color:color-mix(in_oklab,var(--calculated-ink)_24%,var(--border-subtle))]"
+      : "";
+  // In the band, vertically center the fact so the owner avatar / status glyph
+  // sit on the same optical line across the three blocks.
+  const paneInner = pane ? "xl:flex xl:flex-col xl:justify-center" : "";
   return (
-    <div className="min-w-0">
+    <div className={`min-w-0 ${paneInner} ${pane ? `${DISPOSITION_PANE} ${edgeClass}` : ""}`.trim()}>
       <p className="ui-caps-3 mb-1.5 block text-[10.5px] text-[var(--text-tertiary)] xl:sr-only">{label}</p>
       <div className="break-words text-[13px] leading-snug text-[var(--text-primary)]">{children}</div>
     </div>

@@ -77,6 +77,32 @@ export type WorkItemRow = {
   status: string;
   statusLabel: string;
   statusTone: "healthy" | "info" | "in_review" | "warning" | "blocked" | "overdue" | "critical" | "empty" | "disabled";
+  /** Three-tier visual weight so the queue isn't blanketed in oxblood. Only the
+   *  loudest tier — `critical` (cannot-proceed / genuinely blocked) — earns the
+   *  danger rail, the filled oxblood badge, and the filled action. `overdue`
+   *  reads serious but quieter (amber, no rail, quiet text status). `routine`
+   *  is the calm baseline. Rebalances the surface so the one genuinely-blocked
+   *  row dominates instead of every past-due row screaming red. */
+  rowEmphasis: "critical" | "overdue" | "routine";
+  /** Material treatment for the record's supporting block. Only the
+   *  cannot-proceed tier gets the faintly danger-washed sheet; every other row
+   *  (routine + overdue) reads as the same quiet record sheet, so the queue is
+   *  not a field of colored panels. */
+  recordTone: "critical" | "routine";
+  /** True only for the loudest tier (rowEmphasis === "critical"). Kept as a
+   *  convenience for the rail / filled-badge / filled-action checks. Past-due
+   *  rows are NOT critical — they read serious but quiet (neutral record, ink
+   *  status, amber confined to the due column). */
+  isCritical: boolean;
+  /** Resolved ink for the status label so routine conditions render as quiet
+   *  colored text rather than a filled chip (matches the dashboard register). */
+  statusInk: string;
+  /** Tone of the second-line consequence note. Only the cannot-proceed tier's
+   *  dependency reason wears the toned `danger` rule; past-due and routine notes
+   *  read as quiet secondary text (`neutral`). `warning` is retained in the type
+   *  for completeness but the model no longer emits it for the record body — the
+   *  amber overdue cue lives in the due column. */
+  nextActionTone: "danger" | "warning" | "neutral";
   contractId: string | null;
   contractTitle: string;
   /** The other party on the linked contract, surfaced as quiet metadata so two

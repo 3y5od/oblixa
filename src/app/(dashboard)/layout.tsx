@@ -104,7 +104,7 @@ export default async function DashboardLayout({
           tabIndex={-1}
           className="flex-1 overflow-x-clip [overflow-clip-margin:0.75rem] px-4 pb-5 pt-4 outline-none md:px-6 md:pb-6 md:pt-5 xl:px-8"
         >
-          <div className="ui-page-stack mx-auto w-full min-w-0 max-w-[1440px] overflow-x-clip [overflow-clip-margin:0.75rem] pb-2">{children}</div>
+          <div className="ui-page-stack mx-auto w-full min-w-0 max-w-[var(--shell-content-max)] overflow-x-clip [overflow-clip-margin:0.75rem] pb-2">{children}</div>
         </main>
         <LegalFooter />
       </div>

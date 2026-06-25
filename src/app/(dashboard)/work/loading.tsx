@@ -71,8 +71,8 @@ export default function WorkLoading() {
               key={i}
               className="flex items-start justify-between gap-4 border-t border-[var(--border-subtle)] px-5 py-3"
             >
-              <div className="flex min-w-0 flex-1 items-start gap-2.5">
-                <div className="ui-skeleton h-7 w-7 shrink-0 rounded-md" />
+              <div className="flex min-w-0 flex-1 items-start gap-3">
+                <div className="ui-skeleton h-8 w-8 shrink-0 rounded-md" />
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="ui-skeleton h-2.5 w-16 rounded" />
                   <div className="ui-skeleton h-4 w-64 max-w-full rounded" />

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, ChevronRight, Download, Eye, Plus, Sparkles } from "lucide-react";
+import { CalendarClock, ChevronRight, Download, Plus, Sparkles } from "lucide-react";
 import { RenewalFilterBar } from "@/components/renewals/renewal-filter-bar";
 import { DataSurfaceCard, DataSurfaceShell } from "@/components/ui/data-surface-shell";
 import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
@@ -14,14 +14,11 @@ import {
   RENEWALS_PAGE_TITLE,
   RENEWALS_PARTIAL_DATA_REASON,
   RENEWALS_PARTIAL_DATA_TITLE,
-  RENEWALS_TRUST_NOTE,
-  renewalActiveFilterSummary,
 } from "@/lib/renewals/spec-strings";
 import type { RenewalSortKey } from "@/lib/renewals/types";
 import { RenewalLedger } from "./renewals-ledger";
 import {
   CreateRenewalTaskPanel,
-  MissingDatesCallout,
   RenewalLedgerFooter,
   RenewalSummaryBand,
 } from "./renewals-page-sections";
@@ -58,13 +55,6 @@ export function RenewalsPageView({
     sort: model.activeSort,
   });
   const canExport = model.summary.visible > 0;
-  const showTrustNote = model.rows.some(
-    (row) =>
-      row.renewalDateReview === "suggested" ||
-      row.renewalDateReview === "computed" ||
-      row.noticeDateReview === "suggested" ||
-      row.noticeDateReview === "computed"
-  );
 
   return (
     <DataSurfaceShell
@@ -73,7 +63,12 @@ export function RenewalsPageView({
         <DashboardPageHeader
           icon={<CalendarClock className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
           density="compact"
+          // The page header eyebrow renders in cobalt, which the visual system
+          // reserves for actions; it only repeats the "Renewals" title anyway, so
+          // it is suppressed here. The steel register eyebrow in the ledger
+          // masthead ("Renewal and notice dates") carries surface identity.
           eyebrow={model.eyebrow}
+          suppressEyebrow
           title={RENEWALS_PAGE_TITLE}
           lead={model.lead}
           actions={
@@ -160,11 +155,6 @@ export function RenewalsPageView({
           />
         }
       >
-        <p className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-5 py-2 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
-          {renewalActiveFilterSummary(model.activeWindow)}
-          {model.activeSort !== "urgent" ? ` Sorted by ${RENEWAL_SORT_LABELS[model.activeSort].toLowerCase()}.` : ""}
-        </p>
-
         {model.create.open ? (
           <CreateRenewalTaskPanel
             model={model}
@@ -172,24 +162,6 @@ export function RenewalsPageView({
             cancelHref={returnTo}
             createAction={createRenewalTaskAction}
           />
-        ) : null}
-
-        {model.summary.missingDates > 0 && model.filters.review !== "missing" ? (
-          <MissingDatesCallout
-            count={model.summary.missingDates}
-            href={buildRenewalsHref({
-              window: model.activeWindow,
-              filters: { ...model.filters, review: "missing" },
-              sort: model.activeSort,
-            })}
-          />
-        ) : null}
-
-        {showTrustNote ? (
-          <p className="flex items-start gap-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] bg-[color:color-mix(in_oklab,var(--warning-soft)_16%,transparent)] px-5 py-2 text-[11.5px] leading-snug text-[var(--text-secondary)]">
-            <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--warning-ink)]" strokeWidth={1.85} aria-hidden />
-            {RENEWALS_TRUST_NOTE}
-          </p>
         ) : null}
 
         <RenewalLedger

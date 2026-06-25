@@ -1,40 +1,37 @@
 import Link from "next/link";
-import { Check, type LucideIcon } from "lucide-react";
+import { Check, ChevronRight, type LucideIcon } from "lucide-react";
 
 export type MetricTone = "accent" | "warning" | "danger" | "success" | "info" | "neutral";
 
 export interface DashboardMetricCellProps {
   href: string;
-  /** Short metric title. */
+  /** Concise card title (release-state: e.g. "Contracts needing review"). */
   label: string;
-  /** Plain-language definition for what the count represents. */
+  /** One-line explanatory consequence sentence. */
   description?: string;
-  /** Object-class noun rendered beside the number (e.g. "contracts", "tasks") so
-   *  the count names what it measures at the numeral itself (§19). */
+  /** Object-class noun used in the accessible label. */
   unit?: string;
   value: number;
-  /** Semantic tone. Zero counts override to muted success regardless of tone. */
+  /** Semantic tone. Zero counts de-emphasize regardless of tone. */
   tone: MetricTone;
-  /** Short labeled condition (e.g. "Needs confirmation", "Cannot proceed") shown
-   *  as a tone chip — carries state in WORDS so the signal never depends on color
-   *  alone (§Accessibility: no color-only state). Replaced by "All clear" at 0. */
+  /** Short labeled condition (accessible label only). */
   state: string;
-  /** Medallion glyph for active (non-zero) cells. */
-  icon: LucideIcon;
-  /** Replacement definition shown when the count is zero, so an all-clear cell
-   *  explains the absence instead of reusing the "there is work" copy. */
+  /** Sentence fragment after the count (accessible-label fallback). */
+  statement: string;
+  /** Calm cleared-state phrase for a zero count. */
+  zeroStatement?: string;
+  /** Object icon (retained for the interface; the ledger cell omits it for density). */
+  icon?: LucideIcon;
   zeroDescription?: string;
   ariaLabel?: string;
   className?: string;
 }
 
-// Muted success ink shared by the zero number + chip so an "all clear" cell
-// de-emphasizes through tone, not opacity (§10.10).
-const ZERO_INK = "color-mix(in oklab, var(--success-ink) 60%, var(--text-tertiary))";
+const ZERO_INK = "color-mix(in oklab, var(--success-ink) 62%, var(--text-tertiary))";
 
-/** Number ink per tone. Cobalt is reserved for action/selection, so no data
- *  count is blue — needs-attention reads amber, problems read oxblood, calm
- *  records read ink/steel, all-clear reads controlled green (§Palette). */
+/** Count ink per tone. Cobalt stays reserved for actions/nav, so no count is
+ *  blue — needs-attention reads amber, blockers/problems red, all-clear green,
+ *  evidence backlog steel, calm records ink. */
 function toneInk(tone: MetricTone): string {
   switch (tone) {
     case "accent":
@@ -52,8 +49,6 @@ function toneInk(tone: MetricTone): string {
   }
 }
 
-/** Compact display for large counts ("1.2k") while the accessible label keeps
- *  the exact value (§10.11). */
 function formatCount(value: number): string {
   if (value < 1000) return String(value);
   const k = value / 1000;
@@ -61,12 +56,11 @@ function formatCount(value: number): string {
 }
 
 /**
- * One ledger cell in the operational snapshot. Reads top-down like a ledger
- * entry: tone-inked tabular number + object-class unit, the object title with a
- * quiet glyph anchor, a labeled condition chip (state in words, not a color
- * dot), then the mandated explanatory sentence. Cells sit flush (no per-cell
- * border/shadow) so the snapshot reads as one surface ruled by its grid, not a
- * strip of floating cards. Zero counts read all-clear through muted-green ink.
+ * One row-cell of the workspace ledger: a tone-inked count in a fixed-width
+ * column, the concise object label, a one-line consequence, a status-colored
+ * left rail, and a quiet chevron click affordance. Hairline borders on the right
+ * and bottom let the six cells read as one connected register rather than six
+ * floating tiles. A zero count collapses to a subdued cleared-state line.
  */
 export function DashboardMetricCell({
   href,
@@ -76,79 +70,87 @@ export function DashboardMetricCell({
   value,
   tone,
   state,
-  icon: Icon,
+  statement,
+  zeroStatement,
   zeroDescription,
+  icon: Icon,
   ariaLabel,
   className,
 }: DashboardMetricCellProps) {
   const isZero = value === 0;
   const ink = isZero ? ZERO_INK : toneInk(tone);
-  const stateLabel = isZero ? "All clear" : state;
-  // Singular-aware object noun so the count reads as a natural phrase
-  // ("1 contract", "5 dates", "0 evidence requests") instead of "1 CONTRACTS"
-  // (§18.13 grammar, §19 count names its object). Units are regular plurals.
   const unitLabel = unit ? (value === 1 ? unit.replace(/s$/, "") : unit) : null;
-  // All-clear cells explain the absence; active cells keep the "there is work"
-  // definition (§33).
+  const stateLabel = isZero ? "All clear" : state;
   const effectiveDescription = isZero && zeroDescription ? zeroDescription : description;
   const computedAriaLabel = effectiveDescription
     ? `${label}: ${value} ${unitLabel ?? ""}. ${stateLabel}. ${effectiveDescription}`.replace(/\s+\./g, ".")
     : `${label}: ${value}. ${stateLabel}.`;
+  const focus =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--canvas)]";
+  const cardBase =
+    "group relative flex min-h-[3.5rem] items-center gap-3 overflow-hidden rounded-[6px] border px-3.5 py-2.5 transition-[transform,box-shadow,background-color,border-color] duration-150 hover:-translate-y-px";
+
+  // Cleared card — subdued, subordinate to active facts.
+  if (isZero) {
+    return (
+      <Link
+        href={href}
+        aria-label={ariaLabel ?? computedAriaLabel}
+        style={{ boxShadow: `inset 3px 0 0 0 color-mix(in oklab, ${ink} 34%, transparent)` }}
+        className={`${cardBase} border-[color:color-mix(in_oklab,var(--border-subtle)_80%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_36%,var(--surface-raised))] hover:border-[color:color-mix(in_oklab,var(--success-ink)_24%,var(--border-subtle))] ${focus} ${className ?? ""}`.trim()}
+      >
+        <Check className="h-4 w-4 shrink-0" strokeWidth={2.4} style={{ color: ink }} aria-hidden />
+        <span className="text-[12px] font-medium leading-snug" style={{ color: ink }}>
+          {zeroStatement ?? statement}
+        </span>
+      </Link>
+    );
+  }
+
+  const isHigh = tone === "danger";
+  const cardBg = isHigh
+    ? "color-mix(in oklab, var(--danger-soft) 14%, var(--surface-raised))"
+    : "var(--surface-raised)";
+  const borderColor = isHigh
+    ? "color-mix(in oklab, var(--danger-ink) 24%, var(--border-subtle))"
+    : "color-mix(in oklab, var(--border-subtle) 92%, transparent)";
+
+  // Crafted record card: an icon + count cluster on the left, the object title
+  // and its consequence stacked, a quiet chevron, and a status-colored rail.
   return (
     <Link
       href={href}
       aria-label={ariaLabel ?? computedAriaLabel}
-      // Thin tone top-rule so each cell's status is recognizable from the rule,
-      // not only the small condition badge (§13 rules over elevation). Inset
-      // shadow avoids any layout shift against the gap-px grid.
-      style={{ boxShadow: `inset 0 2px 0 0 color-mix(in oklab, ${ink} 55%, transparent)` }}
-      className={`group relative flex min-h-[8rem] min-w-0 flex-col gap-2 bg-[var(--surface-raised)] px-4 py-3.5 transition-colors duration-150 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:color-mix(in_oklab,var(--accent)_45%,transparent)] ${className ?? ""}`.trim()}
+      style={{ background: cardBg, borderColor, boxShadow: `inset 3px 0 0 0 ${ink}` }}
+      className={`${cardBase} hover:shadow-[0_2px_8px_-2px_rgba(15,23,42,0.12)] ${focus} ${className ?? ""}`.trim()}
     >
-      {/* Number + object-class unit on one baseline: the count names what it
-          measures right at the numeral (§4 / §19 count semantics). */}
-      <span className="flex items-baseline gap-1.5">
+      <span className="flex shrink-0 items-center gap-2.5">
         <span
-          className="text-[1.75rem] font-semibold leading-none tabular-nums tracking-tight"
-          style={{ color: ink }}
+          aria-hidden
+          className="inline-flex h-7 w-7 items-center justify-center rounded-[5px] border"
+          style={{
+            background: `color-mix(in oklab, ${ink} 11%, var(--surface-raised))`,
+            borderColor: `color-mix(in oklab, ${ink} 26%, transparent)`,
+            color: ink,
+          }}
         >
+          {Icon ? <Icon className="h-4 w-4" strokeWidth={2} /> : null}
+        </span>
+        <span className="font-bold leading-none tabular-nums tracking-[-0.02em]" style={{ color: ink, fontSize: "1.5rem" }}>
           {formatCount(value)}
         </span>
-        {unitLabel ? (
-          <span className="text-[13px] font-medium leading-none text-[var(--text-secondary)]">
-            {unitLabel}
-          </span>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[12.5px] font-semibold leading-tight text-[var(--text-primary)]">{label}</span>
+        {description ? (
+          <span className="mt-0.5 block truncate text-[11px] leading-snug text-[var(--text-tertiary)]">{description}</span>
         ) : null}
       </span>
-      {/* Object title with a quiet glyph anchor — the glyph orients, the number
-          and the labeled state carry the signal (§icons as quiet anchors). */}
-      <span className="flex min-w-0 items-center gap-1.5">
-        <Icon
-          aria-hidden
-          className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
-          strokeWidth={1.85}
-        />
-        <span className="block min-w-0 truncate text-[13px] font-semibold leading-snug text-[var(--text-primary)]">
-          {label}
-        </span>
-      </span>
-      {/* Labeled condition — state in words, tinted by tone (color reinforces,
-          never carries, the meaning). */}
-      <span
-        className="inline-flex self-start items-center gap-1.5 rounded-[3px] border px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-[0.08em]"
-        style={{
-          borderColor: `color-mix(in oklab, ${ink} 30%, var(--border-card))`,
-          background: `color-mix(in oklab, ${ink} 9%, var(--surface))`,
-          color: ink,
-        }}
-      >
-        {isZero ? <Check aria-hidden className="h-3 w-3" strokeWidth={2.4} /> : null}
-        {stateLabel}
-      </span>
-      {effectiveDescription ? (
-        <span className="mt-auto block max-w-[34rem] text-[12px] leading-snug text-[var(--text-secondary)]">
-          {effectiveDescription}
-        </span>
-      ) : null}
+      <ChevronRight
+        className="h-4 w-4 shrink-0 text-[color:color-mix(in_oklab,var(--text-tertiary)_60%,transparent)] transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-[var(--text-secondary)]"
+        strokeWidth={2}
+        aria-hidden
+      />
     </Link>
   );
 }

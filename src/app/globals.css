@@ -63,64 +63,78 @@
      source/document paper (--surface-inset) and trust insets stay warm. A
      dedicated cool-gray inspection register is added for decision/inspection
      panes so source (warm) and inspection (cool) read as distinct zones. */
-  --canvas: #f4f3ee; /* cooler ivory paper — editorial/proof ground */
-  --canvas-strong: #eeeae0; /* greige section ground — less beige than parchment */
-  --canvas-deep: #e8e6dd; /* cool greige — operational band */
-  --surface: #f9f8f4;
-  --surface-raised: #fffefb; /* near-white record sheet */
-  --surface-contrast: #eae7df;
-  --surface-muted: #edeae3; /* warm chrome bands */
-  --surface-inset: #f4ecdb; /* parchment source paper — document zones only (kept warm) */
-  --surface-cool: #eceef1; /* cool-gray inspection/decision pane */
-  --surface-cool-strong: #e2e6ea; /* cool-gray pane header/zebra */
-  --border-cool: #d3d9de; /* cool-gray pane rule */
-  --accent: #2257d6;
-  --accent-strong: #0b49c8; /* cobalt — actions and selection only */
-  --accent-soft: #dce7fa;
-  --accent-fg: #f4f7f8;
-  /* Warm complementary tone — tone-coded section systems on /security,
-     /contact, and product-sections-data. Now the source amber. */
-  --accent-warm: #b76a12;
-  --text-primary: #11140f; /* ink */
-  --text-secondary: #374151; /* slate body */
-  --text-tertiary: #6b7280; /* steel */
-  --text-inverse: #f6f3ec;
-  --border-subtle: #ddd7c9; /* warm paper rule */
-  --border-strong: #b7af9d; /* directive rule gray (warm) */
-  --border-contrast: #9b927f;
-  /* Sidebar — LIGHT chrome in light mode (the staged app previews have no
-     dark rail); the dark-scheme block below keeps the dark rail there.
-     v47 — warm porcelain margin: a quiet paper-like rail one step deeper than
-     the page canvas so it reads as a document margin rather than a cool-gray
-     SaaS rail. Ink + steel text shift to the warm legal-paper register; active
-     rows lift toward white with the reserved accent rail. Shell-scoped: the
-     global product/public palette is unchanged. */
-  --sidebar: #e7e8e4; /* deeper paper margin — one clear step below the page canvas so the rail reads as a document margin, not a floating panel */
-  --sidebar-surface: #edeeea;
-  --sidebar-border: #cfd0ca; /* firmer architectural rule between rail and content */
-  --sidebar-muted: #4d4f48; /* deeper neutral so idle route labels read clearly, not faintly */
-  --sidebar-fg: #1a1b17;
-  --sidebar-raised: #ffffff;
+  /* v52 — clean operations-console neutral. The warm beige/parchment ground is
+     retired for a cool, near-white app surface with stronger ink contrast and
+     pure-white record sheets; color is reserved for status only. Source/document
+     wells keep only the faintest cool tint so an excerpt still reads as its own
+     zone without the old beige. */
+  /* v55 — neutral operations ground. The dominant canvas is a near-neutral gray
+     (most of the blue tint removed) and a notch deeper so white record sheets
+     read as genuinely raised, not washed. Blue-gray is now reserved for secondary
+     surfaces (chrome bands, the context rail). Hairlines are stronger so structure
+     comes from rules, not shadow. */
+  --canvas: #edeef1; /* neutral app ground */
+  --canvas-strong: #e6e8ec; /* section ground */
+  --canvas-deep: #dde0e5; /* operational band */
+  --surface: #fbfcfe;
+  --surface-raised: #ffffff; /* pure-white record sheet */
+  --surface-contrast: #eef1f5;
+  --surface-muted: #f1f4f7; /* quiet chrome bands */
+  --surface-inset: #f1f4f8; /* source/document well — faint cool paper */
+  --surface-cool: #eef2f7; /* inspection/decision pane */
+  --surface-cool-strong: #e3e9f0; /* pane header/zebra */
+  --border-cool: #d3dae3; /* pane rule */
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8; /* cobalt — actions, workflow, and selection only */
+  --accent-soft: #dbe7fe;
+  --accent-fg: #ffffff;
+  /* Warm complementary tone — source/document amber (the located-source mark and
+     the source-backed review zone). Kept for that single semantic. */
+  --accent-warm: #b45309;
+  --text-primary: #0f172a; /* near-black slate ink — stronger contrast */
+  --text-secondary: #3f4a5c; /* slate body */
+  --text-tertiary: #64748b; /* cool steel — carries most microtext */
+  --text-inverse: #f8fafc;
+  --border-subtle: #dadfe6; /* hairline rule — defined enough to carry structure */
+  --border-strong: #b7bfca; /* stronger structural rule */
+  --border-contrast: #a0aab8;
+  /* Sidebar — v53 DARK command rail in light mode. A deep slate rail makes the
+     authenticated app read as an operations console (not a white admin
+     dashboard), and gives the page real depth against the light content. Fully
+     token-driven; active rows lift to a slightly lighter slate with the reserved
+     cobalt accent. Shell-scoped: the global product/public palette is unchanged. */
+  --sidebar: #0e1626; /* deep slate command rail */
+  --sidebar-surface: #131d30;
+  --sidebar-border: #1f2a3f; /* dark hairline between rail and content */
+  --sidebar-muted: #97a4bb; /* idle route labels, legible on dark */
+  --sidebar-fg: #f1f5f9; /* near-white rail text */
+  --sidebar-raised: #1d2840; /* lifted slate for the active row */
   --sidebar-brand-shadow: 0 1px 2px color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
   --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 56%, transparent);
   --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 14%, transparent);
   --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 9%, transparent);
   --sidebar-focus: color-mix(in oklab, var(--sidebar-fg) 66%, var(--accent));
-  --sidebar-warn-ink: #8a5a00;
-  --sidebar-danger-ink: #8b2f2f;
-  --success-soft: #dceee4;
-  --success-ink: #1f7a4d; /* confirmed green */
-  --warning-soft: #f4e6c9;
-  --warning-ink: #b76a12; /* source amber */
-  --danger-soft: #f3dadd;
-  --danger-ink: #8c1d2c; /* oxblood */
-  /* Neutral waiting states — warm parchment-grey, no pale-blue pill default. */
-  --info-soft: #ece6da;
-  --info-ink: #4a4438;
+  --sidebar-warn-ink: #fbbf24;
+  --sidebar-danger-ink: #f87171;
+  /* Disciplined status system (one meaning per hue): green = complete/confirmed,
+     orange = needs action, red = blocked/problem, gray = neutral/waiting, cobalt
+     accent = workflow/action (defined above). Each `-soft` is a low-saturation
+     tint for filled chips; each `-ink` is the legible foreground. */
+  --success-soft: #d3f0de;
+  --success-ink: #0a6e45; /* confirmed / complete green */
+  /* v56 — matured severity: deeper, less saturated amber + brick so attention
+     reads controlled, not loud. Softs lose their neon/pink edge. */
+  --warning-soft: #f6e7d2;
+  --warning-ink: #985316; /* needs-action — deep amber */
+  --danger-soft: #f4dbd6;
+  --danger-ink: #9f2b20; /* blocked / problem — deep brick red */
+  /* Neutral waiting/info — clean cool gray (no warm parchment, no pale-blue pill). */
+  --info-soft: #eaeef3;
+  --info-ink: #475467;
   /* Calculated/derived values — cool steel, deliberately distinct from confirmed
-     green and the warm source amber so a calculated date never reads as confirmed. */
-  --calculated-soft: #e3e7ee;
-  --calculated-ink: #41506b;
+     green, action cobalt, and source amber so a calculated date never misreads. */
+  --calculated-soft: #e3e9f3;
+  --calculated-ink: #44546f;
   --focus-ring: color-mix(in oklab, var(--accent) 62%, var(--surface));
   --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px rgba(15, 23, 42, 0.04);
   --shadow-2: 0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.04);
@@ -153,11 +167,11 @@
   --z-sidebar: 40;
   --z-modal: 50;
   --z-toast: 60;
-  --shell-topbar-h: 4rem;
+  --shell-topbar-h: 3.25rem;
   --shell-sidebar-w: 16rem;
   --shell-sidebar-collapsed-w: 4rem;
   --shell-collapsed-slot: 2.75rem;
-  --shell-content-max: 1440px;
+  --shell-content-max: 1760px;
   --shell-avatar-size: 2rem;
   --shell-account-menu-w: min(19.5rem, calc(100vw - 1.5rem)); /* never let the account panel clip off a narrow viewport edge */
   --shell-tooltip-w: 17rem;
@@ -174,38 +188,37 @@
   :root {
     /* Dark-mode surface elevation steps tuned for clearer layered depth.
        Lightness deltas: canvas-deep 0.11 → surface 0.19 → raised 0.245 → contrast 0.29 → popover 0.32 */
-    /* v50 — warm charcoal paper (hue ~78, low chroma), lightness preserved so
-       contrast matches the prior steps. Restores the warm direction with the
-       established cobalt accent (supersedes the v49 neutral pass). */
-    --canvas: oklch(0.13 0.012 78);
-    --canvas-strong: oklch(0.17 0.014 78);
-    --canvas-deep: oklch(0.10 0.012 78);
-    --surface: oklch(0.19 0.012 78);
-    --surface-raised: oklch(0.245 0.013 78);
-    --surface-contrast: oklch(0.29 0.012 78);
-    --surface-muted: oklch(0.215 0.011 78);
-    --surface-inset: oklch(0.165 0.013 72);
-    --surface-cool: oklch(0.225 0.012 248); /* cool-gray inspection pane (dark) */
-    --surface-cool-strong: oklch(0.27 0.013 248);
-    --border-cool: oklch(0.4 0.016 248);
+    /* v52 — cool slate charcoal (hue ~255, low chroma) to match the light cool
+       neutral; lightness ramp preserved so contrast matches the prior steps. */
+    --canvas: oklch(0.14 0.012 255);
+    --canvas-strong: oklch(0.18 0.014 255);
+    --canvas-deep: oklch(0.11 0.012 255);
+    --surface: oklch(0.2 0.012 255);
+    --surface-raised: oklch(0.25 0.013 255);
+    --surface-contrast: oklch(0.295 0.013 255);
+    --surface-muted: oklch(0.22 0.012 255);
+    --surface-inset: oklch(0.17 0.013 255);
+    --surface-cool: oklch(0.23 0.013 255); /* inspection pane (dark) */
+    --surface-cool-strong: oklch(0.275 0.014 255);
+    --border-cool: oklch(0.4 0.016 255);
     --accent: oklch(0.72 0.19 264);
     --accent-strong: oklch(0.8 0.17 266);
     --accent-soft: oklch(0.3 0.07 262);
-    --accent-fg: oklch(0.15 0.02 258);
+    --accent-fg: oklch(0.16 0.02 258);
     --accent-warm: oklch(0.82 0.12 65);
-    --text-primary: oklch(0.96 0.005 80);
-    --text-secondary: oklch(0.84 0.012 80);
-    --text-tertiary: oklch(0.64 0.011 80);
-    --text-inverse: oklch(0.15 0.012 78);
-    --border-subtle: oklch(0.36 0.013 78);
-    --border-strong: oklch(0.46 0.016 78);
-    --border-contrast: oklch(0.56 0.02 78);
-    --sidebar: oklch(0.12 0.012 78);
-    --sidebar-surface: oklch(0.17 0.014 78);
-    --sidebar-raised: oklch(0.225 0.014 78);
-    --sidebar-border: oklch(0.27 0.013 78);
-    --sidebar-muted: oklch(0.71 0.014 80);
-    --sidebar-fg: oklch(0.96 0.005 80);
+    --text-primary: oklch(0.97 0.005 255);
+    --text-secondary: oklch(0.84 0.012 255);
+    --text-tertiary: oklch(0.66 0.013 255);
+    --text-inverse: oklch(0.16 0.012 255);
+    --border-subtle: oklch(0.36 0.014 255);
+    --border-strong: oklch(0.46 0.016 255);
+    --border-contrast: oklch(0.56 0.02 255);
+    --sidebar: oklch(0.13 0.012 255);
+    --sidebar-surface: oklch(0.18 0.014 255);
+    --sidebar-raised: oklch(0.23 0.014 255);
+    --sidebar-border: oklch(0.28 0.014 255);
+    --sidebar-muted: oklch(0.72 0.015 255);
+    --sidebar-fg: oklch(0.97 0.005 255);
     --sidebar-heading: color-mix(in oklab, var(--sidebar-fg) 52%, transparent);
     --sidebar-section-border: color-mix(in oklab, var(--sidebar-fg) 11%, transparent);
     --sidebar-hover: color-mix(in oklab, var(--sidebar-fg) 10%, transparent);
@@ -218,8 +231,8 @@
     --warning-ink: oklch(0.9 0.09 86);
     --danger-soft: oklch(0.27 0.07 24);
     --danger-ink: oklch(0.88 0.12 24);
-    --info-soft: oklch(0.28 0.035 78);
-    --info-ink: oklch(0.88 0.05 80);
+    --info-soft: oklch(0.29 0.02 255);
+    --info-ink: oklch(0.85 0.03 255);
     --calculated-soft: oklch(0.3 0.03 260);
     --calculated-ink: oklch(0.82 0.05 255);
     --focus-ring: color-mix(in oklab, var(--accent) 58%, transparent);
@@ -580,6 +593,32 @@
   }
   .ui-surface-inspection {
     background: var(--surface-cool);
+  }
+
+  /* Subtle, thin scrollbar for internally-scrolling workbench panes — a quiet
+     muted thumb on a transparent track, so an independently-scrollable pane
+     never shows a heavy default scrollbar between panes. `overflow-anchor: none`
+     stops the browser's scroll-anchoring from jumping the pane past its own top
+     content while the page streams/hydrates (which left the source rail opening
+     mid-way, on the excerpt, instead of at "Where Oblixa found it"). */
+  .ui-scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--border-strong) 55%, transparent) transparent;
+    overflow-anchor: none;
+  }
+  .ui-scroll-subtle::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .ui-scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--border-strong) 48%, transparent);
+    border-radius: 4px;
+  }
+  .ui-scroll-subtle::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--border-strong) 70%, transparent);
+  }
+  .ui-scroll-subtle::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .ui-page-shell {
@@ -1222,51 +1261,49 @@
     white-space: nowrap;
   }
 
+  /* Disciplined status system: a soft filled tint + matching ink + a hairline
+     edge tinted from the ink (not a heavy outline), so a status plate reads as a
+     status — never as an outline form control or a button (§ chips #7). One
+     recipe per semantic; sizing is fixed by the base rule above. */
   .ui-status-badge {
-    border-radius: 2px;
-    border-color: color-mix(in oklab, var(--border-subtle) 86%, transparent);
-    background: color-mix(in oklab, var(--surface-muted) 72%, transparent);
+    border-radius: 3px;
+    border-color: color-mix(in oklab, var(--border-subtle) 70%, transparent);
+    background: color-mix(in oklab, var(--surface-muted) 80%, transparent);
+    color: var(--text-secondary);
     box-shadow: none;
   }
 
   .ui-status-badge-healthy {
-    border-color: color-mix(in oklab, var(--success-soft) 52%, transparent);
-    background: color-mix(in oklab, var(--success-soft) 78%, transparent);
+    border-color: color-mix(in oklab, var(--success-ink) 20%, transparent);
+    background: color-mix(in oklab, var(--success-soft) 70%, var(--surface-raised));
     color: var(--success-ink);
   }
 
   .ui-status-badge-info {
-    border-color: color-mix(in oklab, var(--info-soft) 58%, transparent);
-    background: color-mix(in oklab, var(--info-soft) 78%, transparent);
+    border-color: color-mix(in oklab, var(--info-ink) 18%, transparent);
+    background: color-mix(in oklab, var(--info-soft) 80%, var(--surface-raised));
     color: var(--info-ink);
   }
 
-  /* Suggested/awaiting reads as a quiet steel plate — the pale-blue pill
-     default is retired; cobalt stays reserved for actions and selection. */
+  /* Suggested/awaiting reads as a quiet neutral plate — no pale-blue pill,
+     cobalt stays reserved for actions and selection. */
   .ui-status-badge-in-review {
-    border-color: color-mix(in oklab, var(--border-strong) 80%, transparent);
-    background: var(--info-soft);
-    color: var(--text-secondary);
-  }
-  @media (prefers-color-scheme: dark) {
-    .ui-status-badge-in-review {
-      border-color: var(--border-strong);
-      background: color-mix(in oklab, var(--surface-contrast) 80%, transparent);
-      color: var(--text-secondary);
-    }
+    border-color: color-mix(in oklab, var(--info-ink) 16%, transparent);
+    background: color-mix(in oklab, var(--info-soft) 75%, var(--surface-raised));
+    color: var(--info-ink);
   }
 
   .ui-status-badge-warning {
-    border-color: color-mix(in oklab, var(--warning-soft) 54%, transparent);
-    background: color-mix(in oklab, var(--warning-soft) 82%, transparent);
+    border-color: color-mix(in oklab, var(--warning-ink) 22%, transparent);
+    background: color-mix(in oklab, var(--warning-soft) 72%, var(--surface-raised));
     color: var(--warning-ink);
   }
 
   .ui-status-badge-blocked,
   .ui-status-badge-overdue,
   .ui-status-badge-critical {
-    border-color: color-mix(in oklab, var(--danger-soft) 50%, transparent);
-    background: color-mix(in oklab, var(--danger-soft) 78%, transparent);
+    border-color: color-mix(in oklab, var(--danger-ink) 22%, transparent);
+    background: color-mix(in oklab, var(--danger-soft) 72%, var(--surface-raised));
     color: var(--danger-ink);
   }
 
@@ -1346,7 +1383,7 @@
 
   /* v13 — Toolbar dropdown trigger (Filters / Saved views / Export). Uniform silhouette. */
   .ui-toolbar-dropdown {
-    @apply inline-flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-md border px-2.5 text-[12px] font-semibold transition-colors;
+    @apply inline-flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-md border px-3 text-[12.5px] font-semibold transition-colors;
     border-color: color-mix(in oklab, var(--border-subtle) 70%, transparent);
     background: color-mix(in oklab, var(--surface) 84%, white);
     color: var(--text-secondary);
@@ -1437,7 +1474,7 @@
      they hint at tone without screaming. */
   .ui-quick-chip {
     @apply inline-flex h-7 items-center gap-1 rounded-md border px-2 text-[11.5px] font-medium leading-none transition-colors;
-    border-color: color-mix(in oklab, var(--border-subtle) 55%, transparent);
+    border-color: color-mix(in oklab, var(--border-subtle) 42%, transparent);
     background: transparent;
     color: var(--text-secondary);
   }
@@ -1463,7 +1500,7 @@
      pick up a matching low-alpha bg so the count reads as a structured
      token, not loose text. */
   .ui-quick-chip-tone-danger {
-    border-color: color-mix(in oklab, var(--danger-ink) 30%, var(--border-subtle));
+    border-color: color-mix(in oklab, var(--danger-ink) 20%, var(--border-subtle));
     color: var(--danger-ink);
   }
   .ui-quick-chip-tone-danger:hover {
@@ -1475,7 +1512,7 @@
     color: var(--danger-ink);
   }
   .ui-quick-chip-tone-warning {
-    border-color: color-mix(in oklab, var(--warning-ink) 26%, var(--border-subtle));
+    border-color: color-mix(in oklab, var(--warning-ink) 18%, var(--border-subtle));
     color: var(--warning-ink);
   }
   .ui-quick-chip-tone-warning:hover {
@@ -1487,7 +1524,7 @@
     color: var(--warning-ink);
   }
   .ui-quick-chip-tone-info {
-    border-color: color-mix(in oklab, var(--accent) 28%, var(--border-subtle));
+    border-color: color-mix(in oklab, var(--accent) 20%, var(--border-subtle));
     color: var(--accent-strong);
   }
   .ui-quick-chip-tone-info:hover {
@@ -1499,7 +1536,7 @@
     color: var(--accent-strong);
   }
   .ui-quick-chip-tone-success {
-    border-color: color-mix(in oklab, var(--success-ink) 28%, var(--border-subtle));
+    border-color: color-mix(in oklab, var(--success-ink) 20%, var(--border-subtle));
     color: var(--success-ink);
   }
   .ui-quick-chip-tone-success:hover {
@@ -1650,12 +1687,15 @@
   .ui-sidebar-link-active {
     position: relative;
     color: var(--sidebar-fg);
-    background-color: var(--sidebar-raised);
-    background-image:
-      linear-gradient(90deg, color-mix(in oklab, var(--accent) 14%, transparent) 0%, color-mix(in oklab, var(--accent) 5%, transparent) 58%, transparent 90%);
+    /* The selected row lifts to the raised slate (a record pulled out of the
+       margin) carrying a faint accent, with the crisp left rail below — more
+       crafted than a flat blue wash, still calm. */
+    background-color: color-mix(in oklab, var(--sidebar-raised) 88%, var(--accent));
+    background-image: none;
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--sidebar-fg) 8%, transparent),
-      0 1px 3px color-mix(in oklab, var(--sidebar-fg) 13%, transparent);
+      inset 0 1px 0 0 color-mix(in oklab, var(--sidebar-fg) 7%, transparent),
+      0 1px 2px color-mix(in oklab, #000 22%, transparent);
+    font-weight: 600;
   }
 
   .ui-sidebar-link-active::before {
@@ -2113,10 +2153,12 @@
      New landing-derived utilities (Phase A of the app-wide visual overhaul).
      ────────────────────────────────────────────────────────────────────────── */
 
-  /* v46: the app shell is flat porcelain — structure from rules, no
-     ambient gradients. */
+  /* v53: the authenticated workspace sits on a deeper neutral ground than the
+     public canvas, so the white work queue, the warm document workbench, and the
+     muted pressure rail read as distinct materials (§ material contrast / zones).
+     Public/marketing keeps the lighter --canvas. */
   .ui-app-shell {
-    background: var(--canvas);
+    background: var(--canvas-deep);
   }
 
   /* Hero-tier card — the artifact frame language: firm ink-mixed border,
@@ -4725,15 +4767,18 @@ header.ui-footer-shell::after {
    ::before hairline is suppressed so the solid border-top is the single
    separator. */
 footer.ui-footer-shell {
-  background: var(--canvas-strong);
-  border-top: 1px solid var(--border-strong);
+  background: var(--canvas-deep);
+  border-top: 1px solid color-mix(in oklab, var(--border-subtle) 50%, transparent);
 }
 footer.ui-footer-shell::before {
   display: none;
 }
 @media (prefers-color-scheme: light) {
   footer.ui-footer-shell {
-    background: #e7e1d4;
-    border-top-color: #b7af9d;
+    /* v54: the footer dissolves into the app-shell ground — same canvas, hairline
+       seam only. It carries the legal boundary without reading as a page band
+       (the old warm beige #e7e1d4 pulled the product toward a website footer). */
+    background: var(--canvas-deep);
+    border-top-color: color-mix(in oklab, var(--border-subtle) 50%, transparent);
   }
 }

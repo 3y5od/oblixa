@@ -181,6 +181,7 @@
     "check:notices-bundle",
     "check:notification-payload-scrub-contract",
     "check:npm-lifecycle",
+    "check:package-manager",
     "check:npm-script-integrity",
     "check:oauth-par-jar-dpop-stub",
     "check:oauth-pkce-enforcement",

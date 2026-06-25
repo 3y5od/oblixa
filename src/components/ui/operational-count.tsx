@@ -28,6 +28,9 @@ export interface OperationalCountProps {
   tone?: StatTone;
   /** Links the count to a view whose contents match this wording. */
   href?: string;
+  /** Optional fuller definition, shown as a hover/focus tooltip (matching the
+   *  Contracts/Tasks condition chips) and appended to the accessible name. */
+  description?: string;
   className?: string;
 }
 
@@ -45,6 +48,7 @@ export function OperationalCount({
   shortNounPlural,
   tone = "neutral",
   href,
+  description,
   className,
 }: OperationalCountProps) {
   const fullNoun = plural(value, noun, nounPlural);
@@ -52,6 +56,18 @@ export function OperationalCount({
   const conditionSuffix = condition ? ` ${condition}` : "";
   // The accessible name always carries the full object noun + condition.
   const accessible = `${value} ${fullNoun}${conditionSuffix}`;
+  // Optional fuller definition: appended to the accessible name and shown as the
+  // same styled hover/focus tooltip the Contracts/Tasks condition chips use.
+  const accessibleName = description ? `${accessible}. ${description}` : accessible;
+  const tip = description ? (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute bottom-[calc(100%+7px)] left-0 z-30 w-max max-w-[16rem] rounded-md bg-[var(--text-primary)] px-2.5 py-1.5 text-[11px] font-normal leading-snug text-[var(--surface)] opacity-0 shadow-[var(--shadow-2)] transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+    >
+      {description}
+      <span className="absolute left-3 top-full h-2 w-2 -translate-y-1/2 rotate-45 bg-[var(--text-primary)]" />
+    </span>
+  ) : null;
   const body = (
     <>
       <span
@@ -71,22 +87,23 @@ export function OperationalCount({
       </span>
     </>
   );
-  const shell =
-    "inline-flex items-center gap-1.5 rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-2 py-1 text-[11.5px] leading-none";
+  const shell = `inline-flex items-center gap-1.5 rounded-md border border-[var(--border-card)] bg-[var(--surface-raised)] px-2 py-1 text-[11.5px] leading-none${description ? " group relative" : ""}`;
   if (href) {
     return (
       <Link
         href={href}
-        aria-label={accessible}
+        aria-label={accessibleName}
         className={`ui-chip-focus transition-colors hover:border-[var(--accent)] ${shell} ${className ?? ""}`.trim()}
       >
         {body}
+        {tip}
       </Link>
     );
   }
   return (
-    <span aria-label={accessible} className={`${shell} ${className ?? ""}`.trim()}>
+    <span aria-label={accessibleName} className={`${shell} ${className ?? ""}`.trim()}>
       {body}
+      {tip}
     </span>
   );
 }

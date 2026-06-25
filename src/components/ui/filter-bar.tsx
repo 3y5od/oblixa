@@ -41,10 +41,6 @@ export interface FilterSelectProps {
   /** Override the active heuristic — needed for window filters whose default is
    *  not the first option (e.g. "90"). */
   active?: boolean;
-  /** When true, the trigger shows only the dimension label at rest (e.g. "Status")
-   *  and adds the selected value only once the dimension is narrowed. Stops the
-   *  pill from reading the truncated "Status Any status" at a fixed width. */
-  labelOnlyWhenInactive?: boolean;
 }
 
 export function FilterSelect({
@@ -56,7 +52,6 @@ export function FilterSelect({
   className,
   menuWidth = "fit",
   active,
-  labelOnlyWhenInactive,
 }: FilterSelectProps) {
   const firstValue = options[0]?.value ?? "";
   const fallback = placeholder ?? options[0]?.label ?? `Any ${label.toLowerCase()}`;
@@ -72,14 +67,20 @@ export function FilterSelect({
       onChange={onChange}
       options={options}
       placeholder={fallback}
-      triggerLabelOnly={Boolean(labelOnlyWhenInactive) && !isActive}
+      active={isActive}
       // Pair the dimension with its current value, so a screen-reader user hears
       // "Owner: Any owner" rather than a bare "Owner" that hides the selection.
       ariaLabel={`${label}: ${selectedLabel}`}
       // Long lists (owners, contracts, counterparties, obligations) get a
       // filter-as-you-type search row; short ones stay plain.
       searchThreshold={8}
-      className={`min-w-0 ${className ?? "max-w-[16rem]"}`}
+      // Label-only pills pin to their content width (min-w-max) so a crowded row
+      // can never shrink the flex item below its caps label and clip it; value-
+      // showing pills keep min-w-0 so a long value can still truncate within its cap.
+      // Value-forward pills hug their content (dimension name, then the value) with
+      // a small floor so a crowded row can't collapse them and a cap so a long value
+      // truncates rather than shoving the bar.
+      className={`min-w-[4rem] ${className ?? "max-w-[13rem]"}`}
       buttonClassName="h-10 w-full min-w-0 justify-between"
       buttonStyle={isActive ? ACTIVE_TINT : undefined}
     />
@@ -101,6 +102,11 @@ export interface FilterBarProps {
   className?: string;
   /** Accessible name for the group landmark. Defaults to "Filters". */
   ariaLabel?: string;
+  /** When the page renders its own applied-filter chip row (per-chip remove +
+   *  clear-all), suppress the toolbar's redundant "Filters N" count + "Clear
+   *  filters" link. Keeps the right cluster a constant width so activating a
+   *  filter never steals space from the pills and wraps them. */
+  hideFilterSummary?: boolean;
 }
 
 export function FilterBar({
@@ -111,9 +117,11 @@ export function FilterBar({
   rightExtra,
   className,
   ariaLabel = "Filters",
+  hideFilterSummary,
 }: FilterBarProps) {
-  const showClear = activeFilterCount > 0 && Boolean(clearFiltersHref);
-  const showRight = Boolean(rightExtra) || activeFilterCount > 0 || Boolean(sortSlot);
+  const showFilterSummary = activeFilterCount > 0 && !hideFilterSummary;
+  const showClear = showFilterSummary && Boolean(clearFiltersHref);
+  const showRight = Boolean(rightExtra) || showFilterSummary || Boolean(sortSlot);
   return (
     <div
       role="group"
@@ -124,7 +132,7 @@ export function FilterBar({
       {showRight ? (
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {rightExtra}
-          {activeFilterCount > 0 ? (
+          {showFilterSummary ? (
             <span className="inline-flex items-center gap-1.5">
               <span className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Filters</span>
               <CountChip value={activeFilterCount} emphasis="strong" />

@@ -56,7 +56,10 @@ const SORT_OPTIONS: UiSelectOption[] = [
   { value: "created", label: "Last created" },
 ];
 
-const FILTER_PILL_HEIGHT = "h-[42px]";
+// One canonical toolbar-control height (40px) shared by the search box, the sort
+// pill, and the FilterSelect pills (which hardcode h-10) so every control in the
+// bar lines up exactly. Saved views (ui-toolbar-dropdown) matches it too.
+const FILTER_PILL_HEIGHT = "h-10";
 
 // Prepend a leading "Any …" clear option (value ""). The "Any …" label lets the
 // FilterSelect dedup it at rest (pill reads "OWNER", not "OWNER Any owner") while
@@ -116,6 +119,11 @@ export function ContractsFilterBar({
       ariaLabel="Filter contracts"
       activeFilterCount={activeFilterCount}
       clearFiltersHref="/contracts"
+      // Contracts renders its own applied-filter chip row (ContractsActiveFilterChips:
+      // per-chip remove + "Clear all" at >=2), so the toolbar's "Filters N" + "Clear"
+      // are redundant. Suppressing them keeps the right cluster a fixed width, so
+      // activating a filter no longer steals space and wraps the pills.
+      hideFilterSummary
       sortSlot={
         <UiSelect
           variant="pill"
@@ -127,7 +135,6 @@ export function ContractsFilterBar({
           ariaLabel={`Sort: ${
             SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Last updated"
           }`}
-          className="w-[10.5rem]"
           buttonClassName={`${FILTER_PILL_HEIGHT} justify-between`}
         />
       }
@@ -160,45 +167,38 @@ export function ContractsFilterBar({
           />
         </form>
       </div>
+      {/* Value-forward pills (§dropdowns): each shows its dimension name until a
+          value is picked, then the value itself in accent ink. The applied-filter
+          chip row below carries the full value + a remove control. */}
       <FilterSelect
         label="Status"
         value={values.status}
         options={withClearOption("Status", statusOptions)}
         onChange={(value) => navigate({ status: value })}
-        className="w-[7.5rem]"
-        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Owner"
         value={values.owner}
         options={withClearOption("Owner", ownerOptions)}
         onChange={(value) => navigate({ owner: value })}
-        className="w-[8.5rem]"
-        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Counterparty"
         value={values.counterparty}
         options={withClearOption("Counterparty", counterpartyOptions)}
         onChange={(value) => navigate({ counterparty: value })}
-        className="w-[11rem]"
-        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Type"
         value={values.contract_type}
         options={withClearOption("Type", contractTypeOptions)}
         onChange={(value) => navigate({ contract_type: value })}
-        className="w-[7rem]"
-        labelOnlyWhenInactive
       />
       <FilterSelect
         label="Date"
         value={values.deadline}
         options={withClearOption("Date", deadlineOptions)}
         onChange={(value) => navigate({ deadline: value })}
-        className="w-[7rem]"
-        labelOnlyWhenInactive
       />
     </FilterBar>
   );

@@ -5,7 +5,7 @@ import type { RefObject } from "react";
 // Brand "O" tile — shared lockup with the marketing chrome, toned for the
 // porcelain margin (neutral tile; accent stays reserved for active nav).
 const BRAND_TILE_CLASS =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.5rem] border border-[color:color-mix(in_oklab,var(--sidebar-fg)_24%,transparent)] bg-[color:color-mix(in_oklab,var(--sidebar-fg)_7%,transparent)] font-serif text-[17px] font-semibold leading-none text-[var(--sidebar-fg)] shadow-[var(--sidebar-brand-shadow)]";
+  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.5rem] border border-[color:color-mix(in_oklab,var(--sidebar-fg)_16%,transparent)] bg-[var(--sidebar-raised)] font-serif text-[17px] font-semibold leading-none text-[var(--sidebar-fg)] shadow-[inset_0_1px_0_0_color-mix(in_oklab,var(--sidebar-fg)_12%,transparent),0_1px_2px_rgba(0,0,0,0.32)]";
 
 export function SidebarBrand({
   mobile,

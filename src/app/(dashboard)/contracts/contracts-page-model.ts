@@ -122,7 +122,10 @@ export type ContractsPageModel = {
   workFilter: "" | "open";
   healthFilter: "" | "watch";
   sanitizedSearch: string;
+  /** Count of contracts matching the active filters (drives pagination/footer). */
   contractTotal: number;
+  /** Unfiltered count of contracts in the workspace (drives empty-state + header). */
+  workspaceContractTotal: number;
   listTotalPages: number;
   contractsPageError: unknown;
   contracts: Contract[];
@@ -210,9 +213,13 @@ export async function loadContractsPageModel(
     .eq("organization_id", orgId)
     .order("created_at", { ascending: false })
     .limit(3);
+  // `count: "exact"` rides along on the filter-options query (no extra round-trip)
+  // and is independent of the .limit(1000), giving the true unfiltered workspace
+  // size — used to decide whether the workspace is genuinely empty (vs. just
+  // filtered to zero matches).
   const filterOptionsPromise = admin
     .from("contracts")
-    .select("counterparty, contract_type")
+    .select("counterparty, contract_type", { count: "exact" })
     .eq("organization_id", orgId)
     .limit(1000);
   const contractsPagePromise = fetchContractsPage(
@@ -235,7 +242,7 @@ export async function loadContractsPageModel(
     membersData,
     { data: savedViewsData },
     { data: exportJobsData },
-    { data: filterOptionsData },
+    { data: filterOptionsData, count: workspaceContractCount },
     { contracts: contractsData, total: contractTotal, error: contractsPageError },
     role,
   ] = await Promise.all([
@@ -247,6 +254,11 @@ export async function loadContractsPageModel(
     getOrgMemberRole(admin, ctx.user.id, orgId),
   ]);
 
+  // Unfiltered workspace size. `contractTotal` is the count MATCHING the active
+  // filters, so a zero-match filter must never be read as "empty workspace". The
+  // get-started banner + header copy key off this, never the filtered total. The
+  // max() guards the rare case where the count is unavailable but rows matched.
+  const workspaceContractTotal = Math.max(workspaceContractCount ?? 0, contractTotal);
   const listTotalPages = contractTotal > 0 ? Math.max(1, Math.ceil(contractTotal / CONTRACTS_PAGE_SIZE)) : 1;
   if (page > listTotalPages && contractTotal > 0) {
     return {
@@ -520,6 +532,7 @@ export async function loadContractsPageModel(
       healthFilter,
       sanitizedSearch,
       contractTotal,
+      workspaceContractTotal,
       listTotalPages,
       contractsPageError,
       contracts: contracts as Contract[],

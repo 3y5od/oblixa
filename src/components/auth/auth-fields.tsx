@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import Link from "next/link";
 import { AlertCircle, Eye, EyeOff, KeyRound, Mail, User, Users, type LucideIcon } from "lucide-react";
 import type { AuthMode } from "./auth-config";
 
@@ -176,18 +175,6 @@ export function AuthPasswordField({
   );
 }
 
-/** Stronger inline "Forgot password?" action — quieter than submit (underline on hover only). */
-function ForgotPasswordLink() {
-  return (
-    <Link
-      href="/forgot-password"
-      className="rounded-sm whitespace-nowrap text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)] hover:underline hover:decoration-from-font hover:underline-offset-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-    >
-      Forgot password?
-    </Link>
-  );
-}
-
 /** Per-mode field set, composed from the shared field primitives. */
 export function AuthFields({
   mode,
@@ -239,7 +226,6 @@ export function AuthFields({
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           showLabel="Show password"
           hideLabel="Hide password"
-          labelAccessory={mode === "login" ? <ForgotPasswordLink /> : undefined}
           error={passwordError}
         />
       ) : null}

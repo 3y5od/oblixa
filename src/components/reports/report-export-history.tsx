@@ -24,9 +24,6 @@ export function ReportExportHistory({ runs }: { runs: ReportExportRun[] }) {
         <h3 className="text-[13px] font-semibold tracking-tight text-[var(--text-primary)]">
           Recent exports
         </h3>
-        <p className="text-[12px] leading-snug text-[var(--text-tertiary)]">
-          Rows are the records included in each export run.
-        </p>
       </div>
 
       {groups.length === 0 ? (

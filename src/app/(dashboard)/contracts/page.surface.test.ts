@@ -29,7 +29,7 @@ describe("contracts page surface", () => {
     expect(table).toContain("const selectionCellClass");
     expect(table).toContain("pl-4 pr-2");
     expect(page).toContain("Contract condition filters");
-    expect(page).toContain("Each count is a contract count. Selecting a condition filters the contract inventory.");
+    expect(page).toContain("Each count is the number of matching contracts — select a condition to filter the list.");
     expect(page).toContain("Required renewal, notice, end, or effective dates are absent.");
     expect(page).toContain('"/contracts?review=pending"');
   });

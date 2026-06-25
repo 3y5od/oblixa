@@ -36,10 +36,9 @@ export interface UiSelectProps {
   label?: string;
   menuWidth?: "trigger" | "fit";
   variant?: "compact" | "pill";
-  /** When true, the trigger shows only the caps `label` (no selected-value text).
-   *  Used by filter pills at rest so they read "Status" rather than the truncated
-   *  "Status Any status". Has no effect unless `label` is set. */
-  triggerLabelOnly?: boolean;
+  /** Marks the trigger as a narrowed/active filter so the value renders in accent
+   *  ink (paired with the caller's active tint). No effect unless `label` is set. */
+  active?: boolean;
   portal?: boolean;
   search?: boolean;
   searchThreshold?: number;
@@ -66,7 +65,7 @@ export function UiSelect({
   label,
   menuWidth = "trigger",
   variant = "compact",
-  triggerLabelOnly = false,
+  active = false,
   portal = false,
   search,
   searchThreshold,
@@ -90,6 +89,9 @@ export function UiSelect({
   const listboxId = `${buttonId}-listbox`;
 
   const selected = options.find((o) => o.value === value);
+  // Value-forward triggers: an empty value is the cleared/placeholder state, so
+  // the trigger shows the dimension `label` until a real value is picked.
+  const cleared = !value;
 
   const showSearch =
     search ?? (typeof searchThreshold === "number" && options.length >= searchThreshold);
@@ -285,18 +287,20 @@ export function UiSelect({
         } disabled:cursor-not-allowed disabled:opacity-50 ${buttonClassName ?? ""}`}
       >
         {label ? (
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className="ui-caps-2 shrink-0 text-[9.5px] text-[var(--text-tertiary)]">
-              {label}
-            </span>
-            {triggerLabelOnly ? null : (
-              <span
-                title={selected?.label ?? placeholder}
-                className={`truncate ${selected ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}
-              >
-                {selected?.label ?? placeholder}
-              </span>
-            )}
+          // Value-forward (§dropdowns): one type register — the dimension name
+          // while cleared, the chosen value (accent ink when narrowing) once set.
+          // No tiny caps eyebrow stacked against a larger value.
+          <span
+            title={cleared ? label : (selected?.label ?? label)}
+            className={`truncate ${
+              active
+                ? "font-medium text-[var(--accent-strong)]"
+                : cleared
+                  ? "text-[var(--text-tertiary)]"
+                  : "font-medium text-[var(--text-primary)]"
+            }`}
+          >
+            {cleared ? label : (selected?.label ?? label)}
           </span>
         ) : (
           <span

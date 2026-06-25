@@ -1,7 +1,7 @@
 {
   "version": 1,
   "program": "maximal-assurance-appendix-d",
-  "generatedAt": "2026-06-14T20:53:21.949Z",
+  "generatedAt": "2026-06-25T01:54:17.829Z",
   "checkScripts": [
     {
       "path": "scripts/check-absent-protocol-evidence.mjs",
@@ -2617,6 +2617,10 @@
     },
     {
       "path": "scripts/check-zinc-budget.mjs",
+      "primaryEpicNumber": null
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
       "primaryEpicNumber": null
     }
   ],

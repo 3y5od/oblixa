@@ -6,9 +6,13 @@ import { DEADLINE_OPTIONS, type ContractsPageModel } from "./contracts-page-mode
 export function ContractsFiltersSection({ model }: { model: ContractsPageModel }) {
   const { searchParams } = model;
   return (
+    // Subordinate filter band: a slim, quietly tinted strip above the register so
+    // the contract operations register is the first important object, not a wall
+    // of boxed controls (§6 alternating density, §14 register-first). The applied-
+    // filter chips below carry the active state in accent ink.
     <section
       aria-label="Filters"
-      className="min-w-0 space-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-4 py-3"
+      className="min-w-0 space-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,var(--surface-raised))] px-4 py-2.5"
     >
       <ContractsFilterBar
         values={{

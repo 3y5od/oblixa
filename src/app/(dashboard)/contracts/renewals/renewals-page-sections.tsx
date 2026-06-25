@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, CircleDashed, Eye, Filter, Plus, RotateCcw } from "lucide-react";
+import { CalendarClock, Eye, Filter, Plus, RotateCcw } from "lucide-react";
 import { OperationalCount } from "@/components/ui/operational-count";
 import { UiSelect } from "@/components/ui/ui-select";
 import { buildRenewalsHref, type loadRenewalsPageModel } from "@/lib/renewals/model";
@@ -12,8 +12,6 @@ import {
   RENEWALS_EMPTY_NO_DATES_IN_WINDOW,
   RENEWALS_EXPORT_FILTER_HELPER,
   RENEWALS_FILTERED_EMPTY_STATE,
-  RENEWALS_MISSING_DATES_ACTION,
-  RENEWALS_MISSING_DATES_TITLE,
   RENEWALS_SECTION_EYEBROW,
   RENEWALS_SECTION_TITLE,
   renewalFooterFilteredBy,
@@ -28,19 +26,48 @@ export function RenewalSummaryBand({ model }: { model: RenewalsPageModel }) {
   const { summary, filters, activeWindow, activeSort } = model;
   const gapHref = (next: Partial<typeof filters>) =>
     buildRenewalsHref({ window: activeWindow, filters: { ...filters, ...next }, sort: activeSort });
+  const hasGapCounts =
+    summary.needsReview > 0 ||
+    summary.needsOwner > 0 ||
+    summary.noticeWindowOpen > 0 ||
+    (summary.missingDates > 0 && filters.review !== "missing");
   return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-      <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-2">
-        <h2 id="renewals-surface-title" className="sr-only">
-          {RENEWALS_SECTION_TITLE}
-        </h2>
-        <p className="ui-caps-2 text-[var(--text-tertiary)]">{RENEWALS_SECTION_EYEBROW}</p>
+    <div
+      // Register masthead: a weighted parchment nameplate that carries the top of
+      // the ledger so the surface opens on a material header, not bare padding. A
+      // strong steel left rule stamps it as the register's nameplate; the warm
+      // inset wash ties it to the source-document zones.
+      className="border-b border-[color:color-mix(in_oklab,var(--border-strong)_62%,var(--border-subtle))] px-5 py-3.5"
+      style={{
+        background: "color-mix(in oklab, var(--surface-inset) 34%, var(--surface-raised))",
+        boxShadow: "inset 3px 0 0 0 color-mix(in oklab, var(--calculated-ink) 60%, var(--border-strong))",
+      }}
+    >
+      <h2 id="renewals-surface-title" className="sr-only">
+        {RENEWALS_SECTION_TITLE}
+      </h2>
+      {/* Ledger masthead line: a steel register tab names the ledger (the kicker
+          is ink/steel, never cobalt — cobalt is reserved for actions), the scoped
+          count reads as its leading operational statement, and the gap counts
+          trail as quieter at-risk conditions the reader can jump into. */}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
+        <p className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">
+          <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[var(--calculated-ink)]" strokeWidth={1.85} aria-hidden />
+          {RENEWALS_SECTION_EYEBROW}
+        </p>
+        <span aria-hidden className="ui-rule-vert hidden sm:inline" />
+        {/* Definitions ride on each chip's hover/focus tooltip (+ aria-label),
+            matching the Contracts condition strip — no separate definition wall. */}
         <OperationalCount
           value={summary.visible}
           noun="renewal and notice date"
           shortNoun="date"
           condition="in view"
+          description="Renewal and notice deadlines inside the selected window."
         />
+      </div>
+      {hasGapCounts ? (
+      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-2">
         {summary.needsReview > 0 ? (
           <OperationalCount
             value={summary.needsReview}
@@ -48,6 +75,7 @@ export function RenewalSummaryBand({ model }: { model: RenewalsPageModel }) {
             condition="needing confirmation"
             tone="warning"
             href={gapHref({ status: "needs_review" })}
+            description="A renewal or notice date is missing, suggested, or calculated and still needs confirmation."
           />
         ) : null}
         {summary.needsOwner > 0 ? (
@@ -57,6 +85,7 @@ export function RenewalSummaryBand({ model }: { model: RenewalsPageModel }) {
             condition="missing an owner"
             tone="warning"
             href={gapHref({ status: "needs_owner" })}
+            description="No person is assigned to the contract."
           />
         ) : null}
         {summary.noticeWindowOpen > 0 ? (
@@ -66,46 +95,21 @@ export function RenewalSummaryBand({ model }: { model: RenewalsPageModel }) {
             condition="open"
             tone="warning"
             href={gapHref({ status: "notice_window_open" })}
+            description="The notice period is currently open."
+          />
+        ) : null}
+        {summary.missingDates > 0 && filters.review !== "missing" ? (
+          <OperationalCount
+            value={summary.missingDates}
+            noun="contract"
+            condition="missing dates"
+            tone="warning"
+            href={gapHref({ review: "missing" })}
+            description="No renewal or notice date in any window."
           />
         ) : null}
       </div>
-      <div className="mt-2.5 flex min-w-0 flex-wrap gap-x-4 gap-y-1 text-[11px] leading-snug text-[var(--text-tertiary)]">
-        <span>
-          <span className="font-medium text-[var(--text-secondary)]">Dates in view:</span> renewal and notice
-          deadlines inside the selected window.
-        </span>
-        <span>
-          <span className="font-medium text-[var(--text-secondary)]">Needs confirmation:</span> renewal or notice date
-          is missing, suggested, or calculated and still needs confirmation.
-        </span>
-        <span>
-          <span className="font-medium text-[var(--text-secondary)]">Missing owner:</span> no person is assigned to the
-          contract.
-        </span>
-        <span>
-          <span className="font-medium text-[var(--text-secondary)]">Notice window open:</span> notice period is currently
-          open.
-        </span>
-      </div>
-    </div>
-  );
-}
-
-export function MissingDatesCallout({ count, href }: { count: number; href: string }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,transparent)] px-5 py-2.5">
-      <CircleDashed className="h-4 w-4 shrink-0 text-[var(--warning-ink)]" strokeWidth={1.85} aria-hidden />
-      <p className="min-w-0 text-[12.5px] leading-snug text-[var(--text-secondary)]">
-        <span className="font-semibold text-[var(--text-primary)]">{RENEWALS_MISSING_DATES_TITLE}</span>{" "}
-        <span className="tabular-nums">({count})</span>. These have no date in any window.
-      </p>
-      <Link
-        href={href}
-        className="ui-chip-focus ml-auto inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-[12px] font-semibold text-[var(--accent-strong)] transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent)_10%,transparent)]"
-      >
-        {RENEWALS_MISSING_DATES_ACTION}
-        <ArrowRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
-      </Link>
+      ) : null}
     </div>
   );
 }
@@ -122,10 +126,13 @@ export function CreateRenewalTaskPanel({
   createAction: FormAction;
 }) {
   return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_26%,transparent)] px-5 py-4">
+    <div
+      className="border-b border-[color:color-mix(in_oklab,var(--border-strong)_45%,var(--border-subtle))] px-5 py-4"
+      style={{ background: "color-mix(in oklab, var(--surface-cool) 45%, var(--surface-raised))" }}
+    >
       <form action={createAction} className="grid gap-3 lg:grid-cols-[1.25fr_1.35fr_0.95fr_0.8fr]">
         <div className="space-y-2">
-          <p className="ui-caps-2 text-[var(--text-tertiary)]">{model.primaryCta}</p>
+          <p className="ui-caps-2 text-[var(--text-secondary)]">{model.primaryCta}</p>
           <label className="block text-[12.5px] font-medium text-[var(--text-secondary)]" htmlFor="renewal-create-contract">
             {RENEWAL_ROW_LABELS.contract}
           </label>
@@ -213,7 +220,6 @@ export function RenewalsEmptyState({
             <Filter className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
           </span>
           <div className="min-w-0">
-            <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">No matches</p>
             <p className="mt-1 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
               {RENEWALS_FILTERED_EMPTY_STATE}
             </p>
@@ -241,8 +247,7 @@ export function RenewalsEmptyState({
           <CalendarClock className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />
         </span>
         <div className="min-w-0">
-          <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Get started</p>
-          <p className="mt-1 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{headline}</p>
+          <p className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">{headline}</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">{sub}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href="/contracts/review" className="ui-btn-primary inline-flex items-center gap-2 px-4 py-2">
@@ -283,9 +288,13 @@ export function RenewalLedgerFooter({
   if (model.filters.status) parts.push(RENEWAL_STATUS_LABELS[model.filters.status].toLowerCase());
   if (model.filters.review) parts.push(`${RENEWAL_DATE_REVIEW_LABELS[model.filters.review].toLowerCase()} dates`);
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-[color:color-mix(in_oklab,var(--border-strong)_40%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface-muted)_55%,var(--surface-raised))] px-5 py-2.5 text-[11px] text-[var(--text-tertiary)]">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-[color:color-mix(in_oklab,var(--border-strong)_58%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,var(--surface-raised))] px-5 py-2.5 text-[11px] text-[var(--text-tertiary)]">
+      <span className="inline-flex items-center gap-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">
+        <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[var(--calculated-ink)]" strokeWidth={1.85} aria-hidden />
+        Register total
+      </span>
+      <span className="ui-rule-vert" aria-hidden />
       <span className="inline-flex items-center gap-2">
-        <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.85} aria-hidden />
         <OperationalCount value={model.summary.visible} noun="renewal and notice date" shortNoun="date" condition="in view" />
       </span>
       <span className="ui-rule-vert" aria-hidden />

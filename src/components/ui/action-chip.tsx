@@ -9,6 +9,10 @@ export interface ActionChipProps {
   href: string;
   tone?: StatTone;
   icon?: LucideIcon;
+  /** Ghost treatment — no fill or border, muted text that warms to accent on
+   *  hover. Used for subordinate section actions so they don't compete with the
+   *  primary CTA and the operational risk states (§8/§10 color discipline). */
+  quiet?: boolean;
   className?: string;
 }
 
@@ -34,9 +38,26 @@ export function ActionChip({
   href,
   tone,
   icon: Icon,
+  quiet,
   className,
 }: ActionChipProps) {
   const ink = toneInk(tone);
+  if (quiet) {
+    return (
+      <Link
+        href={href}
+        className={`ui-chip-focus group inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[12.5px] font-semibold leading-none text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-strong)] ${className ?? ""}`.trim()}
+      >
+        {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden /> : null}
+        <span>{verb}</span>
+        <ArrowRight
+          className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+          strokeWidth={2}
+          aria-hidden
+        />
+      </Link>
+    );
+  }
   return (
     <Link
       href={href}

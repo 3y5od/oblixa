@@ -5,7 +5,9 @@ import { UiSelect } from "@/components/ui/ui-select";
 import { buildWorkHref } from "@/lib/work/model";
 import type { WorkFilterState, WorkOption, WorkPageModel, WorkSortKey } from "@/lib/work/types";
 
-const FILTER_PILL_HEIGHT = "h-[42px]";
+// Match the shared toolbar-control height (40px) so Sort lines up with the filter
+// pills (FilterSelect hardcodes h-10).
+const FILTER_PILL_HEIGHT = "h-10";
 
 /**
  * Sort applies live (no Apply): selecting a key navigates immediately with the

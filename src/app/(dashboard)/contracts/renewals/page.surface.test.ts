@@ -50,8 +50,9 @@ describe("contracts renewals page surface", () => {
     expect(raw).toContain(
       'className="max-h-[60vh] max-w-full overflow-x-auto overflow-y-auto [scrollbar-gutter:stable]"'
     );
-    // The summary band keeps its labeled-definition vocabulary.
-    expect(raw).toContain("Dates in view:");
+    // The condition vocabulary now rides on each chip's hover/aria definition
+    // (the labeled wall is retired).
+    expect(raw).toContain("Renewal and notice deadlines inside the selected window.");
     expect(raw).toMatch(/renewal or notice date\s+is missing, suggested, or calculated and still needs confirmation/);
   });
 

@@ -59,7 +59,9 @@ export function ReportPreviewTable({
 
       {!hasRows ? (
         <div className="rounded-md border border-dashed border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_28%,var(--surface-raised))] px-4 py-8 text-[13px] leading-relaxed text-[var(--text-secondary)]">
-          {emptyStateLabel}
+          {/* A filter that excludes every row is not an empty/unstarted workspace —
+              show a filter-scoped message instead of the onboarding copy. */}
+          {model.filtersActive ? `No ${noun.plural} match the current filters.` : emptyStateLabel}
         </div>
       ) : (
         <div className="overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,var(--surface-raised))]">

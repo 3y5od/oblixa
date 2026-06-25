@@ -3,12 +3,12 @@
   "generatedBy": "scripts/check-versioned-local-content-rewrites.mjs --write",
   "policy": "Local content rewrites are limited to manifest-listed documentation copy, test titles, and script comments. Runtime identifiers, public contracts, SQL, telemetry, env keys, provider config, OpenAPI, generated artifacts, and manual rows are refused.",
   "pendingRewriteCount": 0,
-  "refusalCount": 2875,
+  "refusalCount": 2895,
   "byRewriteType": {},
   "byRefusalReason": {
     "manual_only_surface": 1219,
-    "missing_suggested_neutral_name": 1404,
-    "no_manifest_safe_context": 252
+    "missing_suggested_neutral_name": 1420,
+    "no_manifest_safe_context": 256
   },
   "rewrites": [],
   "refusals": [
@@ -53,6 +53,181 @@
       "surfaceClass": "ci_contract",
       "subSurfaceClass": "ci_job_matrix_or_artifact",
       "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/1-tokens.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v4",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/1-tokens.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v4",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/1-tokens.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v46",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/1-tokens.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "ai_fixture_or_prompt_contract",
+      "oldValue": "v5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/1-tokens.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "ai_fixture_or_prompt_contract",
+      "oldValue": "V9",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/4-nav.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/4-nav.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/4-nav.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/4-nav.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/5-tests.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "operational_storage_or_queue_key",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v1",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v4",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V4",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "ai_fixture_or_prompt_contract",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "V6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "ai_fixture_or_prompt_contract",
+      "oldValue": "v6_org_settings_json",
+      "neutralValue": "org_settings_json",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
+        "87587c8223d96584",
+        "a6bd7fa11bd5d3ea"
+      ]
+    },
+    {
+      "path": ".shellmap/6-run.md",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "V9",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -2003,82 +2178,6 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "tooling_or_local_fixture",
-      "oldValue": "REQUIRED_V10_INDEXES",
-      "neutralValue": "REQUIRED_INDEXES",
-      "manualOnly": false,
-      "reason": "no_manifest_safe_context",
-      "refusedLineHashes": [
-        "51778cb10ab7d7dd",
-        "3fdd2fc2ed8252bf"
-      ]
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "source_owned_config_or_scanner_id",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "tooling_or_local_fixture",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "environment_key",
-      "subSurfaceClass": "environment_key",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "provider_or_crypto_format",
-      "subSurfaceClass": "provider_model_or_eval_version",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "tooling_or_local_fixture",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "scripts/check-release-evidence.mjs",
-      "surfaceClass": "tooling_contract",
-      "subSurfaceClass": "tooling_or_local_fixture",
-      "oldValue": "v4",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
       "path": "scripts/check-release-promotable.mjs",
       "surfaceClass": "tooling_contract",
       "subSurfaceClass": "source_owned_config_or_scanner_id",
@@ -3898,6 +3997,82 @@
       "surfaceClass": "tooling_contract",
       "subSurfaceClass": "tooling_or_local_fixture",
       "oldValue": "v6",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "tooling_or_local_fixture",
+      "oldValue": "REQUIRED_V10_INDEXES",
+      "neutralValue": "REQUIRED_INDEXES",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
+        "0baf7f39369b8c4e",
+        "3fdd2fc2ed8252bf"
+      ]
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "source_owned_config_or_scanner_id",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "tooling_or_local_fixture",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "environment_key",
+      "subSurfaceClass": "environment_key",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "tooling_or_local_fixture",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "scripts/lib/check-release-evidence-implementation.mjs",
+      "surfaceClass": "tooling_contract",
+      "subSurfaceClass": "tooling_or_local_fixture",
+      "oldValue": "v4",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -5732,7 +5907,7 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-hero-header.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-action",
@@ -5744,7 +5919,7 @@
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-hero-header.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-section",
@@ -5752,12 +5927,11 @@
       "manualOnly": false,
       "reason": "no_manifest_safe_context",
       "refusedLineHashes": [
-        "e776ea89ae1cc574",
-        "f69d968c5add43d8"
+        "e776ea89ae1cc574"
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-hero-header.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-source-object",
@@ -5765,12 +5939,47 @@
       "manualOnly": false,
       "reason": "no_manifest_safe_context",
       "refusedLineHashes": [
-        "bb295f477d4cca5c",
+        "bb295f477d4cca5c"
+      ]
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-hero-header.tsx",
+      "surfaceClass": "dom_or_test_selector",
+      "subSurfaceClass": "dom_data_attribute",
+      "oldValue": "data-v10-surface",
+      "neutralValue": "data-surface",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
+        "44ebe31424c3d4c1"
+      ]
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
+      "surfaceClass": "dom_or_test_selector",
+      "subSurfaceClass": "dom_data_attribute",
+      "oldValue": "data-v10-section",
+      "neutralValue": "data-section",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
+        "f69d968c5add43d8"
+      ]
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
+      "surfaceClass": "dom_or_test_selector",
+      "subSurfaceClass": "dom_data_attribute",
+      "oldValue": "data-v10-source-object",
+      "neutralValue": "data-source-object",
+      "manualOnly": false,
+      "reason": "no_manifest_safe_context",
+      "refusedLineHashes": [
         "32dcae6052a9884f"
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-state",
@@ -5782,7 +5991,7 @@
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-surface",
@@ -5790,12 +5999,11 @@
       "manualOnly": false,
       "reason": "no_manifest_safe_context",
       "refusedLineHashes": [
-        "44ebe31424c3d4c1",
         "8b01f07d30131c56"
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-visibility-state",
@@ -5807,7 +6015,7 @@
       ]
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-advanced-trust.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "oldValue": "v10",
@@ -5816,27 +6024,63 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-core-operational-sections.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-core-side-rail.tsx",
+      "surfaceClass": "app_route_contract",
+      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-core-side-rail.tsx",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
       "oldValue": "v5",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
       "oldValue": "v6",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/[id]/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "path": "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+      "surfaceClass": "provider_or_crypto_format",
+      "subSurfaceClass": "provider_model_or_eval_version",
       "oldValue": "v9",
       "neutralValue": null,
       "manualOnly": true,
@@ -5870,33 +6114,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/(dashboard)/contracts/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v14",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/(dashboard)/contracts/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v15",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/(dashboard)/contracts/programs/page.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
@@ -5924,7 +6141,7 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/contracts/tasks/page.tsx",
+      "path": "src/app/(dashboard)/contracts/tasks/tasks-ledger.tsx",
       "surfaceClass": "dom_or_test_selector",
       "subSurfaceClass": "dom_data_attribute",
       "oldValue": "data-v10-state",
@@ -5932,7 +6149,7 @@
       "manualOnly": false,
       "reason": "no_manifest_safe_context",
       "refusedLineHashes": [
-        "4e548d2c0c78dbe0"
+        "f78cc6e25ea15582"
       ]
     },
     {
@@ -6209,28 +6426,28 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/settings/health/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/app/(dashboard)/settings/health/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "V10",
-      "neutralValue": null,
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/(dashboard)/settings/health/settings-health-recoverability.test.ts",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/settings/health/settings-health-recovery-actions.tsx",
+      "surfaceClass": "app_route_contract",
+      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "oldValue": "V10",
+      "neutralValue": null,
+      "manualOnly": true,
+      "reason": "manual_only_surface"
+    },
+    {
+      "path": "src/app/(dashboard)/settings/health/settings-health-support-disclosure.tsx",
+      "surfaceClass": "app_route_contract",
+      "subSurfaceClass": "page_route_or_deep_link_contract",
+      "oldValue": "v10",
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
@@ -6362,15 +6579,6 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/settings/product/page.tsx",
-      "surfaceClass": "app_route_contract",
-      "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "v6_assurance_snapshot",
-      "neutralValue": "assurance_snapshot",
-      "manualOnly": true,
-      "reason": "manual_only_surface"
-    },
-    {
       "path": "src/app/(dashboard)/settings/product/settings-product-draft-preview.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
@@ -6380,16 +6588,16 @@
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/settings/security/error.tsx",
+      "path": "src/app/(dashboard)/settings/product/settings-product-surface-form-parts.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
-      "oldValue": "V2",
-      "neutralValue": null,
+      "oldValue": "v6_assurance_snapshot",
+      "neutralValue": "assurance_snapshot",
       "manualOnly": true,
       "reason": "manual_only_surface"
     },
     {
-      "path": "src/app/(dashboard)/settings/security/loading.tsx",
+      "path": "src/app/(dashboard)/settings/security/error.tsx",
       "surfaceClass": "app_route_contract",
       "subSurfaceClass": "page_route_or_deep_link_contract",
       "oldValue": "V2",
@@ -10307,7 +10515,61 @@
       "path": "src/app/globals.css",
       "surfaceClass": "source_content",
       "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v47",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v48",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "source_schema_or_action_contract",
+      "oldValue": "v49",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v49",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
       "oldValue": "v5",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v50",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/app/globals.css",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "style_token_or_selector",
+      "oldValue": "v51",
       "neutralValue": null,
       "manualOnly": false,
       "reason": "missing_suggested_neutral_name"
@@ -10358,7 +10620,16 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/contracts/bulk-upload-form.tsx",
+      "path": "src/components/contracts/bulk-upload-form-types.ts",
+      "surfaceClass": "source_content",
+      "subSurfaceClass": "local_source_literal",
+      "oldValue": "v10",
+      "neutralValue": null,
+      "manualOnly": false,
+      "reason": "missing_suggested_neutral_name"
+    },
+    {
+      "path": "src/components/contracts/bulk-upload-form-utils.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "v10",
@@ -10524,60 +10795,6 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "audit_evidence_or_diagnostic_key",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v12",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-lower.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
       "path": "src/components/dashboard/dashboard-operational-blocks.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "operational_storage_or_queue_key",
@@ -10621,24 +10838,6 @@
       "neutralValue": null,
       "manualOnly": true,
       "reason": "manual_only_surface"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-upper.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "local_source_literal",
-      "oldValue": "v11",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
-      "path": "src/components/dashboard/dashboard-upper.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "source_schema_or_action_contract",
-      "oldValue": "v13",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
     },
     {
       "path": "src/components/dashboard/dashboard-upper.tsx",
@@ -10767,15 +10966,6 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/landing/product-mocks.tsx",
-      "surfaceClass": "source_content",
-      "subSurfaceClass": "operational_storage_or_queue_key",
-      "oldValue": "v6",
-      "neutralValue": null,
-      "manualOnly": false,
-      "reason": "missing_suggested_neutral_name"
-    },
-    {
       "path": "src/components/layout/command-palette-helpers.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
@@ -10812,7 +11002,7 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/layout/command-palette.tsx",
+      "path": "src/components/layout/command-palette-state.ts",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "v5",
@@ -10977,7 +11167,7 @@
       "reason": "missing_suggested_neutral_name"
     },
     {
-      "path": "src/components/reports/reports-assurance-section.tsx",
+      "path": "src/components/reports/reports-assurance-panels.tsx",
       "surfaceClass": "source_content",
       "subSurfaceClass": "local_source_literal",
       "oldValue": "v6_quality_counters_30d",
@@ -10985,8 +11175,8 @@
       "manualOnly": false,
       "reason": "no_manifest_safe_context",
       "refusedLineHashes": [
-        "4872045f010a4400",
-        "9e3766457320df38"
+        "2846586734aaa1c8",
+        "1be16f5c57fe143a"
       ]
     },
     {

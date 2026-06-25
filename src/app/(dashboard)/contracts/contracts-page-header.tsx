@@ -16,12 +16,12 @@ import { PortaledPopover } from "@/components/contracts/portaled-popover";
 export function ContractsPageHeader({
   orgId,
   canEdit,
-  contractTotal,
+  workspaceContractTotal,
   latestExportSummary,
 }: {
   orgId: string;
   canEdit: boolean;
-  contractTotal: number;
+  workspaceContractTotal: number;
   latestExportSummary: string | null;
 }) {
   const exportItems: { href: string; label: string; icon: LucideIcon }[] = [
@@ -45,24 +45,33 @@ export function ContractsPageHeader({
   return (
     <DashboardPageHeader
       icon={<Files className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+      // The cobalt eyebrow is reserved for actions; the register overline reads in
+      // cool steel ink instead. Suppressed here and re-rendered as a steel kicker
+      // inside the lead so the page identity opens with ink, not accent.
       eyebrow="Contract tracking"
+      suppressEyebrow
       density="compact"
       title="Contracts"
       lead={
-        contractTotal === 0
-          ? "Upload your first signed agreement to start confirming details, dates, owners, tasks, evidence, and reports."
-          : "Track signed contracts, owners, dates, requirements, tasks, and evidence."
+        <>
+          <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[var(--calculated-ink)]">
+            Contract tracking
+          </span>
+          {workspaceContractTotal === 0
+            ? "Upload your first signed agreement to start confirming details, dates, owners, tasks, evidence, and reports."
+            : "Track signed contracts, owners, dates, requirements, tasks, and evidence."}
+        </>
       }
       metaStrip={
-        contractTotal > 0 ? (
+        workspaceContractTotal > 0 ? (
           <div className="inline-flex items-center">
             <dt className="sr-only">Contracts in workspace</dt>
-            <dd className="inline-flex items-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] px-2.5 py-1">
+            <dd className="inline-flex items-baseline gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface-raised)] px-2.5 py-1">
               <span className="font-mono text-[12.5px] font-semibold tabular-nums text-[var(--text-primary)]">
-                {contractTotal}
+                {workspaceContractTotal}
               </span>
-              <span className="ui-caps-2 text-[10px] text-[var(--text-tertiary)]">
-                {contractTotal === 1 ? "contract in workspace" : "contracts in workspace"}
+              <span className="text-[11px] text-[var(--text-tertiary)]">
+                {workspaceContractTotal === 1 ? "contract in workspace" : "contracts in workspace"}
               </span>
             </dd>
           </div>
@@ -119,7 +128,7 @@ export function ContractsPageHeader({
               })}
             </ul>
             {latestExportSummary ? (
-              <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[10.5px] uppercase tabular-nums text-[var(--text-tertiary)]">
+              <p className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] px-4 py-2 text-[11px] tabular-nums text-[var(--text-tertiary)]">
                 {latestExportSummary}
               </p>
             ) : null}

@@ -24,19 +24,17 @@ const activeField: FieldReviewActiveField = {
 
 describe("ReviewDecisionPane", () => {
   it("explains what a suggested detail affects", () => {
-    renderWithProviders(
-      <ReviewDecisionPane
-        activeField={activeField}
-        fieldQueue={[]}
-        actions={<button type="button">Confirm</button>}
-      />
-    );
+    renderWithProviders(<ReviewDecisionPane activeField={activeField} fieldQueue={[]} />);
 
-    expect(screen.getByText("Where this is used")).toBeTruthy();
+    expect(screen.getByText("Where this confirmed detail is used")).toBeTruthy();
     expect(screen.getByText("Sets the date used for renewal reminders, renewal lists, and reports.")).toBeTruthy();
-    expect(screen.getByText("Source value")).toBeTruthy();
-    expect(screen.getByText("Suggestion metadata")).toBeTruthy();
-    expect(screen.getByText(/model confidence/i)).toBeTruthy();
+    // Extraction metadata is shown as one quiet line, framed (Model score, "Not a
+    // trust signal") so it never reads as a trust verdict (AI boundary).
+    expect(screen.getByText(/Source value/)).toBeTruthy();
+    expect(screen.getByText(/Model score/)).toBeTruthy();
+    // "not a trust signal" appears both as the visible caption and the sr-only
+    // tooltip, so assert at least one match rather than a unique one.
+    expect(screen.getAllByText(/not a trust signal/i).length).toBeGreaterThan(0);
     // The suggested value is explicitly untrusted until confirmed.
     expect(screen.getByText("Suggested detail, not confirmed")).toBeTruthy();
   });

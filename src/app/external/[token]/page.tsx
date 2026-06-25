@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import { BRAND_TILE_CLASS } from "@/components/ui/brand-tile";
 import { ExternalSubmitForm } from "@/components/external/external-submit-form";
 
 export default async function ExternalActionPage(props: { params: Promise<{ token: string }> }) {
@@ -13,7 +14,7 @@ export default async function ExternalActionPage(props: { params: Promise<{ toke
       <div className="mx-auto w-full max-w-[520px]">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-3 no-underline transition-opacity hover:opacity-85">
-            <span className="ui-avatar-tile h-11 w-11 text-[var(--accent-fg)] shadow-[var(--shadow-2)] [background:linear-gradient(180deg,color-mix(in_oklab,var(--accent)_76%,white),var(--accent-strong))]">
+            <span className={`${BRAND_TILE_CLASS} h-11 w-11 text-[17px] font-bold`} aria-hidden>
               O
             </span>
             <span

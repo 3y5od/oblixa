@@ -14,12 +14,12 @@ export function ContractsPageView({ model }: { model: ContractsPageModel }) {
         <ContractsPageHeader
           orgId={model.orgId}
           canEdit={model.canEdit}
-          contractTotal={model.contractTotal}
+          workspaceContractTotal={model.workspaceContractTotal}
           latestExportSummary={model.latestExportSummary}
         />
       }
     >
-      {model.contractTotal === 0 ? <ContractsEmptyStartSection canEdit={model.canEdit} /> : null}
+      {model.workspaceContractTotal === 0 ? <ContractsEmptyStartSection canEdit={model.canEdit} /> : null}
       <DataSurfaceCard>
         <ContractsFiltersSection model={model} />
         <ContractsShortcutStrip model={model} />

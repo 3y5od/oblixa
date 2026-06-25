@@ -102,9 +102,9 @@ export const RENEWAL_STATUS_LABELS = {
   needs_owner: "Needs owner",
   needs_review: "Needs confirmation",
   notice_window_open: "Notice window open",
-  in_progress: "In progress",
+  in_progress: "Renewal task active",
   completed: "Completed",
-  no_renewal_action_needed: "No action needed",
+  no_renewal_action_needed: "No notice action needed",
 } as const;
 
 // The model-derived row-action capabilities. Keys here drive RenewalActionKey

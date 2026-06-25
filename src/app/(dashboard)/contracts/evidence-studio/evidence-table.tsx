@@ -25,28 +25,36 @@ export function EvidenceTable({
       <table className="hidden w-full table-fixed border-collapse text-[12.5px] md:table" aria-label="Evidence requests in this workspace">
         <thead className="bg-[color:color-mix(in_oklab,var(--surface-muted)_64%,var(--surface-raised))]">
           <tr className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)]">
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[27%] pl-5 pr-3`}>
-              {EVIDENCE_ROW_LABELS.requestTitle}
+            {/* The request record is the dominant object: the parchment zone now
+                carries the requirement ("Proof for …"), the request name, the
+                contract, AND the lifecycle rail, so it takes the widest column and
+                the standalone Requirement column is retired (its weight moved into
+                the record masthead). */}
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[38%] pl-5 pr-4`}>
+              <span className="inline-flex items-center gap-1.5">
+                {EVIDENCE_ROW_LABELS.requestTitle}
+                <span className="font-normal normal-case tracking-normal text-[var(--text-tertiary)]">
+                  {"·"} requirement {"·"} progress
+                </span>
+              </span>
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[17%] lg:table-cell`}>
-              {EVIDENCE_ROW_LABELS.linkedObligation}
-            </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[13%] md:table-cell`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[11%] pl-4 md:table-cell`}>
               {EVIDENCE_ROW_LABELS.requestOwner}
             </th>
             <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[9%]`}>
               {EVIDENCE_ROW_LABELS.dueDate}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[14%]`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[12%]`}>
               {EVIDENCE_ROW_LABELS.status}
             </th>
-            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[7%] 2xl:table-cell`}>
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} hidden w-[6%] 2xl:table-cell`}>
               Updated
             </th>
-            {/* Actions column sized to fit the longest primary verb ("Upload evidence", ~134px)
-                plus the more-menu trigger; release-blocker fix for the clipped action. */}
-            <th scope="col" className="w-[11.5rem] px-3 py-2 pl-3 pr-5">
-              <span className="sr-only">Actions</span>
+            {/* Consequence + next action: the cool decision pane. Header names the
+                stake-and-action zone so a screen-reader user hears why this column
+                carries both the consequence line and the primary verb. */}
+            <th scope="col" className={`${EVIDENCE_HEADER_CELL} w-[13.5rem] pl-4 pr-5`}>
+              Consequence and next action
             </th>
           </tr>
         </thead>

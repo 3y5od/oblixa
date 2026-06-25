@@ -1,13 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { ActionChip } from "@/components/ui/action-chip";
-import { CountChip } from "@/components/ui/count-chip";
 import type { StatTone } from "@/components/ui/stat-cell";
 
 export interface DashboardPanelAction {
   label: string;
   href: string;
   tone?: StatTone;
+  /** Render the action as a quiet ghost link (subordinate section actions). */
+  quiet?: boolean;
 }
 
 export interface DashboardPanelHeaderProps {
@@ -24,6 +25,8 @@ export interface DashboardPanelHeaderProps {
   countUnit?: string;
   /** Optional sentence-case panel action (e.g. "Review fields"). */
   action?: DashboardPanelAction;
+  /** Tighter header for the right context rail. */
+  compact?: boolean;
   className?: string;
 }
 
@@ -41,11 +44,12 @@ export function DashboardPanelHeader({
   count,
   countUnit,
   action,
+  compact,
   className,
-}: DashboardPanelHeaderProps) {
+}: DashboardPanelHeaderProps & { compact?: boolean }) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-4 py-3 ${className ?? ""}`.trim()}
+      className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] ${compact ? "px-3.5 py-2.5" : "px-4 py-3"} ${className ?? ""}`.trim()}
     >
       <div className="flex min-w-0 items-start gap-2">
         {/* Bare quiet glyph — the title carries panel identity; a boxed icon tile
@@ -59,22 +63,28 @@ export function DashboardPanelHeader({
         <div className="min-w-0">
           <h2
             id={titleId}
-            className="inline-flex min-w-0 items-center gap-2 text-[13.5px] font-semibold tracking-tight text-[var(--text-primary)]"
+            className={`inline-flex min-w-0 items-baseline gap-2 font-bold tracking-tight text-[var(--text-primary)] ${compact ? "text-[13.5px]" : "text-[15px]"}`}
           >
-            <span className="min-w-0 truncate">{title}</span>
+            <span className="min-w-0">{title}</span>
+            {/* Count is quiet metadata, not a bordered chip — a chip reads like a
+                form control beside a heading (§ counts ≠ statuses). */}
             {typeof count === "number" && count > 0 ? (
-              <CountChip value={count} unit={countUnit} emphasis="strong" className="shrink-0" />
+              <span className="shrink-0 text-[12.5px] font-medium tabular-nums text-[var(--text-tertiary)]">
+                <span aria-hidden className="mr-1.5 text-[color:color-mix(in_oklab,var(--text-tertiary)_55%,transparent)]">&middot;</span>
+                {count}
+                {countUnit ? ` ${count === 1 ? countUnit.replace(/s$/, "") : countUnit}` : ""}
+              </span>
             ) : null}
           </h2>
           {description ? (
-            <p className="mt-1 max-w-2xl text-[12px] font-medium leading-snug tracking-normal text-[var(--text-secondary)]">
+            <p className="mt-1 max-w-2xl text-[12.5px] font-medium leading-snug tracking-normal text-[var(--text-secondary)]">
               {description}
             </p>
           ) : null}
         </div>
       </div>
       {action ? (
-        <ActionChip verb={action.label} href={action.href} tone={action.tone} className="shrink-0" />
+        <ActionChip verb={action.label} href={action.href} tone={action.tone} quiet={action.quiet} className="shrink-0" />
       ) : null}
     </div>
   );
@@ -96,6 +106,8 @@ export interface DashboardPanelProps {
   className?: string;
   /** Body padding override; defaults to the standard `p-2`. */
   bodyClassName?: string;
+  /** Tighter header for the right context rail. */
+  compact?: boolean;
 }
 
 /**
@@ -116,6 +128,7 @@ export function DashboardPanel({
   children,
   className,
   bodyClassName,
+  compact,
 }: DashboardPanelProps) {
   return (
     <section
@@ -130,6 +143,7 @@ export function DashboardPanel({
         count={count}
         countUnit={countUnit}
         action={action}
+        compact={compact}
       />
       <div className={bodyClassName ?? "p-2"}>{children}</div>
       {footer}

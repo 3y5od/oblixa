@@ -1,0 +1,363 @@
+import { revalidatePath } from "next/cache";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { resolveAppBaseUrl } from "@/lib/app-url";
+import { sendWorkspaceInviteLinkEmail } from "@/lib/email";
+import { mapAuthError, mapDataSourceError } from "@/lib/errors/user-facing";
+import { isReasonableEmail, isUuid, parseFixedEnumParam, validateBoundedString } from "@/lib/security/validation";
+import { getClientIpFromHeaders, rateLimitCheck, RATE_LIMITS } from "@/lib/rate-limit";
+import { isKillInvites } from "@/lib/security/kill-switches";
+import { loadOrgMemberProfileRows } from "@/lib/org-member-profiles";
+import { evaluateSeatMutation } from "@/lib/billing/operational-entitlements";
+import {
+  INVITE_TTL_MS,
+  MAX_INVITE_EMAIL_LEN,
+  VALID_INVITE_ROLES,
+  canManageTeamOrWorkspace,
+  isExistingAuthUserInviteConflict,
+  loadPendingInviteSeatRows,
+  safeInsertSettingsAuditEvent,
+  type MembershipPermissionRow,
+  type SettingsActionResult,
+} from "./settings-helpers";
+
+export async function inviteOrgMemberUnsafe(formData: FormData): Promise<SettingsActionResult> {
+  const orgIdEntry = formData.get("organizationId");
+  const orgId = typeof orgIdEntry === "string" ? orgIdEntry.trim() : "";
+  const emailValidation = validateBoundedString(formData.get("email") ?? "", {
+    maxLength: MAX_INVITE_EMAIL_LEN,
+  });
+  const roleEntry = formData.get("role");
+  if (roleEntry != null && typeof roleEntry !== "string") {
+    return { error: "Invalid role" };
+  }
+  const roleValue = typeof roleEntry === "string" && roleEntry.trim() ? roleEntry.trim() : "editor";
+  const role = parseFixedEnumParam(roleValue, VALID_INVITE_ROLES, "editor");
+
+  if (!orgId) return { error: "Organization is required" };
+  if (!isUuid(orgId)) return { error: "Invalid organization" };
+  if (!emailValidation.ok) {
+    if (emailValidation.error === "invalid_string") return { error: "Email is required" };
+    return { error: "Invalid email address" };
+  }
+  const email = emailValidation.value.toLowerCase();
+  if (!isReasonableEmail(email)) {
+    return { error: "Invalid email address" };
+  }
+  if (role !== roleValue) {
+    return { error: "Invalid role" };
+  }
+
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`invite:${user.id}:${ip}`, RATE_LIMITS.inviteMember);
+  if (!rl.ok) {
+    return { error: "Too many invites. Try again later." };
+  }
+
+  const { data: membership, error: memErr } = await admin
+    .from("organization_members")
+    .select("role, organizations(owner_user_id)")
+    .eq("organization_id", orgId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (memErr) {
+    console.error("[settings] invite membership:", memErr.message);
+    return { error: "Could not verify permissions" };
+  }
+
+  if (!membership) {
+    return { error: "You are not a member of this organization" };
+  }
+
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow, user.id)) {
+    return { error: "Only workspace owners or admins can invite team members" };
+  }
+
+  if (isKillInvites()) {
+    return { error: "Invitations are temporarily disabled." };
+  }
+
+  const memberRows = await loadOrgMemberProfileRows(admin, orgId, {
+    memberColumns: "id, user_id",
+  });
+  const existingMember = memberRows.find((member) => member.profiles?.email?.toLowerCase() === email);
+  if (existingMember) {
+    return { error: "This user is already a member of the organization." };
+  }
+
+  const expiresAt = new Date(Date.now() + INVITE_TTL_MS).toISOString();
+  const pendingInviteResult = await loadPendingInviteSeatRows(admin, orgId, new Date().toISOString());
+  if (pendingInviteResult.error) {
+    return { error: "Could not verify team member limit. Try again later." };
+  }
+  const pendingInvites = pendingInviteResult.rows;
+  const duplicatePendingInvite = pendingInvites.some((invite) => invite.email.toLowerCase() === email);
+  const seatDecision = evaluateSeatMutation({
+    operation: "invite_creation",
+    activeSeats: memberRows.length,
+    pendingInvites: pendingInvites.length,
+    duplicatePendingInvite,
+    sameTenant: true,
+  });
+
+  if (!seatDecision.allowed) {
+    return {
+      error:
+        seatDecision.reason === "seat_limit_reached"
+          ? "Your workspace has reached its team member limit. Revoke a pending invite or remove a member before inviting someone new."
+          : "This invite cannot be created for the current billing state.",
+    };
+  }
+
+  await admin
+    .from("organization_invites")
+    .delete()
+    .eq("organization_id", orgId)
+    .eq("email", email)
+    .is("consumed_at", null)
+    .is("revoked_at", null);
+
+  const { data: inviteRow, error: inviteErr } = await admin
+    .from("organization_invites")
+    .insert({
+      organization_id: orgId,
+      email,
+      role,
+      invited_by: user.id,
+      expires_at: expiresAt,
+    })
+    .select("id")
+    .single();
+
+  if (inviteErr || !inviteRow) {
+    console.error("[settings] organization_invites insert:", inviteErr?.message);
+    return { error: mapDataSourceError(inviteErr?.message ?? "Could not create invite") };
+  }
+
+  const appUrl = await resolveAppBaseUrl();
+
+  const redirectTo = `${appUrl}/auth/callback`;
+  const { error: inviteMailErr } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: {
+      invite_id: inviteRow.id,
+    },
+    redirectTo,
+  });
+
+  if (inviteMailErr) {
+    if (isExistingAuthUserInviteConflict(inviteMailErr.message)) {
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options: {
+          redirectTo,
+          data: { invite_id: inviteRow.id },
+        },
+      });
+      const actionUrl = linkData?.properties?.action_link;
+      if (linkErr || !actionUrl) {
+        await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+        return { error: mapAuthError(linkErr?.message ?? inviteMailErr.message) };
+      }
+      const sent = await sendWorkspaceInviteLinkEmail({ to: email, actionUrl });
+      if (sent.error) {
+        await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+        console.error("[settings] invite magic-link email:", sent.error.message);
+        return {
+          error:
+            sent.error.message === "Email provider is not configured"
+              ? "This email already has an account. Set RESEND_API_KEY so we can send a sign-in link, or ask them to sign in with that address."
+              : "Could not send the invite email. Try again later.",
+        };
+      }
+    } else {
+      await admin.from("organization_invites").delete().eq("id", inviteRow.id);
+      return { error: mapAuthError(inviteMailErr.message) };
+    }
+  }
+
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: orgId,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invited",
+      details: { email, role },
+    },
+    "Invite created, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
+
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+export async function revokeOrgInviteUnsafe(inviteId: string): Promise<SettingsActionResult> {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(inviteId)) return { error: "Invalid invite" };
+
+  const { data: inv, error: fetchErr } = await admin
+    .from("organization_invites")
+    .select("id, organization_id, consumed_at, revoked_at")
+    .eq("id", inviteId)
+    .maybeSingle();
+
+  if (fetchErr || !inv) return { error: "Invite not found" };
+  if (inv.consumed_at || inv.revoked_at) {
+    return { error: "This invite is no longer pending." };
+  }
+
+  const { data: membership } = await admin
+    .from("organization_members")
+    .select("role, organizations(owner_user_id)")
+    .eq("organization_id", inv.organization_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow | null, user.id)) {
+    return { error: "Only workspace owners or admins can revoke invites" };
+  }
+
+  const { error: upErr } = await admin
+    .from("organization_invites")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", inviteId);
+
+  if (upErr) return { error: mapDataSourceError(upErr.message) };
+
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: inv.organization_id,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invite_revoked",
+      details: { invite_id: inviteId },
+    },
+    "Invite revoked, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
+
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+export async function resendOrgInviteUnsafe(inviteId: string): Promise<SettingsActionResult> {
+  const supabase = await createClient();
+  const admin = await createAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (!isUuid(inviteId)) return { error: "Invalid invite" };
+
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitCheck(`invite:${user.id}:${ip}`, RATE_LIMITS.inviteMember);
+  if (!rl.ok) {
+    return { error: "Too many invite actions. Try again later." };
+  }
+
+  const { data: inv, error: fetchErr } = await admin
+    .from("organization_invites")
+    .select("id, organization_id, email, role, consumed_at, revoked_at")
+    .eq("id", inviteId)
+    .maybeSingle();
+
+  if (fetchErr || !inv) return { error: "Invite not found" };
+  if (inv.consumed_at || inv.revoked_at) {
+    return { error: "This invite is no longer pending." };
+  }
+
+  const { data: membership } = await admin
+    .from("organization_members")
+    .select("role, organizations(owner_user_id)")
+    .eq("organization_id", inv.organization_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!canManageTeamOrWorkspace(membership as MembershipPermissionRow | null, user.id)) {
+    return { error: "Only workspace owners or admins can resend invites" };
+  }
+
+  const expiresAt = new Date(Date.now() + INVITE_TTL_MS).toISOString();
+  const { error: expErr } = await admin
+    .from("organization_invites")
+    .update({ expires_at: expiresAt })
+    .eq("id", inviteId);
+
+  if (expErr) return { error: mapDataSourceError(expErr.message) };
+
+  const appUrl = await resolveAppBaseUrl();
+  const redirectTo = `${appUrl}/auth/callback`;
+
+  const { error: inviteMailErr } = await admin.auth.admin.inviteUserByEmail(inv.email, {
+    data: {
+      invite_id: inviteId,
+    },
+    redirectTo,
+  });
+
+  if (inviteMailErr) {
+    if (isExistingAuthUserInviteConflict(inviteMailErr.message)) {
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email: inv.email,
+        options: {
+          redirectTo,
+          data: { invite_id: inviteId },
+        },
+      });
+      const actionUrl = linkData?.properties?.action_link;
+      if (linkErr || !actionUrl) {
+        return { error: mapAuthError(linkErr?.message ?? inviteMailErr.message) };
+      }
+      const sent = await sendWorkspaceInviteLinkEmail({
+        to: inv.email,
+        actionUrl,
+      });
+      if (sent.error) {
+        console.error("[settings] resend invite magic-link email:", sent.error.message);
+        return {
+          error:
+            sent.error.message === "Email provider is not configured"
+              ? "This email already has an account. Set RESEND_API_KEY to resend a sign-in link."
+              : "Could not send the invite email. Try again later.",
+        };
+      }
+    } else {
+      return { error: mapAuthError(inviteMailErr.message) };
+    }
+  }
+
+  const auditError = await safeInsertSettingsAuditEvent(
+    admin,
+    {
+      organization_id: inv.organization_id,
+      contract_id: null,
+      user_id: user.id,
+      action: "member.invite_resent",
+      details: { invite_id: inviteId, email: inv.email },
+    },
+    "Invite resent, but audit evidence could not be recorded. Refresh the page before retrying."
+  );
+  if (auditError) return auditError;
+
+  revalidatePath("/settings");
+  return { success: true };
+}

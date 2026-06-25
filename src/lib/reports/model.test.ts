@@ -75,6 +75,19 @@ describe("reports page model", () => {
     expect(statusFiltered.previewRows.map((row) => row.cells.Status)).toEqual(["Pending Review"]);
   });
 
+  it("derives filtersActive from non-default narrowing filters (filtered-empty vs onboarding copy)", () => {
+    // No user filters → genuinely empty/unstarted, so the onboarding copy should show.
+    expect(buildReportsPageModel({ ...fixtureInput(), report: "contract_inventory" }).filtersActive).toBe(false);
+    // The default 90-day window is not a narrowing filter.
+    expect(
+      buildReportsPageModel({ ...fixtureInput(), report: "notice_deadlines", window: "90" }).filtersActive
+    ).toBe(false);
+    // A user-applied filter narrows → a zero-match preview must read as filtered, not empty.
+    expect(
+      buildReportsPageModel({ ...fixtureInput(), report: "contract_inventory", owner: "member-1" }).filtersActive
+    ).toBe(true);
+  });
+
   it("builds preview rows for every required Core report type", () => {
     for (const report of REPORT_ORDER) {
       const model = buildReportsPageModel({

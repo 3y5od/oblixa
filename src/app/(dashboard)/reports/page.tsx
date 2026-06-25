@@ -27,6 +27,7 @@ import {
   REPORTS_PARTIAL_DATA_TITLE,
 } from "@/lib/reports/spec-strings";
 import type { ReportsPageModel } from "@/lib/reports/types";
+import { buildActiveFilterChips } from "./reports-active-filter-chips";
 
 export const metadata = { title: REPORTS_PAGE_TITLE };
 
@@ -90,15 +91,13 @@ export default async function ReportsPage(props: {
         aria-labelledby="reports-surface-title"
       >
         {/* Catalog header strip — names the index and states how many reports it
-            holds, with help that defines what the counts mean. */}
+            holds. (Each rail entry carries its own blurb; no separate help line.) */}
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_30%,var(--surface-raised))] px-5 py-3">
-          <p className="ui-caps-2 text-[10.5px] text-[var(--text-tertiary)]">Report catalog</p>
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--text-secondary)]">
+            Report catalog
+          </p>
           <p className="text-[12.5px] font-semibold tabular-nums text-[var(--text-primary)]">
             {model.reports.length} reports
-          </p>
-          <span aria-hidden className="hidden h-3 w-px bg-[var(--border-subtle)] sm:inline-block" />
-          <p className="text-[12px] leading-snug text-[var(--text-tertiary)]">
-            Catalog counts show matching rows available for each report.
           </p>
         </div>
 
@@ -319,47 +318,6 @@ function ReportActiveFilters({ model }: { model: ReportsPageModel }) {
       ))}
     </div>
   );
-}
-
-type ActiveFilterChip = { key: string; label: string; value: string; removeHref: string };
-
-function buildActiveFilterChips(model: ReportsPageModel): ActiveFilterChip[] {
-  const filters = model.filters;
-  const applicable = new Set(model.applicableFilters);
-  const chips: ActiveFilterChip[] = [];
-  if (applicable.has("window") && filters.window !== "90") {
-    chips.push({
-      key: "window",
-      label: REPORT_FILTER_LABELS.window,
-      value: REPORT_WINDOW_LABELS[filters.window],
-      removeHref: buildReportsHref({ report: model.activeReport, filters: { ...filters, window: "90" } }),
-    });
-  }
-  if (applicable.has("owner") && filters.owner) {
-    chips.push({
-      key: "owner",
-      label: REPORT_FILTER_LABELS.owner,
-      value: model.filterOptions.owners.find((option) => option.value === filters.owner)?.label ?? filters.owner,
-      removeHref: buildReportsHref({ report: model.activeReport, filters: { ...filters, owner: "" } }),
-    });
-  }
-  if (applicable.has("counterparty") && filters.counterparty) {
-    chips.push({
-      key: "counterparty",
-      label: REPORT_FILTER_LABELS.counterparty,
-      value: filters.counterparty,
-      removeHref: buildReportsHref({ report: model.activeReport, filters: { ...filters, counterparty: "" } }),
-    });
-  }
-  if (applicable.has("status") && filters.status) {
-    chips.push({
-      key: "status",
-      label: REPORT_FILTER_LABELS.status,
-      value: model.filterOptions.statuses.find((option) => option.value === filters.status)?.label ?? filters.status,
-      removeHref: buildReportsHref({ report: model.activeReport, filters: { ...filters, status: "" } }),
-    });
-  }
-  return chips;
 }
 
 function firstParam(value: string | string[] | undefined) {

@@ -1,15 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, KeyRound } from "lucide-react";
-import { KeyValueChip } from "@/components/ui/key-value-chip";
-import { CORE_PRICE_LABEL, type AuthCallout } from "./auth-config";
-import { QuietFactChip } from "./auth-ui";
+import { type AuthCallout } from "./auth-config";
 
 /**
- * Quiet offer band under the form card (lighter than a card so it does not read
- * as a competing surface). A small medallion anchors the lead; the
- * request-access action and Core price share one row on the right. Structured
- * facts (login) render as discrete chips on a full-width row below the header so
- * they stay on one line instead of squeezing against the action.
+ * Quiet cross-auth navigation band under the form card (lighter than a card so it
+ * does not read as a competing surface). Carries only wayfinding between the auth
+ * pages ("Already have an account?", "Remember your password?") — no pricing,
+ * product facts, or sales qualification.
  */
 export function AuthWorkspaceCallout({ callout }: { callout: AuthCallout }) {
   return (
@@ -24,13 +21,12 @@ export function AuthWorkspaceCallout({ callout }: { callout: AuthCallout }) {
           </span>
           <div className="min-w-0">
             <p className="text-[12.5px] font-semibold text-[var(--text-primary)]">{callout.text}</p>
-            {!callout.facts && callout.hint ? (
+            {callout.hint ? (
               <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--text-secondary)]">{callout.hint}</p>
             ) : null}
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-0 sm:shrink-0 sm:justify-end">
-          {callout.showPrice ? <KeyValueChip label="Core" value={CORE_PRICE_LABEL} /> : null}
           <Link
             href={callout.link}
             className="ui-btn-ghost group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--accent-strong)]"
@@ -40,13 +36,6 @@ export function AuthWorkspaceCallout({ callout }: { callout: AuthCallout }) {
           </Link>
         </div>
       </div>
-      {callout.facts ? (
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5 sm:pl-11">
-          {callout.facts.map((fact) => (
-            <QuietFactChip key={fact}>{fact}</QuietFactChip>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
 }

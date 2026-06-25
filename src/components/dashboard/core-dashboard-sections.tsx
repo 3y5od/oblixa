@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { differenceInCalendarDays } from "date-fns";
 import {
   AlertTriangle,
   BadgeCheck,
   Check,
   CheckSquare,
+  ChevronRight,
   FileSpreadsheet,
   FileText,
   ShieldCheck,
@@ -11,15 +13,22 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { DashboardActionRow } from "@/components/dashboard/dashboard-action-row";
-import { FieldChip } from "@/components/ui/field-chip";
+/** Plain-language age of the longest-standing gap ("11 days old") so the data
+ *  register states the staleness in words instead of a cryptic "11D" chip (§9 #8).
+ *  Server-rendered, so `new Date()` introduces no hydration drift. */
+function daysOldLabel(iso: string | null): string | null {
+  if (!iso) return null;
+  const when = new Date(iso);
+  if (!Number.isFinite(when.getTime())) return null;
+  const days = Math.max(0, differenceInCalendarDays(new Date(), when));
+  if (days === 0) return "today";
+  return `${days} day${days === 1 ? "" : "s"} old`;
+}
 import type { StatTone } from "@/components/ui/stat-cell";
-import { TimeChip } from "@/components/ui/time-chip";
-import { CAPS_VERBS } from "@/lib/ui-copy";
+import { CAPS_VERBS, formatMonthDay } from "@/lib/ui-copy";
 import type {
   CoreDashboardActivityRow,
   CoreDashboardDataGapCategory,
-  CoreDashboardDataGapSummary,
 } from "@/lib/dashboard/core-dashboard-model";
 
 /** Short, specific fix verb for a data-gap row's primary missing field
@@ -76,136 +85,182 @@ function activityVisual(row: CoreDashboardActivityRow): {
   return { verb: fallback, icon: FileText };
 }
 
-function OverflowCount({ value }: { value: number }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--border-card)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-medium leading-none text-[var(--text-tertiary)]">
-      <span className="tabular-nums">{value}</span> more
-    </span>
-  );
-}
 const CATEGORY_FIX_FIELD: Record<CoreDashboardDataGapCategory["key"], string> = {
   owners: "Owner",
   dates: "Renewal date",
   counterparties: "Counterparty",
 };
 
-// Object-class noun for each gap category, so the column header reads as a full
-// semantic count ("1 contract missing an owner") rather than a bare label + chip
-// the user has to decode (§19 count semantics).
-const CATEGORY_GAP_NOUN: Record<CoreDashboardDataGapCategory["key"], string> = {
-  owners: "an owner",
-  dates: "renewal or notice dates",
-  counterparties: "a counterparty",
+// Short category nouns for the compact "no gaps" footer.
+const CATEGORY_CLEAR_NOUN: Record<CoreDashboardDataGapCategory["key"], string> = {
+  owners: "owners",
+  dates: "renewal & notice dates",
+  counterparties: "counterparties",
 };
 
-// Fixed column order so the three completeness columns stay stable whether a
-// category has gaps or is all-clear (§14 stable columns). Cleared categories
-// render as a structured column, not an appended success pill (§13).
+// Which of a row's missing fields belong to THIS group's dimension, so a row in
+// the Owners band leads with its owner gap (not the counterparty/date gaps that
+// belong to other dimensions) — the rest fold into a quiet "also missing" note
+// (§7 critique #4 — no group/chip mismatch).
+const CATEGORY_PRIMARY_FIELDS: Record<CoreDashboardDataGapCategory["key"], string[]> = {
+  owners: ["Owner"],
+  dates: ["Renewal date", "Notice date"],
+  counterparties: ["Counterparty"],
+};
+
+// The prominent gap marker per group, matching the band it sits under.
+const CATEGORY_PRIMARY_LABEL: Record<CoreDashboardDataGapCategory["key"], string> = {
+  owners: "Missing owner",
+  dates: "Missing dates",
+  counterparties: "Missing counterparty",
+};
+
+// Plain-language operational consequence of the gap, so each row says why it
+// matters, not just what is absent (§7 critique #5 — row consequence copy).
+const CATEGORY_CONSEQUENCE: Record<CoreDashboardDataGapCategory["key"], string> = {
+  owners: "Reminders can't be routed until an owner is assigned.",
+  dates: "Renewal and notice reminders can't run without these dates.",
+  counterparties: "Search, grouping, and reports need the counterparty.",
+};
+
+// Fixed order so categories with gaps keep a stable sequence.
 const GAP_COLUMN_ORDER: CoreDashboardDataGapCategory["key"][] = [
   "owners",
   "dates",
   "counterparties",
 ];
 
+/**
+ * Data-quality register: contracts that are missing details, grouped into
+ * category bands (Owners / Dates / Counterparties). Each row is contract-led —
+ * the contract name plus the group's gap marker dominate, an operational
+ * consequence explains why it matters, secondary gaps fold into a quiet note, and
+ * age + a compact outline fix action sit close on the right (§7 critique — one
+ * scannable row, no horizontal slack, no group/chip mismatch).
+ */
 export function DataGapBoard({
   categories,
-  summary,
+  compact = false,
 }: {
   categories: CoreDashboardDataGapCategory[];
-  summary: CoreDashboardDataGapSummary;
+  compact?: boolean;
 }) {
   const byKey = new Map(categories.map((category) => [category.key, category]));
   const ordered = GAP_COLUMN_ORDER.map((key) => byKey.get(key)).filter(
     (category): category is CoreDashboardDataGapCategory => Boolean(category)
   );
+  const gapCategories = ordered.filter((category) => category.rows.length > 0);
+  const clearedCategories = ordered.filter((category) => category.rows.length === 0);
   return (
     <div>
-      {summary.oldestUpdatedAt ? (
-        <div className="mb-2 flex items-center justify-end gap-1.5 px-1">
-          <span className="ui-caps-3 text-[10px] text-[var(--text-tertiary)]">
-            Oldest missing detail
-          </span>
-          <TimeChip date={summary.oldestUpdatedAt} bordered className="shrink-0" />
-        </div>
-      ) : null}
-      <div className="grid grid-cols-1 gap-y-5 md:grid-cols-3 md:gap-y-0 md:divide-x md:divide-[color:color-mix(in_oklab,var(--border-subtle)_40%,transparent)]">
-        {ordered.map((category, index) => {
-          const pad =
-            index === 0
-              ? "md:pr-5"
-              : index === ordered.length - 1
-                ? "md:pl-5"
-                : "md:px-5";
-          const hasGaps = category.rows.length > 0;
-          return (
-            <div key={category.key} className={`min-w-0 ${pad}`}>
-              {hasGaps ? (
-                <>
-                  <p className="mb-1.5 px-1 text-[11.5px] leading-snug text-[var(--text-secondary)]">
-                    <span className="font-semibold tabular-nums text-[var(--warning-ink)]">
-                      {category.total}
-                    </span>{" "}
-                    {category.total === 1 ? "contract" : "contracts"} missing{" "}
-                    {CATEGORY_GAP_NOUN[category.key]}
-                  </p>
-                  <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)]">
-                    {category.rows.map((row) => {
-                      const visibleFields = row.missing.slice(0, 2);
-                      const overflow = row.missing.slice(2);
-                      return (
-                        <li key={row.id}>
-                          <DashboardActionRow
-                            href={row.href}
-                            minHeightClassName="min-h-[2.5rem]"
-                            paddingClassName="py-1.5"
-                            hoverAction={gapFixLabel(CATEGORY_FIX_FIELD[category.key])}
-                            title={
-                              <p className="truncate text-[13px] font-semibold leading-[1.3] text-[var(--text-primary)]">
-                                {row.title}
-                              </p>
-                            }
-                            meta={
-                              <div className="mt-0.5 flex flex-wrap items-center gap-1">
-                                {visibleFields.map((field) => (
-                                  <FieldChip key={field} label={field} transform="preserve" className="max-w-[10rem]" />
-                                ))}
-                                {overflow.length > 0 ? (
-                                  <span
-                                    title={`Also missing: ${overflow.join(", ")}`}
-                                    aria-label={`${overflow.length} more detail${overflow.length === 1 ? "" : "s"}: ${overflow.join(", ")}`}
-                                    className="inline-flex shrink-0 cursor-help"
-                                  >
-                                    <OverflowCount value={overflow.length} />
-                                  </span>
-                                ) : null}
-                              </div>
-                            }
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </>
-              ) : (
-                <div className="flex min-h-[2.5rem] items-center gap-2 px-1 py-1.5">
-                  <Check
-                    className="h-3.5 w-3.5 shrink-0"
-                    strokeWidth={2.4}
-                    style={{ color: "var(--success-ink)" }}
-                    aria-hidden
-                  />
-                  <span
-                    className="text-[11.5px] leading-snug"
-                    style={{ color: "color-mix(in oklab, var(--success-ink) 72%, var(--text-secondary))" }}
-                  >
-                    No contracts missing {CATEGORY_GAP_NOUN[category.key]}
-                  </span>
-                </div>
-              )}
+      {gapCategories.map((category) => {
+        const primaryFields = CATEGORY_PRIMARY_FIELDS[category.key];
+        return (
+          <section key={category.key} className="min-w-0">
+            {/* Category subsection — sentence-case label on the left, a quiet count
+                on the right; the per-row consequence carries the "what's missing". */}
+            <div className={`flex items-baseline justify-between gap-2 ${compact ? "px-2 pb-1 pt-2.5" : "px-3 pb-1.5 pt-3 first:pt-2"}`}>
+              <span className="text-[12px] font-semibold tracking-tight text-[var(--text-secondary)]">{category.label}</span>
+              <span className="shrink-0 text-[11px] font-medium tabular-nums text-[var(--text-tertiary)]">
+                {category.total} {category.total === 1 ? "contract" : "contracts"}
+              </span>
             </div>
-          );
-        })}
-      </div>
+            <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)]">
+              {category.rows.map((row) => {
+                const otherFields = row.missing.filter((field) => !primaryFields.includes(field));
+                const age = daysOldLabel(row.updatedAt);
+                if (compact) {
+                  return (
+                    <li key={row.id}>
+                      <Link
+                        href={row.href}
+                        aria-label={`Fix the missing ${CATEGORY_FIX_FIELD[category.key].toLowerCase()} for ${row.title}`}
+                        className="group flex items-center justify-between gap-2 rounded-[6px] px-2 py-1.5 transition-colors duration-150 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-[12.5px] font-semibold leading-tight text-[var(--text-primary)]">{row.title}</span>
+                          <span className="mt-0.5 block text-[11px] leading-snug text-[var(--text-secondary)]">
+                            {CATEGORY_CONSEQUENCE[category.key]}
+                          </span>
+                        </span>
+                        <span
+                          className="inline-flex shrink-0 items-center gap-1 rounded-[5px] border px-2 py-1 text-[11px] font-semibold leading-none transition-colors duration-150 group-hover:border-[color:color-mix(in_oklab,var(--accent)_45%,transparent)] group-hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] group-hover:text-[var(--accent-strong)]"
+                          style={{ borderColor: "color-mix(in oklab, var(--border-strong) 70%, var(--border-card))", color: "var(--text-secondary)" }}
+                        >
+                          {gapFixLabel(CATEGORY_FIX_FIELD[category.key])}
+                          <ChevronRight className="h-3 w-3 transition-transform duration-150 group-hover:translate-x-0.5" strokeWidth={2} />
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={row.id}>
+                    <Link
+                      href={row.href}
+                      aria-label={`Fix the missing ${CATEGORY_FIX_FIELD[category.key].toLowerCase()} for ${row.title}${age ? `, ${age}` : ""}`}
+                      className="group block rounded-[6px] px-3 py-2.5 transition-colors duration-150 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-x-5"
+                    >
+                      {/* Contract + the group's gap marker + consequence. */}
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="truncate text-[14px] font-semibold leading-[1.3] text-[var(--text-primary)]">
+                            {row.title}
+                          </span>
+                          <span
+                            className="inline-flex shrink-0 items-center rounded-[3px] border px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.06em]"
+                            style={{
+                              borderColor: "color-mix(in oklab, var(--warning-ink) 42%, var(--border-card))",
+                              background: "color-mix(in oklab, var(--warning-soft) 58%, var(--surface-raised))",
+                              color: "var(--warning-ink)",
+                            }}
+                          >
+                            {CATEGORY_PRIMARY_LABEL[category.key]}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[12px] leading-snug text-[var(--text-secondary)]">
+                          {CATEGORY_CONSEQUENCE[category.key]}
+                        </p>
+                        {otherFields.length > 0 ? (
+                          <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+                            Also missing {otherFields.map((field) => field.toLowerCase()).join(", ")}.
+                          </p>
+                        ) : null}
+                      </div>
+                      {/* Age */}
+                      <span className="mt-1.5 block whitespace-nowrap text-[12px] leading-snug tabular-nums text-[var(--text-tertiary)] sm:mt-0 sm:text-right">
+                        {age ?? "-"}
+                      </span>
+                      {/* Action — a compact outline button, the one action style here. */}
+                      <span
+                        className="mt-2 inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-[4px] border px-2.5 py-1.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] transition-colors duration-150 group-hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_30%,var(--surface-raised))] sm:mt-0 sm:justify-self-end"
+                        style={{
+                          borderColor: "color-mix(in oklab, var(--accent) 42%, var(--border-card))",
+                          color: "var(--accent-strong)",
+                        }}
+                      >
+                        {gapFixLabel(CATEGORY_FIX_FIELD[category.key])}
+                        <ChevronRight className="h-3 w-3 transition-transform duration-150 group-hover:translate-x-0.5" strokeWidth={2} />
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })}
+      {clearedCategories.length > 0 ? (
+        <p
+          className={`flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12px] leading-snug ${compact ? "px-2.5 py-2" : "px-3 py-2.5"}`}
+          style={{ color: "color-mix(in oklab, var(--success-ink) 72%, var(--text-secondary))" }}
+        >
+          <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2.4} style={{ color: "var(--success-ink)" }} aria-hidden />
+          <span>
+            No gaps in {clearedCategories.map((category) => CATEGORY_CLEAR_NOUN[category.key]).join(", ")}.
+          </span>
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -225,40 +280,61 @@ function activityInk(tone: StatTone | undefined): string {
 export function ActivityRows({ rows }: { rows: CoreDashboardActivityRow[] }) {
   if (rows.length === 0) {
     return (
-      <p className="px-2 py-1.5 text-[11.5px] text-[var(--text-tertiary)]">
+      <p className="px-1 py-1.5 text-[12px] text-[var(--text-tertiary)]">
         No recent activity yet.
       </p>
     );
   }
+  // A deliberate audit rail: a connecting spine threads tone-coded event nodes,
+  // each pairing the state change + object with a readable timestamp — an
+  // intentional trail, not loose text in a column (§6 audit rail, §8.5 activity).
   return (
-    <ul className="divide-y divide-[color:color-mix(in_oklab,var(--border-subtle)_45%,transparent)]">
-      {rows.map((row) => {
+    <ol className="space-y-0">
+      {rows.map((row, index) => {
         const visual = activityVisual(row);
         const Icon = visual.icon;
         const ink = activityInk(visual.tone);
         const summary = row.summary?.trim() || row.label?.trim() || "Activity";
+        const isLast = index === rows.length - 1;
         return (
-          <li key={row.id}>
+          <li key={row.id} className="relative flex gap-3">
+            <div className="relative flex w-5 shrink-0 flex-col items-center">
+              <span
+                aria-hidden
+                className="z-[1] inline-flex h-5 w-5 items-center justify-center rounded-full border"
+                style={{
+                  borderColor: `color-mix(in oklab, ${ink} 48%, var(--border-card))`,
+                  background: `color-mix(in oklab, ${ink} 13%, var(--surface-raised))`,
+                  color: ink,
+                }}
+              >
+                <Icon className="h-3 w-3" strokeWidth={2} />
+              </span>
+              {!isLast ? (
+                <span aria-hidden className="w-[1.5px] flex-1 bg-[color:color-mix(in_oklab,var(--border-strong)_55%,transparent)]" />
+              ) : null}
+            </div>
             <Link
               href={row.href}
-              className="group flex items-start gap-2.5 rounded-[6px] px-2 py-2 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none"
+              className={`group -mt-0.5 flex min-w-0 flex-1 items-start justify-between gap-2.5 rounded-[6px] px-1.5 pt-1 transition-colors hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_12%,transparent)] focus-visible:bg-[color:color-mix(in_oklab,var(--accent-soft)_18%,transparent)] focus-visible:outline-none ${isLast ? "pb-1" : "pb-4"}`}
             >
-              <span aria-hidden className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center" style={{ color: ink }}>
-                <Icon className="h-3.5 w-3.5" strokeWidth={1.85} />
-              </span>
-              <p className="min-w-0 flex-1 text-[12.5px] leading-snug text-[var(--text-primary)]">
-                <span className="font-medium">{summary}</span>
+              {/* action + object on the left, one precise right-aligned timestamp —
+                  an audit row, not a notification feed (§10). */}
+              <span className="min-w-0">
+                <span className="block text-[12.5px] font-semibold leading-snug text-[var(--text-primary)]">{summary}</span>
                 {row.contractTitle ? (
-                  <span className="font-normal text-[var(--text-secondary)]"> for {row.contractTitle}</span>
+                  <span className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-[var(--text-tertiary)]">{row.contractTitle}</span>
                 ) : null}
-              </p>
+              </span>
               {row.occurredAt ? (
-                <TimeChip date={row.occurredAt} className="shrink-0 self-start text-[var(--text-tertiary)]" />
+                <time className="shrink-0 self-start pt-0.5 text-[11px] font-medium tabular-nums text-[var(--text-tertiary)]">
+                  {formatMonthDay(row.occurredAt)}
+                </time>
               ) : null}
             </Link>
           </li>
         );
       })}
-    </ul>
+    </ol>
   );
 }

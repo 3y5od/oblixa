@@ -121,53 +121,31 @@ export function CoreDashboardIntakeActions({
 export function CoreDashboardHeader({
   title,
   lead,
-  stateItems,
   actions,
+  meta,
 }: {
   title: string;
-  lead: string;
-  stateItems?: { value: string; label: string }[];
+  /** Optional supporting line — omitted on the compact in-app workspace header. */
+  lead?: string;
   actions?: ReactNode;
+  /** Optional compact meta line (e.g. workspace · counts) rendered under the title. */
+  meta?: ReactNode;
 }) {
-  // Counts anchor in the LEFT identity column (below the lead) rather than the
-  // right-hand action cluster, so the masthead reads as a true two-column header:
-  // identity + counts on the left, actions + trust note on the right (§6).
-  const countsStrip =
-    stateItems && stateItems.length > 0 ? (
-      <dl className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11.5px] text-[var(--text-secondary)]">
-        {stateItems.map((item) => (
-          <div key={item.label} className="inline-flex items-baseline gap-1.5">
-            <dt className="sr-only">{item.label}</dt>
-            <dd className="inline-flex items-baseline gap-1.5">
-              <span className="font-mono text-[12.5px] font-semibold tabular-nums text-[var(--text-primary)]">
-                {item.value}
-              </span>
-              <span>{item.label}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
-    ) : undefined;
-
+  // Compact authenticated workspace header — not a landing masthead. Identity +
+  // intake actions only; the operational counts live in the status bar below and
+  // the trust boundary is carried by the review surface itself (reduced copy).
   return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_65%,transparent)] pb-5">
-      <DashboardPageHeader
-        icon={<FileCheck2 className="h-4 w-4" strokeWidth={1.85} aria-hidden />}
-        eyebrow="Dashboard"
-        title={title}
-        lead={lead}
-        belowLead={countsStrip}
-        actions={
-          <div className="flex shrink-0 flex-col items-start gap-2.5 lg:items-end">
-            {actions}
-            <p className="max-w-[18rem] rounded-[6px] border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface)] px-2.5 py-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
-              Files are workspace-scoped. Suggested details are not trusted until confirmed.
-            </p>
-          </div>
-        }
-        titleFont="serif"
-      />
-    </div>
+    <DashboardPageHeader
+      icon={<FileCheck2 className="h-4 w-4" strokeWidth={1.85} aria-hidden />}
+      eyebrow="Dashboard"
+      suppressEyebrow
+      title={title}
+      lead={lead}
+      metaStrip={meta}
+      actions={actions}
+      actionsAlign="center"
+      density="compact"
+    />
   );
 }
 

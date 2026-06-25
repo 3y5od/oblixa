@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase/server";
 import type { OrgRole } from "@/lib/types";
 import { describeRecoverableMutationError } from "@/lib/recoverable-mutation-error";
+import { isWorkspaceAdminRole } from "@/lib/roles";
 
 export const MAX_PROFILE_NAME_LEN = 200;
 export const MAX_ORG_NAME_LEN = 200;
@@ -17,6 +18,20 @@ export type SettingsActionResult = {
    *  proof; the client routes the user through re-auth and retries. */
   needStepUp?: true;
 };
+
+export type MembershipPermissionRow = {
+  role?: string | null;
+  organizations?: { owner_user_id?: string | null } | null;
+};
+
+export function canManageTeamOrWorkspace(
+  row: MembershipPermissionRow | null | undefined,
+  userId: string
+): boolean {
+  return isWorkspaceAdminRole(row?.role, {
+    isWorkspaceOwner: row?.organizations?.owner_user_id === userId,
+  });
+}
 
 type PendingInviteSeatRow = {
   id: string;

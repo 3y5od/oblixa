@@ -143,7 +143,11 @@ export function RenewalFilterBar({
 
   return (
     <FilterBar
-      className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] px-5 py-3"
+      // Subordinated to the ledger (§4): a quiet recessed band — fainter top
+      // rule, tighter vertical rhythm, and a low parchment wash that reads as a
+      // ledger margin strip rather than a boxed control row, so the register
+      // itself stays the first important object.
+      className="border-t border-[color:color-mix(in_oklab,var(--border-subtle)_55%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-inset)_16%,var(--surface-raised))] px-5 py-2"
       activeFilterCount={activeFilterCount}
       clearFiltersHref={clearFiltersHref}
       sortSlot={

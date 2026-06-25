@@ -440,8 +440,34 @@ function shapeWorkRow(
   const lastUpdateLabel = formatRelativeLabel(lastUpdateAt);
   const lastUpdateReadable = formatUpdatedReadable(lastUpdateAt);
   const nextActionNote = deriveNextActionNote({ blocker, ownerUserId, dueState, type });
-  const statusLabel = formatStatusLabel(status);
+  const statusLabel = formatStatusLabel(status, type);
   const typeLabel = WORK_TYPE_LABELS[type];
+  const tone = statusTone(status, dueState, normalizeToken(row.severity));
+  // Three-tier weight (red-rebalance): only a genuinely blocked / critical row
+  // takes the loudest treatment. A past-due-but-not-blocked row drops to the
+  // quieter `overdue` (amber) tier so the one cannot-proceed row dominates the
+  // queue rather than every overdue row reading the same oxblood.
+  //
+  // Derived from the underlying signals (not `tone`) so the precedence is
+  // explicit and correct: cannot-proceed OUTRANKS past due. A row that is both
+  // blocked and overdue stays `critical` — `statusTone` returns "overdue" first,
+  // so reading it here would have wrongly demoted the most urgent row to amber.
+  const cannotProceed =
+    status === "blocked" ||
+    status === "waiting" ||
+    (blocker !== "—") ||
+    normalizeToken(row.severity) === "critical";
+  const rowEmphasis: WorkItemRow["rowEmphasis"] = cannotProceed
+    ? "critical"
+    : dueState === "overdue"
+      ? "overdue"
+      : "routine";
+  const isCritical = rowEmphasis === "critical";
+  // Material record token: the supporting block on the right of each record
+  // reads as a quiet sheet on routine/overdue rows and a faintly danger-washed
+  // sheet on the one cannot-proceed row, so the eye lands on the blocked record
+  // first and reads the rest calmly (§6 composition; §13 surface roles).
+  const recordTone: WorkItemRow["recordTone"] = isCritical ? "critical" : "routine";
   return {
     id,
     key: `${sourceTable}:${sourceId}:${type}`,
@@ -452,7 +478,12 @@ function shapeWorkRow(
     title,
     status,
     statusLabel,
-    statusTone: statusTone(status, dueState, normalizeToken(row.severity)),
+    statusTone: tone,
+    rowEmphasis,
+    recordTone,
+    isCritical,
+    statusInk: statusInk(tone, rowEmphasis),
+    nextActionTone: nextActionTone({ blocker, emphasis: rowEmphasis }),
     contractId,
     contractTitle,
     counterparty,
@@ -674,7 +705,21 @@ function toOwnerOptions(members: OrgMemberProfileRow[]): WorkOption[] {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-function formatStatusLabel(status: string) {
+// An open/in-progress item names what it needs next by task type rather than the
+// generic "Open"/"In progress", which carry no operational meaning (§18.5 status
+// language — answer "what is needed?"). Blocked/done/canceled keep their canonical
+// labels. Mirrors the dashboard's work status vocabulary.
+function formatStatusLabel(status: string, type: string) {
+  if (status === "blocked" || status === "waiting") return WORK_STATUS_LABELS.blocked;
+  if (status === "open" || status === "in_progress") {
+    const t = type.toLowerCase();
+    if (t.includes("approval")) return "Needs decision";
+    if (t.includes("evidence")) return "Needs evidence";
+    if (t.includes("exception") || t.includes("issue") || t.includes("problem")) return "Needs resolution";
+    if (t.includes("renewal") || t.includes("checkpoint")) return "Needs review";
+    if (t.includes("obligation") || t.includes("requirement")) return "Needs response";
+    return status === "in_progress" ? "In review" : "To do";
+  }
   if (status in WORK_STATUS_LABELS) {
     return WORK_STATUS_LABELS[status as keyof typeof WORK_STATUS_LABELS];
   }
@@ -698,6 +743,38 @@ function statusTone(status: string, dueState: string, severity: string) {
   // (§10.2 status earns color). Only genuinely unknown statuses get accent.
   if (status === "open") return "empty";
   return "in_review";
+}
+
+// Ink for the status label so the queue can render conditions as quiet colored
+// text (the filled boxed badge stays reserved for the cannot-proceed tier).
+// Red-rebalance (v-materiality): ONLY the genuinely blocked / critical tier
+// carries oxblood. A past-due-but-actionable row reads QUIET neutral ink here —
+// not amber — so its status no longer competes with the one blocked row and the
+// overdue tier sits closer to routine than to critical. The single restrained
+// amber cue for an overdue row lives in the DUE column ("Past due by N days"),
+// never on the status line. Done stays green; in-review/baseline stay slate.
+function statusInk(
+  tone: ReturnType<typeof statusTone>,
+  emphasis: WorkItemRow["rowEmphasis"]
+): string {
+  if (emphasis === "critical") return "var(--danger-ink)";
+  if (tone === "healthy") return "var(--success-ink)";
+  // Overdue + everything non-critical reads as quiet secondary ink. Amber is
+  // confined to the due column so the queue no longer reads as one warning field.
+  return "var(--text-secondary)";
+}
+
+// Tone for the second-line consequence note. A real dependency reason (blocker)
+// on the cannot-proceed tier is the only danger note; everything else — including
+// a past-due-but-actionable row — reads as the calm neutral note. The amber
+// "Past due by N days" signal is reserved for the DUE column, so the record body
+// stays serious-but-quiet (red-rebalance; §6 anti-noise).
+function nextActionTone(input: {
+  blocker: string;
+  emphasis: WorkItemRow["rowEmphasis"];
+}): "danger" | "warning" | "neutral" {
+  if (input.emphasis === "critical" && input.blocker && input.blocker !== "—") return "danger";
+  return "neutral";
 }
 
 function deriveDueMeta(
@@ -780,6 +857,25 @@ function deriveNextActionNote(input: {
   if (input.type === "renewal_checkpoint") {
     return "Confirm the date before reminders and reports rely on it.";
   }
-  if (input.dueState === "overdue") return "Past due — resolve before it slips further.";
+  if (input.dueState === "overdue") return overduePastDueNote(input.type);
   return null;
+}
+
+// A past-due task names its consequence in its own terms, so the second line
+// varies by row instead of repeating one generic phrase across the queue (§6
+// anti-noise, §7 consequence). Each restates the still-open condition truthfully —
+// no downstream claim the row data cannot support.
+function overduePastDueNote(type: WorkTypeKey): string {
+  switch (type) {
+    case "approval":
+      return "Past due - the decision is still pending.";
+    case "evidence_request":
+      return "Past due - the proof is still outstanding.";
+    case "obligation":
+      return "Past due - the obligation is still unmet.";
+    case "exception":
+      return "Past due - the problem is still unresolved.";
+    default:
+      return "Past due - resolve before it slips further.";
+  }
 }

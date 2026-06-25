@@ -9,15 +9,15 @@
     "localContentRewriteManifest": "artifacts/compatibility/versioned-local-content-rewrite-manifest.json"
   },
   "totals": {
-    "contractCount": 2875,
-    "hitCount": 13625,
+    "contractCount": 2895,
+    "hitCount": 13676,
     "manualOnlyContractCount": 1219,
     "queueCoveredManualCount": 1219,
-    "allowlistCoveredManualCount": 1203,
+    "allowlistCoveredManualCount": 1204,
     "documentationOnlyManualCount": 0,
     "uncoveredManualCount": 0,
     "missingMetadataCount": 0,
-    "validationCommandCoveredCount": 2875,
+    "validationCommandCoveredCount": 2895,
     "remainingSafeActionCount": 0,
     "subSurfaceCount": 41
   },
@@ -37,17 +37,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 9
+        "platform-hardening": 13
       },
-      "contractCount": 9,
-      "hitCount": 25,
+      "contractCount": 13,
+      "hitCount": 34,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 9,
+      "validationCommandCoveredCount": 13,
       "remainingSafeActionCount": 0
     },
     {
@@ -94,17 +94,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 269
+        "platform-hardening": 268
       },
-      "contractCount": 269,
-      "hitCount": 1435,
+      "contractCount": 268,
+      "hitCount": 1434,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 269,
+      "validationCommandCoveredCount": 268,
       "remainingSafeActionCount": 0
     },
     {
@@ -170,9 +170,9 @@
         "dom_or_test_selector"
       ],
       "owners": {
-        "qa-platform": 52
+        "qa-platform": 55
       },
-      "contractCount": 52,
+      "contractCount": 55,
       "hitCount": 89,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
@@ -180,7 +180,7 @@
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 52,
+      "validationCommandCoveredCount": 55,
       "remainingSafeActionCount": 0
     },
     {
@@ -284,17 +284,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 553
+        "platform-hardening": 558
       },
-      "contractCount": 553,
-      "hitCount": 3412,
+      "contractCount": 558,
+      "hitCount": 3422,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 553,
+      "validationCommandCoveredCount": 558,
       "remainingSafeActionCount": 0
     },
     {
@@ -306,7 +306,7 @@
         "platform-hardening": 11
       },
       "contractCount": 11,
-      "hitCount": 62,
+      "hitCount": 59,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
@@ -398,17 +398,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 275
+        "platform-hardening": 276
       },
-      "contractCount": 275,
-      "hitCount": 1743,
+      "contractCount": 276,
+      "hitCount": 1745,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 275,
+      "validationCommandCoveredCount": 276,
       "remainingSafeActionCount": 0
     },
     {
@@ -455,17 +455,17 @@
         "app_route_contract"
       ],
       "owners": {
-        "frontend-platform": 82
+        "frontend-platform": 77
       },
-      "contractCount": 82,
-      "hitCount": 327,
-      "manualOnlyContractCount": 82,
-      "queueCoveredManualCount": 82,
-      "allowlistCoveredManualCount": 76,
+      "contractCount": 77,
+      "hitCount": 241,
+      "manualOnlyContractCount": 77,
+      "queueCoveredManualCount": 77,
+      "allowlistCoveredManualCount": 72,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 82,
+      "validationCommandCoveredCount": 77,
       "remainingSafeActionCount": 0
     },
     {
@@ -474,17 +474,17 @@
         "provider_or_crypto_format"
       ],
       "owners": {
-        "platform-security": 128
+        "platform-security": 133
       },
-      "contractCount": 128,
-      "hitCount": 1124,
-      "manualOnlyContractCount": 128,
-      "queueCoveredManualCount": 128,
-      "allowlistCoveredManualCount": 127,
+      "contractCount": 133,
+      "hitCount": 1231,
+      "manualOnlyContractCount": 133,
+      "queueCoveredManualCount": 133,
+      "allowlistCoveredManualCount": 132,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 128,
+      "validationCommandCoveredCount": 133,
       "remainingSafeActionCount": 0
     },
     {
@@ -609,17 +609,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 134
+        "platform-hardening": 133
       },
-      "contractCount": 134,
-      "hitCount": 548,
+      "contractCount": 133,
+      "hitCount": 547,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 134,
+      "validationCommandCoveredCount": 133,
       "remainingSafeActionCount": 0
     },
     {
@@ -685,17 +685,17 @@
         "source_content"
       ],
       "owners": {
-        "platform-hardening": 29
+        "platform-hardening": 38
       },
-      "contractCount": 29,
-      "hitCount": 70,
+      "contractCount": 38,
+      "hitCount": 84,
       "manualOnlyContractCount": 0,
       "queueCoveredManualCount": 0,
       "allowlistCoveredManualCount": 0,
       "documentationOnlyManualCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
-      "validationCommandCoveredCount": 29,
+      "validationCommandCoveredCount": 38,
       "remainingSafeActionCount": 0
     },
     {

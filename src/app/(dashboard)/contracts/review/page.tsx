@@ -1,22 +1,20 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Check, FileUp, Import } from "lucide-react";
+import { Check, FileUp, Import, ListChecks } from "lucide-react";
 import { getAuthContext } from "@/lib/supabase/server";
 import { WorkspaceRequiredState } from "@/components/layout/workspace-required-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DashboardPageHeader } from "@/components/ui/dashboard-page-header";
 import { FieldReviewWorkspaceActions } from "@/components/contracts/field-review-workspace-actions";
 import { ReviewWorkbenchShell } from "@/components/contracts/review/review-workbench-shell";
 import { isDateField } from "@/components/contracts/review/review-helpers";
-import { ChipPair } from "@/components/ui/chip-pair";
 import {
   FIELD_REVIEW_EMPTY_STATE,
-  FIELD_REVIEW_EYEBROW,
   FIELD_REVIEW_TITLE,
 } from "@/lib/field-review/spec-strings";
 import {
   loadFieldReviewWorkspaceModel,
   normalizeReviewQueueFilter,
-  REVIEW_QUEUE_FILTERS,
 } from "@/lib/field-review/model";
 import { isUuid } from "@/lib/security/validation";
 
@@ -31,15 +29,50 @@ function safeUuid(value: string | undefined): string | null {
   return value && isUuid(value) ? value : null;
 }
 
-/** One labeled cell in the header workspace-progress strip. The visible label
- *  names the counted object; the accessible label restates it with the unit so
- *  the number is never bare to assistive tech. */
-function HeaderMetric({ label, value, unit }: { label: string; value: number; unit: string }) {
+/** Workspace-scope review summary, rendered as an integrated header meta line
+ *  (not a disconnected right-floating figure). Each number names its object type
+ *  inline (§19 count semantics) so neither count is ambiguous; the accessible
+ *  sentence restates the whole scope. Per-contract progress lives in the contract
+ *  band, so this stays scoped to the workspace. */
+function ReviewProgressSummary({
+  details,
+  contracts,
+  filtered,
+}: {
+  details: number;
+  contracts: number;
+  filtered: boolean;
+}) {
+  const detailWord = details === 1 ? "detail" : "details";
+  const contractWord = contracts === 1 ? "contract" : "contracts";
+  // Keep the verb agreeing with the detail count ("details need" / "detail
+  // needs") so the token never reads as a singular noun beside a plural verb.
+  const needWord = details === 1 ? "needs" : "need";
   return (
-    <span className="flex flex-col gap-1 px-3.5 py-2" aria-label={`${label}: ${value} ${unit}`}>
-      <span className="ui-caps-3 text-[9px] leading-none text-[var(--text-tertiary)]">{label}</span>
-      <span className="text-[15px] font-semibold leading-none tabular-nums text-[var(--text-primary)]">{value}</span>
-    </span>
+    <p
+      className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 leading-none"
+      aria-label={`${details} suggested contract ${detailWord} ${needWord} confirmation; ${contracts} ${contractWord} in review${filtered ? ", filtered view" : ""}`}
+    >
+      {/* Two scoped count tokens (dominant number + quiet label), not an
+          incidental sentence. No "Review queue:" prefix — the page title already
+          names the surface. Each token names its object type (§19). */}
+      <span aria-hidden className="inline-flex items-baseline gap-1.5">
+        <span className="text-[15px] font-semibold tabular-nums text-[var(--text-primary)]">{details}</span>
+        <span className="text-[12.5px] text-[var(--text-secondary)]">
+          {`suggested contract ${detailWord} ${needWord} confirmation`}
+        </span>
+      </span>
+      <span aria-hidden className="text-[var(--border-strong)]">·</span>
+      <span aria-hidden className="inline-flex items-baseline gap-1.5">
+        <span className="text-[15px] font-semibold tabular-nums text-[var(--text-primary)]">{contracts}</span>
+        <span className="text-[12.5px] text-[var(--text-secondary)]">{`${contractWord} in review`}</span>
+      </span>
+      {filtered ? (
+        <span className="ml-0.5 inline-flex items-center rounded border border-[var(--border-card)] bg-[var(--surface-raised)] px-1.5 py-0.5 text-[11px] font-medium leading-none text-[var(--text-tertiary)]">
+          Filtered view
+        </span>
+      ) : null}
+    </p>
   );
 }
 
@@ -62,7 +95,6 @@ export default async function ContractReviewQueuePage(props: {
   const queueSearch =
     typeof searchParams.q === "string" ? searchParams.q.slice(0, 120).trim() : "";
   const queueIsFiltered = queueFilter !== "all" || queueSearch.length > 0;
-  const activeFilterLabel = REVIEW_QUEUE_FILTERS.find((f) => f.key === queueFilter)?.label ?? "All";
 
   const model = await loadFieldReviewWorkspaceModel(ctx.admin, ctx.orgId, {
     page: parsePage(searchParams.page),
@@ -80,64 +112,50 @@ export default async function ContractReviewQueuePage(props: {
   const activeField = model.activeField;
   const activeContract = model.activeContract;
   const documentPreview = model.documentPreview;
+  const hasWorkbench = !!activeField && !!activeContract;
 
   return (
-    <div className="ui-page-stack-dense mx-auto w-full max-w-7xl">
-      {/* Frame: quiet breadcrumb above the page identity, so the surface reads as
-          an inspection desk reached from contracts rather than a standalone app. */}
-      <div className="flex flex-col gap-2">
-        <Link
-          href="/contracts"
-          className="ui-chip-focus inline-flex max-w-max items-center gap-1.5 rounded text-[12px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-          Back to contracts
-        </Link>
-
-        <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-          <div className="min-w-0">
-            <p className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">{FIELD_REVIEW_EYEBROW}</p>
-            <h1 className="mt-1.5 text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-[2rem]">
-              {FIELD_REVIEW_TITLE}
-            </h1>
-            <p className="mt-1.5 max-w-2xl text-[13.5px] leading-snug text-[var(--text-secondary)]">
-              Review suggested contract dates, owners, and terms against source text before Oblixa uses them in reminders, tasks, and reports.
-            </p>
-          </div>
-          {activeField ? (
-            <div className="flex shrink-0 flex-col items-end gap-1.5 self-end">
-              {queueIsFiltered ? (
-                <ChipPair primary="Filtered" secondary={queueFilter === "all" ? "Search" : activeFilterLabel} />
-              ) : null}
-              {/* Workspace-scope progress strip — labels name the counted object so
-                  no bare number is left to interpretation (§19). Per-contract
-                  "details confirmed" lives in the contract rail to avoid a
-                  duplicate count with an ambiguous scope. */}
-              <div
-                className="inline-flex items-stretch divide-x divide-[var(--border-card)] overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--surface-raised)]"
-                role="group"
-                aria-label="Workspace review progress"
-              >
-                <HeaderMetric label="Details to review" value={model.progress.fieldsWaiting} unit="details" />
-                <HeaderMetric
-                  label="Contracts needing review"
-                  value={model.progress.contractsWaiting}
-                  unit="contracts"
-                />
-              </div>
-            </div>
-          ) : null}
-        </header>
+    // Full-height workbench (xl): the page becomes a fixed-height flex column
+    // sized to main's content box (viewport − app top bar − footer − padding =
+    // 100dvh − 156px) and clips its own overflow, so the page never scrolls. The
+    // route header is pinned (shrink-0) and the workbench fills the rest with the
+    // panes scrolling internally — the title can never slide under the sticky top
+    // bar and the action footer is always visible. Below xl it is normal flow.
+    <div
+      className={`ui-page-stack-dense w-full ${
+        hasWorkbench ? "xl:flex xl:h-[calc(100dvh-156px)] xl:flex-col xl:overflow-hidden" : ""
+      }`}
+    >
+      {/* Route header — the canonical DashboardPageHeader (icon medallion +
+          eyebrow + title + lead) shared across the contracts surface. A hairline
+          divider separates it from the workbench; the workspace-scope review
+          progress sits beneath the lead in the title column. */}
+      <div className="border-b border-[var(--border-subtle)] pb-4 xl:shrink-0">
+        <DashboardPageHeader
+          icon={<ListChecks className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
+          eyebrow="Contracts"
+          title={FIELD_REVIEW_TITLE}
+          lead="Review suggested contract dates, owners, and terms against source text before Oblixa uses them in reminders, tasks, and reports."
+          belowLead={
+            activeField ? (
+              <ReviewProgressSummary
+                details={model.progress.fieldsWaiting}
+                contracts={model.progress.contractsWaiting}
+                filtered={queueIsFiltered}
+              />
+            ) : undefined
+          }
+        />
       </div>
 
       {model.warnings.length > 0 ? (
-        <div className="ui-alert-warning" role="status">
+        <div className="ui-alert-warning xl:shrink-0" role="status">
           {model.warnings[0]}
         </div>
       ) : null}
 
       {!activeField || !activeContract ? (
-        <section className="ui-card rounded-2xl border p-6 sm:p-8">
+        <section className="ui-card rounded-lg border p-6 sm:p-8">
           <EmptyState
             eyebrow="Review clear"
             title={FIELD_REVIEW_EMPTY_STATE}
@@ -147,20 +165,20 @@ export default async function ContractReviewQueuePage(props: {
               <>
                 <Link
                   href="/contracts"
-                  className="ui-btn-primary inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px]"
+                  className="ui-btn-primary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px]"
                 >
                   Open contracts
                 </Link>
                 <Link
                   href="/contracts/new"
-                  className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px]"
+                  className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px]"
                 >
                   <FileUp className="h-4 w-4" strokeWidth={2} aria-hidden />
                   Upload contract
                 </Link>
                 <Link
                   href="/contracts/bulk"
-                  className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px]"
+                  className="ui-btn-ghost inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px]"
                 >
                   <Import className="h-4 w-4" strokeWidth={2} aria-hidden />
                   Import contracts
@@ -189,9 +207,14 @@ export default async function ContractReviewQueuePage(props: {
               isDate={isDateField(activeField.fieldName)}
               needsCitation={activeField.needsCitation}
               sourceUnverified={
+                // The "confirm anyway" guard must match the displayed source
+                // state, which keys on the *value* being located (sourceQuality
+                // "located"), not just the surrounding clause. Gating on the
+                // clause (snippetLocated) let a value the pane labels "Source not
+                // found" confirm in one click without the warning.
                 activeField.source === "ai" &&
                 !!activeField.sourceSnippet &&
-                !documentPreview?.snippetLocated
+                !documentPreview?.valueLocated
               }
               approveIsPrimary={
                 !!activeField.suggestedValue?.trim() &&

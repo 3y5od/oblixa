@@ -40,6 +40,22 @@ export function workTypeLabel(type: string): string {
 export function workStatusLabel(row: CoreDashboardWorkRow): string {
   if (row.status === "blocked" || row.status === "waiting") return "Cannot proceed";
   if (row.dueState === "overdue") return "Past due";
+  // A status should name the condition without echoing the type label beside it
+  // ("Approval · Needs approval" reads as a stutter), so approvals read "Needs
+  // decision" (§18.5 status language — answer "what is needed?").
+  const t = row.type.toLowerCase();
+  if (row.status === "open") {
+    if (t.includes("approval")) return "Needs decision";
+    if (t.includes("evidence")) return "Needs evidence";
+    if (t.includes("exception") || t.includes("issue") || t.includes("problem")) return "Needs resolution";
+    if (t.includes("renewal") || t.includes("checkpoint")) return "Needs review";
+    if (t.includes("obligation") || t.includes("requirement")) return "Needs response";
+    return "To do";
+  }
+  if (row.status === "in_progress") {
+    if (t.includes("approval")) return "Needs decision";
+    return "In review";
+  }
   return WORK_STATUS_LABELS[row.status as keyof typeof WORK_STATUS_LABELS] ?? humanize(row.status, "Open");
 }
 

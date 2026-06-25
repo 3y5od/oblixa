@@ -101,3 +101,18 @@ export function formatCalendarCompact(input: Date | string | null | undefined): 
   const sameYear = d.getFullYear() === new Date().getFullYear();
   return sameYear ? `${month} ${dayOfMonth}` : `${month} ${dayOfMonth} · ${d.getFullYear()}`;
 }
+
+/**
+ * Sentence-case month + day (`Jun 28`), year appended when not the current year.
+ * The mature default for dashboard date cells; caps (formatCalendarCompact) is
+ * reserved for surfaces that deliberately want a stamped, all-caps treatment.
+ */
+export function formatMonthDay(input: Date | string | null | undefined): string {
+  if (!input) return "—";
+  const d = input instanceof Date ? input : new Date(input);
+  if (!Number.isFinite(d.getTime())) return "—";
+  const month = d.toLocaleString("en-US", { month: "short" });
+  const dayOfMonth = d.getDate();
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return sameYear ? `${month} ${dayOfMonth}` : `${month} ${dayOfMonth}, ${d.getFullYear()}`;
+}

@@ -11,7 +11,7 @@
   "totals": {
     "groupCount": 6,
     "guardedGroupCount": 6,
-    "contractCount": 1440,
+    "contractCount": 1456,
     "manualOnlyContractCount": 29,
     "uncoveredManualCount": 0,
     "remainingSafeActionCount": 0,
@@ -34,8 +34,8 @@
         "static_text_fixtures_snapshots"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 564,
-      "hitCount": 3474,
+      "contractCount": 569,
+      "hitCount": 3481,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -43,7 +43,7 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {},
       "ownerCoverage": {
-        "platform-hardening": 564
+        "platform-hardening": 569
       }
     },
     {
@@ -61,7 +61,7 @@
         "api_payload_metric_dom_selector_contracts"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 61,
+      "contractCount": 64,
       "hitCount": 102,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
@@ -69,11 +69,11 @@
       "remainingSafeActionCount": 0,
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {
-        "alias_added": 52,
+        "alias_added": 55,
         "awaiting_production_cutover": 13
       },
       "ownerCoverage": {
-        "qa-platform": 61
+        "qa-platform": 64
       }
     },
     {
@@ -92,8 +92,8 @@
         "audit_security_evidence_governance_ids"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 486,
-      "hitCount": 2517,
+      "contractCount": 485,
+      "hitCount": 2516,
       "manualOnlyContractCount": 1,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -107,7 +107,7 @@
       },
       "ownerCoverage": {
         "database-platform": 1,
-        "platform-hardening": 485
+        "platform-hardening": 484
       }
     },
     {
@@ -157,8 +157,8 @@
         "design_token_theme_contracts"
       ],
       "coverageStatus": "regression_guarded",
-      "contractCount": 29,
-      "hitCount": 70,
+      "contractCount": 38,
+      "hitCount": 84,
       "manualOnlyContractCount": 0,
       "uncoveredManualCount": 0,
       "missingMetadataCount": 0,
@@ -166,7 +166,7 @@
       "missingValidationCommandCount": 0,
       "queueStatusCounts": {},
       "ownerCoverage": {
-        "platform-hardening": 29
+        "platform-hardening": 38
       }
     },
     {

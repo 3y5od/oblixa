@@ -50,7 +50,7 @@ export function Header({ fullName, email, navSurface, showUtilitiesLink = true }
           <TopbarBreadcrumb />
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center justify-center px-1">
+        <div className="flex min-w-0 flex-1 items-center justify-start">
           <TopbarSearch />
         </div>
 

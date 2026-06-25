@@ -22,9 +22,12 @@ describe("review queue release-state workspace", () => {
     expect(FIELD_REVIEW_EMPTY_STATE).toBe("No details need confirmation.");
     expect(raw).toContain("export const metadata = { title: FIELD_REVIEW_TITLE }");
     expect(raw).toContain("{FIELD_REVIEW_TITLE}");
-    expect(raw).toContain("{FIELD_REVIEW_EYEBROW}");
+    // The route identity uses the canonical DashboardPageHeader (icon medallion +
+    // eyebrow + title + lead), matching the rest of the contracts surface. The
+    // breadcrumb lives in the app topbar, so the page header no longer repeats it.
     expect(raw).toContain("Review suggested contract dates, owners, and terms against source text");
-    expect(raw).toContain("Back to contracts");
+    expect(raw).toContain("DashboardPageHeader");
+    expect(raw).toContain('eyebrow="Contracts"');
     expect(raw).toContain("FIELD_REVIEW_EMPTY_STATE");
   });
 
@@ -84,9 +87,15 @@ describe("review queue release-state workspace", () => {
 
     expect(raw).toContain("Loading details to confirm");
     expect(raw).toContain("ui-card");
-    // The review workspace is a three-pane shell (queue rail | decision |
-    // evidence); the loading skeleton mirrors its grid template (16rem rail).
-    expect(raw).toContain("lg:grid-cols-[20rem_minmax(0,1fr)_22rem]");
+    // The review workspace is a full-height review unit (queue rail | detail +
+    // source proof | decision footer spanning the unit); the loading skeleton
+    // mirrors its responsive grid template — two grid rows at xl (panes row +
+    // auto decision row) with the source column widened so the excerpt reads as a
+    // page.
+    expect(raw).toContain("lg:grid-cols-[minmax(20rem,26rem)_minmax(0,1fr)]");
+    expect(raw).toContain("xl:grid-cols-[minmax(13rem,16rem)_minmax(23rem,33rem)_minmax(26rem,1fr)]");
+    expect(raw).toContain("xl:grid-rows-[minmax(0,1fr)_auto]");
+    expect(raw).toContain("xl:h-[calc(100dvh-156px)]");
     expect(raw).not.toContain("Loading review queue");
     expect(raw).not.toContain("xl:grid-cols-4");
   });

@@ -89,6 +89,11 @@ export type ReportsPageModel = {
   previewColumns: readonly string[];
   previewRows: ReportPreviewRow[];
   totalPreviewRows: number;
+  /** True when the user has narrowed the report with at least one non-default
+   *  filter — distinguishes a filtered-empty preview from a genuinely empty
+   *  report, so the onboarding copy never shows just because a filter excluded
+   *  every row. */
+  filtersActive: boolean;
   exportHref: string;
   /** Context-aware export label, e.g. "Export upcoming renewals". `primaryCta`
    *  stays the generic "Export report" for aria/fallback. */

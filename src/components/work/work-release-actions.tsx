@@ -30,16 +30,27 @@ const MENU_ICONS: Partial<Record<WorkActionKey, ReactNode>> = {
   link_evidence: <Paperclip className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />,
 };
 
-// The row's primary control — a structured pill that stays quiet at rest
-// (neutral border + text, transparent fill) and only promotes to accent on
-// hover/focus, so a column of repeated Review/Complete actions doesn't blanket
-// the queue's right edge in saturated blue (§10.2). The same recipe drives BOTH
-// branches so the act-in-place mutation (leading Check + Undo flow) and the
-// navigating link (Approve/Resolve/Review/…) read as one affordance. `h-8` +
-// `min-w-[5.5rem]` hold the fixed 32px height + shared column edge so verbs of
-// differing length never shift the reserved Actions slot (§10.9).
-const PRIMARY_CLASS =
-  "group inline-flex h-8 min-w-[5.5rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[var(--border-subtle)] bg-transparent px-3 text-[11.5px] font-medium leading-none text-[var(--text-secondary)] transition-[color,background-color,border-color,transform] hover:border-[color:color-mix(in_oklab,var(--accent)_40%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_8%,var(--surface-raised))] hover:text-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_60%,transparent)] active:translate-y-px disabled:opacity-60";
+// Shared geometry so every primary control holds the same 32px height + column
+// edge regardless of verb length, and the reserved Actions slot never shifts
+// (§10.9). `h-8` + `min-w-[5.5rem]` enforce it on both the act-in-place mutation
+// (leading Check + Undo flow) and the navigating link.
+const PRIMARY_BASE =
+  "group inline-flex h-8 min-w-[5.5rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-[11.5px] font-semibold leading-none transition-[color,background-color,border-color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:translate-y-px disabled:opacity-60";
+
+// Routine rows (complete / approve / review on a healthy task) keep the quietest
+// affordance: ghost at rest, faint accent only on hover. A column of repeated
+// Mark-complete / Review-details actions must NOT blanket the queue edge — so the
+// cannot-proceed action below stays the loudest control in the row (product
+// direction; §15 restrained actions).
+const PRIMARY_QUIET =
+  "border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-transparent font-medium text-[var(--text-tertiary)] hover:border-[color:color-mix(in_oklab,var(--accent)_34%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--accent-strong)_6%,var(--surface-raised))] hover:text-[var(--accent-strong)] focus-visible:outline-[color:color-mix(in_oklab,var(--accent)_55%,transparent)]";
+
+// Cannot-proceed rows ONLY: the action that clears the dependency is the dominant
+// control in the row — a danger-toned filled pill that earns the eye over every
+// quiet action elsewhere. Reserved for the blocked/critical tier so the queue
+// edge isn't a column of red (red-rebalance; §15 restrained actions).
+const PRIMARY_CRITICAL =
+  "border-[color:color-mix(in_oklab,var(--danger-ink)_32%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--danger-soft)_70%,var(--surface-raised))] text-[var(--danger-ink)] hover:border-[color:color-mix(in_oklab,var(--danger-ink)_55%,var(--border-card))] hover:bg-[color:color-mix(in_oklab,var(--danger-soft)_92%,var(--surface-raised))] focus-visible:outline-[color:color-mix(in_oklab,var(--danger-ink)_55%,transparent)]";
 
 export function WorkReleaseActions({
   row,
@@ -142,13 +153,20 @@ export function WorkReleaseActions({
   // The primary control carries the main verb; the overflow only needs the
   // secondary workflow actions, so "complete" never appears in both places.
   const menuActions = row.actions.filter((action) => action.key !== "complete");
+  // Red-rebalance (v-materiality): the filled oxblood pill is reserved for the
+  // ONE cannot-proceed tier so it dominates the queue edge. A past-due row no
+  // longer gets an amber outline — it drops to the same ghost-quiet control as
+  // every routine row, so the column edge isn't a stack of colored buttons. The
+  // amber overdue cue survives only in the due column.
+  const primaryTone = row.rowEmphasis === "critical" ? PRIMARY_CRITICAL : PRIMARY_QUIET;
+  const primaryClass = `${PRIMARY_BASE} ${primaryTone}`;
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-1.5">
       {row.primaryAction.kind === "mutation" ? (
         <button
           type="button"
-          className={PRIMARY_CLASS}
+          className={primaryClass}
           disabled={isPending}
           aria-busy={isPending || undefined}
           onClick={runPrimaryMutation}
@@ -157,7 +175,7 @@ export function WorkReleaseActions({
           {row.primaryAction.label}
         </button>
       ) : (
-        <Link href={row.primaryAction.href} className={PRIMARY_CLASS}>
+        <Link href={row.primaryAction.href} className={primaryClass}>
           {row.primaryAction.label}
           <ArrowRight
             className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"

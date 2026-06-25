@@ -4,7 +4,7 @@
   "generatedArtifact": "artifacts/operational-static-architecture-code-health.json",
   "ok": true,
   "summary": {
-    "sourceFileCount": 2373,
+    "sourceFileCount": 2583,
     "importBoundaryViolationCount": 0,
     "routeCount": 226,
     "dependencyCycleCount": 15,
@@ -30,7 +30,7 @@
     "lint"
   ],
   "importBoundaries": {
-    "scannedFileCount": 2373,
+    "scannedFileCount": 2583,
     "ruleCount": 4,
     "violationCount": 0,
     "violations": []
@@ -1156,7 +1156,7 @@
       {
         "file": "src/app/api/export/reports/route.ts",
         "runtime": "nodejs-default",
-        "lineCount": 197,
+        "lineCount": 209,
         "nativeNodeImportCount": 0,
         "dynamicImportCount": 0,
         "nodeOnlyDocumented": false
@@ -1874,7 +1874,7 @@
     ]
   },
   "dependencyCycles": {
-    "scannedFileCount": 1346,
+    "scannedFileCount": 1556,
     "baseline": "scripts/dependency-cycles-baseline.json",
     "cycleCount": 15,
     "regressionCount": 0,
@@ -1900,10 +1900,10 @@
   "complexityRatchets": [
     {
       "id": "script-complexity",
-      "scannedFileCount": 820,
+      "scannedFileCount": 824,
       "maxLines": 450,
       "baseline": "scripts/script-complexity-baseline.json",
-      "offenderCount": 26,
+      "offenderCount": 25,
       "regressionCount": 0,
       "largestFiles": [
         {
@@ -1919,11 +1919,6 @@
         {
           "file": "scripts/check-compatibility-removal-queue.mjs",
           "lines": 1010,
-          "maxLines": 450
-        },
-        {
-          "file": "scripts/check-release-evidence.mjs",
-          "lines": 951,
           "maxLines": 450
         },
         {
@@ -2030,16 +2025,21 @@
           "file": "scripts/check-operational-ci-enforcement.mjs",
           "lines": 482,
           "maxLines": 450
+        },
+        {
+          "file": "scripts/report-versioned-naming-cleanup.mjs",
+          "lines": 474,
+          "maxLines": 450
         }
       ],
       "regressions": []
     },
     {
       "id": "server-action-complexity",
-      "scannedFileCount": 35,
+      "scannedFileCount": 37,
       "maxLines": 450,
       "baseline": "scripts/server-action-complexity-baseline.json",
-      "offenderCount": 12,
+      "offenderCount": 11,
       "regressionCount": 0,
       "largestFiles": [
         {
@@ -2088,11 +2088,6 @@
           "maxLines": 450
         },
         {
-          "file": "src/actions/settings.ts",
-          "lines": 518,
-          "maxLines": 450
-        },
-        {
           "file": "src/actions/bulk-compatible-work.ts",
           "lines": 506,
           "maxLines": 450
@@ -2118,8 +2113,18 @@
           "maxLines": 450
         },
         {
+          "file": "src/actions/settings-invite-actions.ts",
+          "lines": 364,
+          "maxLines": 450
+        },
+        {
           "file": "src/actions/renewal-playbook.ts",
           "lines": 346,
+          "maxLines": 450
+        },
+        {
+          "file": "src/actions/settings-member-actions.ts",
+          "lines": 282,
           "maxLines": 450
         },
         {
@@ -2148,6 +2153,11 @@
           "maxLines": 450
         },
         {
+          "file": "src/actions/settings.ts",
+          "lines": 172,
+          "maxLines": 450
+        },
+        {
           "file": "src/actions/field-comments.ts",
           "lines": 170,
           "maxLines": 450
@@ -2156,151 +2166,141 @@
           "file": "src/actions/tasks-automation.ts",
           "lines": 170,
           "maxLines": 450
-        },
-        {
-          "file": "src/actions/product-surface-settings-helpers.ts",
-          "lines": 168,
-          "maxLines": 450
-        },
-        {
-          "file": "src/actions/notes.ts",
-          "lines": 154,
-          "maxLines": 450
         }
       ],
       "regressions": []
     },
     {
       "id": "frontend-component-complexity",
-      "scannedFileCount": 517,
+      "scannedFileCount": 681,
       "maxLines": 350,
       "baseline": "scripts/frontend-component-complexity-baseline.json",
-      "offenderCount": 49,
+      "offenderCount": 0,
       "regressionCount": 0,
       "largestFiles": [
         {
-          "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "lines": 4096,
+          "file": "src/app/(dashboard)/decisions/[id]/page.tsx",
+          "lines": 350,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/settings/billing/page.tsx",
-          "lines": 2038,
+          "file": "src/app/(marketing)/acceptable-use/page.tsx",
+          "lines": 350,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/settings/health/page.tsx",
-          "lines": 1498,
+          "file": "src/components/landing/product-mocks.tsx",
+          "lines": 349,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/page.tsx",
-          "lines": 1171,
+          "file": "src/app/(dashboard)/assurance/findings/page.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/components/contracts/contract-table.tsx",
-          "lines": 1167,
+          "file": "src/app/(marketing)/security/page.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/components/landing/landing-page.tsx",
-          "lines": 1141,
+          "file": "src/components/command-center-role-metrics.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
-          "lines": 1003,
+          "file": "src/components/dashboard/onboarding-banner.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/components/settings/security-settings-panel.tsx",
-          "lines": 997,
+          "file": "src/components/external/external-submit-form.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/components/dashboard/core-dashboard.tsx",
-          "lines": 928,
+          "file": "src/components/search/search-field.tsx",
+          "lines": 348,
           "maxLines": 350
         },
         {
-          "file": "src/components/contracts/bulk-upload-form.tsx",
-          "lines": 892,
+          "file": "src/app/(dashboard)/settings/operations/notifications-email-form.tsx",
+          "lines": 347,
           "maxLines": 350
         },
         {
-          "file": "src/components/dashboard/dashboard-lower.tsx",
-          "lines": 880,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/contracts/upload-form.tsx",
-          "lines": 797,
-          "maxLines": 350
-        },
-        {
-          "file": "src/components/contracts/contract-tasks-panel.tsx",
-          "lines": 794,
-          "maxLines": 350
-        },
-        {
-          "file": "src/app/(dashboard)/search/search-view.tsx",
-          "lines": 747,
+          "file": "src/components/assurance/review-board-actions.tsx",
+          "lines": 345,
           "maxLines": 350
         },
         {
           "file": "src/app/(dashboard)/settings/operations/operations-settings-view.tsx",
-          "lines": 723,
+          "lines": 344,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/evidence-studio/page.tsx",
-          "lines": 705,
+          "file": "src/components/contracts/field-review-workspace-actions.tsx",
+          "lines": 344,
           "maxLines": 350
         },
         {
-          "file": "src/components/dashboard/dashboard-upper.tsx",
-          "lines": 676,
+          "file": "src/components/layout/command-palette-dialog.tsx",
+          "lines": 343,
           "maxLines": 350
         },
         {
-          "file": "src/components/layout/command-palette.tsx",
-          "lines": 650,
+          "file": "src/app/(dashboard)/contracts/bulk/page.tsx",
+          "lines": 340,
           "maxLines": 350
         },
         {
-          "file": "src/components/ui/operational-summary-card.tsx",
-          "lines": 642,
+          "file": "src/components/contracts/contract-obligations-row.tsx",
+          "lines": 338,
           "maxLines": 350
         },
         {
-          "file": "src/app/(marketing)/product/page.tsx",
-          "lines": 593,
+          "file": "src/components/contracts/contract-table-desktop.tsx",
+          "lines": 338,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/tasks/page.tsx",
-          "lines": 592,
+          "file": "src/app/(dashboard)/contracts/maintenance/page.tsx",
+          "lines": 337,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/approvals/page.tsx",
-          "lines": 582,
+          "file": "src/app/(marketing)/pricing/page.tsx",
+          "lines": 337,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/work/page.tsx",
-          "lines": 582,
+          "file": "src/components/dashboard/core-dashboard-review-rows.tsx",
+          "lines": 337,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/obligations/page.tsx",
-          "lines": 577,
+          "file": "src/components/evidence/evidence-release-actions.tsx",
+          "lines": 337,
           "maxLines": 350
         },
         {
-          "file": "src/app/(dashboard)/contracts/exceptions/page.tsx",
-          "lines": 569,
+          "file": "src/app/(dashboard)/contracts/exceptions/exceptions-page-view.tsx",
+          "lines": 336,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(dashboard)/contracts/reports/page.tsx",
+          "lines": 336,
+          "maxLines": 350
+        },
+        {
+          "file": "src/app/(marketing)/privacy/page.tsx",
+          "lines": 336,
+          "maxLines": 350
+        },
+        {
+          "file": "src/components/contracts/review/review-queue-rail.tsx",
+          "lines": 336,
           "maxLines": 350
         }
       ],
@@ -2444,17 +2444,12 @@
     },
     {
       "id": "source-file-complexity",
-      "scannedFileCount": 1355,
+      "scannedFileCount": 1565,
       "maxLines": 4500,
       "baseline": null,
       "offenderCount": 0,
       "regressionCount": 0,
       "largestFiles": [
-        {
-          "file": "src/app/(dashboard)/contracts/[id]/page.tsx",
-          "lines": 4096,
-          "maxLines": 4500
-        },
         {
           "file": "src/lib/read-model-refresh.ts",
           "lines": 3948,
@@ -2481,11 +2476,6 @@
           "maxLines": 4500
         },
         {
-          "file": "src/app/(dashboard)/settings/billing/page.tsx",
-          "lines": 2038,
-          "maxLines": 4500
-        },
-        {
           "file": "src/lib/operational-contracts.ts",
           "lines": 2027,
           "maxLines": 4500
@@ -2501,8 +2491,8 @@
           "maxLines": 4500
         },
         {
-          "file": "src/app/(dashboard)/settings/health/page.tsx",
-          "lines": 1498,
+          "file": "src/app/(dashboard)/contracts/[id]/contract-detail-page-model.ts",
+          "lines": 1612,
           "maxLines": 4500
         },
         {
@@ -2512,32 +2502,22 @@
         },
         {
           "file": "src/lib/dashboard/core-dashboard-model.ts",
-          "lines": 1261,
+          "lines": 1290,
           "maxLines": 4500
         },
         {
-          "file": "src/app/(dashboard)/contracts/page.tsx",
-          "lines": 1171,
+          "file": "src/app/(dashboard)/settings/health/settings-health-page-model.ts",
+          "lines": 1120,
           "maxLines": 4500
         },
         {
-          "file": "src/components/contracts/contract-table.tsx",
-          "lines": 1167,
-          "maxLines": 4500
-        },
-        {
-          "file": "src/components/landing/landing-page.tsx",
-          "lines": 1141,
+          "file": "src/lib/reports/model.ts",
+          "lines": 1112,
           "maxLines": 4500
         },
         {
           "file": "src/lib/debugging-sweep/stubs/catalog-stubs.generated.ts",
           "lines": 1106,
-          "maxLines": 4500
-        },
-        {
-          "file": "src/lib/reports/model.ts",
-          "lines": 1091,
           "maxLines": 4500
         },
         {
@@ -2571,8 +2551,28 @@
           "maxLines": 4500
         },
         {
-          "file": "src/app/(dashboard)/contracts/renewals/page.tsx",
-          "lines": 1003,
+          "file": "src/lib/objective-measurements.ts",
+          "lines": 991,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/lib/server-contracts.ts",
+          "lines": 973,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/lib/assurance/health-graph.ts",
+          "lines": 955,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/actions/contracts-lifecycle.ts",
+          "lines": 889,
+          "maxLines": 4500
+        },
+        {
+          "file": "src/lib/work/model.ts",
+          "lines": 867,
           "maxLines": 4500
         }
       ],
@@ -2580,8 +2580,8 @@
     }
   ],
   "deadSurfaces": {
-    "scriptFileCount": 876,
-    "referencedScriptFileCount": 612,
+    "scriptFileCount": 881,
+    "referencedScriptFileCount": 613,
     "unusedScripts": [],
     "fixtureFileCount": 17,
     "orphanedFixtures": [],

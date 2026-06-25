@@ -27,7 +27,7 @@ interface FieldReviewWorkspaceActionsProps {
 type PendingAction = "approved" | "rejected" | "edited" | null;
 
 const WARNING_APPROVE_CLASS =
-  "inline-flex min-w-[7rem] items-center justify-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--warning)_45%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_45%,var(--surface-raised))] px-4 py-2 text-[13px] font-semibold text-[var(--warning-ink)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50";
+  "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-[color:color-mix(in_oklab,var(--warning-ink)_45%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--warning-soft)_45%,var(--surface-raised))] px-4 py-2 text-[13px] font-semibold text-[var(--warning-ink)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50";
 
 export function FieldReviewWorkspaceActions({
   fieldId,
@@ -50,7 +50,9 @@ export function FieldReviewWorkspaceActions({
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [confirmApprove, setConfirmApprove] = useState(false);
-  const [editValue, setEditValue] = useState(suggestedValue ?? "");
+  const [editValue, setEditValue] = useState(() =>
+    isDate ? (isoDateSeed(suggestedValue) ?? suggestedValue ?? "") : (suggestedValue ?? "")
+  );
   const [error, setError] = useState<string | null>(null);
 
   const skipTarget = skipHref ?? "/contracts/review";
@@ -144,10 +146,10 @@ export function FieldReviewWorkspaceActions({
         <div className={`flex flex-wrap items-center gap-2 ${rowBorderClass}`}>
           <Link
             href={skipTarget}
-            className="ui-btn-ghost inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px]"
+            className="ui-btn-secondary border-[var(--border-strong)] inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px]"
           >
             <SkipForward className="h-4 w-4" strokeWidth={2} aria-hidden />
-            Skip detail
+            Skip this detail
           </Link>
         </div>
       </div>
@@ -157,16 +159,21 @@ export function FieldReviewWorkspaceActions({
   const approving = pendingAction === "approved";
   const rejecting = pendingAction === "rejected";
   const saving = pendingAction === "edited";
+  const fieldNoun = fieldLabel.toLowerCase();
+  const dateOrValue = isDate ? "date" : "value";
+  const confirmLabel = `Confirm ${fieldNoun}`;
+  const editLabel = `Edit suggested ${dateOrValue}`;
+  const unknownLabel = `Mark ${dateOrValue} unknown`;
 
   const approveWarning = sourceUnverified || confirmApprove;
   const approveClass = approveWarning
     ? WARNING_APPROVE_CLASS
     : approveCanBePrimary
-      ? "ui-btn-primary inline-flex min-w-[7rem] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40"
-      : "ui-btn-secondary inline-flex min-w-[7rem] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40";
+      ? "ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40"
+      : "ui-btn-secondary border-[var(--border-strong)] inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40";
   const unknownClass = hasValue
-    ? "ui-btn-secondary inline-flex min-w-[8rem] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:opacity-50"
-    : "ui-btn-primary inline-flex min-w-[8rem] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:opacity-50";
+    ? "ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:opacity-50"
+    : "ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:opacity-50";
 
   if (isEditing) {
     return (
@@ -207,7 +214,7 @@ export function FieldReviewWorkspaceActions({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="ui-btn-primary inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:opacity-50"
+            className="ui-btn-primary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:opacity-50"
             disabled={isPending}
             onClick={() => save("edited", editValue)}
           >
@@ -216,7 +223,7 @@ export function FieldReviewWorkspaceActions({
           </button>
           <button
             type="button"
-            className="ui-btn-secondary rounded-full px-4 py-2 text-[13px] disabled:opacity-50"
+            className="ui-btn-secondary border-[var(--border-strong)] rounded-md px-4 py-2 text-[13px] disabled:opacity-50"
             disabled={isPending}
             onClick={() => {
               setIsEditing(false);
@@ -232,12 +239,11 @@ export function FieldReviewWorkspaceActions({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {hasValue && !needsCitation && !sourceUnverified && !confirmApprove ? (
-        <p className="text-[12px] leading-snug text-[var(--text-tertiary)]">
-          Confirming creates a confirmed detail for this contract. Use{" "}
-          <span className="font-medium text-[var(--text-secondary)]">Mark unknown</span> when the contract does not
-          provide this detail.
+        <p className="text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+          <span className="font-semibold text-[var(--text-secondary)]">Mark unknown</span> when the contract does not
+          provide this detail. <span className="font-semibold text-[var(--text-secondary)]">Skip</span> to decide later.
         </p>
       ) : null}
       <div className={`flex flex-wrap items-center gap-2 ${rowBorderClass}`}>
@@ -263,12 +269,12 @@ export function FieldReviewWorkspaceActions({
           ) : (
             <Check className="h-4 w-4" strokeWidth={2} aria-hidden />
           )}
-          {approving ? "Confirming…" : confirmApprove ? "Confirm anyway" : "Confirm detail"}
+          {approving ? "Confirming…" : confirmApprove ? "Confirm anyway" : confirmLabel}
         </button>
         {confirmApprove && !approving ? (
           <button
             type="button"
-            className="ui-btn-ghost inline-flex items-center justify-center rounded-full px-3 py-2 text-[13px]"
+            className="ui-btn-ghost inline-flex items-center justify-center rounded-md px-3 py-2 text-[13px]"
             disabled={isPending}
             onClick={() => setConfirmApprove(false)}
             title="Cancel confirmation (Esc)"
@@ -278,18 +284,18 @@ export function FieldReviewWorkspaceActions({
         ) : null}
         <button
           type="button"
-          className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] disabled:opacity-50"
+          className="ui-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] disabled:opacity-50"
           disabled={isPending}
           onClick={() => {
             setConfirmApprove(false);
             setIsEditing(true);
           }}
-          title="Edit detail (E)"
-          aria-label={`Edit ${fieldLabel}, keyboard shortcut E`}
+          title="Edit suggested value (E)"
+          aria-label={`Edit suggested ${fieldLabel}, keyboard shortcut E`}
           aria-keyshortcuts="E"
         >
           <Pencil className="h-4 w-4" strokeWidth={2} aria-hidden />
-          Edit detail
+          {editLabel}
         </button>
         <button
           type="button"
@@ -300,21 +306,21 @@ export function FieldReviewWorkspaceActions({
             save("rejected");
           }}
           title="Mark unknown — use when the contract does not provide this detail (U)"
-          aria-label={`Mark unknown ${fieldLabel}, keyboard shortcut U`}
+          aria-label={`Mark ${fieldLabel} unknown, keyboard shortcut U`}
           aria-keyshortcuts="U"
         >
           {rejecting ? <UiSpinner size="sm" /> : <CircleHelp className="h-4 w-4" strokeWidth={2} aria-hidden />}
-          {rejecting ? "Marking…" : "Mark unknown"}
+          {rejecting ? "Marking…" : unknownLabel}
         </button>
         <Link
           href={skipTarget}
-          className="ui-btn-ghost inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px]"
-          title="Skip detail (S)"
-          aria-label={`Skip ${fieldLabel}, keyboard shortcut S`}
+          className="ui-btn-ghost inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-[12.5px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+          title="Skip this detail — leaves this suggestion unconfirmed and moves to the next detail (S)"
+          aria-label={`Skip ${fieldLabel}, leaves it unconfirmed and moves to the next detail, keyboard shortcut S`}
           aria-keyshortcuts="S"
         >
-          <SkipForward className="h-4 w-4" strokeWidth={2} aria-hidden />
-          Skip detail
+          <SkipForward className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+          Skip this detail
         </Link>
       </div>
 

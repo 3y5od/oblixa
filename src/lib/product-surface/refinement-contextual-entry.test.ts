@@ -17,6 +17,7 @@ describe("refinement §14 contextual entry anchors", () => {
     const renewals = [
       RENEWALS,
       "src/app/(dashboard)/contracts/renewals/renewal-row-cells.tsx",
+      "src/app/(dashboard)/contracts/renewals/renewal-row-detail.tsx",
     ]
       .map((rel) => readFileSync(join(process.cwd(), rel), "utf8"))
       .join("\n");

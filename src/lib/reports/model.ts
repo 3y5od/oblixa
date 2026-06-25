@@ -410,6 +410,12 @@ export function buildReportsPageModel(input: BuildReportsPageModelInput): Report
     previewColumns: REPORT_DEFINITIONS[activeReport].columns,
     previewRows,
     totalPreviewRows: allActiveRows.length,
+    // Mirrors the toolbar's active-filter rule (the 90-day default window is not a
+    // narrowing filter) so a zero-match filter shows a filter-scoped empty state
+    // rather than the onboarding copy.
+    filtersActive: REPORT_APPLICABLE_FILTERS[activeReport].some((key) =>
+      key === "window" ? filters.window !== "90" : Boolean(filters[key])
+    ),
     exportHref: buildReportsExportHref({ report: activeReport, filters }),
     lastGeneratedAt,
     // "Never" pairs cleanly with the page's "Last generated" eyebrow label

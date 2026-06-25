@@ -96,8 +96,16 @@ export function EvidenceFilterBar({
   const clearFiltersHref = buildEvidenceHref({ section: activeSection });
 
   return (
-    <div className="min-w-0 max-w-full space-y-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-4">
+    // Subordinate control strip: the filter band is deliberately quieter than the
+    // record below it — a faint muted ground and a hairline rule instead of a
+    // boxed panel, led by a small "Refine queue" caps label so the six dropdowns
+    // read as secondary controls, not the page's first object (product-owner
+    // direction #3; §6 the record is dominant, the filters subordinate).
+    <div className="min-w-0 max-w-full space-y-3 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_60%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] px-5 py-2.5">
       <FilterBar activeFilterCount={activeFilterCount} clearFiltersHref={clearFiltersHref}>
+        <span className="ui-caps-2 mr-0.5 hidden shrink-0 self-center text-[10px] text-[var(--text-tertiary)] sm:inline">
+          Refine queue
+        </span>
         <FilterSelect label={EVIDENCE_FILTER_LABELS.owner} value={filters.owner} options={filterOptions.owners} onChange={(v) => apply({ owner: v })} />
         <FilterSelect label={EVIDENCE_FILTER_LABELS.status} value={filters.status} options={statusOptions} onChange={(v) => apply({ status: v as EvidenceFilterState["status"] })} />
         <FilterSelect label={EVIDENCE_FILTER_LABELS.contract} value={filters.contract} options={filterOptions.contracts} onChange={(v) => apply({ contract: v })} />
@@ -110,13 +118,16 @@ export function EvidenceFilterBar({
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {showQuick ? (
             <>
-              <span className="ui-caps-2 text-[var(--text-tertiary)]">Needs attention</span>
+              <span className="text-[11.5px] font-medium text-[var(--text-tertiary)]">
+                Quick filters
+              </span>
               {showDueSoon ? (
                 <QuickChip
                   label={EVIDENCE_DUE_FILTER_LABELS.due_soon}
                   count={summary.dueSoon}
                   active={dueSoonActive}
                   accessibleLabel={`${summary.dueSoon} evidence ${summary.dueSoon === 1 ? "request" : "requests"} due within 7 days`}
+                  description="The request is due within the next 7 days."
                   href={buildEvidenceHref({
                     section: activeSection,
                     filters: { ...filters, due: dueSoonActive ? "" : "due_soon" },
@@ -129,6 +140,7 @@ export function EvidenceFilterBar({
                   count={summary.missingFile}
                   active={missingActive}
                   accessibleLabel={`${summary.missingFile} evidence ${summary.missingFile === 1 ? "request" : "requests"} missing a file`}
+                  description="No evidence file is attached, so the request can't be accepted yet."
                   href={buildEvidenceHref({
                     section: activeSection,
                     filters: { ...filters, file: missingActive ? "" : "missing_file" },
@@ -164,12 +176,6 @@ export function EvidenceFilterBar({
           ) : null}
         </div>
       ) : null}
-      {showQuick ? (
-        <p className="text-[11px] leading-snug text-[var(--text-tertiary)]">
-          <span className="font-medium text-[var(--text-secondary)]">Needs attention:</span>{" "}
-          Due soon means the request is due within 7 days. Missing file means no evidence file is attached, so the request cannot be accepted yet.
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -182,6 +188,7 @@ function QuickChip({
   active,
   href,
   accessibleLabel,
+  description,
 }: {
   label: string;
   count: number;
@@ -190,6 +197,9 @@ function QuickChip({
   /** Full object-typed name for assistive tech, so the compact visible chip
    *  ("Missing file 1") still announces what is counted (§19). */
   accessibleLabel?: string;
+  /** Fuller definition shown as a hover/focus tooltip (+ appended to the
+   *  accessible name) — matches the Contracts condition chips. */
+  description?: string;
 }) {
   // Quick filters carry the warning semantics of the state they surface
   // (due soon / missing file), so they're toned consistently — a muted warning
@@ -201,15 +211,12 @@ function QuickChip({
   return (
     <Link
       href={href}
-      title={active ? `Clear ${label} filter` : `Filter to ${label.toLowerCase()}`}
       aria-label={
         accessibleLabel
-          ? active
-            ? `Clear filter: ${accessibleLabel}`
-            : `Filter to ${accessibleLabel}`
+          ? `${active ? "Clear filter:" : "Filter to"} ${accessibleLabel}${description ? `. ${description}` : ""}`
           : undefined
       }
-      className="group inline-flex max-w-full items-center gap-1.5 rounded-[4px] border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      className="group relative inline-flex max-w-full items-center gap-1.5 rounded-[4px] border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       style={
         active
           ? {
@@ -229,6 +236,15 @@ function QuickChip({
         {count}
       </span>
       {active ? <X className="h-3 w-3" strokeWidth={2} aria-hidden /> : null}
+      {description ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute bottom-[calc(100%+7px)] left-0 z-30 w-max max-w-[16rem] rounded-md bg-[var(--text-primary)] px-2.5 py-1.5 text-[11px] font-normal normal-case leading-snug tracking-normal text-[var(--surface)] opacity-0 shadow-[var(--shadow-2)] transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+        >
+          {description}
+          <span className="absolute left-3 top-full h-2 w-2 -translate-y-1/2 rotate-45 bg-[var(--text-primary)]" />
+        </span>
+      ) : null}
     </Link>
   );
 }

@@ -122,9 +122,11 @@ export function groupQueueByOwner(
     .sort((a, b) => (a.owner === "Unassigned" ? 1 : 0) - (b.owner === "Unassigned" ? 1 : 0));
 }
 
-/** Accent-tinted square that gives a lone value a fixed visual anchor, glyph
- *  matched to the field type (§11.17). Icon is selected by conditional (not a
- *  call-assigned component) to satisfy react-hooks/static-components. */
+/** Neutral square that gives a lone value a fixed visual anchor, glyph matched to
+ *  the field type (§11.17). Warm-chrome fill + steel glyph rather than an accent
+ *  tint, so cobalt stays reserved for the decision path. Icon is selected by
+ *  conditional (not a call-assigned component) to satisfy
+ *  react-hooks/static-components. */
 export function FieldTypeMedallion({ fieldName, className }: { fieldName: string; className?: string }) {
   const n = fieldName.toLowerCase();
   const Icon = isDateField(n)
@@ -137,7 +139,7 @@ export function FieldTypeMedallion({ fieldName, className }: { fieldName: string
   return (
     <span
       aria-hidden
-      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:color-mix(in_oklab,var(--accent)_20%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_32%,var(--surface-raised))] text-[var(--accent-strong)] ${className ?? ""}`.trim()}
+      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border-card)] bg-[color:color-mix(in_oklab,var(--surface-muted)_60%,var(--surface-raised))] text-[var(--text-tertiary)] ${className ?? ""}`.trim()}
     >
       <Icon className="h-4 w-4" strokeWidth={1.85} />
     </span>
@@ -172,7 +174,7 @@ export function renderExcerptWithHighlight(
       <span className="sr-only">snippet match start </span>
       <mark
         aria-hidden
-        className="ui-source-mark-reveal rounded-[3px] bg-[color:color-mix(in_oklab,var(--accent-soft)_60%,transparent)] px-0.5 font-medium text-[var(--text-primary)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_30%,transparent)]"
+        className="ui-source-mark-reveal box-decoration-clone rounded-[2px] border-b-[1.5px] border-[color:color-mix(in_oklab,var(--warning-ink)_65%,transparent)] bg-[color:color-mix(in_oklab,var(--warning-soft)_72%,transparent)] px-1 py-0.5 font-semibold text-[var(--text-primary)]"
       >
         {excerpt.slice(idx, idx + needle.length)}
       </mark>

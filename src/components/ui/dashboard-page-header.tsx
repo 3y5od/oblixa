@@ -6,6 +6,10 @@ export interface DashboardPageHeaderProps {
   /** When true, eyebrow is suppressed (e.g., fallback "Workspace" placeholder).
    *  The icon + liveTick still render together as a context cluster. */
   suppressEyebrow?: boolean;
+  /** Tone of the eyebrow overline. "accent" (default) is cobalt; "ink" renders it
+   *  as cool steel with no accent dot, so dense operational surfaces keep cobalt
+   *  for actions only (§ color discipline — blue is an action signal). */
+  eyebrowTone?: "accent" | "ink";
   title: string;
   /** Optional supporting copy. Omit (or pass empty string) to render header alone.
    *  Accepts a ReactNode so callers can embed inline links. */
@@ -63,6 +67,7 @@ export function DashboardPageHeader({
   icon,
   eyebrow,
   suppressEyebrow,
+  eyebrowTone = "accent",
   title,
   lead,
   belowLead,
@@ -84,8 +89,8 @@ export function DashboardPageHeader({
   // soft/circular against the accent-tinted bg + soft border.
   const tileRadius = isCompact ? "rounded-md" : "rounded-md";
   const titleScale = isCompact
-    ? "text-[1.375rem] sm:text-[1.5rem]"
-    : "text-[1.75rem] sm:text-[2rem]";
+    ? "text-[1.4rem] sm:text-[1.55rem]"
+    : "text-[1.9rem] sm:text-[2.15rem]";
   // When the title column is *only* an h1 (no eyebrow, no lead, no
   // metaStrip line above), `items-start` leaves the 40px medallion
   // visually unanchored with the h1's cap-line because the h1's mt-1
@@ -123,7 +128,7 @@ export function DashboardPageHeader({
             <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
               {suppressEyebrow ? null : (
                 <span
-                  className={`${noEyebrowDot ? "" : "landing-eyebrow-dot "}ui-caps-2 text-[var(--accent-strong)]`}
+                  className={`${noEyebrowDot || eyebrowTone === "ink" ? "" : "landing-eyebrow-dot "}ui-caps-2 ${eyebrowTone === "ink" ? "text-[var(--calculated-ink)]" : "text-[var(--accent-strong)]"}`}
                 >
                   {eyebrow}
                 </span>
@@ -155,7 +160,7 @@ export function DashboardPageHeader({
               the eyebrow row is suppressed so the h1 sits at its
               natural baseline. */}
           <h1
-            className={`${titleScale} font-semibold leading-[1.1] text-[var(--text-primary)] ${titleFont === "serif" ? "font-serif tracking-[-0.01em]" : "tracking-tight"} ${showEyebrowRow ? "mt-1" : ""}`}
+            className={`${titleScale} leading-[1.08] text-[var(--text-primary)] ${titleFont === "serif" ? "font-serif font-semibold tracking-[-0.01em]" : "font-bold tracking-[-0.018em]"} ${showEyebrowRow ? "mt-1.5" : ""}`}
           >
             <span className="inline-flex flex-wrap items-baseline gap-x-2">
               <span>{title}</span>

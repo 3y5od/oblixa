@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedBy": "scripts/check-supabase-fingerprint-artifact.mjs --write",
   "sourceDirectory": "supabase/migrations",
-  "migrationCount": 95,
-  "latestMigration": "095_inbound_evidence_scope_guards.sql",
-  "migrationRollupSha256": "49aaacf555f7a764d7f5bd3d702e2a708bacb033798b89581156130ac5d9ae47",
+  "migrationCount": 96,
+  "latestMigration": "096_service_role_public_table_dml.sql",
+  "migrationRollupSha256": "d0ce687c189ba7daf88e650288bc508d3a272c7f70da9471249a2356117d18f8",
   "sectionOrder": [
     "tables",
     "columns",

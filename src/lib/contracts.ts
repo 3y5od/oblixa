@@ -21,12 +21,23 @@ export const STATUS_LABELS: Record<ContractStatus, string> = {
   terminated: "Terminated",
 };
 
-/** Tailwind utility fragments for contract header ui-badge chips */
+/**
+ * Token-backed utility fragments for contract header status chips. Each pairs a
+ * soft semantic fill with its matching ink so a status reads as a crisp ledger
+ * stamp on the warm chrome (not a generic palette swatch): warning amber for
+ * pending review, confirmed green for active, oxblood for expired, and quiet
+ * parchment/steel for the closed-out states. Values of STATUS_LABELS are
+ * unchanged — this only deepens their visual treatment.
+ */
 export const STATUS_STYLES: Record<ContractStatus, string> = {
-  draft: "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]",
-  pending_review: "bg-amber-100 text-amber-900",
-  active: "bg-emerald-100 text-emerald-900",
-  expired: "bg-rose-100 text-rose-900",
+  draft:
+    "bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,var(--canvas))] text-[var(--text-secondary)]",
+  pending_review:
+    "bg-[color:color-mix(in_oklab,var(--warning-soft)_55%,var(--surface-raised))] text-[var(--warning-ink)]",
+  active:
+    "bg-[color:color-mix(in_oklab,var(--success-soft)_55%,var(--surface-raised))] text-[var(--success-ink)]",
+  expired:
+    "bg-[color:color-mix(in_oklab,var(--danger-soft)_50%,var(--surface-raised))] text-[var(--danger-ink)]",
   terminated:
     "bg-[color:color-mix(in_oklab,var(--surface-inset)_88%,var(--canvas))] text-[var(--text-tertiary)]",
 };

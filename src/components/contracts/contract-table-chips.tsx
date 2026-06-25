@@ -105,11 +105,14 @@ export function OpenContractChip({
   contractId: string;
   title: string;
 }) {
+  // Quiet row affordance in ink/steel, not cobalt — opening a record is a routine
+  // row action, and cobalt is reserved for the surface's single primary action
+  // (§15 quieter row actions, §16 chrome restraint). Sentence-case label.
   return (
     <Link
       href={`/contracts/${contractId}`}
       aria-label={`Open contract: ${title}`}
-      className="group/open inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))] px-2 text-[10px] font-semibold uppercase leading-none text-[var(--accent-strong)] opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_46%,var(--surface-raised))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      className="group/open inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-[color:color-mix(in_oklab,var(--border-strong)_55%,var(--border-subtle))] bg-[var(--surface-raised)] px-2 text-[11px] font-semibold leading-none text-[var(--text-secondary)] opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
     >
       Open
       <ChevronRight

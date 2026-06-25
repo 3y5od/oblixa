@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, FileWarning, ListChecks, Search, SearchX } from "lucide-react";
+import { ChevronRight, FileWarning, Search, SearchX } from "lucide-react";
 import { CountChip } from "@/components/ui/count-chip";
 import { ActionChip } from "@/components/ui/action-chip";
 import { formatRelativeReadable } from "@/lib/ui-copy";
@@ -28,8 +28,6 @@ export function ReviewQueueRow({
   isActive: boolean;
   hrefSuffix?: string;
 }) {
-  const reviewed = Math.max(0, item.totalFields - item.pendingFields);
-  const pct = item.totalFields > 0 ? Math.round((reviewed / item.totalFields) * 100) : 0;
   const attention = !item.hasSourceText || item.nextNeedsCitation;
   const attentionLabel = !item.hasSourceText ? "Source preview unavailable" : "Next detail needs source text";
   const detailWord = item.pendingFields === 1 ? "detail" : "details";
@@ -51,67 +49,50 @@ export function ReviewQueueRow({
       href={`${item.href}${hrefSuffix}`}
       title={item.title}
       aria-current={isActive ? "page" : undefined}
-      aria-label={`${item.title}${item.counterparty ? `, ${item.counterparty}` : ""}, owner ${item.ownerLabel}, ${item.pendingFields} ${detailWord} to review${attention ? `, ${attentionLabel}` : ""}`}
-      className={`ui-chip-focus group flex flex-col gap-1.5 rounded-lg border border-l-2 px-2.5 py-2.5 transition-colors ${
+      aria-label={`${item.title}${item.counterparty ? `, ${item.counterparty}` : ""}, owner ${item.ownerLabel}, ${item.pendingFields} suggested ${detailWord} to review${attention ? `, ${attentionLabel}` : ""}${isActive ? ", currently reviewing" : ""}`}
+      className={`ui-chip-focus group flex flex-col gap-1 border-l-[3px] px-3 py-2.5 transition-colors ${
         isActive
-          ? "border-[var(--border-subtle)] border-l-[var(--accent)] bg-[color:color-mix(in_oklab,var(--accent-soft)_24%,var(--surface-raised))]"
-          : "border-[var(--border-subtle)] border-l-transparent bg-[var(--surface-raised)] hover:border-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--accent-soft)_9%,var(--surface-raised))]"
+          ? "border-l-[var(--accent-strong)] bg-[color:color-mix(in_oklab,var(--surface-cool-strong)_42%,var(--surface-raised))]"
+          : "border-l-transparent bg-[var(--surface-raised)] hover:border-l-[var(--border-strong)] hover:bg-[color:color-mix(in_oklab,var(--surface-cool)_30%,var(--surface-raised))]"
       }`}
     >
-      <span className="flex items-start gap-2">
+      <span className="flex items-baseline gap-2">
+        {isActive ? <span className="sr-only">Currently reviewing: </span> : null}
         <span
-          aria-hidden
-          className="mt-1.5 inline-flex h-1.5 w-1.5 shrink-0 rounded-full"
-          style={{ background: isActive ? "var(--accent)" : "transparent" }}
-        />
-        <span className="line-clamp-2 min-w-0 flex-1 text-[12.5px] font-medium leading-snug text-[var(--text-primary)]">
+          className={`line-clamp-2 min-w-0 flex-1 text-[12.5px] leading-snug ${isActive ? "font-semibold text-[var(--text-primary)]" : "font-medium text-[var(--text-primary)]"}`}
+        >
           {item.title}
         </span>
-        <span className="mt-0.5 inline-flex h-3 w-3 shrink-0 items-center justify-center" aria-hidden>
-          {attention ? (
-            <FileWarning className="h-3 w-3 text-[var(--warning-ink)]" strokeWidth={2} aria-label={attentionLabel} />
-          ) : null}
-        </span>
-        <span className="inline-flex shrink-0 items-center">
-          <CountChip value={item.pendingFields} emphasis="strong" />
-          <span className="sr-only">{detailWord} to review</span>
+        <span className="shrink-0 whitespace-nowrap text-[11px] leading-none tabular-nums text-[var(--text-secondary)]">
+          <span className="font-semibold text-[var(--text-primary)]">{item.pendingFields}</span> to review
         </span>
       </span>
-      <span className="flex items-center gap-2 pl-3.5">
-        {isActive ? (
-          // Queue-selection marker — "Reviewing now", not "Active contract",
-          // which collides with the contract lifecycle status `active`.
-          <span className="ui-caps-3 inline-flex shrink-0 items-center rounded-[4px] bg-[color:color-mix(in_oklab,var(--accent-soft)_42%,var(--surface-raised))] px-1.5 py-0.5 text-[9px] leading-none text-[var(--accent-strong)]">
-            Reviewing now
-          </span>
-        ) : null}
-        <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--text-tertiary)]">
+      <span className="flex items-baseline gap-2">
+        <span className="min-w-0 flex-1 truncate text-[11.5px] leading-tight text-[var(--text-secondary)]">
           <span className="sr-only">Counterparty </span>
           {item.counterparty ?? "No counterparty"}
-          <span aria-hidden> · </span>
+          <span aria-hidden className="text-[var(--text-tertiary)]"> · </span>
           <span className="sr-only">Owner </span>
-          {item.ownerLabel}
+          <span className="text-[var(--text-tertiary)]">{item.ownerLabel}</span>
         </span>
-        <span className="shrink-0 whitespace-nowrap text-[10.5px] tabular-nums text-[var(--text-tertiary)]" title={updatedIso}>
-          {updatedText}
-        </span>
-      </span>
-      <span
-        className="ml-3.5 h-1 overflow-hidden rounded-full bg-[color:color-mix(in_oklab,var(--border-strong)_45%,transparent)]"
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`Review progress: ${reviewed} of ${item.totalFields} details reviewed`}
-      >
-        <span
-          aria-hidden
-          className="block h-full rounded-full"
-          style={{
-            width: `${pct}%`,
-            background: isActive ? "var(--accent)" : "color-mix(in oklab, var(--accent) 55%, transparent)",
-          }}
-        />
+        {isActive ? (
+          <span className="inline-flex shrink-0 items-center gap-1 text-[10.5px] font-semibold leading-none text-[var(--text-primary)]">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--text-primary)]" />
+            Reviewing
+          </span>
+        ) : attention ? (
+          <span className="inline-flex min-w-0 shrink items-center gap-1 text-[10.5px] font-medium leading-none text-[var(--warning-ink)]">
+            <FileWarning className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
+            <span className="truncate">{!item.hasSourceText ? "No source preview" : "Needs source text"}</span>
+          </span>
+        ) : (
+          <span
+            className="shrink-0 whitespace-nowrap text-[11px] leading-none tabular-nums text-[var(--text-tertiary)]"
+            title={updatedIso}
+          >
+            {updatedText}
+          </span>
+        )}
       </span>
     </Link>
   );
@@ -155,11 +136,9 @@ export function ReviewQueueRail({
   const queueParamSuffix = buildQueueParamSuffix(queueFilter, queueSearch);
 
   const clearFiltersHref = buildReviewHref({ page: safePage, contract: activeContractId, field: activeFieldId });
-
-  const renderChip = (key: ReviewQueueFilter, tone: "primary" | "issue") => {
+  const renderFilterRow = (key: ReviewQueueFilter) => {
     const isActive = key === queueFilter;
     const count = filterCounts[key];
-    const dim = tone === "issue" && count === 0 && !isActive;
     return (
       <Link
         key={key}
@@ -170,22 +149,23 @@ export function ReviewQueueRail({
           qf: key,
           q: queueSearch,
         })}
-        aria-pressed={isActive}
+        aria-current={isActive ? "true" : undefined}
         aria-label={`${filterLabel(key)}: ${count} ${count === 1 ? "contract" : "contracts"}`}
-        className={`ui-chip-focus inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium leading-none transition-colors ${
-          isActive && tone === "issue"
-            ? "border-[color:color-mix(in_oklab,var(--warning)_36%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--warning-soft)_30%,var(--surface-raised))] text-[var(--warning-ink)]"
-            : isActive
-              ? "border-[color:color-mix(in_oklab,var(--accent)_32%,var(--border-card))] bg-[color:color-mix(in_oklab,var(--accent-soft)_22%,var(--surface-raised))] text-[var(--accent-strong)]"
-              : `border-[var(--border-card)] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] ${dim ? "opacity-55" : ""}`
+        className={`ui-chip-focus flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5 text-[12.5px] leading-none transition-colors ${
+          isActive
+            ? "bg-[color:color-mix(in_oklab,var(--surface-cool)_48%,var(--surface-raised))] font-semibold text-[var(--text-primary)]"
+            : "font-medium text-[var(--text-secondary)] hover:bg-[color:color-mix(in_oklab,var(--surface-cool)_30%,var(--surface-raised))] hover:text-[var(--text-primary)]"
         }`}
       >
-        {filterLabel(key)}
+        <span className="min-w-0 truncate">{filterLabel(key)}</span>
         <span
-          className="font-mono text-[10px] tabular-nums"
-          style={
-            tone === "issue" && count > 0 && !isActive ? { color: "var(--warning-ink)", opacity: 0.9 } : { opacity: 0.8 }
-          }
+          className={`shrink-0 tabular-nums ${
+            isActive
+              ? "text-[var(--text-primary)]"
+              : count === 0
+                ? "text-[var(--text-tertiary)]"
+                : "text-[var(--text-secondary)]"
+          }`}
         >
           {count}
         </span>
@@ -196,21 +176,21 @@ export function ReviewQueueRail({
   return (
     <details
       open
-      className="group/queue border-t border-[var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-muted)_32%,transparent)] px-5 py-4 sm:px-6 md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:border-t-0 lg:bg-[color:color-mix(in_oklab,var(--surface-muted)_22%,transparent)] lg:py-5"
+      className="group/queue border-t border-[var(--border-subtle)] px-5 py-4 sm:px-6 lg:col-span-2 lg:row-start-3 lg:py-5 xl:col-span-1 xl:col-start-1 xl:row-start-1 xl:row-span-2 xl:flex xl:h-full xl:min-h-0 xl:flex-col xl:overflow-hidden xl:border-t-0"
     >
-      <summary className="ui-chip-focus flex cursor-pointer list-none items-center gap-2 rounded marker:hidden lg:cursor-default [&::-webkit-details-marker]:hidden">
-        <ListChecks className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]" strokeWidth={1.85} aria-hidden />
-        <p className="ui-caps-2 text-[10.5px] leading-none text-[var(--text-secondary)]">Contracts needing review</p>
-        <CountChip value={queue.length} emphasis="subtle" />
+      <summary className="ui-chip-focus flex cursor-pointer list-none items-baseline justify-between gap-2 rounded border-b border-[var(--border-subtle)] pb-2.5 marker:hidden xl:cursor-default [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0 text-[13px] font-semibold leading-snug text-[var(--text-primary)]">
+          Review contracts
+        </span>
         <ChevronRight
-          className="ml-auto h-4 w-4 text-[var(--text-tertiary)] transition-transform group-open/queue:rotate-90 lg:hidden"
+          className="h-4 w-4 shrink-0 translate-y-0.5 text-[var(--text-tertiary)] transition-transform group-open/queue:rotate-90 xl:hidden"
           strokeWidth={2}
           aria-hidden
         />
       </summary>
 
-      <p className="mt-1.5 text-[11px] leading-snug text-[var(--text-tertiary)]">
-        Contracts with suggested details that need confirmation.
+      <p className="mt-2.5 text-[12px] leading-snug text-[var(--text-tertiary)]">
+        Contracts with suggested details that are not trusted yet.
       </p>
 
       <form method="get" action="/contracts/review" role="search" className="mt-3">
@@ -223,30 +203,43 @@ export function ReviewQueueRail({
             aria-hidden
             className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--text-tertiary)]"
           >
-            <Search className="h-3.5 w-3.5" strokeWidth={2} />
+            <Search className="h-4 w-4" strokeWidth={2} />
           </span>
           <input
             type="search"
             name="q"
             defaultValue={queueSearch}
             maxLength={120}
-            placeholder="Search contracts by name, counterparty, or owner"
+            placeholder="Search contracts"
             aria-label="Search contracts to review by name, counterparty, or owner"
-            className="ui-input-compact w-full pl-8 text-[12.5px]"
+            className="ui-input-compact min-h-10 w-full rounded-lg pl-9 text-[13px]"
           />
         </div>
       </form>
-
-      <div className="mt-2.5 space-y-1.5">
-        <div className="-mx-0.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
-          {PRIMARY_FILTERS.map((key) => renderChip(key, "primary"))}
+      <div className="mt-3 space-y-3">
+        <div className="space-y-1">
+          <p className="px-2 text-[10.5px] font-medium uppercase tracking-[0.04em] leading-none text-[var(--text-tertiary)]">
+            Filter contracts
+          </p>
+          <div className="flex flex-col gap-1" role="group" aria-label="Filter contracts by view">
+            {PRIMARY_FILTERS.map((key) => renderFilterRow(key))}
+          </div>
         </div>
-        <div className="-mx-0.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
-          <span className="ui-caps-3 shrink-0 pr-0.5 text-[9px] leading-none text-[var(--text-tertiary)]">
-            Source state
-          </span>
-          {ISSUE_FILTERS.map((key) => renderChip(key, "issue"))}
+        <div className="space-y-1 border-t border-[var(--border-card)] pt-3">
+          <p className="px-2 text-[10.5px] font-medium uppercase tracking-[0.04em] leading-none text-[var(--text-tertiary)]">
+            Source
+          </p>
+          <div className="flex flex-col gap-1" role="group" aria-label="Filter contracts by source state">
+            {ISSUE_FILTERS.map((key) => renderFilterRow(key))}
+          </div>
         </div>
+      </div>
+      <div className="mt-4 flex items-baseline justify-between gap-2 border-t border-[var(--border-strong)] pt-3 xl:shrink-0">
+        <p className="text-[12.5px] font-semibold leading-none text-[var(--text-primary)]">Contracts to review</p>
+        <span className="text-[11px] leading-none tabular-nums text-[var(--text-secondary)]">
+          <span className="font-semibold text-[var(--text-primary)]">{filteredQueue.length}</span>{" "}
+          {queueIsFiltered ? "matching" : filteredQueue.length === 1 ? "contract" : "contracts"}
+        </span>
       </div>
 
       {filteredQueue.length === 0 ? (
@@ -257,25 +250,28 @@ export function ReviewQueueRail({
           >
             <SearchX className="h-4 w-4" strokeWidth={1.85} />
           </span>
-          <p className="ui-caps-2 text-[10px] leading-none text-[var(--text-tertiary)]">No matches</p>
+          <p className="text-[12px] font-medium leading-none text-[var(--text-secondary)]">No matching contracts</p>
+          <p className="text-[11.5px] leading-snug text-[var(--text-tertiary)]">
+            No contracts match the current filter or search.
+          </p>
           <Link
             href={clearFiltersHref}
-            className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px]"
+            className="ui-btn-secondary inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px]"
           >
             Clear filters
           </Link>
         </div>
       ) : showOwnerGroups ? (
-        <div className="mt-3 space-y-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
+        <div className="ui-scroll-subtle mt-2.5 space-y-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:pr-1">
           {ownerGroups.map((group) => (
             <div key={group.owner}>
               <p className="mb-1.5 flex items-center gap-1.5">
-                <span className="ui-caps-3 min-w-0 truncate text-[10px] leading-none text-[var(--text-tertiary)]">
+                <span className="min-w-0 truncate text-[11px] font-medium uppercase tracking-[0.06em] leading-none text-[var(--text-tertiary)]">
                   {group.owner}
                 </span>
                 <CountChip value={group.items.length} emphasis="subtle" />
               </p>
-              <ul className="space-y-1.5">
+              <ul className="divide-y divide-[var(--border-card)] overflow-hidden rounded-lg border border-[var(--border-card)]">
                 {group.items.map((item) => (
                   <li key={item.id}>
                     <ReviewQueueRow
@@ -290,7 +286,7 @@ export function ReviewQueueRail({
           ))}
         </div>
       ) : (
-        <ul className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-1.5 lg:overflow-y-auto lg:pr-1">
+        <ul className="ui-scroll-subtle mt-2.5 grid grid-cols-1 gap-x-3 divide-y divide-[var(--border-card)] overflow-hidden rounded-lg border border-[var(--border-card)] sm:grid-cols-2 sm:divide-y-0 sm:[&>li]:border-b sm:[&>li]:border-[var(--border-card)] xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:divide-y xl:overflow-y-auto xl:[&>li]:border-b-0">
           {renderQueue.map((item) => (
             <li key={item.id}>
               <ReviewQueueRow item={item} isActive={item.id === activeContractId} hrefSuffix={queueParamSuffix} />
@@ -298,28 +294,22 @@ export function ReviewQueueRail({
           ))}
         </ul>
       )}
-
-      {filteredQueue.length > 0 ? (
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-2.5">
+      {filteredQueue.length > 0 && (totalDisplayPages > 1 || hasMore || queueIsFiltered) ? (
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-t border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] pt-2.5 xl:shrink-0">
           {totalDisplayPages > 1 ? (
             <span className="inline-flex items-baseline gap-1.5">
-              <span className="ui-caps-3 text-[10px] leading-none tabular-nums text-[var(--text-tertiary)]">
-                Page <span className="text-[var(--text-secondary)]">{currentDisplayPage}</span> of {totalDisplayPages}
+              <span className="text-[11px] leading-none tabular-nums text-[var(--text-tertiary)]">
+                Page <span className="font-semibold text-[var(--text-secondary)]">{currentDisplayPage}</span> of{" "}
+                {totalDisplayPages}
               </span>
-              <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">·</span>
+              <span className="text-[11px] leading-none text-[var(--text-tertiary)]">·</span>
               <span className="font-mono text-[11px] leading-none tabular-nums text-[var(--text-secondary)]">
                 {renderQueue.length}
               </span>
-              <span className="ui-caps-3 text-[10px] leading-none text-[var(--text-tertiary)]">
-                of {filteredQueue.length} contracts
-              </span>
+              <span className="text-[11px] leading-none text-[var(--text-tertiary)]">of {filteredQueue.length}</span>
             </span>
           ) : (
-            <span className="text-[11px] leading-none text-[var(--text-tertiary)]">
-              <span className="font-mono tabular-nums text-[var(--text-secondary)]">{filteredQueue.length}</span>{" "}
-              {filteredQueue.length === 1 ? "contract" : "contracts"}{" "}
-              {queueIsFiltered ? "matching" : "needing review"}
-            </span>
+            <span aria-hidden />
           )}
           {hasMore ? (
             <ActionChip

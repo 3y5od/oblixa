@@ -11,25 +11,24 @@ function readWorkSurfaceSource() {
 }
 
 describe("work page surface", () => {
-  it("keeps the task queue summary compact while clarifying count semantics", () => {
+  it("keeps the task queue summary compact — condition definitions ride on the chips, not a prose wall", () => {
     const raw = readWorkSurfaceSource();
 
     expect(raw).toContain("Active tasks");
-    expect(raw).toContain("Active tasks are open follow-up items linked to signed contracts.");
-    expect(raw).toContain("Condition filters show matching task");
     expect(raw).toContain("Condition filters");
-    expect(raw).toContain("Cannot proceed");
-    expect(raw).toContain("answer,");
-    expect(raw).toContain("approval, file, or owner is missing.");
-    expect(raw).toContain("Past due");
-    expect(raw).toContain("due date has");
-    expect(raw).toContain("Due within 7 days");
-    expect(raw).toContain("today or this week.");
-    expect(raw).toContain("Unassigned");
+    // Each definition lives on its chip (tooltip + aria-label), not a wall.
+    expect(raw).toContain("Answer, approval, file, or owner is missing.");
+    expect(raw).toContain("Due date has passed.");
+    expect(raw).toContain("Due today or within the next 7 days.");
+    expect(raw).toContain("No owner is assigned.");
+    expect(raw).toContain("No condition filters need attention.");
+    // Tabs explanation retained.
     expect(raw).toContain("Views");
     expect(raw).toContain("Task table views");
     expect(raw).toContain("Choose the row category shown below. Counts reflect the active filters.");
-    expect(raw).toContain("No condition filters need attention.");
+    // The old prose definition wall + lead paragraph are gone (decluttered to match Contracts).
+    expect(raw).not.toContain("Active tasks are open follow-up items linked to signed contracts.");
+    expect(raw).not.toContain("Condition filters show matching task");
   });
 
   it("constrains the nested page stack on narrow viewports", () => {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export type LegalLinkVariant = "compact" | "full";
+export type LegalLinkVariant = "compact" | "full" | "legal-min";
 
 const LINKS = [
   { href: "/security", label: "Security" },
@@ -14,6 +14,19 @@ const LINKS = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
+/**
+ * Auth surfaces (`legal-min`) carry only the legally necessary policy links —
+ * privacy, terms, cookies, and the accessibility statement. Broad navigation /
+ * marketing links (security, acceptable use, contact) are intentionally dropped
+ * so the sign-in page does not read as a marketing page.
+ */
+const LEGAL_MIN_HREFS: ReadonlySet<string> = new Set([
+  "/privacy",
+  "/terms",
+  "/accessibility",
+  "/cookies",
+]);
+
 export function LegalLinks({
   variant = "full",
   className = "",
@@ -23,10 +36,15 @@ export function LegalLinks({
   className?: string;
   "aria-label"?: string;
 }) {
-  const items = variant === "compact" ? LINKS.slice(0, 3) : LINKS;
+  const items =
+    variant === "compact"
+      ? LINKS.slice(0, 3)
+      : variant === "legal-min"
+        ? LINKS.filter((link) => LEGAL_MIN_HREFS.has(link.href))
+        : LINKS;
   // Compact (authenticated-shell footer) reads as quiet title-case links —
-  // formal, not shouted caps (§18.13). The full marketing variant keeps its
-  // wider uppercase eyebrow tracking.
+  // formal, not shouted caps (§18.13). The full marketing and legal-min auth
+  // variants keep the wider uppercase eyebrow tracking.
   const caseClass = variant === "compact" ? "" : "uppercase";
   const sizeTracking =
     variant === "compact" ? "text-[11px] tracking-[0.01em]" : "text-[10.5px] tracking-[0.14em]";

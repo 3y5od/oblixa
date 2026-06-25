@@ -63,9 +63,9 @@ describe("Renewals release-state surface", () => {
       "Needs owner",
       "Needs confirmation",
       "Notice window open",
-      "In progress",
+      "Renewal task active",
       "Completed",
-      "No action needed",
+      "No notice action needed",
     ]);
     // §22 — the model's row actions name the object they close; secondary
     // page-level actions live in RENEWAL_SECONDARY_ACTION_LABELS, keeping this
@@ -103,10 +103,11 @@ describe("Renewals release-state surface", () => {
     // §7.7 — status must not rely on colour alone, so each state maps to a
     // Lucide glyph rendered inside/alongside the label.
     expect(page).toContain("RENEWAL_STATUS_ICON");
-    // §12 — the prior fit hack (font shrink + tight tracking to cram long
-    // labels into a pill) is retired; resting states drop the pill entirely.
+    // §12 — the prior fit hack (font shrink to cram long labels into a status
+    // pill) is retired; resting states drop the pill entirely. The font-shrink
+    // guard stays. (Loose 0.04em tracking is now the mono condition-heading
+    // treatment shared with Contracts, so it is no longer forbidden here.)
     expect(page).not.toContain("text-[9px]");
-    expect(page).not.toContain("tracking-[0.04em]");
   });
 
   it("does not render the old horizon, ledger, saved queue, or diagnostic framing", () => {

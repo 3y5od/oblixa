@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FileSpreadsheet, UploadCloud } from "lucide-react";
+import { FileCheck2, FileSpreadsheet, UploadCloud } from "lucide-react";
 import { MAIN_CONTENT_ID } from "@/lib/qa/test-ids";
 import {
   DASHBOARD_PRIMARY_CTA,
@@ -86,54 +86,61 @@ export function DashboardStickyToolbar({
       aria-label="Dashboard quick actions"
       aria-hidden={!visible}
       style={box ? { left: box.left, width: box.width } : { left: 0, right: 0 }}
-      className={`fixed top-[var(--shell-topbar-h)] z-20 border-b border-[color:color-mix(in_oklab,var(--border-subtle)_75%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-raised)_92%,transparent)] shadow-[var(--shadow-1)] backdrop-blur-md transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none ${
+      className={`fixed top-[var(--shell-topbar-h)] z-20 border-b border-[color:var(--border-subtle)] bg-[color:color-mix(in_oklab,var(--surface-raised)_90%,transparent)] shadow-[0_6px_18px_-12px_color-mix(in_oklab,var(--text-primary)_30%,transparent)] backdrop-blur-md transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none ${
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none invisible -translate-y-2 opacity-0"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-[var(--shell-content-max)] items-center justify-between gap-3 px-4 py-2 md:px-6 xl:px-8">
-        {/* Left: condensed identity + live counts (parity with the header meta
-            chip; hidden on the narrowest screens so the actions never wrap). */}
-        <div className="hidden min-w-0 items-center gap-2 sm:flex">
-          <span className="ui-caps-2 shrink-0 text-[10px] text-[var(--text-tertiary)]">
+      <div className="mx-auto flex w-full max-w-[var(--shell-content-max)] items-center justify-between gap-3 px-4 py-2.5 md:px-6 xl:px-8">
+        {/* Left: route identity (icon + page title) the scrolled-away masthead no
+            longer shows, then the live counts. A clearer anchor so the bar reads as
+            this page's context, not a detached action strip (§4 route identity). */}
+        <div className="hidden min-w-0 items-center gap-2.5 sm:flex">
+          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[5px] border border-[color:color-mix(in_oklab,var(--accent)_22%,var(--border-subtle))] bg-[color:color-mix(in_oklab,var(--accent-soft)_36%,var(--surface-raised))] text-[var(--accent-strong)]">
+            <FileCheck2 className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+          </span>
+          <span className="shrink-0 text-[14px] font-bold tracking-tight text-[var(--text-primary)]">
             Contract tracking
           </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] border border-[color:color-mix(in_oklab,var(--border-subtle)_70%,transparent)] bg-[var(--surface)] px-2 py-0.5">
-            <span className="font-mono text-[11.5px] font-semibold tabular-nums text-[var(--text-primary)]">
-              {totalContracts}
-            </span>
-            <span className="ui-caps-2 text-[9.5px] text-[var(--text-tertiary)]">
-              {totalContracts === 1 ? "Contract" : "Contracts"}
-            </span>
+          <span aria-hidden className="h-4 w-px shrink-0 bg-[color:color-mix(in_oklab,var(--border-strong)_55%,transparent)]" />
+          {/* Live counts as deliberate inline status text, not boxed pills: the
+              contract total recedes; the needs-review count carries tone + a link. */}
+          <span className="shrink-0 text-[12.5px] font-medium text-[var(--text-tertiary)]">
+            <span className="font-semibold tabular-nums text-[var(--text-secondary)]">{totalContracts}</span>{" "}
+            {totalContracts === 1 ? "contract" : "contracts"}
           </span>
           {needsReview > 0 ? (
-            <Link
-              href="/contracts/review"
-              aria-label={`${needsReview} ${needsReview === 1 ? "contract" : "contracts"} needing review`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] border px-2 py-0.5 transition-colors hover:brightness-110"
-              style={{
-                borderColor:
-                  "color-mix(in oklab, var(--accent) 30%, var(--border-card))",
-                background:
-                  "color-mix(in oklab, var(--accent-soft) 14%, var(--surface-raised))",
-              }}
-            >
-              <span className="font-mono text-[11.5px] font-semibold tabular-nums text-[var(--accent-strong)]">
-                {needsReview}
-              </span>
-              <span className="ui-caps-2 text-[9.5px] text-[var(--accent-strong)]">
-                Needing review
-              </span>
-            </Link>
+            <>
+              <span aria-hidden className="text-[var(--text-tertiary)]">&middot;</span>
+              <Link
+                href="/contracts/review"
+                aria-label={`${needsReview} ${needsReview === 1 ? "contract" : "contracts"} needing review`}
+                className="inline-flex shrink-0 items-center gap-1.5 text-[12.5px] font-semibold text-[var(--warning-ink)] underline-offset-2 hover:underline"
+              >
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--warning-ink)]" />
+                <span className="tabular-nums">{needsReview}</span>
+                {needsReview === 1 ? "needs review" : "need review"}
+              </Link>
+            </>
           ) : null}
         </div>
 
         {/* Right: the intake actions that scroll out of reach with the page
-            header (Import / Upload). Search is intentionally NOT repeated here —
-            the global topbar search is sticky and always present, so a second
-            search affordance would be redundant chrome. */}
+            header. Order matches the masthead exactly — primary Upload first, then
+            secondary Import — so action order and prominence stay stable as the
+            page scrolls (§15 consistent primary action). Search is intentionally
+            NOT repeated here: the global topbar search is sticky and always
+            present, so a second search affordance would be redundant chrome. */}
         <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/contracts/new"
+            className="ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-[6px] px-3 py-1.5 text-[12px] font-semibold"
+          >
+            <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
+            <span className="hidden md:inline">{DASHBOARD_PRIMARY_CTA}</span>
+            <span className="md:hidden">Upload</span>
+          </Link>
           <Link
             href="/contracts/bulk"
             prefetch={false}
@@ -142,14 +149,6 @@ export function DashboardStickyToolbar({
             <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
             <span className="hidden md:inline">{DASHBOARD_SECONDARY_CTA}</span>
             <span className="md:hidden">Import</span>
-          </Link>
-          <Link
-            href="/contracts/new"
-            className="ui-btn-primary inline-flex items-center justify-center gap-1.5 rounded-[6px] px-3 py-1.5 text-[12px] font-semibold"
-          >
-            <UploadCloud className="h-3.5 w-3.5" strokeWidth={1.85} aria-hidden />
-            <span className="hidden md:inline">{DASHBOARD_PRIMARY_CTA}</span>
-            <span className="md:hidden">Upload</span>
           </Link>
         </div>
       </div>

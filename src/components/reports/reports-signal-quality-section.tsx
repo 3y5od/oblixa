@@ -41,3 +41,7 @@ export function ReportsV5SignalQualitySection(props: {
     </section>
   );
 }
+
+// Version-name compatibility aliases. Prefer neutral exports in new code.
+export { ReportsV5SignalQualitySection as ReportsSignalQualitySection };
+// End version-name compatibility aliases.

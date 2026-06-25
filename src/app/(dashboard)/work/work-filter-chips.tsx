@@ -39,8 +39,7 @@ export function WorkQuickFilterChip({
       href={href}
       aria-current={active ? "true" : undefined}
       aria-label={`${active ? "Clear filter:" : "Filter:"} ${text}. ${description}`}
-      title={description}
-      className="ui-chip-focus inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium leading-none transition-[background-color,border-color,box-shadow,transform] hover:brightness-[1.04] active:translate-y-px"
+      className="group relative ui-chip-focus inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium leading-none transition-[background-color,border-color,box-shadow,transform] hover:brightness-[1.04] active:translate-y-px"
       style={{
         borderColor: `color-mix(in oklab, ${ink} ${active ? "55%" : "30%"}, var(--border-card))`,
         background: `color-mix(in oklab, ${ink} ${active ? "20%" : "10%"}, var(--surface-raised))`,
@@ -50,6 +49,15 @@ export function WorkQuickFilterChip({
     >
       <span className="tabular-nums font-semibold">{value}</span>
       <span>{remainder}</span>
+      {/* Hover/focus definition — same styled tooltip as the Contracts condition
+          strip (the def is also in aria-label for assistive tech). */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute bottom-[calc(100%+7px)] left-0 z-30 w-max max-w-[16rem] rounded-md bg-[var(--text-primary)] px-2.5 py-1.5 text-[11px] font-normal leading-snug text-[var(--surface)] opacity-0 shadow-[var(--shadow-2)] transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+      >
+        {description}
+        <span className="absolute left-3 top-full h-2 w-2 -translate-y-1/2 rotate-45 bg-[var(--text-primary)]" />
+      </span>
     </Link>
   );
 }

@@ -76,7 +76,7 @@ describe("contracts page release-state surface", () => {
       "Status",
       "Next important date",
       "Review state",
-      "Tasks",
+      "Open tasks",
       "Last updated",
     ]) {
       expect(tableRaw).toContain(label);

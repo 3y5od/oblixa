@@ -112,9 +112,21 @@ export default async function WorkPage(props: {
       <DashboardPageHeader
         icon={<ListTodo className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.85} />}
         density="compact"
+        // The cobalt eyebrow is reserved for actions; the register overline reads
+        // in cool steel ink instead. Suppressed here and re-rendered as a steel
+        // kicker inside the lead so the page identity opens with ink, not accent
+        // (matches the Contracts header treatment).
         eyebrow={model.eyebrow}
+        suppressEyebrow
         title={WORK_PAGE_TITLE}
-        lead={WORK_LEAD}
+        lead={
+          <>
+            <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[var(--calculated-ink)]">
+              {model.eyebrow}
+            </span>
+            {WORK_LEAD}
+          </>
+        }
         actions={
           <>
             {showDecisionsCta ? (
@@ -159,8 +171,6 @@ export default async function WorkPage(props: {
         {model.create.open ? (
           <WorkCreateForm model={model} error={error} action={createWorkItemAction} />
         ) : null}
-
-        <WorkPaginationSummary model={model} />
 
         <WorkTable
           rows={model.rows}
@@ -208,48 +218,28 @@ function WorkFilters({
 }) {
   const chips = activeFilterChips(model);
 
+  // Subordinated filter band: a quiet caps label leads the controls so the row
+  // reads as a secondary refine-this-view region rather than a prominent wall of
+  // boxed dropdowns, and a thin muted backing keeps it visually below the queue
+  // (filter subordination). The dropdowns stay the shared FilterBar recipe.
   return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-3.5">
-      <WorkFilterForm
-        filters={model.filters}
-        filterOptions={model.filterOptions}
-        activeTab={model.activeTab}
-        sort={model.sort}
-        sortOptions={model.sortOptions}
-        keepCreateOpen={keepCreateOpen}
-        activeFilterCount={chips.length}
-        clearFiltersHref={buildWorkHref({ tab: model.activeTab, sort: model.sort, create: keepCreateOpen })}
-      />
+    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] bg-[color:color-mix(in_oklab,var(--surface-muted)_18%,transparent)] px-5 py-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="ui-caps-3 shrink-0 text-[9.5px] text-[var(--text-tertiary)]">Refine</span>
+        <div className="min-w-0 flex-1">
+          <WorkFilterForm
+            filters={model.filters}
+            filterOptions={model.filterOptions}
+            activeTab={model.activeTab}
+            sort={model.sort}
+            sortOptions={model.sortOptions}
+            keepCreateOpen={keepCreateOpen}
+            activeFilterCount={chips.length}
+            clearFiltersHref={buildWorkHref({ tab: model.activeTab, sort: model.sort, create: keepCreateOpen })}
+          />
+        </div>
+      </div>
       <ActiveWorkFilterChipList model={model} />
-    </div>
-  );
-}
-
-function WorkPaginationSummary({ model }: { model: WorkModel }) {
-  if (model.pagination.total === 0) {
-    return null;
-  }
-
-  return (
-    <div className="border-b border-[color:color-mix(in_oklab,var(--border-subtle)_85%,transparent)] px-5 py-2">
-      <p className="text-[12px] text-[var(--text-tertiary)]">
-        Showing{" "}
-        <span className="font-semibold tabular-nums text-[var(--text-secondary)]">
-          {model.pagination.total}
-        </span>{" "}
-        {model.pagination.total === 1 ? "active task" : "active tasks"}
-        {model.visibleContractCount > 0 ? (
-          <>
-            {" "}
-            across{" "}
-            <span className="font-semibold tabular-nums text-[var(--text-secondary)]">
-              {model.visibleContractCount}
-            </span>{" "}
-            {model.visibleContractCount === 1 ? "contract" : "contracts"}
-          </>
-        ) : null}
-        .
-      </p>
     </div>
   );
 }

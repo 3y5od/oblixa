@@ -12,6 +12,7 @@ src/app/api/contact/route.ts
 
 # meta: owner=@security expiry=2027-12-31 reason=operator access-review console is intentionally cross-tenant pre-workspace; OBLIXA_OPERATOR_EMAILS and sensitive-action proof gate mutations, and changes record access request events.
 src/app/operator/access-requests/page.tsx
+src/lib/operator/access-requests-actions.ts
 
 # meta: owner=@billing expiry=2027-12-31 reason=retention cleanup deletes old Stripe webhook idempotency rows globally by timestamp rather than tenant scope.
 src/app/api/cron/stripe-webhook-events/route.ts

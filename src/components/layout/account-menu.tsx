@@ -59,7 +59,7 @@ export function AccountMenu({
           className="ui-account-trigger ui-chip-focus group"
         >
           <span
-            className="ui-avatar-tile h-[var(--shell-avatar-size)] w-[var(--shell-avatar-size)] rounded-[0.6rem] text-[12px] font-semibold"
+            className="ui-avatar-tile h-[var(--shell-avatar-size)] w-[var(--shell-avatar-size)] rounded-full text-[12px] font-semibold"
             aria-hidden
           >
             {initial}
@@ -76,7 +76,7 @@ export function AccountMenu({
       )}
     >
       <div className="flex items-start gap-2.5 px-2 py-2">
-        <span className="ui-avatar-tile h-9 w-9 rounded-[0.7rem] text-[13px] font-semibold" aria-hidden>
+        <span className="ui-avatar-tile h-9 w-9 rounded-full text-[13px] font-semibold" aria-hidden>
           {initial}
         </span>
         <div className="min-w-0">
