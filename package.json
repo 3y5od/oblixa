@@ -967,7 +967,7 @@
     "junit-report-merger": "9.0.3",
     "tailwindcss": "^4.3.0",
     "typescript": "^5",
-    "undici": "^7.25.0",
+    "undici": "^7.29.0",
     "vitest": "^4.1.6",
     "yaml": "^2.9.0"
   },
