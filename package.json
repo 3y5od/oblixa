@@ -968,7 +968,7 @@
     "tailwindcss": "^4.3.0",
     "typescript": "^5",
     "undici": "^7.25.0",
-    "vitest": "^4.1.6",
+    "vitest": "^4.1.11",
     "yaml": "^2.9.0"
   },
   "overrides": {
